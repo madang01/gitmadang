@@ -23,9 +23,8 @@ import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -44,7 +43,7 @@ import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(FreeSizeOutputStream.class);
 
-	private final ArrayList<WrapBuffer> outputStreamWrapBufferList = new ArrayList<WrapBuffer>();;
+	private final ArrayDeque<WrapBuffer> outputStreamWrapBufferQueue = new ArrayDeque<WrapBuffer>();;
 	private ByteOrder streamByteOrder = null;
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
@@ -84,7 +83,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		// outputStreamWrapBufferList = new ArrayList<WrapBuffer>();
 		WrapBuffer wrapBuffer = dataPacketBufferPool.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
-		outputStreamWrapBufferList.add(wrapBuffer);
+		outputStreamWrapBufferQueue.add(wrapBuffer);
 		
 		byte twoBytes[] = new byte[2];
 		shortBuffer = ByteBuffer.wrap(twoBytes);
@@ -105,13 +104,11 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	 * 랩 버퍼 확보 실패시 이전에 등록한 랩 버퍼 목록을 해제해 주는 메소드
 	 */
 	private void freeDataPacketBufferList() {
-		if (null != outputStreamWrapBufferList) {
-			for (WrapBuffer outputStreamWrapBuffer : outputStreamWrapBufferList) {
-				//log.info("return the outputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", outputStreamWrapBuffer.hashCode());
-				
+		if (null != outputStreamWrapBufferQueue) {
+			while (! outputStreamWrapBufferQueue.isEmpty()) {
+				WrapBuffer outputStreamWrapBuffer = outputStreamWrapBufferQueue.removeFirst();
 				dataPacketBufferPool.putDataPacketBuffer(outputStreamWrapBuffer);
 			}
-			outputStreamWrapBufferList.clear();
 		}
 	}
 
@@ -129,7 +126,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 			System.exit(1);
 		}
 
-		if (outputStreamWrapBufferList.size() == dataPacketBufferMaxCount) {
+		if (outputStreamWrapBufferQueue.size() == dataPacketBufferMaxCount) {
 			String errorMessage = String.format(
 					"this output stream is full. maximum number of data packet buffers=[%d]", dataPacketBufferMaxCount);
 			// log.warn();
@@ -146,7 +143,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		}
 
 		workBuffer = newWrapBuffer.getByteBuffer();
-		outputStreamWrapBufferList.add(newWrapBuffer);
+		outputStreamWrapBufferQueue.add(newWrapBuffer);
 	}
 
 	private void doPutBytes(ByteBuffer src) throws BufferOverflowException, SinnoriBufferOverflowException,
@@ -812,7 +809,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	public long getNumberOfWrittenBytes() {
 		long numberOfWrittenBytes = 0;
 
-		for (WrapBuffer buffer : outputStreamWrapBufferList) {
+		for (WrapBuffer buffer : outputStreamWrapBufferQueue) {
 			// numberOfWrittenBytes += buffer.getByteBuffer().position();
 			
 			ByteBuffer dupByteBuffer = buffer.getByteBuffer().duplicate();
@@ -823,22 +820,22 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		return numberOfWrittenBytes;
 	}
 
-	public List<WrapBuffer> getReadableWrapBufferList() {
+	public ArrayDeque<WrapBuffer> getReadableWrapBufferQueue() {
 		changeReadableWrapBufferList();
 
-		return outputStreamWrapBufferList;
+		return outputStreamWrapBufferQueue;
 	}
 	
 	public void changeReadableWrapBufferList() {
 		/** flip all buffer */
-		for (WrapBuffer outputStreamWrapBuffer : outputStreamWrapBufferList) {
+		for (WrapBuffer outputStreamWrapBuffer : outputStreamWrapBufferQueue) {
 			outputStreamWrapBuffer.getByteBuffer().flip();
 		}
 	}
 	
 	
-	public List<WrapBuffer> getOutputStreamWrapBufferList() {
-		return outputStreamWrapBufferList;
+	public ArrayDeque<WrapBuffer> getOutputStreamWrapBufferList() {
+		return outputStreamWrapBufferQueue;
 	}	
 
 	@Override

@@ -10,9 +10,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
-import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
-import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPool;
+import kr.pe.sinnori.client.connection.asyn.mailbox.SyncMailboxForAsynPrivate;
+import kr.pe.sinnori.client.connection.asyn.share.SyncMailboxMapperForAsynPublic;
+import kr.pe.sinnori.client.connection.asyn.share.SyncMailboxPoolForAsynPublic;
 import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
@@ -27,9 +27,9 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 	
 		int socketTimeOut = 500;
 		
-		AsynPrivateMailboxMapper asynMailboxMapper = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);
+		SyncMailboxMapperForAsynPublic asynMailboxMapper = new SyncMailboxMapperForAsynPublic(totalNumberOfAsynMailbox, socketTimeOut);
 		
-		AsynPrivateMailbox asynPrivateMailbox = (AsynPrivateMailbox)asynMailboxMapper.getAsynMailbox(1);
+		SyncMailboxForAsynPrivate asynPrivateMailbox = (SyncMailboxForAsynPrivate)asynMailboxMapper.getAsynMailbox(1);
 		
 		WrapReadableMiddleObject wrapReadableMiddleObject = 
 				new WrapReadableMiddleObject("Echo", 1, Integer.MIN_VALUE, new Object());
@@ -82,12 +82,12 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 		
 		int socketTimeOut = 500;
 		
-		AsynPrivateMailboxMapper asynMailboxMapper = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);
+		SyncMailboxMapperForAsynPublic asynMailboxMapper = new SyncMailboxMapperForAsynPublic(totalNumberOfAsynMailbox, socketTimeOut);
 		
 		
 		int maxSleepingTime = 5000;		
 		
-		AsynPrivateMailboxPool asynPrivateMailboxPool = new AsynPrivateMailboxPool(asynMailboxMapper);
+		SyncMailboxPoolForAsynPublic asynPrivateMailboxPool = new SyncMailboxPoolForAsynPublic(asynMailboxMapper);
 		
 		for (int i=0; i < numbmerOfAsynPrivateMailboxProducerThread; i++) {
 			AsynPrivateMailboxProducerThread asynPrivateMailboxProducerThread 

@@ -1,6 +1,6 @@
 package kr.pe.sinnori.common.etc;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -12,7 +12,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
  * 어디까지 확인했으며 그중 실패한 결과는 무엇이다 라는 정보로 대체하여 용량을 줄였지만 아래와 같은 제약 사항을 갖는 LongBitset 구현 클래스이다.
  * 
  * - 제약 사항 -
- * LongBitset 에 비해서 저장 용량이 작지만 (1) 실패가 너무 많은 경우, 즉 {@link #failedIndexList} 크기 제약에 걸린 경우 
+ * LongBitset 에 비해서 저장 용량이 작지만 (1) 실패가 너무 많은 경우, 즉 {@link #failedIndexQueue} 크기 제약에 걸린 경우 
  * (2) 이빨이 빠진채로 작업이 너무 많이 진행될 경우, 즉 {@link #reservedIndexList} 크기 제약이 걸린 경우
  * FullListException 예외를 던진다.
  * 
@@ -31,7 +31,7 @@ public class LimitedLongBitSet {
 	private long lastCheckedIndex = -1L;
 	
 	private long workingLastCheckedIndex = -1L;	
-	private ArrayList<Long> failedIndexList = new ArrayList<Long>();
+	private LinkedList<Long> failedIndexQueue = new LinkedList<Long>();
 
 	public LimitedLongBitSet(long maxBitNumber) {
 		if (maxBitNumber <= 0) {
@@ -139,12 +139,12 @@ public class LimitedLongBitSet {
 		
 			if (isDuplicated(bitIndex)) {
 				
-					if (! failedIndexList.contains(bitIndex)) {				
+					if (! failedIndexQueue.contains(bitIndex)) {				
 						String errorMessge = String.format("the parameter bitIndex[%d] is an already processed bit index, it is less than or equalst to workingLastCheckedIndex[%d]", bitIndex, workingLastCheckedIndex);
 						throw new BadBitSetIndexException(errorMessge);
 					}			
 					
-					failedIndexList.remove(bitIndex);
+					failedIndexQueue.remove(bitIndex);
 				
 				log.info("the paramter bitIndex[{}] is removed at failedIndexList because of success", bitIndex);
 			} else {
@@ -166,7 +166,7 @@ public class LimitedLongBitSet {
 		synchronized (monitor) {
 			throwExceptionIfNotNextBitSetIndex(bitIndex);
 			
-			int failedIndexListSize = failedIndexList.size();
+			int failedIndexListSize = failedIndexQueue.size();
 			if (failedIndexListSize >= maxSizeOfFailedIndexList) {
 				String errorMessage = String.format("error::when the bitIndex[%d] is processed, the size of failedIndexList[%d] has rearched its maximum value[%d]", bitIndex, failedIndexListSize, maxSizeOfFailedIndexList);
 				throw new FailedListFullException(errorMessage);
@@ -176,7 +176,7 @@ public class LimitedLongBitSet {
 			workingLastCheckedIndex = bitIndex;				
 			
 			
-			failedIndexList.add(bitIndex);
+			failedIndexQueue.add(bitIndex);
 		}
 		
 		log.info("add bitIndex[{}] to failedIndexList", bitIndex);
@@ -187,7 +187,7 @@ public class LimitedLongBitSet {
 		throwExceptionIfIndexOutOfBound(bitIndex);
 		
 		synchronized (monitor) {
-			boolean isSuccess = ((bitIndex <= workingLastCheckedIndex) && !failedIndexList.contains(bitIndex));
+			boolean isSuccess = ((bitIndex <= workingLastCheckedIndex) && !failedIndexQueue.contains(bitIndex));
 			/*
 			if (bitIndex <= workingLastCheckedIndex) {
 				isSuccess  = !failedIndexList.contains(bitIndex);
@@ -221,7 +221,7 @@ public class LimitedLongBitSet {
 			return false;
 		}
 		
-		if (failedIndexList.equals(other.failedIndexList)) {
+		if (failedIndexQueue.equals(other.failedIndexQueue)) {
 			return false;
 		}
 				
@@ -236,7 +236,7 @@ public class LimitedLongBitSet {
 		long checkedIndexCount = workingLastCheckedIndex + 1;
 		
 		
-		return checkedIndexCount - failedIndexList.size();
+		return checkedIndexCount - failedIndexQueue.size();
 	}
 	
 	public final long getLastCheckedIndex() {

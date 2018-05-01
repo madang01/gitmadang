@@ -18,8 +18,8 @@
 package kr.pe.sinnori.server.task;
 
 import java.nio.channels.SocketChannel;
+import java.util.ArrayDeque;
 import java.util.LinkedList;
-import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -105,7 +105,7 @@ public class ToLetterCarrier {
 			NoMoreDataPacketBufferException, 
 			BodyFormatException, 
 			HeaderFormatException {
-		List<WrapBuffer> wrapBufferListOfSelfExn = messageProtocol.M2S(selfExnRes, CommonStaticFinalVars.SELFEXN_ENCODER);
+		ArrayDeque<WrapBuffer> wrapBufferListOfSelfExn = messageProtocol.M2S(selfExnRes, CommonStaticFinalVars.SELFEXN_ENCODER);
 	
 		ToLetter toLetter = new ToLetter(toSC, 
 				selfExnRes.getMessageID(),
@@ -120,7 +120,7 @@ public class ToLetterCarrier {
 			MessageProtocolIF messageProtocol) throws InterruptedException {
 		String messageIDToClient = outputMessage.getMessageID();
 	
-		List<WrapBuffer> wrapBufferList = null;		
+		ArrayDeque<WrapBuffer> wrapBufferList = null;		
 		
 		MessageCodecIF messageServerCodec = null;
 		try {

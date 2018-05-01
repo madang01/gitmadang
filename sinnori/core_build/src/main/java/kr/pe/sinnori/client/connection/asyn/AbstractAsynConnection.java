@@ -17,11 +17,11 @@
 package kr.pe.sinnori.client.connection.asyn;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayDeque;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReader;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -81,10 +81,10 @@ public abstract class AbstractAsynConnection extends AbstractConnection implemen
 			DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 
-		inObj.messageHeaderInfo.mailboxID = AsynPublicMailbox.getMailboxID();
-		inObj.messageHeaderInfo.mailID = AsynPublicMailbox.getNextMailID();
+		inObj.messageHeaderInfo.mailboxID = AsynMailbox.getMailboxID();
+		inObj.messageHeaderInfo.mailID = AsynMailbox.getNextMailID();
 
-		List<WrapBuffer> wrapBufferListOfInputMessage = clientMessageUtility.buildReadableWrapBufferList(classLoader,
+		ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = clientMessageUtility.buildReadableWrapBufferList(classLoader,
 				inObj);
 
 		ToLetter toLetter = new ToLetter(serverSC, inObj.getMessageID(), inObj.messageHeaderInfo.mailboxID,

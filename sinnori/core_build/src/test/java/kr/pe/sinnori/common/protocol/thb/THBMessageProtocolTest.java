@@ -10,7 +10,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
 import java.util.Date;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -98,7 +97,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		for (int i=0; i < retryCount; i++) {			
 			long beforeLocalTime= new Date().getTime();			
 			
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = thbMessageProtocol.M2S(selfExnReq, selfExnEncoder);
 			} catch (Exception e) {
@@ -242,7 +241,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		for (int i=0; i < retryCount; i++) {			
 			long beforeLocalTime= new Date().getTime();			
 			
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = thbMessageProtocol.M2S(emptyReq, emptyEncoder);
 			} catch (Exception e) {

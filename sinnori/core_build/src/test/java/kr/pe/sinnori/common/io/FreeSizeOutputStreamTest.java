@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.List;
+import java.util.ArrayDeque;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,23 +21,23 @@ import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 	
 
-	private void checkValidFlippedWrapBufferList(List<WrapBuffer> flippedWrapBufferList) {
-		if (null == flippedWrapBufferList) {
-			fail("the parameter flippedWrapBufferList is null");
+	private void checkValidFlippedWrapBufferQueue(ArrayDeque<WrapBuffer> flippedWrapBufferQueue) {
+		if (null == flippedWrapBufferQueue) {
+			fail("the parameter flippedWrapBufferQueue is null");
 		}
-		if (0 == flippedWrapBufferList.size()) {
-			fail("the parameter flippedWrapBufferList is empty");
+		if (0 == flippedWrapBufferQueue.size()) {
+			fail("the parameter flippedWrapBufferQueue is empty");
 		}
 
-		int flippedWrapBufferListSize = flippedWrapBufferList.size();
-
-		for (int i = 0; i < flippedWrapBufferListSize; i++) {
-			WrapBuffer flippedWrapBuffer = flippedWrapBufferList.get(i);
+		int i=0;
+		for (WrapBuffer flippedWrapBuffer : flippedWrapBufferQueue) {
 
 			if (!flippedWrapBuffer.getByteBuffer().hasRemaining()) {
 				String errorMessage = String.format("the flippedWrapBufferList index[%d]' buffer has no data", i);
 				fail(errorMessage);
 			}
+			
+			i++;
 		}
 	}
 
@@ -218,13 +218,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					checkNumberOfWrittenBytes(1, fsos);
 
-					List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+					ArrayDeque<WrapBuffer> flippedWrapBufferQueue = fsos.getReadableWrapBufferQueue();
 
-					checkValidFlippedWrapBufferList(flippedWrapBufferList);
+					checkValidFlippedWrapBufferQueue(flippedWrapBufferQueue);
 
 					long outputStreamSize = fsos.size();
 					if (outputStreamSize <= dataPacketBufferSize) {
-						WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+						WrapBuffer workingWrapBuffer = flippedWrapBufferQueue.removeFirst();
 						ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 						/** warning! the duplicate method doesn't copy the byte order attribute */
 						dupBuffer.order(streamByteOrder);
@@ -238,7 +238,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 								streamByteOrder, expectedValue);
 					}
 
-					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
+					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferQueue,
 							streamCharsetDecoder, dataPacketBufferPool);
 
 					actualValue = fsis.getByte();
@@ -371,13 +371,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					checkNumberOfWrittenBytes(1, fsos);
 
-					List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+					ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-					checkValidFlippedWrapBufferList(flippedWrapBufferList);
+					checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 					long outputStreamSize = fsos.size();
 					if (outputStreamSize <= dataPacketBufferSize) {
-						WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+						WrapBuffer workingWrapBuffer = flippedWrapBufferList.peekFirst();
 						ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 						/** the duplicate method doesn't copy the byte order attribute */
 						dupBuffer.order(streamByteOrder);
@@ -534,13 +534,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					checkNumberOfWrittenBytes(2, fsos);
 
-					List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+					ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-					checkValidFlippedWrapBufferList(flippedWrapBufferList);
+					checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 					long outputStreamSize = fsos.size();
 					if (outputStreamSize <= dataPacketBufferSize) {
-						WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+						WrapBuffer workingWrapBuffer = flippedWrapBufferList.removeFirst();
 						ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 						/** the duplicate method doesn't copy the byte order attribute */
 						dupBuffer.order(streamByteOrder);
@@ -692,13 +692,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					checkNumberOfWrittenBytes(2, fsos);
 
-					List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+					ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-					checkValidFlippedWrapBufferList(flippedWrapBufferList);
+					checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 					long outputStreamSize = fsos.size();
 					if (outputStreamSize <= dataPacketBufferSize) {
-						WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+						WrapBuffer workingWrapBuffer = flippedWrapBufferList.removeFirst();
 						ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 						/** the duplicate method doesn't copy the byte order attribute */
 						dupBuffer.order(streamByteOrder);
@@ -848,13 +848,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					checkNumberOfWrittenBytes(4, fsos);
 
-					List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+					ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-					checkValidFlippedWrapBufferList(flippedWrapBufferList);
+					checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 					long outputStreamSize = fsos.size();
 					if (outputStreamSize <= dataPacketBufferSize) {
-						WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+						WrapBuffer workingWrapBuffer = flippedWrapBufferList.removeFirst();
 						ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 						/** warning! the duplicate method doesn't copy the byte order attribute */
 						dupBuffer.order(streamByteOrder);
@@ -1005,13 +1005,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					checkNumberOfWrittenBytes(4, fsos);
 
-					List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+					ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-					checkValidFlippedWrapBufferList(flippedWrapBufferList);
+					checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 					long outputStreamSize = fsos.size();
 					if (outputStreamSize <= dataPacketBufferSize) {
-						WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+						WrapBuffer workingWrapBuffer = flippedWrapBufferList.removeFirst();
 						ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 						/** warning! the duplicate method doesn't copy the byte order attribute */
 						dupBuffer.order(streamByteOrder);
@@ -1164,13 +1164,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					checkNumberOfWrittenBytes(8, fsos);
 
-					List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+					ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-					checkValidFlippedWrapBufferList(flippedWrapBufferList);
+					checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 					long outputStreamSize = fsos.size();
 					if (outputStreamSize <= dataPacketBufferSize) {
-						WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+						WrapBuffer workingWrapBuffer = flippedWrapBufferList.removeFirst();
 						ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 						/** warning! the duplicate method doesn't copy the byte order attribute */
 						dupBuffer.order(streamByteOrder);
@@ -1718,10 +1718,10 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					fail(errorMessage);
 				}
 
-				List<WrapBuffer> wrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> wrapBufferList = fsos.getReadableWrapBufferQueue();
 
 				if (outputStreamSize <= dataPacketBufferSize) {
-					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
+					WrapBuffer workingWrapBuffer = wrapBufferList.removeFirst();
 					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 					/** warning! the duplicate method doesn't copy the byte order attribute */
 					dupBuffer.order(streamByteOrder);
@@ -1794,10 +1794,10 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					fail(errorMessage);
 				}
 
-				List<WrapBuffer> wrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> wrapBufferList = fsos.getReadableWrapBufferQueue();
 
 				if (outputStreamSize <= dataPacketBufferSize) {
-					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
+					WrapBuffer workingWrapBuffer = wrapBufferList.removeFirst();
 					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 					/** warning! the duplicate method doesn't copy the byte order attribute */
 					dupBuffer.order(streamByteOrder);
@@ -1868,10 +1868,10 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					fail(errorMessage);
 				}
 
-				List<WrapBuffer> wrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> wrapBufferList = fsos.getReadableWrapBufferQueue();
 
 				if (outputStreamSize <= dataPacketBufferSize) {
-					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
+					WrapBuffer workingWrapBuffer = wrapBufferList.removeFirst();
 					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 					/** warning! the duplicate method doesn't copy the byte order attribute */
 					dupBuffer.order(streamByteOrder);
@@ -2156,9 +2156,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(fixedLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -2200,9 +2200,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(fixedLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -2270,14 +2270,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(fixedLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				long outputStreamSize = fsos.size();
 
 				if (outputStreamSize <= dataPacketBufferSize) {
-					WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+					WrapBuffer workingWrapBuffer = flippedWrapBufferList.removeFirst();
 					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 					/** warning! the duplicate method doesn't copy the byte order attribute */
 					dupBuffer.order(streamByteOrder);
@@ -2345,14 +2345,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(fixedLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				long outputStreamSize = fsos.size();
 
 				if (outputStreamSize <= dataPacketBufferSize) {
-					WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+					WrapBuffer workingWrapBuffer = flippedWrapBufferList.removeFirst();
 					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 					/** warning! the duplicate method doesn't copy the byte order attribute */
 					dupBuffer.order(streamByteOrder);
@@ -2560,9 +2560,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(excpectedBytes.length, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -2603,9 +2603,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(excpectedBytes.length, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -2818,9 +2818,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(excpectedBytes.length + numberOfBytesLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -2863,9 +2863,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(excpectedBytes.length + numberOfBytesLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -3077,9 +3077,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				// log.info("fsos.size={}", fsos.size());
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -3127,9 +3127,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				// log.info("fsos.size={}", fsos.size());
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -3339,9 +3339,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(excpectedBytes.length + numberOfBytesLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -3384,9 +3384,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(excpectedBytes.length + numberOfBytesLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -3602,9 +3602,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				// log.info("fsos.size={}", fsos.size());
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -3648,9 +3648,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				// log.info("fsos.size={}", fsos.size());
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -3860,9 +3860,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(excpectedBytes.length + numberOfBytesLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -3905,9 +3905,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				checkNumberOfWrittenBytes(excpectedBytes.length + numberOfBytesLength, fsos);
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -4055,9 +4055,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				// log.info("fsos.size={}", fsos.size());
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -4101,9 +4101,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				// log.info("fsos.size={}", fsos.size());
 
-				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -4162,9 +4162,9 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 			checkNumberOfWrittenBytes(dataPacketBufferSize * dataPacketBufferMaxCount, fsos);
 
-			List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+			ArrayDeque<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferQueue();
 
-			checkValidFlippedWrapBufferList(flippedWrapBufferList);
+			checkValidFlippedWrapBufferQueue(flippedWrapBufferList);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
 			log.warn(errorMessage, e);

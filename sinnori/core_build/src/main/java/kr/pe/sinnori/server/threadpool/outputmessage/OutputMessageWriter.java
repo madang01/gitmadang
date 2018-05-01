@@ -22,7 +22,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,47 +68,46 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 		
 		try {
 			while (! isInterrupted()) {
-				ToLetter toLetter = null;
-				
-				toLetter = outputMessageQueue.take();
-				
+				ToLetter toLetter = outputMessageQueue.take();				
 				
 				//log.info("toLetter={}", toLetter.toString());
 
 				SocketChannel toSC = toLetter.getToSC();
-				List<WrapBuffer> warpBufferList = toLetter.getWrapBufferList();
+				ArrayDeque<WrapBuffer> warpBufferQueue = toLetter.getWrapBufferList();
 				Selector writeEventOnlySelector = null;
+				WrapBuffer workingWrapBuffer = null;
 
 				try {
 					writeEventOnlySelector = Selector.open();
-					
-					int indexOfWorkingBuffer = 0;
-					int warpBufferListSize = warpBufferList.size();
-					
 					toSC.register(writeEventOnlySelector, SelectionKey.OP_WRITE);
 					
-					WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
-					ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
-					boolean loop = true;
-					do {
-						@SuppressWarnings("unused")
-						int numberOfKeys =  writeEventOnlySelector.select();
+					while (! warpBufferQueue.isEmpty()) {
+						workingWrapBuffer = warpBufferQueue.removeFirst();
+						ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
 						
-						writeEventOnlySelector.selectedKeys().clear();
-						
-						toSC.write(workingByteBuffer);
-						
-						if (! workingByteBuffer.hasRemaining()) {
-							if ((indexOfWorkingBuffer+1) == warpBufferListSize) {
-								loop = false;
-								break;
+						boolean loop = true;
+						do {
+							int numberOfKeys =  writeEventOnlySelector.select();
+							if (numberOfKeys > 0) {
+								Set<SelectionKey> selectedKeySet = writeEventOnlySelector.selectedKeys();
+								selectedKeySet.clear();
+								
+								toSC.write(workingByteBuffer);
+								
+								if (! workingByteBuffer.hasRemaining()) {
+									dataPacketBufferPool.putDataPacketBuffer(workingWrapBuffer);
+									
+									if (warpBufferQueue.isEmpty()) {
+										workingWrapBuffer = null;
+										break;
+									}
+									
+									workingWrapBuffer = warpBufferQueue.removeFirst();
+									workingByteBuffer = workingWrapBuffer.getByteBuffer();
+								}
 							}
-							indexOfWorkingBuffer++;
-							workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
-							workingByteBuffer = workingWrapBuffer.getByteBuffer();
-						}
-					} while (loop);
-					
+						} while (loop);
+					}
 				} catch (IOException e) {
 					String errorMessage = new StringBuilder("fail to write a output message, ")
 							.append(projectName)
@@ -121,11 +121,16 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 					
 					try {
 						toSC.close();
-					} catch (IOException e1) {						
+					} catch (IOException e1) {
+						log.warn("fail to close the socket channel[{}] when IOException occurred", toSC.hashCode());
 					}
 				} finally {
-					for (WrapBuffer wrapBuffer : warpBufferList) {
-						dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
+					if (null != workingWrapBuffer) {
+						dataPacketBufferPool.putDataPacketBuffer(workingWrapBuffer);
+					}
+					while (! warpBufferQueue.isEmpty()) {
+						workingWrapBuffer = warpBufferQueue.removeFirst();
+						dataPacketBufferPool.putDataPacketBuffer(workingWrapBuffer);
 					}
 					
 					if (null != writeEventOnlySelector) {

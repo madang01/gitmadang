@@ -22,6 +22,7 @@ import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +45,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	protected InternalLogger log = InternalLoggerFactory.getInstance(FreeSizeInputStream.class);
 
 	private int dataPacketBufferMaxCount;
-	private List<WrapBuffer> readableWrapBufferList = null;
+	private ArrayDeque<WrapBuffer> readableWrapBufferList = null;
 	protected int readableWrapBufferListSize;
 	protected List<ByteBuffer> streamBufferList = null;
 	private Charset streamCharset;
@@ -66,7 +67,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private ByteBuffer intBuffer = null;
 	private ByteBuffer longBuffer = null;
 
-	public FreeSizeInputStream(int dataPacketBufferMaxCount, List<WrapBuffer> readableWrapBufferList,
+	public FreeSizeInputStream(int dataPacketBufferMaxCount, ArrayDeque<WrapBuffer> readableWrapBufferList,
 			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolIF dataPacketBufferPool) {
 		if (dataPacketBufferMaxCount <= 0) {
 			String errorMessage = String.format(

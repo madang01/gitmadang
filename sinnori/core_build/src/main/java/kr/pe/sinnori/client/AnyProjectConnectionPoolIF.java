@@ -48,4 +48,6 @@ public interface AnyProjectConnectionPoolIF {
 		
 	public AbstractConnection createConnection(String host, int port)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException;
+	
+	public String getPoolState();
 }

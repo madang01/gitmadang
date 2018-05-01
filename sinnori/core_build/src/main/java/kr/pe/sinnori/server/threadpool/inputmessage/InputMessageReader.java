@@ -169,13 +169,14 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 			try {
 				notRegistedSocketChannel.register(selectorForReadEventOnly, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
-				log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", projectName, index,
+				log.warn("{} InputMessageReader[{}] socket channel[{}] failed to register with a read only selector", 
+						projectName, index,
 						notRegistedSocketChannel.hashCode());
 
 				SocketResource failedSocketResource = socketResourceManager.getSocketResource(notRegistedSocketChannel);
 				if (null == failedSocketResource) {
 					log.warn(
-							"this scToAsynConnectionHash contains no mapping for the key[{}] that is the socket channel failed to be registered with the given selector",
+							"there is no a mapping socket-resource for this socket channel[{}] that failed to register with a read only selector",
 							notRegistedSocketChannel.hashCode());
 				} else {
 					failedSocketResource.close();
@@ -196,122 +197,125 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 			while (!isInterrupted()) {
 				processNewConnection();
 				int selectionKeyCount = selectorForReadEventOnly.select();
+				
+				if (0 == selectionKeyCount) {
+					continue;
+				}
+				
+				Set<SelectionKey> selectedKeySet = selectorForReadEventOnly.selectedKeys();
 
-				if (selectionKeyCount > 0) {
-					Set<SelectionKey> selectedKeySet = selectorForReadEventOnly.selectedKeys();
+				for (SelectionKey selectedKey : selectedKeySet) {
+					SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
 
-					for (SelectionKey selectedKey : selectedKeySet) {
-						SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
+					// FIXME!
+					// log.info("{} InputMessageReader[{}] selectedSocketChannel[{}]", projectName,
+					// index, selectedSocketChannel.hashCode());
 
-						// FIXME!
-						// log.info("{} InputMessageReader[{}] selectedSocketChannel[{}]", projectName,
-						// index, selectedSocketChannel.hashCode());
+					// ByteBuffer lastInputStreamBuffer = null;
+					SocketResource fromSocketResource = socketResourceManager
+							.getSocketResource(selectedSocketChannel);
 
-						// ByteBuffer lastInputStreamBuffer = null;
-						SocketResource fromSocketResource = socketResourceManager
-								.getSocketResource(selectedSocketChannel);
+					if (null == fromSocketResource) {
+						log.warn("{} InputMessageReader[{}] this socket channel[{}] resoruce was not found",
+								projectName, index, selectedSocketChannel.hashCode());
+						continue;
+					}
 
-						if (null == fromSocketResource) {
-							log.warn("{} InputMessageReader[{}] this socket channel[{}] resoruce was not found",
+					// log.info("getNumberOfSocketResources={}",
+					// socketResourceManager.getNumberOfSocketResources());
+
+					SocketOutputStream fromSocketOutputStream = fromSocketResource.getSocketOutputStream();
+					ServerExecutorIF fromExecutor = fromSocketResource.getExecutor();
+
+					try {
+						/*
+						 * lastInputStreamBuffer = clientSocketInputStream.getLastDataPacketBuffer();
+						 * 
+						 * do { numRead = readableSocketChannel.read(lastInputStreamBuffer); if (numRead
+						 * < 1) break;
+						 * 
+						 * if (!lastInputStreamBuffer.hasRemaining()) { if
+						 * (!clientSocketInputStream.canNextDataPacketBuffer()) break;
+						 * lastInputStreamBuffer = clientSocketInputStream.nextDataPacketBuffer(); } }
+						 * while(true);
+						 */
+
+						numRead = fromSocketOutputStream.read(selectedSocketChannel);
+
+						if (numRead == -1) {
+							log.warn("{} InputMessageReader[{}] this socket channel[{}] has reached end-of-stream",
 									projectName, index, selectedSocketChannel.hashCode());
+							closeClient(selectedKey, fromSocketResource);
 							continue;
 						}
 
-						// log.info("getNumberOfSocketResources={}",
-						// socketResourceManager.getNumberOfSocketResources());
+						fromSocketResource.setFinalReadTime();
 
-						SocketOutputStream fromSocketOutputStream = fromSocketResource.getSocketOutputStream();
-						ServerExecutorIF fromExecutor = fromSocketResource.getExecutor();
+						messageProtocol
+								.S2MList(fromSocketOutputStream, wrapReadableMiddleObjectQueue);
 
-						try {
-							/*
-							 * lastInputStreamBuffer = clientSocketInputStream.getLastDataPacketBuffer();
-							 * 
-							 * do { numRead = readableSocketChannel.read(lastInputStreamBuffer); if (numRead
-							 * < 1) break;
-							 * 
-							 * if (!lastInputStreamBuffer.hasRemaining()) { if
-							 * (!clientSocketInputStream.canNextDataPacketBuffer()) break;
-							 * lastInputStreamBuffer = clientSocketInputStream.nextDataPacketBuffer(); } }
-							 * while(true);
-							 */
-
-							numRead = fromSocketOutputStream.read(selectedSocketChannel);
-
-							if (numRead == -1) {
-								log.warn("{} InputMessageReader[{}] this socket channel[{}] has reached end-of-stream",
-										projectName, index, selectedSocketChannel.hashCode());
-								closeClient(selectedKey, fromSocketResource);
-								continue;
-							}
-
-							fromSocketResource.setFinalReadTime();
-
-							messageProtocol
-									.S2MList(fromSocketOutputStream, wrapReadableMiddleObjectQueue);
-
-							// final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
+						// final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
+						
+						
+						while(! wrapReadableMiddleObjectQueue.isEmpty()) {
+							WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.pollFirst();
+							wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
 							
-							
-							while(! wrapReadableMiddleObjectQueue.isEmpty()) {
-								WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.pollFirst();
-								wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
-								
-								try {
-									fromExecutor.putIntoQueue(wrapReadableMiddleObject);
-								} catch (InterruptedException e) {
-									log.info("1.drop the input message[{}] becase of InterruptedException",
+							try {
+								fromExecutor.putIntoQueue(wrapReadableMiddleObject);
+							} catch (InterruptedException e) {
+								log.info("1.drop the input message[{}] becase of InterruptedException",
+										wrapReadableMiddleObject.toString());
+
+								wrapReadableMiddleObject.closeReadableMiddleObject();
+
+								// i++;
+
+								while(! wrapReadableMiddleObjectQueue.isEmpty()) {
+									wrapReadableMiddleObject = wrapReadableMiddleObjectQueue
+											.pollFirst();
+
+									wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
+
+									log.info(
+											"2.drop the input message[{}] becase of InterruptedException",
 											wrapReadableMiddleObject.toString());
 
 									wrapReadableMiddleObject.closeReadableMiddleObject();
-
-									// i++;
-
-									while(! wrapReadableMiddleObjectQueue.isEmpty()) {
-										wrapReadableMiddleObject = wrapReadableMiddleObjectQueue
-												.pollFirst();
-
-										wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
-
-										log.info(
-												"2.drop the input message[{}] becase of InterruptedException",
-												wrapReadableMiddleObject.toString());
-
-										wrapReadableMiddleObject.closeReadableMiddleObject();
-									}
-									throw e;
 								}
-
+								throw e;
 							}
-													
 
-						} catch (NoMoreDataPacketBufferException e) {
-							String errorMessage = new StringBuilder()
-									.append(projectName)
-									.append(" InputMessageReader[")
-									.append(index)
-									.append("] NoMoreDataPacketBufferException::")
-									.append(e.getMessage()).toString();
-									
-							log.warn(errorMessage, e);
-							closeClient(selectedKey, fromSocketResource);
-							continue;
-						} catch (IOException e) {
-							String errorMessage = new StringBuilder()
-									.append(projectName)
-									.append(" InputMessageReader[")
-									.append(index)
-									.append("] IOException::")
-									.append(e.getMessage()).toString();
-							
-							log.warn(errorMessage, e);
-							closeClient(selectedKey, fromSocketResource);
-							continue;
 						}
-					}
+												
 
-					selectedKeySet.clear();
+					} catch (NoMoreDataPacketBufferException e) {
+						String errorMessage = new StringBuilder()
+								.append(projectName)
+								.append(" InputMessageReader[")
+								.append(index)
+								.append("] NoMoreDataPacketBufferException::")
+								.append(e.getMessage()).toString();
+								
+						log.warn(errorMessage, e);
+						closeClient(selectedKey, fromSocketResource);
+						continue;
+					} catch (IOException e) {
+						String errorMessage = new StringBuilder()
+								.append(projectName)
+								.append(" InputMessageReader[")
+								.append(index)
+								.append("] IOException::")
+								.append(e.getMessage()).toString();
+						
+						log.warn(errorMessage, e);
+						closeClient(selectedKey, fromSocketResource);
+						continue;
+					}
 				}
+
+				selectedKeySet.clear();
+				
 			}
 
 			log.warn("{} InputMessageReader[{}] loop exit", projectName, index);
@@ -326,7 +330,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private void closeClient(SelectionKey selectedKey, SocketResource fromSocketResource) {
 		SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
 
-		log.info("close the socket[{}]", selectedSocketChannel.hashCode());
+		log.info("close the read only selector registed socket[{}]", selectedSocketChannel.hashCode());
 
 		selectedKey.cancel();
 

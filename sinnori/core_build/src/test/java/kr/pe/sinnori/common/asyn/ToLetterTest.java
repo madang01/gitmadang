@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
-import java.util.List;
+import java.util.ArrayDeque;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -87,7 +87,7 @@ public class ToLetterTest {
 		String messageID=null;
 		int mailboxID=0;
 		int mailID=0;
-		List<WrapBuffer> wrapBufferList = null;
+		ArrayDeque<WrapBuffer> wrapBufferList = null;
 		
 		try {
 			new ToLetter(toSC, messageID, mailboxID, mailID, wrapBufferList);
@@ -115,7 +115,7 @@ public class ToLetterTest {
 		String messageID=null;
 		int mailboxID=0;
 		int mailID=0;
-		List<WrapBuffer> wrapBufferList = null;
+		ArrayDeque<WrapBuffer> wrapBufferList = null;
 		
 		try {
 			new ToLetter(toSC, messageID, mailboxID, mailID, wrapBufferList);

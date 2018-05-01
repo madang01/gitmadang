@@ -25,7 +25,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -170,7 +169,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	}
 
 	@Override
-	public List<WrapBuffer> M2S(AbstractMessage inputMessage, AbstractMessageEncoder messageEncoder)
+	public ArrayDeque<WrapBuffer> M2S(AbstractMessage inputMessage, AbstractMessageEncoder messageEncoder)
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		if (null == inputMessage) {
 			throw new IllegalArgumentException("the parameter inputMessage is null");
@@ -228,7 +227,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 		dhbMessageHeader.bodySize = bodyOutputStream.size();
 
-		List<WrapBuffer> readableWrapBufferListOfBodyOutputStream = bodyOutputStream.getReadableWrapBufferList();
+		ArrayDeque<WrapBuffer> readableWrapBufferListOfBodyOutputStream = bodyOutputStream.getReadableWrapBufferQueue();
 		if (0 == dhbMessageHeader.bodySize) {
 			dhbMessageHeader.bodyMD5Bytes = new byte[CommonStaticFinalVars.MD5_BYTESIZE];
 			Arrays.fill(dhbMessageHeader.bodyMD5Bytes, CommonStaticFinalVars.ZERO_BYTE);
@@ -268,7 +267,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		
 		//log.info("5");
 		
-		List<WrapBuffer> wrapBufferListOfHeaderOutputStream = headerOutputStream.getOutputStreamWrapBufferList();
+		ArrayDeque<WrapBuffer> wrapBufferListOfHeaderOutputStream = headerOutputStream.getOutputStreamWrapBufferList();
 		
 		md5.reset();
 		{

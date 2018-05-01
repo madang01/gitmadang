@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
 
@@ -47,6 +48,10 @@ public final class ConnectionPoolManager {
 	
 	private String mainPorjectName = null;
 	
+	private AnyProjectConnectionPoolMonitor anyProjectConnectionPoolMonitor = null;
+	
+	
+	
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class ClientProjectManagerHolder {
 		static final ConnectionPoolManager singleton = new ConnectionPoolManager();
@@ -65,13 +70,13 @@ public final class ConnectionPoolManager {
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
-		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
+		ProjectPartConfiguration mainProjectPartConfiguration = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
 		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
 		
-		mainPorjectName = mainProjectPart.getProjectName();
+		mainPorjectName = mainProjectPartConfiguration.getProjectName();
 		
 		try {
-			mainProjectConnectionPool = new AnyProjectConnectionPool(mainProjectPart);
+			mainProjectConnectionPool = new AnyProjectConnectionPool(mainProjectPartConfiguration);
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("fail to initialize a main project connection pool[")
 					.append(mainPorjectName).append("]").toString();
@@ -94,6 +99,14 @@ public final class ConnectionPoolManager {
 				 System.exit(1);
 			}
 		}
+		
+		anyProjectConnectionPoolMonitor = new AnyProjectConnectionPoolMonitor(
+				mainPorjectName,
+				mainProjectPartConfiguration.getClientMonitorTimeInterval(),
+				mainProjectConnectionPool,
+				subProjectNamelist,
+				subProjectConnectionPoolHash);
+		anyProjectConnectionPoolMonitor.start();
 	}
 	
 	/**
@@ -134,5 +147,62 @@ public final class ConnectionPoolManager {
 		}
 		
 		return mainProjectConnectionPool;
+	}
+	
+	private class AnyProjectConnectionPoolMonitor extends Thread {	
+		private String mainProjectName = null;
+		private long monitorTimeInterval;		
+		private AnyProjectConnectionPoolIF mainProjectConnectionPool = null;
+		private List<String> subProjectNamelist = null;
+		private HashMap<String, AnyProjectConnectionPoolIF> subProjectConnectionPoolHash = null;		
+		
+		public AnyProjectConnectionPoolMonitor(String mainProjectName,
+				long monitorTimeInterval,				
+				AnyProjectConnectionPoolIF mainProjectConnectionPool,
+				List<String> subProjectNamelist,
+				HashMap<String, AnyProjectConnectionPoolIF> subProjectConnectionPoolHash) {
+			this.mainProjectName = mainProjectName;
+			this.monitorTimeInterval = monitorTimeInterval;			
+			this.mainProjectConnectionPool = mainProjectConnectionPool;
+			this.subProjectNamelist = subProjectNamelist;
+			this.subProjectConnectionPoolHash = subProjectConnectionPoolHash;
+		}
+		
+		@Override
+		public void run() {
+			log.info("AnyProjectConnectionPoolMonitor start");
+			try {
+				while (!Thread.currentThread().isInterrupted()) {
+					log.info(getPoolState());					
+					Thread.sleep(monitorTimeInterval);
+				}
+			} catch(InterruptedException e) {
+				log.info("AnyProjectConnectionPoolMonitor::interrupr");
+			} catch(Exception e) {
+				log.info("AnyProjectConnectionPoolMonitor::unknow error", e);
+			}
+			log.info("AnyProjectConnectionPoolMonitor end");
+		}
+		
+		private String getPoolState() {
+			StringBuilder pollStateStringBuilder = new StringBuilder();
+			pollStateStringBuilder.append("main projectName[");
+			pollStateStringBuilder.append(mainProjectName);
+			pollStateStringBuilder.append("]'s AnyProjectConnectionPool state");
+			pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			pollStateStringBuilder.append(mainProjectConnectionPool.getPoolState());
+			
+			for (String subProjectName : subProjectNamelist) {
+				AnyProjectConnectionPoolIF subProjectConnectionPool = subProjectConnectionPoolHash.get(subProjectName);
+				
+				pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				pollStateStringBuilder.append("sub projectName[");
+				pollStateStringBuilder.append(subProjectName);
+				pollStateStringBuilder.append("]'s AnyProjectConnectionPool state");
+				pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				pollStateStringBuilder.append(subProjectConnectionPool.getPoolState());
+			}
+			return pollStateStringBuilder.toString();
+		}
 	}
 }

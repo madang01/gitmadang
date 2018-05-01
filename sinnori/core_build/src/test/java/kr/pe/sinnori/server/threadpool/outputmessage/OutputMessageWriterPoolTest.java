@@ -349,7 +349,12 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 			fail("no IllegalStateException");
 		} catch(IllegalStateException e) {
 			String errorMessage = e.getMessage();
-			String exepecedErrorMessage = String.format("can't add any more tasks becase the number of %s OutputMessageWriterPool's tasks reached the maximum[%d] number", projectName, poolMaxSize);
+			String exepecedErrorMessage = 
+					new StringBuilder("can't add a OutputMessageWriter in the project[")
+					.append(projectName)
+					.append("] becase the number of OutputMessageWriter is maximum[")
+					.append(poolMaxSize)
+					.append("]").toString();
 			
 			assertEquals(exepecedErrorMessage, errorMessage);
 		} catch (Exception e) {

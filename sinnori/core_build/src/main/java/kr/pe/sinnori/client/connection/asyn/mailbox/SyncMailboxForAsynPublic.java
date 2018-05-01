@@ -1,19 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package kr.pe.sinnori.client.connection.asyn.mailbox;
 
 import java.net.SocketTimeoutException;
@@ -25,8 +9,8 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
-public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
-	private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailbox.class);
+public class SyncMailboxForAsynPublic implements SyncMailboxIF {
+	private InternalLogger log = InternalLoggerFactory.getInstance(SyncMailboxForAsynPublic.class);
 
 	private final Object monitor = new Object();
 
@@ -36,7 +20,7 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 
 	private transient int mailID = Integer.MIN_VALUE;
 	
-	public AsynPrivateMailbox(int mailboxID, long socketTimeOut) {
+	public SyncMailboxForAsynPublic(int mailboxID, long socketTimeOut) {
 		if (0 == mailboxID) {
 			String errorMessage = String
 					.format("the parameter mailboxID[%d] is equal to zero that is a public mail box's id", mailboxID);
@@ -90,11 +74,7 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 		if (null == wrapReadableMiddleObject) {
 			throw new IllegalArgumentException("the parameter wrapReadableMiddleObject is null");
 		}
-		// log.info("putToSyncOutputMessageQueue::{}",
-		// wrapReadableMiddleObject.toString());
-		// synchronized (monitor) {
-		// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
-
+		
 		int fromMailboxID = wrapReadableMiddleObject.getMailboxID();
 		if (mailboxID != fromMailboxID) {
 			log.warn("drop the received letter[{}][{}] because it's mailbox id is different form this mailbox id[{}]",
@@ -123,9 +103,7 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 			if (null != oldWrapReadableMiddleObject) {
 				log.warn(
 						"clear the old received message[{}] from the ouputmessage queue of this mailbox[mailID={}] becase new message recevied",
-						wrapReadableMiddleObject.toString(), mailID);
-				
-				// WrapReadableMiddleObject oldWrapReadableMiddleObject = oldFromLetter.getWrapReadableMiddleObject();
+						wrapReadableMiddleObject.toString(), mailID);				
 				oldWrapReadableMiddleObject.closeReadableMiddleObject();
 			}
 		}
@@ -184,7 +162,7 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("AsynPrivateMailbox [mailboxID=");
+		builder.append("SyncMailboxForAsynPublic [mailboxID=");
 		builder.append(mailboxID);
 		builder.append(", mailID=");
 		builder.append(mailID);

@@ -2,16 +2,16 @@ package kr.pe.sinnori.client.connection.asyn.share;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
+import kr.pe.sinnori.client.connection.asyn.mailbox.SyncMailboxForAsynPublic;
+import kr.pe.sinnori.client.connection.asyn.mailbox.SyncMailboxIF;
 
-public class AsynPrivateMailboxMapper implements AsynPrivateMailboxMapperIF {
+public class SyncMailboxMapperForAsynPublic implements SyncMailboxMapperForAsynPublicIF {
 	@SuppressWarnings("unused")
-	private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailboxMapper.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SyncMailboxMapperForAsynPublic.class);
 	
-	private AsynPrivateMailboxIF[] asynPrivateMailboxs = null;
+	private SyncMailboxIF[] syncMailboxs = null;
 	
-	public AsynPrivateMailboxMapper(int totalNumberOfAsynPrivateMailboxs, 
+	public SyncMailboxMapperForAsynPublic(int totalNumberOfAsynPrivateMailboxs, 
 			long socketTimeOut) {
 		if (totalNumberOfAsynPrivateMailboxs < 1) {
 			String errorMessage = String
@@ -25,32 +25,32 @@ public class AsynPrivateMailboxMapper implements AsynPrivateMailboxMapperIF {
 			throw new IndexOutOfBoundsException(errorMessage);
 		}
 		
-		asynPrivateMailboxs = new AsynPrivateMailbox[totalNumberOfAsynPrivateMailboxs+1];
+		syncMailboxs = new SyncMailboxForAsynPublic[totalNumberOfAsynPrivateMailboxs+1];
 		
 		// AsynPublicMailbox asynPublicMailbox = new AsynPublicMailbox(socketTimeOut, outputMessageQueue);
 		
-		for (int mailboxID=1; mailboxID < asynPrivateMailboxs.length; mailboxID++) {
-			AsynPrivateMailbox asynPrivateMailbox = new AsynPrivateMailbox(mailboxID, socketTimeOut);
-			asynPrivateMailboxs[mailboxID] = asynPrivateMailbox;
+		for (int mailboxID=1; mailboxID < syncMailboxs.length; mailboxID++) {
+			SyncMailboxForAsynPublic syncMailboxForAsynPublic = new SyncMailboxForAsynPublic(mailboxID, socketTimeOut);
+			syncMailboxs[mailboxID] = syncMailboxForAsynPublic;
 		}
 	}
 	
-	public AsynPrivateMailboxIF getAsynMailbox(int mailboxID) {
+	public SyncMailboxIF getAsynMailbox(int mailboxID) {
 		if (mailboxID <= 0) {
 			String errorMessage = String.format("the parameter mailboxID[%d] is less than or equal to zero", mailboxID);
 			throw new IndexOutOfBoundsException(errorMessage);
 		}
 		
-		if (mailboxID >= asynPrivateMailboxs.length) {
+		if (mailboxID >= syncMailboxs.length) {
 			String errorMessage = String.format("the parameter mailboxID[%d] is out of range(1 ~ [%d])", 
-					mailboxID, asynPrivateMailboxs.length - 1);
+					mailboxID, syncMailboxs.length - 1);
 			throw new IndexOutOfBoundsException(errorMessage);
 		}
 		
-		return asynPrivateMailboxs[mailboxID];
+		return syncMailboxs[mailboxID];
 	}
 	
 	public int getTotalNumberOfAsynPrivateMailboxs() {
-		return (asynPrivateMailboxs.length - 1);
+		return (syncMailboxs.length - 1);
 	}
 }

@@ -91,9 +91,10 @@ public abstract class AbstractConnection {
 	
 	
 	private void doConnect() throws IOException {
-		Selector connectionEventOnlySelector = Selector.open();
-
+		Selector connectionEventOnlySelector = null;
 		try {
+			connectionEventOnlySelector = Selector.open();
+			
 			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
 
 			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
@@ -105,18 +106,33 @@ public abstract class AbstractConnection {
 				
 				// if (selectedKeySet.isEmpty()) {
 				if (0 == numberOfKeys) {
-					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
+					String errorMessage = new StringBuilder()
+							.append("1.the socket[sc hascode=")
+							.append(serverSC.hashCode())
+							.append("] timeout").toString();
 					throw new SocketTimeoutException(errorMessage);
 				}				
 
 				if (!serverSC.finishConnect()) {
-					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
-							serverSC.hashCode());
+					String errorMessage = new StringBuilder()
+							.append("the socket[sc hascode=")
+							.append(serverSC.hashCode())
+							.append("] failed to finish a connection").toString();
+					
 					throw new SocketTimeoutException(errorMessage);
 				}
 			}
+		} catch(Exception e) {
+			close();
+			throw e;
 		} finally {
-			connectionEventOnlySelector.close();
+			if (null != connectionEventOnlySelector) {
+				try {
+					connectionEventOnlySelector.close();
+				} catch(IOException e) {
+					log.warn("fail to close a connection only selector");
+				}
+			}
 		}
 
 		log.info("{} connection[{}] {}:{} connected", 
@@ -157,7 +173,8 @@ public abstract class AbstractConnection {
 
 	/** isOpen & isConnected */
 	public boolean isConnected() {
-		return serverSC.isOpen() && serverSC.isConnected();
+		// return serverSC.isOpen() && serverSC.isConnected();
+		return serverSC.isConnected();
 	}
 	
 	

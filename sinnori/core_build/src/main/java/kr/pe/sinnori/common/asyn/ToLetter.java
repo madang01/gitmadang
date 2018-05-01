@@ -18,7 +18,7 @@
 package kr.pe.sinnori.common.asyn;
 
 import java.nio.channels.SocketChannel;
-import java.util.List;
+import java.util.ArrayDeque;
 
 import kr.pe.sinnori.common.io.WrapBuffer;
 
@@ -27,10 +27,9 @@ public class ToLetter {
 	private String messageID = null;
 	private int mailboxID;
 	private int mailID;
-	private List<WrapBuffer> wrapBufferList = null;
+	private ArrayDeque<WrapBuffer> wrapBufferList = null;	
 
-
-	public ToLetter(SocketChannel toSC, String messageID, int mailboxID, int mailID, List<WrapBuffer> wrapBufferList) {
+	public ToLetter(SocketChannel toSC, String messageID, int mailboxID, int mailID, ArrayDeque<WrapBuffer> wrapBufferList) {
 		if (null == toSC) {
 			throw new IllegalArgumentException("the parameter toSC is null");
 		}
@@ -50,6 +49,7 @@ public class ToLetter {
 		this.wrapBufferList = wrapBufferList;
 	}
 	
+	
 	public int getMailboxID() {
 		return mailboxID;
 	}
@@ -66,9 +66,10 @@ public class ToLetter {
 		return toSC;
 	}
 	
-	public List<WrapBuffer> getWrapBufferList() {
+	public ArrayDeque<WrapBuffer> getWrapBufferList() {
 		return wrapBufferList;
 	}
+
 
 	@Override
 	public String toString() {

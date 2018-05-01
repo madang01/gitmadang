@@ -18,12 +18,12 @@ package kr.pe.sinnori.client.connection.asyn.share;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.List;
+import java.util.ArrayDeque;
 
 import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
+import kr.pe.sinnori.client.connection.asyn.mailbox.SyncMailboxIF;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
@@ -39,8 +39,8 @@ import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 
 
 public class AsynPublicConnection extends AbstractAsynConnection {
-	private AsynPrivateMailboxMapperIF asynPrivateMailboxMapper = null;
-	private AsynPrivateMailboxPoolIF asynPrivateMailboxPool = null;
+	private SyncMailboxMapperForAsynPublicIF asynPrivateMailboxMapper = null;
+	private SyncMailboxPoolForAsynPublicIF asynPrivateMailboxPool = null;
 	
 	private boolean isDropped = false;
 	public boolean isDropped() {
@@ -53,7 +53,7 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 
 	public AsynPublicConnection(ConnectionFixedParameter connectionFixedParameter,
 			AsynSocketResourceIF asynSocketResource,
-			AsynPrivateMailboxPoolIF asynPrivateMailboxPool)
+			SyncMailboxPoolForAsynPublicIF asynPrivateMailboxPool)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
 		super(connectionFixedParameter, 
 				asynSocketResource);
@@ -67,8 +67,6 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 
 	@Override
 	public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
-		// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
-
 		if (wrapReadableMiddleObject.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
 			
 			
@@ -82,7 +80,7 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 		} else {
 
 			int mailboxID = wrapReadableMiddleObject.getMailboxID();
-			AsynPrivateMailboxIF asynPrivateMailbox = null;
+			SyncMailboxIF asynPrivateMailbox = null;
 			try {
 				asynPrivateMailbox = asynPrivateMailboxMapper.getAsynMailbox(mailboxID);
 			} catch (IndexOutOfBoundsException e) {
@@ -107,7 +105,7 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 
-		AsynPrivateMailboxIF asynPrivateMailbox = asynPrivateMailboxPool.poll(socketTimeOut);
+		SyncMailboxIF asynPrivateMailbox = asynPrivateMailboxPool.poll(socketTimeOut);
 
 		if (null == asynPrivateMailbox) {
 			String errorMessage = String.format("입력 메시지[%s] 처리시 지정한 시간안에 개인 메일함 가져오기 실패", inObj.getMessageID());
@@ -119,7 +117,7 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 			inObj.messageHeaderInfo.mailboxID = asynPrivateMailbox.getMailboxID();
 			inObj.messageHeaderInfo.mailID = asynPrivateMailbox.getMailID();
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = clientMessageUtility
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = clientMessageUtility
 					.buildReadableWrapBufferList(classLoader, inObj);
 
 			// writeInputMessageToSocketChannel(serverSC, wrapBufferListOfInputMessage);
@@ -145,6 +143,10 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 		}
 
 		return outObj;
+	}
+	
+	public int getSyncMailboxSize() {
+		return asynPrivateMailboxPool.getSize();
 	}
 
 	@Override

@@ -6,8 +6,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
-import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
+import kr.pe.sinnori.client.connection.asyn.mailbox.SyncMailboxIF;
+import kr.pe.sinnori.client.connection.asyn.share.SyncMailboxMapperForAsynPublic;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
@@ -15,10 +15,10 @@ public class AsynPrivateMailboxCustomerThread extends Thread {
 private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailboxProducerThread.class);	
 	
 	private int maxSleepingTime = 0;
-	private AsynPrivateMailboxMapper asynMailboxMapper = null;
+	private SyncMailboxMapperForAsynPublic asynMailboxMapper = null;
 	private ArrayBlockingQueue<ToLetter> toLetterQueue = null;
 	
-	public AsynPrivateMailboxCustomerThread(int maxSleepingTime, AsynPrivateMailboxMapper asynMailboxMapper, 
+	public AsynPrivateMailboxCustomerThread(int maxSleepingTime, SyncMailboxMapperForAsynPublic asynMailboxMapper, 
 			ArrayBlockingQueue<ToLetter> toLetterQueue) {
 		if (maxSleepingTime < 0) {
 			String errorMessage = String.format("the parameter maxSleepingTime[%d] is less than zero", maxSleepingTime);
@@ -55,7 +55,7 @@ private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailbo
 				
 				int mailboxID = toLetter.getMailboxID();
 				
-				AsynPrivateMailboxIF asynMailbox = asynMailboxMapper.getAsynMailbox(mailboxID);
+				SyncMailboxIF asynMailbox = asynMailboxMapper.getAsynMailbox(mailboxID);
 				
 				//log.info("AsynPrivateMailboxCustomerThread::asynMailbox={}", asynMailbox.toString());
 				

@@ -3,6 +3,7 @@ package kr.pe.sinnori.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import kr.pe.sinnori.common.classloader.SimpleClassLoader;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 
 public class ServerTaskObjectInfo {
@@ -17,6 +18,10 @@ public class ServerTaskObjectInfo {
 	}
 	
 	public boolean isModifed() throws FileNotFoundException {
+		/** 클래스로더가 SimpleClassLoader 가 아니라면 해당 클래스는 시스템 클래스로더 대상이므로 수정 여부는 무조건 거짓(=false)으로 반환한다  */
+		if (! (serverTask.getClass().getClassLoader() instanceof SimpleClassLoader)) {
+			return false;
+		}
 		if (! serverTaskClassFile.exists()) {
 			String errorMessage = new StringBuilder("the server task file[")
 					.append(serverTaskClassFile.getAbsolutePath())

@@ -37,12 +37,12 @@ import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.noshare.AsynPrivateConnection;
 import kr.pe.sinnori.client.connection.asyn.noshare.AsynPrivateConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.noshare.AsynPrivateConnectionPoolParameter;
-import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolFactory;
-import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolFactoryIF;
-import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolIF;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPublicConnection;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPublicConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPublicConnectionPoolParameter;
+import kr.pe.sinnori.client.connection.asyn.share.SyncMailboxPoolFactoryForAsynPublicIF;
+import kr.pe.sinnori.client.connection.asyn.share.SyncMailboxPoolFactoryForAysnPublic;
+import kr.pe.sinnori.client.connection.asyn.share.SyncMailboxPoolForAsynPublicIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManager;
 import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManagerIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorPool;
@@ -57,6 +57,7 @@ import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateSocketResourceFac
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
@@ -103,7 +104,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 
 	/** 비동기 방식에서 사용되는 변수 시작 */
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
-	private AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory = null;
+	private SyncMailboxPoolFactoryForAsynPublicIF asynPrivateMailboxPoolFactory = null;
 	/** 비동기 방식에서 사용되는 변수 종료 */
 
 	/** 동기 방식에서 사용되는 변수 시작 */
@@ -118,7 +119,9 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	private InputMessageWriterPool inputMessageWriterPool = null;
 	private OutputMessageReaderPool outputMessageReaderPool = null;
 	private ClientExecutorPool clientExecutorPool = null;
-
+	
+	
+	
 	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		log.info("call AnyProjectConnectionPool constructor");
@@ -217,7 +220,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			outputMessageReaderPool.startAll();
 
 			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_PUBLIC)) {
-				asynPrivateMailboxPoolFactory = new AsynPrivateMailboxPoolFactory(
+				asynPrivateMailboxPoolFactory = new SyncMailboxPoolFactoryForAysnPublic(
 						projectPartConfiguration.getClientAsynPirvateMailboxCntPerPublicConnection(),
 						projectPartConfiguration.getClientSocketTimeout());
 
@@ -237,14 +240,10 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 				connectionPool = new AsynPrivateConnectionPool(asynPrivateConnectionPoolParameter,
 						connectionFixedParameter);
 			}
-
 		}
-
-		/*
-		 * clientProjectMonitor = new ClientProjectMonitor( clientMonitorTimeInterval,
-		 * clientMonitorReceptionTimeout); clientProjectMonitor.start();
-		 */
 	}
+	
+	
 
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException,
@@ -321,7 +320,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 
 			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_PUBLIC)) {
 				
-				AsynPrivateMailboxPoolIF asynPrivateMailboxPool
+				SyncMailboxPoolForAsynPublicIF asynPrivateMailboxPool
 					=	asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();	
 				
 				try {
@@ -368,6 +367,19 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			throw new NotSupportedException(errorMessage);
 		}
 		return ieoClientThreadPoolSetManager;
+	}	
+	
+	
+	
+	public String getPoolState() {
+		StringBuilder pollStateStringBuilder = new StringBuilder();		
+		pollStateStringBuilder.append("the size[");
+		pollStateStringBuilder.append(dataPacketBufferPool.size());
+		pollStateStringBuilder.append("] of DataPacketBufferPool[");
+		pollStateStringBuilder.append(dataPacketBufferPool.getDataPacketBufferPoolSize());
+		pollStateStringBuilder.append("]");
+		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pollStateStringBuilder.append(connectionPool.getPoolState());
+		return pollStateStringBuilder.toString();
 	}
-
 }

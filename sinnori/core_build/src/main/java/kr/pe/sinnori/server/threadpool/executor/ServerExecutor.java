@@ -188,7 +188,6 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 		try {
 		inputMessageQueue.put(wrapReadableMiddleObject);
 		} catch(InterruptedException e) {
-			// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 			log.info("drop the input message[{}] becase of InterruptedException", wrapReadableMiddleObject.toString());
 			throw e;
 		}

@@ -4,7 +4,7 @@ import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
-public interface AsynPrivateMailboxIF {
+public interface SyncMailboxIF {
 	public int getMailboxID();
 	public int getMailID();
 	

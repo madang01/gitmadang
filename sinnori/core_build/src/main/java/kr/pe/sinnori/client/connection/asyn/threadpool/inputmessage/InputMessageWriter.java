@@ -22,7 +22,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,41 +81,46 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 				
 				SocketChannel toSC = toLetter.getToSC();
 				
-				List<WrapBuffer> warpBufferList = toLetter.getWrapBufferList();
-				Selector writeEventOnlySelector = null;				
+				ArrayDeque<WrapBuffer> warpBufferQueue = toLetter.getWrapBufferList();
+				Selector writeEventOnlySelector = null;
+				WrapBuffer workingWrapBuffer = null;
+				
 				try {
 					writeEventOnlySelector = Selector.open();
-					
-					int warpBufferListSize = warpBufferList.size();
-					int indexOfWorkingBuffer = 0;
-					
 					toSC.register(writeEventOnlySelector, SelectionKey.OP_WRITE);
+					
+					while (! warpBufferQueue.isEmpty()) {
+						workingWrapBuffer = warpBufferQueue.removeFirst();
+						ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
 						
-					WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
-					ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
-					boolean loop = true;
-					do {
-						int numberOfKeys =  writeEventOnlySelector.select(socketTimeOut);
-						if (0 == numberOfKeys) {
-							String errorMessage = new StringBuilder("this socket channel[")
-									.append(toLetter.toString())
-									.append("] timeout").toString();
-							throw new SocketTimeoutException(errorMessage);
-						}						
-						writeEventOnlySelector.selectedKeys().clear();
-						
-						toSC.write(workingByteBuffer);
-						
-						if (! workingByteBuffer.hasRemaining()) {
-							if ((indexOfWorkingBuffer+1) == warpBufferListSize) {
-								loop = false;
-								break;
+						boolean loop = true;
+						do {
+							int numberOfKeys =  writeEventOnlySelector.select(socketTimeOut);
+							if (0 == numberOfKeys) {
+								String errorMessage = new StringBuilder("this socket channel[")
+										.append(toLetter.toString())
+										.append("] timeout").toString();
+								throw new SocketTimeoutException(errorMessage);
+							}	
+							
+							Set<SelectionKey> selectedKeySet = writeEventOnlySelector.selectedKeys();
+							selectedKeySet.clear();
+							
+							toSC.write(workingByteBuffer);
+							
+							if (! workingByteBuffer.hasRemaining()) {
+								clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
+								
+								if (warpBufferQueue.isEmpty()) {
+									workingWrapBuffer = null;
+									break;
+								}
+								
+								workingWrapBuffer = warpBufferQueue.removeFirst();
+								workingByteBuffer = workingWrapBuffer.getByteBuffer();
 							}
-							indexOfWorkingBuffer++;
-							workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
-							workingByteBuffer = workingWrapBuffer.getByteBuffer();
-						}
-					} while (loop);
+						} while (loop);						
+					}					
 				} catch(IOException e) {
 					String errorMessage = String.format("%s InputMessageWriter[%d] toLetter=[%s], errmsg=%s",
 							projectName, index, toLetter.toString(), e.getMessage());
@@ -149,11 +155,15 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 					WrapReadableMiddleObject wrapReadableMiddleObject 
 					= new WrapReadableMiddleObject(toLetter.getMessageID(), 
 							toLetter.getMailboxID(), toLetter.getMailID(), selfExnRes);
-					
-					// FromLetter fromLetter = new FromLetter(toLetter.getToSC(), wrapReadableMiddleObject);
 					asynConnection.putToOutputMessageQueue(wrapReadableMiddleObject);
 				} finally {
-					clientMessageUtility.releaseWrapBufferList(warpBufferList);
+					if (null != workingWrapBuffer) {
+						clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
+					}
+					while (! warpBufferQueue.isEmpty()) {
+						workingWrapBuffer = warpBufferQueue.removeFirst();
+						clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
+					}
 					
 					if (null != writeEventOnlySelector) {
 						try {
@@ -198,7 +208,11 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 			inputMessageQueue.put(toLetter);
 		} catch(InterruptedException e) {
 			log.info("drop the input message[{}]", toLetter.toString());
-			clientMessageUtility.releaseWrapBufferList(toLetter.getWrapBufferList());
+			
+			ArrayDeque<WrapBuffer> warpBufferQueue = toLetter.getWrapBufferList();			
+			while (! warpBufferQueue.isEmpty()) {
+				clientMessageUtility.releaseWrapBuffer(warpBufferQueue.removeFirst());
+			}
 			
 			throw e;
 		}

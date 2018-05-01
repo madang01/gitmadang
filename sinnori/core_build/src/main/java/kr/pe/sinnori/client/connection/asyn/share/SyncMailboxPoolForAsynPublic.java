@@ -3,17 +3,17 @@ package kr.pe.sinnori.client.connection.asyn.share;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
+import kr.pe.sinnori.client.connection.asyn.mailbox.SyncMailboxIF;
 
-public class AsynPrivateMailboxPool implements AsynPrivateMailboxPoolIF {
+public class SyncMailboxPoolForAsynPublic implements SyncMailboxPoolForAsynPublicIF {
 	// private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxPool.class);
 	// private final Object monitor = new Object();	
 	
-	private ArrayBlockingQueue<AsynPrivateMailboxIF> asynPrivateMailboxQueue = null;
+	private ArrayBlockingQueue<SyncMailboxIF> asynPrivateMailboxQueue = null;
 	
-	private AsynPrivateMailboxMapperIF asynPrivateMailboxMapper = null;
+	private SyncMailboxMapperForAsynPublicIF asynPrivateMailboxMapper = null;
 
-	public AsynPrivateMailboxPool(AsynPrivateMailboxMapperIF asynPrivateMailboxMapper) {
+	public SyncMailboxPoolForAsynPublic(SyncMailboxMapperForAsynPublicIF asynPrivateMailboxMapper) {
 		if (null == asynPrivateMailboxMapper) {
 			throw new IllegalArgumentException("the parameter asynPrivateMailboxMapper is null");
 		}
@@ -23,7 +23,7 @@ public class AsynPrivateMailboxPool implements AsynPrivateMailboxPoolIF {
 		int totalNumberOfAsynPrivateMailboxs = asynPrivateMailboxMapper.getTotalNumberOfAsynPrivateMailboxs();
 		
 		this.asynPrivateMailboxQueue 
-		= new ArrayBlockingQueue<AsynPrivateMailboxIF>(totalNumberOfAsynPrivateMailboxs);
+		= new ArrayBlockingQueue<SyncMailboxIF>(totalNumberOfAsynPrivateMailboxs);
 		
 		
 		for (int mailboxID=1; mailboxID <= totalNumberOfAsynPrivateMailboxs; mailboxID++) {
@@ -31,16 +31,20 @@ public class AsynPrivateMailboxPool implements AsynPrivateMailboxPoolIF {
 		}
 	}
 	
-	public AsynPrivateMailboxIF poll(long timeout) throws InterruptedException {
+	public SyncMailboxIF poll(long timeout) throws InterruptedException {
 		return asynPrivateMailboxQueue.poll(timeout, TimeUnit.MILLISECONDS);
 	}
 	
-	public boolean offer(AsynPrivateMailboxIF asynPrivateMailbox) {
+	public boolean offer(SyncMailboxIF asynPrivateMailbox) {
 		return asynPrivateMailboxQueue.offer(asynPrivateMailbox);
 	}
 
-	public AsynPrivateMailboxMapperIF getAsynPrivateMailboxMapper() {
+	public SyncMailboxMapperForAsynPublicIF getAsynPrivateMailboxMapper() {
 		return asynPrivateMailboxMapper;
+	}
+	
+	public int getSize() {
+		return asynPrivateMailboxQueue.size();
 	}
 	
 }

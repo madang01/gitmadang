@@ -163,8 +163,8 @@ public class SyncPrivateConnectionPoolTest extends AbstractJunitTest {
 			SyncPrivateConnectionPool syncPrivateConnectionPool = (SyncPrivateConnectionPool)connectionPool;
 
 			
-			assertEquals("연결 폴 크기 점검",  numberOfConnection, syncPrivateConnectionPool.size());
-			assertEquals("연결 폴의 큐 크기 점검",  numberOfConnection, syncPrivateConnectionPool.getQueueSize());
+			assertEquals("연결 폴 크기 점검",  numberOfConnection, syncPrivateConnectionPool.getNumberOfConnection());
+			assertEquals("연결 폴의 큐 크기 점검",  numberOfConnection, syncPrivateConnectionPool.getPoolSize());
 			
 		} catch (Exception e) {
 			log.warn("error", e);

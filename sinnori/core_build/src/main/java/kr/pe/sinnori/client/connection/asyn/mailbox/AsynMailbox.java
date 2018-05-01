@@ -2,7 +2,7 @@ package kr.pe.sinnori.client.connection.asyn.mailbox;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
-public abstract class AsynPublicMailbox {
+public abstract class AsynMailbox {
 
 	private static int mailID = Integer.MIN_VALUE;
 

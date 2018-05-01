@@ -21,7 +21,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
-import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -133,7 +132,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	}
 	
 	@Override
-	public List<WrapBuffer> M2S(AbstractMessage inputMessage, AbstractMessageEncoder messageEncoder) 
+	public ArrayDeque<WrapBuffer> M2S(AbstractMessage inputMessage, AbstractMessageEncoder messageEncoder) 
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		String messageID = inputMessage.getMessageID();
 		int mailboxID = inputMessage.messageHeaderInfo.mailboxID;
@@ -195,8 +194,8 @@ public class THBMessageProtocol implements MessageProtocolIF {
 			throw new HeaderFormatException(errorMessage);
 		}	
 		
-		List<WrapBuffer> readbleWrapBufferListOfHeaderOutputStream = headerOutputStream.getReadableWrapBufferList();
-		List<WrapBuffer> readableWrapBufferListOfBodyOutputStream = bodyOutputStream.getReadableWrapBufferList();
+		ArrayDeque<WrapBuffer> readbleWrapBufferListOfHeaderOutputStream = headerOutputStream.getReadableWrapBufferQueue();
+		ArrayDeque<WrapBuffer> readableWrapBufferListOfBodyOutputStream = bodyOutputStream.getReadableWrapBufferQueue();
 		readbleWrapBufferListOfHeaderOutputStream.addAll(readableWrapBufferListOfBodyOutputStream);
 		
 		// log.debug(messageHeader.toString());

@@ -318,8 +318,8 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 			
 			AsynPrivateConnectionPool asynPrivateConnectionPool = (AsynPrivateConnectionPool)connectionPool;
 			
-			assertEquals("연결 폴 크기 점검",  numberOfConnection, asynPrivateConnectionPool.size());
-			assertEquals("연결 폴의 큐 크기 점검",  numberOfConnection, asynPrivateConnectionPool.getQueueSize());
+			assertEquals("연결 폴 크기 점검",  numberOfConnection, asynPrivateConnectionPool.getNumberOfConnection());
+			assertEquals("연결 폴의 큐 크기 점검",  numberOfConnection, asynPrivateConnectionPool.getPoolSize());
 			
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -569,7 +569,6 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 			}
 			
 			public void run() {
-				int countOfClosedConnection = 0;
 				long startTime=0, endTime=0;
 				
 				for (int i=0; i < retryCount; i++) {
@@ -582,10 +581,10 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 						long elapsedTime  = endTime - startTime;
 						
 						if (elapsedTime >= 5000) {
-							fail("timeout but fail to check timeout");
+							fail("it failed to check timeout");
 						}
 						
-						log.info("conn[{}]={}, getConnection time={}", i, conn.hashCode(),
+						log.info("conn[{}]={}, getConnection elapsed time={}", i, conn.hashCode(),
 								elapsedTime);
 						
 						
@@ -613,7 +612,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 								connectionPool.release(conn);
 								endTime = System.nanoTime();
 								
-								log.info("conn[{}]={}, release time={}", i, conn.hashCode(),
+								log.info("conn[{}]={}, release elapsed time={}", i, conn.hashCode(),
 										TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 								
 							} catch (ConnectionPoolException e) {

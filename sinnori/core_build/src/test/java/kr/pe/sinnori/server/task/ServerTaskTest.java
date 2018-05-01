@@ -11,7 +11,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -276,7 +275,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
 			}
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
 			} catch (Exception e) {
@@ -571,7 +570,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
 			}
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
 			} catch (Exception e) {
@@ -861,7 +860,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
 			}
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
 			} catch (Exception e) {
@@ -1164,7 +1163,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
 			}
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
 			} catch (Exception e) {
@@ -1466,7 +1465,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
 			}
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
 			} catch (Exception e) {
@@ -1778,7 +1777,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
 			}
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
 			} catch (Exception e) {
@@ -2094,7 +2093,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
 			}
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
 			} catch (Exception e) {
@@ -2409,7 +2408,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
 			}
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
 				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
 			} catch (Exception e) {

@@ -393,7 +393,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 
 					long startTime = System.nanoTime();
 					
-					for (int i = 0; i < 1; i++) {
+					for (int i = 0; i < 2; i++) {
 						Empty emptyReq = new Empty();
 						AbstractMessage emptyRes = anyProjectConnectionPoolForTest.sendSyncInputMessage(emptyReq);
 

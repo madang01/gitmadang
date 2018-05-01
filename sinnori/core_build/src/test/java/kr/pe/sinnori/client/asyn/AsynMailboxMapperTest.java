@@ -5,7 +5,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
+import kr.pe.sinnori.client.connection.asyn.share.SyncMailboxMapperForAsynPublic;
 import kr.pe.sinnori.common.AbstractJunitTest;
 
 public class AsynMailboxMapperTest extends AbstractJunitTest {
@@ -16,7 +16,7 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		int totalNumberOfAsynMailbox = 10;
 		int socketTimeOut = 1000;
 				
-		AsynPrivateMailboxMapper asynMailboxMapper = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);
+		SyncMailboxMapperForAsynPublic asynMailboxMapper = new SyncMailboxMapperForAsynPublic(totalNumberOfAsynMailbox, socketTimeOut);
 		
 		int mailboxID = 0;
 		try {
@@ -42,7 +42,7 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		int socketTimeOut = 1000;
 		
 		
-		AsynPrivateMailboxMapper asynMailboxManager = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);
+		SyncMailboxMapperForAsynPublic asynMailboxManager = new SyncMailboxMapperForAsynPublic(totalNumberOfAsynMailbox, socketTimeOut);
 		
 		int mailboxID = totalNumberOfAsynMailbox+1;
 		try {
@@ -69,7 +69,7 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		int socketTimeOut = 1000;
 		
 		
-		AsynPrivateMailboxMapper asynMailboxManager = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);		
+		SyncMailboxMapperForAsynPublic asynMailboxManager = new SyncMailboxMapperForAsynPublic(totalNumberOfAsynMailbox, socketTimeOut);		
 		
 		try {
 			int actualTotalNumberOfAsynMailbox = asynMailboxManager.getTotalNumberOfAsynPrivateMailboxs();

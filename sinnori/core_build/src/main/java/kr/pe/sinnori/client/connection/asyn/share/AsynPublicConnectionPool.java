@@ -28,6 +28,7 @@ import kr.pe.sinnori.client.connection.ConnectionPoolIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
@@ -41,7 +42,7 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 	private int poolMaxSize;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;	
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
-	private AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory = null;
+	private SyncMailboxPoolFactoryForAsynPublicIF asynPrivateMailboxPoolFactory = null;
 	
 	private String projectName = null;
 	
@@ -108,7 +109,7 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
 		
-		AsynPrivateMailboxPoolIF asynPrivateMailboxPool
+		SyncMailboxPoolForAsynPublicIF asynPrivateMailboxPool
 			=	asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();		
 
 		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
@@ -235,11 +236,39 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 		}
 	}
 
-	public int size() {
+	public int getNumberOfConnection() {
 		return numberOfConnection;
 	}
 	
-	public int getListSize() {
+	public String getPoolState() {
+		StringBuilder pollStateStringBuilder = new StringBuilder();
+		pollStateStringBuilder.append("numberOfConnection=");
+		pollStateStringBuilder.append(numberOfConnection);
+		
+		int connectionListSize = connectionList.size();
+		
+		int sumOfSyncMailboxSize = 0;
+		for (int i=0; i < connectionListSize; i++) {
+			AsynPublicConnection asynPublicConnection = connectionList.get(i);
+			int syncMailboxSize = asynPublicConnection.getSyncMailboxSize();
+			sumOfSyncMailboxSize += syncMailboxSize;
+			
+			pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);			
+			pollStateStringBuilder.append("connectionList[");
+			pollStateStringBuilder.append(i);
+			pollStateStringBuilder.append("].syncMailboxSize=");
+			pollStateStringBuilder.append(syncMailboxSize);
+		}
+		
+		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);			
+		pollStateStringBuilder.append("sumOfSyncMailboxSize=");
+		pollStateStringBuilder.append(sumOfSyncMailboxSize);
+		
+		return pollStateStringBuilder.toString();
+		
+	}
+	
+	public int getPoolSize() {
 		return connectionList.size();
 	}
 

@@ -1,7 +1,6 @@
 package kr.pe.sinnori.client.connection;
 
 import java.util.ArrayDeque;
-import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -125,7 +124,7 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		messageProtocol.S2MList(socketOutputStream, wrapReadableMiddleObjectQueue);
 	}
 
-	public List<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage)
+	public ArrayDeque<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage)
 			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		MessageCodecIF messageCodec = null;
 
@@ -162,7 +161,7 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 			throw new DynamicClassCallException(errorMessage);
 		}
 
-		List<WrapBuffer> wrapBufferList = null;
+		ArrayDeque<WrapBuffer> wrapBufferList = null;
 		try {
 			wrapBufferList = messageProtocol.M2S(inputMessage, messageEncoder);
 		} catch (NoMoreDataPacketBufferException e) {
@@ -193,11 +192,7 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		return wrapBufferList;
 	}
 
-	public void releaseWrapBufferList(List<WrapBuffer> warpBufferList) {
-		if (null != warpBufferList) {
-			for (WrapBuffer wrapBuffer : warpBufferList) {
-				dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
-			}
-		}
+	public void releaseWrapBuffer(WrapBuffer warpBuffer) {
+		dataPacketBufferPool.putDataPacketBuffer(warpBuffer);
 	}
 }

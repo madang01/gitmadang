@@ -41,7 +41,6 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 				WrapReadableMiddleObject wrapReadableMiddleObject = outputMessageQueue.take();
 
 				SocketChannel fromSC = wrapReadableMiddleObject.getFromSC();
-				// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 				String messageID = wrapReadableMiddleObject.getMessageID();
 
 				AbstractClientTask clientTask = clientMessageUtility.getClientTask(messageID);

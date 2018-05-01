@@ -17,12 +17,12 @@
 package kr.pe.sinnori.client.connection.asyn.noshare;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayDeque;
 
 import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
+import kr.pe.sinnori.client.connection.asyn.mailbox.SyncMailboxForAsynPrivate;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterIF;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -43,7 +43,7 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 	private boolean isQueueIn = true;
 	
 	
-	private final AsynPrivateMailbox asynPrivateMailbox = new AsynPrivateMailbox(1, socketTimeOut);
+	private final SyncMailboxForAsynPrivate syncMailboxForAsynPrivate = new SyncMailboxForAsynPrivate(1, socketTimeOut);
 
 	public AsynPrivateConnection(ConnectionFixedParameter connectionFixedParameter,
 			AsynSocketResourceIF asynSocketResource)
@@ -90,10 +90,10 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 
-		inObj.messageHeaderInfo.mailboxID = asynPrivateMailbox.getMailboxID();
-		inObj.messageHeaderInfo.mailID = asynPrivateMailbox.getMailID();
+		inObj.messageHeaderInfo.mailboxID = syncMailboxForAsynPrivate.getMailboxID();
+		inObj.messageHeaderInfo.mailID = syncMailboxForAsynPrivate.getMailID();
 
-		List<WrapBuffer> wrapBufferListOfInputMessage = clientMessageUtility.buildReadableWrapBufferList(classLoader, inObj);
+		ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = clientMessageUtility.buildReadableWrapBufferList(classLoader, inObj);
 		
 		ToLetter toLetter = new ToLetter(serverSC, inObj.getMessageID(), 
 				inObj.messageHeaderInfo.mailboxID, 
@@ -107,7 +107,7 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 		inputMessageWriter.putIntoQueue(toLetter);
 		
 		// try {
-			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
+			wrapReadableMiddleObject = syncMailboxForAsynPrivate.getSyncOutputMessage();
 		/*} catch(SocketTimeoutException e) {			
 			String errorMessage = new StringBuilder("timeout for the input message[")
 					.append(e.getMessage()).append("][")
@@ -127,18 +127,9 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 	
 	public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
 		// FIXME!
-		// log.info("fromLetter={}", fromLetter.toString());
-		
-		
-		// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 		
 		if (wrapReadableMiddleObject.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
-			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */
-			
-			/*FromLetter fromLetter = new FromLetter(serverSC,
-					wrapReadableMiddleObject);*/
-			
-			
+			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */			
 			try {
 				asynSocketResource.getClientExecutor().putAsynOutputMessage(wrapReadableMiddleObject);
 			} catch (InterruptedException e) {				
@@ -150,17 +141,8 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 				throw e;
 			}
 		} else {
-			/*if (isInQueue()) {
-				String errorMessage = String.format(
-						"연결 클래스가 큐 대기중 상태입니다. fromLetter=[%s]",
-						fromLetter.toString());
-
-				log.warn(errorMessage);
-				return;
-			}*/
-
 			try {
-				asynPrivateMailbox.putSyncOutputMessage(wrapReadableMiddleObject);
+				syncMailboxForAsynPrivate.putSyncOutputMessage(wrapReadableMiddleObject);
 			} catch (InterruptedException e) {
 				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", wrapReadableMiddleObject.toString());
 				

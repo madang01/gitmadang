@@ -11,6 +11,8 @@ public interface ConnectionPoolIF {
 	public void addAllLostConnections()
 			throws InterruptedException;
 	
-	public int size();
+	public int getNumberOfConnection();
+	
+	public String getPoolState();
 	
 }

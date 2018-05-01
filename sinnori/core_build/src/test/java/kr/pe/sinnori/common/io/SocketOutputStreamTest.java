@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.List;
+import java.util.ArrayDeque;
 
 import org.junit.Test;
 
@@ -48,7 +48,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 				{
 					// sos.makeEmptySocketOutputStream(expectedSize);
 					
-					List<WrapBuffer> emptyOutputStreamWrapBufferList = null;
+					ArrayDeque<WrapBuffer> emptyOutputStreamWrapBufferList = null;
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
 							dataPacketBufferPoolManager);
 					
@@ -126,7 +126,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		SocketOutputStream sos = null;
 		
 		FreeSizeOutputStream fsos = null;
-		List<WrapBuffer> outputStreamWrapBufferListForTest = null;
+		ArrayDeque<WrapBuffer> outputStreamWrapBufferListForTest = null;
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
 					dataPacketBufferPoolManager);

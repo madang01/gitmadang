@@ -17,7 +17,6 @@
 package kr.pe.sinnori.common.protocol;
 
 import java.util.ArrayDeque;
-import java.util.List;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
@@ -36,7 +35,7 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 public interface MessageProtocolIF {
 	
 	
-	public List<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
+	public ArrayDeque<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException;
 	
 	

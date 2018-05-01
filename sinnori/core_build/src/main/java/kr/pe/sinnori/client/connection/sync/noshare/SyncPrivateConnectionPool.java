@@ -242,11 +242,20 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 		}
 	}
 
-	public int size() {
+	public int getNumberOfConnection() {
 		return numberOfConnection;
 	}
+	
+	public String getPoolState() {
+		return new StringBuilder()
+				.append("numberOfConnection=")
+				.append(numberOfConnection)
+				.append(", connectionQueue.size=")
+				.append(connectionQueue.size()).toString();
+	}
+	
 
-	public int getQueueSize() {
+	public int getPoolSize() {
 		return connectionQueue.size();
 	}
 }

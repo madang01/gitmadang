@@ -6,12 +6,12 @@ import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
 
 public class AsynPublicConnectionPoolParameter extends AbstractConnectionPoolParameter {	
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory;
-	private	AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory;
+	private	SyncMailboxPoolFactoryForAsynPublicIF asynPrivateMailboxPoolFactory;
 
 	public AsynPublicConnectionPoolParameter(int poolSize, int poolMaxSize,
 			ConnectionPoolSupporterIF connectionPoolSupporter, 
 			AsynSocketResourceFactoryIF asynSocketResourceFactory,
-			AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory) {
+			SyncMailboxPoolFactoryForAsynPublicIF asynPrivateMailboxPoolFactory) {
 		super(poolSize, poolMaxSize, connectionPoolSupporter);
 		
 		if (null == asynSocketResourceFactory) {
@@ -29,7 +29,7 @@ public class AsynPublicConnectionPoolParameter extends AbstractConnectionPoolPar
 		
 	}
 
-	public AsynPrivateMailboxPoolFactoryIF getAsynPrivateMailboxPoolFactory() {
+	public SyncMailboxPoolFactoryForAsynPublicIF getAsynPrivateMailboxPoolFactory() {
 		return asynPrivateMailboxPoolFactory;
 	}
 

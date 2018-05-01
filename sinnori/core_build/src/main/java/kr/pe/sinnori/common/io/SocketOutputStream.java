@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
+import java.util.ArrayDeque;
 import java.util.LinkedList;
-import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -23,7 +23,7 @@ public class SocketOutputStream {
 	private long numberOfWrittenBytes = 0;
 	
 	/** 소켓 채널 전용 출력 메시지 읽기 전용 버퍼 목록, 참고) 언제나 읽기가 가능 하도록 최소 크기가 1이다. */
-	private LinkedList<WrapBuffer> socketOutputStreamWrapBufferList = new  LinkedList<WrapBuffer>();
+	private ArrayDeque<WrapBuffer> socketOutputStreamWrapBufferList = new  ArrayDeque<WrapBuffer>();
 	/** 메시지를 추출시 생기는 부가 정보를  */
 	private Object userDefObject = null;
 	
@@ -41,7 +41,7 @@ public class SocketOutputStream {
 	}
 	
 	
-	public SocketOutputStream(List<WrapBuffer> writtenWrapBufferList, CharsetDecoder streamCharsetDecoder, 
+	public SocketOutputStream(ArrayDeque<WrapBuffer> writtenWrapBufferList, CharsetDecoder streamCharsetDecoder, 
 			int dataPacketBufferMaxCntPerMessage, 
 			DataPacketBufferPoolIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
 		
@@ -225,7 +225,7 @@ public class SocketOutputStream {
 		//log.info("1. socketOutputStreamWrapBufferList={}", socketOutputStreamWrapBufferList.toString());
 		
 		int lastPositionOfMessageInputStreamLastByteBuffer = -1;
-		LinkedList<WrapBuffer> messageInputStreamWrapBufferList = new LinkedList<WrapBuffer>();
+		ArrayDeque<WrapBuffer> messageInputStreamWrapBufferList = new ArrayDeque<WrapBuffer>();
 		do {
 			WrapBuffer outputStreamWrapBuffer = socketOutputStreamWrapBufferList.removeFirst();
 			ByteBuffer outputStreamByteBuffer = outputStreamWrapBuffer.getByteBuffer();
@@ -301,7 +301,7 @@ public class SocketOutputStream {
 		return numberOfWrittenBytes;
 	}
 	
-	public LinkedList<WrapBuffer> getSocketOutputStreamWrapBufferList() {
+	public ArrayDeque<WrapBuffer> getSocketOutputStreamWrapBufferList() {
 		return socketOutputStreamWrapBufferList;
 	}
 	

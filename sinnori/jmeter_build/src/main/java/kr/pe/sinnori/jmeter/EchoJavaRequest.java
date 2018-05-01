@@ -93,6 +93,8 @@ System
 				break;
 			}			
 		}		
+		
+		log.info("setupTest::connection[{}]", conn.hashCode());
 	}
 
 	public Arguments getDefaultParameters() {
@@ -115,8 +117,10 @@ System
 		
 		if (! conn.isConnected()) {
 			SampleResult result = new SampleResult();
+			result.sampleStart();
 			result.setSuccessful(false);
-			result.setSampleLabel("conn["+conn.hashCode()+"was disconencted");
+			result.setSampleLabel("conn["+conn.hashCode()+"] was disconencted");
+			result.sampleEnd();
 			return result;
 		}
 		
@@ -155,6 +159,9 @@ System
 		} catch (SocketTimeoutException e) {
 			result.setSuccessful(false);
 			result.setSampleLabel("echo 메시지 입력/출력 timeout 실패");
+		} catch (InterruptedException e) {
+			result.setSuccessful(false);
+			result.setSampleLabel("echo 메시지 입력/출력 InterruptedException");
 		} catch (Exception e) {
 			result.setSuccessful(false);
 			result.setSampleLabel("echo 메시지 입력/출력 unknown error");
@@ -240,12 +247,18 @@ System
 	
 	public void teardownTest(JavaSamplerContext context) {
 		super.teardownTest(context);
+		
+		
 		if (null != conn) {
+			log.info("teardownTest::close connection[{}]", conn.hashCode());
+			
 			try {
 				conn.close();
 			} catch (IOException e) {
-				log.error("fail to close the connection", e);
+				log.error("teardownTest::fail to close the connection", e);
 			}
+		} else {
+			log.info("teardownTest::connection is null");
 		}
 	}
 	

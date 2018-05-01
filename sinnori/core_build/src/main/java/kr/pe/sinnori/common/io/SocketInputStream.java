@@ -4,15 +4,15 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.List;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 
 public class SocketInputStream extends FreeSizeInputStream {
 
-	public SocketInputStream(int dataPacketBufferMaxCount, List<WrapBuffer> dataPacketBufferList,
+	public SocketInputStream(int dataPacketBufferMaxCount, ArrayDeque<WrapBuffer> dataPacketBufferList,
 			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 		super(dataPacketBufferMaxCount, dataPacketBufferList, streamCharsetDecoder, dataPacketBufferQueueManager);
 	}

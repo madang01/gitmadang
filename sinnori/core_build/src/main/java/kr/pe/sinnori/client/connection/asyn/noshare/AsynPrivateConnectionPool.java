@@ -273,11 +273,21 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 		// log.info("conn[{}] releaed", conn.hashCode());
 	}	
 
-	public int size() {
+	public int getNumberOfConnection() {
 		return numberOfConnection;
 	}
 	
-	public int getQueueSize() {
+	public String getPoolState() {
+		return new StringBuilder()
+				.append("numberOfConnection=")
+				.append(numberOfConnection)
+				.append(", connectionQueue.size=")
+				.append(connectionQueue.size()).toString();
+	}
+	
+	
+	
+	public int getPoolSize() {
 		return connectionQueue.size();
 	}
 }

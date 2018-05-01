@@ -1,7 +1,5 @@
 package main;
 
-import java.util.Date;
-
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
@@ -27,7 +25,7 @@ public class SinnoriAppClientMain {
 
 		int retryCount = 1000000;
 
-		beforeTime = new Date().getTime();
+		beforeTime = System.currentTimeMillis();
 
 		for (int i = 0; i < retryCount; i++) {
 			Echo echoInObj = new Echo();
@@ -54,9 +52,9 @@ public class SinnoriAppClientMain {
 			}
 		}
 
-		afterTime = new Date().getTime();
+		afterTime = System.currentTimeMillis();
 
-		log.info("{} 번 시간차={} ms, 평균={} ms", retryCount, (afterTime - beforeTime),
+		log.info("loop count[{}], elapsed time[{} ms], average time[{} ms]", retryCount, (afterTime - beforeTime),
 				(double) (afterTime - beforeTime) / retryCount);
 
 	}

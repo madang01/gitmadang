@@ -2,14 +2,13 @@ package kr.pe.sinnori.client.asyn;
 
 import java.net.SocketTimeoutException;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
-import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPool;
+import kr.pe.sinnori.client.connection.asyn.mailbox.SyncMailboxIF;
+import kr.pe.sinnori.client.connection.asyn.share.SyncMailboxPoolForAsynPublic;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
@@ -18,11 +17,11 @@ public class AsynPrivateMailboxProducerThread extends Thread {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailboxProducerThread.class);
 
 	private int numberOfExecution;
-	private AsynPrivateMailboxPool asynPrivateMailboxPool = null;
+	private SyncMailboxPoolForAsynPublic asynPrivateMailboxPool = null;
 	private ArrayBlockingQueue<ToLetter> toLetterQueue = null;
 
 	public AsynPrivateMailboxProducerThread(int numberOfExecutions,
-			AsynPrivateMailboxPool asynPrivateMailboxPool,
+			SyncMailboxPoolForAsynPublic asynPrivateMailboxPool,
 			ArrayBlockingQueue<ToLetter> toLetterQueue) {
 		if (numberOfExecutions < 0) {
 			String errorMessage = String.format("the parameter numberOfExecutions[%d] is less than zero",
@@ -44,7 +43,7 @@ public class AsynPrivateMailboxProducerThread extends Thread {
 	}
 
 	public void run() {
-		AsynPrivateMailboxIF asynPrivateMailbox = null;
+		SyncMailboxIF asynPrivateMailbox = null;
 		
 		try {
 			for (int i = 0; i < numberOfExecution; i++) {
@@ -63,7 +62,7 @@ public class AsynPrivateMailboxProducerThread extends Thread {
 				try {
 					SocketChannel toSocketChannel = SocketChannel.open();
 					String messageID = "Echo";
-					List<WrapBuffer> wrapBufferList = new ArrayList<WrapBuffer>();
+					ArrayDeque<WrapBuffer> wrapBufferList = new ArrayDeque<WrapBuffer>();
 					
 					ToLetter toLetter = new ToLetter(toSocketChannel, 
 							messageID,

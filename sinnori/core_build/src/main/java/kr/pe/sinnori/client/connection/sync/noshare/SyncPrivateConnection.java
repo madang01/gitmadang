@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayDeque;
-import java.util.List;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
@@ -116,45 +115,47 @@ public class SyncPrivateConnection extends AbstractConnection {
 		try {
 			serverSC.register(ioEventOnlySelector, SelectionKey.OP_WRITE);
 			
-			List<WrapBuffer> warpBufferList = null;
+			ArrayDeque<WrapBuffer> warpBufferQueue = null;
+			WrapBuffer workingWrapBuffer = null;
 			try {
-				warpBufferList = clientMessageUtility.buildReadableWrapBufferList(classLoader, inObj);
+				warpBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classLoader, inObj);
 				
-				int indexOfWorkingBuffer = 0;
-				int warpBufferListSize = warpBufferList.size();
-				
-				WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
-				ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
-				
-				boolean loop = true;
-				do {
-					int numberOfKeys =  ioEventOnlySelector.select(socketTimeOut);
-					if (0 == numberOfKeys) {
-						String errorMessage = new StringBuilder("this sync private connection[")
-								.append(serverSC.hashCode())
-								.append("] timeout so closed").toString();
-						
-						log.info(errorMessage);
-						
-						close();
-						
-						throw new SocketTimeoutException(errorMessage);
-					}
+				while (! warpBufferQueue.isEmpty()) {
+					workingWrapBuffer = warpBufferQueue.removeFirst();
+					ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
 					
-					ioEventOnlySelector.selectedKeys().clear();
-					
-					serverSC.write(workingByteBuffer);
-					
-					if (! workingByteBuffer.hasRemaining()) {
-						if ((indexOfWorkingBuffer+1) == warpBufferListSize) {
-							loop = false;
-							break;
+					boolean loop = true;
+					do {
+						int numberOfKeys =  ioEventOnlySelector.select(socketTimeOut);
+						if (0 == numberOfKeys) {
+							String errorMessage = new StringBuilder("this sync private connection[")
+									.append(serverSC.hashCode())
+									.append("] timeout so closed").toString();
+							
+							log.info(errorMessage);
+							
+							close();
+							
+							throw new SocketTimeoutException(errorMessage);
 						}
-						indexOfWorkingBuffer++;
-						workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
-						workingByteBuffer = workingWrapBuffer.getByteBuffer();
-					}
-				} while (loop);
+						
+						ioEventOnlySelector.selectedKeys().clear();
+						
+						serverSC.write(workingByteBuffer);
+						
+						if (! workingByteBuffer.hasRemaining()) {
+							clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
+							
+							if (warpBufferQueue.isEmpty()) {
+								workingWrapBuffer = null;
+								break;
+							}
+							
+							workingWrapBuffer = warpBufferQueue.removeFirst();
+							workingByteBuffer = workingWrapBuffer.getByteBuffer();
+						}
+					} while (loop);
+				}
 				
 			} catch (Exception e) {
 				String errorMessage = new StringBuilder("fail to write a input message in this sync private connection[")
@@ -167,8 +168,12 @@ public class SyncPrivateConnection extends AbstractConnection {
 				
 				throw new IOException(errorMessage);
 			} finally {
-				if (null != warpBufferList) {
-					clientMessageUtility.releaseWrapBufferList(warpBufferList);
+				if (null != workingWrapBuffer) {
+					clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
+				}
+				while (! warpBufferQueue.isEmpty()) {
+					workingWrapBuffer = warpBufferQueue.removeFirst();
+					clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
 				}
 			}
 			

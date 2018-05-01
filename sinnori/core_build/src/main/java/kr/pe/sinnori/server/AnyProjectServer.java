@@ -217,26 +217,10 @@ public class AnyProjectServer {
 		inputMessageReaderPool.stopAll();
 
 		
-		executorPool.stopAll();
-
-		
+		executorPool.stopAll();		
 
 		outputMessageWriterPool.stopAll();
 	}	
-
-	/**
-	 * @return 서버 프로젝트 정보
-	 */
-	public MonitorServerProjectInfo getInfo(long requestTimeout) {
-		MonitorServerProjectInfo projectInfo = new MonitorServerProjectInfo();
-
-		projectInfo.projectName = projectPartConfiguration.getProjectName();
-		projectInfo.dataPacketBufferQueueSize = dataPacketBufferPool.getDataPacketBufferPoolSize();
-
-		projectInfo.acceptQueueSize = acceptQueue.size();		
-
-		return projectInfo;
-	}
 
 	/**
 	 * 서버 프로젝트 모니터
@@ -245,10 +229,11 @@ public class AnyProjectServer {
 	 * 
 	 */
 	private class ServerProjectMonitor extends Thread {		
+		private long serverMonitorTimeInterval;
 		private SocketResourceManagerIF socketResourceManager = null;
 		private DataPacketBufferPoolIF dataPacketBufferPool = null;
 		private InputMessageReaderPool inputMessageReaderPool = null;
-		private long serverMonitorTimeInterval;
+		
 		
 		public ServerProjectMonitor(long serverMonitorTimeInterval, 
 				SocketResourceManagerIF socketResourceManager,

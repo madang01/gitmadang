@@ -165,8 +165,8 @@ public class AsynPublicConnectionPoolTest extends AbstractJunitTest {
 			
 			AsynPublicConnectionPool asynPublicConnectionPool = (AsynPublicConnectionPool)connectionPool;
 			
-			assertEquals("연결 폴 크기 점검",  numberOfConnection, asynPublicConnectionPool.size());
-			assertEquals("연결 폴의 리스트 크기 점검",  numberOfConnection, asynPublicConnectionPool.getListSize());
+			assertEquals("연결 폴 크기 점검",  numberOfConnection, asynPublicConnectionPool.getNumberOfConnection());
+			assertEquals("연결 폴의 리스트 크기 점검",  numberOfConnection, asynPublicConnectionPool.getPoolSize());
 			
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -412,7 +412,7 @@ public class AsynPublicConnectionPoolTest extends AbstractJunitTest {
 					try {
 						conn = connectionPool.getConnection();
 						
-						log.info("conn[{}]={}, size={}", i, conn.hashCode(), connectionPool.size());
+						log.info("conn[{}]={}, size={}", i, conn.hashCode(), connectionPool.getNumberOfConnection());
 						
 						
 						long sleepTime = ThreadLocalRandom.current().nextLong(0L, 5001L);						
