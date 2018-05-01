@@ -138,23 +138,25 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 		return messageCodec;
 	}*/
 
-	private ServerTaskObjectInfo buildNewServerTaskObjectInfo(String classFullName) throws DynamicClassCallException {
+	private ServerTaskObjectInfo buildNewServerTaskObjectInfo(String messageID) throws DynamicClassCallException {
+		String classFullName = ioPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
 		ServerTaskObjectInfo newServerTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
 
-		className2ServerTaskObjectInfoHash.put(classFullName, newServerTaskObjectInfo);
+		className2ServerTaskObjectInfoHash.put(messageID, newServerTaskObjectInfo);
 		
 		return newServerTaskObjectInfo;
 	}
 
-	private ServerTaskObjectInfo getServerTaskInfo(String classFullName)
+	private ServerTaskObjectInfo getServerTaskInfo(String messageID)
 			throws DynamicClassCallException, FileNotFoundException {
-		ServerTaskObjectInfo serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);
+		ServerTaskObjectInfo serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(messageID);
 		if (null == serverTaskObjectInfo) {
 			lock.lock();
 			try {
-				serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);
+				serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(messageID);
 				if (null == serverTaskObjectInfo) {
-					serverTaskObjectInfo = buildNewServerTaskObjectInfo(classFullName);
+					
+					serverTaskObjectInfo = buildNewServerTaskObjectInfo(messageID);
 				}
 			} finally {
 				lock.unlock();
@@ -166,7 +168,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 					if (serverTaskObjectInfo.isModifed()) {
 						/** 새로운 서버 클래스 로더로 교체 */
 						workBaseClassLoader = serverClassLoaderBuilder.build();
-						serverTaskObjectInfo = buildNewServerTaskObjectInfo(classFullName);
+						serverTaskObjectInfo = buildNewServerTaskObjectInfo(messageID);
 					}
 				} finally {
 					lock.unlock();
@@ -178,16 +180,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 	
 	@Override
 	public AbstractServerTask getServerTask(String messageID) throws DynamicClassCallException, FileNotFoundException {
-	
-		/*
-		 * String classFullName = new StringBuilder(
-		 * projectPartConfiguration.getClassLoaderClassPackagePrefixName()).append(
-		 * "servertask.") .append(messageID).append("ServerTask").toString();
-		 */
-	
-		String classFullName = ioPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
-	
-		ServerTaskObjectInfo serverTaskObjectInfo = getServerTaskInfo(classFullName);
+		ServerTaskObjectInfo serverTaskObjectInfo = getServerTaskInfo(messageID);
 	
 		return serverTaskObjectInfo.getServerTask();
 	}
