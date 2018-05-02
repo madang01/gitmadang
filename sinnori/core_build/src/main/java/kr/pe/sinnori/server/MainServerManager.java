@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
@@ -45,6 +46,8 @@ public final class MainServerManager {
 	
 	private HashMap<String, AnyProjectServer> subProjectServerHash = new HashMap<String, AnyProjectServer>(); 
 	private AnyProjectServer mainProjectServer = null;
+	private ServerProjectMonitor serverProjectMonitor = null;
+	private String mainPorjectName = null;
 
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class MainProjectServerManagerHolder {
@@ -65,23 +68,25 @@ public final class MainServerManager {
 			SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 					SinnoriConfigurationManager.getInstance()
 					.getSinnoriRunningProjectConfiguration();
-			ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
-			AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
+			ProjectPartConfiguration mainProjectPartConfiguration = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
+			AllSubProjectPartConfiguration allSubProjectPartConfiguration = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
+			
+			mainPorjectName = mainProjectPartConfiguration.getProjectName();
 			
 			try {
-				mainProjectServer = new AnyProjectServer(mainProjectPart);
+				mainProjectServer = new AnyProjectServer(mainProjectPartConfiguration);
 			} catch (NoMoreDataPacketBufferException e) {
 				log.warn("NoMoreDataPacketBufferException", e);
 			} catch (SinnoriConfigurationException e) {
 				log.warn("SinnoriConfigurationException", e);
 			}
 			
-			List<String> subProjectNamelist = allSubProjectPart.getSubProjectNamelist();
+			List<String> subProjectNamelist = allSubProjectPartConfiguration.getSubProjectNamelist();
 					
 			for (String subProjectName : subProjectNamelist) {
 				AnyProjectServer subMainProjectServer=null;
 				try {
-					subMainProjectServer = new AnyProjectServer(allSubProjectPart.getSubProjectPartConfiguration(subProjectName));
+					subMainProjectServer = new AnyProjectServer(allSubProjectPartConfiguration.getSubProjectPartConfiguration(subProjectName));
 					
 					subProjectServerHash.put(subProjectName, subMainProjectServer);
 				} catch (NoMoreDataPacketBufferException e) {
@@ -91,6 +96,10 @@ public final class MainServerManager {
 				}
 				
 			}
+			
+			serverProjectMonitor = new ServerProjectMonitor(
+					mainProjectPartConfiguration.getServerMonitorTimeInterval());
+			serverProjectMonitor.start();
 	}
 	
 	/**
@@ -120,5 +129,41 @@ public final class MainServerManager {
 		}
 		
 		return mainProjectServer;
+	}
+	
+	private class ServerProjectMonitor extends Thread {		
+		private long serverMonitorTimeInterval;
+		public ServerProjectMonitor(long serverMonitorTimeInterval) {
+			this.serverMonitorTimeInterval = serverMonitorTimeInterval;
+		}
+		
+		@Override
+		public void run() {
+			log.info("ServerProjectMonitor start");
+			try {
+				while (!Thread.currentThread().isInterrupted()) {
+					log.info(getServerState());
+					
+					Thread.sleep(serverMonitorTimeInterval);
+				}
+			} catch(InterruptedException e) {
+				log.info("ServerProjectMonitor::interrupr");
+			} catch(Exception e) {
+				log.info("ServerProjectMonitor::unknow error", e);
+			}
+
+			log.info("ServerProjectMonitor end");
+		}
+	}
+	
+	private String getServerState() {
+		StringBuilder pollStateStringBuilder = new StringBuilder();
+		pollStateStringBuilder.append("main projectName[");
+		pollStateStringBuilder.append(mainPorjectName);
+		pollStateStringBuilder.append("]'s AnyProjectServer state");
+		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pollStateStringBuilder.append(mainProjectServer.getProjectServerState());
+		
+		return pollStateStringBuilder.toString();
 	}
 }

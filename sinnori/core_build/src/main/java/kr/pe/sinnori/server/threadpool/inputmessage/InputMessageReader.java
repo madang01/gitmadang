@@ -344,6 +344,10 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 		socketResourceManager.remove(selectedSocketChannel);
 	}
+	
+	public int getIndex() {
+		return index;
+	}
 
 	public void finalize() {
 		log.warn("{} InputMessageReader[{}] finalize", projectName, index);

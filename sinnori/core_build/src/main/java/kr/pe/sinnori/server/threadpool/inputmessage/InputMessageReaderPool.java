@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
@@ -165,17 +166,6 @@ public class InputMessageReaderPool implements ThreadPoolIF, InputMessageReaderP
 		return minInputMessageReader;
 	}
 	
-	public int getSumOfInputMessageReaderPoolSocket() {
-		int sumOfInputMessageReaderPoolSocket = 0;
-				
-		for (InputMessageReaderIF handler : pool) {
-			int numberOfSocket = handler.getNumberOfConnection();
-			sumOfInputMessageReaderPoolSocket += numberOfSocket;
-		}
-		
-		return sumOfInputMessageReaderPoolSocket;
-	}
-	
 	@Override
 	public int getPoolSize() {
 		return pool.size();
@@ -195,5 +185,28 @@ public class InputMessageReaderPool implements ThreadPoolIF, InputMessageReaderP
 			if (handler.isAlive()) continue;
 			handler.interrupt();
 		}
+	}
+	
+	public String getPoolState() {
+		StringBuilder pollStateStringBuilder = new StringBuilder();
+		
+		int total = 0;
+		
+		for (InputMessageReaderIF handler : pool) {
+			int numberOfSocket = handler.getNumberOfConnection();
+			
+			pollStateStringBuilder.append(", ");
+			pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);			
+			pollStateStringBuilder.append("InputMessageReader[");			
+			pollStateStringBuilder.append(handler.getIndex());
+			pollStateStringBuilder.append("].numberOfSocket=");
+			pollStateStringBuilder.append(numberOfSocket);
+			total += numberOfSocket;
+		}
+		pollStateStringBuilder.append(", ");
+		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);		
+		pollStateStringBuilder.append("InputMessageReader.sumOfSocket=");
+		pollStateStringBuilder.append(total);
+		return pollStateStringBuilder.toString();
 	}
 }

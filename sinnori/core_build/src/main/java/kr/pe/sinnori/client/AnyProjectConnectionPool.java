@@ -373,11 +373,12 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	
 	public String getPoolState() {
 		StringBuilder pollStateStringBuilder = new StringBuilder();		
-		pollStateStringBuilder.append("the size[");
+		pollStateStringBuilder.append("dataPacketBufferPool.activeSize=");
 		pollStateStringBuilder.append(dataPacketBufferPool.size());
-		pollStateStringBuilder.append("] of DataPacketBufferPool[");
+		pollStateStringBuilder.append(", ");
+		pollStateStringBuilder.append("dataPacketBufferPool.size=");
 		pollStateStringBuilder.append(dataPacketBufferPool.getDataPacketBufferPoolSize());
-		pollStateStringBuilder.append("]");
+		pollStateStringBuilder.append(", ");
 		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		pollStateStringBuilder.append(connectionPool.getPoolState());
 		return pollStateStringBuilder.toString();

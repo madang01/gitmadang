@@ -31,4 +31,5 @@ public interface InputMessageReaderIF {
 	public boolean isAlive();
 	public void start();
 	public void interrupt();
+	public int getIndex();
 }

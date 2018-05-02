@@ -27,6 +27,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.io.DataPacketBufferPool;
@@ -68,7 +69,7 @@ public class AnyProjectServer {
 	
 	private ServerObjectCacheManager serverObjectCacheManager = null;
 	
-	private ServerProjectMonitor serverProjectMonitor = null;
+	private SocketResourceManagerIF socketResourceManager = null;
 	
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
@@ -126,7 +127,7 @@ public class AnyProjectServer {
 						dataPacketBufferPool);
 		
 		
-		SocketResourceManagerIF socketResourceManager = 
+		socketResourceManager = 
 				new SocketResourceManager(socketOutputStreamFactory, ieoThreadPoolManager);
 
 		acceptSelector = new AcceptSelector(
@@ -170,11 +171,7 @@ public class AnyProjectServer {
 				projectPartConfiguration.getServerOutputMessageQueueSize(), 
 				dataPacketBufferPool, ieoThreadPoolManager);
 
-		serverProjectMonitor = new ServerProjectMonitor(
-				projectPartConfiguration.getServerMonitorTimeInterval(), socketResourceManager, 
-				dataPacketBufferPool,
-				inputMessageReaderPool);
-		serverProjectMonitor.start();
+		
 
 	}
 
@@ -222,49 +219,22 @@ public class AnyProjectServer {
 		outputMessageWriterPool.stopAll();
 	}	
 
-	/**
-	 * 서버 프로젝트 모니터
-	 * 
-	 * @author Won Jonghoon
-	 * 
-	 */
-	private class ServerProjectMonitor extends Thread {		
-		private long serverMonitorTimeInterval;
-		private SocketResourceManagerIF socketResourceManager = null;
-		private DataPacketBufferPoolIF dataPacketBufferPool = null;
-		private InputMessageReaderPool inputMessageReaderPool = null;
-		
-		
-		public ServerProjectMonitor(long serverMonitorTimeInterval, 
-				SocketResourceManagerIF socketResourceManager,
-				DataPacketBufferPoolIF dataPacketBufferPool,
-				InputMessageReaderPool inputMessageReaderPool) {
-			this.serverMonitorTimeInterval = serverMonitorTimeInterval;
-			this.socketResourceManager = socketResourceManager;
-			this.dataPacketBufferPool = dataPacketBufferPool;
-			this.inputMessageReaderPool = inputMessageReaderPool;
-		}
-
-		@Override
-		public void run() {
-			log.info("ServerProjectMonitor start");
-			
-			try {
-				while (!Thread.currentThread().isInterrupted()) {
-					log.info("the number of socketResources[{}]", socketResourceManager.getNumberOfSocketResources());
-					log.info("the size[{}] of DataPacketBufferPool[{}]", dataPacketBufferPool.size(), dataPacketBufferPool.getDataPacketBufferPoolSize());					
-					log.info("the sum[{}] of inputMessageReaderPool's socket", inputMessageReaderPool.getSumOfInputMessageReaderPoolSocket());
-					
-					Thread.sleep(serverMonitorTimeInterval);
-				}
-			} catch(InterruptedException e) {
-				log.info("ServerProjectMonitor::interrupr");
-			} catch(Exception e) {
-				log.info("ServerProjectMonitor::unknow error", e);
-			}
-
-			log.info("ServerProjectMonitor end");
-		}
+	
+	
+	public String getProjectServerState() {
+		StringBuilder pollStateStringBuilder = new StringBuilder();		
+		pollStateStringBuilder.append("dataPacketBufferPool.activeSize=");
+		pollStateStringBuilder.append(dataPacketBufferPool.size());
+		pollStateStringBuilder.append(", ");
+		pollStateStringBuilder.append("dataPacketBufferPool.size=");
+		pollStateStringBuilder.append(dataPacketBufferPool.getDataPacketBufferPoolSize());
+		pollStateStringBuilder.append(", ");
+		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pollStateStringBuilder.append("socketResourceManager.count=");
+		pollStateStringBuilder.append(socketResourceManager.getNumberOfSocketResources());
+		// pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);		
+		pollStateStringBuilder.append(inputMessageReaderPool.getPoolState());
+		return pollStateStringBuilder.toString();
 	}
 
 }
