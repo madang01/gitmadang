@@ -120,8 +120,6 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	private OutputMessageReaderPool outputMessageReaderPool = null;
 	private ClientExecutorPool clientExecutorPool = null;
 	
-	
-	
 	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		log.info("call AnyProjectConnectionPool constructor");

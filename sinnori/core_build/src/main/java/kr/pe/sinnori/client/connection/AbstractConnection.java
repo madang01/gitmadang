@@ -123,6 +123,7 @@ public abstract class AbstractConnection {
 				}
 			}
 		} catch(Exception e) {
+			log.warn("close socket[{}] becase it failed to connection a server", serverSC.hashCode());
 			close();
 			throw e;
 		} finally {

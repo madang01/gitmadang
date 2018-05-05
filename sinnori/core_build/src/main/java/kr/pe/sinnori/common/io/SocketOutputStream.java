@@ -23,7 +23,7 @@ public class SocketOutputStream {
 	private long numberOfWrittenBytes = 0;
 	
 	/** 소켓 채널 전용 출력 메시지 읽기 전용 버퍼 목록, 참고) 언제나 읽기가 가능 하도록 최소 크기가 1이다. */
-	private ArrayDeque<WrapBuffer> socketOutputStreamWrapBufferList = new  ArrayDeque<WrapBuffer>();
+	private ArrayDeque<WrapBuffer> socketOutputStreamWrapBufferQueue = new  ArrayDeque<WrapBuffer>();
 	/** 메시지를 추출시 생기는 부가 정보를  */
 	private Object userDefObject = null;
 	
@@ -37,7 +37,7 @@ public class SocketOutputStream {
 		streamByteOrder = dataPacketBufferPool.getByteOrder();		
 		numberOfWrittenBytes = 0;
 		
-		addNewSocketOutputStreamWrapBuffer();
+		// addNewSocketOutputStreamWrapBuffer();
 	}
 	
 	
@@ -53,12 +53,12 @@ public class SocketOutputStream {
 
 		for (WrapBuffer writtenWrapBuffer : writtenWrapBufferList) {
 			this.numberOfWrittenBytes += writtenWrapBuffer.getByteBuffer().duplicate().flip().remaining();
-			this.socketOutputStreamWrapBufferList.add(writtenWrapBuffer);
+			this.socketOutputStreamWrapBufferQueue.add(writtenWrapBuffer);
 		}
 	}
 
 	private boolean isFull() {
-		return (dataPacketBufferMaxCntPerMessage != socketOutputStreamWrapBufferList.size());
+		return (dataPacketBufferMaxCntPerMessage != socketOutputStreamWrapBufferQueue.size());
 	}
 
 	private WrapBuffer addNewSocketOutputStreamWrapBuffer() throws NoMoreDataPacketBufferException {
@@ -66,7 +66,7 @@ public class SocketOutputStream {
 		if (! isFull()) {
 			String errorMessage = String
 					.format("this stream wrap buffer list size[%d] has researched the maximum number[%d] of data packt buffers per message message",
-							socketOutputStreamWrapBufferList.size(), dataPacketBufferMaxCntPerMessage);
+							socketOutputStreamWrapBufferQueue.size(), dataPacketBufferMaxCntPerMessage);
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		}
 		
@@ -75,16 +75,16 @@ public class SocketOutputStream {
 		
 		// log.info("add the new socketOutputStreamWrapBuffer[hashcode={}] from the data packet buffer pool to socketOutputStreamWrapBufferList", newSocketOutputStreamWrapBuffer.hashCode());
 		
-		socketOutputStreamWrapBufferList.add(newSocketOutputStreamWrapBuffer);
+		socketOutputStreamWrapBufferQueue.add(newSocketOutputStreamWrapBuffer);
 		return newSocketOutputStreamWrapBuffer;
 	}
 
 	private void compackOutputStreamWrapBufferList(ByteBuffer byteBufferHavingRemainingDataAfterCuttingMessageInputStream)
 			throws NoMoreDataPacketBufferException {
 		LinkedList<WrapBuffer> oldOutputStreamWrapBufferList = new LinkedList<WrapBuffer>();
-		while (! socketOutputStreamWrapBufferList.isEmpty()) {
+		while (! socketOutputStreamWrapBufferQueue.isEmpty()) {
 			/** move socket output stream wrap buffer list to old output stream wrap buffer list */
-			WrapBuffer outputStreamWrapBuffer = socketOutputStreamWrapBufferList.removeFirst();				
+			WrapBuffer outputStreamWrapBuffer = socketOutputStreamWrapBufferQueue.removeFirst();				
 			oldOutputStreamWrapBufferList.add(outputStreamWrapBuffer);
 		}
 		
@@ -93,7 +93,7 @@ public class SocketOutputStream {
 		
 		/** renew socketOutputStreamWrapBufferList */
 		// log.info("add the new outputStreamFirstWrapBuffer[hashcode={}] from the data packet buffer pool to socketOutputStreamWrapBufferList", outputStreamFirstWrapBuffer.hashCode());
-		socketOutputStreamWrapBufferList.add(outputStreamFirstWrapBuffer);
+		socketOutputStreamWrapBufferQueue.add(outputStreamFirstWrapBuffer);
 		
 		//log.info("socketOutputStreamWrapBufferList={}", socketOutputStreamWrapBufferList.toString());
 		
@@ -103,7 +103,7 @@ public class SocketOutputStream {
 			ByteBuffer oldOutputStreamFistByteBuffer = oldOutputStreamFirstWrapBuffer.getByteBuffer();
 			oldOutputStreamFistByteBuffer.flip();
 			
-			ByteBuffer outputStreamLastByteBuffer = socketOutputStreamWrapBufferList.getLast().getByteBuffer();				
+			ByteBuffer outputStreamLastByteBuffer = socketOutputStreamWrapBufferQueue.getLast().getByteBuffer();				
 			
 			
 			while (outputStreamLastByteBuffer.hasRemaining()) {
@@ -115,7 +115,7 @@ public class SocketOutputStream {
 			
 			if (oldOutputStreamFistByteBuffer.hasRemaining()) {
 				oldOutputStreamFistByteBuffer.compact();
-				socketOutputStreamWrapBufferList.add(oldOutputStreamFirstWrapBuffer);
+				socketOutputStreamWrapBufferQueue.add(oldOutputStreamFirstWrapBuffer);
 			} else {				
 				if (oldOutputStreamWrapBufferList.size() > 0) {
 					log.error("dead code::the var socketOutputStreamWrapBufferList is not a stream. so nobody knows if a side effect bug will occur");
@@ -136,10 +136,10 @@ public class SocketOutputStream {
 		ByteBuffer lastByteBuffer = null;
 		WrapBuffer lastWrapBuffer = null;
 		
-		if (socketOutputStreamWrapBufferList.isEmpty()) {
+		if (socketOutputStreamWrapBufferQueue.isEmpty()) {
 			lastWrapBuffer = addNewSocketOutputStreamWrapBuffer();
 		} else {
-			lastWrapBuffer = socketOutputStreamWrapBufferList.peekLast();
+			lastWrapBuffer = socketOutputStreamWrapBufferQueue.peekLast();
 		}
 		
 		lastByteBuffer = lastWrapBuffer.getByteBuffer();
@@ -200,11 +200,11 @@ public class SocketOutputStream {
 	
 	public SocketInputStream createNewSocketInputStream() throws NoMoreDataPacketBufferException {
 		changeReadableWrapBufferList();		
-		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, socketOutputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferPool);
+		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, socketOutputStreamWrapBufferQueue, streamCharsetDecoder, dataPacketBufferPool);
 	}
 	
 	private void changeReadableWrapBufferList() throws NoMoreDataPacketBufferException {
-		for (WrapBuffer sourceWrapBuffer : socketOutputStreamWrapBufferList) {
+		for (WrapBuffer sourceWrapBuffer : socketOutputStreamWrapBufferQueue) {
 			ByteBuffer sourceByteBuffer = sourceWrapBuffer.getByteBuffer();
 			sourceByteBuffer.flip();
 		}
@@ -227,7 +227,7 @@ public class SocketOutputStream {
 		int lastPositionOfMessageInputStreamLastByteBuffer = -1;
 		ArrayDeque<WrapBuffer> messageInputStreamWrapBufferList = new ArrayDeque<WrapBuffer>();
 		do {
-			WrapBuffer outputStreamWrapBuffer = socketOutputStreamWrapBufferList.removeFirst();
+			WrapBuffer outputStreamWrapBuffer = socketOutputStreamWrapBufferQueue.removeFirst();
 			ByteBuffer outputStreamByteBuffer = outputStreamWrapBuffer.getByteBuffer();
 			int remaining = outputStreamByteBuffer.flip().remaining();
 			
@@ -292,7 +292,7 @@ public class SocketOutputStream {
 	public long getNumberOfWrittenBytesUsingList() {
 		long numberOfWrittenBytes = 0;
 	
-		for (WrapBuffer socketOutputStreamWrapBuffer : socketOutputStreamWrapBufferList) {
+		for (WrapBuffer socketOutputStreamWrapBuffer : socketOutputStreamWrapBufferQueue) {
 			ByteBuffer dupByteBuffer = socketOutputStreamWrapBuffer.getByteBuffer().duplicate();
 			dupByteBuffer.flip();			
 			numberOfWrittenBytes += dupByteBuffer.remaining();
@@ -302,7 +302,7 @@ public class SocketOutputStream {
 	}
 	
 	public ArrayDeque<WrapBuffer> getSocketOutputStreamWrapBufferList() {
-		return socketOutputStreamWrapBufferList;
+		return socketOutputStreamWrapBufferQueue;
 	}
 	
 	public ByteOrder getStreamByteOrder() {
@@ -314,8 +314,8 @@ public class SocketOutputStream {
 	public void close() {
 		// log.info("call close");
 		
-		while (! socketOutputStreamWrapBufferList.isEmpty()) {
-			WrapBuffer socketOutputStreamWrapBuffer = socketOutputStreamWrapBufferList.remove();
+		while (! socketOutputStreamWrapBufferQueue.isEmpty()) {
+			WrapBuffer socketOutputStreamWrapBuffer = socketOutputStreamWrapBufferQueue.remove();
 			
 			// log.info("return the socketOutputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", socketOutputStreamWrapBuffer.hashCode());
 			

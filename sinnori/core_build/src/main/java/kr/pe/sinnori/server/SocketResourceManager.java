@@ -8,7 +8,6 @@ import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
-import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 public class SocketResourceManager implements SocketResourceManagerIF {
@@ -44,9 +43,6 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 			throw new IllegalArgumentException("the parameter newAcceptedSC is null");
 		}
 
-		InputMessageReaderIF inputMessageReaderOfOwnerSC = ieoThreadPoolManager
-				.getInputMessageReaderWithMinimumMumberOfSockets();
-
 		ServerExecutorIF executorOfOwnerSC = ieoThreadPoolManager.getExecutorWithMinimumMumberOfSockets();
 
 		OutputMessageWriterIF outputMessageWriterOfOwnerSC = ieoThreadPoolManager
@@ -57,7 +53,7 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		PersonalLoginManager personalLoginManagerOfOwnerSC = new PersonalLoginManager(newAcceptedSC,
 				projectLoginManager);
 
-		SocketResource socketResource = new SocketResource(newAcceptedSC, inputMessageReaderOfOwnerSC,
+		SocketResource socketResource = new SocketResource(newAcceptedSC, 
 				executorOfOwnerSC, outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC,
 				personalLoginManagerOfOwnerSC);
 
@@ -77,8 +73,6 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		 */
 		outputMessageWriterOfOwnerSC.addNewSocket(newAcceptedSC);
 		executorOfOwnerSC.addNewSocket(newAcceptedSC);
-		inputMessageReaderOfOwnerSC.addNewSocket(newAcceptedSC);
-
 	}
 
 	@Override

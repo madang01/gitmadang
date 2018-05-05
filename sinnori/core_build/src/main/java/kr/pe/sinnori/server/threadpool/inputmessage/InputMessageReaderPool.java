@@ -99,7 +99,7 @@ public class InputMessageReaderPool implements ThreadPoolIF, InputMessageReaderP
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;	
 		
-		ieoThreadPoolManager.setInputMessageReaderPool(this);
+		// ieoThreadPoolManager.setInputMessageReaderPool(this);
 
 		for (int i = 0; i < poolSize; i++) {
 			try {

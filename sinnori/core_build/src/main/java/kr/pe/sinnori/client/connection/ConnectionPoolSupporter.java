@@ -1,10 +1,13 @@
 package kr.pe.sinnori.client.connection;
 
+import java.io.IOException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.exception.ConnectionPoolException;
+import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 public class ConnectionPoolSupporter extends Thread implements ConnectionPoolSupporterIF {
 	protected InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolSupporter.class);
@@ -39,6 +42,8 @@ public class ConnectionPoolSupporter extends Thread implements ConnectionPoolSup
 			log.warn("연결 폴 후원자::루프 종료");
 		} catch(InterruptedException e) {
 			log.warn("연결 폴 후원자::인터럽트에 의한 종료");
+		} catch(ConnectionPoolException | NoMoreDataPacketBufferException | IOException e) {
+			log.warn("연결 폴 후원자::에러에 의한 종료", e);
 		}
 	}
 	

@@ -45,7 +45,6 @@ import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
-import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 public class ServerTaskTest extends AbstractJunitTest {
@@ -114,7 +113,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
 			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
@@ -226,7 +224,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, inputMessageReaderOfOwnerSC, executorOfOwnerSC,
+			socketResourceOfFromSC = new SocketResource(fromSC,  executorOfOwnerSC,
 					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
 		}
 
@@ -409,7 +407,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
 			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
@@ -521,7 +518,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, inputMessageReaderOfOwnerSC, executorOfOwnerSC,
+			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
 					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
 		}
 
@@ -699,7 +696,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
 			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
@@ -811,7 +807,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, inputMessageReaderOfOwnerSC, executorOfOwnerSC,
+			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
 					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
 		}
 
@@ -1002,7 +998,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
 			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
@@ -1114,7 +1109,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, inputMessageReaderOfOwnerSC, executorOfOwnerSC,
+			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
 					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
 		}
 
@@ -1304,7 +1299,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
 			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
@@ -1416,7 +1410,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, inputMessageReaderOfOwnerSC, executorOfOwnerSC,
+			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
 					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
 		}
 
@@ -1616,7 +1610,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
 			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
@@ -1728,7 +1721,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, inputMessageReaderOfOwnerSC, executorOfOwnerSC,
+			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
 					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
 		}
 
@@ -1927,7 +1920,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
 			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
@@ -2044,7 +2036,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, inputMessageReaderOfOwnerSC, executorOfOwnerSC,
+			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
 					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
 		}
 
@@ -2240,7 +2232,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
 			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
@@ -2359,7 +2350,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, inputMessageReaderOfOwnerSC, executorOfOwnerSC,
+			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
 					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
 		}
 

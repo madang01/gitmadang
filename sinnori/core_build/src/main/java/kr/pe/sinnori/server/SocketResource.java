@@ -23,7 +23,6 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
-import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 /**
@@ -37,7 +36,6 @@ public class SocketResource {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SocketResource.class);
 
 	private SocketChannel ownerSC = null;
-	private InputMessageReaderIF inputMessageReader = null;
 	private ServerExecutorIF executor = null;
 	private OutputMessageWriterIF outputMessageWriter = null;
 	private SocketOutputStream socketOutputStream = null;
@@ -52,7 +50,6 @@ public class SocketResource {
 	private int serverMailID = Integer.MIN_VALUE;
 	
 	public SocketResource(SocketChannel ownerSC,
-			InputMessageReaderIF inputMessageReaderOfOwnerSC,
 			ServerExecutorIF executorOfOwnerSC,
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC,
 			SocketOutputStream socketOutputStreamOfOwnerSC,
@@ -60,11 +57,8 @@ public class SocketResource {
 		if (null == ownerSC) {
 			throw new IllegalArgumentException("the parameter ownerSC is null");
 		}
-		
-		if (null == inputMessageReaderOfOwnerSC) {
-			throw new IllegalArgumentException("the parameter inputMessageReaderOfOwnerSC is null");
-		}
-		
+
+
 		if (null == executorOfOwnerSC) {
 			throw new IllegalArgumentException("the parameter executorOfOwnerSC is null");
 		}
@@ -82,7 +76,6 @@ public class SocketResource {
 		}		
 		
 		this.ownerSC = ownerSC;
-		this.inputMessageReader = inputMessageReaderOfOwnerSC;
 		this.executor = executorOfOwnerSC;
 		this.outputMessageWriter = outputMessageWriterOfOwnerSC;
 		this.socketOutputStream = socketOutputStreamOfOwnerSC;
@@ -95,9 +88,6 @@ public class SocketResource {
 		return ownerSC;
 	}
 	
-	public InputMessageReaderIF getInputMessageReader() {
-		return inputMessageReader;
-	}
 	
 	public ServerExecutorIF getExecutor() {
 		return executor;

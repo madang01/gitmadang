@@ -79,15 +79,14 @@
 		</jar>
 	</target>
 	
-	<target name="dist.core" depends="make">
+	<!-- target name="dist.core" depends="make">
         <copy todir="D:\apache-jmeter-4.0\lib" verbose="true" overwrite="true">
             <fileset file="${dir.core.build}/dist/sinnori-core.jar" />
         </copy>
-		
-		<!-- copy todir="D:\apache-jmeter-4.0\lib" verbose="true" overwrite="true">
-			<union refid="core.common.jarlibs" />
-		</copy -->
-	</target>
+		<copy todir="D:\apache-jmeter-4.0\lib" verbose="true" overwrite="true">
+            <fileset file="${dir.core.mainlib}/ex/commons-collections4-4.1.jar" />
+        </copy>
+	</target -->
 	
 	<target name="dist" depends="make">
         <copy todir="D:\apache-jmeter-4.0\lib\ext" verbose="true" overwrite="true">

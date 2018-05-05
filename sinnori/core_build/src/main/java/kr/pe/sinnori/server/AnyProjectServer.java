@@ -17,10 +17,8 @@
 
 package kr.pe.sinnori.server;
 
-import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -39,10 +37,8 @@ import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManager;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
-import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
 import kr.pe.sinnori.server.threadpool.accept.selector.AcceptSelector;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorPool;
-import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
 
 
@@ -53,15 +49,11 @@ public class AnyProjectServer {
 	 
 	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	/** 접속 승인 큐 */
-	private ArrayBlockingQueue<SocketChannel> acceptQueue = null;
-
+	
 	/** 클라이언트 접속 승인 쓰레드 */
 	private AcceptSelector acceptSelector = null;
-	/** 클라이 언트 등록 담당 쓰레드 폴 */
-	private AcceptProcessorPool acceptProcessorPool = null;
-	/** 입력 메시지 소켓 읽기 담당 쓰레드 폴 */
-	private InputMessageReaderPool inputMessageReaderPool = null;
+	
+	
 	/** 비지니스 로직 처리 담당 쓰레드 폴 */
 	private ServerExecutorPool executorPool = null;
 	/** 출력 메시지 소켓 쓰기 담당 쓰레드 폴 */
@@ -116,8 +108,6 @@ public class AnyProjectServer {
 			}
 		}
 		
-		acceptQueue = new ArrayBlockingQueue<SocketChannel>(
-				projectPartConfiguration.getServerAcceptQueueSize());
 		
 		IEOServerThreadPoolSetManagerIF ieoThreadPoolManager = new IEOServerThreadPoolSetManager();
 		
@@ -134,23 +124,8 @@ public class AnyProjectServer {
 				projectPartConfiguration.getProjectName(), 
 				projectPartConfiguration.getServerHost(),
 				projectPartConfiguration.getServerPort(),  
-				projectPartConfiguration.getServerMaxClients(), acceptQueue, socketResourceManager);
+				projectPartConfiguration.getServerMaxClients(), messageProtocol, socketResourceManager);
 
-		
-		acceptProcessorPool = new AcceptProcessorPool(
-				projectPartConfiguration.getServerAcceptProcessorSize(), 
-				projectPartConfiguration.getServerAcceptProcessorMaxSize(),
-				projectPartConfiguration.getProjectName(),
-				acceptQueue,
-				socketResourceManager);
-		
-		inputMessageReaderPool = new InputMessageReaderPool(
-				projectPartConfiguration.getServerInputMessageReaderPoolSize(), 
-				projectPartConfiguration.getServerInputMessageReaderPoolMaxSize(),
-				projectPartConfiguration.getProjectName(),
-				projectPartConfiguration.getServerWakeupIntervalOfSelectorForReadEventOnly(),
-				messageProtocol, 
-				socketResourceManager, ieoThreadPoolManager);		
 		
 		serverObjectCacheManager = createNewServerObjectCacheManager();		
 
@@ -193,8 +168,6 @@ public class AnyProjectServer {
 		// serverProjectMonitor.start();
 		outputMessageWriterPool.startAll();
 		executorPool.startAll();
-		inputMessageReaderPool.startAll();
-		acceptProcessorPool.startAll();
 		if (!acceptSelector.isAlive()) {
 			acceptSelector.start();
 		}
@@ -209,10 +182,6 @@ public class AnyProjectServer {
 		if (! acceptSelector.isInterrupted()) {
 			acceptSelector.interrupt();
 		}
-	
-		acceptProcessorPool.stopAll();
-		inputMessageReaderPool.stopAll();
-
 		
 		executorPool.stopAll();		
 
@@ -232,8 +201,8 @@ public class AnyProjectServer {
 		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		pollStateStringBuilder.append("socketResourceManager.count=");
 		pollStateStringBuilder.append(socketResourceManager.getNumberOfSocketResources());
-		// pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);		
-		pollStateStringBuilder.append(inputMessageReaderPool.getPoolState());
+		
+		// pollStateStringBuilder.append(inputMessageReaderPool.getPoolState());
 		return pollStateStringBuilder.toString();
 	}
 

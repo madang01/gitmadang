@@ -88,55 +88,50 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 		connectionPoolSupporter.start();
 	}
 
-	private void addConnection()
-			throws InterruptedException, NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
+	public boolean addConnection() throws InterruptedException, ConnectionPoolException, NoMoreDataPacketBufferException, IOException {
 
-		if (numberOfConnection >= poolMaxSize) {
-			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
+		synchronized (monitor) {
+			if (numberOfConnection >= poolMaxSize) {
+				throw new ConnectionPoolException("fail to add a connection because this connection pool's size is max");
+			}
+
+			SyncPrivateSocketResource syncPrivateSocketResource = syncPrivateSocketResourceFactory
+					.makeNewSyncPrivateSocketResource();
+
+			SyncPrivateConnection conn = null;
+			
+			try {
+				conn = new SyncPrivateConnection(connectionFixedParameter, syncPrivateSocketResource);
+			} catch(InterruptedException | IOException | NoMoreDataPacketBufferException e) {
+				syncPrivateSocketResource.releaseSocketResources();
+				throw e;
+			} catch(Exception e) {
+				log.warn("unknown error", e);
+				
+				syncPrivateSocketResource.releaseSocketResources();
+				throw new IOException("unknown error");
+			}
+
+			// synchronized (monitor) {
+			connectionQueue.addLast(conn);
+			numberOfConnection++;
+			poolSize = Math.max(numberOfConnection, poolSize);
+			// }
+
+			log.debug("{} new SyncPrivateConnection[{}] added", projectName, conn.hashCode());
+			
+			return true;
 		}
-
-		SyncPrivateSocketResource syncPrivateSocketResource = syncPrivateSocketResourceFactory
-				.makeNewSyncPrivateSocketResource();
-
-		SyncPrivateConnection conn = null;
 		
-		try {
-			conn = new SyncPrivateConnection(connectionFixedParameter, syncPrivateSocketResource);
-		} catch(Exception e) {
-			syncPrivateSocketResource.releaseSocketResources();
-			throw e;
-		}
-
-		// synchronized (monitor) {
-		connectionQueue.addLast(conn);
-		numberOfConnection++;
-		poolSize = Math.max(numberOfConnection, poolSize);
-		// }
-
-		log.debug("{} new SyncPrivateConnection[{}] added", projectName, conn.hashCode());
 	}
 
 	private boolean whetherConnectionIsMissing() {
 		return (numberOfConnection != poolSize);
 	}
 
-	public void addAllLostConnections() throws InterruptedException {
-		synchronized (monitor) {
-			while (whetherConnectionIsMissing()) {
-				try {
-					addConnection();
-				} catch (InterruptedException e) {
-					String errorMessage = new StringBuilder(projectName).append(" 인터럽트 발생에 따른 결손된 연결 추가 작업 중지")
-							.toString();
-					log.warn(errorMessage, e);
-					throw e;
-				} catch (Exception e) {
-					String errorMessage = new StringBuilder(projectName).append(" 에러 발생에 따른 결손된 연결 추가 작업 중지, errmsg={}")
-							.append(e.getMessage()).toString();
-					log.warn(errorMessage, e);
-					break;
-				}
-			}
+	public void addAllLostConnections() throws InterruptedException, ConnectionPoolException, NoMoreDataPacketBufferException, IOException {
+		while (whetherConnectionIsMissing()) {
+			addConnection();
 		}
 	}
 

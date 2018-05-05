@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<project name="codda_logger" default="make" basedir=".">
+	<description>Netty Echo Client</description>
+	<!-- set global properties for this build -->
+	<property name="dir.src" location="src" />
+	<property name="dir.build" location="build" />
+	<property name="dir.dist" location="dist" />
+	<property name="dir.lib" location="lib" />
+	<property name="java.complile.option.debug" value="on" />
+	
+	<target name="clean">
+		<delete dir="${dir.build}" />
+		<delete dir="${dir.dist}" />
+	</target>
+
+
+	<target name="init">
+		<tstamp />
+		<mkdir dir="${dir.build}" />
+		<mkdir dir="${dir.dist}" />		
+		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
+	</target>
+	
+	<target name="compile" depends="init">		
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
+			<classpath>
+				<fileset dir="${dir.lib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="make" depends="compile">
+		<jar jarfile="${dir.dist}/CoddaLogger.jar">
+			<fileset dir="${dir.build}" />
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+	</target>	
+</project>

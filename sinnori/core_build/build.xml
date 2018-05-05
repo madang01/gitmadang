@@ -38,10 +38,8 @@
 	<union id="logger.jarlibs">
 		<union refid="logger.logback.jarlibs" />
 		
-		<fileset file="${dir.core.mainlib}/ex/commons-logging-1.2.jar" />
-		
-		<fileset file="${dir.core.mainlib}/ex/log4j-1.2.17.jar" />
-		
+		<fileset file="${dir.core.mainlib}/ex/commons-logging-1.2.jar" />		
+		<fileset file="${dir.core.mainlib}/ex/log4j-1.2.17.jar" />		
 		<fileset file="${dir.core.mainlib}/ex/log4j-core-2.11.0.jar" />
 		<fileset file="${dir.core.mainlib}/ex/log4j-api-2.11.0.jar" />
 	</union>
