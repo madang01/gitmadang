@@ -40,10 +40,8 @@ public abstract class CommonStaticFinalVars {
 	
 	public static final String ROOT_PROJECT_NAME = "codda";
 	public static final String ROOT_LOGGER_NAME = "kr.pe.codda";
-	public static final String FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME = ROOT_LOGGER_NAME+".impl.";
-	public static final String FIRST_PREFIX_RELATIVE_PATH_OF_DYNAMIC_CLASS_FULL_NAME = ROOT_LOGGER_NAME.replace(".","/");
-	
-	
+	public static final String FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME = "kr.pe.codda.impl.";
+		
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_RUNNING_PROJECT_NAME = "codda.projectName";
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_INSTALLED_PATH = "codda.installedPath";
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE = "logback.configurationFile";
@@ -96,13 +94,15 @@ public abstract class CommonStaticFinalVars {
 	/** configuration start */
 	public static final String DBCP_NAME_LIST_KEY_STRING = "dbcp.name_list.value";
 	public static final String SUBPROJECT_NAME_LIST_KEY_STRING = "subproject.name_list.value";	
-	public static final String LOGBACK_LOG_SHORT_FILE_NAME = "logback.xml";
+	public static final String LOGBACK_LOG_FILE_NAME = "logback.xml";
 	public static final String CONFIG_FILE_NAME = "codda.properties";
 	/** configuration end */
 	
 	/** ant.properties key start */
 	public static final String SERVLET_SYSTEM_LIBRARY_PATH_KEY = "servlet.systemlib.path";
 	/** ant.properties key end */
+	
+	public static final String CORE_ALL_JAR_FILE_NAME = "codda-core-all.jar";
 	
 	/** server build.xml, appclient build.xml, webclient build.xml start */
 	public static final String JAVA_COMPILE_OPTION_DEBUG_KEY = "java.complile.option.debug";

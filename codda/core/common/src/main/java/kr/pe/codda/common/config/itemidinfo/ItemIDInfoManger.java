@@ -38,7 +38,7 @@ import kr.pe.codda.common.config.nativevalueconverter.SetTypeConverterReturningI
 import kr.pe.codda.common.config.nativevalueconverter.SetTypeConverterReturningMessageProtocolType;
 import kr.pe.codda.common.config.nativevalueconverter.SetTypeConverterReturningString;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.ConfigurationException;
+import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.common.type.MessageProtocolType;
 import kr.pe.codda.common.type.SessionKey;
@@ -89,7 +89,7 @@ public class ItemIDInfoManger {
 	private ItemIDInfoManger() {
 		try {
 			addAllDBCPPartItemIDInfo();
-		} catch (IllegalArgumentException | ConfigurationException e) {
+		} catch (IllegalArgumentException | CoddaConfigurationException e) {
 			log.error(
 					"fail to add all of dbcp part item identification informtion",
 					e);
@@ -97,7 +97,7 @@ public class ItemIDInfoManger {
 		}
 		try {
 			addAllCommonPartItemIDInfo();
-		} catch (IllegalArgumentException | ConfigurationException e) {
+		} catch (IllegalArgumentException | CoddaConfigurationException e) {
 			log.error(
 					"fail to add all of common part item identification informtion",
 					e);
@@ -105,7 +105,7 @@ public class ItemIDInfoManger {
 		}
 		try {
 			addAllProjectPartItemIDInfo();
-		} catch (IllegalArgumentException | ConfigurationException e) {
+		} catch (IllegalArgumentException | CoddaConfigurationException e) {
 			log.error(
 					"fail to add all of project part item identification informtion",
 					e);
@@ -114,20 +114,20 @@ public class ItemIDInfoManger {
 
 		try {
 			addDependencyValidation();
-		} catch (IllegalArgumentException | ConfigurationException e) {
+		} catch (IllegalArgumentException | CoddaConfigurationException e) {
 			log.error("fail to add valid checker", e);
 			System.exit(1);
 		}
 		try {
 			addAllDisabledItemChecker();
-		} catch (IllegalArgumentException | ConfigurationException e) {
+		} catch (IllegalArgumentException | CoddaConfigurationException e) {
 			log.error("fail to add inactive checker", e);
 			System.exit(1);
 		}
 		
 		try {
 			addAllFileOrPathStringGetter();			
-		} catch (IllegalArgumentException | ConfigurationException e) {
+		} catch (IllegalArgumentException | CoddaConfigurationException e) {
 			log.error("fail to add inactive checker", e);
 			System.exit(1);
 		}
@@ -148,7 +148,7 @@ public class ItemIDInfoManger {
 	}
 	
 	private void addAllCommonPartItemIDInfo()
-			throws IllegalArgumentException, ConfigurationException {
+			throws IllegalArgumentException, CoddaConfigurationException {
 		
 
 		ItemIDInfo<?> itemIDInfo = null;
@@ -326,21 +326,21 @@ public class ItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addCommonPartItemIDInfo(itemIDInfo);
-		} catch (ConfigurationException | IllegalArgumentException e) {
+		} catch (CoddaConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"fail to add common part item identification[")
 					.append(itemID).append("] information").toString();
 
 			log.info(errorMessage, e);
 
-			throw new ConfigurationException(new StringBuilder(errorMessage)
+			throw new CoddaConfigurationException(new StringBuilder(errorMessage)
 			.append(", errrorMessage=").append(e.getMessage()).toString());
 		}
 		/** Common end */
 	}
 	
 	private void addAllDBCPPartItemIDInfo()
-			throws IllegalArgumentException, ConfigurationException {		
+			throws IllegalArgumentException, CoddaConfigurationException {		
 		ItemIDInfo<?> itemIDInfo = null;
 		String itemID = null;
 
@@ -364,14 +364,14 @@ public class ItemIDInfoManger {
 			}
 
 			addDBCPPartItemIDInfo(itemIDInfo);
-		} catch (ConfigurationException | IllegalArgumentException e) {
+		} catch (CoddaConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"fail to add dbcp part item identification[")
 					.append(itemID).append("] information").toString();
 
 			log.info(errorMessage, e);
 
-			throw new ConfigurationException(new StringBuilder(errorMessage)
+			throw new CoddaConfigurationException(new StringBuilder(errorMessage)
 			.append(", errrorMessage=").append(e.getMessage()).toString());
 		}
 
@@ -379,7 +379,7 @@ public class ItemIDInfoManger {
 	}
 	
 	private void addAllProjectPartItemIDInfo()
-			throws IllegalArgumentException, ConfigurationException {
+			throws IllegalArgumentException, CoddaConfigurationException {
 		ItemIDInfo<?> itemIDInfo = null;
 		String itemID = null;
 		boolean isDefaultValueCheck = false;
@@ -495,7 +495,7 @@ public class ItemIDInfoManger {
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.TEXT, itemID,
 					"동적 클래스 패키지명 접두어, 동적 클래스 여부를 판단하는 기준",
-					CommonStaticFinalVars.FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME, isDefaultValueCheck,
+					CommonStaticFinalVars.FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME, isDefaultValueCheck,
 					new GeneralConverterReturningNoTrimString());
 			addProjectPartItemIDInfo(itemIDInfo);
 	
@@ -847,14 +847,14 @@ public class ItemIDInfoManger {
 					new GeneralConverterReturningEmptyOrNoTrimString());
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-		} catch (ConfigurationException | IllegalArgumentException e) {
+		} catch (CoddaConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"fail to add project part item identification[")
 					.append(itemID).append("] information").toString();
 	
 			log.info(errorMessage, e);
 	
-			throw new ConfigurationException(new StringBuilder(errorMessage)
+			throw new CoddaConfigurationException(new StringBuilder(errorMessage)
 					.append(", errrorMessage=").append(e.getMessage())
 					.toString());
 		}
@@ -951,7 +951,7 @@ public class ItemIDInfoManger {
 
 	@SuppressWarnings("unchecked")
 	private void addDependencyValidation() throws IllegalArgumentException,
-			ConfigurationException {
+			CoddaConfigurationException {
 		
 		{
 			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID;
@@ -961,7 +961,7 @@ public class ItemIDInfoManger {
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID;
@@ -971,7 +971,7 @@ public class ItemIDInfoManger {
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			dependencyValidationHash
@@ -991,7 +991,7 @@ public class ItemIDInfoManger {
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
@@ -1001,7 +1001,7 @@ public class ItemIDInfoManger {
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			dependencyValidationHash
@@ -1019,7 +1019,7 @@ public class ItemIDInfoManger {
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
@@ -1029,7 +1029,7 @@ public class ItemIDInfoManger {
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			dependencyValidationHash
@@ -1047,7 +1047,7 @@ public class ItemIDInfoManger {
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID;
@@ -1057,7 +1057,7 @@ public class ItemIDInfoManger {
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			dependencyValidationHash
@@ -1075,7 +1075,7 @@ public class ItemIDInfoManger {
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
@@ -1085,7 +1085,7 @@ public class ItemIDInfoManger {
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			dependencyValidationHash
@@ -1098,7 +1098,7 @@ public class ItemIDInfoManger {
 	}
 
 	private void addAllDisabledItemChecker() throws IllegalArgumentException,
-			ConfigurationException {
+			CoddaConfigurationException {
 		{
 			String disabledTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID;
 			String dependentItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
@@ -1111,7 +1111,7 @@ public class ItemIDInfoManger {
 						.append("] identifier information, the RSA Public Key File item depends on RSA Keypair Source item[")
 						.append(dependentItemID)
 						.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			ItemIDInfo<?> dependentItemIDInfo = getItemIDInfo(dependentItemID);
@@ -1123,7 +1123,7 @@ public class ItemIDInfoManger {
 						.append(disabledTargetItemID)
 						.append("] depends on RSA Keypair Source item").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			diabledItemCheckerHash
@@ -1147,7 +1147,7 @@ public class ItemIDInfoManger {
 						.append("] identifier information, the RSA Public Key File item depends on RSA Keypair Source item[")
 						.append(dependentItemID)
 						.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			ItemIDInfo<?> dependentItemIDInfo = getItemIDInfo(dependentItemID);
@@ -1159,7 +1159,7 @@ public class ItemIDInfoManger {
 						.append(disabledTargetItemID)
 						.append("] depends on RSA Keypair Source item").toString();
 				// log.error(errorMessage);
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 	
 			diabledItemCheckerHash
@@ -1174,7 +1174,7 @@ public class ItemIDInfoManger {
 	}
 
 	private void addAllFileOrPathStringGetter() throws IllegalArgumentException,
-	ConfigurationException {
+	CoddaConfigurationException {
 		String itemID = null;
 		
 	
@@ -1593,7 +1593,7 @@ public class ItemIDInfoManger {
 
 	public Object getNativeValueAfterValidChecker(String itemKey,
 			Properties sourceProperties) throws IllegalArgumentException,
-			ConfigurationException {
+			CoddaConfigurationException {
 		if (null == itemKey) {
 			throw new IllegalArgumentException("the parameter itemKey is null");
 		}
@@ -1622,7 +1622,7 @@ public class ItemIDInfoManger {
 
 			log.warn(errorMessage);
 
-			throw new ConfigurationException(errorMessage);
+			throw new CoddaConfigurationException(errorMessage);
 		}
 
 		String itemID = itemIDInfo.getItemID();
@@ -1651,7 +1651,7 @@ public class ItemIDInfoManger {
 
 					// log.warn(errorMessage);
 
-					throw new ConfigurationException(errorMessage);
+					throw new CoddaConfigurationException(errorMessage);
 				}
 			} catch (IllegalArgumentException e) {
 				String errorMessage = new StringBuilder(
@@ -1661,7 +1661,7 @@ public class ItemIDInfoManger {
 				/** 다른 예외로 변환 되므로 이력 남긴다. */
 				log.debug(errorMessage, e);
 
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 		}
 
@@ -1679,7 +1679,7 @@ public class ItemIDInfoManger {
 			/** 다른 예외로 변환 되므로 이력 남긴다. */
 			log.warn(errorMessage, e);
 
-			throw new ConfigurationException(
+			throw new CoddaConfigurationException(
 					new StringBuilder(errorMessage).append(", errormessage=")
 					.append(e.getMessage()).toString());
 		}

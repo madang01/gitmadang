@@ -3,8 +3,8 @@ package kr.pe.codda.common.sessionkey;
 import java.security.SecureRandom;
 import java.util.Date;
 
-import kr.pe.codda.common.config.Configuration;
-import kr.pe.codda.common.config.ConfigurationManager;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.codda.common.exception.SymmetricException;
 
@@ -21,9 +21,9 @@ public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 			throw new IllegalArgumentException("the parameter ivBytes is null");
 		}
 		
-		Configuration sinnoriRunningProjectConfiguration = 
-				ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();		
+		CoddaConfiguration sinnoriRunningProjectConfiguration = 
+				CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();		
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		symmetricKeyAlgorithm = commonPart.getSymmetricKeyAlgorithmOfSessionKey();
 		symmetricKeySize = commonPart.getSymmetricKeySizeOfSessionKey();

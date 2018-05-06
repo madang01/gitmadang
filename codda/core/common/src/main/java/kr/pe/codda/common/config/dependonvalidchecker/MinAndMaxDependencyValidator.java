@@ -7,7 +7,7 @@ import kr.pe.codda.common.config.AbstractDependencyValidator;
 import kr.pe.codda.common.config.AbstractMinMaxConverter;
 import kr.pe.codda.common.config.AbstractNativeValueConverter;
 import kr.pe.codda.common.config.itemidinfo.ItemIDInfo;
-import kr.pe.codda.common.exception.ConfigurationException;
+import kr.pe.codda.common.exception.CoddaConfigurationException;
 
 public class MinAndMaxDependencyValidator<T extends Number> extends
 		AbstractDependencyValidator {
@@ -20,7 +20,7 @@ public class MinAndMaxDependencyValidator<T extends Number> extends
 	public MinAndMaxDependencyValidator(ItemIDInfo<T> dependentSourceConfigItem,
 			ItemIDInfo<T> dependentTargetConfigItem, 
 			Class<T> genericTypeClass)
-			throws IllegalArgumentException, ConfigurationException {
+			throws IllegalArgumentException, CoddaConfigurationException {
 		super(dependentSourceConfigItem, dependentTargetConfigItem);
 		
 		// Comparator<T> minMaxComparator, 
@@ -120,7 +120,7 @@ public class MinAndMaxDependencyValidator<T extends Number> extends
 			
 			//log.error(errorMessage);
 			//System.exit(1);
-			throw new ConfigurationException(errorMessage);
+			throw new CoddaConfigurationException(errorMessage);
 		}
 
 		try {
@@ -135,7 +135,7 @@ public class MinAndMaxDependencyValidator<T extends Number> extends
 			.append("] to GeneralConverterReturningGenericBetweenMinAndMax<T>")
 					.append(", errormessage=").append(e.getMessage())
 					.toString();
-			throw new ConfigurationException(errorMessage);
+			throw new CoddaConfigurationException(errorMessage);
 		}
 		
 		minMaxComparator = maxConverter.getTypeComparator();

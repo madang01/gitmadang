@@ -403,6 +403,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		} while (longBuffer.hasRemaining());
 	}
 
+	
 	@Override
 	public void putFixedLengthString(int fixedLength, String src) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException, BufferOverflowExceptionWithMessage, CharsetEncoderException {

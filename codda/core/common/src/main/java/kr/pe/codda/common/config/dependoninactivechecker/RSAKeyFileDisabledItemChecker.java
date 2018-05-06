@@ -19,6 +19,7 @@ import kr.pe.codda.common.config.nativevalueconverter.SetTypeConverterOfSessionK
  * @author Won Jonghoon
  * 
  */
+
 public class RSAKeyFileDisabledItemChecker extends
 		AbstractDisabledItemChecker {
 

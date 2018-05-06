@@ -2,8 +2,8 @@ package kr.pe.codda.common.updownfile;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.config.Configuration;
-import kr.pe.codda.common.config.ConfigurationManager;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.codda.common.etc.LimitedLongBitSet;
 import kr.pe.codda.common.exception.UpDownFileException;
@@ -94,8 +94,8 @@ public abstract class AbstractFileResource {
 	public AbstractFileResource(String ownerID, boolean append, String sourceFilePathName, String sourceFileName,
 			long sourceFileSize, String targetFilePathName, String targetFileName, long targetFileSize,
 			int fileBlockSize) throws IllegalArgumentException, UpDownFileException {
-		Configuration sinnoriRunningProjectConfiguration = ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
+		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		fileBlockMaxSize = commonPart.getFileBlockMaxSize();
 		

@@ -4,8 +4,8 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Date;
 
-import kr.pe.codda.common.config.Configuration;
-import kr.pe.codda.common.config.ConfigurationManager;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.codda.common.exception.SymmetricException;
 
@@ -19,9 +19,9 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 	public ClientSessionKey(ClientRSAIF clientRSA) throws SymmetricException {
 		this.clientRSA = clientRSA;
 		
-		Configuration sinnoriRunningProjectConfiguration = 
-				ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();		
+		CoddaConfiguration sinnoriRunningProjectConfiguration = 
+				CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();		
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		
 		int symmetricIVSize = commonPart.getSymmetricIVSizeOfSessionKey();		

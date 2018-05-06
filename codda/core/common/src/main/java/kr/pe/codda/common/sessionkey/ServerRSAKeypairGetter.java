@@ -16,10 +16,10 @@ import org.apache.commons.io.FileUtils;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.config.Configuration;
-import kr.pe.codda.common.config.ConfigurationManager;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
-import kr.pe.codda.common.exception.ConfigurationException;
+import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.type.SessionKey;
 import kr.pe.codda.common.util.HexUtil;
@@ -27,8 +27,8 @@ import kr.pe.codda.common.util.HexUtil;
 public abstract class ServerRSAKeypairGetter {
 	
 	public static KeyPair getRSAKeyPair() throws SymmetricException {
-		Configuration sinnoriRunningProjectConfiguration = ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
+		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 
 		SessionKey.RSAKeypairSourceType rsaKeyPairSoureOfSessionkey = commonPart
@@ -52,8 +52,8 @@ public abstract class ServerRSAKeypairGetter {
 		InternalLogger log = InternalLoggerFactory.getInstance(ServerRSAKeypairGetter.class);
 		
 		
-		Configuration sinnoriRunningProjectConfiguration = ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
+		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();		
 		int rsaKeySize = commonPart.getRsaKeySizeOfSessionKey();
 		
@@ -79,15 +79,15 @@ public abstract class ServerRSAKeypairGetter {
 		PrivateKey privateKey = null;
 		PublicKey publicKey = null;		
 		
-		Configuration sinnoriRunningProjectConfiguration = ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
+		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		File rsaPrivateKeyFile = null;
 		File rsaPublicKeyFile = null;
 		try {
 			rsaPrivateKeyFile = commonPart.getRSAPrivatekeyFileOfSessionKey();
 			rsaPublicKeyFile = commonPart.getRSAPublickeyFileOfSessionKey();
-		} catch (ConfigurationException e) {
+		} catch (CoddaConfigurationException e) {
 			log.warn(e.getMessage(), e);
 			throw new SymmetricException(e.getMessage());
 		}

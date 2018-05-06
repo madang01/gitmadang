@@ -7,6 +7,13 @@
 *.zip
 *.tar.gz
 *.jar
+codda/temp/**
+codda/core_build/report/**
+!codda/SinnoriHelper.jar
+!codda/core/**/*.jar
+codda/project/sample_*test/**
+
+
 sinnori/project/sample_*test/**
 sinnori/temp/**
 sinnori/core_build/report/**

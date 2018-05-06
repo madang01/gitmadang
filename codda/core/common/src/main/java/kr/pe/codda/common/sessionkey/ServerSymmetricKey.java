@@ -1,7 +1,7 @@
 package kr.pe.codda.common.sessionkey;
 
-import kr.pe.codda.common.config.Configuration;
-import kr.pe.codda.common.config.ConfigurationManager;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.codda.common.exception.SymmetricException;
 
@@ -21,9 +21,9 @@ private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstanc
 			throw new IllegalArgumentException("the paramter ivBytes is null");
 		}
 		
-		Configuration sinnoriRunningProjectConfiguration = 
-				ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();		
+		CoddaConfiguration sinnoriRunningProjectConfiguration = 
+				CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();		
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		int symmetricIVSize = commonPart.getSymmetricIVSizeOfSessionKey();		
 		symmetricKeyAlgorithm = commonPart.getSymmetricKeyAlgorithmOfSessionKey();

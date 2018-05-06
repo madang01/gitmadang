@@ -3,7 +3,7 @@ package kr.pe.codda.common.config.itemvalue;
 import java.io.File;
 
 import kr.pe.codda.common.config.itemidinfo.ItemIDDefiner;
-import kr.pe.codda.common.exception.ConfigurationException;
+import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.type.SessionKey;
 
 /**
@@ -43,7 +43,7 @@ public class CommonPartConfiguration {
 	}
 	
 	public void mapping(String itemKey, Object nativeValue) 
-			throws IllegalArgumentException, ConfigurationException, ClassCastException {
+			throws IllegalArgumentException, CoddaConfigurationException, ClassCastException {
 		if (null == itemKey) {
 			throw new IllegalArgumentException("the parameter itemKey is null");
 		}
@@ -62,7 +62,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(String.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.jdfErrorMessagePage = (String) nativeValue;			
@@ -74,7 +74,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(String.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.jdfLoginPage = (String) nativeValue;
@@ -86,7 +86,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(Boolean.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.jdfServletTrace = (Boolean) nativeValue;
@@ -98,7 +98,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(String.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.webLayoutControlPage = (String) nativeValue;
@@ -110,7 +110,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(SessionKey.RSAKeypairSourceType.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.rsaKeypairSourceOfSessionKey = (SessionKey.RSAKeypairSourceType) nativeValue;
@@ -122,7 +122,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(File.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.rsaPublickeyFileOfSessionKey = (File) nativeValue;
@@ -134,7 +134,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(File.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.rsaPrivatekeyFileOfSessionKey = (File) nativeValue;
@@ -146,7 +146,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(Integer.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.rsaKeySizeOfSessionKey = (Integer) nativeValue;
@@ -158,7 +158,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(String.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.symmetricKeyAlgorithmOfSessionKey = (String) nativeValue;
@@ -170,7 +170,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(Integer.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.symmetricKeySizeOfSessionKey = (Integer) nativeValue;
@@ -182,7 +182,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(Integer.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.symmetricIVSizeOfSessionKey = (Integer) nativeValue;		
@@ -194,7 +194,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(Integer.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.localSourceFileResourceCnt = (Integer) nativeValue;
@@ -206,7 +206,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(Integer.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.localTargetFileResourceCnt = (Integer) nativeValue;
@@ -218,7 +218,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(Integer.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.fileBlockMaxSize = (Integer) nativeValue;		
@@ -230,7 +230,7 @@ public class CommonPartConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(Integer.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.cachedObjectMaxSize = (Integer) nativeValue;
@@ -238,7 +238,7 @@ public class CommonPartConfiguration {
 			String errorMessage = new StringBuilder("unknown DBCP part item id(=the parameter itemIDInfo[")
 			.append(itemID)
 			.append("]), check it").toString();
-			throw new ConfigurationException(errorMessage);
+			throw new CoddaConfigurationException(errorMessage);
 		}
 	}
 	
@@ -268,16 +268,16 @@ public class CommonPartConfiguration {
 		return rsaKeypairSourceOfSessionKey;
 	}
 
-	public File getRSAPublickeyFileOfSessionKey() throws ConfigurationException {
+	public File getRSAPublickeyFileOfSessionKey() throws CoddaConfigurationException {
 		if (null == rsaPublickeyFileOfSessionKey) {
-			throw new ConfigurationException("sinnori config's RSA public key file is null because of no matching or inactive status");
+			throw new CoddaConfigurationException("sinnori config's RSA public key file is null because of no matching or inactive status");
 		}
 		return rsaPublickeyFileOfSessionKey;
 	}
 	
-	public File getRSAPrivatekeyFileOfSessionKey() throws ConfigurationException {
+	public File getRSAPrivatekeyFileOfSessionKey() throws CoddaConfigurationException {
 		if (null == rsaPrivatekeyFileOfSessionKey) {
-			throw new ConfigurationException("sinnori config's RSA private key file is null because of no matching or inactive status");
+			throw new CoddaConfigurationException("sinnori config's RSA private key file is null because of no matching or inactive status");
 		}
 		return rsaPrivatekeyFileOfSessionKey;
 	}

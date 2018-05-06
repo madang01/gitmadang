@@ -2,8 +2,8 @@ package kr.pe.codda.common.sessionkey;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import kr.pe.codda.common.config.Configuration;
-import kr.pe.codda.common.config.ConfigurationManager;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.exception.SymmetricException;
 
 public final class ClientSessionKeyManager {
@@ -38,8 +38,8 @@ public final class ClientSessionKeyManager {
 			throw new IllegalArgumentException("the parameter subProjectName is null");
 		}
 		
-		Configuration sinnoriRunningProjectConfiguration = ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
+		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
 		
 		if (! sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration().isRegistedSubProjectName(subProjectName)) {				
 			throw new IllegalArgumentException("the parameter subProjectName is not registered in the Sinnori config file");

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <project name="codda_logger" default="make" basedir=".">
-	<description>Netty Echo Client</description>
+	<description>codda logger</description>
 	<!-- set global properties for this build -->
 	<property name="dir.src" location="src" />
 	<property name="dir.build" location="build" />
@@ -35,7 +35,7 @@
 	</target>
 
 	<target name="make" depends="compile">
-		<jar jarfile="${dir.dist}/CoddaLogger.jar">
+		<jar jarfile="${dir.dist}/codda-logger.jar">
 			<fileset dir="${dir.build}" />
 			<restrict>
 				<name name="**/*.class" />

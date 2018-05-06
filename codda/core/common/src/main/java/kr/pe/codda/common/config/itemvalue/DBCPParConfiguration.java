@@ -3,7 +3,7 @@ package kr.pe.codda.common.config.itemvalue;
 import java.io.File;
 
 import kr.pe.codda.common.config.itemidinfo.ItemIDDefiner;
-import kr.pe.codda.common.exception.ConfigurationException;
+import kr.pe.codda.common.exception.CoddaConfigurationException;
 
 /**
  * Warning! 비활성한 항목의 값은 쓰레기값이므로 
@@ -38,7 +38,7 @@ public class DBCPParConfiguration {
 	}
 	
 	public void mapping(String itemKey, Object nativeValue) 
-			throws IllegalArgumentException, ConfigurationException, ClassCastException {
+			throws IllegalArgumentException, CoddaConfigurationException, ClassCastException {
 		if (null == itemKey) {
 			throw new IllegalArgumentException("the parameter itemKey is null");
 		}
@@ -68,7 +68,7 @@ public class DBCPParConfiguration {
 				.append(itemID).append("] is differnet from the mapped variable's type[")
 				.append(File.class.getName())
 				.append("]").toString();
-				throw new ConfigurationException(errorMessage);
+				throw new CoddaConfigurationException(errorMessage);
 			}
 			
 			this.dbcpConfigFile = (File) nativeValue;			
@@ -76,7 +76,7 @@ public class DBCPParConfiguration {
 			String errorMessage = new StringBuilder("unknown DBCP part item id(=the parameter itemIDInfo[")
 			.append(itemID)
 			.append("]), check it").toString();
-			throw new ConfigurationException(errorMessage);
+			throw new CoddaConfigurationException(errorMessage);
 		}
 		
 	}

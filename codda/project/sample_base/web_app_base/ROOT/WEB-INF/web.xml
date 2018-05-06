@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0" metadata-complete="true">
+
+	<display-name>Welcome to Sinnori</display-name>
+	<description>
+	Welcome to Sinnori
+    </description>
+	
+	<servlet>
+		<servlet-name>SessionKeyTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.SessionKeyTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SessionKeyTest</servlet-name>
+		<url-pattern>/servlet/SessionKeyTest</url-pattern>
+	</servlet-mapping>	
+
+	<servlet>
+		<servlet-name>Member</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.MemberSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Member</servlet-name>
+		<url-pattern>/servlet/Member</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>JDFNotLoginTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.JDFNotLoginTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JDFNotLoginTest</servlet-name>
+		<url-pattern>/servlet/JDFNotLoginTest</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>JSBNTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.JSBNTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JSBNTest</servlet-name>
+		<url-pattern>/servlet/JSBNTest</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>CryptoJSMDTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.CryptoJSMDTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CryptoJSMDTest</servlet-name>
+		<url-pattern>/servlet/CryptoJSMDTest</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>CryptoJSSKTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.CryptoJSSKTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CryptoJSSKTest</servlet-name>
+		<url-pattern>/servlet/CryptoJSSKTest</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>EchoTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.EchoTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>EchoTest</servlet-name>
+		<url-pattern>/servlet/EchoTest</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>AllItemTypeTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.AllItemTypeTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllItemTypeTest</servlet-name>
+		<url-pattern>/servlet/AllItemTypeTest</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>SimpleCounter</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.SimpleCounterSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SimpleCounter</servlet-name>
+		<url-pattern>/servlet/SimpleCounter</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>JDFLoginTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.JDFLoginTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JDFLoginTest</servlet-name>
+		<url-pattern>/servlet/JDFLoginTest</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Login</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.LoginSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Login</servlet-name>
+		<url-pattern>/servlet/Login</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>BoardList</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardListSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardList</servlet-name>
+		<url-pattern>/servlet/BoardList</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>BoardVote</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardVoteSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardVote</servlet-name>
+		<url-pattern>/servlet/BoardVote</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>BoardDetail</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardDetailSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardDetail</servlet-name>
+		<url-pattern>/servlet/BoardDetail</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>BoardWrite</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardWriteSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardWrite</servlet-name>
+		<url-pattern>/servlet/BoardWrite</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>BoardReply</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardReplySvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardReply</servlet-name>
+		<url-pattern>/servlet/BoardReply</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>BoardModify</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardModifySvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardModify</servlet-name>
+		<url-pattern>/servlet/BoardModify</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>BoardUpload</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardUploadSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardUpload</servlet-name>
+		<url-pattern>/servlet/BoardUpload</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>BoardDownload</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardDownloadSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardDownload</servlet-name>
+		<url-pattern>/servlet/BoardDownload</url-pattern>
+	</servlet-mapping>
+	
+	
+	<servlet>
+		<servlet-name>JavaGarbageCollection</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.JavaGarbageCollectionSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JavaGarbageCollection</servlet-name>
+		<url-pattern>/servlet/JavaGarbageCollection</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>JavaStringConversionTool</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.JavaStringConversionToolSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JavaStringConversionTool</servlet-name>
+		<url-pattern>/servlet/JavaStringConversionTool</url-pattern>
+	</servlet-mapping>
+
+	<!-- Simple Captcha start -->
+	<servlet>
+        <servlet-name>StickyCaptcha</servlet-name>
+        <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
+        <!-- The width and height params are optional; 
+        if unspecified they default to 200 and 50 respectively. -->
+        <init-param>
+            <param-name>width</param-name>
+            <param-value>250</param-value>
+        </init-param>
+        <init-param>
+            <param-name>height</param-name>
+            <param-value>75</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>StickyCaptcha</servlet-name>
+        <url-pattern>/servlet/stickyImg</url-pattern>
+    </servlet-mapping>
+	<!-- Simple Captcha end -->
+</web-app>

@@ -23,8 +23,8 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.config.Configuration;
-import kr.pe.codda.common.config.ConfigurationManager;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
 
 
@@ -55,9 +55,9 @@ public final class ObjectCacheManager {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private ObjectCacheManager() {
-		Configuration sinnoriRunningProjectConfiguration = 
-				ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
+		CoddaConfiguration sinnoriRunningProjectConfiguration = 
+				CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
 		
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		int cachedObjectMaxSize = commonPart.getCachedObjectMaxSize();

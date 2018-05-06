@@ -18,6 +18,15 @@
 
 package kr.pe.codda.common.exception;
 
+/**
+ * <pre>
+ * this class is an {@link BufferUnderflowExcep} wrapper class having a message and occurs under a controlled state. 
+ * this class is distinct from the {@link BufferUnderflowExcep}.
+ * the {@link BufferUnderflowExcep} class has no message and occurs under a uncontrolled state. 
+ * </pre>
+ * @author Won Jonghoon
+ *
+ */
 @SuppressWarnings("serial")
 public class BufferUnderflowExceptionWithMessage extends Exception {
 	/**

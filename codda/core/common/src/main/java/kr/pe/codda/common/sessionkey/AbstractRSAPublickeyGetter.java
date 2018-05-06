@@ -7,10 +7,10 @@ import org.apache.commons.io.FileUtils;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.config.Configuration;
-import kr.pe.codda.common.config.ConfigurationManager;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
-import kr.pe.codda.common.exception.ConfigurationException;
+import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.type.SessionKey;
 
@@ -18,8 +18,8 @@ public abstract class AbstractRSAPublickeyGetter {
 	
 	public final byte[] getMainProjectPublickeyBytes() throws SymmetricException, InterruptedException {
 		byte[] publicKeyBytes = null;
-		Configuration sinnoriRunningProjectConfiguration = ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
+		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 
 		SessionKey.RSAKeypairSourceType rsaKeyPairSoureOfSessionkey = commonPart
@@ -98,8 +98,8 @@ public abstract class AbstractRSAPublickeyGetter {
 		
 		byte[] publicKeyBytes = null;
 
-		Configuration sinnoriRunningProjectConfiguration = ConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
+		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 
 		File rsaPublickeyFile = null;
@@ -109,7 +109,7 @@ public abstract class AbstractRSAPublickeyGetter {
 			
 			publicKeyBytes =FileUtils.readFileToByteArray(rsaPublickeyFile);
 
-		} catch (ConfigurationException e) {
+		} catch (CoddaConfigurationException e) {
 			String errorMessage = String.format("fail to get RSA public key file from Sinnnori configuration, errormessage=[%s]",
 					 e.getMessage());
 			log.warn(errorMessage, e);

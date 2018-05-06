@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<project name="sample_base_server" default="compile.only.appinf" basedir=".">
+	<property name="dir.src" location="src/main/java" />
+	<property name="dir.build" location="build" />
+	<property name="dir.appinf" location="APP-INF" />
+	<property name="dir.dist" location="dist" />
+	<property name="dir.corelib" location="corelib" />
+	<property name="dir.mainlib" location="lib/main" />
+	<property name="dir.core.build" location="../../../core_build" />
+	<property name="dir.core.mainlib" location="${dir.core.build}/lib/main" />
+	<property name="server.main.class" value="main.ServerMain" />
+	<property name="server.main.jar" value="CoddaServerRun.jar" />
+	<property name="core.all.jar" value="codda-core-all.jar" />
+	<property name="java.complile.option.debug" value="on" />
+
+	<condition property="is.windows.yes">
+		<os family="windows" />
+	</condition>
+
+	<condition property="is.unix.yes">
+		<os family="unix" />
+	</condition>
+
+	<union id="logback.jarlibs">
+		<fileset file="${dir.core.mainlib}/ex/slf4j-api-1.7.25.jar" />
+		<fileset file="${dir.core.mainlib}/ex/jcl-over-slf4j-1.7.25.jar" />
+		<fileset file="${dir.core.mainlib}/ex/logback-core-1.2.3.jar" />
+		<fileset file="${dir.core.mainlib}/ex/logback-classic-1.2.3.jar" />
+	</union>
+
+	<union id="core.common.jarlibs">
+		<fileset file="${dir.core.mainlib}/ex/commons-io-2.6.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-collections4-4.1.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-codec-1.11.jar" />
+	</union>
+
+	<union id="core.server.jarlibs">
+		<fileset file="${dir.core.mainlib}/ex/mysql-connector-java-5.1.37-bin.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-pool2-2.5.0.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-dbcp2-2.0.1.jar" />
+		<fileset file="${dir.core.mainlib}/ex/jooq-meta-3.10.6.jar" />
+		<fileset file="${dir.core.mainlib}/ex/jooq-codegen-3.10.6.jar" />
+		<fileset file="${dir.core.mainlib}/ex/jooq-3.10.6.jar" />
+	</union>
+
+	<union id="core.jarlibs">
+		<union refid="core.common.jarlibs" />
+		<union refid="core.server.jarlibs" />
+	</union>
+
+	<target name="init.var">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
+		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
+		<mkdir dir="${dir.mainlib}/ex" />
+		<mkdir dir="${dir.mainlib}/in" />
+	</target>
+
+	<target name="make.unixcore" if="is.unix.yes" depends="init.var">
+		<exec dir="${dir.core.build}" executable="ant" />
+	</target>
+
+	<target name="make.doscore" if="is.windows.yes" depends="make.unixcore">
+		<exec dir="${dir.core.build}" executable="cmd">
+			<arg value="/c" />
+			<arg value="ant.bat" />
+		</exec>
+	</target>
+
+	<target name="make.core" depends="make.doscore" />
+
+	<target name="copy.core" depends="make.core">
+		<delete dir="${dir.corelib}" />
+		<mkdir dir="${dir.corelib}/ex" />
+		<mkdir dir="${dir.corelib}/in" />
+
+		<copy todir="${dir.corelib}/in" verbose="true" overwrite="true">
+			<fileset file="${dir.core.build}/dist/${core.all.jar}" />
+		</copy>
+		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
+			<union refid="core.jarlibs" />
+			<union refid="logback.jarlibs" />
+		</copy>
+	</target>
+
+	<target name="copy.appinf" depends="copy.core">
+		<delete dir="${dir.appinf}/classes" />
+		<mkdir dir="${dir.appinf}/classes" />
+		<mkdir dir="${dir.appinf}/resources" />
+
+		<copy todir="${dir.appinf}/resources" verbose="true" overwrite="false">
+			<fileset dir="${dir.core.build}/APP-INF/resources/" />
+		</copy>
+	</target>
+
+	<target name="compile.main" depends="copy.appinf">
+		<delete dir="${dir.build}" />
+		<mkdir dir="${dir.build}" />
+
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
+			<exclude name="kr/pe/codda/impl/**" />
+			<classpath>
+				<fileset dir="${dir.corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.corelib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.mainlib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.mainlib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="copy.distlib" depends="compile.main">
+		<delete dir="${dir.dist}" />
+		<mkdir dir="${dir.dist}/lib" />
+
+		<copy todir="${dir.dist}/lib" verbose="true" overwrite="false">
+			<fileset dir="${dir.corelib}/ex" />
+			<fileset dir="${dir.mainlib}/ex" />
+		</copy>
+	</target>
+
+	<path id="build.classpath">
+		<fileset dir="${dir.corelib}">
+			<include name="ex/*.jar" />
+		</fileset>
+		<fileset dir="${dir.mainlib}">
+			<include name="ex/*.jar" />
+		</fileset>
+	</path>
+
+	<pathconvert property="manifest.classpath" pathsep=" ">
+		<path refid="build.classpath" />
+		<mapper>
+			<chainedmapper>
+				<flattenmapper/>
+				<globmapper from="*.jar" to="lib/*.jar" />
+			</chainedmapper>
+		</mapper>
+	</pathconvert>
+
+	<target name="make.main" depends="copy.distlib">
+		<jar destfile="${dir.dist}/${server.main.jar}" basedir="${dir.build}">
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+			<manifest>
+				<attribute name="Main-Class" value="${server.main.class}" />
+				<attribute name="Class-Path" value="${manifest.classpath}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="compile.appinf" depends="make.main">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.appinf}/classes">
+			<include name="kr/pe/codda/impl/**" />
+			<classpath>
+				<fileset dir="${dir.corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.corelib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.mainlib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.mainlib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="all" depends="compile.appinf" />
+
+	<target name="clean.appinf" depends="init.var">
+		<delete dir="${dir.appinf}/classes" />
+		<mkdir dir="${dir.appinf}/classes" />
+	</target>
+
+	<target name="compile.only.appinf" depends="init.var">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.appinf}/classes">
+			<include name="kr/pe/codda/impl/**" />
+			<classpath>
+				<fileset dir="${dir.corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.corelib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.mainlib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.mainlib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+</project>
