@@ -18,12 +18,12 @@ import kr.pe.codda.common.util.CommonStaticUtil;
 
 public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJunitTest {
 	@Test
-	public void test_신놀이설치경로에있는메시지정보파일로부터메시지IO관련파일만들기() {
+	public void test_설치경로에있는임시디렉토리에메시지정보파일로부터메시지IO관련파일만들기() {
 		String[] targetMessageIDList = {
-				"SelfExnRes",
-				"AllItemType",
-				"Echo",
-				"Empty"
+			"SelfExnRes",
+			"AllItemType",
+			"Echo",
+			"Empty"
 		};
 		
 		final String author = "Won Jonghoon";
@@ -36,9 +36,9 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 			fail(errorMessage);
 		}
 		
-		String tmpPathString = BuildSystemPathSupporter.getRootTempPathString(installedPath.getAbsolutePath());
+		String tempPathString = BuildSystemPathSupporter.getTempPathString(installedPath.getAbsolutePath());
 		
-		log.info("the temp directory[{}] where the target messge's io file set will be saved", tmpPathString);
+		log.info("the temp directory[{}] where the target messge's io file set will be saved", tempPathString);
 		
 		for (String targetMessageID : targetMessageIDList) {
 			log.info("the target message[{}]'s io file set creation work start", 
@@ -66,7 +66,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 				String messageSourceFileContent = ioFileSetContentsBuilderManager.getMessageSourceFileContents(author,
 						messageInfo);
 
-				File messageSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
+				File messageSourceFile = new File(new StringBuilder(tempPathString).append(File.separator)
 						.append(targetMessageID).append(".java").toString());
 
 				try {
@@ -84,7 +84,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 				String encoderSourceFileContents = ioFileSetContentsBuilderManager.getEncoderSourceFileContents(author,
 						messageInfo);
 
-				File encoderSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
+				File encoderSourceFile = new File(new StringBuilder(tempPathString).append(File.separator)
 						.append(targetMessageID).append("Encoder.java").toString());
 
 				try {
@@ -102,7 +102,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 				String decoderSourceFileContents = ioFileSetContentsBuilderManager
 						.getDecoderSourceFileContents(author, messageInfo);
 
-				File decoderSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
+				File decoderSourceFile = new File(new StringBuilder(tempPathString).append(File.separator)
 						.append(targetMessageID).append("Decoder.java").toString());
 
 				try {
@@ -120,7 +120,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 				String clientCodecSourceFileContents = ioFileSetContentsBuilderManager.getClientCodecSourceFileContents(
 						MessageTransferDirectionType.FROM_ALL_TO_ALL, targetMessageID, author);
 
-				File clientCodecSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
+				File clientCodecSourceFile = new File(new StringBuilder(tempPathString).append(File.separator)
 						.append(targetMessageID).append("ClientCodec.java").toString());
 
 				try {
@@ -139,7 +139,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 				String serverCodecSourceFileContents = ioFileSetContentsBuilderManager.getServerCodecSourceFileContents(
 						MessageTransferDirectionType.FROM_ALL_TO_ALL, targetMessageID, author);
 
-				File serverCodecSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
+				File serverCodecSourceFile = new File(new StringBuilder(tempPathString).append(File.separator)
 						.append(targetMessageID).append("ServerCodec.java").toString());
 
 				try {

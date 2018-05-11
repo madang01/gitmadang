@@ -1,0 +1,71 @@
+JFDML JFormDesigner: "5.2.5.0.333" Java: "1.8.0_121" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+			"$columnSpecs": "unrelgap, max(pref;600px):grow, unrelgap"
+			"$rowSpecs": "linegap, default, linegap, default, linegap"
+		} ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "78dlu, labelcompgap, max(pref;156dlu):grow, labelcompgap, default"
+				"$rowSpecs": "default"
+			} ) {
+				name: "sinnoriInstallPathLinePanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "sinnoriInstalledPathLabel"
+					"text": "Sinnori installed path :"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "sinnoriInstalledPathTextField"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "sinnoriInstalledPathButton"
+					"text": "path"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, unrelgap, default"
+				"$rowSpecs": "default:grow"
+			} ) {
+				name: "nextStepLinePanel"
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "prevStepButton"
+					"text": "Prev"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "prevStepButtonActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "nextStepButton"
+					"text": "Next"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "nextStepButtonActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 4
+				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 630, 75 )
+		} )
+	}
+}

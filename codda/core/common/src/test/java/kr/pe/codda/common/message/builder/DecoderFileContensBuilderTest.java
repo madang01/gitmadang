@@ -12,7 +12,7 @@ import kr.pe.codda.common.type.SingleItemType;
 public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 		
 		@Test
-		public void testBuildStringOfSingleItemInfoPart() {
+		public void testAddSingleItemInfoPart() {
 			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
 			
 			int depth = 1;
@@ -29,13 +29,14 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
 					nativeItemSize, nativeItemCharset);
 			
-			String result = decoderFileContensBuilder.buildStringOfSingleItemInfoPart(depth, path, varNameOfSetOwner, middleObjVarName, singleItemInfo);
+			StringBuilder contetnsStringBuilder = new StringBuilder();
+			decoderFileContensBuilder.addSingleItemInfoPart(contetnsStringBuilder, depth, path, varNameOfSetOwner, middleObjVarName, singleItemInfo);
 			
-			log.info(result);
+			log.info(contetnsStringBuilder.toString());
 		}
 		
 		@Test
-		public void testBuildStringOfArraySizeVarDeclarationPart() {
+		public void testAddArraySizeVarDeclarationPart() {
 			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
 			
 			int depth = 1;
@@ -59,14 +60,15 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 			
-			String result = decoderFileContensBuilder.buildStringOfArraySizeVarDeclarationPart(depth, varNameOfSetOwner, arrayInfo);
+			StringBuilder contetnsStringBuilder = new StringBuilder();
+			decoderFileContensBuilder.addArraySizeVarDeclarationPart(contetnsStringBuilder, depth, varNameOfSetOwner, arrayInfo);
 			
-			log.info(result);
+			log.info(contetnsStringBuilder.toString());
 		}
 		
 		
 		@Test
-		public void testBuildStringOfArrayInfoPart() {
+		public void testAddArrayInfoPart() {
 			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
 			
 			int depth = 1;
@@ -92,13 +94,15 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 			
-			String result = decoderFileContensBuilder.buildStringOfArrayInfoPart(depth, path, varNameOfSetOwner, middleObjVarName, arrayInfo);
+			StringBuilder contetnsStringBuilder = new StringBuilder();
 			
-			log.info(result);
+			decoderFileContensBuilder.addArrayInfoPart(contetnsStringBuilder, depth, path, varNameOfSetOwner, middleObjVarName, arrayInfo);
+			
+			log.info(contetnsStringBuilder.toString());
 		}
 		
 		@Test
-		public void testBuildStringOfGroupInfoPart() {
+		public void testAddGroupInfoPart() {
 			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
 			
 			int depth = 1;
@@ -122,8 +126,9 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 				groupOrderedItemSet.addItemInfo(singleItemInfo);
 			}
 			
-			String result = decoderFileContensBuilder.buildStringOfGroupInfoPart(depth, path, varNameOfSetOwner, middleObjVarName, groupInfo);
+			StringBuilder contetnsStringBuilder = new StringBuilder();
+			decoderFileContensBuilder.addGroupInfoPart(contetnsStringBuilder, depth, path, varNameOfSetOwner, middleObjVarName, groupInfo);
 			
-			log.info(result);
+			log.info(contetnsStringBuilder.toString());
 		}
 }

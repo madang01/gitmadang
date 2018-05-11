@@ -23,20 +23,12 @@ public class ItemIDInfoMangerTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testGetNewSinnoriConfigSequencedProperties() {
+	public void testGetNewConfigSequencedProperties() {
 		String mainProjectName = "sample_test";
 		String installedPathString = installedPath.getAbsolutePath();
-		SequencedProperties newSinnoriProperties = ItemIDInfoManger.getInstance()
+		SequencedProperties newConfigProperties = ItemIDInfoManger.getInstance()
 				.getNewConfigSequencedProperties(installedPathString, mainProjectName);
-		log.info(newSinnoriProperties.toString());
-		
-		/*try {
-			SequencedPropertiesUtil.createNewSequencedPropertiesFile(newSinnoriProperties, "this file is the project "+mainProjectName+"'s configuration properties file", 
-					"D:\\temp.properties", CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (IOException e) {
-			e.printStackTrace();
-			org.junit.Assert.fail(e.getMessage());
-		}*/
+		log.info(newConfigProperties.toString());
 	}
 	
 	@Test
@@ -148,7 +140,7 @@ public class ItemIDInfoMangerTest extends AbstractJunitTest {
 		
 		String mainProjectName = "sample_base";
 		String sampleBaseDBCPFilePathString = actuvalFileOrPathStringGetter
-		.getFileOrPathStringDependingOninstalledPath(installedPath.getAbsolutePath(), 
+		.getFileOrPathStringDependingOnInstalledPath(installedPath.getAbsolutePath(), 
 				mainProjectName, "sample_base_db");
 		
 		File sampleBaseDBCPFile = new File(sampleBaseDBCPFilePathString);

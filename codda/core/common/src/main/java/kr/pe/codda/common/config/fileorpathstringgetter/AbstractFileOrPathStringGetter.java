@@ -20,7 +20,7 @@ public abstract class AbstractFileOrPathStringGetter {
 	}
 
 	
-	public abstract String getFileOrPathStringDependingOninstalledPath(
+	public abstract String getFileOrPathStringDependingOnInstalledPath(
 			String installedPathString, String mainProjectName, 
 			String... etcParamter);
 

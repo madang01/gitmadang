@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.impl.message.Empty.Empty;
 import kr.pe.codda.impl.message.Empty.EmptyClientCodec;
 import kr.pe.codda.impl.message.Empty.EmptyDecoder;
@@ -21,29 +20,27 @@ public class IOPartDynamicClassNameUtilTest extends AbstractJunitTest {
 	 */
 	@Test
 	public void testAllIOPartDynamicClassFullNameIsValid() {
-		String classLoaderClassPackagePrefixName = CommonStaticFinalVars.FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME;
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(classLoaderClassPackagePrefixName);
 
 		String messageID = "Empty";
-		String messageClassFullName = ioPartDynamicClassNameUtil.getMessageClassFullName(messageID);
+		String messageClassFullName = IOPartDynamicClassNameUtil.getMessageClassFullName(messageID);
 		assertEquals(Empty.class.getCanonicalName(), messageClassFullName);
 			
-		String clientMessageCodecClassFullName = ioPartDynamicClassNameUtil.getClientMessageCodecClassFullName(messageID);		
+		String clientMessageCodecClassFullName = IOPartDynamicClassNameUtil.getClientMessageCodecClassFullName(messageID);		
 		assertEquals(EmptyClientCodec.class.getCanonicalName(), clientMessageCodecClassFullName);
 		
-		String serverMessageCodecClassFullName = ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);		
+		String serverMessageCodecClassFullName = IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);		
 		assertEquals(EmptyServerCodec.class.getCanonicalName(), serverMessageCodecClassFullName);		
 		
-		String messageEncoderClassFullName = ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(messageID);
+		String messageEncoderClassFullName = IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(messageID);
 		assertEquals(EmptyEncoder.class.getCanonicalName(), messageEncoderClassFullName);
 		
-		String messageDecoderClassFullName = ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID);
+		String messageDecoderClassFullName = IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID);
 		assertEquals(EmptyDecoder.class.getCanonicalName(), messageDecoderClassFullName);
 		
-		String clientTaskClassFullName = ioPartDynamicClassNameUtil.getClientTaskClassFullName(messageID);
+		String clientTaskClassFullName = IOPartDynamicClassNameUtil.getClientTaskClassFullName(messageID);
 		assertEquals(EmptyClientTask.class.getCanonicalName(), clientTaskClassFullName);
 		
-		String serverTaskClassFullName = ioPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
+		String serverTaskClassFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
 		assertEquals(EmptyServerTask.class.getCanonicalName(), serverTaskClassFullName);
 	}
 }

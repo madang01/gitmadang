@@ -13,7 +13,7 @@
 	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
-<sinnori_message>
+<message>
 <messageID>AllItemType</messageID>
 <direction>FROM_ALL_TO_ALL</direction>
 <desc>모든 항목 타입을 테스트 하기 위한 메시지</desc>
@@ -62,4 +62,4 @@
 	</array>
 </array>
 <singleitem name="longVar4" type="long" />
-</sinnori_message>
+</message>

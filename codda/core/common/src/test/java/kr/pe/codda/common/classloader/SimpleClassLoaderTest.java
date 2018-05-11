@@ -13,12 +13,10 @@ public class SimpleClassLoaderTest extends AbstractJunitTest {
 	
 	@Test
 	public void testGetResourceAsStream() {
-		String firstPrefixDynamicClassFullName = "kr.pe.sinnori.impl.";
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(firstPrefixDynamicClassFullName);
 		
 		String classloaderClassPathString = "temp";
 		String classloaderReousrcesPathString = BuildSystemPathSupporter.getRootResourcesPathString(installedPath.getAbsolutePath());
-		ServerSystemClassLoaderClassManager serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager(ioPartDynamicClassNameUtil);
+		ServerSystemClassLoaderClassManager serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager();
 		
 		SimpleClassLoader simpleClassLoader = new SimpleClassLoader(classloaderClassPathString, classloaderReousrcesPathString, serverSystemClassLoaderClassManager);
 		

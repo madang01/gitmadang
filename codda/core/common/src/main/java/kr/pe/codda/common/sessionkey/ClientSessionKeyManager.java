@@ -38,11 +38,11 @@ public final class ClientSessionKeyManager {
 			throw new IllegalArgumentException("the parameter subProjectName is null");
 		}
 		
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
 		
-		if (! sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration().isRegistedSubProjectName(subProjectName)) {				
-			throw new IllegalArgumentException("the parameter subProjectName is not registered in the Sinnori config file");
+		if (! runningProjectConfiguration.getAllSubProjectPartConfiguration().isRegistedSubProjectName(subProjectName)) {				
+			throw new IllegalArgumentException("the parameter subProjectName is not registered in the config file");
 		}
 		
 		ClientSessionKeyIF subClientSessionKey = subProjectNameToClientSessionKeyHash.get(subProjectName);

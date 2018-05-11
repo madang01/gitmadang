@@ -1,0 +1,123 @@
+JFDML JFormDesigner: "5.2.5.0.333" Java: "1.8.0_121" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+			"axis": 0
+		} ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "unrelgap, 308dlu:grow, unrelgap"
+				"$rowSpecs": "linegap, default, linegap, default, linegap, default, linegap, fill:100dlu:grow, linegap, default, linegap, fill:120dlu:grow, unrelgap"
+			} ) {
+				name: "eachIOFileTypeBuildPanel"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+					"$columnSpecs": "default, unrelgap, default"
+					"$rowSpecs": "default"
+				} ) {
+					name: "panel1"
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "firstScreenButton"
+						"text": "go back to 'first sreen'"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "firstScreenButtonActionPerformed", true ) )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 1
+						"gridY": 1
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "ioFileSetBuilderScreenButton"
+						"text": "go to 'IO file set builder screen'"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "ioFileSetBuilderScreenButtonActionPerformed", true ) )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 3
+						"gridY": 1
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 2
+					"gridY": 2
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+					"axis": 0
+				} ) {
+					name: "ioFileTypBuildMenuPanel"
+					add( new FormComponent( "javax.swing.JRadioButton" ) {
+						name: "messageRadioButton"
+						"text": "Message"
+						"$buttonGroup": new FormReference( "ioFileTypeButtonGroup" )
+						"selected": true
+					} )
+					add( new FormComponent( "javax.swing.JRadioButton" ) {
+						name: "encoderRadioButton"
+						"text": "Encoder"
+						"$buttonGroup": new FormReference( "ioFileTypeButtonGroup" )
+					} )
+					add( new FormComponent( "javax.swing.JRadioButton" ) {
+						name: "decoderRadioButton"
+						"text": "Decoder"
+						"$buttonGroup": new FormReference( "ioFileTypeButtonGroup" )
+					} )
+					add( new FormComponent( "javax.swing.JRadioButton" ) {
+						name: "serverCodecRadioButton"
+						"text": "ServerCodec"
+						"$buttonGroup": new FormReference( "ioFileTypeButtonGroup" )
+					} )
+					add( new FormComponent( "javax.swing.JRadioButton" ) {
+						name: "clientCodecRadioButton"
+						"text": "ClientCodec"
+						"$buttonGroup": new FormReference( "ioFileTypeButtonGroup" )
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "eachIOFileTypeBuildButton"
+						"text": "Build"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "eachIOFileTypeBuildButtonActionPerformed", true ) )
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 2
+					"gridY": 4
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "messageInfoXMLInputTitleLabel"
+					"text": ">> Message Infomation XML Input"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 2
+					"gridY": 6
+				} )
+				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+					name: "messageInfoXMLScrollPane"
+					add( new FormComponent( "javax.swing.JTextArea" ) {
+						name: "messageInfoXMLTextArea"
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 2
+					"gridY": 8
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "eachIOFileTypeResultLabel"
+					"text": ">> Result"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 2
+					"gridY": 10
+				} )
+				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+					name: "eachIOFileTypeResultScrollPane"
+					add( new FormComponent( "javax.swing.JTextArea" ) {
+						name: "eachIOFileTypeResulTextArea"
+						"editable": false
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 2
+					"gridY": 12
+				} )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 590, 585 )
+		} )
+		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
+			name: "ioFileTypeButtonGroup"
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 600 )
+		} )
+	}
+}

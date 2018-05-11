@@ -13,7 +13,7 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 	
 
 	@Test
-	public void testBuildStringOfVariableDeclarationPartForSingleItemInfo() {
+	public void testAddVariableDeclarationPartForSingleItemInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -26,10 +26,11 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
 					nativeItemSize, nativeItemCharset);
 
-			String variableDelarationString = messageFileContensBuilder
-					.buildStringOfVariableDeclarationPartForSingleItemInfo(1,singleItemInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+			.addVariableDeclarationPartForSingleItemInfo(contentsStringBuilder, 1,singleItemInfo);
 
-			log.info("SingleItemInfo::variableDelarationString=[{}]", variableDelarationString);
+			log.info("SingleItemInfo::variableDelarationString=[{}]", contentsStringBuilder.toString());
 		}
 
 		{
@@ -42,15 +43,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
 					nativeItemSize, nativeItemCharset);
 
-			String variableDelarationString = messageFileContensBuilder
-					.buildStringOfVariableDeclarationPartForSingleItemInfo(1, singleItemInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+			.addVariableDeclarationPartForSingleItemInfo(contentsStringBuilder, 1,singleItemInfo);
 
-			log.info("SingleItemInfo::variableDelarationString=[{}]", variableDelarationString);
+			log.info("SingleItemInfo::variableDelarationString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 
 	@Test
-	public void testBuildStringOfVariableDeclarationPartForArrayInfo() {
+	public void testAddVariableDeclarationPartForArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 		{
 			String arrayName = "array1";
@@ -71,15 +73,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String variableDelarationString = messageFileContensBuilder
-					.buildStringOfVariableDeclarationPartForArrayInfo(0, arrayInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addVariableDeclarationPartForArrayInfo(contentsStringBuilder, 0, arrayInfo);
 
-			log.info("ArrayInfo::variableDelarationString=[{}]", variableDelarationString);
+			log.info("ArrayInfo::variableDelarationString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 
 	@Test
-	public void testBuildStringOfVariableDeclarationPartForGroupInfo() {
+	public void testAddVariableDeclarationPartForGroupInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -99,16 +102,17 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 				groupItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String variableDelarationString = messageFileContensBuilder.buildStringOfVariableDeclarationPartForGroupInfo(0,
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder.addVariableDeclarationPartForGroupInfo(contentsStringBuilder, 0,
 					groupInfo);
 
-			log.info("GroupInfo::variableDelarationString=[{}]", variableDelarationString);
+			log.info("GroupInfo::variableDelarationString=[{}]", contentsStringBuilder.toString());
 		}
 
 	}
 
 	@Test
-	public void testBuildStringOfGetMethodDefinePartForSingleItemInfo() {
+	public void testAddGetMethodDefinePartForSingleItemInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -121,15 +125,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
 					nativeItemSize, nativeItemCharset);
 
-			String getMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfGetMethodDefinePartForSingleItemInfo(0, singleItemInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addGetMethodDefinePartForSingleItemInfo(contentsStringBuilder, 0, singleItemInfo);
 
-			log.info("SingleItem::getMethodDefinePartString=[{}]", getMethodDefinePartString);
+			log.info("SingleItem::getMethodDefinePartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 
 	@Test
-	public void testBuildStringOfGetMethodDefinePartForArrayInfo() {
+	public void testAddGetMethodDefinePartForArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -151,15 +156,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String getMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfGetMethodDefinePartForArrayInfo(0, arrayInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addGetMethodDefinePartForArrayInfo(contentsStringBuilder, 0, arrayInfo);
 
-			log.info("ArrayInfo::getMethodDefinePartString=[{}]", getMethodDefinePartString);
+			log.info("ArrayInfo::getMethodDefinePartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 
 	@Test
-	public void testBuildStringOfGetMethodDefinePart_GroupInfo() {
+	public void testAddGetMethodDefinePartForGroupInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -179,16 +185,17 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 				groupItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String getMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfGetMethodDefinePartForGroupInfo(0, groupInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addGetMethodDefinePartForGroupInfo(contentsStringBuilder, 0, groupInfo);
 
-			log.info("GroupInfo::getMethodDefinePartString=[{}]", getMethodDefinePartString);
+			log.info("GroupInfo::getMethodDefinePartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 
 	////////////////
 	@Test
-	public void testBuildStringOfSetMethodDefinePartForSingleItemInfo() {
+	public void testAddSetMethodDefinePartForSingleItemInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -201,15 +208,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
 					nativeItemSize, nativeItemCharset);
 
-			String setMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfSetMethodDefinePartForSingleItemInfo(0, singleItemInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addSetMethodDefinePartForSingleItemInfo(contentsStringBuilder, 0, singleItemInfo);
 
-			log.info("SingleItemInfo::setMethodDefinePartString=[{}]", setMethodDefinePartString);
+			log.info("SingleItemInfo::setMethodDefinePartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 
 	@Test
-	public void testBuildStringOfSetMethodDefinePartForArrayInfo() {
+	public void testAddSetMethodDefinePartForArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -231,15 +239,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String setMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfSetMethodDefinePartForArrayInfo(0, arrayInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addSetMethodDefinePartForArrayInfo(contentsStringBuilder, 0, arrayInfo);
 
-			log.info("ArrayInfo::setMethodDefinePartString=[{}]", setMethodDefinePartString);
+			log.info("ArrayInfo::setMethodDefinePartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 
 	@Test
-	public void testBuildStringOfSetMethodDefinePartForGroupInfo() {
+	public void testAddSetMethodDefinePartForGroupInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -259,15 +268,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 				groupItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String setMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfSetMethodDefinePartForGroupInfo(0, groupInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addSetMethodDefinePartForGroupInfo(contentsStringBuilder, 0, groupInfo);
 
-			log.info("GroupInfo::setMethodDefinePartString=[{}]", setMethodDefinePartString);
+			log.info("GroupInfo::setMethodDefinePartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 	
 	@Test
-	public void testBuildStringOfToStringPartForSingleItemInfo() {
+	public void testAddToStringPartForSingleItemInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		
@@ -282,15 +292,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
 					nativeItemSize, nativeItemCharset);
 
-			String toStringPartString = messageFileContensBuilder
-					.buildStringOfToStringPartForSingleItemInfo(0, isFirstElement, singleItemInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addToStringPartForSingleItemInfo(contentsStringBuilder, 0, isFirstElement, singleItemInfo);
 
-			log.info("SingleItemInfo::toStringPartString=[{}]", toStringPartString);
+			log.info("SingleItemInfo::toStringPartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 	
 	@Test
-	public void testBuildStringOfToStringPartForArrayInfo() {
+	public void testAddToStringPartForArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		
@@ -314,15 +325,16 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String toStringPartString = messageFileContensBuilder
-					.buildStringOfToStringPartForArrayInfo(0, isFirstElement, arrayInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addToStringPartForArrayInfo(contentsStringBuilder, 0, isFirstElement, arrayInfo);
 
-			log.info("ArrayInfo::toStringPartString=[{}]", toStringPartString);
+			log.info("ArrayInfo::toStringPartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 	
 	@Test
-	public void testBuildStringOfToStringPartForGroupInfo() {
+	public void testAddToStringPartForGroupInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		
@@ -344,10 +356,11 @@ public class MessageFileContensBuilderTest extends AbstractJunitTest {
 				groupItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String toStringPartString = messageFileContensBuilder
-					.buildStringOfToStringPartForGroupInfo(0, isFirstElement, groupInfo);
+			StringBuilder contentsStringBuilder = new StringBuilder();
+			messageFileContensBuilder
+					.addToStringPartForGroupInfo(contentsStringBuilder, 0, isFirstElement, groupInfo);
 
-			log.info("GroupInfo::toStringPartString=[{}]", toStringPartString);
+			log.info("GroupInfo::toStringPartString=[{}]", contentsStringBuilder.toString());
 		}
 	}
 

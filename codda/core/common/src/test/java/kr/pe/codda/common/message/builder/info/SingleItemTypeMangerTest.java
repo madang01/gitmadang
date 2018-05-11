@@ -24,6 +24,6 @@ public class SingleItemTypeMangerTest extends AbstractJunitTest {
 	public void test() {
 		SingleItemTypeManger singleItemTypeManger = SingleItemTypeManger.getInstance();
 	
-		log.info("Sinnori message information xsl file={}", singleItemTypeManger.getMessageXSLStr());
+		log.info("the message information xsl file={}", singleItemTypeManger.getMessageXSLStr());
 	}
 }

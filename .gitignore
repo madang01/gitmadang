@@ -8,10 +8,11 @@
 *.tar.gz
 *.jar
 codda/temp/**
-codda/core_build/report/**
-!codda/SinnoriHelper.jar
-!codda/core/**/*.jar
+codda/**/report/**
 codda/project/sample_*test/**
+!codda/CoddaHelper.jar
+!codda/core/**/*.jar
+
 
 
 sinnori/project/sample_*test/**

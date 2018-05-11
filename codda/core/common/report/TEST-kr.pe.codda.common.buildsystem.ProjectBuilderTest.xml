@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite errors="0" failures="9" hostname="madang02-pc" name="kr.pe.codda.common.buildsystem.ProjectBuilderTest" skipped="0" tests="15" time="0.822" timestamp="2018-05-06T01:09:51">
+<testsuite errors="0" failures="9" hostname="madang02-pc" name="kr.pe.codda.common.buildsystem.ProjectBuilderTest" skipped="0" tests="15" time="1.004" timestamp="2018-05-07T06:01:53">
   <properties>
     <property name="java.vendor" value="Oracle Corporation" />
     <property name="dir.build" value="D:\gitmadang\codda\core\common\build" />
@@ -36,6 +36,7 @@
     <property name="user.country" value="KR" />
     <property name="ant.file.type.codda_common" value="file" />
     <property name="java.home" value="C:\Program Files\Java\jdk1.8.0_171\jre" />
+    <property name="dir.core.junitlib.build" value="D:\gitmadang\codda\core\junitlib" />
     <property name="java.vm.info" value="mixed mode" />
     <property name="ant.file" value="D:\gitmadang\codda\core\common\build.xml" />
     <property name="os.version" value="10.0" />
@@ -55,8 +56,8 @@
     <property name="java.vendor.url" value="http://java.oracle.com/" />
     <property name="java.vm.vendor" value="Oracle Corporation" />
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
-    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.codda.common.buildsystem.ProjectBuilderTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitmadang\codda\core\common\report\TEST-kr.pe.codda.common.buildsystem.ProjectBuilderTest.xml crashfile=D:\gitmadang\codda\core\common\junitvmwatcher5810194322411238138.properties propsfile=D:\gitmadang\codda\core\common\junit4845988616560844308.properties" />
-    <property name="java.class.path" value="D:\gitmadang\codda\core\common\dist\codda-core-common.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-codec-1.11.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-collections4-4.1.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-io-2.6.jar;D:\gitmadang\codda\core\common\lib\test\byte-buddy-1.7.9.jar;D:\gitmadang\codda\core\common\lib\test\byte-buddy-agent-1.7.9.jar;D:\gitmadang\codda\core\common\lib\test\commons-exec-1.3.jar;D:\gitmadang\codda\core\common\lib\test\hamcrest-core-1.3.jar;D:\gitmadang\codda\core\common\lib\test\junit-4.12.jar;D:\gitmadang\codda\core\common\lib\test\mockito-core-2.13.4.jar;D:\gitmadang\codda\core\common\lib\test\objenesis-2.6.jar;D:\gitmadang\codda\core\logger\lib\ex\slf4j-api-1.7.25.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-core-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-classic-1.2.3.jar;D:\gitmadang\codda\core\common\build\test;D:\apache-ant-1.9.11\lib\ant-launcher.jar;D:\apache-ant-1.9.11\lib\ant.jar;D:\apache-ant-1.9.11\lib\ant-junit.jar;D:\apache-ant-1.9.11\lib\ant-junit4.jar" />
+    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.codda.common.buildsystem.ProjectBuilderTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitmadang\codda\core\common\report\TEST-kr.pe.codda.common.buildsystem.ProjectBuilderTest.xml crashfile=D:\gitmadang\codda\core\common\junitvmwatcher6095060913445423366.properties propsfile=D:\gitmadang\codda\core\common\junit2358654669593603669.properties" />
+    <property name="java.class.path" value="D:\gitmadang\codda\core\junitlib\lib\ex\hamcrest-core-1.3.jar;D:\gitmadang\codda\core\junitlib\lib\ex\junit-4.12.jar;D:\gitmadang\codda\core\junitlib\lib\ex\byte-buddy-1.7.9.jar;D:\gitmadang\codda\core\junitlib\lib\ex\byte-buddy-agent-1.7.9.jar;D:\gitmadang\codda\core\junitlib\lib\ex\mockito-core-2.13.4.jar;D:\gitmadang\codda\core\junitlib\lib\ex\objenesis-2.6.jar;D:\gitmadang\codda\core\junitlib\lib\ex\commons-exec-1.3.jar;D:\gitmadang\codda\core\common\dist\codda-core-common.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-codec-1.11.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-collections4-4.1.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-io-2.6.jar;D:\gitmadang\codda\core\logger\lib\ex\slf4j-api-1.7.25.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-core-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-classic-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\jcl-over-slf4j-1.7.25.jar;D:\gitmadang\codda\core\common\build\test;D:\apache-ant-1.9.11\lib\ant-launcher.jar;D:\apache-ant-1.9.11\lib\ant.jar;D:\apache-ant-1.9.11\lib\ant-junit.jar;D:\apache-ant-1.9.11\lib\ant-junit4.jar" />
     <property name="ant.version" value="Apache Ant(TM) version 1.9.11 compiled on March 23 2018" />
     <property name="core.logger.jar.name" value="codda-logger.jar" />
     <property name="dir.testsrc" value="D:\gitmadang\codda\core\common\src\test\java" />
@@ -83,35 +84,35 @@
     <property name="java.specification.version" value="1.8" />
     <property name="ant.project.invoked-targets" value="test" />
   </properties>
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testCreateProject_onlyWebClientBuild" time="0.364">
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testCreateProject_onlyWebClientBuild" time="0.533">
     <failure message="fail to parse sinnori message information xml file[D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml], errormessage=error::the var messageInfo is null, org.xml.sax.SAXParseException; systemId: file:/D:/gitmadang/codda/project/sample_test/resources/message_info/Echo.xml; lineNumber: 14; columnNumber: 18; cvc-elt.1: &apos;sinnori_message&apos; 요소의 선언을 찾을 수 없습니다." type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: fail to parse sinnori message information xml file[D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml], errormessage=error::the var messageInfo is null, org.xml.sax.SAXParseException; systemId: file:/D:/gitmadang/codda/project/sample_test/resources/message_info/Echo.xml; lineNumber: 14; columnNumber: 18; cvc-elt.1: &apos;sinnori_message&apos; 요소의 선언을 찾을 수 없습니다.
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_onlyWebClientBuild(ProjectBuilderTest.java:546)
 </failure>
   </testcase>
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testChangeProjectState" time="0.027">
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testChangeProjectState" time="0.032">
     <failure message="fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testChangeProjectState(ProjectBuilderTest.java:757)
 </failure>
   </testcase>
   <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testConstructor_badSinnoriInstalledPath_notExist" time="0.0" />
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testGetMainProjectBuildSystemState" time="0.03">
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testGetMainProjectBuildSystemState" time="0.033">
     <failure message="fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testGetMainProjectBuildSystemState(ProjectBuilderTest.java:654)
 </failure>
   </testcase>
   <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testConstructor_badProjectName_notDirectory" time="0.002" />
   <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testConstructor_badSinnoriInstalledPath_notDirecotry" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testCreateProject_onlyAppClientBuild" time="0.021">
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testCreateProject_onlyAppClientBuild" time="0.025">
     <failure message="fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_onlyAppClientBuild(ProjectBuilderTest.java:522)
 </failure>
   </testcase>
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testIsValidSeverAntBuildXMLFile" time="0.03">
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testIsValidSeverAntBuildXMLFile" time="0.039">
     <failure message="fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testIsValidSeverAntBuildXMLFile(ProjectBuilderTest.java:576)
 </failure>
   </testcase>
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testWhetherOnlyProjectPathExists_projectPathNotExsitCase" time="0.001" />
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testWhetherOnlyProjectPathExists_projectPathNotExsitCase" time="0.0" />
   <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testCreateProject_AllTypeBuild" time="0.027">
     <failure message="fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_AllTypeBuild(ProjectBuilderTest.java:309)
@@ -122,67 +123,67 @@
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testConstructor_badProjectBasePath_notDirectory(ProjectBuilderTest.java:150)
 </failure>
   </testcase>
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testApplySinnoriInstalledPath" time="0.034">
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testApplySinnoriInstalledPath" time="0.022">
     <failure message="fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testApplySinnoriInstalledPath(ProjectBuilderTest.java:844)
 </failure>
   </testcase>
   <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testWhetherOnlyProjectPathExists_projectPathExsitCase" time="0.0" />
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testConstructor_badProjectBasePath_notExist" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testCreateProject_onlyServerBuild" time="0.019">
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testConstructor_badProjectBasePath_notExist" time="0.0" />
+  <testcase classname="kr.pe.codda.common.buildsystem.ProjectBuilderTest" name="testCreateProject_onlyServerBuild" time="0.022">
     <failure message="fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_onlyServerBuild(ProjectBuilderTest.java:498)
 </failure>
   </testcase>
-  <system-out><![CDATA[INFO  2018-05-06 10:09:51.328 [main] main project[sample_test]'s child direcotry creation task start (ProjectBuilder.java:405)
-INFO  2018-05-06 10:09:51.330 [main] main project[sample_test]'s common child direcotry creation task start (ProjectBuilder.java:298)
-INFO  2018-05-06 10:09:51.353 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][config] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.354 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][resources/dbcp] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.355 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][resources/message_info] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.356 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][resources/rsa_keypair] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.357 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][log/apache] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.358 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][log/client] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.358 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][log/server] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.359 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][log/servlet] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.359 [main] main project[sample_test]'s common child direcotry creation task end (ProjectBuilder.java:313)
-INFO  2018-05-06 10:09:51.360 [main] main project[sample_test]'s web build child direcotry creation task start (ProjectBuilder.java:365)
-INFO  2018-05-06 10:09:51.362 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/corelib/ex] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.364 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/corelib/in] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.366 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/lib/main/ex] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.367 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/lib/main/in] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.368 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/lib/test] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.371 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/impl/message] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.372 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java//kr/pe/sinnori/servlet] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.374 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/common] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.374 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/htmlstring] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.375 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/jdf] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.384 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/test/java] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.416 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/build] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.418 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/dist] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.418 [main] main project[sample_test]'s web build child direcotry creation task end (ProjectBuilder.java:386)
-INFO  2018-05-06 10:09:51.419 [main] main project[sample_test]'s web root child direcotry creation task start (ProjectBuilder.java:390)
-INFO  2018-05-06 10:09:51.422 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][web_app_base/upload] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.425 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][web_app_base/ROOT/WEB-INF/classes] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.426 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][web_app_base/ROOT/WEB-INF/lib] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.426 [main] main project[sample_test]'s web root child direcotry creation task end (ProjectBuilder.java:400)
-INFO  2018-05-06 10:09:51.427 [main] main project[sample_test]'s child direcotry creation task end (ProjectBuilder.java:424)
-INFO  2018-05-06 10:09:51.428 [main] main project[sample_test]'s file creation task start (ProjectBuilder.java:429)
-INFO  2018-05-06 10:09:51.428 [main] main project[sample_test]'s config file creation task start (ProjectBuilder.java:1384)
-INFO  2018-05-06 10:09:51.450 [main] the sequenced properties file[D:\gitmadang\codda\project\sample_test\config\codda.properties] was created (SequencedPropertiesUtil.java:64)
-INFO  2018-05-06 10:09:51.462 [main] main project[sample_test]'s config file creation task end (ProjectBuilder.java:1406)
-INFO  2018-05-06 10:09:51.463 [main] the mainproject[sample_test]'s resources directory copy task start (ProjectBuilder.java:454)
-INFO  2018-05-06 10:09:51.496 [main] the mainproject[sample_test]'s resources directory copy task end (ProjectBuilder.java:484)
-INFO  2018-05-06 10:09:51.496 [main] main project[sample_test]'s web client build system files creation task start (ProjectBuilder.java:488)
-INFO  2018-05-06 10:09:51.497 [main] main project[sample_test]'s web client ant build.xml file creation task start (ProjectBuilder.java:586)
-INFO  2018-05-06 10:09:51.504 [main] main project[sample_test]'s web client ant build.xml file creation task end (ProjectBuilder.java:610)
-INFO  2018-05-06 10:09:51.505 [main] main project[sample_test]'s web client ant properties file creation task start (ProjectBuilder.java:1411)
-INFO  2018-05-06 10:09:51.505 [main] the sequenced properties file[D:\gitmadang\codda\project\sample_test\client_build\web_build\webAnt.properties] was created (SequencedPropertiesUtil.java:64)
-INFO  2018-05-06 10:09:51.509 [main] main project[sample_test]'s web client ant properties file creation task end (ProjectBuilder.java:1462)
-INFO  2018-05-06 10:09:51.509 [main] main project[sample_test]'s web client message io file set creation task start (ProjectBuilder.java:614)
-INFO  2018-05-06 10:09:51.510 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message][Echo] was created successfully (CommonStaticUtil.java:343)
-INFO  2018-05-06 10:09:51.510 [main] main project[sample_test]'s message file[Echo][D:\gitmadang\codda\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start (ProjectBuilder.java:1008)
-INFO  2018-05-06 10:09:51.600 [main] the sinnori message information .xsl temporary file[C:\Users\user\AppData\Local\Temp\SinnoriMsgXSL8999784227834273921.tmp] was created successfully (SingleItemTypeManger.java:233)
-WARN  2018-05-06 10:09:51.641 [main] fail to parse sinnori message information xml file[D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml] (ProjectBuilder.java:999)
+  <system-out><![CDATA[INFO  2018-05-07 15:01:53.995 [main] main project[sample_test]'s child direcotry creation task start (ProjectBuilder.java:405)
+INFO  2018-05-07 15:01:53.998 [main] main project[sample_test]'s common child direcotry creation task start (ProjectBuilder.java:298)
+INFO  2018-05-07 15:01:54.000 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][config] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.001 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][resources/dbcp] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.002 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][resources/message_info] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.007 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][resources/rsa_keypair] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.008 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][log/apache] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.009 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][log/client] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.010 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][log/server] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.011 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][log/servlet] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.012 [main] main project[sample_test]'s common child direcotry creation task end (ProjectBuilder.java:313)
+INFO  2018-05-07 15:01:54.012 [main] main project[sample_test]'s web build child direcotry creation task start (ProjectBuilder.java:365)
+INFO  2018-05-07 15:01:54.016 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/corelib/ex] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.017 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/corelib/in] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.019 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/lib/main/ex] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.020 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/lib/main/in] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.021 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/lib/test] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.026 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/impl/message] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.027 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java//kr/pe/sinnori/servlet] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.028 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/common] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.029 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/htmlstring] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.030 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/jdf] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.031 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/src/test/java] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.082 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/build] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.084 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][client_build/web_build/dist] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.085 [main] main project[sample_test]'s web build child direcotry creation task end (ProjectBuilder.java:386)
+INFO  2018-05-07 15:01:54.086 [main] main project[sample_test]'s web root child direcotry creation task start (ProjectBuilder.java:390)
+INFO  2018-05-07 15:01:54.087 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][web_app_base/upload] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.089 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][web_app_base/ROOT/WEB-INF/classes] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.089 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test][web_app_base/ROOT/WEB-INF/lib] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.090 [main] main project[sample_test]'s web root child direcotry creation task end (ProjectBuilder.java:400)
+INFO  2018-05-07 15:01:54.091 [main] main project[sample_test]'s child direcotry creation task end (ProjectBuilder.java:424)
+INFO  2018-05-07 15:01:54.092 [main] main project[sample_test]'s file creation task start (ProjectBuilder.java:429)
+INFO  2018-05-07 15:01:54.092 [main] main project[sample_test]'s config file creation task start (ProjectBuilder.java:1382)
+INFO  2018-05-07 15:01:54.126 [main] the sequenced properties file[D:\gitmadang\codda\project\sample_test\config\codda.properties] was created (SequencedPropertiesUtil.java:64)
+INFO  2018-05-07 15:01:54.136 [main] main project[sample_test]'s config file creation task end (ProjectBuilder.java:1404)
+INFO  2018-05-07 15:01:54.137 [main] the mainproject[sample_test]'s resources directory copy task start (ProjectBuilder.java:454)
+INFO  2018-05-07 15:01:54.196 [main] the mainproject[sample_test]'s resources directory copy task end (ProjectBuilder.java:484)
+INFO  2018-05-07 15:01:54.197 [main] main project[sample_test]'s web client build system files creation task start (ProjectBuilder.java:488)
+INFO  2018-05-07 15:01:54.197 [main] main project[sample_test]'s web client ant build.xml file creation task start (ProjectBuilder.java:586)
+INFO  2018-05-07 15:01:54.204 [main] main project[sample_test]'s web client ant build.xml file creation task end (ProjectBuilder.java:610)
+INFO  2018-05-07 15:01:54.204 [main] main project[sample_test]'s web client ant properties file creation task start (ProjectBuilder.java:1409)
+INFO  2018-05-07 15:01:54.205 [main] the sequenced properties file[D:\gitmadang\codda\project\sample_test\client_build\web_build\webAnt.properties] was created (SequencedPropertiesUtil.java:64)
+INFO  2018-05-07 15:01:54.209 [main] main project[sample_test]'s web client ant properties file creation task end (ProjectBuilder.java:1460)
+INFO  2018-05-07 15:01:54.209 [main] main project[sample_test]'s web client message io file set creation task start (ProjectBuilder.java:614)
+INFO  2018-05-07 15:01:54.210 [main] the new child relative direcotry[D:\gitmadang\codda\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message][Echo] was created successfully (CommonStaticUtil.java:343)
+INFO  2018-05-07 15:01:54.210 [main] main project[sample_test]'s message file[Echo][D:\gitmadang\codda\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start (ProjectBuilder.java:1008)
+INFO  2018-05-07 15:01:54.317 [main] the sinnori message information .xsl temporary file[C:\Users\user\AppData\Local\Temp\SinnoriMsgXSL7385560647838984084.tmp] was created successfully (SingleItemTypeManger.java:233)
+WARN  2018-05-07 15:01:54.409 [main] fail to parse sinnori message information xml file[D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml] (ProjectBuilder.java:999)
 org.xml.sax.SAXException error::the var messageInfo is null, org.xml.sax.SAXParseException; systemId: file:/D:/gitmadang/codda/project/sample_test/resources/message_info/Echo.xml; lineNumber: 14; columnNumber: 18; cvc-elt.1: 'sinnori_message' 요소의 선언을 찾을 수 없습니다.
 	at kr.pe.codda.common.message.builder.info.MessageInfoSAXParser.error(MessageInfoSAXParser.java:401)
 	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.error(ErrorHandlerWrapper.java:137)
@@ -239,7 +240,7 @@ org.xml.sax.SAXException error::the var messageInfo is null, org.xml.sax.SAXPars
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.673 [main] fail to parse sinnori message information xml file[D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml], errormessage=error::the var messageInfo is null, org.xml.sax.SAXParseException; systemId: file:/D:/gitmadang/codda/project/sample_test/resources/message_info/Echo.xml; lineNumber: 14; columnNumber: 18; cvc-elt.1: 'sinnori_message' 요소의 선언을 찾을 수 없습니다. (ProjectBuilderTest.java:545)
+WARN  2018-05-07 15:01:54.440 [main] fail to parse sinnori message information xml file[D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml], errormessage=error::the var messageInfo is null, org.xml.sax.SAXParseException; systemId: file:/D:/gitmadang/codda/project/sample_test/resources/message_info/Echo.xml; lineNumber: 14; columnNumber: 18; cvc-elt.1: 'sinnori_message' 요소의 선언을 찾을 수 없습니다. (ProjectBuilderTest.java:545)
 kr.pe.codda.common.exception.BuildSystemException fail to parse sinnori message information xml file[D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml], errormessage=error::the var messageInfo is null, org.xml.sax.SAXParseException; systemId: file:/D:/gitmadang/codda/project/sample_test/resources/message_info/Echo.xml; lineNumber: 14; columnNumber: 18; cvc-elt.1: 'sinnori_message' 요소의 선언을 찾을 수 없습니다.
 	at kr.pe.codda.common.buildsystem.ProjectBuilder.getMessageInfo(ProjectBuilder.java:1001)
 	at kr.pe.codda.common.buildsystem.ProjectBuilder.createNewMessageSourceFile(ProjectBuilder.java:1011)
@@ -274,7 +275,7 @@ kr.pe.codda.common.exception.BuildSystemException fail to parse sinnori message 
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.701 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1802)
+WARN  2018-05-07 15:01:54.467 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1800)
 java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2400)
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
@@ -286,7 +287,7 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
 	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:1617)
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2391)
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1796)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1794)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testChangeProjectState(ProjectBuilderTest.java:685)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -313,9 +314,9 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.710 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:756)
+WARN  2018-05-07 15:01:54.482 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:756)
 kr.pe.codda.common.exception.BuildSystemException fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1804)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1802)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testChangeProjectState(ProjectBuilderTest.java:685)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -342,7 +343,7 @@ kr.pe.codda.common.exception.BuildSystemException fail to delete the main projec
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.726 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1802)
+WARN  2018-05-07 15:01:54.498 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1800)
 java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2400)
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
@@ -354,7 +355,7 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
 	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:1617)
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2391)
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1796)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1794)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testGetMainProjectBuildSystemState(ProjectBuilderTest.java:609)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -381,9 +382,9 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.752 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:653)
+WARN  2018-05-07 15:01:54.528 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:653)
 kr.pe.codda.common.exception.BuildSystemException fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1804)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1802)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testGetMainProjectBuildSystemState(ProjectBuilderTest.java:609)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -410,7 +411,7 @@ kr.pe.codda.common.exception.BuildSystemException fail to delete the main projec
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.776 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1802)
+WARN  2018-05-07 15:01:54.553 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1800)
 java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2400)
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
@@ -422,7 +423,7 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
 	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:1617)
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2391)
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1796)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1794)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_onlyAppClientBuild(ProjectBuilderTest.java:511)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -449,9 +450,9 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.795 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:521)
+WARN  2018-05-07 15:01:54.576 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:521)
 kr.pe.codda.common.exception.BuildSystemException fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1804)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1802)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_onlyAppClientBuild(ProjectBuilderTest.java:511)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -478,7 +479,7 @@ kr.pe.codda.common.exception.BuildSystemException fail to delete the main projec
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.804 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1802)
+WARN  2018-05-07 15:01:54.584 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1800)
 java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2400)
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
@@ -490,7 +491,7 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
 	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:1617)
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2391)
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1796)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1794)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testIsValidSeverAntBuildXMLFile(ProjectBuilderTest.java:560)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -517,9 +518,9 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.831 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:575)
+WARN  2018-05-07 15:01:54.620 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:575)
 kr.pe.codda.common.exception.BuildSystemException fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1804)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1802)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testIsValidSeverAntBuildXMLFile(ProjectBuilderTest.java:560)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -546,7 +547,7 @@ kr.pe.codda.common.exception.BuildSystemException fail to delete the main projec
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.843 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1802)
+WARN  2018-05-07 15:01:54.635 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1800)
 java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2400)
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
@@ -558,7 +559,7 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
 	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:1617)
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2391)
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1796)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1794)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_AllTypeBuild(ProjectBuilderTest.java:292)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -585,9 +586,9 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.868 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:308)
+WARN  2018-05-07 15:01:54.661 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:308)
 kr.pe.codda.common.exception.BuildSystemException fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1804)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1802)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_AllTypeBuild(ProjectBuilderTest.java:292)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -614,7 +615,7 @@ kr.pe.codda.common.exception.BuildSystemException fail to delete the main projec
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.882 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1802)
+WARN  2018-05-07 15:01:54.677 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1800)
 java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2400)
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
@@ -626,7 +627,7 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
 	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:1617)
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2391)
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1796)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1794)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testApplySinnoriInstalledPath(ProjectBuilderTest.java:787)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -653,9 +654,9 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.914 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:843)
+WARN  2018-05-07 15:01:54.698 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:843)
 kr.pe.codda.common.exception.BuildSystemException fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1804)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1802)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testApplySinnoriInstalledPath(ProjectBuilderTest.java:787)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -682,7 +683,7 @@ kr.pe.codda.common.exception.BuildSystemException fail to delete the main projec
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.938 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1802)
+WARN  2018-05-07 15:01:54.718 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test] (ProjectBuilder.java:1800)
 java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2400)
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
@@ -694,7 +695,7 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1721)
 	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:1617)
 	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:2391)
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1796)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1794)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_onlyServerBuild(ProjectBuilderTest.java:487)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -721,9 +722,9 @@ java.io.IOException Unable to delete file: D:\gitmadang\codda\project\sample_tes
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:538)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.launch(JUnitTestRunner.java:1187)
 	at org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.main(JUnitTestRunner.java:1039)
-WARN  2018-05-06 10:09:51.955 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:497)
+WARN  2018-05-07 15:01:54.738 [main] fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml (ProjectBuilderTest.java:497)
 kr.pe.codda.common.exception.BuildSystemException fail to delete the main project path[D:\gitmadang\codda\project\sample_test], errormessage=Unable to delete file: D:\gitmadang\codda\project\sample_test\resources\message_info\Echo.xml
-	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1804)
+	at kr.pe.codda.common.buildsystem.ProjectBuilder.dropProject(ProjectBuilder.java:1802)
 	at kr.pe.codda.common.buildsystem.ProjectBuilderTest.testCreateProject_onlyServerBuild(ProjectBuilderTest.java:487)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)

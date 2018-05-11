@@ -758,19 +758,7 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.serverOutputMessageWriterPoolSize = (Integer) nativeValue;
-		/*} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID)) {
-			if (!(nativeValue instanceof File)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(File.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.serverClassloaderAPPINFPath = (File) nativeValue;*/
+			this.serverOutputMessageWriterPoolSize = (Integer) nativeValue;		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID)) {
 			if (!(nativeValue instanceof String)) {
 				String errorMessage = new StringBuilder("the generic type[")

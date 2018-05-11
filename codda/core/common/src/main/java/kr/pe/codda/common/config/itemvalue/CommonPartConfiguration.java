@@ -270,14 +270,14 @@ public class CommonPartConfiguration {
 
 	public File getRSAPublickeyFileOfSessionKey() throws CoddaConfigurationException {
 		if (null == rsaPublickeyFileOfSessionKey) {
-			throw new CoddaConfigurationException("sinnori config's RSA public key file is null because of no matching or inactive status");
+			throw new CoddaConfigurationException("config's RSA public key file is null because of no matching or inactive status");
 		}
 		return rsaPublickeyFileOfSessionKey;
 	}
 	
 	public File getRSAPrivatekeyFileOfSessionKey() throws CoddaConfigurationException {
 		if (null == rsaPrivatekeyFileOfSessionKey) {
-			throw new CoddaConfigurationException("sinnori config's RSA private key file is null because of no matching or inactive status");
+			throw new CoddaConfigurationException("config's RSA private key file is null because of no matching or inactive status");
 		}
 		return rsaPrivatekeyFileOfSessionKey;
 	}

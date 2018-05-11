@@ -68,9 +68,9 @@ public class LocalTargetFileResourceManager {
 	private LocalTargetFileResourceManager() {
 		// int localTargetFileResourceCnt =
 		// (Integer)conf.getResource("common.updownfile.local_target_file_resource_cnt.value");
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 		localTargetFileResourceCnt = commonPart.getLocalTargetFileResourceCnt();
 
 		localTargetFileResourceHash = new HashMap<Integer, LocalTargetFileResource>();

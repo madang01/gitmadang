@@ -222,7 +222,7 @@ public class SingleItemTypeManger {
 		FileWriter fw = null;
 		BufferedWriter bw  = null;
 		try {
-			File f = File.createTempFile("SinnoriMsgXSL", ".tmp");
+			File f = File.createTempFile("MessageXSL", ".tmp");
 			
 			fw = new FileWriter(f);
 			bw = new BufferedWriter(fw);
@@ -230,7 +230,7 @@ public class SingleItemTypeManger {
 			bw.write(messageXSLStr);
 			
 			
-			log.info("the sinnori message information .xsl temporary file[{}] was created successfully", f.getAbsolutePath());
+			log.info("the message information .xsl temporary file[{}] was created successfully", f.getAbsolutePath());
 			
 		} catch (IOException e) {
 			e.printStackTrace();

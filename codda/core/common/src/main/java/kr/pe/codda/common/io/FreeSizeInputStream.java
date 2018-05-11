@@ -689,21 +689,9 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			return;
 		}
 
-		/*
-		 * if (null == workBuffer) { String errorMessage = "input stream closed";
-		 * log.info(errorMessage); throw new
-		 * SinnoriBufferUnderflowException(errorMessage); }
-		 */
-
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
 
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
-
-		/*
-		 * long remainingBytes = remaining(); if (len > remainingBytes) { throw new
-		 * IllegalArgumentException(String.format(
-		 * "지정된 bye 크기[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len, remainingBytes)); }
-		 */
 
 		doGetBytes(dst, offset, length);
 	}
@@ -734,12 +722,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		if (0 == len) {
 			return new byte[0];
 		}
-
-		/*
-		 * if (null == workBuffer) { String errorMessage = "input stream closed";
-		 * log.info(errorMessage); throw new
-		 * SinnoriBufferUnderflowException(errorMessage); }
-		 */
+		
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(len);
 

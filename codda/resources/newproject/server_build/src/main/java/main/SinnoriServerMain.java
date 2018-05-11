@@ -1,8 +1,8 @@
 package main;
 
-import kr.pe.sinnori.common.exception.NotFoundProjectException;
-import kr.pe.sinnori.server.AnyProjectServer;
-import kr.pe.sinnori.server.MainServerManager;
+import kr.pe.codda.common.exception.NotFoundProjectException;
+import kr.pe.codda.server.AnyProjectServer;
+import kr.pe.codda.server.MainServerManager;
 
 public class SinnoriServerMain {
 	public static void main(String argv[]) throws NotFoundProjectException {

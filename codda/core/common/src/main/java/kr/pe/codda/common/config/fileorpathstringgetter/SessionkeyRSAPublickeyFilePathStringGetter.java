@@ -8,7 +8,7 @@ public class SessionkeyRSAPublickeyFilePathStringGetter extends AbstractFileOrPa
 	}
 
 	@Override
-	public String getFileOrPathStringDependingOninstalledPath(
+	public String getFileOrPathStringDependingOnInstalledPath(
 			String installedPathString,
 			String mainProjectName, String ... etcParamters) {
 		if (0 < etcParamters.length) {

@@ -267,7 +267,7 @@ public class ProjectBuilder {
 		subProjectNameList = allSubProjectPartConfiguration.getSubProjectNamelist();	
 				
 		sinnoriConfigurationSequencedPropties =
-		sinnoriConfiguration.getSinnoriConfigurationSequencedPropties();
+		sinnoriConfiguration.getConfigurationSequencedPropties();
 		
 		return new MainProjectBuildSystemState(installedPathString, mainProjectName,
 				isServer, isAppClient, isWebClient, servletSystemLibrayPathString,
@@ -698,9 +698,7 @@ public class ProjectBuilder {
 	private void createNewAppClientAntBuildXMLFile() throws BuildSystemException {
 		log.info("main project[{}]'s application client ant build.xml file creation task start", mainProjectName);
 
-		String appClientAntBuildXMLFileContents = BuildSystemFileContents.getAppClientAntBuildXMLFileContents(mainProjectName,
-				CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE,
-				CommonStaticFinalVars.APPCLIENT_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE);
+		String appClientAntBuildXMLFileContents = BuildSystemFileContents.getAppClientAntBuildXMLFileContents(mainProjectName);
 
 		String appClientAntBuildXMLFilePahtString = BuildSystemPathSupporter
 				.getAppClientAntBuildXMLFilePathString(installedPathString, mainProjectName);
@@ -1356,9 +1354,7 @@ public class ProjectBuilder {
 	private void createNewServerAntBuildXMLFile() throws BuildSystemException {
 		log.info("main project[{}]'s server ant build.xml file creation task start", mainProjectName);
 
-		String sererAntBuildXMLFileContents = BuildSystemFileContents.getServerAntBuildXMLFileContent(mainProjectName,
-				CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE,
-				CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE);
+		String sererAntBuildXMLFileContents = BuildSystemFileContents.getServerAntBuildXMLFileContent(mainProjectName);
 
 		String serverAntBuildXMLFilePahtString = BuildSystemPathSupporter.getServerAntBuildXMLFilePathString(installedPathString, mainProjectName);
 
@@ -1392,7 +1388,7 @@ public class ProjectBuilder {
 		
 		try {
 			SequencedPropertiesUtil.createNewSequencedPropertiesFile(newSinnoriConfigSequencedProperties,
-					CoddaConfiguration.getSinnoriConfigPropertiesTitle(mainProjectName), sinnoriConfigFilePathString, CommonStaticFinalVars.SOURCE_FILE_CHARSET);
+					CoddaConfiguration.getConfigPropertiesTitle(mainProjectName), sinnoriConfigFilePathString, CommonStaticFinalVars.SOURCE_FILE_CHARSET);
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder("fail to create the main project's sinnori configuration file[").append(sinnoriConfigFilePathString)
 					.append("]").toString();
@@ -1561,7 +1557,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 	private void applySinnoriInstalledPathToConfigFile() throws BuildSystemException {
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getProejctConfigFilePathString(installedPathString, mainProjectName);
 		try {		
-			CoddaConfiguration.applySinnoriInstalledPath(installedPathString, mainProjectName);
+			CoddaConfiguration.applyInstalledPath(installedPathString, mainProjectName);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("fail to apply Sinnori installed path to the main project[")
 					.append(mainProjectName).append("] config file").toString();
@@ -1621,7 +1617,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 			
 			
 			SequencedPropertiesUtil.overwriteSequencedPropertiesFile(modifiedSinnoriConfigSequencedProperties,
-					CoddaConfiguration.getSinnoriConfigPropertiesTitle(mainProjectName), 
+					CoddaConfiguration.getConfigPropertiesTitle(mainProjectName), 
 					sinnoriConfigFilePathString, CommonStaticFinalVars.SOURCE_FILE_CHARSET);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("fail to save the main project[").append(mainProjectName)
@@ -1663,7 +1659,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 			throw new BuildSystemException(e.getMessage());
 		}
 		
-		return sinnoriConfiguration.getSinnoriConfigurationSequencedPropties();
+		return sinnoriConfiguration.getConfigurationSequencedPropties();
 		
 	}
 

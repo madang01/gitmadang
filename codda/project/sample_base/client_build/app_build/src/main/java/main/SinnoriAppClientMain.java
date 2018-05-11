@@ -2,10 +2,6 @@ package main;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
-import kr.pe.sinnori.client.ConnectionPoolManager;
-import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.Echo.Echo;
 
 public class SinnoriAppClientMain {
 
@@ -14,7 +10,7 @@ public class SinnoriAppClientMain {
 
 		log.info("start");
 
-		ConnectionPoolManager connectionPoolManager = ConnectionPoolManager.getInstance();
+		/*ConnectionPoolManager connectionPoolManager = ConnectionPoolManager.getInstance();
 
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = connectionPoolManager.getMainProjectConnectionPool();
 
@@ -55,7 +51,7 @@ public class SinnoriAppClientMain {
 		afterTime = System.currentTimeMillis();
 
 		log.info("loop count[{}], elapsed time[{} ms], average time[{} ms]", retryCount, (afterTime - beforeTime),
-				(double) (afterTime - beforeTime) / retryCount);
+				(double) (afterTime - beforeTime) / retryCount);*/
 
 	}
 }

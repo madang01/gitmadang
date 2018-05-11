@@ -27,9 +27,9 @@ import kr.pe.codda.common.util.HexUtil;
 public abstract class ServerRSAKeypairGetter {
 	
 	public static KeyPair getRSAKeyPair() throws SymmetricException {
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 
 		SessionKey.RSAKeypairSourceType rsaKeyPairSoureOfSessionkey = commonPart
 				.getRsaKeypairSourceOfSessionKey();
@@ -52,9 +52,9 @@ public abstract class ServerRSAKeypairGetter {
 		InternalLogger log = InternalLoggerFactory.getInstance(ServerRSAKeypairGetter.class);
 		
 		
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();		
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();		
 		int rsaKeySize = commonPart.getRsaKeySizeOfSessionKey();
 		
 		KeyPairGenerator rsaKeyPairGenerator = null;
@@ -79,9 +79,9 @@ public abstract class ServerRSAKeypairGetter {
 		PrivateKey privateKey = null;
 		PublicKey publicKey = null;		
 		
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 		File rsaPrivateKeyFile = null;
 		File rsaPublicKeyFile = null;
 		try {

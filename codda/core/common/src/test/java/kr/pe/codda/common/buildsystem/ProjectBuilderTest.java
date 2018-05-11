@@ -691,7 +691,7 @@ public class ProjectBuilderTest extends AbstractJunitTest {
 						CoddaConfiguration configuration = new CoddaConfiguration(installedPathString,
 								mainProjectName);
 						SequencedProperties modifiedSinnoriConfigSequencedProperties = configuration
-								.getSinnoriConfigurationSequencedPropties();
+								.getConfigurationSequencedPropties();
 
 						for (int ii = 0; ii < isServerBooleanSet.length; ii++) {
 							for (int jj = 0; jj < isAppClientBooleanSet.length; jj++) {

@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.LimitedLongBitSet.BadBitSetIndexException;
-import kr.pe.codda.common.etc.LimitedLongBitSet.FailedListFullException;
 
 public class LimitedLongBitSetTest extends AbstractJunitTest {
 	
@@ -28,7 +27,7 @@ public class LimitedLongBitSetTest extends AbstractJunitTest {
 		} catch (IndexOutOfBoundsException e) {
 			log.error(e.getMessage(), e);
 			fail(e.getMessage());
-		} catch (FailedListFullException e) {
+		} catch (IllegalStateException e) {
 			log.error(e.getMessage(), e);
 			fail(e.getMessage());
 		} catch(Exception e) {
@@ -313,7 +312,7 @@ public class LimitedLongBitSetTest extends AbstractJunitTest {
 			limitedLongBitSet.clear(bitIndex);
 			
 			fail("no FullListException");
-		} catch(FailedListFullException e) {
+		} catch(IllegalStateException e) {
 			log.info("success, errormessage={}", e.getMessage());
 		} catch(Exception e) {
 			fail("2.unknown error::"+e.getMessage());

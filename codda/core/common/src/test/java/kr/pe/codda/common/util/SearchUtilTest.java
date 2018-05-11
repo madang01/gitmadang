@@ -360,7 +360,7 @@ public class SearchUtilTest extends AbstractJunitTest {
 		
 		
 		bufferSize = SearchUtil.MIN_BUFFER_SIZE;
-		searchKeyword = "helloSinnori".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
+		searchKeyword = "helloWorld".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
 		ByteBuffer tempFileContentsByteBuffer = ByteBuffer.allocate(20);
 		tempFileContentsByteBuffer.position(0);
 		tempFileContentsByteBuffer.put(searchKeyword);
@@ -417,7 +417,7 @@ public class SearchUtilTest extends AbstractJunitTest {
 		
 		sleepTimeWhenTheNumberOfBytesReadIsZero = SearchUtil.MAX_SLEEP_TIME_WHEN_THE_NUMBER_OF_BYTES_READ_IS_ZERO+1;
 		bufferSize = SearchUtil.MIN_BUFFER_SIZE;
-		searchKeyword = "helloSinnori".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
+		searchKeyword = "helloWorld".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
 		ByteBuffer tempFileContentsByteBuffer = ByteBuffer.allocate(20);
 		tempFileContentsByteBuffer.position(0);
 		tempFileContentsByteBuffer.put(searchKeyword);
@@ -475,7 +475,7 @@ public class SearchUtilTest extends AbstractJunitTest {
 		
 		sleepTimeWhenTheNumberOfBytesReadIsZero = SearchUtil.MAX_SLEEP_TIME_WHEN_THE_NUMBER_OF_BYTES_READ_IS_ZERO;
 		bufferSize = SearchUtil.MIN_BUFFER_SIZE;
-		searchKeyword = "helloSinnori".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
+		searchKeyword = "helloWorld".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
 		long expectedIndex = 0;
 		
 		ByteBuffer tempFileContentsByteBuffer = ByteBuffer.allocate(bufferSize*2);
@@ -541,7 +541,7 @@ public class SearchUtilTest extends AbstractJunitTest {
 		
 		sleepTimeWhenTheNumberOfBytesReadIsZero = SearchUtil.MAX_SLEEP_TIME_WHEN_THE_NUMBER_OF_BYTES_READ_IS_ZERO;
 		bufferSize = SearchUtil.MIN_BUFFER_SIZE;
-		searchKeyword = "helloSinnori".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
+		searchKeyword = "helloWorld".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
 		
 		long expectedIndex = bufferSize - searchKeyword.length+1;
 		
@@ -607,7 +607,7 @@ public class SearchUtilTest extends AbstractJunitTest {
 		
 		sleepTimeWhenTheNumberOfBytesReadIsZero = SearchUtil.MAX_SLEEP_TIME_WHEN_THE_NUMBER_OF_BYTES_READ_IS_ZERO;
 		bufferSize = SearchUtil.MIN_BUFFER_SIZE;
-		searchKeyword = "helloSinnori".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
+		searchKeyword = "helloWorld".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
 		
 		int tempFileSize = bufferSize*2;
 		long expectedIndex = tempFileSize - searchKeyword.length;
@@ -674,7 +674,7 @@ public class SearchUtilTest extends AbstractJunitTest {
 		
 		sleepTimeWhenTheNumberOfBytesReadIsZero = SearchUtil.MAX_SLEEP_TIME_WHEN_THE_NUMBER_OF_BYTES_READ_IS_ZERO;
 		bufferSize = SearchUtil.MIN_BUFFER_SIZE;
-		searchKeyword = "helloSinnori".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
+		searchKeyword = "helloWorld".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
 		
 		int tempFileSize = bufferSize*2;
 		long expectedIndex = -1;
@@ -743,7 +743,7 @@ public class SearchUtilTest extends AbstractJunitTest {
 		
 		sleepTimeWhenTheNumberOfBytesReadIsZero = SearchUtil.MAX_SLEEP_TIME_WHEN_THE_NUMBER_OF_BYTES_READ_IS_ZERO;
 		bufferSize = SearchUtil.MIN_BUFFER_SIZE;
-		searchKeyword = "helloSinnori".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
+		searchKeyword = "helloWorld".getBytes(CommonStaticFinalVars.DEFUALT_CHARSET);
 		
 		// int tempFileSize = 1;
 		long expectedIndex = -1;

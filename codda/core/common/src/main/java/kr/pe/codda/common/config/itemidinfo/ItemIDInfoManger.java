@@ -495,7 +495,7 @@ public class ItemIDInfoManger {
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.TEXT, itemID,
 					"동적 클래스 패키지명 접두어, 동적 클래스 여부를 판단하는 기준",
-					CommonStaticFinalVars.FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME, isDefaultValueCheck,
+					CommonStaticFinalVars.BASE_DYNAMIC_CLASS_FULL_NAME, isDefaultValueCheck,
 					new GeneralConverterReturningNoTrimString());
 			addProjectPartItemIDInfo(itemIDInfo);
 	
@@ -1224,7 +1224,7 @@ public class ItemIDInfoManger {
 				
 				if (null != fileOrPathStringGetter) {
 					itemValue = fileOrPathStringGetter
-							.getFileOrPathStringDependingOninstalledPath(installedPathString, mainProjectName);
+							.getFileOrPathStringDependingOnInstalledPath(installedPathString, mainProjectName);
 				}
 				
 				configSequencedProperties.put(itemDescriptionKey, itemDescriptionValue);
@@ -1259,7 +1259,7 @@ public class ItemIDInfoManger {
 				
 				if (null != fileOrPathStringGetter) {
 					itemValue = fileOrPathStringGetter
-							.getFileOrPathStringDependingOninstalledPath(installedPathString, mainProjectName);
+							.getFileOrPathStringDependingOnInstalledPath(installedPathString, mainProjectName);
 				}
 				
 				configSequencedProperties.put(itemDescriptionKey, itemDescriptionValue);

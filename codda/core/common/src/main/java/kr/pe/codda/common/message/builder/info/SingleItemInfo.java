@@ -25,6 +25,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.UnknownItemTypeException;
 import kr.pe.codda.common.type.ItemInfoType;
+import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.common.type.SingleItemType;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
@@ -417,8 +418,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = null;
-		this.javaLangTypeOfItemType = "kr.pe.sinnori.common.type.SelfExn.ErrorPlace";
-		this.JavaLangClassCastingTypeOfItemType = "kr.pe.sinnori.common.type.SelfExn.ErrorPlace";
+		this.javaLangTypeOfItemType = SelfExn.ErrorPlace.class.getName();
+		this.JavaLangClassCastingTypeOfItemType = javaLangTypeOfItemType;
 	}
 
 	
@@ -448,8 +449,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = null;
-		this.javaLangTypeOfItemType = "kr.pe.sinnori.common.type.SelfExn.ErrorType";
-		this.JavaLangClassCastingTypeOfItemType = "kr.pe.sinnori.common.type.SelfExn.ErrorType";
+		this.javaLangTypeOfItemType = SelfExn.ErrorType.class.getName();
+		this.JavaLangClassCastingTypeOfItemType = javaLangTypeOfItemType;
 	}
 	
 	private void makeSourceBuilderInformationOfByte(

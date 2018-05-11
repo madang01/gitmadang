@@ -100,7 +100,7 @@ public class CoddaConfiguration {
 				.loadSequencedPropertiesFile(configFilePathString, CommonStaticFinalVars.SOURCE_FILE_CHARSET);
 
 		initAllPartItems(mainProjectName);
-		convertSinnoriConfigSequencedPropertiesToAllPartItemsWithValidation(this.configSequencedProperties);
+		convertConfigSequencedPropertiesToAllPartItemsWithValidation(this.configSequencedProperties);
 	}
 
 	private void initAllPartItems(String mainProjectName) {
@@ -110,17 +110,17 @@ public class CoddaConfiguration {
 		this.allSubProjectPartConfiguration = new AllSubProjectPartConfiguration();
 	}
 
-	public void convertSinnoriConfigSequencedPropertiesToAllPartItemsWithValidation(
-			SequencedProperties sinnoriConfigSequencedProperties) throws CoddaConfigurationException {
+	public void convertConfigSequencedPropertiesToAllPartItemsWithValidation(
+			SequencedProperties configSequencedProperties) throws CoddaConfigurationException {
 		List<String> subProjectNameList = new ArrayList<>();
 		Set<String> subProjectNameSet = new HashSet<>();
 		{
-			String itemValue = sinnoriConfigSequencedProperties
+			String itemValue = configSequencedProperties
 					.getProperty(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING);
 			if (null == itemValue) {
 				String errorMessage = new StringBuilder("the sub project name list key(=")
 						.append(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING)
-						.append(") was not found in the sinnori conifg file[").append(configFilePathString)
+						.append(") was not found in the conifg file[").append(configFilePathString)
 						.append("]").toString();
 				throw new CoddaConfigurationException(errorMessage);
 			}
@@ -134,7 +134,7 @@ public class CoddaConfiguration {
 					String subProjectName = token.trim();
 					if (subProjectNameSet.contains(subProjectName)) {
 						String errorMessage = new StringBuilder("sub project name[").append(subProjectName)
-								.append("] over at the project name list of the sinnori conifg file[")
+								.append("] over at the project name list of the conifg file[")
 								.append(configFilePathString).append("]").toString();
 						throw new CoddaConfigurationException(errorMessage);
 					}
@@ -148,12 +148,12 @@ public class CoddaConfiguration {
 		List<String> dbcpNameList = new ArrayList<>();
 		Set<String> dbcpNameSet = new HashSet<>();
 		{
-			String itemValue = sinnoriConfigSequencedProperties
+			String itemValue = configSequencedProperties
 					.getProperty(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING);
 			if (null == itemValue) {
 				String errorMessage = new StringBuilder("the dbcp name list key(=")
 						.append(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING)
-						.append(") was not found in the sinnori conifg file[").append(configFilePathString)
+						.append(") was not found in the conifg file[").append(configFilePathString)
 						.append("]").toString();
 				throw new CoddaConfigurationException(errorMessage);
 			}
@@ -168,7 +168,7 @@ public class CoddaConfiguration {
 					String dbcpName = token.trim();
 					if (dbcpNameSet.contains(dbcpName)) {
 						String errorMessage = new StringBuilder("dbcp name[").append(dbcpName)
-								.append("] over at the dbcp name list of the sinnori conifg file[")
+								.append("] over at the dbcp name list of the conifg file[")
 								.append(configFilePathString).append("]").toString();
 						throw new CoddaConfigurationException(errorMessage);
 					}
@@ -179,13 +179,13 @@ public class CoddaConfiguration {
 			}
 		}
 
-		ItemIDInfoManger sinnoriItemIDInfoManger = ItemIDInfoManger.getInstance();
+		ItemIDInfoManger itemIDInfoManger = ItemIDInfoManger.getInstance();
 		/**
 		 * 설정 프로퍼티 파일의 항목 키 전체가 올바른지 검사하기 check item key invalidation by item in the
 		 * config file
 		 */
 		@SuppressWarnings("unchecked")
-		Enumeration<String> itemKeys = sinnoriConfigSequencedProperties.keys();
+		Enumeration<String> itemKeys = configSequencedProperties.keys();
 		while (itemKeys.hasMoreElements()) {
 			String itemKey = itemKeys.nextElement();
 
@@ -197,18 +197,18 @@ public class CoddaConfiguration {
 			@SuppressWarnings("unused")
 			ItemIDInfo<?> itemIDInfo = null;
 			try {
-				itemIDInfo = sinnoriItemIDInfoManger.getItemIDInfoFromKey(itemKey, dbcpNameSet, subProjectNameSet);
+				itemIDInfo = itemIDInfoManger.getItemIDInfoFromKey(itemKey, dbcpNameSet, subProjectNameSet);
 			} catch (IllegalArgumentException e) {
 				// log.warn("", e);
 
 				String errorMessage = new StringBuilder("error message=[").append(e.getMessage())
-						.append("], the sinnori conifg file[").append(configFilePathString).append("]")
+						.append("], the conifg file[").append(configFilePathString).append("]")
 						.toString();
 				throw new CoddaConfigurationException(errorMessage);
 			}
 		}
 
-		List<ItemIDInfo<?>> dbcpItemIDInfoList = sinnoriItemIDInfoManger.getUnmodifiableDBCPPartItemIDInfoList();
+		List<ItemIDInfo<?>> dbcpItemIDInfoList = itemIDInfoManger.getUnmodifiableDBCPPartItemIDInfoList();
 		for (String dbcpName : dbcpNameList) {
 			String prefixOfItemID = new StringBuilder("dbcp.").append(dbcpName).append(".").toString();
 
@@ -216,26 +216,26 @@ public class CoddaConfiguration {
 			for (ItemIDInfo<?> itemIDInfo : dbcpItemIDInfoList) {
 				String itemID = itemIDInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(itemID).toString();
-				String itemValue = sinnoriConfigSequencedProperties.getProperty(itemKey);
+				String itemValue = configSequencedProperties.getProperty(itemKey);
 				if (null == itemValue) {
 					String errorMessage = new StringBuilder("the item key[").append(itemKey)
-							.append("] was not found in the Sinnori conifg file[").append(configFilePathString)
+							.append("] was not found in the conifg file[").append(configFilePathString)
 							.append("]").toString();
 					throw new CoddaConfigurationException(errorMessage);
 				}
 
-				boolean isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, prefixOfItemID,
-						sinnoriConfigSequencedProperties);
+				boolean isInactive = itemIDInfoManger.isDisabled(itemID, prefixOfItemID,
+						configSequencedProperties);
 				if (!isInactive) {
-					Object nativeValue = sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey,
-							sinnoriConfigSequencedProperties);
+					Object nativeValue = itemIDInfoManger.getNativeValueAfterValidChecker(itemKey,
+							configSequencedProperties);
 
 					try {
 						dbcpPartItems.mapping(itemKey, nativeValue);
 					} catch (IllegalArgumentException | ClassCastException | CoddaConfigurationException e) {
 						String errorMessage = new StringBuilder("fail to map item key[").append(itemKey)
 								.append("]'s value[").append(itemValue)
-								.append("] to the dbcp part value object's variable in the sinnori conifg file[")
+								.append("] to the dbcp part value object's variable in the conifg file[")
 								.append(configFilePathString).append("]").toString();
 						throw new CoddaConfigurationException(errorMessage);
 					}
@@ -247,29 +247,29 @@ public class CoddaConfiguration {
 			allDBCPPartConfiguration.addDBCPPartValueObject(dbcpPartItems);
 		}
 
-		List<ItemIDInfo<?>> commonItemIDInfoList = sinnoriItemIDInfoManger.getUnmodifiableCommonPartItemIDInfoList();
+		List<ItemIDInfo<?>> commonItemIDInfoList = itemIDInfoManger.getUnmodifiableCommonPartItemIDInfoList();
 		for (ItemIDInfo<?> itemIDInfo : commonItemIDInfoList) {
 			String itemID = itemIDInfo.getItemID();
 			String itemKey = itemID;
-			String itemValue = sinnoriConfigSequencedProperties.getProperty(itemKey);
+			String itemValue = configSequencedProperties.getProperty(itemKey);
 			if (null == itemValue) {
 				String errorMessage = new StringBuilder("the item key[").append(itemKey)
-						.append("] was not found in the sinnori conifg file[").append(configFilePathString)
+						.append("] was not found in the conifg file[").append(configFilePathString)
 						.append("]").toString();
 				throw new CoddaConfigurationException(errorMessage);
 			}
 
-			boolean isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, "", sinnoriConfigSequencedProperties);
+			boolean isInactive = itemIDInfoManger.isDisabled(itemID, "", configSequencedProperties);
 			if (!isInactive) {
-				Object nativeValue = sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey,
-						sinnoriConfigSequencedProperties);
+				Object nativeValue = itemIDInfoManger.getNativeValueAfterValidChecker(itemKey,
+						configSequencedProperties);
 
 				try {
 					commonPartConfiguration.mapping(itemKey, nativeValue);
 				} catch (IllegalArgumentException | ClassCastException | CoddaConfigurationException e) {
 					String errorMessage = new StringBuilder("fail to map item key[").append(itemKey)
 							.append("]'s value[").append(itemValue)
-							.append("] to the common part value object's variable in the sinnori conifg file[")
+							.append("] to the common part value object's variable in the conifg file[")
 							.append(configFilePathString).append("]").toString();
 					throw new CoddaConfigurationException(errorMessage);
 				}
@@ -279,32 +279,32 @@ public class CoddaConfiguration {
 
 		}
 
-		List<ItemIDInfo<?>> projectItemIDInfoList = sinnoriItemIDInfoManger.getUnmodifiableProjectPartItemIDInfoList();
+		List<ItemIDInfo<?>> projectItemIDInfoList = itemIDInfoManger.getUnmodifiableProjectPartItemIDInfoList();
 
 		/** main project part */
 		for (ItemIDInfo<?> itemIDInfo : projectItemIDInfoList) {
 			String itemID = itemIDInfo.getItemID();
 			String itemKey = new StringBuilder("mainproject.").append(itemID).toString();
-			String itemValue = sinnoriConfigSequencedProperties.getProperty(itemKey);
+			String itemValue = configSequencedProperties.getProperty(itemKey);
 			if (null == itemValue) {
 				String errorMessage = new StringBuilder("the item key[").append(itemKey)
-						.append("] was not found in the sinnori conifg file[").append(configFilePathString)
+						.append("] was not found in the conifg file[").append(configFilePathString)
 						.append("]").toString();
 				throw new CoddaConfigurationException(errorMessage);
 			}
 
-			boolean isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, "mainproject.",
-					sinnoriConfigSequencedProperties);
+			boolean isInactive = itemIDInfoManger.isDisabled(itemID, "mainproject.",
+					configSequencedProperties);
 			if (!isInactive) {
-				Object nativeValue = sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey,
-						sinnoriConfigSequencedProperties);
+				Object nativeValue = itemIDInfoManger.getNativeValueAfterValidChecker(itemKey,
+						configSequencedProperties);
 
 				try {
 					mainProjectPartConfiguration.mapping(itemKey, nativeValue);
 				} catch (IllegalArgumentException | ClassCastException | CoddaConfigurationException e) {
 					String errorMessage = new StringBuilder("fail to map item key[").append(itemKey)
 							.append("]'s value[").append(itemValue)
-							.append("] to the project part value object's variable in the sinnori conifg file[")
+							.append("] to the project part value object's variable in the conifg file[")
 							.append(configFilePathString).append("]").toString();
 					throw new CoddaConfigurationException(errorMessage);
 				}
@@ -321,26 +321,26 @@ public class CoddaConfiguration {
 			for (ItemIDInfo<?> itemIDInfo : projectItemIDInfoList) {
 				String itemID = itemIDInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(itemID).toString();
-				String itemValue = sinnoriConfigSequencedProperties.getProperty(itemKey);
+				String itemValue = configSequencedProperties.getProperty(itemKey);
 				if (null == itemValue) {
 					String errorMessage = new StringBuilder("the item key[").append(itemKey)
-							.append("] was not found in the sinnori conifg file[").append(configFilePathString)
+							.append("] was not found in the conifg file[").append(configFilePathString)
 							.append("]").toString();
 					throw new CoddaConfigurationException(errorMessage);
 				}
 
-				boolean isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, prefixOfItemID,
-						sinnoriConfigSequencedProperties);
+				boolean isInactive = itemIDInfoManger.isDisabled(itemID, prefixOfItemID,
+						configSequencedProperties);
 				if (!isInactive) {
-					Object nativeValue = sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey,
-							sinnoriConfigSequencedProperties);
+					Object nativeValue = itemIDInfoManger.getNativeValueAfterValidChecker(itemKey,
+							configSequencedProperties);
 
 					try {
 						subProjectPartItems.mapping(itemKey, nativeValue);
 					} catch (IllegalArgumentException | ClassCastException | CoddaConfigurationException e) {
 						String errorMessage = new StringBuilder("fail to map item key[").append(itemKey)
 								.append("]'s value[").append(itemValue)
-								.append("] to the project part value object's variable in the sinnori conifg file[")
+								.append("] to the project part value object's variable in the conifg file[")
 								.append(configFilePathString).append("]").toString();
 						throw new CoddaConfigurationException(errorMessage);
 					}
@@ -396,64 +396,57 @@ public class CoddaConfiguration {
 		overwriteFile();
 	}
 
-	/*
-	 * private void createNewFile() throws IOException {
-	 * SequencedPropertiesUtil.createNewSequencedPropertiesFile(
-	 * sinnoriConfigSequencedProperties, getSinnoriConfigPropertiesTitle(),
-	 * sinnoriConfigFilePathString,
-	 * CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET); }
-	 */
 
 	private void overwriteFile() throws IOException {
 		SequencedPropertiesUtil.overwriteSequencedPropertiesFile(configSequencedProperties,
-				getSinnoriConfigPropertiesTitle(), configFilePathString,
+				getConfigPropertiesTitle(), configFilePathString,
 				CommonStaticFinalVars.SOURCE_FILE_CHARSET);
 	}
 
-	public void applyModifiedSinnoriConfigSequencedProperties() throws IOException, CoddaConfigurationException {
+	public void applyModifiedConfigSequencedProperties() throws IOException, CoddaConfigurationException {
 		initAllPartItems(mainProjectName);
-		convertSinnoriConfigSequencedPropertiesToAllPartItemsWithValidation(configSequencedProperties);
+		convertConfigSequencedPropertiesToAllPartItemsWithValidation(configSequencedProperties);
 		overwriteFile();
 	}
 
 	// FIXME!
-	public static void applySinnoriInstalledPath(String sinnoriInstalledPathString, String mainProjectName)
+	public static void applyInstalledPath(String installedPathString, String mainProjectName)
 			throws IOException, CoddaConfigurationException {
-		String sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getProejctConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+		String configFilePathString = BuildSystemPathSupporter
+				.getProejctConfigFilePathString(installedPathString, mainProjectName);
 
-		SequencedProperties sinnoriConfigSequencedProperties = SequencedPropertiesUtil
-				.loadSequencedPropertiesFile(sinnoriConfigFilePathString, CommonStaticFinalVars.SOURCE_FILE_CHARSET);
+		SequencedProperties configSequencedProperties = SequencedPropertiesUtil
+				.loadSequencedPropertiesFile(configFilePathString, CommonStaticFinalVars.SOURCE_FILE_CHARSET);
 
-		List<String> subProjectNameList = buildSubProjectNameList(sinnoriConfigFilePathString,
-				sinnoriConfigSequencedProperties);
+		List<String> subProjectNameList = buildSubProjectNameList(configFilePathString,
+				configSequencedProperties);
 
-		List<String> dbcpNameList = buildDBCPNameList(sinnoriConfigFilePathString, sinnoriConfigSequencedProperties);
+		List<String> dbcpNameList = buildDBCPNameList(configFilePathString, configSequencedProperties);
 
-		ItemIDInfoManger sinnoriItemIDInfoManger = ItemIDInfoManger.getInstance();
+		ItemIDInfoManger itemIDInfoManger = ItemIDInfoManger.getInstance();
 
 		/** common */
-		List<ItemIDInfo<?>> commonPartItemIDInfoList = sinnoriItemIDInfoManger
+		List<ItemIDInfo<?>> commonPartItemIDInfoList = itemIDInfoManger
 				.getUnmodifiableCommonPartItemIDInfoList();
 		{
 			for (ItemIDInfo<?> itemIDConfigInfo : commonPartItemIDInfoList) {
 				String itemID = itemIDConfigInfo.getItemID();
 				String itemKey = itemID;
 
-				AbstractFileOrPathStringGetter fileOrPathStringGetter = sinnoriItemIDInfoManger
+				AbstractFileOrPathStringGetter fileOrPathStringGetter = itemIDInfoManger
 						.getFileOrPathStringGetter(itemID);
 
 				if (null != fileOrPathStringGetter) {
 					String itemValue = fileOrPathStringGetter
-							.getFileOrPathStringDependingOninstalledPath(sinnoriInstalledPathString, mainProjectName);
+							.getFileOrPathStringDependingOnInstalledPath(installedPathString, mainProjectName);
 
-					sinnoriConfigSequencedProperties.put(itemKey, itemValue);
+					configSequencedProperties.put(itemKey, itemValue);
 				}
 			}
 		}
 
 		/** dbcp */
-		List<ItemIDInfo<?>> dbcpPartItemIDInfoList = sinnoriItemIDInfoManger.getUnmodifiableDBCPPartItemIDInfoList();
+		List<ItemIDInfo<?>> dbcpPartItemIDInfoList = itemIDInfoManger.getUnmodifiableDBCPPartItemIDInfoList();
 		{
 			for (String dbcpName : dbcpNameList) {
 				String prefixOfItemID = new StringBuilder("dbcp.").append(dbcpName).append(".").toString();
@@ -461,13 +454,13 @@ public class CoddaConfiguration {
 					String itemID = itemIDConfigInfo.getItemID();
 					String itemKey = new StringBuilder(prefixOfItemID).append(itemID).toString();
 
-					AbstractFileOrPathStringGetter fileOrPathStringGetter = sinnoriItemIDInfoManger
+					AbstractFileOrPathStringGetter fileOrPathStringGetter = itemIDInfoManger
 							.getFileOrPathStringGetter(itemID);
 
 					if (null != fileOrPathStringGetter) {
-						String itemValue = fileOrPathStringGetter.getFileOrPathStringDependingOninstalledPath(
-								sinnoriInstalledPathString, mainProjectName, dbcpName);
-						sinnoriConfigSequencedProperties.put(itemKey, itemValue);
+						String itemValue = fileOrPathStringGetter.getFileOrPathStringDependingOnInstalledPath(
+								installedPathString, mainProjectName, dbcpName);
+						configSequencedProperties.put(itemKey, itemValue);
 					}
 				}
 			}
@@ -475,7 +468,7 @@ public class CoddaConfiguration {
 		}
 
 		/** main project */
-		List<ItemIDInfo<?>> projectPartItemIDInfoList = sinnoriItemIDInfoManger
+		List<ItemIDInfo<?>> projectPartItemIDInfoList = itemIDInfoManger
 				.getUnmodifiableProjectPartItemIDInfoList();
 		{
 			String prefixOfItemID = new StringBuilder("mainproject.").toString();
@@ -484,14 +477,14 @@ public class CoddaConfiguration {
 				String itemID = itemIDConfigInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(itemID).toString();
 
-				AbstractFileOrPathStringGetter fileOrPathStringGetter = sinnoriItemIDInfoManger
+				AbstractFileOrPathStringGetter fileOrPathStringGetter = itemIDInfoManger
 						.getFileOrPathStringGetter(itemID);
 
 				if (null != fileOrPathStringGetter) {
 					String itemValue = fileOrPathStringGetter
-							.getFileOrPathStringDependingOninstalledPath(sinnoriInstalledPathString, mainProjectName);
+							.getFileOrPathStringDependingOnInstalledPath(installedPathString, mainProjectName);
 
-					sinnoriConfigSequencedProperties.put(itemKey, itemValue);
+					configSequencedProperties.put(itemKey, itemValue);
 				}
 			}
 		}
@@ -505,36 +498,36 @@ public class CoddaConfiguration {
 					String itemID = itemIDConfigInfo.getItemID();
 					String itemKey = new StringBuilder(prefixOfItemID).append(itemID).toString();
 
-					AbstractFileOrPathStringGetter fileOrPathStringGetter = sinnoriItemIDInfoManger
+					AbstractFileOrPathStringGetter fileOrPathStringGetter = itemIDInfoManger
 							.getFileOrPathStringGetter(itemID);
 
 					if (null != fileOrPathStringGetter) {
-						String itemValue = fileOrPathStringGetter.getFileOrPathStringDependingOninstalledPath(
-								sinnoriInstalledPathString, mainProjectName);
+						String itemValue = fileOrPathStringGetter.getFileOrPathStringDependingOnInstalledPath(
+								installedPathString, mainProjectName);
 
-						sinnoriConfigSequencedProperties.put(itemKey, itemValue);
+						configSequencedProperties.put(itemKey, itemValue);
 					}
 				}
 			}
 		}
 
-		SequencedPropertiesUtil.overwriteSequencedPropertiesFile(sinnoriConfigSequencedProperties,
-				getSinnoriConfigPropertiesTitle(mainProjectName), sinnoriConfigFilePathString,
+		SequencedPropertiesUtil.overwriteSequencedPropertiesFile(configSequencedProperties,
+				getConfigPropertiesTitle(mainProjectName), configFilePathString,
 				CommonStaticFinalVars.SOURCE_FILE_CHARSET);
 
 	}
 
-	private static List<String> buildDBCPNameList(String sinnoriConfigFilePathString,
-			SequencedProperties sinnoriConfigSequencedProperties) throws CoddaConfigurationException {
+	private static List<String> buildDBCPNameList(String configFilePathString,
+			SequencedProperties configSequencedProperties) throws CoddaConfigurationException {
 		List<String> dbcpNameList = new ArrayList<>();
 		Set<String> dbcpNameSet = new HashSet<>();
 		{
-			String itemValue = sinnoriConfigSequencedProperties
+			String itemValue = configSequencedProperties
 					.getProperty(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING);
 			if (null == itemValue) {
 				String errorMessage = new StringBuilder("the dbcp name list key(=")
 						.append(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING)
-						.append(") was not found in the sinnori conifg file[").append(sinnoriConfigFilePathString)
+						.append(") was not found in the conifg file[").append(configFilePathString)
 						.append("]").toString();
 				throw new CoddaConfigurationException(errorMessage);
 			}
@@ -549,8 +542,8 @@ public class CoddaConfiguration {
 					String dbcpName = token.trim();
 					if (dbcpNameSet.contains(dbcpName)) {
 						String errorMessage = new StringBuilder("dbcp name[").append(dbcpName)
-								.append("] over at the dbcp name list of the sinnori conifg file[")
-								.append(sinnoriConfigFilePathString).append("]").toString();
+								.append("] over at the dbcp name list of the conifg file[")
+								.append(configFilePathString).append("]").toString();
 						throw new CoddaConfigurationException(errorMessage);
 					}
 
@@ -562,17 +555,17 @@ public class CoddaConfiguration {
 		return dbcpNameList;
 	}
 
-	private static List<String> buildSubProjectNameList(String sinnoriConfigFilePathString,
-			SequencedProperties sinnoriConfigSequencedProperties) throws CoddaConfigurationException {
+	private static List<String> buildSubProjectNameList(String configFilePathString,
+			SequencedProperties configSequencedProperties) throws CoddaConfigurationException {
 		List<String> subProjectNameList = new ArrayList<>();
 		Set<String> subProjectNameSet = new HashSet<>();
 		{
-			String itemValue = sinnoriConfigSequencedProperties
+			String itemValue = configSequencedProperties
 					.getProperty(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING);
 			if (null == itemValue) {
 				String errorMessage = new StringBuilder("the sub project name list key(=")
 						.append(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING)
-						.append(") was not found in the sinnori conifg file[").append(sinnoriConfigFilePathString)
+						.append(") was not found in the conifg file[").append(configFilePathString)
 						.append("]").toString();
 				throw new CoddaConfigurationException(errorMessage);
 			}
@@ -586,8 +579,8 @@ public class CoddaConfiguration {
 					String subProjectName = token.trim();
 					if (subProjectNameSet.contains(subProjectName)) {
 						String errorMessage = new StringBuilder("sub project name[").append(subProjectName)
-								.append("] over at the project name list of the sinnori conifg file[")
-								.append(sinnoriConfigFilePathString).append("]").toString();
+								.append("] over at the project name list of the conifg file[")
+								.append(configFilePathString).append("]").toString();
 						throw new CoddaConfigurationException(errorMessage);
 					}
 
@@ -619,19 +612,19 @@ public class CoddaConfiguration {
 		return mainProjectName;
 	}
 
-	public String getSinnoriInstalledPathString() {
+	public String getInstalledPathString() {
 		return installedPathString;
 	}
 
-	public SequencedProperties getSinnoriConfigurationSequencedPropties() {
+	public SequencedProperties getConfigurationSequencedPropties() {
 		return configSequencedProperties;
 	}
 
-	public String getSinnoriConfigPropertiesTitle() {
-		return getSinnoriConfigPropertiesTitle(mainProjectName);
+	public String getConfigPropertiesTitle() {
+		return getConfigPropertiesTitle(mainProjectName);
 	}
 
-	public static String getSinnoriConfigPropertiesTitle(String mainProjectName) {
-		return new StringBuilder("project[").append(mainProjectName).append("]'s sinnori config file").toString();
+	public static String getConfigPropertiesTitle(String mainProjectName) {
+		return new StringBuilder("project[").append(mainProjectName).append("]'s config file").toString();
 	}
 }

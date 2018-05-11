@@ -14,7 +14,7 @@ public class CoddaLogbackManger {
 	/**
 	 * 동기화 안쓰고 싱글턴 구현을 위한 내부 클래스
 	 */
-	private static final class SinnoriLogbackMangerHolder {
+	private static final class LogbackMangerHolder {
 		static final CoddaLogbackManger singleton = new CoddaLogbackManger();
 	}
 
@@ -24,7 +24,7 @@ public class CoddaLogbackManger {
 	 * @return 싱글턴 객체
 	 */
 	public static CoddaLogbackManger getInstance() {
-		return SinnoriLogbackMangerHolder.singleton;
+		return LogbackMangerHolder.singleton;
 	}
 	
 	public void setup(String installedPathString, String mainProjectName, LogType logType) throws IllegalStateException {
@@ -119,7 +119,7 @@ public class CoddaLogbackManger {
 		}
 		
 		String logbackConfigFilePathString = BuildSystemPathSupporter.getProjectLogbackConfigFilePathString(installedPathString, "sample_base");
-		String rootLogPathString = BuildSystemPathSupporter.getRootLogPathString(installedPathString);
+		String rootLogPathString = BuildSystemPathSupporter.getLogPathString(installedPathString);
 		
 		
 		{
@@ -155,9 +155,9 @@ public class CoddaLogbackManger {
 		
 		
 		{
-			File sinnoriLogPath = new File(rootLogPathString);
+			File logPath = new File(rootLogPathString);
 			
-			if (! sinnoriLogPath.exists()) {
+			if (! logPath.exists()) {
 				String errorMessage = new StringBuilder("the log path[")
 						.append(rootLogPathString)
 						.append("] doesn't exist").toString();
@@ -166,7 +166,7 @@ public class CoddaLogbackManger {
 			}
 			
 			
-			if (! sinnoriLogPath.isDirectory()) {
+			if (! logPath.isDirectory()) {
 				String errorMessage = new StringBuilder("the log path[")
 						.append(rootLogPathString)
 						.append("] is not a directory").toString();
@@ -175,7 +175,7 @@ public class CoddaLogbackManger {
 			}
 
 
-			if (! sinnoriLogPath.canWrite()) {
+			if (! logPath.canWrite()) {
 				String errorMessage = new StringBuilder("the log path[")
 						.append(rootLogPathString)
 						.append("] is marked read-only").toString();

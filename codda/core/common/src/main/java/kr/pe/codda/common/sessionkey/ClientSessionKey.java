@@ -19,10 +19,10 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 	public ClientSessionKey(ClientRSAIF clientRSA) throws SymmetricException {
 		this.clientRSA = clientRSA;
 		
-		CoddaConfiguration sinnoriRunningProjectConfiguration = 
+		CoddaConfiguration runningProjectConfiguration = 
 				CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();		
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 		
 		int symmetricIVSize = commonPart.getSymmetricIVSizeOfSessionKey();		
 		

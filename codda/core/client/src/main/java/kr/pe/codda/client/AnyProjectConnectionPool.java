@@ -13,6 +13,7 @@ import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.message.AbstractMessage;
 
 public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
+	@SuppressWarnings("unused")
 	private ProjectPartConfiguration mainProjectPartConfiguration = null;
 	
 	public AnyProjectConnectionPool(ProjectPartConfiguration mainProjectPartConfiguration) {

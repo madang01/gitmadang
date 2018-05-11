@@ -21,10 +21,10 @@ private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstanc
 			throw new IllegalArgumentException("the paramter ivBytes is null");
 		}
 		
-		CoddaConfiguration sinnoriRunningProjectConfiguration = 
+		CoddaConfiguration runningProjectConfiguration = 
 				CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();		
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 		int symmetricIVSize = commonPart.getSymmetricIVSizeOfSessionKey();		
 		symmetricKeyAlgorithm = commonPart.getSymmetricKeyAlgorithmOfSessionKey();
 		// symmetricKeyEncodingType = commonPart.getSymmetricKeyEncodingOfSessionKey();

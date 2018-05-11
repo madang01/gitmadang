@@ -7,8 +7,8 @@ import kr.pe.codda.common.type.LogType;
 
 public abstract class BuildSystemPathSupporter {
 	
-	/** <installed path>/temp */
-	public static String getRootTempPathString(
+	/** [installed path]/temp */
+	public static String getTempPathString(
 			String installedPathString) {
 		if (null == installedPathString) {
 			throw new IllegalArgumentException(
@@ -27,8 +27,8 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 	
-	/** <installed path>/log */
-	public static String getRootLogPathString(
+	/** [installed path]/log */
+	public static String getLogPathString(
 			String installedPathString) {
 		if (null == installedPathString) {
 			throw new IllegalArgumentException(
@@ -46,7 +46,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** root resources path : <installed path>/resources */
+	/** root resources path : [installed path]/resources */
 	public static String getRootResourcesPathString(
 			String installedPathString) {
 		if (null == installedPathString) {
@@ -65,7 +65,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** message info path : <root resource path>/message_info */
+	/** message info path : [root resource path]/message_info */
 	public static String getMessageInfoDirectoryPathStringFromRootResources(String installedPathString) {
 		StringBuilder strBuilder = new StringBuilder(getRootResourcesPathString(installedPathString))
 				.append(File.separator)
@@ -73,7 +73,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** message info path : <root resource path>/message_info/<message id>.xml */
+	/** message info path : [root resource path]/message_info/[message id].xml */
 	public static String getMessageInfoFilePathStringFromRootResources(String installedPathString, String messageID) {
 		StringBuilder strBuilder = new StringBuilder(getMessageInfoDirectoryPathStringFromRootResources(installedPathString))
 				.append(File.separator)
@@ -82,7 +82,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** project base path : <installed path>/project */
+	/** project base path : [installed path]/project */
 	public static String getProjectBasePathString(
 			String installedPathString) {
 		if (null == installedPathString) {
@@ -101,7 +101,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** project path : <project base path>/<main project name>  */
+	/** project path : [project base path]/[main project name]  */
 	public static String getProjectPathString(String installedPathString,  String mainProjectName) {
 		if (null == mainProjectName) {
 			throw new IllegalArgumentException(
@@ -121,7 +121,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** log path : <project path>/log/<log type name> */
+	/** log path : [project path]/log/[log type name] */
 	public static String getProjectLogPathString(String installedPathString, String mainProjectName, LogType logType) {		
 		if (null == logType) {
 			throw new IllegalArgumentException(
@@ -138,7 +138,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** project config path : <proejct path>/config */
+	/** project config path : [proejct path]/config */
 	public static String getProjectConfigDirectoryPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -146,7 +146,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** project config file path : <project config path>/<project config short file name> */
+	/** project config file path : [project config path]/[project config short file name] */
 	public static String getProejctConfigFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(
 				getProjectConfigDirectoryPathString(installedPathString, mainProjectName));
@@ -155,7 +155,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** project resources path : <project path>/resources */
+	/** project resources path : [project path]/resources */
 	public static String getProjectResourcesDirectoryPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(
 				getProjectPathString(installedPathString, mainProjectName));
@@ -165,7 +165,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 	
-	/** logback config file path : <project resources path>/<logack log short file name> */
+	/** logback config file path : [project resources path]/[logack log short file name] */
 	public static String getProjectLogbackConfigFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -173,7 +173,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** DBCP configuration file path : <project path>/resources/dbcp/dbcp.<dbcp name>.properties  */
+	/** DBCP configuration file path : [project path]/resources/dbcp/dbcp.[dbcp name].properties  */
 	public static String getProjectDBCPConfigFilePathString(String installedPathString, String mainProjectName,
 			 String dbcpName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(installedPathString, mainProjectName));
@@ -187,7 +187,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** message info path : <project path>/resources/message_info */
+	/** message info path : [project path]/resources/message_info */
 	public static String getProjectMessageInfoDirectoryPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(installedPathString, mainProjectName))
 				.append(File.separator)
@@ -197,7 +197,7 @@ public abstract class BuildSystemPathSupporter {
 	
 	
 
-	/** message info path : <project path>/resources/message_info/<message id>.xml */
+	/** message info path : [project path]/resources/message_info/[message id].xml */
 	public static String getProjectMessageInfoFilePathString(String installedPathString, String mainProjectName, String messageID) {
 		StringBuilder strBuilder = new StringBuilder(getProjectMessageInfoDirectoryPathString(installedPathString, mainProjectName))
 				.append(File.separator)
@@ -207,7 +207,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 
-	/** RSA keypair path : <project path>/resources/rsa_keypair */
+	/** RSA keypair path : [project path]/resources/rsa_keypair */
 	public static String getSessionKeyRSAKeypairPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -215,7 +215,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** RSA Publickey file : <RSA keypair path>/<publickey short file name> */
+	/** RSA Publickey file : [RSA keypair path]/[publickey short file name] */
 	public static String getSessionKeyRSAPublickeyFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getSessionKeyRSAKeypairPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -223,7 +223,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** RSA Publickey file : <RSA keypair path>/<privatekey short file name> */
+	/** RSA Publickey file : [RSA keypair path]/[privatekey short file name] */
 	public static String getSessionKeyRSAPrivatekeyFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getSessionKeyRSAKeypairPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -231,7 +231,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** server build path : <project path>/server_build */
+	/** server build path : [project path]/server_build */
 	public static String getServerBuildPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -239,7 +239,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** server build.xml : <project path>/server_build/build.xml */
+	/** server build.xml : [project path]/server_build/build.xml */
 	public static String getServerAntBuildXMLFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -247,7 +247,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** APP-INF path : <server build path>/APP-INF */
+	/** APP-INF path : [server build path]/APP-INF */
 	public static String getServerAPPINFPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -255,7 +255,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** APP-INF class path : <APP-INF path>/classes */
+	/** APP-INF class path : [APP-INF path]/classes */
 	public static String getServerAPPINFClassPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getServerAPPINFPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -266,7 +266,7 @@ public abstract class BuildSystemPathSupporter {
 	
 	/**
 	 * 
-	 * @return <message source file's relative path>, the relative path where message I / O files are located based on 'Ant build path'
+	 * @return [message source file's relative path], the relative path where message I / O files are located based on 'Ant build path'
 	 */
 	private static String getRelativePathWhereMessageIOSourceFilesAreLocated() {
 		StringBuilder relativePathStringBuilder = new StringBuilder("src")
@@ -274,7 +274,7 @@ public abstract class BuildSystemPathSupporter {
 			.append(File.separator).append("java")
 			.append(File.separator);
 		
-		for (char ch : CommonStaticFinalVars.FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME.toCharArray()) {
+		for (char ch : CommonStaticFinalVars.BASE_MESSAGE_CLASS_FULL_NAME.toCharArray()) {
 			if (ch == '.') {
 				relativePathStringBuilder.append(File.separator);
 			} else {
@@ -282,11 +282,10 @@ public abstract class BuildSystemPathSupporter {
 			}
 		};
 		 
-		return relativePathStringBuilder.append("message")
-				.toString();
+		return relativePathStringBuilder.toString();
 	}
 
-	/** <server build path>/<message source file's relative path> */
+	/** [server build path]/[message source file's relative path] */
 	public static String getServerIOSourcePath(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -295,7 +294,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** client build base path : <project path>/client_build */
+	/** client build base path : [project path]/client_build */
 	public static String getClientBuildBasePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -304,7 +303,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** application client build path : <project path>/client_build/app_build */
+	/** application client build path : [project path]/client_build/app_build */
 	public static String getAppClientBuildPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getClientBuildBasePathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -312,7 +311,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** application client build.xml : <application client build path>/build.xml */
+	/** application client build.xml : [application client build path]/build.xml */
 	public static String getAppClientAntBuildXMLFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getAppClientBuildPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -320,7 +319,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** <app client build path>/<message source file's relative path> */
+	/** [app client build path]/[message source file's relative path] */
 	public static String getAppClientIOSourcePath(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getAppClientBuildPathString(installedPathString, 	mainProjectName));
 		strBuilder.append(File.separator);
@@ -330,7 +329,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 
-	/** web client build path : <project path>/client_build/web_build */
+	/** web client build path : [project path]/client_build/web_build */
 	public static String getWebClientBuildPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getClientBuildBasePathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -338,7 +337,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** web client build.xml : <web client build path>/build.xml */
+	/** web client build.xml : [web client build path]/build.xml */
 	public static String getWebClientAntBuildXMLFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getWebClientBuildPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -348,7 +347,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 	// FIXME!
-	/** ant.properties : <web client build path>/webAnt.properties */
+	/** ant.properties : [web client build path]/webAnt.properties */
 	public static String getWebClientAntPropertiesFilePath(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getWebClientBuildPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -356,7 +355,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** <web client build path>/<message source file's relative path> */
+	/** [web client build path]/[message source file's relative path] */
 	public static String getWebClinetIOSourcePath(String installedPathString, String mainProjectName) {
 		// FIXME!
 		StringBuilder strBuilder = new StringBuilder(getWebClientBuildPathString(installedPathString, mainProjectName));
@@ -367,7 +366,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 
-	/** <project path>/web_app_base */
+	/** [project path]/web_app_base */
 	public static String getWebRootBasePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -375,7 +374,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/** <project path>/web_app_base/upload */
+	/** [project path]/web_app_base/upload */
 	public static String getWebUploadPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getWebRootBasePathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -383,7 +382,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}	
 	
-	/** <project path>/web_app_base/temp */
+	/** [project path]/web_app_base/temp */
 	public static String getWebTempPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getWebRootBasePathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -392,7 +391,7 @@ public abstract class BuildSystemPathSupporter {
 	}	
 
 	/**
-	 * <project path>/web_app_base/ROOT
+	 * [project path]/web_app_base/ROOT
 	 */
 	public static String getWebRootPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getWebRootBasePathString(installedPathString, mainProjectName));
@@ -402,7 +401,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 	/**
-	 * <project path>/web_app_base/ROOT/WEB-INF
+	 * [project path]/web_app_base/ROOT/WEB-INF
 	 */
 	public static String getWEBINFPathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getWebRootPathString(installedPathString, mainProjectName));
@@ -412,7 +411,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 	/**
-	 * <project path>/web_app_base/ROOT/WEB-INF/web.xml
+	 * [project path]/web_app_base/ROOT/WEB-INF/web.xml
 	 */
 	public static String getWebRootXMLFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getWEBINFPathString(installedPathString, mainProjectName));

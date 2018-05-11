@@ -40,7 +40,7 @@ public final class CoddaConfigurationManager {
 	private CoddaConfiguration runningProjectConfiguration = null;
 
 	/** 동기화 안쓰고 싱글턴 구현을 위한 내부 클래스 */
-	private static final class SinnoriConfigurationManagerHolder {
+	private static final class ConfigurationManagerHolder {
 		static final CoddaConfigurationManager singleton = new CoddaConfigurationManager();
 	}
 
@@ -50,7 +50,7 @@ public final class CoddaConfigurationManager {
 	 * @return 싱글턴 객체
 	 */
 	public static CoddaConfigurationManager getInstance() {
-		return SinnoriConfigurationManagerHolder.singleton;
+		return ConfigurationManagerHolder.singleton;
 	}
 
 	/**
@@ -66,7 +66,7 @@ public final class CoddaConfigurationManager {
 
 		if (null == runningProjectName) {
 			log.error(
-					"sinnori configuration needs java system properties variable '{}', ex) java -D{}=sample_base -D{}=~/gitsinnori/sinnori",
+					"configuration needs java system properties variable '{}', ex) java -D{}=sample_base -D{}=[installed path]",
 					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_RUNNING_PROJECT_NAME,
 					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_RUNNING_PROJECT_NAME,
 					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_INSTALLED_PATH);
@@ -87,7 +87,7 @@ public final class CoddaConfigurationManager {
 
 		if (null == installedPathString) {
 			log.error(
-					"sinnori configuration needs java system properties variable '{}', ex) java -D{}=sample_base -D{}=~/gitsinnori/sinnori",
+					"configuration needs java system properties variable '{}', ex) java -D{}=sample_base -D{}=[installed path]",
 					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_INSTALLED_PATH,
 					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_RUNNING_PROJECT_NAME,
 					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_INSTALLED_PATH);
@@ -131,17 +131,17 @@ public final class CoddaConfigurationManager {
 
 			System.exit(1);
 		} catch (FileNotFoundException e) {
-			String errorMessage = new StringBuilder("the Sinnori configuration file[")
+			String errorMessage = new StringBuilder("the configuration file[")
 					.append(configFilePathString).append("] doesn't exist").toString();
 			log.error(errorMessage, e);
 			System.exit(1);
 		} catch (IOException e) {
-			String errorMessage = new StringBuilder("fail to read the Sinnori configuration file[")
+			String errorMessage = new StringBuilder("fail to read the configuration file[")
 					.append(configFilePathString).append("]").toString();
 			log.error(errorMessage, e);
 			System.exit(1);
 		} catch (CoddaConfigurationException e) {
-			String errorMessage = new StringBuilder("the Sinnori configuration file[")
+			String errorMessage = new StringBuilder("the configuration file[")
 					.append(configFilePathString).append("] has bad format").toString();
 			log.error(errorMessage, e);
 			System.exit(1);

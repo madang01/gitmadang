@@ -36,16 +36,7 @@ public class MessageInfoSAXParserTest extends AbstractJunitTest {
 		
 	}
 
-	/**
-	 * 메시지 정보 파싱 테스트를 위해 존재하는 경로에 있는 지정한 테스트 대상 메시지 정보 파일명 포함 전체 경로를 반환한다.
-	 * [신놀이설치경로]/tmp/[테스트 대상짧은 파일명]
-	 * 
-	 * @param sinnoriInstalledPathString
-	 *            신놀이 설치 경로
-	 * @param shortFileName
-	 *            테스트 대상 짧은 파일명
-	 * @return 테스트 대상 파일명 포함 전체 경로명
-	 */
+	
 	private String getFilePathStringForJunitTestFile(String shortFileName) {
 		String testDataXmlFilePathString = new StringBuilder(installedPath.getAbsolutePath())
 				.append(File.separator)

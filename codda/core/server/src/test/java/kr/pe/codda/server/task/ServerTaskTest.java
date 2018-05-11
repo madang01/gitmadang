@@ -49,30 +49,12 @@ import kr.pe.codda.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 public class ServerTaskTest extends AbstractJunitTest {
 
-	/*
-	 * @Test public void testSelfExn() { log.info("{}", SelfExn.ErrorPlace.SERVER);
-	 * log.info("{}", SelfExn.ErrorType.BodyFormatException);
-	 * 
-	 * SelfExnRes selfExnREs = new SelfExnRes();
-	 * selfExnREs.setErrorPlace(SelfExn.ErrorPlace.SERVER);
-	 * selfExnREs.setErrorType(SelfExn.ErrorType.BodyFormatException);
-	 * selfExnREs.setErrorMessageID("Echo");
-	 * selfExnREs.setErrorReason("test 1111 2222");
-	 * selfExnREs.messageHeaderInfo.mailboxID = 10;
-	 * selfExnREs.messageHeaderInfo.mailID = 101;
-	 * 
-	 * log.info("selfExnREs={}", selfExnREs.toString()); }
-	 * 
-	 */
-
 	@Test
 	public void testExecute_failToGetServerMessageCodec_통제된에러() {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
-
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil("kr.pe.sinnori.impl.");
 
 		/*
 		 * ClassLoader currentClassLoader = this.getClass().getClassLoader(); final
@@ -120,17 +102,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				private int dataPacketBufferMaxCntPerMessage;
 				private MessageProtocolIF messageProtocol = null;
 				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-				private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
 						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager,
-						IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 					this.streamCharsetDecoder = streamCharsetDecoder;
 					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 					this.messageProtocol = messageProtocol;
 					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-					this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 				}
 
 				@Override
@@ -168,7 +147,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 						fsis.getInt();
 
 						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
+								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
 								.newInstance();
 
 						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
@@ -213,8 +192,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager,
-					ioPartDynamicClassNameUtil);
+					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager);
 
 			SocketOutputStream socketOutputStreamOfOwnerSC = null;
 			try {
@@ -267,7 +245,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			AbstractMessageEncoder messageEncoder = null;
 			try {
 				messageEncoder = (AbstractMessageEncoder) Class
-						.forName(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
 						.newInstance();
 			} catch (Exception e) {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
@@ -366,9 +344,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
-
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil("kr.pe.sinnori.impl.");
-
 		/*
 		 * ClassLoader currentClassLoader = this.getClass().getClassLoader(); final
 		 * String ClassLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.";
@@ -414,17 +389,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				private int dataPacketBufferMaxCntPerMessage;
 				private MessageProtocolIF messageProtocol = null;
 				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-				private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
 						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager,
-						IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 					this.streamCharsetDecoder = streamCharsetDecoder;
 					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 					this.messageProtocol = messageProtocol;
 					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-					this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 				}
 
 				@Override
@@ -462,7 +434,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 						fsis.getInt();
 
 						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
+								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
 								.newInstance();
 
 						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
@@ -507,8 +479,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager,
-					ioPartDynamicClassNameUtil);
+					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager);
 
 			SocketOutputStream socketOutputStreamOfOwnerSC = null;
 			try {
@@ -561,7 +532,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			AbstractMessageEncoder messageEncoder = null;
 			try {
 				messageEncoder = (AbstractMessageEncoder) Class
-						.forName(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
 						.newInstance();
 			} catch (Exception e) {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
@@ -660,8 +631,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
 
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil("kr.pe.sinnori.impl.");
-
 		SocketChannel fromSC = null;
 		try {
 			fromSC = SocketChannel.open();
@@ -703,17 +672,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				private int dataPacketBufferMaxCntPerMessage;
 				private MessageProtocolIF messageProtocol = null;
 				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-				private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
 						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager,
-						IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 					this.streamCharsetDecoder = streamCharsetDecoder;
 					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 					this.messageProtocol = messageProtocol;
 					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-					this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 				}
 
 				@Override
@@ -751,7 +717,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 						fsis.getInt();
 
 						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
+								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
 								.newInstance();
 
 						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
@@ -796,8 +762,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager,
-					ioPartDynamicClassNameUtil);
+					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager);
 
 			SocketOutputStream socketOutputStreamOfOwnerSC = null;
 			try {
@@ -850,7 +815,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			AbstractMessageEncoder messageEncoder = null;
 			try {
 				messageEncoder = (AbstractMessageEncoder) Class
-						.forName(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
 						.newInstance();
 			} catch (Exception e) {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
@@ -963,8 +928,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
 
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil("kr.pe.sinnori.impl.");
-
 		SocketChannel fromSC = null;
 		try {
 			fromSC = SocketChannel.open();
@@ -1005,17 +968,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				private int dataPacketBufferMaxCntPerMessage;
 				private MessageProtocolIF messageProtocol = null;
 				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-				private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
 						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager,
-						IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 					this.streamCharsetDecoder = streamCharsetDecoder;
 					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 					this.messageProtocol = messageProtocol;
 					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-					this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 				}
 
 				@Override
@@ -1053,7 +1013,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 						fsis.getInt();
 
 						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
+								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
 								.newInstance();
 
 						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
@@ -1098,8 +1058,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager,
-					ioPartDynamicClassNameUtil);
+					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager);
 
 			SocketOutputStream socketOutputStreamOfOwnerSC = null;
 			try {
@@ -1152,7 +1111,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			AbstractMessageEncoder messageEncoder = null;
 			try {
 				messageEncoder = (AbstractMessageEncoder) Class
-						.forName(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
 						.newInstance();
 			} catch (Exception e) {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
@@ -1264,8 +1223,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
 
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil("kr.pe.sinnori.impl.");
-
 		SocketChannel fromSC = null;
 		try {
 			fromSC = SocketChannel.open();
@@ -1306,17 +1263,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				private int dataPacketBufferMaxCntPerMessage;
 				private MessageProtocolIF messageProtocol = null;
 				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-				private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
 						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager,
-						IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 					this.streamCharsetDecoder = streamCharsetDecoder;
 					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 					this.messageProtocol = messageProtocol;
 					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-					this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 				}
 
 				@Override
@@ -1354,7 +1308,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 						fsis.getInt();
 
 						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
+								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
 								.newInstance();
 
 						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
@@ -1399,8 +1353,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager,
-					ioPartDynamicClassNameUtil);
+					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager);
 
 			SocketOutputStream socketOutputStreamOfOwnerSC = null;
 			try {
@@ -1453,7 +1406,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			AbstractMessageEncoder messageEncoder = null;
 			try {
 				messageEncoder = (AbstractMessageEncoder) Class
-						.forName(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
 						.newInstance();
 			} catch (Exception e) {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
@@ -1575,8 +1528,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
 
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil("kr.pe.sinnori.impl.");
-
 		SocketChannel fromSC = null;
 		try {
 			fromSC = SocketChannel.open();
@@ -1617,17 +1568,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				private int dataPacketBufferMaxCntPerMessage;
 				private MessageProtocolIF messageProtocol = null;
 				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-				private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
 						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager,
-						IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 					this.streamCharsetDecoder = streamCharsetDecoder;
 					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 					this.messageProtocol = messageProtocol;
 					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-					this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 				}
 
 				@Override
@@ -1665,7 +1613,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 						fsis.getInt();
 
 						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
+								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
 								.newInstance();
 
 						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
@@ -1710,8 +1658,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager,
-					ioPartDynamicClassNameUtil);
+					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager);
 
 			SocketOutputStream socketOutputStreamOfOwnerSC = null;
 			try {
@@ -1764,7 +1711,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			AbstractMessageEncoder messageEncoder = null;
 			try {
 				messageEncoder = (AbstractMessageEncoder) Class
-						.forName(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
 						.newInstance();
 			} catch (Exception e) {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
@@ -1885,8 +1832,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
 
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil("kr.pe.sinnori.impl.");
-
 		SocketChannel fromSC = null;
 		try {
 			fromSC = SocketChannel.open();
@@ -1927,17 +1872,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				private int dataPacketBufferMaxCntPerMessage;
 				private MessageProtocolIF messageProtocol = null;
 				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-				private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
 						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager,
-						IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 					this.streamCharsetDecoder = streamCharsetDecoder;
 					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 					this.messageProtocol = messageProtocol;
 					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-					this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 				}
 
 				@Override
@@ -1975,7 +1917,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 						fsis.getInt();
 
 						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
+								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
 								.newInstance();
 
 						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
@@ -2025,8 +1967,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager,
-					ioPartDynamicClassNameUtil);
+					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager);
 
 			SocketOutputStream socketOutputStreamOfOwnerSC = null;
 			try {
@@ -2079,7 +2020,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			AbstractMessageEncoder messageEncoder = null;
 			try {
 				messageEncoder = (AbstractMessageEncoder) Class
-						.forName(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
 						.newInstance();
 			} catch (Exception e) {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
@@ -2197,8 +2138,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
 
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil("kr.pe.sinnori.impl.");
-
 		SocketChannel fromSC = null;
 		try {
 			fromSC = SocketChannel.open();
@@ -2239,17 +2178,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				private int dataPacketBufferMaxCntPerMessage;
 				private MessageProtocolIF messageProtocol = null;
 				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-				private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
 						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager,
-						IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 					this.streamCharsetDecoder = streamCharsetDecoder;
 					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 					this.messageProtocol = messageProtocol;
 					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-					this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 				}
 
 				@Override
@@ -2287,7 +2223,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 						fsis.getInt();
 
 						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
+								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
 								.newInstance();
 
 						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
@@ -2339,8 +2275,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager,
-					ioPartDynamicClassNameUtil);
+					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPoolManager);
 
 			SocketOutputStream socketOutputStreamOfOwnerSC = null;
 			try {
@@ -2393,7 +2328,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			AbstractMessageEncoder messageEncoder = null;
 			try {
 				messageEncoder = (AbstractMessageEncoder) Class
-						.forName(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
 						.newInstance();
 			} catch (Exception e) {
 				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");

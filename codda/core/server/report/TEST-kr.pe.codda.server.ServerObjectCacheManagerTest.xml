@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite errors="0" failures="2" hostname="madang02-pc" name="kr.pe.codda.server.ServerObjectCacheManagerTest" skipped="0" tests="2" time="0.193" timestamp="2018-05-06T01:14:56">
+<testsuite errors="0" failures="2" hostname="madang02-pc" name="kr.pe.codda.server.ServerObjectCacheManagerTest" skipped="0" tests="2" time="0.191" timestamp="2018-05-07T06:03:42">
   <properties>
     <property name="java.vendor" value="Oracle Corporation" />
     <property name="dir.build" value="D:\gitmadang\codda\core\server\build" />
@@ -37,9 +37,11 @@
     <property name="dir.testlib" value="D:\gitmadang\codda\core\server\lib\test" />
     <property name="user.country" value="KR" />
     <property name="java.home" value="C:\Program Files\Java\jdk1.8.0_171\jre" />
+    <property name="dir.core.junitlib.build" value="D:\gitmadang\codda\core\junitlib" />
     <property name="java.vm.info" value="mixed mode" />
     <property name="ant.file" value="D:\gitmadang\codda\core\server\build.xml" />
     <property name="os.version" value="10.0" />
+    <property name="dir.core.common.build" value="D:\gitmadang\codda\core\common" />
     <property name="dir.logger.build" value="D:\gitmadang\codda\core\logger" />
     <property name="path.separator" value=";" />
     <property name="java.vm.version" value="25.171-b11" />
@@ -56,10 +58,9 @@
     <property name="java.vendor.url" value="http://java.oracle.com/" />
     <property name="java.vm.vendor" value="Oracle Corporation" />
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
-    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.codda.server.ServerObjectCacheManagerTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitmadang\codda\core\server\report\TEST-kr.pe.codda.server.ServerObjectCacheManagerTest.xml crashfile=D:\gitmadang\codda\core\server\junitvmwatcher43170219391788243.properties propsfile=D:\gitmadang\codda\core\server\junit6474493705582863892.properties" />
-    <property name="java.class.path" value="D:\gitmadang\codda\core\server\dist\codda-core-onlyserver.jar;D:\gitmadang\codda\core\server\lib\main\ex\codda-core-common.jar;D:\gitmadang\codda\core\server\lib\main\ex\commons-codec-1.11.jar;D:\gitmadang\codda\core\server\lib\main\ex\commons-collections4-4.1.jar;D:\gitmadang\codda\core\server\lib\main\ex\commons-dbcp2-2.0.1.jar;D:\gitmadang\codda\core\server\lib\main\ex\commons-io-2.6.jar;D:\gitmadang\codda\core\server\lib\main\ex\commons-pool2-2.5.0.jar;D:\gitmadang\codda\core\server\lib\main\ex\jooq-3.10.6.jar;D:\gitmadang\codda\core\server\lib\main\ex\jooq-codegen-3.10.6.jar;D:\gitmadang\codda\core\server\lib\main\ex\jooq-meta-3.10.6.jar;D:\gitmadang\codda\core\server\lib\main\ex\json-simple-1.1.1.jar;D:\gitmadang\codda\core\server\lib\main\ex\logback-classic-1.2.3.jar;D:\gitmadang\codda\core\server\lib\main\ex\logback-core-1.2.3.jar;D:\gitmadang\codda\core\server\lib\main\ex\slf4j-api-1.7.25.jar;D:\gitmadang\codda\core\server\lib\test\byte-buddy-1.7.9.jar;D:\gitmadang\codda\core\server\lib\test\byte-buddy-agent-1.7.9.jar;D:\gitmadang\codda\core\server\lib\test\commons-exec-1.3.jar;D:\gitmadang\codda\core\server\lib\test\hamcrest-core-1.3.jar;D:\gitmadang\codda\core\server\lib\test\junit-4.12.jar;D:\gitmadang\codda\core\server\lib\test\mockito-core-2.13.4.jar;D:\gitmadang\codda\core\server\lib\test\objenesis-2.6.jar;D:\gitmadang\codda\core\logger\lib\ex\slf4j-api-1.7.25.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-core-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-classic-1.2.3.jar;D:\gitmadang\codda\core\server\build\test;D:\apache-ant-1.9.11\lib\ant-launcher.jar;D:\apache-ant-1.9.11\lib\ant.jar;D:\apache-ant-1.9.11\lib\ant-junit.jar;D:\apache-ant-1.9.11\lib\ant-junit4.jar" />
+    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.codda.server.ServerObjectCacheManagerTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitmadang\codda\core\server\report\TEST-kr.pe.codda.server.ServerObjectCacheManagerTest.xml crashfile=D:\gitmadang\codda\core\server\junitvmwatcher7924491121122889650.properties propsfile=D:\gitmadang\codda\core\server\junit5539672385436929276.properties" />
+    <property name="java.class.path" value="D:\gitmadang\codda\core\junitlib\lib\ex\hamcrest-core-1.3.jar;D:\gitmadang\codda\core\junitlib\lib\ex\junit-4.12.jar;D:\gitmadang\codda\core\junitlib\lib\ex\byte-buddy-1.7.9.jar;D:\gitmadang\codda\core\junitlib\lib\ex\byte-buddy-agent-1.7.9.jar;D:\gitmadang\codda\core\junitlib\lib\ex\mockito-core-2.13.4.jar;D:\gitmadang\codda\core\junitlib\lib\ex\objenesis-2.6.jar;D:\gitmadang\codda\core\junitlib\lib\ex\commons-exec-1.3.jar;D:\gitmadang\codda\core\server\dist\codda-core-onlyserver.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-codec-1.11.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-collections4-4.1.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-io-2.6.jar;D:\gitmadang\codda\core\server\lib\main\ex\codda-core-common.jar;D:\gitmadang\codda\core\server\lib\main\ex\commons-dbcp2-2.0.1.jar;D:\gitmadang\codda\core\server\lib\main\ex\commons-pool2-2.5.0.jar;D:\gitmadang\codda\core\logger\lib\ex\slf4j-api-1.7.25.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-core-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-classic-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\jcl-over-slf4j-1.7.25.jar;D:\gitmadang\codda\core\server\build\test;D:\apache-ant-1.9.11\lib\ant-launcher.jar;D:\apache-ant-1.9.11\lib\ant.jar;D:\apache-ant-1.9.11\lib\ant-junit.jar;D:\apache-ant-1.9.11\lib\ant-junit4.jar" />
     <property name="ant.version" value="Apache Ant(TM) version 1.9.11 compiled on March 23 2018" />
-    <property name="dir.common.build" value="D:\gitmadang\codda\core\common" />
     <property name="dir.testsrc" value="D:\gitmadang\codda\core\server\src\test\java" />
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
     <property name="ant.file.type" value="file" />
@@ -84,7 +85,7 @@
     <property name="java.specification.version" value="1.8" />
     <property name="ant.project.invoked-targets" value="test" />
   </properties>
-  <testcase classname="kr.pe.codda.server.ServerObjectCacheManagerTest" name="testServerObjectCacheManager" time="0.005">
+  <testcase classname="kr.pe.codda.server.ServerObjectCacheManagerTest" name="testServerObjectCacheManager" time="0.006">
     <failure message="Not yet implemented" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: Not yet implemented
 	at kr.pe.codda.server.ServerObjectCacheManagerTest.testServerObjectCacheManager(ServerObjectCacheManagerTest.java:22)
 </failure>
@@ -95,10 +96,5 @@
 </failure>
   </testcase>
   <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[SLF4J: Class path contains multiple SLF4J bindings.
-SLF4J: Found binding in [jar:file:/D:/gitmadang/codda/core/server/lib/main/ex/logback-classic-1.2.3.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-SLF4J: Found binding in [jar:file:/D:/gitmadang/codda/core/logger/lib/ex/logback-classic-1.2.3.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
-SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
-]]></system-err>
+  <system-err><![CDATA[]]></system-err>
 </testsuite>

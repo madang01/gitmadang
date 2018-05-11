@@ -32,16 +32,10 @@ public abstract class AbstractFileResource {
 	protected long endFileBlockNo = -1;
 	
 	
-	
-	// private long wantedCardinalityOfWorkedFileBlockBitSet = -1;
-
 	/** 주의점 : BitSet 의 크기는 동적으로 자란다. 따라서 해당 비트 인덱스에 대한 엄격한 제한이 필요하다. */
 	protected LimitedLongBitSet workedFileBlockBitSet = null;
 	
-	/**
-	 * Warning! the variable fileBlockMaxSize must not create getXXX method
-	 * because it is Sinnori configuration variable
-	 */
+	
 	private int fileBlockMaxSize = -1;
 
 	/******* view 와 관련된 모듈 시작 ***************/
@@ -94,9 +88,9 @@ public abstract class AbstractFileResource {
 	public AbstractFileResource(String ownerID, boolean append, String sourceFilePathName, String sourceFileName,
 			long sourceFileSize, String targetFilePathName, String targetFileName, long targetFileSize,
 			int fileBlockSize) throws IllegalArgumentException, UpDownFileException {
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 		fileBlockMaxSize = commonPart.getFileBlockMaxSize();
 		
 		if (null == ownerID) {

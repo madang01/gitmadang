@@ -21,14 +21,7 @@
 		<os family="unix" />
 	</condition>	
 	
-	<target name="init.dos" if="is.windows.yes">
-		<property name="weblib" location="${dos.weblib}" />
-	</target>
-	<target name="init.unix" if="is.unix.yes">
-		<property name="weblib" location="${unix.weblib}" />
-	</target>
-	
-	<target name="init.var" depends="init.dos, init.unix">
+	<target name="init.var">
 	  <!-- Create the time stamp -->
 		<tstamp />
 		

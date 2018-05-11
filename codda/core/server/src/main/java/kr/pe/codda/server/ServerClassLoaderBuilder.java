@@ -3,7 +3,6 @@ package kr.pe.codda.server;
 import java.io.File;
 
 import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.codda.common.classloader.ServerSystemClassLoaderClassManager;
 import kr.pe.codda.common.classloader.ServerSystemClassLoaderClassManagerIF;
 import kr.pe.codda.common.classloader.SimpleClassLoader;
@@ -16,8 +15,8 @@ public class ServerClassLoaderBuilder {
 	private String projectResourcesPathString = null;
 	private ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager = null;
 	
-	public ServerClassLoaderBuilder(IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) throws CoddaConfigurationException {
-		serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager(ioPartDynamicClassNameUtil);		
+	public ServerClassLoaderBuilder() throws CoddaConfigurationException {
+		serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager();		
 		
 		CoddaConfiguration sinnoriRunningProjectConfiguration =  CoddaConfigurationManager.getInstance().getRunningProjectConfiguration();
 		

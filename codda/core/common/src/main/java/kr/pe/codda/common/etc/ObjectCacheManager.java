@@ -55,11 +55,11 @@ public final class ObjectCacheManager {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private ObjectCacheManager() {
-		CoddaConfiguration sinnoriRunningProjectConfiguration = 
+		CoddaConfiguration runningProjectConfiguration = 
 				CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
 		
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 		int cachedObjectMaxSize = commonPart.getCachedObjectMaxSize();
 		
 		objectMultiKeyMap = MultiKeyMap.multiKeyMap(new LRUMap(cachedObjectMaxSize));

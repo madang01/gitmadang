@@ -107,7 +107,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				 */
 				String errorMessage = new StringBuilder("this xml file's root tag[")
 				.append(rootTag)
-				.append("] is differnet from sinnori message information xml file's root tag[")
+				.append("] is differnet from message information xml file's root tag[")
 				.append(CommonStaticFinalVars.MESSAGE_INFO_XML_FILE_ROOT_TAG)
 				.append("]").toString();
 				throw new SAXException(errorMessage);

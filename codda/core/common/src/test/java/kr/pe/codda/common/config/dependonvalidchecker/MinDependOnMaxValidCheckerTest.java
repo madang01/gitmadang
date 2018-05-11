@@ -21,7 +21,7 @@ import kr.pe.codda.common.exception.CoddaConfigurationException;
 public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 
 	private final static String prefixOfPart = "project.sample_base.";
-	private final static Properties sinnoriConfigFileProperties = new Properties();
+	private final static Properties configFileProperties = new Properties();
 
 	private ItemIDInfo<Long> longTypeDependedItemIDInfo = null;
 	private ItemIDInfo<Long> longTypeDependentItemIDInfo = null;
@@ -38,7 +38,7 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							2L, Long.MAX_VALUE - 10));
 
-			sinnoriConfigFileProperties.put(prefixOfPart
+			configFileProperties.put(prefixOfPart
 					+ dependentTargetItemID, "" + (Long.MAX_VALUE-30));
 
 			String dependentSourceItemID = "server.pool.executor_processor.size.value";
@@ -49,7 +49,7 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							1L, Long.MAX_VALUE - 11));
 
-			sinnoriConfigFileProperties.put(prefixOfPart
+			configFileProperties.put(prefixOfPart
 					+ dependentSourceItemID, "1");
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -361,13 +361,13 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testIsValid_NullParameter_sinnoriConfigFileProperties()
+	public void testIsValid_NullParameter_configFileProperties()
 			throws Exception {
 		try {
 			longTypeMinDependOnMaxValidChecker.isValid(null, prefixOfPart);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
-					"'the parameter sinnoriConfigFileProperties is null' test ok, errormessage=")
+					"'the parameter ConfigFileProperties is null' test ok, errormessage=")
 					.append(e.getMessage()).toString();
 			log.info(errorMessage);
 			throw e;
@@ -378,7 +378,7 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 	public void testIsValid_NullParameter_prefixOfPart() throws Exception {
 		try {
 			longTypeMinDependOnMaxValidChecker.isValid(
-					sinnoriConfigFileProperties, null);
+					configFileProperties, null);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"'the parameter prefixOfPart is null' test ok, errormessage=")
@@ -393,16 +393,16 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 			throws Exception {
 		String dependentSourceItemID = "server.pool.executor_processor.size.value";
 		String dependendtSourceItemKey = prefixOfPart + dependentSourceItemID;
-		sinnoriConfigFileProperties.remove(dependendtSourceItemKey);
+		configFileProperties.remove(dependendtSourceItemKey);
 
 		try {
 			longTypeMinDependOnMaxValidChecker.isValid(
-					sinnoriConfigFileProperties, prefixOfPart);
+					configFileProperties, prefixOfPart);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"'the variable dependendtSourceItemKey[")
 					.append(dependendtSourceItemKey)
-					.append("] does not exist at the variable sinnoriConfigFileProperties' test ok, errormessage=")
+					.append("] does not exist at the variable configFileProperties' test ok, errormessage=")
 					.append(e.getMessage()).toString();
 			log.info(errorMessage);
 			throw e;
@@ -414,18 +414,16 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 			throws Exception {
 		String dependentTargetItemID = "server.pool.executor_processor.max_size.value";
 		String dependentTargetItemKey = prefixOfPart + dependentTargetItemID;
-		sinnoriConfigFileProperties.remove(dependentTargetItemKey);
+		configFileProperties.remove(dependentTargetItemKey);
 		
-		//log.info(sinnoriConfigFileProperties.toString());
-
 		try {
 			longTypeMinDependOnMaxValidChecker.isValid(
-					sinnoriConfigFileProperties, prefixOfPart);
+					configFileProperties, prefixOfPart);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"'the variable dependentTargetItemKey[")
 					.append(dependentTargetItemKey)
-					.append("] does not exist at the variable sinnoriConfigFileProperties' test ok, errormessage=")
+					.append("] does not exist at the variable configFileProperties' test ok, errormessage=")
 					.append(e.getMessage()).toString();
 			log.info(errorMessage);
 			throw e;
@@ -463,7 +461,7 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 		boolean returnedValue = false;
 		try {
 			returnedValue = longTypeMinDependOnMaxValidChecker.isValid(
-					sinnoriConfigFileProperties, prefixOfPart);
+					configFileProperties, prefixOfPart);
 		} catch (IllegalArgumentException e) {
 			log.info("IllegalArgumentException", e);
 			fail(e.getMessage());

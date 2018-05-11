@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.util.CommonStaticUtil;
@@ -38,7 +39,6 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 	private String classloaderReousrcesPathString = null;
 	private ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager = null;
 	
-	private String firstPrefixDynamicClassFullName = null;
 	private final static ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 	
 	private ConcurrentHashMap<String, MessageCodecIF> messageCodecHash = new  ConcurrentHashMap<String, MessageCodecIF>();
@@ -50,9 +50,7 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 		
 		this.classloaderClassPathString = classloaderClassPathString;
 		this.classloaderReousrcesPathString = classloaderReousrcesPathString;
-		this.serverSystemClassLoaderClassManager = serverSystemClassLoaderClassManager;
-
-		this.firstPrefixDynamicClassFullName = serverSystemClassLoaderClassManager.getFirstPrefixDynamicClassFullName();
+		this.serverSystemClassLoaderClassManager = serverSystemClassLoaderClassManager;		
 
 		log.info("SimpleClassLoader hashCode=[{}] create", this.hashCode());
 	}
@@ -81,7 +79,7 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 		retClass = findLoadedClass(classFullName);
 		if (null == retClass) {
 
-			if (-1 == classFullName.indexOf(firstPrefixDynamicClassFullName)) {
+			if (-1 == classFullName.indexOf(CommonStaticFinalVars.BASE_DYNAMIC_CLASS_FULL_NAME)) {
 				/** 서버 동적 클래스 비 대상 클래스 */
 				return systemClassLoader.loadClass(classFullName);
 			}
@@ -245,63 +243,67 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 		MessageCodecIF messageCodec = messageCodecHash.get(messageID);
 		
 		if (null == messageCodec) {
-			String classFullName = serverSystemClassLoaderClassManager.getServerMessageCodecClassFullName(messageID);
-			
-			Class<?> messageCodecClass = null;
-			Object messageCodecInstance = null;
-			try {
-				messageCodecClass = loadClass(classFullName);
-			} catch (ClassNotFoundException e) {
-				String errorMessage = new StringBuilder("the parameter messageID[")
-						.append(messageID)
-						.append("]'s server message codec[")
-						.append(classFullName)
-						.append("] is not found").toString();
-				
-				log.warn(errorMessage, e);
-				throw new DynamicClassCallException(errorMessage);
-			} catch (Exception | Error e) {
-				String errorMessage = new StringBuilder("fail to load the parameter messageID[")
-						.append(messageID)
-						.append("]'s server message codec[")
-						.append(classFullName)
-						.append("] class, errmsg=")
-						.append(e.getMessage()).toString();
-				
-				log.warn(errorMessage, e);
-				throw new DynamicClassCallException(errorMessage);
-			}
-			
-			try {
-				messageCodecInstance = messageCodecClass.getDeclaredConstructor().newInstance();
-			} catch (Exception | Error e) {
-				String errorMessage = new StringBuilder("fail to create a new instance of the parameter messageID[")
-						.append(messageID)
-						.append("]'s server message codec[")
-						.append(classFullName)
-						.append("] class").toString();
-				
-				log.warn(errorMessage, e);
-				throw new DynamicClassCallException(errorMessage);
-			}
-			
-			if (! (messageCodecInstance instanceof MessageCodecIF)) {
-				String errorMessage = new StringBuilder("the new instance[")
-						.append(classFullName)
-						.append("] is not a server message codec class").toString();
-				
-				log.warn(errorMessage);
-				throw new DynamicClassCallException(errorMessage);
-			}
-			
-			messageCodec = (MessageCodecIF)messageCodecInstance;
-			
-			messageCodecHash.put(messageID, messageCodec);
+			messageCodec = addNewMessageCodec(messageID);
 		}		
 		
 		return messageCodec;
 	}
 	
+	private MessageCodecIF addNewMessageCodec(String messageID) throws DynamicClassCallException {
+		String classFullName = serverSystemClassLoaderClassManager.getServerMessageCodecClassFullName(messageID);
+		
+		Class<?> messageCodecClass = null;
+		Object messageCodecInstance = null;
+		try {
+			messageCodecClass = loadClass(classFullName);
+		} catch (ClassNotFoundException e) {
+			String errorMessage = new StringBuilder("the parameter messageID[")
+					.append(messageID)
+					.append("]'s server message codec[")
+					.append(classFullName)
+					.append("] is not found").toString();
+			
+			log.warn(errorMessage, e);
+			throw new DynamicClassCallException(errorMessage);
+		} catch (Exception | Error e) {
+			String errorMessage = new StringBuilder("fail to load the parameter messageID[")
+					.append(messageID)
+					.append("]'s server message codec[")
+					.append(classFullName)
+					.append("] class, errmsg=")
+					.append(e.getMessage()).toString();
+			
+			log.warn(errorMessage, e);
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		try {
+			messageCodecInstance = messageCodecClass.getDeclaredConstructor().newInstance();
+		} catch (Exception | Error e) {
+			String errorMessage = new StringBuilder("fail to create a new instance of the parameter messageID[")
+					.append(messageID)
+					.append("]'s server message codec[")
+					.append(classFullName)
+					.append("] class").toString();
+			
+			log.warn(errorMessage, e);
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		if (! (messageCodecInstance instanceof MessageCodecIF)) {
+			String errorMessage = new StringBuilder("the new instance[")
+					.append(classFullName)
+					.append("] is not a server message codec class").toString();
+			
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		MessageCodecIF messageCodec = (MessageCodecIF)messageCodecInstance;
+		messageCodecHash.put(messageID, messageCodec);
+		
+		return messageCodec;
+	}
 	
 	
 

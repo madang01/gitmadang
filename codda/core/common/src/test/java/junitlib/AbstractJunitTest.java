@@ -59,7 +59,7 @@ public abstract class AbstractJunitTest {
 			fail(e.getMessage());
 		}
 
-		log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.ROOT_LOGGER_NAME);
+		log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 		
 		String runningProjectName = "sample_base";
 		

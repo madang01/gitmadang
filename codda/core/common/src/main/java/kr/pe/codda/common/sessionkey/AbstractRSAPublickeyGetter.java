@@ -18,9 +18,9 @@ public abstract class AbstractRSAPublickeyGetter {
 	
 	public final byte[] getMainProjectPublickeyBytes() throws SymmetricException, InterruptedException {
 		byte[] publicKeyBytes = null;
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 
 		SessionKey.RSAKeypairSourceType rsaKeyPairSoureOfSessionkey = commonPart
 				.getRsaKeypairSourceOfSessionKey();
@@ -98,9 +98,9 @@ public abstract class AbstractRSAPublickeyGetter {
 		
 		byte[] publicKeyBytes = null;
 
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 
 		File rsaPublickeyFile = null;
 	

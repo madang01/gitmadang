@@ -21,10 +21,10 @@ public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 			throw new IllegalArgumentException("the parameter ivBytes is null");
 		}
 		
-		CoddaConfiguration sinnoriRunningProjectConfiguration = 
+		CoddaConfiguration runningProjectConfiguration = 
 				CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();		
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 		symmetricKeyAlgorithm = commonPart.getSymmetricKeyAlgorithmOfSessionKey();
 		symmetricKeySize = commonPart.getSymmetricKeySizeOfSessionKey();
 		symmetricKeyBytes = new byte[symmetricKeySize];

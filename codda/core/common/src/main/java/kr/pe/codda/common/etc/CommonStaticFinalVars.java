@@ -39,8 +39,24 @@ public abstract class CommonStaticFinalVars {
 	public static final long ZERO_LONG = 0L;
 	
 	public static final String ROOT_PROJECT_NAME = "codda";
-	public static final String ROOT_LOGGER_NAME = "kr.pe.codda";
-	public static final String FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME = "kr.pe.codda.impl.";
+	
+	public static String BASE_PACKAGE_NAME = "kr.pe.codda";
+	
+	public static String BASE_DYNAMIC_CLASS_FULL_NAME = new StringBuilder(BASE_PACKAGE_NAME)
+			.append(".impl").toString();
+	
+	public static String BASE_MESSAGE_CLASS_FULL_NAME = new StringBuilder(BASE_DYNAMIC_CLASS_FULL_NAME)
+			.append(".message").toString();
+	
+	public static String BASE_TASK_CLASS_FULL_NAME = new StringBuilder(BASE_DYNAMIC_CLASS_FULL_NAME)
+			.append(".task").toString();
+	
+	public static String BASE_SERVER_TASK_CLASS_FULL_NAME = new StringBuilder(BASE_TASK_CLASS_FULL_NAME)
+			.append(".server").toString();
+	
+	public static String BASE_CLIENT_TASK_CLASS_FULL_NAME = new StringBuilder(BASE_TASK_CLASS_FULL_NAME)
+			.append(".client").toString();
+	
 		
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_RUNNING_PROJECT_NAME = "codda.projectName";
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_INSTALLED_PATH = "codda.installedPath";
@@ -128,7 +144,7 @@ public abstract class CommonStaticFinalVars {
 	/*********** Build System end **********/
 	
 	/** message information xml file's root tag */
-	public static final String MESSAGE_INFO_XML_FILE_ROOT_TAG = "codda_message";
+	public static final String MESSAGE_INFO_XML_FILE_ROOT_TAG = "message";
 	
 	public static final String MYBATIS_CONFIG_XML_FILE_ROOT_TAG = "configuration";
 	

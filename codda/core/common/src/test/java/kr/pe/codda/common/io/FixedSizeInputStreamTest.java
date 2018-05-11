@@ -28,7 +28,7 @@ public class FixedSizeInputStreamTest extends AbstractJunitTest {
 		try {
 			fsis.getByte();
 			
-			fail("no SinnoriBufferUnderflowException");
+			fail("no BufferUnderflowExceptionWithMessage");
 		} catch (BufferUnderflowExceptionWithMessage e) {
 			String errorMessage = e.getMessage();
 			
@@ -56,7 +56,7 @@ public class FixedSizeInputStreamTest extends AbstractJunitTest {
 		try {
 			fsis.getUnsignedByte();
 			
-			fail("no SinnoriBufferUnderflowException");
+			fail("no BufferUnderflowExceptionWithMessage");
 		} catch (BufferUnderflowExceptionWithMessage e) {
 			String errorMessage = e.getMessage();
 			

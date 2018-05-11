@@ -3,47 +3,46 @@ package kr.pe.codda.common.classloader;
 import java.util.HashSet;
 
 public class ServerSystemClassLoaderClassManager implements ServerSystemClassLoaderClassManagerIF{
-	private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
+	
 	
 	private HashSet<String> systemClassLoaderTargetClassFullNameSet = new HashSet<String>();
 	
-	public ServerSystemClassLoaderClassManager(IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
-		this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
+	public ServerSystemClassLoaderClassManager() {
 		
 		String[] noTaskSystemClassLoaderTargetMessageIDList = { "SelfExnRes" };
 
 		for (String systemClassLoaderTargetMessageID : noTaskSystemClassLoaderTargetMessageIDList) {
 			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageClassFullName(systemClassLoaderTargetMessageID));
+					.add(IOPartDynamicClassNameUtil.getMessageClassFullName(systemClassLoaderTargetMessageID));
 			systemClassLoaderTargetClassFullNameSet.add(
-					ioPartDynamicClassNameUtil.getClientMessageCodecClassFullName(systemClassLoaderTargetMessageID));
+					IOPartDynamicClassNameUtil.getClientMessageCodecClassFullName(systemClassLoaderTargetMessageID));
 			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(systemClassLoaderTargetMessageID));
+					.add(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(systemClassLoaderTargetMessageID));
 			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(systemClassLoaderTargetMessageID));
+					.add(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(systemClassLoaderTargetMessageID));
 			systemClassLoaderTargetClassFullNameSet.add(
-					ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(systemClassLoaderTargetMessageID));
+					IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(systemClassLoaderTargetMessageID));
 		}
 
 		String[] taskSystemClassLoaderTargetMessageIDList = { "Empty" };
 
 		for (String systemClassLoaderTargetMessageID : taskSystemClassLoaderTargetMessageIDList) {
 			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageClassFullName(systemClassLoaderTargetMessageID));
+					.add(IOPartDynamicClassNameUtil.getMessageClassFullName(systemClassLoaderTargetMessageID));
 			systemClassLoaderTargetClassFullNameSet.add(
-					ioPartDynamicClassNameUtil.getClientMessageCodecClassFullName(systemClassLoaderTargetMessageID));
+					IOPartDynamicClassNameUtil.getClientMessageCodecClassFullName(systemClassLoaderTargetMessageID));
 			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(systemClassLoaderTargetMessageID));
+					.add(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(systemClassLoaderTargetMessageID));
 			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(systemClassLoaderTargetMessageID));
+					.add(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(systemClassLoaderTargetMessageID));
 			systemClassLoaderTargetClassFullNameSet.add(
-					ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(systemClassLoaderTargetMessageID));
+					IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(systemClassLoaderTargetMessageID));
 
 			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getClientTaskClassFullName(systemClassLoaderTargetMessageID));
+					.add(IOPartDynamicClassNameUtil.getClientTaskClassFullName(systemClassLoaderTargetMessageID));
 
 			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getServerTaskClassFullName(systemClassLoaderTargetMessageID));
+					.add(IOPartDynamicClassNameUtil.getServerTaskClassFullName(systemClassLoaderTargetMessageID));
 		}
 	}
 
@@ -54,12 +53,8 @@ public class ServerSystemClassLoaderClassManager implements ServerSystemClassLoa
 
 	
 	
-	public String getFirstPrefixDynamicClassFullName() {
-		return ioPartDynamicClassNameUtil.getFirstPrefixDynamicClassFullName();
-	}
-	
 	public String getServerMessageCodecClassFullName(String messageID) {
-		return ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
+		return IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
 	}
 
 }

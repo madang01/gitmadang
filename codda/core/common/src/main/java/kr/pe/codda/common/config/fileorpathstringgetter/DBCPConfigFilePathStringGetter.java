@@ -14,7 +14,7 @@ public class DBCPConfigFilePathStringGetter extends AbstractFileOrPathStringGett
 	}
 
 	@Override
-	public String getFileOrPathStringDependingOninstalledPath(String installedPathString,
+	public String getFileOrPathStringDependingOnInstalledPath(String installedPathString,
 			String mainProjectName, String ... etcParamters) {
 		if (0 == etcParamters.length) {
 			throw new IllegalArgumentException("the paramter etcParamters must have dbcp paramter");

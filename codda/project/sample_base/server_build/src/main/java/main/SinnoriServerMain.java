@@ -4,10 +4,10 @@ package main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.exception.NotFoundProjectException;
-import kr.pe.sinnori.server.AnyProjectServer;
-import kr.pe.sinnori.server.MainServerManager;
-import kr.pe.sinnori.server.lib.ServerDBEnvironment;
+import kr.pe.codda.common.exception.NotFoundProjectException;
+import kr.pe.codda.server.AnyProjectServer;
+import kr.pe.codda.server.MainServerManager;
+import kr.pe.codda.server.lib.ServerDBEnvironment;
 
 public class SinnoriServerMain {
 

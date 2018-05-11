@@ -12,9 +12,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
  * 어디까지 확인했으며 그중 실패한 결과는 무엇이다 라는 정보로 대체하여 용량을 줄였지만 아래와 같은 제약 사항을 갖는 LongBitset 구현 클래스이다.
  * 
  * - 제약 사항 -
- * LongBitset 에 비해서 저장 용량이 작지만 (1) 실패가 너무 많은 경우, 즉 {@link #failedIndexQueue} 크기 제약에 걸린 경우 
- * (2) 이빨이 빠진채로 작업이 너무 많이 진행될 경우, 즉 {@link #reservedIndexList} 크기 제약이 걸린 경우
- * FullListException 예외를 던진다.
+ * LongBitset 에 비해서 저장 용량이 작지만  실패가 너무 많은 경우, 즉 {@link #failedIndexQueue} 크기 제약에 걸린 경우 예외를 던진다.
  * 
  * </pre>
  * 
@@ -108,12 +106,7 @@ public class LimitedLongBitSet {
 	}
 
 
-	@SuppressWarnings("serial")
-	public class FailedListFullException extends Exception {
-		public FailedListFullException(String errorMessage) {
-			super(errorMessage);
-		}
-	}
+	
 	
 	
 	
@@ -160,7 +153,7 @@ public class LimitedLongBitSet {
 	/**
 	 * Sets the bit specified by the index to false.
 	 */
-	public void clear(long bitIndex) throws IndexOutOfBoundsException, FailedListFullException, BadBitSetIndexException {
+	public void clear(long bitIndex) throws IndexOutOfBoundsException, IllegalStateException, BadBitSetIndexException {
 		throwExceptionIfIndexOutOfBound(bitIndex);		
 		
 		synchronized (monitor) {
@@ -169,7 +162,7 @@ public class LimitedLongBitSet {
 			int failedIndexListSize = failedIndexQueue.size();
 			if (failedIndexListSize >= maxSizeOfFailedIndexList) {
 				String errorMessage = String.format("error::when the bitIndex[%d] is processed, the size of failedIndexList[%d] has rearched its maximum value[%d]", bitIndex, failedIndexListSize, maxSizeOfFailedIndexList);
-				throw new FailedListFullException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 			
 			

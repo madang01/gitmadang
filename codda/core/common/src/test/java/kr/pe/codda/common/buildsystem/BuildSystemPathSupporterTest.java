@@ -36,7 +36,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 			fail("the file(=the variable expectedValue) doesn't exist");
 		}
 		
-		String actualValue = BuildSystemPathSupporter.getRootTempPathString(installedPathString);
+		String actualValue = BuildSystemPathSupporter.getTempPathString(installedPathString);
 		
 		assertEquals("the expected value comparison", expectedValue, actualValue);
 	}
@@ -54,7 +54,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 			fail("the file(=the variable expectedValue) doesn't exist");
 		}
 		
-		String actualValue = BuildSystemPathSupporter.getRootLogPathString(installedPathString);
+		String actualValue = BuildSystemPathSupporter.getLogPathString(installedPathString);
 		
 		assertEquals("the expected value comparison", expectedValue, actualValue);
 	}
@@ -378,7 +378,6 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		
 		log.info("expectedValue={}", expectedValue);
 		
-		// String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\server_build";
 		
 		if (!(new File(expectedValue)).exists()) {
 			fail("the file(=the variable expectedValue) doesn't exist");
@@ -401,7 +400,6 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 				.append(File.separator).append("build.xml")
 				.toString();
 		
-		// String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\server_build\\build.xml";
 		
 		log.info("expectedValue={}", expectedValue);
 		
@@ -463,8 +461,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 	private static String getRelativePathWhereMessageIOSourceFilesAreLocated() {
 		
 		String temp = new StringBuilder("src.main.java.")
-		.append(CommonStaticFinalVars.FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME)
-		.append("message").toString();
+		.append(CommonStaticFinalVars.BASE_MESSAGE_CLASS_FULL_NAME).toString();
 		
 		
 		String relativePathWhereMessageIOSourceFilesAreLocated = null;
@@ -514,7 +511,6 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		
 		log.info("expectedValue={}", expectedValue);
 		
-		// String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\client_build";
 		
 		if (!(new File(expectedValue)).exists()) {
 			fail("the file(=the variable expectedValue) doesn't exist");
@@ -538,8 +534,6 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 				.toString();
 		
 		log.info("expectedValue={}", expectedValue);
-		
-		// String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\client_build";
 		
 		if (!(new File(expectedValue)).exists()) {
 			fail("the file(=the variable expectedValue) doesn't exist");
@@ -600,7 +594,6 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		
 		log.info("expectedValue={}", expectedValue);
 		
-		// String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\client_build";
 		
 		if (!(new File(expectedValue)).exists()) {
 			fail("the file(=the variable expectedValue) doesn't exist");
@@ -625,8 +618,6 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		log.info("expectedValue={}", expectedValue);
 		
 		
-		// String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\client_build\\web_build\\build.xml";
-		
 		if (!(new File(expectedValue)).exists()) {
 			fail("the file(=the variable expectedValue) doesn't exist");
 		}
@@ -647,9 +638,6 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 				.append(File.separator).append(CommonStaticFinalVars.WEBCLIENT_ANT_PROPRTEIS_FILE_NAME_VALUE).toString();
 		
 		log.info("expectedValue={}", expectedValue);
-		
-		// String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\client_build\\web_build\\webAnt.properties";
-		
 		
 		if (!(new File(expectedValue)).exists()) {
 			fail("the file(=the variable expectedValue) doesn't exist");

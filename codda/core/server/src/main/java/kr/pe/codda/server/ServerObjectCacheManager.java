@@ -20,17 +20,13 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 
 	private ServerClassLoaderBuilder serverClassLoaderBuilder = null;
 
-	// private final ObjectCacheManager objectCacheManager = ObjectCacheManager.getInstance();
-	private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 	private SimpleClassLoader workBaseClassLoader = null;
 
 	private final ConcurrentHashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new ConcurrentHashMap<String, ServerTaskObjectInfo>();
 	private ReentrantLock lock = new ReentrantLock();
 
-	public ServerObjectCacheManager(ServerClassLoaderBuilder serverClassLoaderBuilder,
-			IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+	public ServerObjectCacheManager(ServerClassLoaderBuilder serverClassLoaderBuilder) {
 		this.serverClassLoaderBuilder = serverClassLoaderBuilder;
-		this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 
 		this.workBaseClassLoader = serverClassLoaderBuilder.build();
 	}
@@ -139,7 +135,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 	}*/
 
 	private ServerTaskObjectInfo buildNewServerTaskObjectInfo(String messageID) throws DynamicClassCallException {
-		String classFullName = ioPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
+		String classFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
 		ServerTaskObjectInfo newServerTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
 
 		className2ServerTaskObjectInfoHash.put(messageID, newServerTaskObjectInfo);

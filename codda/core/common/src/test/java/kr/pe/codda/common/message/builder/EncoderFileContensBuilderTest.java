@@ -12,7 +12,7 @@ import kr.pe.codda.common.type.SingleItemType;
 public class EncoderFileContensBuilderTest extends AbstractJunitTest {	
 
 	@Test
-	public void testBuildStringOfSingleItemInfoPart() {
+	public void testAddSingleItemInfoPart() {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 1;
@@ -29,13 +29,15 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 		SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
 				nativeItemSize, nativeItemCharset);
 		
-		String result = encoderFileContensBuilder.buildStringOfSingleItemInfoPart(depth, path, varNameOfSetOwner, middleObjVarName, singleItemInfo);
+		StringBuilder contetnsStringBuilder = new StringBuilder();
 		
-		log.info(result);
+		encoderFileContensBuilder.addSingleItemInfoPart(contetnsStringBuilder, depth, path, varNameOfSetOwner, middleObjVarName, singleItemInfo);
+		
+		log.info(contetnsStringBuilder.toString());
 	}
 	
 	@Test
-	public void testBuildStringOfPartWhoseListIsNullAtArray() {
+	public void testAddNullCaseArrayValidationPart() {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 1;
@@ -62,9 +64,11 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 			
-			String result = encoderFileContensBuilder.buildStringOfPartWhoseListIsNullAtArray(depth, varNameOfSetOwner, arrayInfo);
+			StringBuilder contetnsStringBuilder = new StringBuilder();
 			
-			log.info(result);
+			encoderFileContensBuilder.addNullCaseArrayValidationPart(contetnsStringBuilder, depth, varNameOfSetOwner, arrayInfo);
+			
+			log.info(contetnsStringBuilder.toString());
 		}
 		
 		{
@@ -88,14 +92,15 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 			
-			String result = encoderFileContensBuilder.buildStringOfPartWhoseListIsNullAtArray(depth, varNameOfSetOwner, arrayInfo);
+			StringBuilder contetnsStringBuilder = new StringBuilder();
+			encoderFileContensBuilder.addNullCaseArrayValidationPart(contetnsStringBuilder, depth, varNameOfSetOwner, arrayInfo);
 			
-			log.info(result);
+			log.info(contetnsStringBuilder.toString());
 		}
 	}
 	
 	@Test
-	public void testBuildStringOfPartCheckingListSizeIsValid() {
+	public void testAddPartCheckingListSizeIsValid() {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 1;
@@ -122,9 +127,10 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 			
-			String result = encoderFileContensBuilder.buildStringOfPartCheckingListSizeIsValid(depth, varNameOfSetOwner, arrayInfo);
+			StringBuilder contetnsStringBuilder = new StringBuilder();
+			encoderFileContensBuilder.addPartCheckingListSizeIsValid(contetnsStringBuilder, depth, varNameOfSetOwner, arrayInfo);
 			
-			log.info(result);
+			log.info(contetnsStringBuilder.toString());
 			
 		}
 		
@@ -149,16 +155,16 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 			
-			String result = encoderFileContensBuilder.buildStringOfPartCheckingListSizeIsValid(depth, varNameOfSetOwner, arrayInfo);
-			
-			log.info(result);
+			StringBuilder contetnsStringBuilder = new StringBuilder();
+			encoderFileContensBuilder.addPartCheckingListSizeIsValid(contetnsStringBuilder, depth, varNameOfSetOwner, arrayInfo);			
+			log.info(contetnsStringBuilder.toString());
 			
 		}
 		
 	}
 	
 	@Test
-	public void testBuildStringOfPartWhoseListIsNotNullAtArray() {
+	public void testAddNotNullCaseArrayValidationPart() {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 1;
@@ -184,17 +190,19 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 			arrayItemSet.addItemInfo(singleItemInfo);
 		}
 		
-		String result = encoderFileContensBuilder.buildStringOfPartWhoseListIsNotNullAtArray(depth
+		StringBuilder contetnsStringBuilder = new StringBuilder();
+		
+		encoderFileContensBuilder.addNotNullCaseArrayValidationPart(contetnsStringBuilder, depth
 				, path
 				, varNameOfSetOwner
 				, middleObjVarName
 				, arrayInfo);
 		
-		log.info(result);
+		log.info(contetnsStringBuilder.toString());
 	}
 	
 	@Test
-	public void testBuildStringOfArrayInfoPart() {
+	public void testAddArrayInfoPart() {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 2;
@@ -220,17 +228,18 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 			arrayItemSet.addItemInfo(singleItemInfo);
 		}
 		
-		String result = encoderFileContensBuilder.buildStringOfArrayInfoPart(depth
+		StringBuilder contetnsStringBuilder = new StringBuilder();
+		encoderFileContensBuilder.addArrayInfoPart(contetnsStringBuilder, depth
 				, path
 				, varNameOfSetOwner
 				, middleObjVarName
 				, arrayInfo);
 		
-		log.info(result);
+		log.info(contetnsStringBuilder.toString());
 	}
 	
 	@Test
-	public void testBuildStringOfGroupInfoPart() {
+	public void testAddGroupInfoPart() {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 2;
@@ -255,13 +264,14 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 			groupOrderedItemSet.addItemInfo(singleItemInfo);
 		}
 		
-		String result = encoderFileContensBuilder.buildStringOfGroupInfoPart(depth
+		StringBuilder contetnsStringBuilder = new StringBuilder();
+		encoderFileContensBuilder.addGroupInfoPart(contetnsStringBuilder, depth
 				, path
 				, varNameOfSetOwner
 				, middleObjVarName
 				, groupInfo);
 		
-		log.info(result);
+		log.info(contetnsStringBuilder.toString());
 	}
 	
 	

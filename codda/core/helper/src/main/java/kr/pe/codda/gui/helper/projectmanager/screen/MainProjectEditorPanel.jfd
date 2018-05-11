@@ -1,0 +1,431 @@
+JFDML JFormDesigner: "5.2.5.0.333" Java: "1.8.0_131" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+			"$rowSpecs": "unrelgap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, 104dlu:grow, linegap, default, linegap, 104dlu:grow, linegap, default"
+			"$columnSpecs": "unrelgap, max(pref;451dlu):grow, unrelgap"
+		} ) {
+			name: "this"
+			auxiliary() {
+				"JavaCodeGenerator.customCreate": true
+			}
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, relgap, default, relgap, default, labelcompgap, default, labelcompgap, default"
+				"$rowSpecs": "default:grow"
+			} ) {
+				name: "functionPanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "functionLabel"
+					"text": "Function : "
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "mainProjectStateSaveButton"
+					"text": "save"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "saveMainProjectState", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "popupProjectIOManagerScreenButton"
+					"text": "popup 'project IO manager screen'"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "popupProjectIOManagerScreenActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "prevButton"
+					"text": "go back to 'all project manager screen'"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "goBack", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 7
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 2
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, labelcompgap, default:grow"
+				"$rowSpecs": "default"
+			} ) {
+				name: "sinnoriInstalledPathLinePanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "sinnoriInstalledPathTitleLabel"
+					"text": "Sinnori installed path :"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "sinnoriInstalledPathValueLabel"
+					"text": "d:\\gitsinnori\\sinnori"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 4
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, labelcompgap, default:grow"
+				"$rowSpecs": "default"
+			} ) {
+				name: "mainProjectNameLinePanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "mainProjectNameTitleLabel"
+					"text": "main project name :"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "mainProjectNameValueLabel"
+					"text": "sample_test"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 6
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, labelcompgap, max(pref;364dlu):grow"
+				"$rowSpecs": "default"
+			} ) {
+				name: "projectTypeChoiceLinePanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "projectTypeChoiceLabel"
+					"text": "Project build type :"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+					"axis": 0
+				} ) {
+					name: "projectTypeChoicePanel"
+					add( new FormComponent( "javax.swing.JCheckBox" ) {
+						name: "serverCheckBox"
+						"text": "server"
+						"selected": true
+					} )
+					add( new FormComponent( "javax.swing.JCheckBox" ) {
+						name: "appClientCheckBox"
+						"text": "application client"
+						"selected": true
+					} )
+					add( new FormComponent( "javax.swing.JCheckBox" ) {
+						name: "webClientCheckBox"
+						"text": "web client"
+						"selected": true
+						addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "webClientCheckBoxStateChanged", true ) )
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 8
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, labelcompgap, growbutton, labelcompgap, default"
+				"$rowSpecs": "default"
+			} ) {
+				name: "servletEnginLibinaryPathLinePanel"
+				"enabled": false
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "servletEnginLibraryPathLabel"
+					"text": "Servlet system library :"
+					auxiliary() {
+						"JavaCodeGenerator.variableName": "servletSystemLibinaryPathLabel"
+					}
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "servletSystemLibraryPathTextField"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "servletSystemLibraryPathButton"
+					"text": "경로 선택"
+					"enabled": false
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 10
+				"gridX": 2
+			} )
+			add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+				name: "hSpacer1"
+				"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 12
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, labelcompgap, growbutton, labelcompgap, 37dlu"
+				"$rowSpecs": "default"
+			} ) {
+				name: "subProjectNameInputLinePanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "newSubProjectNameInputLabel"
+					"text": "New Sub Project Name :"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "newSubProjectNameTextField"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "newSubProjectAddButton"
+					"text": "add"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "newSubProjectAddButtonActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 14
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, labelcompgap, default, labelcompgap, default"
+				"$rowSpecs": "default"
+			} ) {
+				name: "subProjectListLinePanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "subProjectNameListLabel"
+					"text": "Sub Project Name Choose"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JComboBox" ) {
+					name: "subProjectNameListComboBox"
+					"model": new javax.swing.DefaultComboBoxModel {
+						selectedItem: "- Sub Project Name -"
+						addElement( "- Sub Project Name -" )
+						addElement( "sample_test_sub1" )
+						addElement( "sample_test_sub2" )
+					}
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+					"alignment": 0
+					"vgap": 2
+				} ) {
+					name: "subProjectNameListFuncPanel"
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "subProjectNameEditButton"
+						"text": "edit"
+						auxiliary() {
+							"JavaCodeGenerator.variableName": "subProjectEditButton"
+						}
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "subProjectNameEditButtonActionPerformed", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "subProjectNameDeleteButton"
+						"text": "remove"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "subProjectNameDeleteButtonActionPerformed", true ) )
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 16
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, labelcompgap, growbutton, labelcompgap, 37dlu"
+				"$rowSpecs": "default"
+			} ) {
+				name: "dbcpNameInputLinePanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "newDBCPNameInputLabel"
+					"text": "New DBCP Name :"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "newDBCPNameTextField"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "newDBCPAddButton"
+					"text": "add"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addNewDBCP", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 18
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, labelcompgap, default, labelcompgap, default"
+				"$rowSpecs": "default"
+			} ) {
+				name: "dbcpNameListLinePanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "dbcpNameListLabel"
+					"text": "DBCP Name Choose"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JComboBox" ) {
+					name: "dbcpNameListComboBox"
+					"model": new javax.swing.DefaultComboBoxModel {
+						selectedItem: "- DBCP Name -"
+						addElement( "- DBCP Name -" )
+						addElement( "tw_sinnoridb" )
+					}
+					auxiliary() {
+						"JavaCodeGenerator.variableName": "dbcpNameListComboBox"
+					}
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+					"alignment": 0
+					"vgap": 2
+				} ) {
+					name: "dbcpNameListFuncPanel"
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "dbcpNameEditButton"
+						"text": "edit"
+						auxiliary() {
+							"JavaCodeGenerator.variableName": "dbcpNameEditButton"
+						}
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "editDBCP", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "dbcpNameDeleteButton"
+						"text": "remove"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "deleteDBCP", true ) )
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 20
+				"gridX": 2
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "commonPartTilteLabel"
+				"text": "Common Part Editor"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 22
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "commonPartEditorScrollPane"
+				add( new FormComponent( "javax.swing.JTable" ) {
+					name: "commonPartEditorTable"
+					"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector {
+						add( new java.util.Vector {
+							add( null )
+							add( null )
+						} )
+						add( new java.util.Vector {
+							add( null )
+							add( null )
+						} )
+						add( new java.util.Vector {
+							add( null )
+							add( null )
+						} )
+					}, new java.util.Vector {
+						add( "key" )
+						add( "value" )
+					}, new java.util.Vector {
+						add( class java.lang.String )
+						add( null )
+					}, new java.util.Vector {
+						add( false )
+						add( false )
+					}, new java.util.Vector {
+						add( null )
+						add( new com.jformdesigner.model.SwingTableColumn( null, 0, 150, 0, true ) )
+					} )
+					"selectionMode": 0
+					"autoCreateColumnsFromModel": false
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 24
+				"gridX": 2
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "mainProjectPartTitleLabel"
+				"text": "Main Project Editor"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 26
+				"gridX": 2
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "mainProjectPartEditorScrollPane"
+				add( new FormComponent( "javax.swing.JTable" ) {
+					name: "mainProjectPartEditorTable"
+					"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector {
+						add( new java.util.Vector {
+							add( null )
+							add( null )
+						} )
+						add( new java.util.Vector {
+							add( null )
+							add( null )
+						} )
+					}, new java.util.Vector {
+						add( "key" )
+						add( "value" )
+					}, new java.util.Vector {
+						add( class java.lang.String )
+						add( null )
+					}, new java.util.Vector {
+						add( null )
+						add( null )
+					}, new java.util.Vector {
+						add( null )
+						add( null )
+					} )
+					"selectionMode": 0
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 28
+				"gridX": 2
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 15, 0 )
+			"size": new java.awt.Dimension( 875, 630 )
+		} )
+		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
+			name: "isTomcatButtonGroup"
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 640 )
+		} )
+	}
+}

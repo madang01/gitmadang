@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<project name="codda_client" default="make" basedir=".">
-	<description>codda client</description>
+<project name="codda_core_client" default="make" basedir=".">
+	<description>codda core client</description>
 	<!-- set global properties for this build -->
 	<property name="dir.mainsrc" location="src/main/java" />
 	<property name="dir.build" location="build" />
@@ -9,24 +9,46 @@
 	<property name="dir.testsrc" location="src/test/java" />
 	<property name="dir.testlib" location="lib/test" />
 	<property name="dir.report" location="report" />
-	<property name="dir.common.build" location="../common" />
+	
 	<property name="dir.logger.build" location="../logger" />
+	<property name="dir.core.common.build" location="../common" />
+	
 	<property name="core.common.jar.name" value="codda-core-common.jar" />
-	<property name="core.client.jar.name" value="codda-core-onlyclient.jar" />
+	<property name="core.junitlib.jar.name" value="codda-core-junitlib.jar" />
+	<property name="core.client.only.jar.name" value="codda-core-onlyclient.jar" />
+	
 	<property name="java.complile.option.debug" value="on" />
+	
+	<condition property="is.windows.yes">
+		<os family="windows" />
+	</condition>
+
+	<condition property="is.unix.yes">
+		<os family="unix" />
+	</condition>
 	
 	<union id="logback.jarlibs">
 		<fileset file="${dir.logger.build}/lib/ex/slf4j-api-1.7.25.jar" />
 		<fileset file="${dir.logger.build}/lib/ex/logback-core-1.2.3.jar" />
 		<fileset file="${dir.logger.build}/lib/ex/logback-classic-1.2.3.jar" />
-		<!-- dbcp2 depends Apache commons-logging -->
+		<!-- dbcp2 depends Apache commons-logging(=jcl-over-slf4j) -->
 		<fileset file="${dir.logger.build}/lib/ex/jcl-over-slf4j-1.7.25.jar" />
 	</union>
 	
 	<union id="core.common.jarlibs">
-		<fileset file="${dir.common.build}/lib/main/ex/commons-codec-1.11.jar" />
-		<fileset file="${dir.common.build}/lib/main/ex/commons-collections4-4.1.jar" />
-		<fileset file="${dir.common.build}/lib/main/ex/commons-io-2.6.jar" />
+		<fileset file="${dir.core.common.build}/lib/main/ex/commons-codec-1.11.jar" />
+		<fileset file="${dir.core.common.build}/lib/main/ex/commons-collections4-4.1.jar" />
+		<fileset file="${dir.core.common.build}/lib/main/ex/commons-io-2.6.jar" />
+	</union>
+	
+	<union id="core.junitlib.jarlibs">
+		<fileset file="${dir.core.common.build}/lib/test/hamcrest-core-1.3.jar" />
+		<fileset file="${dir.core.common.build}/lib/test/junit-4.12.jar" />		
+		<fileset file="${dir.core.common.build}/lib/test/byte-buddy-1.7.9.jar" />
+		<fileset file="${dir.core.common.build}/lib/test/byte-buddy-agent-1.7.9.jar" />
+		<fileset file="${dir.core.common.build}/lib/test/mockito-core-2.13.4.jar" />
+		<fileset file="${dir.core.common.build}/lib/test/objenesis-2.6.jar" />
+		<fileset file="${dir.core.common.build}/lib/test/commons-exec-1.3.jar" />
 	</union>
 	
 	<target name="clean">
@@ -42,19 +64,12 @@
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 	</target>
 	
-	<condition property="is.windows.yes">
-		<os family="windows" />
-	</condition>
-	<condition property="is.unix.yes">
-		<os family="unix" />
-	</condition>
-	
 	<target name="unix.make.common" if="is.unix.yes" depends="init">
-		<exec dir="${dir.common.build}" executable="ant" />
+		<exec dir="${dir.core.common.build}" executable="ant" />
 	</target>
 	
 	<target name="dos.make.common" if="is.windows.yes" depends="unix.make.common">
-		<exec dir="${dir.common.build}" executable="cmd">
+		<exec dir="${dir.core.common.build}" executable="cmd">
 			<arg value="/c" />
 			<arg value="ant.bat" />
 		</exec>
@@ -66,8 +81,11 @@
 		<mkdir dir="${dir.mainlib}/in" />
 		<mkdir dir="${dir.mainlib}/ex" />
 		<copy todir="${dir.mainlib}/ex" verbose="true" overwrite="true">
-			<fileset file="${dir.common.build}/dist/${core.common.jar.name}" />
+			<fileset file="${dir.core.common.build}/dist/${core.common.jar.name}" />
 		</copy>
+		<copy todir="${dir.testlib}" verbose="true" overwrite="true">
+			<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
+		</copy>		
 	</target>
 	
 	<target name="compile" depends="copy.common">		
@@ -85,7 +103,7 @@
 	</target>
 
 	<target name="make" depends="compile">
-		<jar jarfile="${dir.dist}/${core.client.jar.name}">
+		<jar jarfile="${dir.dist}/${core.client.only.jar.name}">
 			<fileset dir="${dir.build}/main" />
 			<restrict>
 				<name name="**/*.class" />
@@ -109,7 +127,8 @@
 		<mkdir dir="${dir.build}/test" />
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.testsrc}" destdir="${dir.build}/test">			
 			<classpath>
-				<fileset file="${dir.dist}/${core.client.jar.name}" />
+				<union refid="core.junitlib.jarlibs" />
+				<fileset file="${dir.dist}/${core.client.only.jar.name}" />
 				<union refid="core.common.jarlibs" />
 				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
@@ -124,8 +143,9 @@
 	<target name="test" depends="compile.test">
 		<junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes" showoutput="true">
 			<formatter type="xml" />
-			<classpath>				
-				<fileset file="${dir.dist}/${core.client.jar.name}" />
+			<classpath>
+				<union refid="core.junitlib.jarlibs" />
+				<fileset file="${dir.dist}/${core.client.only.jar.name}" />
 				<union refid="core.common.jarlibs" />
 				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />

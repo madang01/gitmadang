@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite errors="0" failures="0" hostname="madang02-pc" name="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" skipped="0" tests="33" time="0.358" timestamp="2018-05-06T01:09:50">
+<testsuite errors="0" failures="0" hostname="madang02-pc" name="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" skipped="0" tests="33" time="0.37" timestamp="2018-05-07T06:01:53">
   <properties>
     <property name="java.vendor" value="Oracle Corporation" />
     <property name="dir.build" value="D:\gitmadang\codda\core\common\build" />
@@ -36,6 +36,7 @@
     <property name="user.country" value="KR" />
     <property name="ant.file.type.codda_common" value="file" />
     <property name="java.home" value="C:\Program Files\Java\jdk1.8.0_171\jre" />
+    <property name="dir.core.junitlib.build" value="D:\gitmadang\codda\core\junitlib" />
     <property name="java.vm.info" value="mixed mode" />
     <property name="ant.file" value="D:\gitmadang\codda\core\common\build.xml" />
     <property name="os.version" value="10.0" />
@@ -55,8 +56,8 @@
     <property name="java.vendor.url" value="http://java.oracle.com/" />
     <property name="java.vm.vendor" value="Oracle Corporation" />
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
-    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitmadang\codda\core\common\report\TEST-kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest.xml crashfile=D:\gitmadang\codda\core\common\junitvmwatcher746952851081501908.properties propsfile=D:\gitmadang\codda\core\common\junit3778225946781378396.properties" />
-    <property name="java.class.path" value="D:\gitmadang\codda\core\common\dist\codda-core-common.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-codec-1.11.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-collections4-4.1.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-io-2.6.jar;D:\gitmadang\codda\core\common\lib\test\byte-buddy-1.7.9.jar;D:\gitmadang\codda\core\common\lib\test\byte-buddy-agent-1.7.9.jar;D:\gitmadang\codda\core\common\lib\test\commons-exec-1.3.jar;D:\gitmadang\codda\core\common\lib\test\hamcrest-core-1.3.jar;D:\gitmadang\codda\core\common\lib\test\junit-4.12.jar;D:\gitmadang\codda\core\common\lib\test\mockito-core-2.13.4.jar;D:\gitmadang\codda\core\common\lib\test\objenesis-2.6.jar;D:\gitmadang\codda\core\logger\lib\ex\slf4j-api-1.7.25.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-core-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-classic-1.2.3.jar;D:\gitmadang\codda\core\common\build\test;D:\apache-ant-1.9.11\lib\ant-launcher.jar;D:\apache-ant-1.9.11\lib\ant.jar;D:\apache-ant-1.9.11\lib\ant-junit.jar;D:\apache-ant-1.9.11\lib\ant-junit4.jar" />
+    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitmadang\codda\core\common\report\TEST-kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest.xml crashfile=D:\gitmadang\codda\core\common\junitvmwatcher1196057096929214544.properties propsfile=D:\gitmadang\codda\core\common\junit5690192128766245537.properties" />
+    <property name="java.class.path" value="D:\gitmadang\codda\core\junitlib\lib\ex\hamcrest-core-1.3.jar;D:\gitmadang\codda\core\junitlib\lib\ex\junit-4.12.jar;D:\gitmadang\codda\core\junitlib\lib\ex\byte-buddy-1.7.9.jar;D:\gitmadang\codda\core\junitlib\lib\ex\byte-buddy-agent-1.7.9.jar;D:\gitmadang\codda\core\junitlib\lib\ex\mockito-core-2.13.4.jar;D:\gitmadang\codda\core\junitlib\lib\ex\objenesis-2.6.jar;D:\gitmadang\codda\core\junitlib\lib\ex\commons-exec-1.3.jar;D:\gitmadang\codda\core\common\dist\codda-core-common.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-codec-1.11.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-collections4-4.1.jar;D:\gitmadang\codda\core\common\lib\main\ex\commons-io-2.6.jar;D:\gitmadang\codda\core\logger\lib\ex\slf4j-api-1.7.25.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-core-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\logback-classic-1.2.3.jar;D:\gitmadang\codda\core\logger\lib\ex\jcl-over-slf4j-1.7.25.jar;D:\gitmadang\codda\core\common\build\test;D:\apache-ant-1.9.11\lib\ant-launcher.jar;D:\apache-ant-1.9.11\lib\ant.jar;D:\apache-ant-1.9.11\lib\ant-junit.jar;D:\apache-ant-1.9.11\lib\ant-junit4.jar" />
     <property name="ant.version" value="Apache Ant(TM) version 1.9.11 compiled on March 23 2018" />
     <property name="core.logger.jar.name" value="codda-logger.jar" />
     <property name="dir.testsrc" value="D:\gitmadang\codda\core\common\src\test\java" />
@@ -83,72 +84,72 @@
     <property name="java.specification.version" value="1.8" />
     <property name="ant.project.invoked-targets" value="test" />
   </properties>
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetSessionKeyRSAKeypairPathString" time="0.005" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetSessionKeyRSAKeypairPathString" time="0.019" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetSessionKeyRSAPublickeyFilePathString" time="0.0" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetMessageInfoFilePathStringFromRootResources" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetClientBuildBasePathString" time="0.001" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetMessageInfoFilePathStringFromRootResources" time="0.0" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetClientBuildBasePathString" time="0.0" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetServerAPPINFPathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetRootLogPathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectMessageInfoFilePathString" time="0.032" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetRootLogPathString" time="0.0" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectMessageInfoFilePathString" time="0.019" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectConfigDirectoryPathString" time="0.0" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetServerIOSourcePath" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectLogbackConfigFilePathString" time="0.0" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetWebClientBuildConfigFilePathString" time="0.003" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetWebClientBuildConfigFilePathString" time="0.002" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetServerBuildPathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetServerAntBuildXMLFilePathString" time="0.0" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetServerAntBuildXMLFilePathString" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetWebClientAntPropertiesFilePath" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetWebRootBasePathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetAppClientIOSourcePath" time="0.003" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetAppClientIOSourcePath" time="0.002" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetWebUploadPathString" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetRootResourcesPathString" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetWebClinetIOSourcePath" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetWebTempPathString" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectDBCPConfigFilePathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectMessageInfoDirectoryPathString" time="0.0" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectMessageInfoDirectoryPathString" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectResourcesDirectoryPathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectConfigFilePathString" time="0.001" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectConfigFilePathString" time="0.0" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetAppClientBuildPathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetMessageInfoDirectoryPathStringFromSinnoriResources" time="0.001" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetMessageInfoDirectoryPathStringFromSinnoriResources" time="0.0" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectPathString" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetAppClientBuildConfigFilePathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetRootTempPathString" time="0.001" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetRootTempPathString" time="0.0" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetWebClientBuildPathString" time="0.001" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetServerAPPINFClassPathString" time="0.001" />
-  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetSessionKeyRSAPrivatekeyFilePathString" time="0.001" />
+  <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetSessionKeyRSAPrivatekeyFilePathString" time="0.0" />
   <testcase classname="kr.pe.codda.common.buildsystem.BuildSystemPathSupporterTest" name="testGetProjectBasePathString" time="0.001" />
-  <system-out><![CDATA[INFO  2018-05-06 10:09:50.652 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\rsa_keypair (BuildSystemPathSupporterTest.java:312)
-INFO  2018-05-06 10:09:50.664 [main] expectedValue=D:\gitmadang\codda\resources\message_info\SelfExnRes.xml (BuildSystemPathSupporterTest.java:105)
-INFO  2018-05-06 10:09:50.668 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build (BuildSystemPathSupporterTest.java:515)
-INFO  2018-05-06 10:09:50.673 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build\APP-INF (BuildSystemPathSupporterTest.java:428)
-INFO  2018-05-06 10:09:50.677 [main] expectedValue=D:\gitmadang\codda\log (BuildSystemPathSupporterTest.java:51)
-INFO  2018-05-06 10:09:50.681 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\message_info\Echo.xml (BuildSystemPathSupporterTest.java:290)
-INFO  2018-05-06 10:09:50.717 [main] expectedValue=D:\gitmadang\codda\project\sample_base\config (BuildSystemPathSupporterTest.java:161)
-INFO  2018-05-06 10:09:50.721 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build\src\main\java\kr\pe\codda\impl\message (BuildSystemPathSupporterTest.java:490)
-INFO  2018-05-06 10:09:50.722 [main] returnedValue=D:\gitmadang\codda\project\sample_base\server_build\src\main\java\kr\pe\codda\impl\message (BuildSystemPathSupporterTest.java:500)
-INFO  2018-05-06 10:09:50.726 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\logback.xml (BuildSystemPathSupporterTest.java:222)
-INFO  2018-05-06 10:09:50.730 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\web_build\build.xml (BuildSystemPathSupporterTest.java:625)
-INFO  2018-05-06 10:09:50.736 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build (BuildSystemPathSupporterTest.java:379)
-INFO  2018-05-06 10:09:50.741 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build\build.xml (BuildSystemPathSupporterTest.java:406)
-INFO  2018-05-06 10:09:50.745 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\web_build\webAnt.properties (BuildSystemPathSupporterTest.java:649)
-INFO  2018-05-06 10:09:50.749 [main] expectedValue=D:\gitmadang\codda\project\sample_base\web_app_base (BuildSystemPathSupporterTest.java:693)
-INFO  2018-05-06 10:09:50.756 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\app_build\src\main\java\kr\pe\codda\impl\message (BuildSystemPathSupporterTest.java:583)
-INFO  2018-05-06 10:09:50.764 [main] expectedValue=D:\gitmadang\codda\project\sample_base\web_app_base\upload (BuildSystemPathSupporterTest.java:713)
-INFO  2018-05-06 10:09:50.771 [main] expectedValue=D:\gitmadang\codda\resources (BuildSystemPathSupporterTest.java:69)
-INFO  2018-05-06 10:09:50.778 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\web_build\src\main\java\kr\pe\codda\impl\message (BuildSystemPathSupporterTest.java:673)
-INFO  2018-05-06 10:09:50.782 [main] expectedValue=D:\gitmadang\codda\project\sample_base\web_app_base\temp (BuildSystemPathSupporterTest.java:733)
-INFO  2018-05-06 10:09:50.787 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\dbcp\dbcp.sample_base_db.properties (BuildSystemPathSupporterTest.java:246)
-INFO  2018-05-06 10:09:50.791 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\message_info (BuildSystemPathSupporterTest.java:267)
-INFO  2018-05-06 10:09:50.794 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources (BuildSystemPathSupporterTest.java:201)
-INFO  2018-05-06 10:09:50.798 [main] expectedValue=D:\gitmadang\codda\project\sample_base\config\codda.properties (BuildSystemPathSupporterTest.java:181)
-INFO  2018-05-06 10:09:50.804 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\app_build (BuildSystemPathSupporterTest.java:540)
-INFO  2018-05-06 10:09:50.809 [main] expectedValue=D:\gitmadang\codda\resources\message_info (BuildSystemPathSupporterTest.java:86)
-INFO  2018-05-06 10:09:50.812 [main] expectedValue=D:\gitmadang\codda\project\sample_base (BuildSystemPathSupporterTest.java:141)
-INFO  2018-05-06 10:09:50.816 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\app_build\build.xml (BuildSystemPathSupporterTest.java:565)
-INFO  2018-05-06 10:09:50.820 [main] expectedValue=D:\gitmadang\codda\temp (BuildSystemPathSupporterTest.java:33)
-INFO  2018-05-06 10:09:50.824 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\web_build (BuildSystemPathSupporterTest.java:601)
-INFO  2018-05-06 10:09:50.828 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build\APP-INF\classes (BuildSystemPathSupporterTest.java:450)
-INFO  2018-05-06 10:09:50.833 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\rsa_keypair\codda.privatekey (BuildSystemPathSupporterTest.java:357)
-INFO  2018-05-06 10:09:50.837 [main] expectedValue=D:\gitmadang\codda\project (BuildSystemPathSupporterTest.java:122)
+  <system-out><![CDATA[INFO  2018-05-07 15:01:53.224 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\rsa_keypair (BuildSystemPathSupporterTest.java:312)
+INFO  2018-05-07 15:01:53.251 [main] expectedValue=D:\gitmadang\codda\resources\message_info\SelfExnRes.xml (BuildSystemPathSupporterTest.java:105)
+INFO  2018-05-07 15:01:53.255 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build (BuildSystemPathSupporterTest.java:515)
+INFO  2018-05-07 15:01:53.259 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build\APP-INF (BuildSystemPathSupporterTest.java:428)
+INFO  2018-05-07 15:01:53.263 [main] expectedValue=D:\gitmadang\codda\log (BuildSystemPathSupporterTest.java:51)
+INFO  2018-05-07 15:01:53.267 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\message_info\Echo.xml (BuildSystemPathSupporterTest.java:290)
+INFO  2018-05-07 15:01:53.290 [main] expectedValue=D:\gitmadang\codda\project\sample_base\config (BuildSystemPathSupporterTest.java:161)
+INFO  2018-05-07 15:01:53.294 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build\src\main\java\kr\pe\codda\impl\message (BuildSystemPathSupporterTest.java:490)
+INFO  2018-05-07 15:01:53.295 [main] returnedValue=D:\gitmadang\codda\project\sample_base\server_build\src\main\java\kr\pe\codda\impl\message (BuildSystemPathSupporterTest.java:500)
+INFO  2018-05-07 15:01:53.299 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\logback.xml (BuildSystemPathSupporterTest.java:222)
+INFO  2018-05-07 15:01:53.303 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\web_build\build.xml (BuildSystemPathSupporterTest.java:625)
+INFO  2018-05-07 15:01:53.308 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build (BuildSystemPathSupporterTest.java:379)
+INFO  2018-05-07 15:01:53.313 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build\build.xml (BuildSystemPathSupporterTest.java:406)
+INFO  2018-05-07 15:01:53.317 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\web_build\webAnt.properties (BuildSystemPathSupporterTest.java:649)
+INFO  2018-05-07 15:01:53.321 [main] expectedValue=D:\gitmadang\codda\project\sample_base\web_app_base (BuildSystemPathSupporterTest.java:693)
+INFO  2018-05-07 15:01:53.327 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\app_build\src\main\java\kr\pe\codda\impl\message (BuildSystemPathSupporterTest.java:583)
+INFO  2018-05-07 15:01:53.336 [main] expectedValue=D:\gitmadang\codda\project\sample_base\web_app_base\upload (BuildSystemPathSupporterTest.java:713)
+INFO  2018-05-07 15:01:53.343 [main] expectedValue=D:\gitmadang\codda\resources (BuildSystemPathSupporterTest.java:69)
+INFO  2018-05-07 15:01:53.350 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\web_build\src\main\java\kr\pe\codda\impl\message (BuildSystemPathSupporterTest.java:673)
+INFO  2018-05-07 15:01:53.355 [main] expectedValue=D:\gitmadang\codda\project\sample_base\web_app_base\temp (BuildSystemPathSupporterTest.java:733)
+INFO  2018-05-07 15:01:53.365 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\dbcp\dbcp.sample_base_db.properties (BuildSystemPathSupporterTest.java:246)
+INFO  2018-05-07 15:01:53.371 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\message_info (BuildSystemPathSupporterTest.java:267)
+INFO  2018-05-07 15:01:53.375 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources (BuildSystemPathSupporterTest.java:201)
+INFO  2018-05-07 15:01:53.380 [main] expectedValue=D:\gitmadang\codda\project\sample_base\config\codda.properties (BuildSystemPathSupporterTest.java:181)
+INFO  2018-05-07 15:01:53.384 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\app_build (BuildSystemPathSupporterTest.java:540)
+INFO  2018-05-07 15:01:53.389 [main] expectedValue=D:\gitmadang\codda\resources\message_info (BuildSystemPathSupporterTest.java:86)
+INFO  2018-05-07 15:01:53.394 [main] expectedValue=D:\gitmadang\codda\project\sample_base (BuildSystemPathSupporterTest.java:141)
+INFO  2018-05-07 15:01:53.399 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\app_build\build.xml (BuildSystemPathSupporterTest.java:565)
+INFO  2018-05-07 15:01:53.403 [main] expectedValue=D:\gitmadang\codda\temp (BuildSystemPathSupporterTest.java:33)
+INFO  2018-05-07 15:01:53.407 [main] expectedValue=D:\gitmadang\codda\project\sample_base\client_build\web_build (BuildSystemPathSupporterTest.java:601)
+INFO  2018-05-07 15:01:53.411 [main] expectedValue=D:\gitmadang\codda\project\sample_base\server_build\APP-INF\classes (BuildSystemPathSupporterTest.java:450)
+INFO  2018-05-07 15:01:53.415 [main] expectedValue=D:\gitmadang\codda\project\sample_base\resources\rsa_keypair\codda.privatekey (BuildSystemPathSupporterTest.java:357)
+INFO  2018-05-07 15:01:53.418 [main] expectedValue=D:\gitmadang\codda\project (BuildSystemPathSupporterTest.java:122)
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

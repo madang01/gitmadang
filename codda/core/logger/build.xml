@@ -2,10 +2,11 @@
 <project name="codda_logger" default="make" basedir=".">
 	<description>codda logger</description>
 	<!-- set global properties for this build -->
-	<property name="dir.src" location="src" />
+	<property name="dir.src" location="src/main/java" />
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
 	<property name="dir.lib" location="lib" />
+	<property name="logger.jar" value="codda-logger.jar" />
 	<property name="java.complile.option.debug" value="on" />
 	
 	<target name="clean">
@@ -35,7 +36,7 @@
 	</target>
 
 	<target name="make" depends="compile">
-		<jar jarfile="${dir.dist}/codda-logger.jar">
+		<jar jarfile="${dir.dist}/${logger.jar}">
 			<fileset dir="${dir.build}" />
 			<restrict>
 				<name name="**/*.class" />

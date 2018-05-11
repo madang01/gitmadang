@@ -1,25 +1,17 @@
 package kr.pe.codda.common.classloader;
 
-public class IOPartDynamicClassNameUtil {
-	private String firstPrefixDynamicClassFullName = null;
-	private final String messageSecondPrefix = "message.";
-	private final String serverTaskSecondPrefix = "task.server.";
-	private final String clientTaskSecondPrefix = "task.client.";
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+
+public abstract class IOPartDynamicClassNameUtil {
 	
-	public IOPartDynamicClassNameUtil(String firstPrefixDynamicClassFullName) {
-		if (null == firstPrefixDynamicClassFullName) {
-			throw new IllegalArgumentException("the parameter classLoaderClassPackagePrefixName is null");
-		}
-		
-		this.firstPrefixDynamicClassFullName = firstPrefixDynamicClassFullName;	
-	}
 	
-	public String getMessageClassShortName(String messageID) {
+	public static String getMessageClassShortName(String messageID) {
 		return messageID;
 	}
-	public String getMessageClassFullName(String messageID) {
-		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
-				.append(messageSecondPrefix)
+	
+	public static String getMessageClassFullName(String messageID) {
+		String classFullName = new StringBuilder(CommonStaticFinalVars.BASE_MESSAGE_CLASS_FULL_NAME)
+				.append(".")
 				.append(messageID)
 				.append(".")
 				.append(getMessageClassShortName(messageID))
@@ -27,15 +19,15 @@ public class IOPartDynamicClassNameUtil {
 		return classFullName;
 	}
 	
-	public String getClientMessageCodecClassShortName(String messageID) {
+	public static String getClientMessageCodecClassShortName(String messageID) {
 		String classFullName = new StringBuilder(messageID)				
 				.append("ClientCodec").toString();
 		return classFullName;
 	}
 	
-	public String getClientMessageCodecClassFullName(String messageID) {
-		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
-				.append(messageSecondPrefix)
+	public static String getClientMessageCodecClassFullName(String messageID) {
+		String classFullName = new StringBuilder(CommonStaticFinalVars.BASE_MESSAGE_CLASS_FULL_NAME)
+				.append(".")
 				.append(messageID)
 				.append(".")
 				.append(getClientMessageCodecClassShortName(messageID))
@@ -43,15 +35,15 @@ public class IOPartDynamicClassNameUtil {
 		return classFullName;
 	}
 	
-	public String getServerMessageCodecClassShortName(String messageID) {
+	public static String getServerMessageCodecClassShortName(String messageID) {
 		String classFullName = new StringBuilder(messageID)
 				.append("ServerCodec").toString();
 		return classFullName;
 	}
 	
-	public String getServerMessageCodecClassFullName(String messageID) {
-		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
-				.append(messageSecondPrefix)
+	public static String getServerMessageCodecClassFullName(String messageID) {
+		String classFullName = new StringBuilder(CommonStaticFinalVars.BASE_MESSAGE_CLASS_FULL_NAME)
+				.append(".")
 				.append(messageID)
 				.append(".")
 				.append(getServerMessageCodecClassShortName(messageID))
@@ -59,63 +51,59 @@ public class IOPartDynamicClassNameUtil {
 		return classFullName;
 	}
 	
-	public String getServerTaskClassShortName(String messageID) {
+	public static String getServerTaskClassShortName(String messageID) {
 		String classFullName = new StringBuilder(messageID)
 				.append("ServerTask").toString();
 		return classFullName;
 	}
 	
-	public String getServerTaskClassFullName(String messageID) {
-		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
-				.append(serverTaskSecondPrefix)
+	public static String getServerTaskClassFullName(String messageID) {
+		String classFullName = new StringBuilder(CommonStaticFinalVars.BASE_SERVER_TASK_CLASS_FULL_NAME)
+				.append(".")
 				.append(getServerTaskClassShortName(messageID)).toString();
 		return classFullName;
 	}
 	
-	public String getClientTaskClassShortName(String messageID) {
+	public static String getClientTaskClassShortName(String messageID) {
 		String classFullName = new StringBuilder(messageID)
 				.append("ClientTask").toString();
 		return classFullName;
 	}
 	
-	public String getClientTaskClassFullName(String messageID) {
-		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
-				.append(clientTaskSecondPrefix)
+	public static String getClientTaskClassFullName(String messageID) {
+		String classFullName = new StringBuilder(CommonStaticFinalVars.BASE_CLIENT_TASK_CLASS_FULL_NAME)
+				.append(".")
 				.append(getClientTaskClassShortName(messageID)).toString();
 		return classFullName;
 	}
 	
-	public String getMessageDecoderClassShortName(String messageID) {
+	public static String getMessageDecoderClassShortName(String messageID) {
 		String classFullName = new StringBuilder(messageID)
 				.append("Decoder").toString();
 		return classFullName;
 	}
 	
-	public String getMessageDecoderClassFullName(String messageID) {
-		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
-				.append(messageSecondPrefix)
+	public static String getMessageDecoderClassFullName(String messageID) {
+		String classFullName = new StringBuilder(CommonStaticFinalVars.BASE_MESSAGE_CLASS_FULL_NAME)
+				.append(".")
 				.append(messageID)
 				.append(".")
 				.append(getMessageDecoderClassShortName(messageID)).toString();
 		return classFullName;
 	}
 	
-	public String getMessageEncoderClassShortName(String messageID) {
+	public static String getMessageEncoderClassShortName(String messageID) {
 		String classFullName = new StringBuilder(messageID)
 				.append("Encoder").toString();
 		return classFullName;
 	}
 	
-	public String getMessageEncoderClassFullName(String messageID) {
-		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
-				.append(messageSecondPrefix)
+	public static String getMessageEncoderClassFullName(String messageID) {
+		String classFullName = new StringBuilder(CommonStaticFinalVars.BASE_MESSAGE_CLASS_FULL_NAME)
+				.append(".")
 				.append(messageID)
 				.append(".")
 				.append(getMessageEncoderClassShortName(messageID)).toString();
 		return classFullName;
-	}
-
-	public String getFirstPrefixDynamicClassFullName() {
-		return firstPrefixDynamicClassFullName;
 	}
 }

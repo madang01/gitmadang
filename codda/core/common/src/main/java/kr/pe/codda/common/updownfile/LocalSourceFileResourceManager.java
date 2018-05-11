@@ -71,9 +71,9 @@ public class LocalSourceFileResourceManager {
 		// int localSourceFileResourceCnt =
 		// (Integer)conf.getResource("common.updownfile.local_source_file_resource_cnt.value");
 
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 
 		localSourceFileResourceCnt = commonPart.getLocalSourceFileResourceCnt();
 

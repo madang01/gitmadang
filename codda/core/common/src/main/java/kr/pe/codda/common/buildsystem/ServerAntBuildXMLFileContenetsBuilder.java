@@ -1,19 +1,20 @@
 package kr.pe.codda.common.buildsystem;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
-public abstract class ServerAntBuildXMLFileContenetsBuilder {
+public abstract class ServerAntBuildXMLFileContenetsBuilder extends AbstractAntBuildXMLContentsBuilder {
+	public static String PREFIX_OF_DYNAMIC_CLASS_RELATIVE_PATH = 
+			new StringBuilder().append(CommonStaticFinalVars.BASE_DYNAMIC_CLASS_FULL_NAME.replaceAll("\\.", "/"))
+			.append("/**").toString();
 
 	public static String build(String mainProjectName) {
 		final String builderProjectName = new StringBuilder().append(mainProjectName)
 				.append("_server").toString();
 		final String defaultTargetName = "compile.only.appinf";
 		final String baseDirectory = ".";
-		final int depth=0;		 
+		final int depth=0;
+		boolean whetherOrNotToIncludeCoreLib = true; // 코어 라이브러리 포함 여부, true : 포함, false : 미포함
 		
 		StringBuilder contentsStringBuilder = new StringBuilder();
 		addHeader(contentsStringBuilder);
@@ -30,20 +31,22 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addLinuxCondition(contentsStringBuilder, depth);		
 		
 		addNewLine(contentsStringBuilder);
-		addNewLine(contentsStringBuilder);
-		addLogbackJarUnionPart(contentsStringBuilder, depth);
+		addLogbackJarUnionPart(contentsStringBuilder, depth, "logback.jarlibs");
+		
+		addNewLine(contentsStringBuilder);		
+		addCoreCommonJarUnionPart(contentsStringBuilder, depth, "core.common.jarlibs");
 		
 		addNewLine(contentsStringBuilder);
-		addNewLine(contentsStringBuilder);
-		addCoreCommonJarUnionPart(contentsStringBuilder, depth);
+		addCoreServerJarUnionPart(contentsStringBuilder, depth, "core.server.jarlibs");
 		
 		addNewLine(contentsStringBuilder);
-		addNewLine(contentsStringBuilder);
-		addCoreServerJarUnionPart(contentsStringBuilder, depth);
+		addCoreAllJarUnionPart(contentsStringBuilder, depth, "core.all.jarlibs", "core.common.jarlibs", "core.server.jarlibs");
 		
 		addNewLine(contentsStringBuilder);
+		addJunitTestJarUnionPart(contentsStringBuilder, depth, "core.junitlib.jarlibs");
+		
 		addNewLine(contentsStringBuilder);
-		addCoreJarUnionPart(depth, contentsStringBuilder);
+		addCleanMainTargetPart(contentsStringBuilder, depth);
 		
 		addNewLine(contentsStringBuilder);
 		addInitTargetPart(contentsStringBuilder, depth);
@@ -58,10 +61,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addMakeCoreTargetPart(contentsStringBuilder, depth);
 		
 		addNewLine(contentsStringBuilder);
-		addCopyCoreTargetPart(contentsStringBuilder, depth);
-				
-		addNewLine(contentsStringBuilder);
-		addCopyAppINFTargetPart(contentsStringBuilder, depth);
+		addCopyCoreTargetPart(contentsStringBuilder, depth, whetherOrNotToIncludeCoreLib);
 		
 		addNewLine(contentsStringBuilder);
 		addCompileMainTargetPart(contentsStringBuilder, depth);
@@ -88,159 +88,306 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addCleanAppINFTargetPart(contentsStringBuilder, depth);
 		
 		addNewLine(contentsStringBuilder);
-		addCompileOnlyAppINFTargetPart(contentsStringBuilder, depth);
+		addOnlyCompileAppINFTargetPart(contentsStringBuilder, depth);
 		
-		// FIXME!
-				
+		addNewLine(contentsStringBuilder);
+		addCleanTestTargetPart(contentsStringBuilder, depth);
+		
+		addNewLine(contentsStringBuilder);
+		addCompileTestTargetPart(contentsStringBuilder, depth);
+		
+		addNewLine(contentsStringBuilder);
+		addJunitTestTargetPart(contentsStringBuilder, depth);
+
 		addNewLine(contentsStringBuilder);
 		addROOTEndTag(contentsStringBuilder);
 		return  contentsStringBuilder.toString();
 	}
-
-	private static void addCoreJarUnionPart(final int depth, StringBuilder contentsStringBuilder) {
-		List<String> coreRefIDList = new ArrayList<String>();
-		coreRefIDList.add("core.common.jarlibs");
-		coreRefIDList.add("core.server.jarlibs");
-		addFileSetUnion(contentsStringBuilder, depth, "core.jarlibs", coreRefIDList, null);
-	}
-
-	private static void addCoreServerJarUnionPart(StringBuilder contentsStringBuilder, final int depth) {
-		List<String> coreServerJarFilePathStringList = new ArrayList<String>();
-		coreServerJarFilePathStringList.add("${dir.core.mainlib}/ex/mysql-connector-java-5.1.37-bin.jar");
-		coreServerJarFilePathStringList.add("${dir.core.mainlib}/ex/commons-pool2-2.5.0.jar");
-		coreServerJarFilePathStringList.add("${dir.core.mainlib}/ex/commons-dbcp2-2.0.1.jar");
-		coreServerJarFilePathStringList.add("${dir.core.mainlib}/ex/jooq-meta-3.10.6.jar");
-		coreServerJarFilePathStringList.add("${dir.core.mainlib}/ex/jooq-codegen-3.10.6.jar");
-		coreServerJarFilePathStringList.add("${dir.core.mainlib}/ex/jooq-3.10.6.jar");
-		addFileSetUnion(contentsStringBuilder, depth, "core.server.jarlibs", null, coreServerJarFilePathStringList);
-	}
-
-	private static void addCoreCommonJarUnionPart(StringBuilder contentsStringBuilder, final int depth) {
-		List<String> coreCommonJarFilePathStringList = new ArrayList<String>();
-		coreCommonJarFilePathStringList.add("${dir.core.mainlib}/ex/commons-io-2.6.jar");
-		coreCommonJarFilePathStringList.add("${dir.core.mainlib}/ex/commons-collections4-4.1.jar");
-		coreCommonJarFilePathStringList.add("${dir.core.mainlib}/ex/commons-codec-1.11.jar");
-		addFileSetUnion(contentsStringBuilder, depth, "core.common.jarlibs", null, coreCommonJarFilePathStringList);
-	}
-
-	private static void addLogbackJarUnionPart(StringBuilder contentsStringBuilder, final int depth) {
-		List<String> logbackJarFilePathStringList = new ArrayList<String>();
-		logbackJarFilePathStringList.add("${dir.core.mainlib}/ex/slf4j-api-1.7.25.jar");
-		logbackJarFilePathStringList.add("${dir.core.mainlib}/ex/jcl-over-slf4j-1.7.25.jar");
-		logbackJarFilePathStringList.add("${dir.core.mainlib}/ex/logback-core-1.2.3.jar");
-		logbackJarFilePathStringList.add("${dir.core.mainlib}/ex/logback-classic-1.2.3.jar");
-		addFileSetUnion(contentsStringBuilder, depth, "logback.jarlibs", null, logbackJarFilePathStringList);
-	}
-
-	public static void addHeader(StringBuilder contentsStringBuilder) {		
-		contentsStringBuilder.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>");
-	}
 	
-	public static void addNewLine(StringBuilder contentsStringBuilder) {
-		contentsStringBuilder.append(CommonStaticFinalVars.NEWLINE);
-	}
-		
-	
-	public static void addROOTStartTag(StringBuilder contentsStringBuilder, 
-			String projectName, String defaultTargetName, String baseDirectory) {
-		contentsStringBuilder.append("<project name=\"");
-		contentsStringBuilder.append(projectName);
-		contentsStringBuilder.append("\" default=\"");
-		contentsStringBuilder.append(defaultTargetName);
-		contentsStringBuilder.append("\" basedir=\"");
-		contentsStringBuilder.append(baseDirectory);
-		contentsStringBuilder.append("\">");
-	}
-	
-	public static void addROOTEndTag(StringBuilder contentsStringBuilder) {
-		addEndTag(contentsStringBuilder, "project");
-	}
-	
-	public static void addEndTag(StringBuilder contentsStringBuilder, String tagName) {
-		contentsStringBuilder.append("</");
-		contentsStringBuilder.append(tagName);
+	public static void addJunitTestTargetPart(StringBuilder contentsStringBuilder, int depth) {
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		contentsStringBuilder.append("<target");
+		addAttribute(contentsStringBuilder, "name", "test");
+		addAttribute(contentsStringBuilder, "depends", "compile.test");
 		contentsStringBuilder.append(">");
-	}
-	
-	
-	
-	public static void addAttribute(StringBuilder contentsStringBuilder, String attributeKey, String attributeValue) {
-		contentsStringBuilder.append(" ");
-		contentsStringBuilder.append(attributeKey);
-		contentsStringBuilder.append("=\"");
-		contentsStringBuilder.append(attributeValue);
-		contentsStringBuilder.append("\"");
-	}
-	
-	public static void addPropertyTag(StringBuilder contentsStringBuilder,
-			String propertyName, String singleAttributeKey, String singleAttributeValue) {
-		contentsStringBuilder.append("<property name=\"");
-		contentsStringBuilder.append(propertyName);
-		contentsStringBuilder.append("\"");
-		addAttribute(contentsStringBuilder, singleAttributeKey, singleAttributeValue);
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<mkdir");
+		addAttribute(contentsStringBuilder, "dir", "${dir.report}");
 		contentsStringBuilder.append(" />");
-	}	
-	
-	public static void addWindowsCondition(StringBuilder contentsStringBuilder, final int depth) {
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("<condition property=\"is.windows.yes\">");
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<os family=\"windows\" />");
+		contentsStringBuilder.append("<junit");
+		addAttribute(contentsStringBuilder, "printsummary", "yes");
+		addAttribute(contentsStringBuilder, "haltonerror", "yes");
+		addAttribute(contentsStringBuilder, "haltonfailure", "yes");
+		addAttribute(contentsStringBuilder, "fork", "yes");
+		addAttribute(contentsStringBuilder, "showoutput", "true");
+		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("</condition>");
-	}
-	
-	public static void addLinuxCondition(StringBuilder contentsStringBuilder, final int depth) {
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
+		contentsStringBuilder.append("<formatter");
+		addAttribute(contentsStringBuilder, "type", "xml");
+		contentsStringBuilder.append(" />");
+
 		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("<condition property=\"is.unix.yes\">");
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
+		contentsStringBuilder.append("<classpath>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<fileset");
+		addAttribute(contentsStringBuilder, "file", "${dir.dist}/${server.main.jar.name}");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<fileset");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}/ex");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
+		contentsStringBuilder.append("<include");
+		addAttribute(contentsStringBuilder, "name", "**/*.jar");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("</fileset>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<fileset");
+		addAttribute(contentsStringBuilder, "dir", "${dir.test.lib}");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
+		contentsStringBuilder.append("<include");
+		addAttribute(contentsStringBuilder, "name", "**/*.jar");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("</fileset>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<union");
+		addAttribute(contentsStringBuilder, "refid", "logback.jarlibs");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<pathelement");
+		addAttribute(contentsStringBuilder, "location", "${dir.test.build}");
+		contentsStringBuilder.append(" />");
+
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
+		contentsStringBuilder.append("</classpath>");
+		
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
+		contentsStringBuilder.append("<batchtest");
+		addAttribute(contentsStringBuilder, "todir", "${dir.report}");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<fileset");
+		addAttribute(contentsStringBuilder, "dir", "${dir.test.src}");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
+		contentsStringBuilder.append("<include");
+		addAttribute(contentsStringBuilder, "name", "kr/pe/codda/**/*Test.java");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("</fileset>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
+		contentsStringBuilder.append("</batchtest>");
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<os family=\"unix\" />");
+		contentsStringBuilder.append("</junit>");
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("</condition>");
+		contentsStringBuilder.append("</target>");
 	}
 	
-	public static void addFileSetUnion(StringBuilder contentsStringBuilder, int depth,
-			String unionID, 
-			List<String> refIDList,
-			List<String> filePathStringList) {
+	public static void addCompileTestTargetPart(StringBuilder contentsStringBuilder, int depth) {
+		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("<union id=\"");
-		contentsStringBuilder.append(unionID);
-		contentsStringBuilder.append("\">");
+		contentsStringBuilder.append("<target");
+		addAttribute(contentsStringBuilder, "name", "compile.test");
+		contentsStringBuilder.append(">");
 		
-		if (null != refIDList) {
-			for (String refID : refIDList) {
-				addNewLine(contentsStringBuilder);
-				CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-				contentsStringBuilder.append("<union refid=\"");
-				contentsStringBuilder.append(refID);
-				contentsStringBuilder.append("\" />");
-			}
-		}
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<mkdir");
+		addAttribute(contentsStringBuilder, "dir", "${dir.test.build}");
+		contentsStringBuilder.append(" />");
 		
-		if (null != filePathStringList) {
-			for (String filePathString : filePathStringList) {
-				addNewLine(contentsStringBuilder);
-				CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-				contentsStringBuilder.append("<fileset file=\"");
-				contentsStringBuilder.append(filePathString);
-				contentsStringBuilder.append("\" />");
-			}
-		}
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<javac");
+		addAttribute(contentsStringBuilder, "debug", "${java.complile.option.debug}");
+		addAttribute(contentsStringBuilder, "debuglevel", "lines,vars,source");
+		addAttribute(contentsStringBuilder, "encoding", "UTF-8");
+		addAttribute(contentsStringBuilder, "includeantruntime", "false");
+		addAttribute(contentsStringBuilder, "srcdir", "${dir.test.src}");
+		addAttribute(contentsStringBuilder, "destdir", "${dir.test.build}");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
+		contentsStringBuilder.append("<classpath>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<fileset");
+		addAttribute(contentsStringBuilder, "file", "${dir.dist}/${server.main.jar.name}");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<fileset");
+		addAttribute(contentsStringBuilder, "dir", "${dir.corelib}/ex");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
+		contentsStringBuilder.append("<include");
+		addAttribute(contentsStringBuilder, "name", "**/*.jar");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("</fileset>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<fileset");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}/ex");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
+		contentsStringBuilder.append("<include");
+		addAttribute(contentsStringBuilder, "name", "**/*.jar");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("</fileset>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<union");
+		addAttribute(contentsStringBuilder, "refid", "core.junitlib.jarlibs");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("<fileset");
+		addAttribute(contentsStringBuilder, "dir", "${dir.test.lib}");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
+		contentsStringBuilder.append("<include");
+		addAttribute(contentsStringBuilder, "name", "**/*.jar");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
+		contentsStringBuilder.append("</fileset>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
+		contentsStringBuilder.append("</classpath>");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("</javac>");
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("</union>");
+		contentsStringBuilder.append("</target>");
+	}
+	
+	public static void addCleanTestTargetPart(StringBuilder contentsStringBuilder, int depth) {
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		contentsStringBuilder.append("<target");
+		addAttribute(contentsStringBuilder, "name", "clean.test");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<delete");
+		addAttribute(contentsStringBuilder, "dir", "${dir.report}");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<delete");
+		addAttribute(contentsStringBuilder, "dir", "${dir.test.build}");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		contentsStringBuilder.append("</target>");
+	}
+
+
+	public static void addCleanMainTargetPart(StringBuilder contentsStringBuilder, int depth) {
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		contentsStringBuilder.append("<target");
+		addAttribute(contentsStringBuilder, "name", "clean");
+		contentsStringBuilder.append(">");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<delete");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.build}");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<delete");
+		addAttribute(contentsStringBuilder, "dir", "${dir.dist}");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<delete");
+		addAttribute(contentsStringBuilder, "dir", "${dir.appinf}/classes");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<delete");
+		addAttribute(contentsStringBuilder, "dir", "${dir.corelib}");
+		contentsStringBuilder.append(" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		contentsStringBuilder.append("</target>");
 	}
 	
 	public static void addInitTargetPart(StringBuilder contentsStringBuilder, int depth) {
@@ -268,233 +415,47 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<mkdir dir=\"${dir.mainlib}/ex\" />");
+		contentsStringBuilder.append("<mkdir dir=\"${dir.main.lib}/ex\" />");
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<mkdir dir=\"${dir.mainlib}/in\" />");
+		contentsStringBuilder.append("<mkdir dir=\"${dir.main.lib}/in\" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<mkdir dir=\"${dir.main.build}\" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<mkdir dir=\"${dir.dist}\" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<mkdir dir=\"${dir.appinf}/classes\" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<mkdir dir=\"${dir.corelib}/ex\" />");
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
+		contentsStringBuilder.append("<mkdir dir=\"${dir.corelib}/in\" />");
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
 		contentsStringBuilder.append("</target>");
-	}
+	}	
 	
-	public static void addMakeUnixCoreTargetPart(StringBuilder contentsStringBuilder, int depth) {
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("<target");
-		addAttribute(contentsStringBuilder, "name", "make.unixcore");
-		addAttribute(contentsStringBuilder, "if", "is.unix.yes");
-		addAttribute(contentsStringBuilder, "depends", "init.var");
-		contentsStringBuilder.append(">");
-			
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<exec");
-		addAttribute(contentsStringBuilder, "dir", "${dir.core.build}");
-		addAttribute(contentsStringBuilder, "executable", "ant");
-		contentsStringBuilder.append(" />");		
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("</target>");
-	}
 	
-	public static void addMakeDosCoreTargetPart(StringBuilder contentsStringBuilder, int depth) {
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("<target");
-		addAttribute(contentsStringBuilder, "name", "make.doscore");
-		addAttribute(contentsStringBuilder, "if", "is.windows.yes");
-		addAttribute(contentsStringBuilder, "depends", "make.unixcore");
-		contentsStringBuilder.append(">");
-			
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<exec");
-		addAttribute(contentsStringBuilder, "dir", "${dir.core.build}");
-		addAttribute(contentsStringBuilder, "executable", "cmd");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<arg");
-		addAttribute(contentsStringBuilder, "value", "/c");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<arg");
-		addAttribute(contentsStringBuilder, "value", "ant.bat");
-		contentsStringBuilder.append(" />");
-		
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("</exec>");		
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("</target>");
-	}
-	
-	public static void addMakeCoreTargetPart(StringBuilder contentsStringBuilder, int depth) {
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("<target");
-		addAttribute(contentsStringBuilder, "name", "make.core");
-		addAttribute(contentsStringBuilder, "depends", "make.doscore");
-		contentsStringBuilder.append(" />");
-	}
-	
-	public static void addCopyCoreTargetPart(StringBuilder contentsStringBuilder, int depth) {
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("<target");
-		addAttribute(contentsStringBuilder, "name", "copy.core");
-		addAttribute(contentsStringBuilder, "depends", "make.core");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<delete");
-		addAttribute(contentsStringBuilder, "dir", "${dir.corelib}");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<mkdir");
-		addAttribute(contentsStringBuilder, "dir", "${dir.corelib}/ex");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<mkdir");
-		addAttribute(contentsStringBuilder, "dir", "${dir.corelib}/in");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<copy");
-		addAttribute(contentsStringBuilder, "todir", "${dir.corelib}/in");
-		addAttribute(contentsStringBuilder, "verbose", "true");
-		addAttribute(contentsStringBuilder, "overwrite", "true");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "file", "${dir.core.build}/dist/${core.all.jar}");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("</copy>");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<copy");
-		addAttribute(contentsStringBuilder, "todir", "${dir.corelib}/ex");
-		addAttribute(contentsStringBuilder, "verbose", "true");
-		addAttribute(contentsStringBuilder, "overwrite", "true");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<union");
-		addAttribute(contentsStringBuilder, "refid", "core.jarlibs");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<union");
-		addAttribute(contentsStringBuilder, "refid", "logback.jarlibs");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("</copy>");
-		
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("</target>");
-		
-	}
-	
-	public static void addCopyAppINFTargetPart(StringBuilder contentsStringBuilder, int depth) {
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("<target");
-		addAttribute(contentsStringBuilder, "name", "copy.appinf");
-		addAttribute(contentsStringBuilder, "depends", "copy.core");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<delete");
-		addAttribute(contentsStringBuilder, "dir", "${dir.appinf}/classes");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<mkdir");
-		addAttribute(contentsStringBuilder, "dir", "${dir.appinf}/classes");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<mkdir");
-		addAttribute(contentsStringBuilder, "dir", "${dir.appinf}/resources");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<copy");
-		addAttribute(contentsStringBuilder, "todir", "${dir.appinf}/resources");
-		addAttribute(contentsStringBuilder, "verbose", "true");
-		addAttribute(contentsStringBuilder, "overwrite", "false");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.core.build}/APP-INF/resources/");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("</copy>");
-		
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("</target>");
-	}
 	
 	public static void addCompileMainTargetPart(StringBuilder contentsStringBuilder, int depth) {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
 		contentsStringBuilder.append("<target");
 		addAttribute(contentsStringBuilder, "name", "compile.main");
-		addAttribute(contentsStringBuilder, "depends", "copy.appinf");
+		addAttribute(contentsStringBuilder, "depends", "copy.core.all");
 		contentsStringBuilder.append(">");
 		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<delete");
-		addAttribute(contentsStringBuilder, "dir", "${dir.build}");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<mkdir");
-		addAttribute(contentsStringBuilder, "dir", "${dir.build}");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
 		contentsStringBuilder.append("<javac");
@@ -502,19 +463,15 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addAttribute(contentsStringBuilder, "debuglevel", "lines,vars,source");
 		addAttribute(contentsStringBuilder, "encoding", "UTF-8");
 		addAttribute(contentsStringBuilder, "includeantruntime", "false");
-		addAttribute(contentsStringBuilder, "srcdir", "${dir.src}");
-		addAttribute(contentsStringBuilder, "destdir", "${dir.build}");
+		addAttribute(contentsStringBuilder, "srcdir", "${dir.main.src}");
+		addAttribute(contentsStringBuilder, "destdir", "${dir.main.build}");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<exclude");
-
-		String firstPrefixOfDynamicClassRelativePath = 
-				new StringBuilder().append(CommonStaticFinalVars.FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME.replaceAll("\\.", "/"))
-				.append("**").toString();
+		contentsStringBuilder.append("<exclude");	
 		
-		addAttribute(contentsStringBuilder, "name", firstPrefixOfDynamicClassRelativePath);
+		addAttribute(contentsStringBuilder, "name", PREFIX_OF_DYNAMIC_CLASS_RELATIVE_PATH);
 		contentsStringBuilder.append(" />");
 		
 		addNewLine(contentsStringBuilder);
@@ -556,7 +513,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
 		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}/ex");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}/ex");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
@@ -572,7 +529,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
 		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}/in");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}/in");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
@@ -584,8 +541,6 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
 		contentsStringBuilder.append("</fileset>");
-		
-		
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
@@ -639,7 +594,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
 		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}/ex");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}/ex");
 		contentsStringBuilder.append(" />");
 		
 		addNewLine(contentsStringBuilder);
@@ -677,7 +632,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
 		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
@@ -753,8 +708,8 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
 		contentsStringBuilder.append("<jar");
-		addAttribute(contentsStringBuilder, "destfile", "${dir.dist}/${server.main.jar}");
-		addAttribute(contentsStringBuilder, "basedir", "${dir.build}");
+		addAttribute(contentsStringBuilder, "destfile", "${dir.dist}/${server.main.jar.name}");
+		addAttribute(contentsStringBuilder, "basedir", "${dir.main.build}");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
@@ -785,7 +740,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 6);
 		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}/in");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}/in");
 		addAttribute(contentsStringBuilder, "includes", "**/*.jar");
 		contentsStringBuilder.append(" />");
 		
@@ -810,7 +765,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
 		contentsStringBuilder.append("<attribute");
 		addAttribute(contentsStringBuilder, "name", "Main-Class");
-		addAttribute(contentsStringBuilder, "value", "${server.main.class}");
+		addAttribute(contentsStringBuilder, "value", "${server.main.class.name}");
 		contentsStringBuilder.append(" />");
 		
 		addNewLine(contentsStringBuilder);
@@ -841,6 +796,14 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addAttribute(contentsStringBuilder, "depends", "make.main");
 		contentsStringBuilder.append(">");
 		
+		addAppINFJavaCompilePart(contentsStringBuilder, depth);
+		
+		addNewLine(contentsStringBuilder);
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		contentsStringBuilder.append("</target>");
+	}
+
+	private static void addAppINFJavaCompilePart(StringBuilder contentsStringBuilder, int depth) {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
 		contentsStringBuilder.append("<javac");
@@ -848,19 +811,17 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addAttribute(contentsStringBuilder, "debuglevel", "lines,vars,source");
 		addAttribute(contentsStringBuilder, "encoding", "UTF-8");
 		addAttribute(contentsStringBuilder, "includeantruntime", "false");
-		addAttribute(contentsStringBuilder, "srcdir", "${dir.src}");
+		addAttribute(contentsStringBuilder, "srcdir", "${dir.main.src}");
 		addAttribute(contentsStringBuilder, "destdir", "${dir.appinf}/classes");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
 		contentsStringBuilder.append("<include");
-		// "kr/pe/codda/impl/**"
-		String firstPrefixOfDynamicClassRelativePath = 
-				new StringBuilder().append(CommonStaticFinalVars.FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME.replaceAll("\\.", "/"))
-				.append("**").toString();
+
 		
-		addAttribute(contentsStringBuilder, "name", firstPrefixOfDynamicClassRelativePath);
+		
+		addAttribute(contentsStringBuilder, "name", PREFIX_OF_DYNAMIC_CLASS_RELATIVE_PATH);
 		contentsStringBuilder.append(" />");
 		
 		addNewLine(contentsStringBuilder);
@@ -902,7 +863,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
 		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}/ex");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}/ex");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
@@ -918,7 +879,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
 		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}/in");
+		addAttribute(contentsStringBuilder, "dir", "${dir.main.lib}/in");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);
@@ -940,10 +901,6 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
 		contentsStringBuilder.append("</javac>");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		contentsStringBuilder.append("</target>");
 	}
 	
 	
@@ -971,17 +928,11 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		contentsStringBuilder.append(" />");
 		
 		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<mkdir");
-		addAttribute(contentsStringBuilder, "dir", "${dir.appinf}/classes");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
 		contentsStringBuilder.append("</target>");
 	}
 	
-	public static void addCompileOnlyAppINFTargetPart(StringBuilder contentsStringBuilder, int depth) {
+	public static void addOnlyCompileAppINFTargetPart(StringBuilder contentsStringBuilder, int depth) {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
 		contentsStringBuilder.append("<target");
@@ -991,120 +942,29 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("<javac");
-		addAttribute(contentsStringBuilder, "debug", "${java.complile.option.debug}");
-		addAttribute(contentsStringBuilder, "debuglevel", "lines,vars,source");
-		addAttribute(contentsStringBuilder, "encoding", "UTF-8");
-		addAttribute(contentsStringBuilder, "includeantruntime", "false");
-		addAttribute(contentsStringBuilder, "srcdir", "${dir.src}");
-		addAttribute(contentsStringBuilder, "destdir", "${dir.appinf}/classes");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<include");
-		// "kr/pe/codda/impl/**"
-		String firstPrefixOfDynamicClassRelativePath = 
-				new StringBuilder().append(CommonStaticFinalVars.FIRST_PREFIX_OF_DYNAMIC_CLASS_FULL_NAME.replaceAll("\\.", "/"))
-				.append("**").toString();
-		
-		addAttribute(contentsStringBuilder, "name", firstPrefixOfDynamicClassRelativePath);
+		contentsStringBuilder.append("<mkdir");
+		addAttribute(contentsStringBuilder, "dir", "${dir.appinf}/classes");
 		contentsStringBuilder.append(" />");
 		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<classpath>");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
-		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.corelib}/ex");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
-		contentsStringBuilder.append("<include");
-		addAttribute(contentsStringBuilder, "name", "**/*.jar");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
-		contentsStringBuilder.append("</fileset>");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
-		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.corelib}/in");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
-		contentsStringBuilder.append("<include");
-		addAttribute(contentsStringBuilder, "name", "**/*.jar");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
-		contentsStringBuilder.append("</fileset>");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
-		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}/ex");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
-		contentsStringBuilder.append("<include");
-		addAttribute(contentsStringBuilder, "name", "**/*.jar");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
-		contentsStringBuilder.append("</fileset>");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
-		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.mainlib}/in");
-		contentsStringBuilder.append(">");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 5);
-		contentsStringBuilder.append("<include");
-		addAttribute(contentsStringBuilder, "name", "**/*.jar");
-		contentsStringBuilder.append(" />");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
-		contentsStringBuilder.append("</fileset>");
-		
-		
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("</classpath>");
-		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);
-		contentsStringBuilder.append("</javac>");
+		addAppINFJavaCompilePart(contentsStringBuilder, depth);
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
 		contentsStringBuilder.append("</target>");
 	}
 	
-	// FIXME!
-	
-	
 	private static void addProprtiesPart(final int depth, StringBuilder contentsStringBuilder) {
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		addPropertyTag(contentsStringBuilder, "dir.src", "location", "src/main/java");
+		addPropertyTag(contentsStringBuilder, "dir.main.src", "location", "src/main/java");
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		addPropertyTag(contentsStringBuilder, "dir.build", "location", "build");
+		addPropertyTag(contentsStringBuilder, "dir.main.build", "location", "build/main");
+		
+		addNewLine(contentsStringBuilder);		
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		addPropertyTag(contentsStringBuilder, "dir.main.lib", "location", "lib/main");
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
@@ -1120,28 +980,43 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder {
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		addPropertyTag(contentsStringBuilder, "dir.mainlib", "location", "lib/main");
+		addPropertyTag(contentsStringBuilder, "dir.test.src", "location", "src/test/java");
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		addPropertyTag(contentsStringBuilder, "dir.core.build", "location", "../../../core_build");		
+		addPropertyTag(contentsStringBuilder, "dir.test.build", "location", "build/test");
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		addPropertyTag(contentsStringBuilder, "dir.core.mainlib", "location", "${dir.core.build}/lib/main");		
+		addPropertyTag(contentsStringBuilder, "dir.test.lib", "location", "lib/test");
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		addPropertyTag(contentsStringBuilder, "server.main.class", "value", CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE);
+		addPropertyTag(contentsStringBuilder, "dir.logger.build", "location", "../../../core/logger");
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		addPropertyTag(contentsStringBuilder, "server.main.jar", "value", CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE);
+		addPropertyTag(contentsStringBuilder, "dir.core.all.build", "location", "../../../core/all");
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
-		addPropertyTag(contentsStringBuilder, "core.all.jar", "value", CommonStaticFinalVars.CORE_ALL_JAR_FILE_NAME);
-		// sinnori-core.jar
+		addPropertyTag(contentsStringBuilder, "dir.core.common.build", "location", "../../../core/common");
+		
+		addNewLine(contentsStringBuilder);		
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		addPropertyTag(contentsStringBuilder, "dir.core.server.build", "location", "../../../core/server");		
+		
+		addNewLine(contentsStringBuilder);		
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		addPropertyTag(contentsStringBuilder, "server.main.class.name", "value", CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE);
+		
+		addNewLine(contentsStringBuilder);		
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		addPropertyTag(contentsStringBuilder, "server.main.jar.name", "value", CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE);
+		
+		addNewLine(contentsStringBuilder);		
+		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
+		addPropertyTag(contentsStringBuilder, "core.all.jar.name", "value", CommonStaticFinalVars.CORE_ALL_JAR_FILE_NAME);
 		
 		addNewLine(contentsStringBuilder);		
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);

@@ -1,12 +1,12 @@
-package kr.pe.sinnori.impl.task.server;
+package kr.pe.codda.impl.task.server;
 
-import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
-import kr.pe.sinnori.impl.message.PublicKeyReq.PublicKeyReq;
-import kr.pe.sinnori.impl.message.PublicKeyRes.PublicKeyRes;
-import kr.pe.sinnori.server.PersonalLoginManagerIF;
-import kr.pe.sinnori.server.task.AbstractServerTask;
-import kr.pe.sinnori.server.task.ToLetterCarrier;
+import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.impl.message.PublicKeyReq.PublicKeyReq;
+import kr.pe.codda.impl.message.PublicKeyRes.PublicKeyRes;
+import kr.pe.codda.server.PersonalLoginManagerIF;
+import kr.pe.codda.server.task.AbstractServerTask;
+import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class PublicKeyReqServerTask extends AbstractServerTask {
 

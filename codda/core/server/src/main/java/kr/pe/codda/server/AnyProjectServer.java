@@ -22,7 +22,6 @@ import java.nio.charset.CharsetEncoder;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.codda.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
@@ -45,6 +44,7 @@ import kr.pe.codda.server.threadpool.outputmessage.OutputMessageWriterPool;
 public class AnyProjectServer {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AnyProjectServer.class);
 	
+	@SuppressWarnings("unused")
 	private ProjectPartConfiguration projectPartConfiguration = null;
 	 
 	
@@ -152,13 +152,10 @@ public class AnyProjectServer {
 
 	private ServerObjectCacheManager createNewServerObjectCacheManager() throws CoddaConfigurationException {
 		
-		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(projectPartConfiguration
-				.getFirstPrefixDynamicClassFullName());
-		
 		ServerClassLoaderBuilder serverSimpleClassLoaderBuilder = 
-				new ServerClassLoaderBuilder(ioPartDynamicClassNameUtil);
+				new ServerClassLoaderBuilder();
 		
-		return new ServerObjectCacheManager(serverSimpleClassLoaderBuilder, ioPartDynamicClassNameUtil);
+		return new ServerObjectCacheManager(serverSimpleClassLoaderBuilder);
 	}
 	
 	/**
