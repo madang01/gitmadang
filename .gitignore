@@ -10,10 +10,16 @@
 codda/temp/**
 codda/**/report/**
 codda/project/sample_*test/**
-!codda/CoddaHelper.jar
-!codda/core/**/*.jar
-
-
+!codda/codda-helper.jar
+!codda/core/all/lib/**/*.jar
+!codda/core/clinet/lib/**/*.jar
+!codda/core/common/lib/**/*.jar
+!codda/core/helper/lib/**/*.jar
+!codda/core/logger/lib/**/*.jar
+!codda/core/server/lib/**/*.jar
+!codda/project/sample_base/server_build/lib/**/*.jar
+!codda/project/sample_base/client_build/app_build/lib/**/*.jar
+!codda/project/sample_base/client_build/web_build/lib/**/*.jar
 
 sinnori/project/sample_*test/**
 sinnori/temp/**
