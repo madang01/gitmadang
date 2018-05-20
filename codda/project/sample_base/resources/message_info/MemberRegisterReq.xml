@@ -11,7 +11,7 @@
 	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
-<sinnori_message>
+<message>
 <messageID>MemberRegisterReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>세션키 암화화 이용 회원 가입</desc>
@@ -22,4 +22,4 @@
 <singleitem name="answerCipherBase64" type="si pascal string"/>
 <singleitem name="sessionKeyBase64" type="si pascal string"/>
 <singleitem name="ivBase64" type="si pascal string"/>
-</sinnori_message>
+</message>

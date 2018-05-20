@@ -5,7 +5,7 @@ import java.util.Date;
 
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
-import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
+import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.exception.SymmetricException;
 
 public class ClientSymmetricKey implements ClientSymmetricKeyIF {

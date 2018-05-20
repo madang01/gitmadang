@@ -19,8 +19,8 @@
 package kr.pe.codda.server.task;
 
 import java.nio.channels.SocketChannel;
-import java.nio.file.AccessDeniedException;
 
+import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.type.SelfExn;
@@ -43,7 +43,7 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 		
 		if (! personalLoginManagerOfFromSC.isLogin()) {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
-					SelfExn.ErrorType.valueOf(AccessDeniedException.class),
+					SelfExn.ErrorType.valueOf(ServerTaskPermissionException.class),
 					"you are not logged in. this service requires a login",
 					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			

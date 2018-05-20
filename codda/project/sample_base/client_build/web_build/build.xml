@@ -154,7 +154,7 @@
 	<target name="compile.webclass" depends="dist.weblib">
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.webinf.class}" excludes="kr/pe/codda/weblib/**">
 			<classpath>
-				<fileset dir="${dir.weblib}">
+				<fileset dir="${dir.webinf.lib}">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${servlet.systemlib.path}">
@@ -178,7 +178,7 @@
 
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.webinf.class}" excludes="kr/pe/codda/weblib/**">
 			<classpath>
-				<fileset dir="${dir.weblib}">
+				<fileset dir="${dir.webinf.lib}">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${servlet.systemlib.path}">

@@ -17,6 +17,7 @@
 
 package kr.pe.codda.common.protocol.thb;
 
+import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -35,6 +36,7 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
+import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
@@ -133,7 +135,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	
 	@Override
 	public ArrayDeque<WrapBuffer> M2S(AbstractMessage inputMessage, AbstractMessageEncoder messageEncoder) 
-			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
+			throws NoMoreDataPacketBufferException, HeaderFormatException, BodyFormatException {
 		String messageID = inputMessage.getMessageID();
 		int mailboxID = inputMessage.messageHeaderInfo.mailboxID;
 		int mailID = inputMessage.messageHeaderInfo.mailID;
@@ -212,8 +214,8 @@ public class THBMessageProtocol implements MessageProtocolIF {
 
 	
 	@Override
-	public void S2MList(SocketOutputStream socketOutputStream, ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) 
-					throws HeaderFormatException, NoMoreDataPacketBufferException {		
+	public void S2MList(SocketChannel fromSC, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue) 
+					throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {		
 		THBMessageHeader messageHeader = (THBMessageHeader)socketOutputStream.getUserDefObject();		
 				
 		
@@ -283,11 +285,15 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						}
 
 						WrapReadableMiddleObject wrapReadableMiddleObject = 
-								new WrapReadableMiddleObject(messageID, 
+								new WrapReadableMiddleObject(fromSC, messageID, 
 										mailboxID, mailID, messageInputStream);
 						
-						wrapReadableMiddleObjectQueue.addLast(wrapReadableMiddleObject);
-
+						try {
+							wrapMessageBlockingQueue.putReceivedMessage(wrapReadableMiddleObject);
+						} catch(InterruptedException e) {
+							wrapReadableMiddleObject.closeReadableMiddleObject();							
+							throw e;
+						}
 
 						socketOutputStreamSize = socketOutputStream.size();
 						if (socketOutputStreamSize > messageHeaderSize) {

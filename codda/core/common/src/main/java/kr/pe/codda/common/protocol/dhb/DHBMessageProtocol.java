@@ -18,6 +18,7 @@
 package kr.pe.codda.common.protocol.dhb;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -30,9 +31,9 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
+import kr.pe.codda.common.exception.BufferUnderflowExceptionWithMessage;
 import kr.pe.codda.common.exception.HeaderFormatException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.codda.common.exception.BufferUnderflowExceptionWithMessage;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.FixedSizeInputStream;
 import kr.pe.codda.common.io.FreeSizeInputStream;
@@ -42,6 +43,7 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
+import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
@@ -315,10 +317,12 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 		return wrapBufferListOfHeaderOutputStream;
 	}
+	
+	
 
 	@Override
-	public void S2MList(SocketOutputStream socketOutputStream, ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue)
-			throws HeaderFormatException, NoMoreDataPacketBufferException {
+	public void S2MList(SocketChannel fromSC, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
+			throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {
 		if (null == socketOutputStream) {
 			throw new IllegalArgumentException("the parameter socketOutputStream is null");
 		}
@@ -444,10 +448,17 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 							throw new HeaderFormatException(errorMessage);
 						}						
 
-						WrapReadableMiddleObject wrapReadableMiddleObject= new WrapReadableMiddleObject(messageID,
-								mailboxID, mailID, messageInputStream);
+						WrapReadableMiddleObject wrapReadableMiddleObject = 
+								new WrapReadableMiddleObject(fromSC, 
+										messageID, mailboxID, mailID, messageInputStream);
 
-						wrapReadableMiddleObjectQueue.addLast(wrapReadableMiddleObject);
+						try {
+							wrapMessageBlockingQueue.putReceivedMessage(wrapReadableMiddleObject);
+						} catch(InterruptedException e) {
+							wrapReadableMiddleObject.closeReadableMiddleObject();							
+							throw e;
+						}
+						
 
 						workingDHBMessageHeader = null;
 						socketOutputStreamSize = socketOutputStream.size();

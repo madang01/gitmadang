@@ -13,7 +13,7 @@
 	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
-<sinnori_message>
+<message>
 <messageID>BoardDownloadFileRes</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 다운로드 파일 처리를 위한 정보 조회 결과, Mybatis DTO</desc>
@@ -22,4 +22,4 @@
 <singleitem name="attachSeq" type="unsigned integer" />
 <singleitem name="attachFiledName" type="us pascal string" />
 <singleitem name="systemFileName" type="us pascal string" />
-</sinnori_message>
+</message>

@@ -1,0 +1,18 @@
+package kr.pe.codda.client.connection;
+
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+
+import kr.pe.codda.client.ConnectionIF;
+import kr.pe.codda.common.exception.ConnectionPoolException;
+import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
+
+public interface ConnectionPoolIF {
+	public ConnectionIF getConnection() throws InterruptedException, SocketTimeoutException, ConnectionPoolException;	
+	public void release(ConnectionIF conn) throws ConnectionPoolException;
+	
+	public boolean isConnectionToAdd();
+	public void addConnection() throws NoMoreDataPacketBufferException, IOException;
+		
+	public String getPoolState();
+}

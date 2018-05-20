@@ -40,7 +40,8 @@ public class WrapReadableMiddleObject {
 	// private Date timestamp = new Date();
 	
 	// Intermediate object between stream and message
-	public WrapReadableMiddleObject(String messageID, int mailboxID, int mailID, Object readableMiddleObject) {
+	public WrapReadableMiddleObject(SocketChannel fromSC, String messageID, int mailboxID, int mailID, Object readableMiddleObject) {
+		this.fromSC = fromSC;
 		this.messageID = messageID;
 		this.mailboxID = mailboxID;
 		this.mailID = mailID;
@@ -68,10 +69,6 @@ public class WrapReadableMiddleObject {
 	}*/
 	public SocketChannel getFromSC() {
 		return fromSC;
-	}
-
-	public void setFromSC(SocketChannel fromSC) {
-		this.fromSC = fromSC;
 	}
 	
 	

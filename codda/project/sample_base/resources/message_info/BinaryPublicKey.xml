@@ -11,9 +11,9 @@
 	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
-<sinnori_message>
+<message>
 <messageID>BinaryPublicKey</messageID>
 <direction>FROM_ALL_TO_ALL</direction>
 <desc>이진 데이터로 된 공개키</desc>
 <singleitem name="publicKeyBytes" type="si variable length byte[]" />
-</sinnori_message>
+</message>

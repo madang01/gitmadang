@@ -18,8 +18,8 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
-import kr.pe.codda.common.config.itemvalue.AllDBCPPartConfiguration;
-import kr.pe.codda.common.config.itemvalue.DBCPParConfiguration;
+import kr.pe.codda.common.config.subset.AllDBCPPartConfiguration;
+import kr.pe.codda.common.config.subset.DBCPParConfiguration;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 
 /**

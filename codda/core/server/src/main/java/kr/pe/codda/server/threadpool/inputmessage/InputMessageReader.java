@@ -22,7 +22,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayDeque;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -31,7 +30,6 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.server.SocketResource;
 import kr.pe.codda.server.SocketResourceManagerIF;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorIF;
@@ -191,7 +189,6 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		log.info("{} InputMessageReader[{}] start", projectName, index);
 
 		int numRead = 0;
-		ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayDeque<WrapReadableMiddleObject>();
 		
 		try {
 			while (!isInterrupted()) {
@@ -226,6 +223,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 					SocketOutputStream fromSocketOutputStream = fromSocketResource.getSocketOutputStream();
 					ServerExecutorIF fromExecutor = fromSocketResource.getExecutor();
+					// MailboxIF inputmessageMailbox = fromSocketResource.getInputmessageMailbox();
 
 					try {
 						/*
@@ -251,13 +249,15 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 						fromSocketResource.setFinalReadTime();
 
+						
 						messageProtocol
-								.S2MList(fromSocketOutputStream, wrapReadableMiddleObjectQueue);
+								.S2MList(selectedSocketChannel, fromSocketOutputStream, fromExecutor.getWrapMessageBlockingQueue());
+						
 
 						// final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
 						
 						
-						while(! wrapReadableMiddleObjectQueue.isEmpty()) {
+						/*while(! wrapReadableMiddleObjectQueue.isEmpty()) {
 							WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.pollFirst();
 							wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
 							
@@ -286,7 +286,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 								throw e;
 							}
 
-						}
+						}*/
 												
 
 					} catch (NoMoreDataPacketBufferException e) {

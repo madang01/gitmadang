@@ -9,7 +9,7 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
-import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
+import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.type.SessionKey;

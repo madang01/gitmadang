@@ -178,7 +178,7 @@ public class WebClientAntBuildXMLFileContenetsBuilder extends AbstractAntBuildXM
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 4);
 		contentsStringBuilder.append("<fileset");
-		addAttribute(contentsStringBuilder, "dir", "${dir.weblib}");
+		addAttribute(contentsStringBuilder, "dir", "${dir.webinf.lib}");
 		contentsStringBuilder.append(">");
 		
 		addNewLine(contentsStringBuilder);

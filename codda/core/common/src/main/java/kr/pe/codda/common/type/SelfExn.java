@@ -2,7 +2,7 @@ package kr.pe.codda.common.type;
 
 import java.io.IOException;
 
-import kr.pe.codda.common.exception.AccessDeniedExceptionWithMessage;
+import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
@@ -39,7 +39,7 @@ public abstract class SelfExn {
 		DynamicClassCallException((byte)'D'), 
 		NoMoreDataPacketBufferException((byte)'N'),
 		ServerTaskException((byte)'S'),
-		AccessDeniedException((byte)'A'),
+		ServerTaskPermissionException((byte)'A'),
 		ClientIOException((byte)'E');
 		
 		private byte errorTypeByte;
@@ -76,8 +76,8 @@ public abstract class SelfExn {
 				return NoMoreDataPacketBufferException;
 			} else if (errorTypeClass.equals(ServerTaskException.class)) {
 				return ServerTaskException;
-			} else if (errorTypeClass.equals(AccessDeniedExceptionWithMessage.class)) {
-				return AccessDeniedException;
+			} else if (errorTypeClass.equals(ServerTaskPermissionException.class)) {
+				return ServerTaskPermissionException;
 			} else if (errorTypeClass.equals(IOException.class)) {
 				return ClientIOException;
 			} else {
@@ -90,7 +90,7 @@ public abstract class SelfExn {
 		public static void throwSelfExnException(SelfExnRes selfExnRes) 
 				throws DynamicClassCallException, 
 				NoMoreDataPacketBufferException, ServerTaskException,
-				AccessDeniedExceptionWithMessage, BodyFormatException, IOException {
+				ServerTaskPermissionException, BodyFormatException, IOException {
 			ErrorType errorType = selfExnRes.getErrorType();
 			String errorMessage = selfExnRes.toString();
 			
@@ -103,8 +103,8 @@ public abstract class SelfExn {
 				throw new NoMoreDataPacketBufferException(errorMessage);
 			case ServerTaskException :
 				throw new ServerTaskException(errorMessage);
-			case AccessDeniedException :
-				throw new AccessDeniedExceptionWithMessage(errorMessage);
+			case ServerTaskPermissionException :
+				throw new ServerTaskPermissionException(errorMessage);
 			case ClientIOException :
 				throw new IOException(errorMessage);
 		

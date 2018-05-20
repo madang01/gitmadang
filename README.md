@@ -2,8 +2,8 @@
 
 (1) English version
 
- Sinnori framework is a message driven development framework with a simple structure of server / client based input -> processing -> output.
-
+ Codda is an RPC development framework that adopts message driven development methodology.
+ 
 Message driven development is a development method in which roles and responsibilities are separated between the server and the client 
 
 so that the server and the client can work independently, 
@@ -20,9 +20,39 @@ Finally, the message-driven development method has the disadvantage of overhead 
 
 (2) Korea version
 
- 신놀이 프레임워크는 서버/클라이언트 기반의 입력 -> 처리 -> 출력이라는 단순한 구조를 갖는 메시지 주도 개발 프레임워크입니다.
+ 코다(Codda)는 RPC 개발 프레임워크입니다.
  
-메시지 주도 개발 방법은 비록 관리해야할 메시지가 증가할수록 유지 보수가 기하 급수적으로 어려워지는 단점이 있지만 
+PRC 개발 프레임워크란 클라이언트에서 입력 메시지를 보내면 서버에서 처리후 클라이언트들한테 응답을 주는 구조를 갖는 개발 프레임워크입니다.
+
+다음과 같은 요구 사항이 있어 직접 개발을 하게 되었습니다.
+
+(1) 오픈 소스
+
+(2) 메시지 관리 도구 제공
+   (1-1) 메시지를 생성하는데 필요한 정보 파일의 포맷은 알려진 xml 이나 json 이어야 한다.
+
+(3) 1개의 소켓 자원을 여러 클라이언트가 공유할 수 있는 방법을 제공할 것
+
+(4) 동적인 성질을 갖는 비지니스 로직을 위한 동적 클래스로더 제공
+
+(5) 사용자 정의 프로토콜 추가가 가능할것
+
+(6) 
+
+
+
+
+나는 PRC 개발 프레임워크하에서 일해본 코더입니다.
+
+
+ 
+ 
+코다(Codda)는 클라이언트가 입력 메시지를 보내면 서버는 그 처리를 하여 해당되는 클라이언트들에 응답을 주는 단순한 구조를 갖습니다.
+
+물론 서버는 클라이언트 요구가 없어도 접속한 클라이언트들한테 메시지를 보낼 수 있는 구조를 갖고 있습니다.
+
+
+수학에서 말하는 함수와 유사합니다. 다만 처리를  유사한  모델 입력 메시지를 보내고 클라이언트 구조하에서 비록 관리해야할 메시지가 증가할수록 유지 보수가 기하 급수적으로 어려워지는 단점이 있지만 
 
 서버와 클라이언트 각자 독립적으로 작업할 수 있도록 서버와 클라이언트 간의 롤과 책임이 분리되어 있는 개발 방법입니다.
 

@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.junit.Test;
 
@@ -33,6 +34,8 @@ import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
+import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
+import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
@@ -60,6 +63,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		 * ClassLoader currentClassLoader = this.getClass().getClassLoader(); final
 		 * String ClassLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.";
 		 */
+		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = 
+				new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
 		SocketChannel fromSC = null;
 		try {
@@ -95,7 +100,49 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
+			
+			class ServerExecutorMock implements ServerExecutorIF {
+				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
+				
+				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+				}
+
+				@Override
+				public void addNewSocket(SocketChannel newSC) {					
+				}
+
+				@Override
+				public int getNumberOfConnection() {
+					return 0;
+				}
+
+				@Override
+				public void removeSocket(SocketChannel sc) {					
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {
+				}
+
+				@Override
+				public void interrupt() {
+					
+				}
+
+				@Override
+				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+					return wrapMessageBlockingQueue;
+				}
+				
+			}
+			
+			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -286,22 +333,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 
 			// log.info("4");
-
-			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = 
-					new ArrayDeque<WrapReadableMiddleObject>();
+			
 			try {
-				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
+				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getExecutor().getWrapMessageBlockingQueue());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
 
-			if (1 != wrapReadableMiddleObjectList.size()) {
+			if (1 != wrapReadableMiddleObjectQueue.size()) {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -348,6 +393,11 @@ public class ServerTaskTest extends AbstractJunitTest {
 		 * ClassLoader currentClassLoader = this.getClass().getClassLoader(); final
 		 * String ClassLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.";
 		 */
+		
+		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = 
+				new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
+		
+		// MailboxIF inputMessageMailbox = new SimpleMailbox(wrapReadableMiddleObjectQueue);
 
 		SocketChannel fromSC = null;
 		try {
@@ -382,7 +432,48 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
+			class ServerExecutorMock implements ServerExecutorIF {
+				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
+				
+				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+				}
+
+				@Override
+				public void addNewSocket(SocketChannel newSC) {					
+				}
+
+				@Override
+				public int getNumberOfConnection() {
+					return 0;
+				}
+
+				@Override
+				public void removeSocket(SocketChannel sc) {					
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {
+				}
+
+				@Override
+				public void interrupt() {
+					
+				}
+
+				@Override
+				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+					return wrapMessageBlockingQueue;
+				}
+				
+			}
+			
+			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -573,21 +664,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 
 			// log.info("4");
-
-			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
+			
 			try {
-				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
+				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getExecutor().getWrapMessageBlockingQueue());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
 
-			if (1 != wrapReadableMiddleObjectList.size()) {
+			if (1 != wrapReadableMiddleObjectQueue.size()) {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -631,6 +721,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
 
+		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
+		
 		SocketChannel fromSC = null;
 		try {
 			fromSC = SocketChannel.open();
@@ -665,7 +757,48 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
+			class ServerExecutorMock implements ServerExecutorIF {
+				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
+				
+				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+				}
+
+				@Override
+				public void addNewSocket(SocketChannel newSC) {					
+				}
+
+				@Override
+				public int getNumberOfConnection() {
+					return 0;
+				}
+
+				@Override
+				public void removeSocket(SocketChannel sc) {					
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {
+				}
+
+				@Override
+				public void interrupt() {
+					
+				}
+
+				@Override
+				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+					return wrapMessageBlockingQueue;
+				}
+				
+			}
+			
+			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -857,20 +990,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
+			
 			try {
-				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
+				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getExecutor().getWrapMessageBlockingQueue());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
 
-			if (1 != wrapReadableMiddleObjectList.size()) {
+			if (1 != wrapReadableMiddleObjectQueue.size()) {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -927,6 +1060,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		
+		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
 		SocketChannel fromSC = null;
 		try {
@@ -961,7 +1096,48 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
+			class ServerExecutorMock implements ServerExecutorIF {
+				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
+				
+				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+				}
+
+				@Override
+				public void addNewSocket(SocketChannel newSC) {					
+				}
+
+				@Override
+				public int getNumberOfConnection() {
+					return 0;
+				}
+
+				@Override
+				public void removeSocket(SocketChannel sc) {					
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {
+				}
+
+				@Override
+				public void interrupt() {
+					
+				}
+
+				@Override
+				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+					return wrapMessageBlockingQueue;
+				}
+				
+			}
+			
+			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -1153,20 +1329,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
+			
 			try {
-				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
+				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getExecutor().getWrapMessageBlockingQueue());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
 
-			if (1 != wrapReadableMiddleObjectList.size()) {
+			if (1 != wrapReadableMiddleObjectQueue.size()) {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1222,6 +1398,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		
+		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
 		SocketChannel fromSC = null;
 		try {
@@ -1256,7 +1434,48 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
+			class ServerExecutorMock implements ServerExecutorIF {
+				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
+				
+				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+				}
+
+				@Override
+				public void addNewSocket(SocketChannel newSC) {					
+				}
+
+				@Override
+				public int getNumberOfConnection() {
+					return 0;
+				}
+
+				@Override
+				public void removeSocket(SocketChannel sc) {					
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {
+				}
+
+				@Override
+				public void interrupt() {
+					
+				}
+
+				@Override
+				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+					return wrapMessageBlockingQueue;
+				}
+				
+			}
+			
+			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -1448,20 +1667,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
+			
 			try {
-				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
+				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getExecutor().getWrapMessageBlockingQueue());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
 
-			if (1 != wrapReadableMiddleObjectList.size()) {
+			if (1 != wrapReadableMiddleObjectQueue.size()) {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1527,6 +1746,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		
+		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
 		SocketChannel fromSC = null;
 		try {
@@ -1561,7 +1782,48 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
+			class ServerExecutorMock implements ServerExecutorIF {
+				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
+				
+				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+				}
+
+				@Override
+				public void addNewSocket(SocketChannel newSC) {					
+				}
+
+				@Override
+				public int getNumberOfConnection() {
+					return 0;
+				}
+
+				@Override
+				public void removeSocket(SocketChannel sc) {					
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {
+				}
+
+				@Override
+				public void interrupt() {
+					
+				}
+
+				@Override
+				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+					return wrapMessageBlockingQueue;
+				}
+				
+			}
+			
+			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -1753,20 +2015,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
+			
 			try {
-				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
+				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getExecutor().getWrapMessageBlockingQueue());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
 
-			if (1 != wrapReadableMiddleObjectList.size()) {
+			if (1 != wrapReadableMiddleObjectQueue.size()) {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1832,6 +2094,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
 
+		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
+		
 		SocketChannel fromSC = null;
 		try {
 			fromSC = SocketChannel.open();
@@ -1865,7 +2129,48 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
+			class ServerExecutorMock implements ServerExecutorIF {
+				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
+				
+				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+				}
+
+				@Override
+				public void addNewSocket(SocketChannel newSC) {					
+				}
+
+				@Override
+				public int getNumberOfConnection() {
+					return 0;
+				}
+
+				@Override
+				public void removeSocket(SocketChannel sc) {					
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {
+				}
+
+				@Override
+				public void interrupt() {
+					
+				}
+
+				@Override
+				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+					return wrapMessageBlockingQueue;
+				}
+				
+			}
+			
+			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -2062,20 +2367,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
+			
 			try {
-				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
+				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getExecutor().getWrapMessageBlockingQueue());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
 
-			if (1 != wrapReadableMiddleObjectList.size()) {
+			if (1 != wrapReadableMiddleObjectQueue.size()) {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -2137,6 +2442,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		
+		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
 		SocketChannel fromSC = null;
 		try {
@@ -2171,7 +2478,48 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		SocketResource socketResourceOfFromSC = null;
 		{
-			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
+			class ServerExecutorMock implements ServerExecutorIF {
+				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
+				
+				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+				}
+
+				@Override
+				public void addNewSocket(SocketChannel newSC) {					
+				}
+
+				@Override
+				public int getNumberOfConnection() {
+					return 0;
+				}
+
+				@Override
+				public void removeSocket(SocketChannel sc) {					
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {
+				}
+
+				@Override
+				public void interrupt() {
+					
+				}
+
+				@Override
+				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+					return wrapMessageBlockingQueue;
+				}
+				
+			}
+			
+			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -2370,20 +2718,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
+			
 			try {
-				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
+				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getExecutor().getWrapMessageBlockingQueue());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
 
-			if (1 != wrapReadableMiddleObjectList.size()) {
+			if (1 != wrapReadableMiddleObjectQueue.size()) {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {

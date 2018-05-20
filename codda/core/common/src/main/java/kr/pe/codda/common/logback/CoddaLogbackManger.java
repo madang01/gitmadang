@@ -2,7 +2,8 @@ package kr.pe.codda.common.logback;
 
 import java.io.File;
 
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.CommonBuildSytemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.type.LogType;
 
@@ -41,8 +42,8 @@ public class CoddaLogbackManger {
 		}
 		
 		
-		String logbackConfigFilePathString = BuildSystemPathSupporter.getProjectLogbackConfigFilePathString(installedPathString, mainProjectName);
-		String projectLogPathString = BuildSystemPathSupporter.getProjectLogPathString(installedPathString, mainProjectName, logType);
+		String logbackConfigFilePathString = ProjectBuildSytemPathSupporter.getProjectLogbackConfigFilePathString(installedPathString, mainProjectName);
+		String projectLogPathString = ProjectBuildSytemPathSupporter.getProjectLogPathString(installedPathString, mainProjectName, logType);
 		
 		
 		{
@@ -118,8 +119,8 @@ public class CoddaLogbackManger {
 			throw new IllegalArgumentException("the parameter installedPathString is null");
 		}
 		
-		String logbackConfigFilePathString = BuildSystemPathSupporter.getProjectLogbackConfigFilePathString(installedPathString, "sample_base");
-		String rootLogPathString = BuildSystemPathSupporter.getLogPathString(installedPathString);
+		String logbackConfigFilePathString = ProjectBuildSytemPathSupporter.getProjectLogbackConfigFilePathString(installedPathString, "sample_base");
+		String rootLogPathString = CommonBuildSytemPathSupporter.getCommonLogPathString(installedPathString);
 		
 		
 		{

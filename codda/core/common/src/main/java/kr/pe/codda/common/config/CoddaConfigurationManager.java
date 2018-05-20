@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.util.CommonStaticUtil;
@@ -118,7 +118,7 @@ public final class CoddaConfigurationManager {
 			System.exit(1);
 		}
 
-		String configFilePathString = BuildSystemPathSupporter
+		String configFilePathString = ProjectBuildSytemPathSupporter
 				.getProejctConfigFilePathString(installedPathString, runningProjectName);
 		
 		try {

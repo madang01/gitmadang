@@ -25,7 +25,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayDeque;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +33,6 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.server.SocketResource;
 import kr.pe.codda.server.SocketResourceManagerIF;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorIF;
@@ -109,9 +107,11 @@ public class AcceptSelector extends Thread {
 		log.info("AcceptSelector::projectName[%s] start", projectName);
 
 		initServerSocket();
+		
+		
 
 		int numRead = 0;
-		ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayDeque<WrapReadableMiddleObject>();
+		// LinkedBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new LinkedBlockingQueue<WrapReadableMiddleObject>();
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
@@ -198,15 +198,16 @@ public class AcceptSelector extends Thread {
 									}
 
 									fromSocketResource.setFinalReadTime();
+									
 
-									messageProtocol.S2MList(fromSocketOutputStream, wrapReadableMiddleObjectQueue);
+									messageProtocol.S2MList(acceptedSocketChannel, fromSocketOutputStream, fromExecutor.getWrapMessageBlockingQueue());
 
 									// final int wrapReadableMiddleObjectListSize =
 									// wrapReadableMiddleObjectList.size();
 
-									while (!wrapReadableMiddleObjectQueue.isEmpty()) {
+									/*while (!wrapReadableMiddleObjectQueue.isEmpty()) {
 										WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectQueue
-												.pollFirst();
+												.poll();
 										wrapReadableMiddleObject.setFromSC(acceptedSocketChannel);
 
 										try {
@@ -218,7 +219,7 @@ public class AcceptSelector extends Thread {
 											wrapReadableMiddleObject.closeReadableMiddleObject();
 
 											while (!wrapReadableMiddleObjectQueue.isEmpty()) {
-												wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.pollFirst();
+												wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 
 												wrapReadableMiddleObject.setFromSC(acceptedSocketChannel);
 
@@ -229,7 +230,7 @@ public class AcceptSelector extends Thread {
 											}
 											throw e;
 										}
-									}
+									}*/
 								} catch (NoMoreDataPacketBufferException e) {
 									String errorMessage = new StringBuilder()
 											.append("NoMoreDataPacketBufferException::").append(e.getMessage())

@@ -1,0 +1,133 @@
+package kr.pe.codda.servlet;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import kr.pe.codda.client.AnyProjectConnectionPoolIF;
+import kr.pe.codda.client.ConnectionPoolManager;
+import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
+import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
+import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.BoardType;
+import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.codda.weblib.jdf.AbstractServlet;
+import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
+
+@SuppressWarnings("serial")
+public class BoardDetailSvl extends AbstractServlet {
+
+	@Override
+	protected void performTask(HttpServletRequest req, HttpServletResponse res)
+			throws Exception {
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
+				SiteTopMenuType.COMMUNITY);		
+		
+		String parmBoardId = req.getParameter("boardId");
+		if (null == parmBoardId) {
+			String errorMessage = "게시판 식별자를 입력해 주세요";
+			String debugMessage = "the web parameter 'boardId' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		short boardId = 0;
+		try {
+			boardId = Short.parseShort(parmBoardId);
+		}catch (NumberFormatException nfe) {
+			String errorMessage = "잘못된 게시판 식별자 입니다";
+			String debugMessage = new StringBuilder("the web parameter 'boardId'[")
+					.append(parmBoardId).append("] is not a short").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		try {
+			BoardType.valueOf(boardId);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = "알 수 없는 게시판 식별자 입니다";
+			String debugMessage = new StringBuilder("the web parameter 'boardId'[")
+					.append(parmBoardId).append("] is not a element of set[")
+					.append(BoardType.getSetString())
+					.append("]").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		String parmBoardNo = req.getParameter("boardNo");
+		if (null == parmBoardNo) {
+			String errorMessage = "게시판 번호를 입력해 주세요";
+			String debugMessage = "the web parameter 'boardNo' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		
+		long boardNo = 0L;
+		try {
+			boardNo = Long.parseLong(parmBoardNo);
+		}catch (NumberFormatException nfe) {
+			String errorMessage = "잘못된 게시판 번호입니다";
+			String debugMessage = new StringBuilder("the web parameter \"boardN\"'s value[")
+					.append(parmBoardNo)
+					.append("] is a Long").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (boardNo <= 0) {
+			String errorMessage = "게시판 번호 값은 0 보다 커야합니다.";
+			String debugMessage = new StringBuilder("the web parameter \"boardN\"'s value[")
+					.append(parmBoardNo)
+					.append("] is less than or equal to zero").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		
+		BoardDetailReq boardDetailReq = new BoardDetailReq();
+		boardDetailReq.setBoardId(boardId);
+		boardDetailReq.setBoardNo(boardNo);
+		
+		// FIXME!
+		//log.info("inObj={}, userId={}, ip={}", inObj.toString(), userId, req.getRemoteAddr());
+		
+		
+		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
+		
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardDetailReq);
+		if (outputMessage instanceof BoardDetailRes) {
+			BoardDetailRes outObj = (BoardDetailRes)outputMessage;				
+			
+			doDetailPage(req, res, parmBoardId, parmBoardNo, outObj);
+			return;
+		} else if (outputMessage instanceof MessageResultRes) {
+			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+			String errorMessage = "게시판 상세 조회가 실패하였습니다";
+			String debugMessage = messageResultRes.toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);	
+			return;
+		} else {
+			String errorMessage = "게시판 상세 조회가 실패했습니다";
+			String debugMessage = new StringBuilder("입력 메시지[")
+					.append(boardDetailReq.getMessageID())
+					.append("]에 대한 비 정상 출력 메시지[")
+					.append(outputMessage.toString())
+					.append("] 도착").toString();
+			
+			log.error(debugMessage);
+
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}		
+	}
+	
+	private void doDetailPage(HttpServletRequest req, HttpServletResponse res,
+			String parmBoardId, String parmBoardNo,
+			BoardDetailRes boardDetailRes) {
+		req.setAttribute("parmBoardId", parmBoardId);
+		req.setAttribute("parmBoardNo", parmBoardNo);
+		req.setAttribute("boardDetailRes", boardDetailRes);
+		printJspPage(req, res, "/menu/board/BoardDetail01.jsp");	
+	}
+}

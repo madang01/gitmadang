@@ -22,7 +22,7 @@ import java.nio.charset.CharsetEncoder;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.config.itemvalue.ProjectPartConfiguration;
+import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.CoddaConfigurationException;

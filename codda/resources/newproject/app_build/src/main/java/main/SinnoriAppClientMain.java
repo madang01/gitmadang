@@ -2,19 +2,20 @@ package main;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.applib.sessionkey.RSAPublickeyGetterBuilder;
-import kr.pe.sinnori.client.ConnectionPoolManager;
-import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
-import kr.pe.sinnori.impl.message.Echo.Echo;
+import kr.pe.codda.applib.sessionkey.RSAPublickeyGetterBuilder;
+import kr.pe.codda.client.ConnectionPoolManager;
+import kr.pe.codda.common.exception.SymmetricException;
+import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
+import kr.pe.codda.impl.message.Echo.Echo;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
 
 
 
 public class SinnoriAppClientMain {
 
 	public static void main(String[] args) {
-		InternalLogger log = InternalLoggerFactory.getInstance("kr.pe.sinnori");
+		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 		
 		log.info("start");
 		

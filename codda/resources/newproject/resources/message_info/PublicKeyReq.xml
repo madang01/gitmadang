@@ -11,8 +11,8 @@
 	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
-<codda_message>
+<message>
 <messageID>PublicKeyReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>public key request</desc>
-</codda_message>
+</message>

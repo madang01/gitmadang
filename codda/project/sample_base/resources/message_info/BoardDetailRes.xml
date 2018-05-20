@@ -13,7 +13,7 @@
 	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
-<sinnori_message>
+<message>
 <messageID>BoardDetailRes</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 상세 조회 응답 메시지, Mybatis DTO</desc>
@@ -41,4 +41,4 @@
 </array>
 <singleitem name="membershipLevel" type="unsigned byte" />
 <singleitem name="memberState" type="us pascal string" />
-</sinnori_message>
+</message>

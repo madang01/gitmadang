@@ -1,6 +1,6 @@
 package kr.pe.codda.common.config.fileorpathstringgetter;
 
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 
 public class SessionkeyRSAPrivatekeyFilePathStringGetter extends AbstractFileOrPathStringGetter {
 	public SessionkeyRSAPrivatekeyFilePathStringGetter(String itemID) {
@@ -15,7 +15,7 @@ public class SessionkeyRSAPrivatekeyFilePathStringGetter extends AbstractFileOrP
 			throw new IllegalArgumentException("the paramter etcParamters has one more paramters");
 		}
 		
-		return BuildSystemPathSupporter
+		return ProjectBuildSytemPathSupporter
 				.getSessionKeyRSAPrivatekeyFilePathString(installedPathString, mainProjectName);
 	}
 }

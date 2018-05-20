@@ -2,7 +2,8 @@ package kr.pe.codda.server;
 
 import java.io.File;
 
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporter;
 import kr.pe.codda.common.classloader.ServerSystemClassLoaderClassManager;
 import kr.pe.codda.common.classloader.ServerSystemClassLoaderClassManagerIF;
 import kr.pe.codda.common.classloader.SimpleClassLoader;
@@ -18,14 +19,14 @@ public class ServerClassLoaderBuilder {
 	public ServerClassLoaderBuilder() throws CoddaConfigurationException {
 		serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager();		
 		
-		CoddaConfiguration sinnoriRunningProjectConfiguration =  CoddaConfigurationManager.getInstance().getRunningProjectConfiguration();
+		CoddaConfiguration runningProjectConfiguration =  CoddaConfigurationManager.getInstance().getRunningProjectConfiguration();
 		
-		String mainProjectName = sinnoriRunningProjectConfiguration.getMainProjectName();
-		String sinnoriInstalledPathString = sinnoriRunningProjectConfiguration.getSinnoriInstalledPathString();
+		String mainProjectName = runningProjectConfiguration.getMainProjectName();
+		String installedPathString = runningProjectConfiguration.getInstalledPathString();
 		
 		
-		serverAPPINFClassPathString = BuildSystemPathSupporter
-				.getServerAPPINFClassPathString(sinnoriInstalledPathString, mainProjectName);
+		serverAPPINFClassPathString = ServerBuildSytemPathSupporter
+				.getServerAPPINFClassPathString(installedPathString, mainProjectName);
 		
 		File serverAPPINFClassPath = new File(serverAPPINFClassPathString);
 		
@@ -39,7 +40,7 @@ public class ServerClassLoaderBuilder {
 		 	throw new CoddaConfigurationException(errorMessage);
 		}
 		
-		projectResourcesPathString = BuildSystemPathSupporter.getProjectResourcesDirectoryPathString(sinnoriInstalledPathString, mainProjectName);
+		projectResourcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPathString, mainProjectName);
 		
 		File projectResourcesPath = new File(projectResourcesPathString);
 		

@@ -31,7 +31,7 @@ public class SocketOutputStreamFactory implements SocketOutputStreamFactoryIF {
 	}
 
 	@Override
-	public SocketOutputStream makeNewSocketOutputStream() throws NoMoreDataPacketBufferException {
+	public SocketOutputStream newInstance() throws NoMoreDataPacketBufferException {
 		SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
 				dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		return socketOutputStream;

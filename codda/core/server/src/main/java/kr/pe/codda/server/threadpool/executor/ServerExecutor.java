@@ -26,6 +26,8 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
+import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
+import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.server.PersonalLoginManagerIF;
@@ -58,6 +60,8 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	private final ConcurrentHashMap<SocketChannel, SocketChannel> socketChannelHash 
 		= new ConcurrentHashMap<SocketChannel, SocketChannel>();
 
+	private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue = null;
+	
 	public ServerExecutor(int index,
 			String projectName,
 			ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue,
@@ -70,6 +74,8 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;
 		this.serverObjectCacheManager = serverObjectCacheManager;
+		
+		wrapMessageBlockingQueue = new SimpleReceivedMessageBlockingQueue(inputMessageQueue);
 	}
 	
 
@@ -183,17 +189,14 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 		return socketChannelHash.size();
 	}
 	
-	@Override
-	public void putIntoQueue(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
-		try {
-		inputMessageQueue.put(wrapReadableMiddleObject);
-		} catch(InterruptedException e) {
-			log.info("drop the input message[{}] becase of InterruptedException", wrapReadableMiddleObject.toString());
-			throw e;
-		}
-	}
 	
 	public void finalize() {
 		log.warn("{} ServerExecutor[{}] finalize", projectName, index);
+	}
+
+
+	@Override
+	public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
+		return wrapMessageBlockingQueue;
 	}
 }

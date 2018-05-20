@@ -48,7 +48,7 @@ public class SocketResource {
 	private final Object monitorOfServerMailID = new Object();
 	/** 클라이언트에 할당되는 서버 편지 식별자 */
 	private int serverMailID = Integer.MIN_VALUE;
-	
+		
 	public SocketResource(SocketChannel ownerSC,
 			ServerExecutorIF executorOfOwnerSC,
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC,
@@ -81,7 +81,7 @@ public class SocketResource {
 		this.socketOutputStream = socketOutputStreamOfOwnerSC;
 		this.personalLoginManager = personalLoginManagerOfOwnerSC;
 		
-		this.finalReadTime = new java.util.Date();
+		finalReadTime = new java.util.Date();
 	}
 	
 	public SocketChannel getOwnerSC() {
@@ -153,6 +153,8 @@ public class SocketResource {
 		executor.removeSocket(ownerSC);
 		outputMessageWriter.removeSocket(ownerSC);
 	}
+	
+	
 
 	@Override
 	public String toString() {

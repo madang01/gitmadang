@@ -12,16 +12,16 @@ import java.util.StringTokenizer;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.codda.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.codda.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.codda.common.config.itemidinfo.ItemIDInfoManger;
-import kr.pe.codda.common.config.itemvalue.AllDBCPPartConfiguration;
-import kr.pe.codda.common.config.itemvalue.AllSubProjectPartConfiguration;
-import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
-import kr.pe.codda.common.config.itemvalue.DBCPParConfiguration;
-import kr.pe.codda.common.config.itemvalue.ProjectPartConfiguration;
+import kr.pe.codda.common.config.subset.AllDBCPPartConfiguration;
+import kr.pe.codda.common.config.subset.AllSubProjectPartConfiguration;
+import kr.pe.codda.common.config.subset.CommonPartConfiguration;
+import kr.pe.codda.common.config.subset.DBCPParConfiguration;
+import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.type.ProjectType;
@@ -89,7 +89,7 @@ public class CoddaConfiguration {
 
 		this.mainProjectName = mainProjectName;
 		this.installedPathString = installedPathString;
-		this.configFilePathString = BuildSystemPathSupporter
+		this.configFilePathString = ProjectBuildSytemPathSupporter
 				.getProejctConfigFilePathString(installedPathString, mainProjectName);
 		
 		// FIXME!
@@ -412,7 +412,7 @@ public class CoddaConfiguration {
 	// FIXME!
 	public static void applyInstalledPath(String installedPathString, String mainProjectName)
 			throws IOException, CoddaConfigurationException {
-		String configFilePathString = BuildSystemPathSupporter
+		String configFilePathString = ProjectBuildSytemPathSupporter
 				.getProejctConfigFilePathString(installedPathString, mainProjectName);
 
 		SequencedProperties configSequencedProperties = SequencedPropertiesUtil

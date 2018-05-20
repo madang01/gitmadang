@@ -48,7 +48,7 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		OutputMessageWriterIF outputMessageWriterOfOwnerSC = ieoThreadPoolManager
 				.getOutputMessageWriterWithMinimumMumberOfSockets();
 
-		SocketOutputStream socketOutputStreamOfOwnerSC = socketOutputStreamFactory.makeNewSocketOutputStream();
+		SocketOutputStream socketOutputStreamOfOwnerSC = socketOutputStreamFactory.newInstance();
 
 		PersonalLoginManager personalLoginManagerOfOwnerSC = new PersonalLoginManager(newAcceptedSC,
 				projectLoginManager);

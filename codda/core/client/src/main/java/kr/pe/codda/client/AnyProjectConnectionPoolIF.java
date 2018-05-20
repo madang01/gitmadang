@@ -18,7 +18,6 @@
 package kr.pe.codda.client;
 
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.ConnectionPoolException;
@@ -26,6 +25,7 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.exception.ServerTaskException;
+import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
@@ -38,14 +38,14 @@ public interface AnyProjectConnectionPoolIF {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws InterruptedException, ConnectionPoolException, 
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
-			BodyFormatException, ServerTaskException, AccessDeniedException;
+			BodyFormatException, ServerTaskException, ServerTaskPermissionException;
 	
 	public void sendAsynInputMessage(AbstractMessage inputMessage)
 			throws InterruptedException, NotSupportedException, ConnectionPoolException, 
-			IOException, NoMoreDataPacketBufferException, DynamicClassCallException;
+			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException;
 		
 	public ConnectionIF createConnection(String host, int port)
-			throws InterruptedException, IOException;
+			throws InterruptedException, IOException, NoMoreDataPacketBufferException;
 	
 	public String getPoolState();
 }
