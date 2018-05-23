@@ -1,6 +1,10 @@
 package kr.pe.codda.impl.task.server;
 
 import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtilTest;
+import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.server.PersonalLoginManagerIF;
+import kr.pe.codda.server.task.AbstractServerTask;
+import kr.pe.codda.server.task.ToLetterCarrier;
 
 /**
  * <pre>
@@ -14,6 +18,16 @@ import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtilTest;
  * @author Won Jonghoon
  *
  */
-public class EmptyServerTask {
+public class EmptyServerTask extends AbstractServerTask {
+
+	@Override
+	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
+			AbstractMessage inputMessage) throws Exception {
+		
+		// FIXME!
+		// log.info("call EmptyServerTask");
+		
+		toLetterCarrier.addBypassOutputMessage(inputMessage);
+	}
 
 }

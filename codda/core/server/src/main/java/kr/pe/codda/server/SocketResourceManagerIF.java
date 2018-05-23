@@ -21,6 +21,7 @@ package kr.pe.codda.server;
 import java.nio.channels.SocketChannel;
 
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.codda.server.threadpool.executor.ServerExecutorPoolIF;
 
 /**
  * 서버에 접속하는 클라이언트 자원 관라자 인터페이스
@@ -33,4 +34,6 @@ public interface SocketResourceManagerIF {
 	public void remove(SocketChannel sc);
 	public SocketResource getSocketResource(SocketChannel sc);
 	public int getNumberOfSocketResources();
+	
+	public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool);
 }

@@ -1,6 +1,10 @@
 package kr.pe.codda.impl.task.client;
 
+import java.nio.channels.SocketChannel;
+
+import kr.pe.codda.client.connection.asyn.executor.AbstractClientTask;
 import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtilTest;
+import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * <pre>
@@ -14,6 +18,11 @@ import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtilTest;
  * @author Won Jonghoon
  *
  */
-public class EmptyClientTask {
+public class EmptyClientTask extends AbstractClientTask {
+
+	@Override
+	public void doTask(String projectName, SocketChannel fromSC, AbstractMessage outputMessage) throws Exception {
+		log.info(outputMessage.toString());
+	}
 	
 }

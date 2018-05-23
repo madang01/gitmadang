@@ -9,5 +9,5 @@ public interface AsynConnectionPoolIF extends ConnectionPoolIF {
 	public void removeUnregisteredConnection(InterestedAsynConnectionIF asynInterestedConnection);
 	public InterestedAsynConnectionIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException;
 	public void addCountOfUnregisteredConnection();
-	public void setAsynSelectorManger(AsynSelectorMangerIF asynSelectorManger);
+	public void setAsynSelectorManger(AsynClientIOEventControllerIF asynSelectorManger);
 }

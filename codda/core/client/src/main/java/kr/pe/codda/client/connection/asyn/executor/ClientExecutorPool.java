@@ -110,7 +110,7 @@ public class ClientExecutorPool implements ThreadPoolIF, ClientExecutorPoolIF {
 	@Override
 	public void stopAll() {
 		for (ClientExecutorIF handler: pool) {			
-			if (handler.isAlive()) continue;
+			if (! handler.isAlive()) continue;
 			handler.interrupt();
 		}
 	}

@@ -61,7 +61,7 @@ public class SelfExnRes extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("selfExnRes[");
+		builder.append("SelfExnRes[");
 		builder.append("errorPlace=");
 		builder.append(errorPlace);
 		builder.append(", errorType=");

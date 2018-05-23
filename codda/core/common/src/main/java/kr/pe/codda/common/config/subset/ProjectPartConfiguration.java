@@ -870,7 +870,6 @@ public class ProjectPartConfiguration {
 		mapping(new StringBuilder(prefexOfItemID)
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_SOCKET_TIMEOUT_ITEMID).toString(), 
 				clientSocketTimeout);
-
 		
 
 		mapping(new StringBuilder(prefexOfItemID)

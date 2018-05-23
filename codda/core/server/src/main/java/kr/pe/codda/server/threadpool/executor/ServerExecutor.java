@@ -93,14 +93,14 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 				SocketChannel fromSC = wrapReadableMiddleObject.getFromSC();
 				String messageID = wrapReadableMiddleObject.getMessageID();
 				
-				SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
-				if (null == socketResourceOfFromSC) {
+				SocketResource fromSocketResource = socketResourceManager.getSocketResource(fromSC);
+				if (null == fromSocketResource) {
 					log.warn("the socket channel[{}] sending a input message[{}] failed to get socket resources, so stop to do task",
 							fromSC.hashCode(), wrapReadableMiddleObject.toSimpleInformation());
 					continue;
 				}
 				
-				PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
+				PersonalLoginManagerIF personalLoginManagerOfFromSC = fromSocketResource.getPersonalLoginManager();
 				
 				
 				try {
@@ -116,7 +116,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 								errorType,
 								errorReason,
 								wrapReadableMiddleObject, 
-								socketResourceOfFromSC, messageProtocol);
+								fromSocketResource, messageProtocol);
 						
 						continue;
 					} catch(Exception | Error e) {
@@ -127,15 +127,16 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 								errorType,
 								errorReason,
-								wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+								wrapReadableMiddleObject, fromSocketResource, messageProtocol);
 						continue;
 					}
 					
 					try {
 						serverTask.execute(index, projectName, 
 								fromSC,
+								fromSocketResource,
 								socketResourceManager,
-								socketResourceOfFromSC,
+								fromSocketResource,
 								personalLoginManagerOfFromSC,
 								wrapReadableMiddleObject, 
 								messageProtocol);
@@ -149,7 +150,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 								errorType,
 								errorReason,
-								wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+								wrapReadableMiddleObject, fromSocketResource, messageProtocol);
 						continue;
 					}
 				

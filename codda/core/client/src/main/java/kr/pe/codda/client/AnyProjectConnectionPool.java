@@ -15,14 +15,14 @@ import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporter;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
-import kr.pe.codda.client.connection.asyn.AsynSelectorManger;
-import kr.pe.codda.client.connection.asyn.AsynSelectorMangerIF;
+import kr.pe.codda.client.connection.asyn.AsynClientIOEventController;
 import kr.pe.codda.client.connection.asyn.SingleAyncConnectionAdder;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorPool;
-import kr.pe.codda.client.connection.asyn.executor.ClientExecutorPoolIF;
 import kr.pe.codda.client.connection.asyn.noshare.AsynNoShareConnection;
 import kr.pe.codda.client.connection.asyn.noshare.AsynNoShareConnectionPool;
+import kr.pe.codda.client.connection.asyn.share.AsynShareConnectionPool;
+import kr.pe.codda.client.connection.sync.SyncNoShareConnectionPool;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.exception.BodyFormatException;
@@ -50,10 +50,10 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	private ConnectionPoolIF connectionPool = null;	
 	private ConnectionPoolSupporter connectionPoolSupporter = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ClientExecutorPoolIF clientExecutorPool = null;
+	private ClientExecutorPool clientExecutorPool = null;
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
-	private AsynSelectorMangerIF asynSelectorManger = null;
+	private AsynClientIOEventController asynSelectorManger = null;
 
 	public AnyProjectConnectionPool(ProjectPartConfiguration mainProjectPartConfiguration) throws NoMoreDataPacketBufferException, IOException {
 		this.mainProjectPartConfiguration = mainProjectPartConfiguration;
@@ -63,7 +63,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		CharsetDecoder charsetDecoderOfProject = CharsetUtil
 				.createCharsetDecoder(mainProjectPartConfiguration.getCharset());
 
-		boolean isDirect = false;
+		boolean isDirect = true;
 		this.dataPacketBufferPool = new DataPacketBufferPool(isDirect, mainProjectPartConfiguration.getByteOrder(),
 				mainProjectPartConfiguration.getDataPacketBufferSize(),
 				mainProjectPartConfiguration.getDataPacketBufferPoolSize());
@@ -100,7 +100,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		socketOutputStreamFactory = new SocketOutputStreamFactory(charsetDecoderOfProject,
 				mainProjectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), dataPacketBufferPool);
 		
-		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+		clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
 				dataPacketBufferPool);
 		
 		connectionPoolSupporter = new ConnectionPoolSupporter(1000L * 60 * 10);
@@ -111,24 +111,39 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 				mainProjectPartConfiguration.getClientAsynOutputMessageQueueSize(), clientMessageUtility);
 		
 		if (mainProjectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
-			
+			connectionPool = new SyncNoShareConnectionPool(mainProjectPartConfiguration,
+					clientMessageUtility,
+					socketOutputStreamFactory,
+					connectionPoolSupporter);
 		} else {
 			AsynConnectionPoolIF asynConnectionPool = null;
 			
-			if (mainProjectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_PUBLIC)) {
+			if (mainProjectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_PRIVATE)) {
 				asynConnectionPool = new AsynNoShareConnectionPool(mainProjectPartConfiguration,
 						clientMessageUtility,
 						socketOutputStreamFactory,
 						connectionPoolSupporter,
 						clientExecutorPool);
-			} else {
 				
+				connectionPool = asynConnectionPool;
+			} else {
+				asynConnectionPool = new AsynShareConnectionPool(mainProjectPartConfiguration,
+						clientMessageUtility,
+						socketOutputStreamFactory,
+						connectionPoolSupporter,
+						clientExecutorPool);
+				
+				connectionPool = asynConnectionPool;
 			}
-			asynSelectorManger = new AsynSelectorManger(asynConnectionPool);			
+			asynSelectorManger = new AsynClientIOEventController(asynConnectionPool);			
 			asynSelectorManger.start();
+			
+			clientExecutorPool.startAll();
 		}
 		
 		connectionPoolSupporter.start();
+		
+		 
 	}
 
 	@Override

@@ -35,6 +35,7 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 	public void execute(int index, 
 			String projectName,
 			SocketChannel fromSC,
+			SocketResource fromSocketResource,
 			SocketResourceManagerIF socketResourceManager,
 			SocketResource socketResourceOfFromSC,
 			PersonalLoginManagerIF personalLoginManagerOfFromSC,
@@ -49,7 +50,7 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 			
 			return;
 		}
-		super.execute(index, projectName, fromSC, 
+		super.execute(index, projectName, fromSC, fromSocketResource,
 				socketResourceManager, 
 				socketResourceOfFromSC,
 				personalLoginManagerOfFromSC,

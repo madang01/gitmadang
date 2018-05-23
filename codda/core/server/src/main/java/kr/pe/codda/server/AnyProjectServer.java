@@ -34,11 +34,7 @@ import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
-import kr.pe.codda.server.threadpool.IEOServerThreadPoolSetManager;
-import kr.pe.codda.server.threadpool.IEOServerThreadPoolSetManagerIF;
-import kr.pe.codda.server.threadpool.accept.selector.AcceptSelector;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorPool;
-import kr.pe.codda.server.threadpool.outputmessage.OutputMessageWriterPool;
 
 
 public class AnyProjectServer {
@@ -50,18 +46,14 @@ public class AnyProjectServer {
 	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
-	/** 클라이언트 접속 승인 쓰레드 */
-	private AcceptSelector acceptSelector = null;
-	
-	
 	/** 비지니스 로직 처리 담당 쓰레드 폴 */
 	private ServerExecutorPool executorPool = null;
-	/** 출력 메시지 소켓 쓰기 담당 쓰레드 폴 */
-	private OutputMessageWriterPool outputMessageWriterPool = null;	
 	
 	private ServerObjectCacheManager serverObjectCacheManager = null;
 	
 	private SocketResourceManagerIF socketResourceManager = null;
+	
+	private ServerIOEventController serverIOEventController = null;
 	
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, CoddaConfigurationException {
@@ -70,7 +62,7 @@ public class AnyProjectServer {
 		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
 		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
 		
-		boolean isDirect = false;
+		boolean isDirect = true;
 		this.dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 				projectPartConfiguration.getByteOrder()
 						, projectPartConfiguration.getDataPacketBufferSize()
@@ -109,25 +101,23 @@ public class AnyProjectServer {
 		}
 		
 		
-		IEOServerThreadPoolSetManagerIF ieoThreadPoolManager = new IEOServerThreadPoolSetManager();
-		
 		SocketOutputStreamFactoryIF socketOutputStreamFactory = 
 				new SocketOutputStreamFactory(charsetDecoderOfProject,
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
 						dataPacketBufferPool);
 		
+		serverObjectCacheManager = createNewServerObjectCacheManager();		
+		
+		serverIOEventController = new ServerIOEventController(projectPartConfiguration.getProjectName(),
+				projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
+				projectPartConfiguration.getServerMaxClients());
 		
 		socketResourceManager = 
-				new SocketResourceManager(socketOutputStreamFactory, ieoThreadPoolManager);
-
-		acceptSelector = new AcceptSelector(
-				projectPartConfiguration.getProjectName(), 
-				projectPartConfiguration.getServerHost(),
-				projectPartConfiguration.getServerPort(),  
-				projectPartConfiguration.getServerMaxClients(), messageProtocol, socketResourceManager);
-
-		
-		serverObjectCacheManager = createNewServerObjectCacheManager();		
+				new SocketResourceManager(projectPartConfiguration.getClientSocketTimeout(),
+						projectPartConfiguration.getServerOutputMessageQueueSize(),
+						socketOutputStreamFactory, messageProtocol,
+						dataPacketBufferPool,
+						serverIOEventController);
 
 		executorPool = new ServerExecutorPool(				 
 				projectPartConfiguration.getServerExecutorPoolSize(),
@@ -136,18 +126,9 @@ public class AnyProjectServer {
 				projectPartConfiguration.getServerInputMessageQueueSize(), 
 				messageProtocol, 
 				socketResourceManager,
-				serverObjectCacheManager,
-				ieoThreadPoolManager);
-
-		outputMessageWriterPool = new OutputMessageWriterPool(
-				projectPartConfiguration.getServerOutputMessageWriterPoolSize(), 
-				projectPartConfiguration.getServerOutputMessageWriterPoolMaxSize(),
-				projectPartConfiguration.getProjectName(),
-				projectPartConfiguration.getServerOutputMessageQueueSize(), 
-				dataPacketBufferPool, ieoThreadPoolManager);
-
+				serverObjectCacheManager);
 		
-
+		
 	}
 
 	private ServerObjectCacheManager createNewServerObjectCacheManager() throws CoddaConfigurationException {
@@ -161,13 +142,9 @@ public class AnyProjectServer {
 	/**
 	 * 서버 시작
 	 */	
-	synchronized public void startServer() {		
-		// serverProjectMonitor.start();
-		outputMessageWriterPool.startAll();
+	synchronized public void startServer() {
+		serverIOEventController.start();
 		executorPool.startAll();
-		if (!acceptSelector.isAlive()) {
-			acceptSelector.start();
-		}
 	}
 
 	/**
@@ -176,13 +153,11 @@ public class AnyProjectServer {
 	synchronized public void stopServer() {
 		// serverProjectMonitor.interrupt();
 
-		if (! acceptSelector.isInterrupted()) {
-			acceptSelector.interrupt();
+		if (! serverIOEventController.isInterrupted()) {
+			serverIOEventController.interrupt();
 		}
 		
-		executorPool.stopAll();		
-
-		outputMessageWriterPool.stopAll();
+		executorPool.stopAll();
 	}	
 
 	

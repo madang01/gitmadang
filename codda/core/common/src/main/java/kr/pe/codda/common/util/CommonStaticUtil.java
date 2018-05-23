@@ -404,4 +404,42 @@ public abstract class CommonStaticUtil {
 			contentsStringBuilder.append("\t");
 		}
 	}
+	
+	public static boolean isHangul(char c) {
+		boolean isHangul = false;
+		if (c >= 'ㄱ' && c <= 'ㅎ') {
+			isHangul =  true;
+		} else if (c >= 'ㅏ' && c <= 'ㅣ') {
+			isHangul =  true;
+		} else if (c >= '가' && c <= '힣') {
+			isHangul =  true;
+		}
+		return isHangul;
+	}
+	
+	/*public static boolean isAlphabet(char c) {
+		boolean isAlphabet = false;
+		if (c >= 'a' && c <= 'z') {
+			isAlphabet =  true;
+		} else if (c >= 'A' && c <= 'Z') {
+			isAlphabet =  true;
+		}
+		return isAlphabet;
+	}
+	
+	public static boolean isDigit(char c) {
+		boolean isDigit = false;
+		if (c >= '1' && c <= '9') {
+			isDigit =  true;
+		}
+		return isDigit;
+	}
+	
+	public static boolean isDigit(char c) {
+		boolean isDigit = false;
+		if (c >= '1' && c <= '9') {
+			isDigit =  true;
+		}
+		return isDigit;
+	}*/
 }

@@ -4,74 +4,101 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
-import kr.pe.codda.server.threadpool.IEOServerThreadPoolSetManagerIF;
+import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorIF;
-import kr.pe.codda.server.threadpool.outputmessage.OutputMessageWriterIF;
+import kr.pe.codda.server.threadpool.executor.ServerExecutorPoolIF;
 
 public class SocketResourceManager implements SocketResourceManagerIF {
 	// private Logger log = LoggerFactory.getLogger(SocketResourceManager.class);
 
 	// private final Object monitor = new Object();
-
+	private long socketTimeOut=5000;
+	private int outputMessageQueueSize=5;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
-	private IEOServerThreadPoolSetManagerIF ieoThreadPoolManager = null;
+	private ServerExecutorPoolIF serverExecutorPool = null;	
+	private MessageProtocolIF messageProtocol = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
+	private ServerIOEvenetControllerIF serverIOEvenetController = null;
 
 	private ConcurrentHashMap<SocketChannel, SocketResource> socketChannel2SocketResourceHash = new ConcurrentHashMap<SocketChannel, SocketResource>();
 
 	private ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();;
+	
+	// private ArrayDeque<WrapBuffer> outputMessageWrapBufferQueue = null;
 
-	public SocketResourceManager(SocketOutputStreamFactoryIF socketOutputStreamFactory,
-			IEOServerThreadPoolSetManagerIF ieoThreadPoolManager) {
+	public SocketResourceManager(long socketTimeOut,
+			int outputMessageQueueSize,
+			SocketOutputStreamFactoryIF socketOutputStreamFactory,			
+			MessageProtocolIF messageProtocol,
+			DataPacketBufferPoolIF dataPacketBufferPool,
+			ServerIOEvenetControllerIF serverIOEvenetController) {
+		if (socketTimeOut < 0) {
+			throw new IllegalArgumentException("the parameter socketTimeOut is less than zero");
+		}
+		
+		if (outputMessageQueueSize <= 0) {
+			throw new IllegalArgumentException("the parameter outputMessageQueueSize is less than or equal to zero");
+		}
+		
 		if (null == socketOutputStreamFactory) {
 			throw new IllegalArgumentException("the parameter socketOutputStreamFactory is null");
 		}
-
-		if (null == ieoThreadPoolManager) {
-			throw new IllegalArgumentException("the parameter ieoThreadPoolManager is null");
+		
+		if (null == messageProtocol) {
+			throw new IllegalArgumentException("the parameter messageProtocol is null");
+		}
+		
+		if (null == dataPacketBufferPool) {
+			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
+		}
+		
+		if (null == serverIOEvenetController) {
+			throw new IllegalArgumentException("the parameter serverIOEvenetController is null");
 		}
 
+		this.socketTimeOut = socketTimeOut;
+		this.outputMessageQueueSize = outputMessageQueueSize;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
-		this.ieoThreadPoolManager = ieoThreadPoolManager;
+		this.messageProtocol = messageProtocol;
+		this.dataPacketBufferPool = dataPacketBufferPool;
+		this.serverIOEvenetController = serverIOEvenetController;
+		
+		serverIOEvenetController.setSocketResourceManager(this);
 	}
+	
+	public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
+		this.serverExecutorPool = serverExecutorPool;
+	}
+	
 
 	@Override
 	public void addNewAcceptedSocketChannel(SocketChannel newAcceptedSC)
 			throws NoMoreDataPacketBufferException, InterruptedException {
 		if (null == newAcceptedSC) {
 			throw new IllegalArgumentException("the parameter newAcceptedSC is null");
-		}
-
-		ServerExecutorIF executorOfOwnerSC = ieoThreadPoolManager.getExecutorWithMinimumMumberOfSockets();
-
-		OutputMessageWriterIF outputMessageWriterOfOwnerSC = ieoThreadPoolManager
-				.getOutputMessageWriterWithMinimumMumberOfSockets();
+		}		
 
 		SocketOutputStream socketOutputStreamOfOwnerSC = socketOutputStreamFactory.newInstance();
 
 		PersonalLoginManager personalLoginManagerOfOwnerSC = new PersonalLoginManager(newAcceptedSC,
 				projectLoginManager);
+		
+		ServerExecutorIF executorOfOwnerSC = serverExecutorPool.getExecutorWithMinimumNumberOfSockets();
 
-		SocketResource socketResource = new SocketResource(newAcceptedSC, 
-				executorOfOwnerSC, outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC,
-				personalLoginManagerOfOwnerSC);
+		SocketResource socketResourceOfOwnerSC = new SocketResource(newAcceptedSC,
+				socketTimeOut,
+				outputMessageQueueSize,
+				messageProtocol,
+				executorOfOwnerSC, socketOutputStreamOfOwnerSC,
+				personalLoginManagerOfOwnerSC,
+				dataPacketBufferPool, serverIOEvenetController);
 
 		/** 소켓 자원 등록 작업 */
-		socketChannel2SocketResourceHash.put(newAcceptedSC, socketResource);
-
-		/**
-		 * <pre>
-		 * Warning! 반듯이 신규 소켓을 '입력 메시지 담당 쓰레드'(InputMessageReader)에 등록 하기 앞서 소켓에 1:1로 할당되는 자원 등록 작업이 선행되어야 한다.
-		 * 왜냐하면 '입력 메시지 담당 쓰레드' 에 신규 소켓 등록시 소켓에 1:1 로 할당된 자원중 하나인 출력 스트림을 이용한 입력 메시지 추출 작업이 진행되기때문이다.
-		 * 
-		 * ps '입력 메시지 담당 쓰레드'(InputMessageReader) 에 신규 소켓 등록 작업은 
-		 * '출력 메시지 담당 쓰레드'(OutputMessageWriter) 와 '입력 메시지 처리 담당 쓰레드'(Executor) 보다 늦게 등록하도록 한다.
-		 * 왜냐하면 '입력 메시지 담당 쓰레드'는  '출력 메시지 담당 쓰레드'와 '입력 메시지 처리 담당 쓰레드'와 달리 
-		 * 읽기 전용 selector 등록이라는 부가 작업이 더 있기 때문이다.
-		 * </pre>
-		 */
-		outputMessageWriterOfOwnerSC.addNewSocket(newAcceptedSC);
+		socketChannel2SocketResourceHash.put(newAcceptedSC, socketResourceOfOwnerSC);
+		
 		executorOfOwnerSC.addNewSocket(newAcceptedSC);
 	}
 

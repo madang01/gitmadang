@@ -7,7 +7,6 @@ import java.net.SocketTimeoutException;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -18,10 +17,11 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
-import kr.pe.codda.client.connection.asyn.AsynSelectorMangerIF;
+import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.InterestedAsynConnectionIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
-import kr.pe.codda.client.connection.asyn.mainbox.SyncMailboxForAsynNoShare;
+import kr.pe.codda.client.connection.asyn.mainbox.AsynMessageMailbox;
+import kr.pe.codda.client.connection.asyn.mainbox.SyncMessageMailbox;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
@@ -37,32 +37,31 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 
-public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynConnectionIF, ReceivedMessageBlockingQueueIF {
-	protected InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnection.class);
+public final class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynConnectionIF, ReceivedMessageBlockingQueueIF {
+	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnection.class);
 	
-	protected ProjectPartConfiguration projectPartConfiguration = null;
-	protected SocketOutputStream socketOutputStream = null;
-	protected ClientMessageUtilityIF clientMessageUtility = null;
-	protected AsynConnectedConnectionAdderIF asynConnectedConnectionAdder = null;
-	protected AsynSelectorMangerIF asynSelectorManger = null;
+	private ProjectPartConfiguration projectPartConfiguration = null;
+	private SocketOutputStream socketOutputStream = null;
+	private ClientMessageUtilityIF clientMessageUtility = null;
+	private AsynConnectedConnectionAdderIF asynConnectedConnectionAdder = null;
+	private AsynClientIOEventControllerIF asynSelectorManger = null;
 	
-	protected SocketChannel clientSC = null;
-	protected java.util.Date finalReadTime = new java.util.Date();
-	protected SelectableChannel serverSelectableChannel = null;	
-	protected SyncMailboxForAsynNoShare syncMailboxForAsynNoShare = null;
+	private SocketChannel clientSC = null;
+	private java.util.Date finalReadTime = new java.util.Date();
+	private SyncMessageMailbox syncMessageMailbox = null;
 	
-	protected ArrayDeque<ArrayDeque<WrapBuffer>> inputMessageQueue = null;	
+	private ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = null;
 	
-	protected boolean isQueueIn = true;	
+	private boolean isQueueIn = true;	
 	
-	protected ClientExecutorIF clientExecutor = null;
+	private ClientExecutorIF clientExecutor = null;
 	
 	public AsynNoShareConnection(ProjectPartConfiguration projectPartConfiguration, 
 			SocketOutputStream socketOutputStream,
 			ClientMessageUtilityIF clientMessageUtility,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
 			ClientExecutorIF clientExecutor,
-			AsynSelectorMangerIF asynSelectorManger) throws IOException {
+			AsynClientIOEventControllerIF asynSelectorManger) throws IOException {
 		this.projectPartConfiguration = projectPartConfiguration;
 		this.socketOutputStream = socketOutputStream;
 		this.clientMessageUtility = clientMessageUtility;
@@ -73,20 +72,16 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 		openSocketChannel();
 		
 		final int mailboxID = 1;
-		syncMailboxForAsynNoShare = new SyncMailboxForAsynNoShare(this, mailboxID, projectPartConfiguration.getClientSocketTimeout());
-				
-		inputMessageQueue = new ArrayDeque<ArrayDeque<WrapBuffer>>(projectPartConfiguration.getClientAsynInputMessageQueueSize());
+		syncMessageMailbox = new SyncMessageMailbox(this, mailboxID, projectPartConfiguration.getClientSocketTimeout());
 	}
 	
 	private void openSocketChannel() throws IOException {
 		clientSC = SocketChannel.open();
-		serverSelectableChannel = clientSC.configureBlocking(false);
+		clientSC.configureBlocking(false);
 		clientSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		clientSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		clientSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-		clientSC.setOption(StandardSocketOptions.SO_REUSEADDR, true);		
-		//setReuseAddress
-		
+		clientSC.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 		//log.info("{} connection[{}] created", projectName, serverSC.hashCode());
 	}
 
@@ -94,18 +89,22 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 		finalReadTime = new java.util.Date();
 	}
 	
+	public java.util.Date getFinalReadTime() {
+		return finalReadTime;
+	}
+	
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {
 		
-		inputMessage.messageHeaderInfo.mailboxID = syncMailboxForAsynNoShare.getMailboxID();
-		inputMessage.messageHeaderInfo.mailID = syncMailboxForAsynNoShare.getMailID();
+		inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
+		inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 		
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(this.getClass().getClassLoader(), inputMessage);
 		
 	
-		synchronized (inputMessageQueue) {
+		/*synchronized (inputMessageQueue) {
 			if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {
 				inputMessageQueue.wait(projectPartConfiguration.getClientSocketTimeout());
 				
@@ -118,11 +117,14 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 			
 			inputMessageQueue.addLast(inputMessageWrapBufferQueue);			
 			asynSelectorManger.startWrite(this);
-		}
+		}*/
+		
+		this.inputMessageWrapBufferQueue = inputMessageWrapBufferQueue;			
+		asynSelectorManger.startWrite(this);
 		
 		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = null;
 		try {
-			outputMessageWrapReadableMiddleObject = syncMailboxForAsynNoShare.getSyncOutputMessage();
+			outputMessageWrapReadableMiddleObject = syncMessageMailbox.getSyncOutputMessage();
 		} catch(SocketTimeoutException e) {
 			if (! isConnected()) {
 				throw new IOException("this socket is disconnected");
@@ -139,12 +141,12 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 	@Override
 	public void sendAsynInputMessage(AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
-		inputMessage.messageHeaderInfo.mailboxID = syncMailboxForAsynNoShare.getMailboxID();
-		inputMessage.messageHeaderInfo.mailID = syncMailboxForAsynNoShare.getMailID();
+		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox.getMailboxID();
+		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox.getNextMailID();
 		
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(this.getClass().getClassLoader(), inputMessage);
 		
-		synchronized (inputMessageQueue) {
+		/*synchronized (inputMessageQueue) {
 			if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {
 				inputMessageQueue.wait(projectPartConfiguration.getClientSocketTimeout());
 				
@@ -157,7 +159,10 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 			
 			inputMessageQueue.addLast(inputMessageWrapBufferQueue);			
 			asynSelectorManger.startWrite(this);
-		}
+		}*/
+		
+		this.inputMessageWrapBufferQueue = inputMessageWrapBufferQueue;			
+		asynSelectorManger.startWrite(this);
 	}
 
 	@Override
@@ -171,7 +176,7 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 	}
 
 	@Override
-	public void onConnect(SelectionKey selectedKey) {
+	public void onConnect(SelectionKey selectedKey) {		
 		boolean isSuccess = false;
 		try {
 			isSuccess = clientSC.finishConnect();
@@ -204,7 +209,7 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 		}
 			
 		if (isSuccess) {
-			log.info("the interested connection[{}] finished", hashCode());
+			// log.info("the interested connection[{}] finished", hashCode());
 			try {
 				selectedKey.interestOps(SelectionKey.OP_READ);
 			} catch(Exception e) {
@@ -269,9 +274,10 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 				
 		} catch (NoMoreDataPacketBufferException e) {
 			String errorMessage = new StringBuilder()
-					.append("소켓[")
+					.append("the no more data packet buffer error occurred while reading the socket[")
 					.append(clientSC.hashCode())
-					.append("] 읽기 작업중 데이터 패킷 버퍼 부족 에러 발생").toString();
+					.append("], errmsg=")
+					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
 			try {
 				close();
@@ -285,9 +291,25 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 			return;
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder()
-					.append("소켓[")
+					.append("the io error occurred while reading the socket[")
 					.append(clientSC.hashCode())
-					.append("] 읽기 작업중 IO 에러 발생, 상세사유=")
+					.append("], errmsg=")
+					.append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+			try {
+				close();
+			} catch (IOException e1) {
+				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
+						hashCode(), e1.getMessage());
+			}
+			releaseResources();
+			selectedKey.channel();
+			return;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder()
+					.append("the unknown error occurred while reading the socket[")
+					.append(clientSC.hashCode())
+					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
 			try {
@@ -304,8 +326,11 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 	}
 
 	@Override
-	public void onWrite(SelectionKey selectedKey) throws InterruptedException {
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageQueue.peek();
+	public void onWrite(SelectionKey selectedKey) throws InterruptedException {		
+		// FIXME!
+		// log.info("onWrite::call");
+				
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = this.inputMessageWrapBufferQueue;
 		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
 		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 		boolean loop = true;
@@ -315,15 +340,15 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 				numberOfBytesWritten = clientSC.write(currentWorkingByteBuffer);
 			} catch(IOException e) {
 				String errorMessage = new StringBuilder()
-						.append("소켓[")
+						.append("fail to write a sequence of bytes to this channel[")
 						.append(clientSC.hashCode())
-						.append("] 쓰기 작업중 IO 에러 발생, 상세사유=")
+						.append("] because error occured, errmsg=")
 						.append(e.getMessage()).toString();
 				log.warn(errorMessage, e);
 				try {
 					close();
 				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
+					log.warn("fail to close the socket channel[{}], errmsg={}", 
 							hashCode(), e1.getMessage());
 				}
 				
@@ -343,7 +368,7 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 				clientMessageUtility.releaseWrapBuffer(currentWorkingWrapBuffer);
 				
 				if (inputMessageWrapBufferQueue.isEmpty()) {					
-					synchronized (inputMessageQueue) {
+					/*synchronized (inputMessageQueue) {
 						inputMessageQueue.removeFirst();
 						try {
 							if (inputMessageQueue.isEmpty()) {
@@ -354,24 +379,33 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 						} finally {
 							inputMessageQueue.notify();
 						}
-					}
+					}*/
 					
-					inputMessageWrapBufferQueue = inputMessageQueue.peek();
+					asynSelectorManger.endWrite(this);
+						
+					loop = false;
+					return;
+					
+					// inputMessageWrapBufferQueue = inputMessageQueue.peek();
 				}
 				
 				currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
 				currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 			}
 		}
+		
+		
 	}
 
 	@Override
 	public void releaseResources() {
 		socketOutputStream.close();
+		
+		log.info("this connection[{}]'s resources has been released", clientSC.hashCode());
 	}
 
 	@Override
-	public SelectionKey register(Selector ioEventSelector, int wantedInterestOps) throws ClosedChannelException {
+	public SelectionKey register(Selector ioEventSelector, int wantedInterestOps) throws ClosedChannelException {		
 		SelectionKey registedKey = clientSC.register(ioEventSelector, wantedInterestOps);		
 		return registedKey;
 	}
@@ -388,17 +422,17 @@ public class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynCo
 	}
 	
 	@Override
-	public boolean finishConnect() throws IOException {
+	public boolean finishConnect() throws IOException {		
 		return clientSC.finishConnect();
 	}
 
 	@Override
-	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
+	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {		
 		int mailboxID = wrapReadableMiddleObject.getMailboxID();
 		if (CommonStaticFinalVars.ASYN_MAILBOX_ID == mailboxID) {
 			clientExecutor.putAsynOutputMessage(wrapReadableMiddleObject);
 		} else {
-			syncMailboxForAsynNoShare.putSyncOutputMessage(wrapReadableMiddleObject);
+			syncMessageMailbox.putSyncOutputMessage(wrapReadableMiddleObject);
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package kr.pe.codda.common.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
@@ -164,38 +165,39 @@ public class SocketOutputStream {
 		return numRead;
 	}
 	
-	/*public int read(Socket readableSocket) throws IOException, NoMoreDataPacketBufferException {
+	public int read(InputStream is, byte[] buffer) throws IOException, NoMoreDataPacketBufferException {
 		int numRead = 0;
 		
-		InputStream inputStream = readableSocket.getInputStream();
-		byte recvBytes[] = new byte[dataPacketBufferSize];	
+		ByteBuffer lastByteBuffer = null;
+		WrapBuffer lastWrapBuffer = null;
 		
-		WrapBuffer lastWrapBuffer = socketOutputStreamWrapBufferList.pollLast();
-		
-		if (null == lastWrapBuffer) {
+		if (socketOutputStreamWrapBufferQueue.isEmpty()) {
 			lastWrapBuffer = addNewSocketOutputStreamWrapBuffer();
+		} else {
+			lastWrapBuffer = socketOutputStreamWrapBufferQueue.peekLast();
 		}
 		
-		ByteBuffer lastByteBuffer = lastWrapBuffer.getByteBuffer();
+		lastByteBuffer = lastWrapBuffer.getByteBuffer();
 		
-
+		
 		if (! lastByteBuffer.hasRemaining()) {
 			lastWrapBuffer = addNewSocketOutputStreamWrapBuffer();
 			lastByteBuffer = lastWrapBuffer.getByteBuffer();
 		}
 		
-		numRead = inputStream.read(recvBytes,
-				0,
-				lastByteBuffer.remaining());			
+		numRead = is.read(buffer, 0, lastByteBuffer.remaining());
 		
-		if (numRead > 0) {
-			lastByteBuffer.put(recvBytes, 0, numRead);
-			
-			numberOfWrittenBytes += numRead;
+		// log.info("numRead={}, buffer={}", numRead, HexUtil.getHexStringFromByteArray(buffer, 0, numRead));
+		if (numRead <= 0) {
+			return numRead;
 		}
 		
+		lastByteBuffer.put(buffer, 0, numRead);			
+		
+		numberOfWrittenBytes += numRead;		
+		
 		return numRead;
-	}*/
+	}
 	
 	
 	public SocketInputStream createNewSocketInputStream() throws NoMoreDataPacketBufferException {

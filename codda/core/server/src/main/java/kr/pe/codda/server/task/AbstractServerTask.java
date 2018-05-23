@@ -58,6 +58,7 @@ public abstract class AbstractServerTask {
 	public void execute(int index, 
 			String projectName,
 			SocketChannel fromSC,
+			SocketResource fromSocketResource,
 			SocketResourceManagerIF socketResourceManager,
 			SocketResource socketResourceOfFromSC,
 			PersonalLoginManagerIF personalLoginManagerOfFromSC,
@@ -177,6 +178,7 @@ public abstract class AbstractServerTask {
 		// PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
 		
 		ToLetterCarrier toLetterCarrier = new ToLetterCarrier(fromSC, 
+				fromSocketResource,
 				inputMessage, 
 				socketResourceManager,
 				personalLoginManagerOfFromSC,
@@ -201,7 +203,6 @@ public abstract class AbstractServerTask {
 			return;
 		}
 
-		toLetterCarrier.putAllInputMessageToOutputMessageQueue();
 
 		// long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
 		// log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));

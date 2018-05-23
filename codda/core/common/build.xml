@@ -124,52 +124,5 @@
 				</archives>
 			</restrict>
 		</jar>
-	</target>
-	
-	<target name="clean.test">
-		<delete dir="${dir.report}" />
-		<mkdir dir="${dir.report}" />
-		<delete dir="${dir.build}/test" />
-		<mkdir dir="${dir.build}/test" />
-	</target>
-	
-	<target name="compile.test">
-		<mkdir dir="${dir.build}/test" />
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.testsrc}" destdir="${dir.build}/test">			
-			<classpath>
-				<fileset file="${dir.dist}/${core.common.jar.name}" />
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.testlib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>		
-	</target>
-	
-	<target name="test" depends="compile.test">
-		<junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes" showoutput="true">
-			<formatter type="xml" />
-			<classpath>
-				<fileset file="${dir.dist}/${core.common.jar.name}" />
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.testlib}">
-					<include name="**/*.jar" />
-				</fileset>				
-				<union refid="logback.jarlibs" />
-			</classpath>
-			<classpath>
-				<pathelement location="${dir.build}/test/"/>
-			</classpath>
-			
-			<batchtest todir="${dir.report}"> 
-				 <fileset dir="${dir.testsrc}">
-					<include name="kr/pe/codda/**/*Test.java"/>
-				 </fileset>
-			</batchtest>			
-		</junit>
-	</target>
+	</target>	
 </project>

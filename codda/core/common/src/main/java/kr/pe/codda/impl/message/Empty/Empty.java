@@ -29,7 +29,7 @@ public class Empty extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("empty[");
+		builder.append("Empty[");
 		builder.append("]");
 		return builder.toString();
 	}

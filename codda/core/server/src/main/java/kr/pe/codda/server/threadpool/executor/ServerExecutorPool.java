@@ -31,7 +31,6 @@ import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.threadpool.ThreadPoolIF;
 import kr.pe.codda.server.ServerObjectCacheManagerIF;
 import kr.pe.codda.server.SocketResourceManagerIF;
-import kr.pe.codda.server.threadpool.IEOServerThreadPoolSetManagerIF;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드 폴
@@ -57,8 +56,7 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 			int inputMessageQueueSize,			
 			MessageProtocolIF messageProtocol,
 			SocketResourceManagerIF socketResourceManager,
-			ServerObjectCacheManagerIF serverObjectCacheManager,
-			IEOServerThreadPoolSetManagerIF ieoThreadPoolManager) throws CoddaConfigurationException {
+			ServerObjectCacheManagerIF serverObjectCacheManager) throws CoddaConfigurationException {
 		if (poolSize <= 0) {
 			String errorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize); 
 			throw new IllegalArgumentException(errorMessage);
@@ -95,10 +93,6 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 			throw new IllegalArgumentException("the parameter serverObjectCacheManager is null");
 		}
 		
-		if (null == ieoThreadPoolManager) {
-			throw new IllegalArgumentException("the parameter ieoThreadPoolManager is null");
-		}
-		
 		this.poolMaxSize = poolMaxSize;
 		this.projectName = projectName;		
 		this.inputMessageQueueSize = inputMessageQueueSize;
@@ -106,7 +100,8 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 		this.socketResourceManager = socketResourceManager;
 		this.serverObjectCacheManager =  serverObjectCacheManager;
 		
-		ieoThreadPoolManager.setExecutorPool(this);		
+		socketResourceManager.setServerExecutorPool(this);
+		
 		
 		for (int i = 0; i < poolSize; i++) {
 			try {
