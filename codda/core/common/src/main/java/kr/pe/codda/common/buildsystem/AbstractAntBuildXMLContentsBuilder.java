@@ -273,7 +273,7 @@ public abstract class AbstractAntBuildXMLContentsBuilder {
 		contentsStringBuilder.append(" />");
 	}
 	
-	public static void addCopyCoreTargetPart(StringBuilder contentsStringBuilder, int depth, boolean whetherOrNotToIncludeCoreLib) {
+	public static void addCopyCoreTargetPart(StringBuilder contentsStringBuilder, int depth, boolean whetherOrNotToIncludeCoreLib, boolean whetherOrNotToIncludeLogbackLib) {
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 1);
 		contentsStringBuilder.append("<target");
@@ -318,11 +318,14 @@ public abstract class AbstractAntBuildXMLContentsBuilder {
 		addAttribute(contentsStringBuilder, "refid", "core.all.jarlibs");
 		contentsStringBuilder.append(" />");
 		
-		addNewLine(contentsStringBuilder);
-		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
-		contentsStringBuilder.append("<union");
-		addAttribute(contentsStringBuilder, "refid", "logback.jarlibs");
-		contentsStringBuilder.append(" />");
+		if (whetherOrNotToIncludeLogbackLib) {
+			addNewLine(contentsStringBuilder);
+			CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 3);
+			contentsStringBuilder.append("<union");
+			addAttribute(contentsStringBuilder, "refid", "logback.jarlibs");
+			contentsStringBuilder.append(" />");
+		}
+		
 		
 		addNewLine(contentsStringBuilder);
 		CommonStaticUtil.addPrefixWithTabCharacters(contentsStringBuilder, depth, 2);

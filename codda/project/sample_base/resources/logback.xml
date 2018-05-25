@@ -26,7 +26,7 @@
 		<appender-ref ref="console"/>
 	</root>
 
-	<logger name="kr.pe.codda" level="DEBUG">
+	<logger name="kr.pe.codda" level="INFO">
 		<appender-ref ref="logfile"/>
 	</logger>
 	

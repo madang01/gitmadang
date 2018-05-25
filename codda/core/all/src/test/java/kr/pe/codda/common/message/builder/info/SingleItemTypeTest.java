@@ -31,4 +31,6 @@ public class SingleItemTypeTest extends AbstractJunitTest {
 			}
 		}
 	}
+	
+	
 }

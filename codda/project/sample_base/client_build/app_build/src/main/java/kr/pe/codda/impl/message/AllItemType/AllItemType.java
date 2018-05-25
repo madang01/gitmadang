@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.AllItemType;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * AllItemType 메시지
+ * AllItemType message
  * @author Won Jonghoon
  *
  */

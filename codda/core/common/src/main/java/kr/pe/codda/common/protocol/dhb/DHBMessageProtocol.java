@@ -331,9 +331,6 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 		boolean isMoreMessage = false;
 		long socketOutputStreamSize = socketOutputStream.size();
-		
-		
-
 		try {
 			do {
 				if (null == workingDHBMessageHeader && socketOutputStreamSize >= messageHeaderSize) {

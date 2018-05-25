@@ -26,14 +26,13 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
-import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.server.PersonalLoginManagerIF;
+import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.ServerObjectCacheManagerIF;
-import kr.pe.codda.server.SocketResource;
-import kr.pe.codda.server.SocketResourceManagerIF;
+import kr.pe.codda.server.AcceptedConnection;
+import kr.pe.codda.server.AcceptedConnectionManagerIF;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -52,32 +51,32 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	private String projectName = null;
 	
 	private ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue;
+	private ProjectLoginManagerIF projectLoginManager = null;
 	private MessageProtocolIF messageProtocol = null;
 	
-	private SocketResourceManagerIF socketResourceManager = null;
+	private AcceptedConnectionManagerIF acceptedConnectionManager = null;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;	
 	
 	private final ConcurrentHashMap<SocketChannel, SocketChannel> socketChannelHash 
 		= new ConcurrentHashMap<SocketChannel, SocketChannel>();
 
-	private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue = null;
+	// private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue = null;
 	
 	public ServerExecutor(int index,
 			String projectName,
 			ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue,
+			ProjectLoginManagerIF projectLoginManager,
 			MessageProtocolIF messageProtocol, 
-			SocketResourceManagerIF socketResourceManager,
+			AcceptedConnectionManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		this.index = index;		
 		this.projectName = projectName;
 		this.inputMessageQueue = inputMessageQueue;
+		this.projectLoginManager = projectLoginManager;
 		this.messageProtocol = messageProtocol;
-		this.socketResourceManager = socketResourceManager;
+		this.acceptedConnectionManager = socketResourceManager;
 		this.serverObjectCacheManager = serverObjectCacheManager;
-		
-		wrapMessageBlockingQueue = new SimpleReceivedMessageBlockingQueue(inputMessageQueue);
-	}
-	
+	}	
 
 	@Override
 	public void run() {
@@ -93,16 +92,15 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 				SocketChannel fromSC = wrapReadableMiddleObject.getFromSC();
 				String messageID = wrapReadableMiddleObject.getMessageID();
 				
-				SocketResource fromSocketResource = socketResourceManager.getSocketResource(fromSC);
-				if (null == fromSocketResource) {
-					log.warn("the socket channel[{}] sending a input message[{}] failed to get socket resources, so stop to do task",
+				AcceptedConnection fromAcceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+				if (null == fromAcceptedConnection) {
+					log.warn("the socket channel[{}] sending a input message[{}] failed to get a accpeted connection, so stop to do task",
 							fromSC.hashCode(), wrapReadableMiddleObject.toSimpleInformation());
 					continue;
 				}
 				
-				PersonalLoginManagerIF personalLoginManagerOfFromSC = fromSocketResource.getPersonalLoginManager();
-				
-				
+				PersonalLoginManagerIF fromPersonalLoginManager = fromAcceptedConnection.getPersonalLoginManager();
+
 				try {
 					AbstractServerTask  serverTask = null;
 					try {
@@ -116,7 +114,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 								errorType,
 								errorReason,
 								wrapReadableMiddleObject, 
-								fromSocketResource, messageProtocol);
+								fromAcceptedConnection, messageProtocol);
 						
 						continue;
 					} catch(Exception | Error e) {
@@ -127,17 +125,17 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 								errorType,
 								errorReason,
-								wrapReadableMiddleObject, fromSocketResource, messageProtocol);
+								wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 						continue;
 					}
 					
 					try {
 						serverTask.execute(index, projectName, 
 								fromSC,
-								fromSocketResource,
-								socketResourceManager,
-								fromSocketResource,
-								personalLoginManagerOfFromSC,
+								fromPersonalLoginManager,
+								fromAcceptedConnection,
+								projectLoginManager,
+								acceptedConnectionManager,								
 								wrapReadableMiddleObject, 
 								messageProtocol);
 					} catch (InterruptedException e) {
@@ -150,7 +148,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 								errorType,
 								errorReason,
-								wrapReadableMiddleObject, fromSocketResource, messageProtocol);
+								wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 						continue;
 					}
 				
@@ -190,14 +188,12 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 		return socketChannelHash.size();
 	}
 	
+	@Override
+	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
+		inputMessageQueue.put(wrapReadableMiddleObject);
+	}
 	
 	public void finalize() {
 		log.warn("{} ServerExecutor[{}] finalize", projectName, index);
-	}
-
-
-	@Override
-	public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-		return wrapMessageBlockingQueue;
-	}
+	}	
 }

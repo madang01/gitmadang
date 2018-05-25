@@ -83,6 +83,7 @@ public final class ConnectionPoolManager {
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
+		
 
 		subProjectNamelist = allSubProjectPart.getSubProjectNamelist();
 
@@ -100,7 +101,7 @@ public final class ConnectionPoolManager {
 				System.exit(1);
 			}
 		}
-
+		
 		anyProjectConnectionPoolMonitor = new AnyProjectConnectionPoolMonitor(
 				mainProjectPartConfiguration.getClientMonitorTimeInterval());
 		anyProjectConnectionPoolMonitor.start();

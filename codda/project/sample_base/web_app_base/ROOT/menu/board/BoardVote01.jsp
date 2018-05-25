@@ -1,11 +1,11 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.BoardType"%><%
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.codda.weblib.common.BoardType"%><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="messageResultRes" class="kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes" scope="request" />
+%><jsp:useBean id="messageResultRes" class="kr.pe.codda.impl.message.MessageResultRes.MessageResultRes" scope="request" />
 <script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
 <script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
 <script type="text/javascript" src="/js/jsbn/prng4.js"></script>

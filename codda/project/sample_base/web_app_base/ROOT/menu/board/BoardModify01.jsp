@@ -1,12 +1,12 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%	
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.BoardType"%><%
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%	
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.codda.weblib.common.BoardType"%><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="boardDetailRes" class="kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes" scope="request" /><%
+%><jsp:useBean id="boardDetailRes" class="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" scope="request" /><%
 %><!DOCTYPE html>
 <html>
 <head>
@@ -238,11 +238,11 @@
 	}
 	
 	function init() {<%
-	java.util.List<kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes.AttachFile> attachFileList = boardDetailRes.getAttachFileList();
+	java.util.List<kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes.AttachFile> attachFileList = boardDetailRes.getAttachFileList();
 		if (attachFileList.size() > 0) {
 %>
 		boardUploadFileOutDTO = {isError:false, attachId:<%=boardDetailRes.getAttachId()%>, oldAttachFileList : [<%
-			for (kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes.AttachFile attachFile : attachFileList) {
+			for (kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes.AttachFile attachFile : attachFileList) {
 				out.print("{");
 				out.print("attachSeq:");
 				out.print(attachFile.getAttachSeq());

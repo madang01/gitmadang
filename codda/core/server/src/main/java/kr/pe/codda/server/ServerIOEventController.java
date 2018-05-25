@@ -9,7 +9,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -23,7 +22,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	private String serverHost;
 	private int serverPort;
 	private int maxClients;	
-	private SocketResourceManagerIF socketResourceManager = null;
+	private AcceptedConnectionManagerIF accpetedConnectionManager = null;
 
 	public ServerIOEventController(String projectName, String serverHost, int serverPort, int maxClients) {
 		this.projectName = projectName;
@@ -32,8 +31,8 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		this.maxClients = maxClients;
 	}
 
-	public void setSocketResourceManager(SocketResourceManagerIF socketResourceManager) {
-		this.socketResourceManager = socketResourceManager;
+	public void setSocketResourceManager(AcceptedConnectionManagerIF accpetedConnectionManager) {
+		this.accpetedConnectionManager = accpetedConnectionManager;
 	}
 	
 	/**
@@ -80,56 +79,44 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 						for (SelectionKey selectedKey : selectedKeySet) {
 
 							if (selectedKey.isAcceptable()) {
-								long startTime = 0, endTime = 0;
-								startTime = System.nanoTime();
-
 								ServerSocketChannel readyChannel = (ServerSocketChannel) selectedKey.channel();
 
-								SocketChannel acceptedSocketChannel = readyChannel.accept();
+								SocketChannel acceptableSocketChannel = readyChannel.accept();
 
-								if (null == acceptedSocketChannel) {
-									log.warn("acceptedSocketChannel is null");
+								if (null == acceptableSocketChannel) {
+									log.warn("acceptableSocketChannel is null");
 									continue;
 								}
 
-								int numberOfSocketResources = socketResourceManager.getNumberOfSocketResources();
+								int numberOfSocketResources = accpetedConnectionManager.getNumberOfAcceptedConnection();
 
 								if (numberOfSocketResources < maxClients) {
 									// log.info("accepted socket channel=[{}]", sc.hashCode());
-									setupSocketChannel(acceptedSocketChannel);
+									setupAcceptedSocketChannel(acceptableSocketChannel);
 
 									try {
-										acceptedSocketChannel.register(ioEventSelector, SelectionKey.OP_READ);
+										acceptableSocketChannel.register(ioEventSelector, SelectionKey.OP_READ);
 
-										socketResourceManager.addNewAcceptedSocketChannel(acceptedSocketChannel);
+										accpetedConnectionManager.addNewAcceptedSocketChannel(acceptableSocketChannel);
 									} catch (ClosedChannelException e) {
 										log.warn(
 												"fail to register this channel[{}] with the given selector having a the interest set OP_READ",
-												acceptedSocketChannel.hashCode());
+												acceptableSocketChannel.hashCode());
 
 										continue;
 									}
-
 								} else {
-									acceptedSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
-									acceptedSocketChannel.close();
+									acceptableSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
+									acceptableSocketChannel.close();
 									log.warn("max clients[{}] researched so close the selected socket channel[{}]",
-											maxClients, acceptedSocketChannel.hashCode());
+											maxClients, acceptableSocketChannel.hashCode());
 
-								}
-
-								endTime = System.nanoTime();
-
-								long elaspedTime = endTime - startTime;
-								if (elaspedTime > 1000000) {
-									log.info("accept elasped time={}", TimeUnit.MICROSECONDS.convert(elaspedTime, TimeUnit.NANOSECONDS));
-								}
-								
+								}								
 							} else if (selectedKey.isReadable()) {
 								SocketChannel readableSocketChannel = (SocketChannel) selectedKey.channel();
 
-								SocketResource selectedSocketResource = socketResourceManager
-										.getSocketResource(readableSocketChannel);
+								AcceptedConnection selectedSocketResource = accpetedConnectionManager
+										.getAcceptedConnection(readableSocketChannel);
 
 								if (null == selectedSocketResource) {
 									log.warn("this reable socket channel[{}] has no resoruce",
@@ -141,8 +128,8 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 							} else if (selectedKey.isWritable()) {
 								SocketChannel writableSocketChannel = (SocketChannel) selectedKey.channel();
 
-								SocketResource selectedSocketResource = socketResourceManager
-										.getSocketResource(writableSocketChannel);
+								AcceptedConnection selectedSocketResource = accpetedConnectionManager
+										.getAcceptedConnection(writableSocketChannel);
 
 								if (null == selectedSocketResource) {
 									log.warn("this writable socket channel[{}] has no resoruce",
@@ -180,7 +167,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		}
 	}
 
-	private void setupSocketChannel(SocketChannel acceptedSocketChannel) throws IOException {
+	private void setupAcceptedSocketChannel(SocketChannel acceptedSocketChannel) throws IOException {
 		acceptedSocketChannel.configureBlocking(false);
 		acceptedSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		acceptedSocketChannel.setOption(StandardSocketOptions.TCP_NODELAY, true);
@@ -189,11 +176,11 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	}
 
 	@Override
-	public void startWrite(InterestedResoruceIF asynInterestedConnectionIF) {
+	public void startWrite(InterestedConnectionIF asynInterestedConnectionIF) {
 		SelectionKey selectedKey = asynInterestedConnectionIF.keyFor(ioEventSelector);
 		if (null == selectedKey) {
-			log.error("selectedKey is null");
-			System.exit(1);
+			log.warn("selectedKey is null", asynInterestedConnectionIF.hashCode());
+			return;
 		}
 		
 		// FIXME!
@@ -205,7 +192,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	}
 	
 	@Override
-	public void endWrite(InterestedResoruceIF asynInterestedConnectionIF) {
+	public void endWrite(InterestedConnectionIF asynInterestedConnectionIF) {
 		SelectionKey selectedKey = asynInterestedConnectionIF.keyFor(ioEventSelector);
 		if (null == selectedKey) {
 			log.error("selectedKey is null");

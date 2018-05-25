@@ -40,16 +40,17 @@ import kr.pe.codda.server.threadpool.executor.ServerExecutorIF;
  * @author Won Jonghoon
  * 
  */
-public class SocketResource implements InterestedResoruceIF {
-	private InternalLogger log = InternalLoggerFactory.getInstance(SocketResource.class);
+public class AcceptedConnection implements InterestedConnectionIF {
+	private InternalLogger log = InternalLoggerFactory.getInstance(AcceptedConnection.class);
 
-	private SocketChannel ownerSC = null;
+	private AcceptedConnectionManagerIF acceptedConnectionManager = null;
+	private SocketChannel acceptedSocketChannel = null;
 	private long socketTimeOut=5000;
 	private int outputMessageQueueSize=5;
 	private MessageProtocolIF messageProtocol = null;
 	private ServerExecutorIF serverExecutor = null;
-	private SocketOutputStream socketOutputStreamOfOwnerSC = null;
-	private PersonalLoginManagerIF personalLoginManagerOfOwnerSC = null;	
+	private SocketOutputStream socketOutputStream = null;
+	private PersonalLoginManager personalLoginManager = null;	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ServerIOEvenetControllerIF serverIOEvenetController = null;
 	
@@ -62,18 +63,23 @@ public class SocketResource implements InterestedResoruceIF {
 	private final Object monitorOfServerMailID = new Object();
 	/** 클라이언트에 할당되는 서버 편지 식별자 */
 	private int serverMailID = Integer.MIN_VALUE;
-		
-	public SocketResource(SocketChannel ownerSC,
+			
+	public AcceptedConnection(AcceptedConnectionManagerIF acceptedConnectionManager,
+			SocketChannel acceptedSocketChannel,
 			long socketTimeOut,
 			int outputMessageQueueSize,
-			MessageProtocolIF messageProtocol,
-			ServerExecutorIF serverExecutor,
-			SocketOutputStream socketOutputStreamOfOwnerSC,
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC,
+			SocketOutputStream socketOutputStreamOfAcceptedSC,
+			PersonalLoginManager personalLoginManagerOfAcceptedSC,
+			ServerExecutorIF serverExecutorOfAcceptedSC,
+			MessageProtocolIF messageProtocol,						
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			ServerIOEvenetControllerIF serverIOEvenetController) {
-		if (null == ownerSC) {
-			throw new IllegalArgumentException("the parameter ownerSC is null");
+		if (null == acceptedConnectionManager) {
+			throw new IllegalArgumentException("the parameter acceptedConnectionManager is null");
+		}
+		
+		if (null == acceptedSocketChannel) {
+			throw new IllegalArgumentException("the parameter acceptedSocketChannel is null");
 		}
 		
 		if (socketTimeOut < 0) {
@@ -84,22 +90,21 @@ public class SocketResource implements InterestedResoruceIF {
 			throw new IllegalArgumentException("the parameter outputMessageQueueSize is less than or equal to zero");
 		}
 		
+		if (null == socketOutputStreamOfAcceptedSC) {
+			throw new IllegalArgumentException("the parameter socketOutputStreamOfAcceptedSC is null");
+		}
+		
+		if (null == personalLoginManagerOfAcceptedSC) {
+			throw new IllegalArgumentException("the parameter personalLoginManagerOfAcceptedSC is null");
+		}		
+		
+		if (null == serverExecutorOfAcceptedSC) {
+			throw new IllegalArgumentException("the parameter serverExecutorOfAcceptedSC is null");
+		}	
+		
 		if (null == messageProtocol) {
 			throw new IllegalArgumentException("the parameter messageProtocol is null");
-		}
-
-		if (null == serverExecutor) {
-			throw new IllegalArgumentException("the parameter serverExecutor is null");
-		}
-		
-		
-		if (null == socketOutputStreamOfOwnerSC) {
-			throw new IllegalArgumentException("the parameter socketOutputStreamOfOwnerSC is null");
-		}
-		
-		if (null == personalLoginManagerOfOwnerSC) {
-			throw new IllegalArgumentException("the parameter personalLoginManagerOfOwnerSC is null");
-		}
+		}		
 		
 		if (null == dataPacketBufferPool) {
 			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
@@ -109,13 +114,14 @@ public class SocketResource implements InterestedResoruceIF {
 			throw new IllegalArgumentException("the parameter serverIOEvenetController is null");
 		}
 		
-		this.ownerSC = ownerSC;
+		this.acceptedConnectionManager = acceptedConnectionManager;
+		this.acceptedSocketChannel = acceptedSocketChannel;
 		this.socketTimeOut = socketTimeOut;
 		this.outputMessageQueueSize = outputMessageQueueSize;
+		this.socketOutputStream = socketOutputStreamOfAcceptedSC;
+		this.personalLoginManager = personalLoginManagerOfAcceptedSC;
+		this.serverExecutor = serverExecutorOfAcceptedSC;		
 		this.messageProtocol = messageProtocol;
-		this.serverExecutor = serverExecutor;
-		this.socketOutputStreamOfOwnerSC = socketOutputStreamOfOwnerSC;
-		this.personalLoginManagerOfOwnerSC = personalLoginManagerOfOwnerSC;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.serverIOEvenetController = serverIOEvenetController;
 		
@@ -127,7 +133,7 @@ public class SocketResource implements InterestedResoruceIF {
 	}
 	
 	public SocketChannel getOwnerSC() {
-		return ownerSC;
+		return acceptedSocketChannel;
 	}
 	
 	
@@ -161,44 +167,36 @@ public class SocketResource implements InterestedResoruceIF {
 		}
 	}
 	
-	
-	
-	
 	public PersonalLoginManagerIF getPersonalLoginManager() {
-		return personalLoginManagerOfOwnerSC;
-	}
-	
-	public void close() throws IOException {
-		ownerSC.close();
+		return personalLoginManager;
 	}
 	
 	
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("ClientResource [");		
-		builder.append("ownerSC=");
-		builder.append(ownerSC.hashCode());
-		builder.append(", finalReadTime=");
-		builder.append(finalReadTime);		
-		builder.append(", serverMailID=");
-		builder.append(serverMailID);
-		builder.append("]");
-		return builder.toString();
-	}
+	public void close() {
+		try {
+			acceptedSocketChannel.shutdownOutput();
+		} catch(Exception e) {
+			log.warn("fail to shutdown output of the socket channel[{}], errmsg={}", acceptedSocketChannel.hashCode(), e.getMessage());
+		}
+		
+		try {
+			acceptedSocketChannel.close();
+		} catch(Exception e) {
+			log.warn("fail to close the socket channel[{}], errmsg={}", acceptedSocketChannel.hashCode(), e.getMessage());
+		}
+	}	
 
 	@Override
 	public void onRead(SelectionKey selectedKey) throws InterruptedException {
 		try {
 			int numberOfReadBytes = 0;			
 			do {
-				numberOfReadBytes = socketOutputStreamOfOwnerSC.read(ownerSC);
+				numberOfReadBytes = socketOutputStream.read(acceptedSocketChannel);
 			} while (numberOfReadBytes > 0);
 
 			if (numberOfReadBytes == -1) {
 				String errorMessage = new StringBuilder("this socket channel[")
-						.append(ownerSC.hashCode())
+						.append(acceptedSocketChannel.hashCode())
 						.append("] has reached end-of-stream").toString();
 
 				log.warn(errorMessage);
@@ -210,59 +208,48 @@ public class SocketResource implements InterestedResoruceIF {
 
 			setFinalReadTime();
 			
-			messageProtocol.S2MList(ownerSC, socketOutputStreamOfOwnerSC, serverExecutor.getWrapMessageBlockingQueue());		
+			messageProtocol.S2MList(acceptedSocketChannel, socketOutputStream, serverExecutor);		
 				
 		} catch (NoMoreDataPacketBufferException e) {
 			String errorMessage = new StringBuilder()
 					.append("the no more data packet buffer error occurred while reading the socket[")
-					.append(ownerSC.hashCode())
+					.append(acceptedSocketChannel.hashCode())
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
 			
+			close();
+			
+			releaseResources();			
 			selectedKey.channel();
 			return;
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder()
 					.append("the io error occurred while reading the socket[")
-					.append(ownerSC.hashCode())
+					.append(acceptedSocketChannel.hashCode())
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
+			
+			close();
+			
 			releaseResources();
 			selectedKey.channel();
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
 					.append("the unknown error occurred while reading the socket[")
-					.append(ownerSC.hashCode())
+					.append(acceptedSocketChannel.hashCode())
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
+			
+			close();
+			
 			releaseResources();
 			selectedKey.channel();
 			return;
-		}
-		
+		}		
 	}
 
 	@Override
@@ -274,21 +261,28 @@ public class SocketResource implements InterestedResoruceIF {
 		while (loop) {
 			int numberOfBytesWritten  = 0;
 			try {
-				numberOfBytesWritten = ownerSC.write(currentWorkingByteBuffer);
+				numberOfBytesWritten = acceptedSocketChannel.write(currentWorkingByteBuffer);
 			} catch(IOException e) {
 				String errorMessage = new StringBuilder()
 						.append("fail to write a sequence of bytes to this channel[")
-						.append(ownerSC.hashCode())
-						.append("] because error occured, errmsg=")
+						.append(acceptedSocketChannel.hashCode())
+						.append("] because io error occured, errmsg=")
 						.append(e.getMessage()).toString();
 				log.warn(errorMessage, e);
-				try {
-					close();
-				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}], errmsg={}", 
-							hashCode(), e1.getMessage());
-				}
 				
+				close();				
+				releaseResources();
+				selectedKey.channel();
+				return;
+			} catch(Exception e) {
+				String errorMessage = new StringBuilder()
+						.append("fail to write a sequence of bytes to this channel[")
+						.append(acceptedSocketChannel.hashCode())
+						.append("] because unknow error occured, errmsg=")
+						.append(e.getMessage()).toString();
+				log.warn(errorMessage, e);
+				
+				close();				
 				releaseResources();
 				selectedKey.channel();
 				return;
@@ -326,24 +320,23 @@ public class SocketResource implements InterestedResoruceIF {
 				currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 			}
 		}
-	}
+	} 
 	
-	 
-
-	@Override
 	public void releaseResources() {
-		socketOutputStreamOfOwnerSC.close();
-		personalLoginManagerOfOwnerSC.releaseLoginUserResource();
+		socketOutputStream.close();
+		personalLoginManager.releaseLoginUserResource();
 
 		/**
 		 * 참고 : '메시지 입력 담당 쓰레드'(=InputMessageReader) 는 소켓이 닫히면 자동적으로 selector 에서 인지하여 제거되므로 따로 작업할 필요 없음
 		 */
-		serverExecutor.removeSocket(ownerSC);
+		serverExecutor.removeSocket(acceptedSocketChannel);
+		
+		acceptedConnectionManager.remove(acceptedSocketChannel);
 	}
 
 	@Override
 	public SelectionKey keyFor(Selector ioEventSelector) {
-		return ownerSC.keyFor(ioEventSelector);
+		return acceptedSocketChannel.keyFor(ioEventSelector);
 	}
 	
 	public void addOutputMessage(AbstractMessage outputMessage, ArrayDeque<WrapBuffer> outputMessageWrapBufferQueue) throws InterruptedException {
@@ -353,7 +346,7 @@ public class SocketResource implements InterestedResoruceIF {
 				
 				if (outputMessageQueue.size() == outputMessageQueueSize) {						
 					log.warn("drop the outgoing letter[sc={}][{}] because the output message could not be inserted into the output message queue during the socket timeout period.", 
-							ownerSC.hashCode(), outputMessage.toString());
+							acceptedSocketChannel.hashCode(), outputMessage.toString());
 					return;
 				}
 			}
@@ -366,5 +359,23 @@ public class SocketResource implements InterestedResoruceIF {
 	/** only Junit test */
 	public ArrayDeque<ArrayDeque<WrapBuffer>> getOutputMessageQueue() {
 		return outputMessageQueue;
+	}
+	
+	public int hashCode() {
+		return acceptedSocketChannel.hashCode();	
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("AcceptedConnection [");		
+		builder.append("acceptedSocketChannel=");
+		builder.append(acceptedSocketChannel.hashCode());
+		builder.append(", finalReadTime=");
+		builder.append(finalReadTime);		
+		builder.append(", serverMailID=");
+		builder.append(serverMailID);
+		builder.append("]");
+		return builder.toString();
 	}
 }

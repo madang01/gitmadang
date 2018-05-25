@@ -224,7 +224,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					long outputStreamSize = fsos.size();
 					if (outputStreamSize <= dataPacketBufferSize) {
-						WrapBuffer workingWrapBuffer = flippedWrapBufferQueue.removeFirst();
+						WrapBuffer workingWrapBuffer = flippedWrapBufferQueue.peekFirst();
 						ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
 						/** warning! the duplicate method doesn't copy the byte order attribute */
 						dupBuffer.order(streamByteOrder);

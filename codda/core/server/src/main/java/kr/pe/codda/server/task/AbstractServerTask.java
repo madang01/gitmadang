@@ -31,9 +31,10 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.type.SelfExn;
+import kr.pe.codda.server.AcceptedConnection;
+import kr.pe.codda.server.AcceptedConnectionManagerIF;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.SocketResource;
-import kr.pe.codda.server.SocketResourceManagerIF;
+import kr.pe.codda.server.ProjectLoginManagerIF;
 
 /**
  * <pre>
@@ -58,10 +59,10 @@ public abstract class AbstractServerTask {
 	public void execute(int index, 
 			String projectName,
 			SocketChannel fromSC,
-			SocketResource fromSocketResource,
-			SocketResourceManagerIF socketResourceManager,
-			SocketResource socketResourceOfFromSC,
-			PersonalLoginManagerIF personalLoginManagerOfFromSC,
+			PersonalLoginManagerIF fromPersonalLoginManager,
+			AcceptedConnection fromAcceptedConnection,
+			ProjectLoginManagerIF projectLoginManager,
+			AcceptedConnectionManagerIF acceptedConnectionManager,			
 			WrapReadableMiddleObject wrapReadableMiddleObject,
 			MessageProtocolIF messageProtocol) throws InterruptedException {
 		
@@ -83,10 +84,10 @@ public abstract class AbstractServerTask {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
-					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 			return;
 		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknwon error::fail to get the server message codec of the input message[")
+			String errorMessage = new StringBuilder("unknown error::fail to get the server message codec of the input message[")
 					.append(wrapReadableMiddleObject.toSimpleInformation())
 					.append("]::").append(e.getMessage()).toString();
 			
@@ -98,7 +99,7 @@ public abstract class AbstractServerTask {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
-					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 			return;
 		}
 
@@ -107,27 +108,33 @@ public abstract class AbstractServerTask {
 			inputMessageDecoder = serverInputMessageCodec.getMessageDecoder();
 		} catch (DynamicClassCallException e) {
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = String.format("fail to get a input message[%s] decoder, errmsg=%s", 
-					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			String errorReason = new StringBuilder()
+					.append("fail to get a input message decoder[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("], errmsg=")
+					.append(e.getMessage()).toString();
 			
 			log.warn(errorReason);
 			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
-					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 			return;
 		} catch(Exception | Error e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = String.format("unknown error::fail to get a input message[%s] decoder::%s", 
-					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			String errorReason = new StringBuilder()
+					.append("unknown error::fail to get a input message decoder[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("], errmsg=")
+					.append(e.getMessage()).toString();
 			
 			log.warn(errorReason, e);
 			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
-					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 			return;
 		}
 
@@ -141,9 +148,9 @@ public abstract class AbstractServerTask {
 			inputMessage.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
 			inputMessage.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 		} catch (BodyFormatException e) {
-			String errorMessage = new StringBuilder("fail to get a input message[")
+			String errorMessage = new StringBuilder("fail to get a input message from readable middle object[")
 					.append(wrapReadableMiddleObject.toSimpleInformation())
-					.append("] from readable middle object").toString();
+					.append("]").toString();
 			
 			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
@@ -155,12 +162,12 @@ public abstract class AbstractServerTask {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
-					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 			return;		
 		} catch(Exception | Error e) {
-			String errorMessage = new StringBuilder("unknown error::fail to get a input message[")
+			String errorMessage = new StringBuilder("unknown error::fail to get a input message from readable middle object[")
 					.append(wrapReadableMiddleObject.toSimpleInformation())
-					.append("] from readable middle object::")
+					.append("], errmsg=")
 					.append(e.getMessage()).toString();			
 			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
@@ -171,35 +178,38 @@ public abstract class AbstractServerTask {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
-					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 			return;
 		}
 		
 		// PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
 		
 		ToLetterCarrier toLetterCarrier = new ToLetterCarrier(fromSC, 
-				fromSocketResource,
+				fromAcceptedConnection,
 				inputMessage, 
-				socketResourceManager,
-				personalLoginManagerOfFromSC,
+				projectLoginManager,
+				acceptedConnectionManager,
 				messageProtocol,
 				serverSimpleClassLoader);				
 
 		try {
-			doTask(projectName, personalLoginManagerOfFromSC, toLetterCarrier, inputMessage);
+			doTask(projectName, fromPersonalLoginManager, toLetterCarrier, inputMessage);
 		} catch (InterruptedException e) {
 			throw e;
 		} catch (Exception | Error e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(ServerTaskException.class);
-			String errorReason = String.format("unknown error::fail to execuate the message[%s]'s task::%s", 
-					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			String errorReason = new StringBuilder()
+					.append("unknown error::fail to execuate the input message's task[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("], errmsg=")
+					.append(e.getMessage()).toString();
 			
 			log.warn(errorReason, e);
 			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
-					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 			return;
 		}
 

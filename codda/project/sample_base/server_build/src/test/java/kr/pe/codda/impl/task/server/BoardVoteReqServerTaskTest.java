@@ -5,13 +5,13 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import kr.pe.codda.common.AbstractJunitTest;
+import junitlib.AbstractJunitTest;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class BoardVoteReqServerTaskTest extends AbstractJunitTest {
+public class BoardVoteReqServerTaskTest extends AbstractJunitTest {	
 	@Test
 	public void testDoTask() {
 		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				

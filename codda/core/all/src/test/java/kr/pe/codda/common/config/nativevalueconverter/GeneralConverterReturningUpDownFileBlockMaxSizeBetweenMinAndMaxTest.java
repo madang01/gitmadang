@@ -38,12 +38,10 @@ extends AbstractJunitTest implements NativeValueConverterTestIF {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testConstructor_MinIsLessThanZero() throws Exception {
-		@SuppressWarnings("unused")
-		GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax nativeValueConverter = null;
+	public void testConstructor_MinIsLessThanZero() throws Exception {		
+		// GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax nativeValueConverter = null;
 		try {
-			nativeValueConverter = new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(
-					-1, 1);
+			nativeValueConverter = new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(-1, 1);
 		} catch (IllegalArgumentException e) {
 			log.info(
 					"'the parameter min is less than zero' test ok, errormessage={}",
@@ -53,11 +51,10 @@ extends AbstractJunitTest implements NativeValueConverterTestIF {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testConstructor_MaxIsLessThan1024() throws Exception {
-		@SuppressWarnings("unused")
-		GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax nativeValueConverter = null;
+	public void testConstructor_MaxIsLessThan1024() throws Exception {		
+		// GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax nativeValueConverter = null;
 		try {
-			nativeValueConverter = new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(
+			new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(
 					2, 1023);
 		} catch (IllegalArgumentException e) {
 			log.info(
@@ -69,11 +66,9 @@ extends AbstractJunitTest implements NativeValueConverterTestIF {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testConstructor_MinParameterIsOverMax() throws Exception {
-		@SuppressWarnings("unused")
-		GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax nativeValueConverter = null;
+		// GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax nativeValueConverter = null;
 		try {
-			nativeValueConverter = new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(
-					2, 1);
+			new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(2, 1);
 		} catch (IllegalArgumentException e) {
 			log.info(
 					"'the parameter min is over than max' test ok, errormessage={}",

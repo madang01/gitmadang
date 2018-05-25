@@ -1,1 +1,1 @@
-java -jar codda-helper.jar
+java -jar codda-helper.jar > tmp.log

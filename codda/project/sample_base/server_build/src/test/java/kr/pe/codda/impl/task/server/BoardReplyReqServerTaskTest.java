@@ -5,14 +5,14 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import kr.pe.codda.common.AbstractJunitTest;
+import junitlib.AbstractJunitTest;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MembershipLevel;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
+public class BoardReplyReqServerTaskTest extends AbstractJunitTest {	
 	@Test
 	public void test() {
 		String sqlString = new StringBuilder("if ({0} = ")
@@ -31,7 +31,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 	
 	
 	@Test
-	public void testDoTask() {
+	public void testDoTask() {		
 		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
 		ToLetterCarrier toLetterCarrierMock = Mockito.mock(ToLetterCarrier.class);
 				

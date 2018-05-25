@@ -25,4 +25,6 @@ public class SimpleClassLoaderTest extends AbstractJunitTest {
 			fail("the returned value is null");
 		}
 	}
+	
+	
 }

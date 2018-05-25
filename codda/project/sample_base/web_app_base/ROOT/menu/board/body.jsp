@@ -1,6 +1,6 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType" %><%	
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.codda.weblib.sitemenu.SiteTopMenuType" %><%	
 	setSiteTopMenu(request, SiteTopMenuType.COMMUNITY);
 %><!DOCTYPE html>
 <html>
@@ -56,7 +56,7 @@
 
 	<form name="goListForm" method="post" action="/servlet/BoardList">
 	<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" />
-	<input type="hidden" name="boardId" value="<%= kr.pe.sinnori.weblib.common.BoardType.FREE.getValue() %>" />
+	<input type="hidden" name="boardId" value="<%= kr.pe.codda.weblib.common.BoardType.FREE.getValue() %>" />
 	</form>
 	<session>
 	사랑방 - body part

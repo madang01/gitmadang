@@ -1,13 +1,14 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java"
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java"
 	session="true" autoFlush="true" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%><%	
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars"%><%
-%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><%@ page import="kr.pe.sinnori.weblib.common.BoardType"%><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil" %><%
+%><%@ page import="kr.pe.codda.weblib.common.BoardType" %><%
+%><%@ page import="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" %><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%	
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%	
 %><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%	
-%><jsp:useBean id="boardDetailRes" class="kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes"
+%><jsp:useBean id="boardDetailRes" class="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes"
 	scope="request" /><%
 %><!DOCTYPE html>
 <html>
@@ -241,7 +242,7 @@
 				</tr>
 
 				<%
-					java.util.List<kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes.AttachFile> attachFileList = boardDetailRes
+					java.util.List<BoardDetailRes.AttachFile> attachFileList = boardDetailRes
 																				.getAttachFileList();
 																		if (null != attachFileList) {
 				%>
@@ -250,7 +251,7 @@
 					<td colspan="5" style="text-align: left;">
 						<div>
 							<%
-								for (kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes.AttachFile attachFile : attachFileList) {
+								for (BoardDetailRes.AttachFile attachFile : attachFileList) {
 																																							if (isLogin(request)) {
 							%><a href="#" onClick="goDownload(<%=boardDetailRes.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%></a><br /><%
 								} else {

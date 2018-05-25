@@ -22,7 +22,7 @@
 	
 	<servlet>
 		<servlet-name>SessionKeyTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.SessionKeyTestSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.SessionKeyTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>SessionKeyTest</servlet-name>
@@ -31,7 +31,7 @@
 
 	<servlet>
 		<servlet-name>Member</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.MemberSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.MemberSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Member</servlet-name>
@@ -40,7 +40,7 @@
 
 	<servlet>
 		<servlet-name>JDFNotLoginTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.JDFNotLoginTestSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.JDFNotLoginTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JDFNotLoginTest</servlet-name>
@@ -49,7 +49,7 @@
 
 	<servlet>
 		<servlet-name>JSBNTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.JSBNTestSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.JSBNTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JSBNTest</servlet-name>
@@ -58,7 +58,7 @@
 
 	<servlet>
 		<servlet-name>CryptoJSMDTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.CryptoJSMDTestSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.CryptoJSMDTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CryptoJSMDTest</servlet-name>
@@ -67,7 +67,7 @@
 
 	<servlet>
 		<servlet-name>CryptoJSSKTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.CryptoJSSKTestSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.CryptoJSSKTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CryptoJSSKTest</servlet-name>
@@ -76,7 +76,7 @@
 
 	<servlet>
 		<servlet-name>EchoTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.EchoTestSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.EchoTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>EchoTest</servlet-name>
@@ -85,7 +85,7 @@
 
 	<servlet>
 		<servlet-name>AllItemTypeTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.AllItemTypeTestSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.AllItemTypeTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>AllItemTypeTest</servlet-name>
@@ -94,7 +94,7 @@
 
 	<servlet>
 		<servlet-name>SimpleCounter</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.SimpleCounterSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.SimpleCounterSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>SimpleCounter</servlet-name>
@@ -103,7 +103,7 @@
 
 	<servlet>
 		<servlet-name>JDFLoginTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.JDFLoginTestSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.JDFLoginTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JDFLoginTest</servlet-name>
@@ -112,7 +112,7 @@
 
 	<servlet>
 		<servlet-name>Login</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.LoginSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.LoginSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Login</servlet-name>
@@ -121,7 +121,7 @@
 
 	<servlet>
 		<servlet-name>BoardList</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.BoardListSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.BoardListSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardList</servlet-name>
@@ -130,7 +130,7 @@
 
 	<servlet>
 		<servlet-name>BoardVote</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.BoardVoteSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.BoardVoteSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardVote</servlet-name>
@@ -139,7 +139,7 @@
 
 	<servlet>
 		<servlet-name>BoardDetail</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.BoardDetailSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.BoardDetailSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardDetail</servlet-name>
@@ -149,7 +149,7 @@
 
 	<servlet>
 		<servlet-name>BoardWrite</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.BoardWriteSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.BoardWriteSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardWrite</servlet-name>
@@ -158,7 +158,7 @@
 
 	<servlet>
 		<servlet-name>BoardReply</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.BoardReplySvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.BoardReplySvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardReply</servlet-name>
@@ -167,7 +167,7 @@
 
 	<servlet>
 		<servlet-name>BoardModify</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.BoardModifySvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.BoardModifySvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardModify</servlet-name>
@@ -176,7 +176,7 @@
 
 	<servlet>
 		<servlet-name>BoardUpload</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.BoardUploadSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.BoardUploadSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardUpload</servlet-name>
@@ -185,7 +185,7 @@
 
 	<servlet>
 		<servlet-name>BoardDownload</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.BoardDownloadSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.BoardDownloadSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardDownload</servlet-name>
@@ -195,7 +195,7 @@
 	
 	<servlet>
 		<servlet-name>JavaGarbageCollection</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.JavaGarbageCollectionSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.JavaGarbageCollectionSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JavaGarbageCollection</servlet-name>
@@ -204,7 +204,7 @@
 	
 	<servlet>
 		<servlet-name>JavaStringConversionTool</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.JavaStringConversionToolSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.JavaStringConversionToolSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JavaStringConversionTool</servlet-name>

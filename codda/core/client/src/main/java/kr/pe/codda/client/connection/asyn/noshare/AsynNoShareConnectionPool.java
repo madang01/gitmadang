@@ -63,20 +63,17 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 		
 		if (null == clientExecutorPool) {
 			throw new IllegalArgumentException("the parameter clientExecutorPool is null");
-		}
-				
+		}				
 		
 		this.projectPartConfiguration = projectPartConfiguration;
 		this.clientMessageUtility = clientMessageUtility;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
-		this.clientExecutorPool = clientExecutorPool;
-				
+		this.clientExecutorPool = clientExecutorPool;				
 		
 		connectionQueue = new ArrayDeque<AsynNoShareConnection>(projectPartConfiguration.getClientConnectionMaxCount());
 		
-		connectionPoolSupporter.registerPool(this);
-		
+		connectionPoolSupporter.registerPool(this);		
 		
 		
 		// numberOfInterrestedConnection = projectPartConfiguration.getClientConnectionCount();
@@ -111,7 +108,7 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 
 		synchronized (monitor) {
 			do {
-				if (0 == numberOfConnection) {
+				if (0 == numberOfConnection) {						
 					connectionPoolSupporter.notice("no more connection");
 					throw new ConnectionPoolException("check server is alive or something is bad");
 				}

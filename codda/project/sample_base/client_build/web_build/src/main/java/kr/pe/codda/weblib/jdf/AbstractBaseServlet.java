@@ -8,7 +8,7 @@ import javax.servlet.http.HttpSession;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
@@ -80,7 +80,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 		
 		String mainProjectName = runningProjectConfiguration.getMainProjectName();
 		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
-		String webUploadPathString = BuildSystemPathSupporter.getWebUploadPathString(sinnoriInstalledPathString, mainProjectName);
+		String webUploadPathString = WebRootBuildSystemPathSupporter.getWebUploadPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		StringBuilder attachSystemFullFileNameBuilder = new StringBuilder(webUploadPathString);
 		attachSystemFullFileNameBuilder.append(File.separator);

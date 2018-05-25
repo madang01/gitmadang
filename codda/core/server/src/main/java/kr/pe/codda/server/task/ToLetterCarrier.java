@@ -36,9 +36,9 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
-import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.SocketResource;
-import kr.pe.codda.server.SocketResourceManagerIF;
+import kr.pe.codda.server.AcceptedConnection;
+import kr.pe.codda.server.AcceptedConnectionManagerIF;
+import kr.pe.codda.server.ProjectLoginManagerIF;
 
 /**
  * 클라이언트로 보내는 편지 배달부. 서버 비지니스 로직 호출할때 마다 할당 된다. 
@@ -49,31 +49,31 @@ public class ToLetterCarrier {
 	private InternalLogger log = InternalLoggerFactory.getInstance(ToLetterCarrier.class);
 	
 	private SocketChannel fromSC = null;
-	private SocketResource fromSocketResource = null;
+	private AcceptedConnection fromAcceptedConnection = null;
 	private AbstractMessage inputMessage;
+	private ProjectLoginManagerIF projectLoginManager = null;
 	
 	private AbstractMessage syncOutputMessage = null;	
 	
-	private SocketResourceManagerIF socketResourceManager = null;
-	private PersonalLoginManagerIF personalMemberManager = null;
+	private AcceptedConnectionManagerIF acceptedConnectionManager = null;
 	
 	private MessageProtocolIF messageProtocol = null;
 	private ServerSimpleClassLoaderIF serverSimpleClassLoader = null;
 	
 	// private LinkedList<ToLetter> toLetterList = new LinkedList<ToLetter>();
 	
-	public ToLetterCarrier( SocketChannel fromSC, 
-			SocketResource fromSocketResource,
+	public ToLetterCarrier(SocketChannel fromSC, 
+			AcceptedConnection fromAcceptedConnection,
 			AbstractMessage inputMessage,
-			SocketResourceManagerIF socketResourceManager,
-			PersonalLoginManagerIF personalMemberManager, 
+			ProjectLoginManagerIF projectLoginManager,
+			AcceptedConnectionManagerIF acceptedConnectionManager,
 			MessageProtocolIF messageProtocol,
 			ServerSimpleClassLoaderIF serverSimpleClassLoader) {
 		this.fromSC = fromSC;
-		this.fromSocketResource = fromSocketResource;
+		this.fromAcceptedConnection = fromAcceptedConnection;
 		this.inputMessage = inputMessage;
-		this.socketResourceManager = socketResourceManager;
-		this.personalMemberManager = personalMemberManager;
+		this.projectLoginManager = projectLoginManager;
+		this.acceptedConnectionManager = acceptedConnectionManager;
 		this.messageProtocol = messageProtocol;
 		this.serverSimpleClassLoader = serverSimpleClassLoader;
 	}
@@ -114,7 +114,7 @@ public class ToLetterCarrier {
 	}*/
 
 	private void doAddOutputMessage(SocketChannel toSC,	
-			SocketResource socketResource,
+			AcceptedConnection socketResource,
 			AbstractMessage outputMessage, 
 			MessageProtocolIF messageProtocol) throws InterruptedException {
 		String messageIDToClient = outputMessage.getMessageID();
@@ -237,8 +237,8 @@ public class ToLetterCarrier {
 			log.warn(errorMessage, e);
 			return;
 		}
-		SocketResource socketResource = 
-				socketResourceManager.getSocketResource(toSC);
+		AcceptedConnection socketResource = 
+				acceptedConnectionManager.getAcceptedConnection(toSC);
 		
 		if (null == socketResource) {
 			log.warn("the socket channel's resource doesn't exist");
@@ -280,7 +280,7 @@ public class ToLetterCarrier {
 		this.syncOutputMessage =  syncOutputMessage;
 		
 		syncOutputMessage.messageHeaderInfo = inputMessage.messageHeaderInfo;		
-		doAddOutputMessage(fromSC, fromSocketResource, syncOutputMessage, messageProtocol);
+		doAddOutputMessage(fromSC, fromAcceptedConnection, syncOutputMessage, messageProtocol);
 	}
 	
 	public void addAsynOutputMessage(AbstractMessage asynOutputMessage) throws InterruptedException {
@@ -288,8 +288,8 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
 		}
 		
-		SocketResource socketResource = 
-				socketResourceManager.getSocketResource(fromSC);
+		AcceptedConnection socketResource = 
+				acceptedConnectionManager.getAcceptedConnection(fromSC);
 		
 		if (null == socketResource) {
 			log.warn("the socket channel's resource doesn't exist");
@@ -311,15 +311,15 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
 		}
 		
-		SocketChannel toSC = personalMemberManager.getSocketChannel(loginUserID);
+		SocketChannel toSC = projectLoginManager.getSocketChannel(loginUserID);
 		
 		if (null == toSC) {
 			String errorMessage = String.format("the parameter loginUserID[%s] is not a member or not a login user", loginUserID);
 			throw new LoginUserNotFoundException(errorMessage);
 		}
 		
-		SocketResource toSocketResoruce = 
-				socketResourceManager.getSocketResource(toSC);
+		AcceptedConnection toSocketResoruce = 
+				acceptedConnectionManager.getAcceptedConnection(toSC);
 		
 		asynOutputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		asynOutputMessage.messageHeaderInfo.mailID = toSocketResoruce.getServerMailID();		
@@ -333,7 +333,7 @@ public class ToLetterCarrier {
 			SelfExn.ErrorType errorType,
 			String errorReason,			
 			WrapReadableMiddleObject wrapReadableMiddleObject,
-			SocketResource fromSocketResource,
+			AcceptedConnection fromSocketResource,
 			MessageProtocolIF messageProtocol) throws InterruptedException {
 		if (null == fromSC) {
 			throw new IllegalArgumentException("the parameter fromSC is null");

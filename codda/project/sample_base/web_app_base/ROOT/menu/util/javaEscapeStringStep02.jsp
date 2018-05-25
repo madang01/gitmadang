@@ -1,6 +1,6 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%!
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%!
 	public void errorPrint(javax.servlet.jsp.JspWriter out, String errorMessage) throws java.io.IOException {
 		out.println("<!DOCTYPE html>");
 		out.println("<html>");
@@ -86,7 +86,7 @@
 			/** 상단 구성 */
 			headerString = new StringBuilder("public String getCreatingTableSqlFor")
 				.append(talbeName).append("() {")
-				.append(kr.pe.sinnori.common.etc.CommonStaticFinalVars.NEWLINE)
+				.append(kr.pe.codda.common.etc.CommonStaticFinalVars.NEWLINE)
 				.append("	StringBuffer stringBuilder = new StringBuffer();").toString();
 			// bodyStringBuffer.append(headerString);			
 			
@@ -95,11 +95,11 @@
 			for (int i=0; i < lines.length; i++) {
 				String escapeString = lines[i];
 
-				bodyStringBuffer.append(kr.pe.sinnori.common.etc.CommonStaticFinalVars.NEWLINE);
+				bodyStringBuffer.append(kr.pe.codda.common.etc.CommonStaticFinalVars.NEWLINE);
 				bodyStringBuffer.append("stringBuilder.append(\"");
 				bodyStringBuffer.append(escapeString);
 				bodyStringBuffer.append("\");");
-				bodyStringBuffer.append(kr.pe.sinnori.common.etc.CommonStaticFinalVars.NEWLINE);
+				bodyStringBuffer.append(kr.pe.codda.common.etc.CommonStaticFinalVars.NEWLINE);
 				bodyStringBuffer.append("stringBuilder.append(");
 				bodyStringBuffer.append("System.getProperty(\"line.separator\")");
 				bodyStringBuffer.append(");");
@@ -108,7 +108,7 @@
 
 			/** 하단 구성 */
 			footerString = new StringBuilder("	return stringBuilder.toString();")
-				.append(kr.pe.sinnori.common.etc.CommonStaticFinalVars.NEWLINE)
+				.append(kr.pe.codda.common.etc.CommonStaticFinalVars.NEWLINE)
 				.append("}").toString();
 			// bodyStringBuffer.append(footerString);
 		}

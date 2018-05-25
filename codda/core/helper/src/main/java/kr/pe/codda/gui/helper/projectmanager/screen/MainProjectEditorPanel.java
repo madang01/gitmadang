@@ -40,9 +40,9 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.codda.common.buildsystem.MainProjectBuildSystemState;
 import kr.pe.codda.common.buildsystem.ProjectBuilder;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.codda.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.codda.common.config.itemidinfo.ItemIDInfoManger;
@@ -1078,7 +1078,7 @@ public class MainProjectEditorPanel extends JPanel {
 	}
 
 	private void popupProjectIOManagerScreenActionPerformed(ActionEvent e) {		
-		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
+		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
 		
 		assert(null == projectBasePathString);
 		

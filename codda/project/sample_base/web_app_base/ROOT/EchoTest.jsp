@@ -1,10 +1,10 @@
-<%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%>
-<%@page import="kr.pe.sinnori.common.message.AbstractMessage"%>
-<%@page import="kr.pe.sinnori.impl.message.Echo.Echo"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%>
+<%@page import="kr.pe.codda.common.message.AbstractMessage"%>
+<%@page import="kr.pe.codda.impl.message.Echo.Echo"%>
 <%@page import="org.slf4j.LoggerFactory"%>
 <%@page import="org.slf4j.Logger"%>
-<%@page import="kr.pe.sinnori.client.ClientProject" %>
-<%@page import="kr.pe.sinnori.client.ClientProjectManager" %>
+<%@page import="kr.pe.codda.client.ClientProject" %>
+<%@page import="kr.pe.codda.client.ClientProjectManager" %>
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 	String errorMessage = null;
 	long erraseTime = 0;
@@ -13,7 +13,7 @@
 	java.util.Random random = new java.util.Random();
 	
 	Logger log = LoggerFactory
-			.getLogger("kr.pe.sinnori.test");
+			.getLogger("kr.pe.codda.test");
 	
 	// System.out.printf("11111111111\n");
 	

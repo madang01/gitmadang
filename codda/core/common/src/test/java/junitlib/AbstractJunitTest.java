@@ -17,6 +17,7 @@ public abstract class AbstractJunitTest {
 	protected static File installedBasePath = null;
 	protected static File installedPath = null;
 	protected static File wasLibPath = null;
+	protected final static String mainProjectName = "sample_base";
 	
 	@BeforeClass
 	 public static void setUpBeforeClass() throws Exception {
@@ -60,12 +61,10 @@ public abstract class AbstractJunitTest {
 		}
 
 		log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
-		
-		String runningProjectName = "sample_base";
-		
+				
 		System
 				.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_RUNNING_PROJECT_NAME,
-						runningProjectName);
+						mainProjectName);
 		System
 				.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_INSTALLED_PATH,
 						installedPathString);

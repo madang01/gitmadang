@@ -1,5 +1,5 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
 	String modulusHex = request.getParameter("modulusHex");	
 %>
 <script type="text/javascript" src="/js/jsbn/jsbn.js"></script>

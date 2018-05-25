@@ -1,10 +1,10 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.BoardType"%><%
-%><%@ page import="kr.pe.sinnori.impl.message.BoardListRes.BoardListRes" %><%
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.codda.weblib.common.BoardType"%><%
+%><%@ page import="kr.pe.codda.impl.message.BoardListRes.BoardListRes" %><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="boardListRes" class="kr.pe.sinnori.impl.message.BoardListRes.BoardListRes" scope="request" /><%
+%><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%
 
 	System.out.println(boardListRes.toString());
 

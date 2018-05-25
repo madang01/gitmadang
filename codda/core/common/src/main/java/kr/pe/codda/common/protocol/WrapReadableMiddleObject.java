@@ -130,7 +130,7 @@ public class WrapReadableMiddleObject {
 		} else {
 			builder.append("null");
 		}
-		builder.append("messageID=");
+		builder.append(", messageID=");
 		builder.append(messageID);
 		builder.append(", mailboxID=");
 		builder.append(mailboxID);

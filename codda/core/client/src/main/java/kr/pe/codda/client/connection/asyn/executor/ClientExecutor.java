@@ -16,7 +16,7 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	private String projectName = null;
 	private int index;
 
-	private ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue;
+	private ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = null;
 
 	private ClientMessageUtilityIF clientMessageUtility = null;
 

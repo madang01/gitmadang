@@ -52,8 +52,8 @@ public class PersonalLoginManager implements PersonalLoginManagerIF {
 		}		
 	}
 
-	@Override
+	/*@Override
 	public SocketChannel getSocketChannel(String loginUserID) {
 		return projectLoginManager.getSocketChannel(loginUserID);
-	}
+	}*/
 }

@@ -100,10 +100,12 @@ public final class SyncNoShareConnection implements SyncConnectionIF, ReceivedMe
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {		
 		
+		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
+		
 		inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 		
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(this.getClass().getClassLoader(), inputMessage);
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
 		while (! inputMessageWrapBufferQueue.isEmpty()) {
 			WrapBuffer inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
 			try {
@@ -239,7 +241,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF, ReceivedMe
 		}
 		
 		
-		AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(classloaderOfInputMessage, outputMessageWrapReadableMiddleObject);
 		
 		return outputMessage;
 	}

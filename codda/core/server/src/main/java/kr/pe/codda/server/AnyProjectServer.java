@@ -51,13 +51,15 @@ public class AnyProjectServer {
 	
 	private ServerObjectCacheManager serverObjectCacheManager = null;
 	
-	private SocketResourceManagerIF socketResourceManager = null;
+	private AcceptedConnectionManagerIF socketResourceManager = null;
 	
 	private ServerIOEventController serverIOEventController = null;
 	
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, CoddaConfigurationException {
-		this.projectPartConfiguration = projectPartConfiguration;		
+		this.projectPartConfiguration = projectPartConfiguration;
+		
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		
 		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
 		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
@@ -113,8 +115,9 @@ public class AnyProjectServer {
 				projectPartConfiguration.getServerMaxClients());
 		
 		socketResourceManager = 
-				new SocketResourceManager(projectPartConfiguration.getClientSocketTimeout(),
+				new AcceptedConnectionManager(projectPartConfiguration.getClientSocketTimeout(),
 						projectPartConfiguration.getServerOutputMessageQueueSize(),
+						projectLoginManager,
 						socketOutputStreamFactory, messageProtocol,
 						dataPacketBufferPool,
 						serverIOEventController);
@@ -124,6 +127,7 @@ public class AnyProjectServer {
 				projectPartConfiguration.getServerExecutorPoolMaxSize(),
 				projectPartConfiguration.getProjectName(),
 				projectPartConfiguration.getServerInputMessageQueueSize(), 
+				projectLoginManager,
 				messageProtocol, 
 				socketResourceManager,
 				serverObjectCacheManager);
@@ -172,7 +176,7 @@ public class AnyProjectServer {
 		pollStateStringBuilder.append(", ");
 		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		pollStateStringBuilder.append("socketResourceManager.count=");
-		pollStateStringBuilder.append(socketResourceManager.getNumberOfSocketResources());
+		pollStateStringBuilder.append(socketResourceManager.getNumberOfAcceptedConnection());
 		
 		// pollStateStringBuilder.append(inputMessageReaderPool.getPoolState());
 		return pollStateStringBuilder.toString();

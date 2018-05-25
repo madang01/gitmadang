@@ -12,6 +12,7 @@ public class WebClientAntBuildXMLFileContenetsBuilder extends AbstractAntBuildXM
 		final String baseDirectory = ".";
 		final int depth=0;
 		boolean whetherOrNotToIncludeCoreLib = false; // 코어 라이브러리 포함 여부, true : 포함, false : 미포함
+		boolean whetherOrNotToIncludeLogbackLib = false; // 로그백 라이브러리 포함 여부, true : 포함, false : 미포함
 		
 		StringBuilder contentsStringBuilder = new StringBuilder();
 		addHeader(contentsStringBuilder);
@@ -58,7 +59,7 @@ public class WebClientAntBuildXMLFileContenetsBuilder extends AbstractAntBuildXM
 		addMakeCoreTargetPart(contentsStringBuilder, depth);
 		
 		addNewLine(contentsStringBuilder);
-		addCopyCoreTargetPart(contentsStringBuilder, depth, whetherOrNotToIncludeCoreLib);
+		addCopyCoreTargetPart(contentsStringBuilder, depth, whetherOrNotToIncludeCoreLib, whetherOrNotToIncludeLogbackLib);
 		
 		addNewLine(contentsStringBuilder);
 		addCompileWebLibTargetPart(contentsStringBuilder, depth);

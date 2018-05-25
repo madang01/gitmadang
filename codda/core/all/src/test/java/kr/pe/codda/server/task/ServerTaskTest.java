@@ -20,7 +20,6 @@ import kr.pe.codda.client.connection.ClientMessageUtility;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
 import kr.pe.codda.client.connection.ClientObjectCacheManager;
 import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
-import kr.pe.codda.common.asyn.ToLetter;
 import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.codda.common.classloader.ServerSimpleClassLoaderIF;
 import kr.pe.codda.common.etc.CharsetUtil;
@@ -30,7 +29,6 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.FreeSizeInputStream;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -38,24 +36,24 @@ import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
-import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.common.type.SelfExn.ErrorType;
 import kr.pe.codda.impl.message.Empty.Empty;
 import kr.pe.codda.impl.message.Empty.EmptyDecoder;
 import kr.pe.codda.impl.message.Empty.EmptyEncoder;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
+import kr.pe.codda.server.ProjectLoginManager;
+import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.ServerIOEvenetControllerIF;
-import kr.pe.codda.server.SocketResource;
-import kr.pe.codda.server.SocketResourceManagerIF;
+import kr.pe.codda.server.AcceptedConnection;
+import kr.pe.codda.server.AcceptedConnectionManagerIF;
+import kr.pe.codda.server.PersonalLoginManager;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorIF;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorPoolIF;
-import kr.pe.codda.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 public class ServerTaskTest extends AbstractJunitTest {
 
@@ -68,10 +66,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		long socketTimeOut = 5000;
 		int outputMessageQueueSize = 5; 
 
-		/*
-		 * ClassLoader currentClassLoader = this.getClass().getClassLoader(); final
-		 * String ClassLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.";
-		 */
 		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = 
 				new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
@@ -108,78 +102,74 @@ public class ServerTaskTest extends AbstractJunitTest {
 		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
 		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
 				dataPacketBufferPool);
-
-		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
-		
 		ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
 
-		SocketResource socketResourceOfFromSC = null;
-		{
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
+		
+		class ServerExecutorMock implements ServerExecutorIF {
+			private ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue  = null;
 			
-			class ServerExecutorMock implements ServerExecutorIF {
-				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
-				
-				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
-					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {					
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {					
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-					
-				}
-
-				@Override
-				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-					return wrapMessageBlockingQueue;
-				}
-				
-			}
-			
-			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
-
-			SocketOutputStream socketOutputStreamOfOwnerSC = null;
-			try {
-				socketOutputStreamOfOwnerSC = new SocketOutputStream(streamCharsetDecoder,
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+				this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC,  socketTimeOut, outputMessageQueueSize,
-					messageProtocol,
-					executorOfOwnerSC,
-					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfFromSC,
-					dataPacketBufferPool, serverIOEvenetController);
+			@Override
+			public void addNewSocket(SocketChannel newSC) {					
+			}
+
+			@Override
+			public int getNumberOfConnection() {
+				return 0;
+			}
+
+			@Override
+			public void removeSocket(SocketChannel sc) {					
+			}
+
+			@Override
+			public boolean isAlive() {
+				return false;
+			}
+
+			@Override
+			public void start() {
+			}
+
+			@Override
+			public void interrupt() {
+				
+			}
+
+			@Override
+			public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+					throws InterruptedException {
+				wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+			}				
 		}
+		
+		class AcceptedConnectionManagerMock implements AcceptedConnectionManagerIF {
+			private AcceptedConnection acceptedConnection = null;
 
-		class SocketResourceManagerMock implements SocketResourceManagerIF {
-			private SocketResource socketResourceOfFromSC = null;
-
-			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
-				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			public AcceptedConnectionManagerMock(SocketChannel acceptedSocketChannel,
+					long socketTimeOut,
+					int outputMessageQueueSize,
+					SocketOutputStream socketOutputStreamOfAcceptedSC,
+					PersonalLoginManager personalLoginManagerOfAcceptedSC,
+					ServerExecutorIF serverExecutorOfAcceptedSC,
+					MessageProtocolIF messageProtocol,						
+					DataPacketBufferPoolIF dataPacketBufferPool,
+					ServerIOEvenetControllerIF serverIOEvenetController) {				
+				acceptedConnection = new AcceptedConnection(this, 
+						acceptedSocketChannel,  
+						socketTimeOut, 
+						outputMessageQueueSize,
+						socketOutputStreamOfAcceptedSC,
+						personalLoginManagerOfAcceptedSC,
+						serverExecutorOfAcceptedSC,					
+						messageProtocol,
+						dataPacketBufferPool, 
+						serverIOEvenetController);
 			}
 
 			@Override
@@ -191,23 +181,49 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public SocketResource getSocketResource(SocketChannel sc) {
-				return socketResourceOfFromSC;
+			public AcceptedConnection getAcceptedConnection(SocketChannel sc) {
+				return acceptedConnection;
 			}
 
 			@Override
-			public int getNumberOfSocketResources() {
+			public int getNumberOfAcceptedConnection() {
 				return 0;
 			}
 
 			@Override
 			public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-				// TODO Auto-generated method stub
-				
 			}
 		}
 
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
+		AcceptedConnection acceptedConnection = null;
+		AcceptedConnectionManagerIF acceptedConnectionManager = null;
+		{
+			
+			ServerExecutorIF executorOfAcceptedSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
+
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}
+			
+			PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(fromSC,
+					projectLoginManager);
+			
+			acceptedConnectionManager = new AcceptedConnectionManagerMock(fromSC,  
+					socketTimeOut, 
+					outputMessageQueueSize,
+					socketOutputStreamOfAcceptedSC,
+					personalLoginManagerOfAcceptedSC,
+					executorOfAcceptedSC,					
+					messageProtocol,
+					dataPacketBufferPool, 
+					serverIOEvenetController);
+			
+			acceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+		}
 
 		WrapReadableMiddleObject inputMessageWrapReadableMiddleObject = null;
 		{
@@ -263,7 +279,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("4");
 			
 			try {
-				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getServerExecutor().getWrapMessageBlockingQueue());
+				messageProtocol.S2MList(fromSC, sos, acceptedConnection.getServerExecutor());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -300,22 +316,31 @@ public class ServerTaskTest extends AbstractJunitTest {
 		try {
 			int index = 0;
 			String projectName = "sample_test";
-
-			serverTaskMock.execute(index, projectName, fromSC, socketResourceOfFromSC,
-					socketResourceManager, socketResourceOfFromSC,
-					personalLoginManagerOfFromSC, inputMessageWrapReadableMiddleObject, messageProtocol);
+			
+			serverTaskMock.execute(index, projectName, fromSC, 
+					personalLoginManagerOfFromSC,
+					acceptedConnection,
+					projectLoginManager,
+					acceptedConnectionManager, 
+					inputMessageWrapReadableMiddleObject, messageProtocol);
 		} catch (InterruptedException e) {
 			fail("InterruptedException");
 		}
 		
 		// log.info(wrapReadableMiddleObjectQueue.poll().toString());
 		
-		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = socketResourceOfFromSC.getOutputMessageQueue();
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = acceptedConnection.getOutputMessageQueue();
 		if (outputMessageQueue.size() != 1) {
 			fail("예상 출력 메시지 갯수가 1개가 아님");
 		}
 		
-		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}		
+		
 		SocketOutputStream sos = null;
 		try {
 			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
@@ -324,12 +349,15 @@ public class ServerTaskTest extends AbstractJunitTest {
 			fail("fail to create a instance of SocketOutputStream");
 		}
 		
+		log.info("before::wrapReadableMiddleObjectQueue size={}", wrapReadableMiddleObjectQueue.size());
 		
 		try {
 			messageProtocol.S2MList(fromSC, sos, new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue));
 		} catch (Exception e) {
 			fail("fail to close");
 		}
+		
+		log.info("after::wrapReadableMiddleObjectQueue size={}", wrapReadableMiddleObjectQueue.size());
 		
 		if (wrapReadableMiddleObjectQueue.size() != 1) {
 			fail("예상 출력 메시지 갯수가 1개가 아님");
@@ -359,13 +387,11 @@ public class ServerTaskTest extends AbstractJunitTest {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 코덱 얻기 실패가 아님");
 		}
 		
-		// "fail to get the server message codec of the input message";
-
 		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		// socketResourceOfFromSC.close();
-		socketResourceOfFromSC.releaseResources();
+		// acceptedConnection.close();
+		acceptedConnection.releaseResources();
 	}
 
 	@Test
@@ -374,6 +400,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		long socketTimeOut = 5000;
+		int outputMessageQueueSize = 5; 
 		/*
 		 * ClassLoader currentClassLoader = this.getClass().getClassLoader(); final
 		 * String ClassLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.";
@@ -412,168 +440,78 @@ public class ServerTaskTest extends AbstractJunitTest {
 			messageProtocol = new THBMessageProtocol(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder,
 					streamCharsetDecoder, dataPacketBufferPool);
 		}
+		
+		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+				dataPacketBufferPool);
+		ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
 
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
-
-		SocketResource socketResourceOfFromSC = null;
-		{
-			class ServerExecutorMock implements ServerExecutorIF {
-				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
-				
-				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
-					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {					
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {					
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-					
-				}
-
-				@Override
-				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-					return wrapMessageBlockingQueue;
-				}
-				
-			}
+		
+		class ServerExecutorMock implements ServerExecutorIF {
+			private ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue  = null;
 			
-			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
-
-			class OutputMessageWriterMock implements OutputMessageWriterIF {
-				private CharsetDecoder streamCharsetDecoder = null;
-				private int dataPacketBufferMaxCntPerMessage;
-				private MessageProtocolIF messageProtocol = null;
-				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-
-				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
-						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
-					this.streamCharsetDecoder = streamCharsetDecoder;
-					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-					this.messageProtocol = messageProtocol;
-					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {
-				}
-
-				@Override
-				public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-					if (null == toLetter) {
-						fail("the parameter toLetter is null");
-					}
-
-					log.info("toLetter={}", toLetter.toString());
-
-					String messageID = toLetter.getMessageID();
-
-					SingleItemDecoderIF dhbSingleItemDecoder = messageProtocol.getSingleItemDecoder();
-
-					FreeSizeInputStream fsis = new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage,
-							toLetter.getWrapBufferList(), streamCharsetDecoder, dataPacketBufferQueueManager);
-
-					try {
-						fsis.skip(messageProtocol.getMessageHeaderSize());
-						fsis.getUBPascalString();
-						fsis.getUnsignedShort();
-						fsis.getInt();
-
-						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
-								.newInstance();
-
-						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
-
-						if (!(resObj instanceof SelfExnRes)) {
-							String errorMessage = String.format(
-									"this output message[%s] is not a expected SelfExnRes message", resObj.toString());
-							fail(errorMessage);
-						}
-
-						SelfExnRes selfExnRes = (SelfExnRes) resObj;
-						if (!selfExnRes.getErrorPlace().equals(SelfExn.ErrorPlace.SERVER)) {
-							fail("에러 장소가 서버가 아님");
-						}
-
-						if (!selfExnRes.getErrorType().equals(SelfExn.ErrorType.DynamicClassCallException)) {
-							fail("에러 종류가 동적 클래스가 아님");
-						}
-
-						log.info("성공 :: {}", selfExnRes.toString());
-
-					} catch (Error | Exception e) {
-						log.warn("error", e);
-						fail("unknow error::OutputMessageWriterMock::#putIntoQueue");
-					} finally {
-						fsis.close();
-					}
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-				}
+			public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+				this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
 			}
 
-			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPool);
-
-			SocketOutputStream socketOutputStreamOfOwnerSC = null;
-			try {
-				socketOutputStreamOfOwnerSC = new SocketOutputStream(streamCharsetDecoder,
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			@Override
+			public void addNewSocket(SocketChannel newSC) {					
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
-					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
+			@Override
+			public int getNumberOfConnection() {
+				return 0;
+			}
+
+			@Override
+			public void removeSocket(SocketChannel sc) {					
+			}
+
+			@Override
+			public boolean isAlive() {
+				return false;
+			}
+
+			@Override
+			public void start() {
+			}
+
+			@Override
+			public void interrupt() {
+				
+			}
+
+			@Override
+			public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+					throws InterruptedException {
+				wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+			}				
 		}
+		
+		class AcceptedConnectionManagerMock implements AcceptedConnectionManagerIF {
+			private AcceptedConnection acceptedConnection = null;
 
-		class SocketResourceManagerMock implements SocketResourceManagerIF {
-			private SocketResource socketResourceOfFromSC = null;
-
-			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
-				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			public AcceptedConnectionManagerMock(SocketChannel acceptedSocketChannel,
+					long socketTimeOut,
+					int outputMessageQueueSize,
+					SocketOutputStream socketOutputStreamOfAcceptedSC,
+					PersonalLoginManager personalLoginManagerOfAcceptedSC,
+					ServerExecutorIF serverExecutorOfAcceptedSC,
+					MessageProtocolIF messageProtocol,						
+					DataPacketBufferPoolIF dataPacketBufferPool,
+					ServerIOEvenetControllerIF serverIOEvenetController) {				
+				acceptedConnection = new AcceptedConnection(this, 
+						acceptedSocketChannel,  
+						socketTimeOut, 
+						outputMessageQueueSize,
+						socketOutputStreamOfAcceptedSC,
+						personalLoginManagerOfAcceptedSC,
+						serverExecutorOfAcceptedSC,					
+						messageProtocol,
+						dataPacketBufferPool, 
+						serverIOEvenetController);
 			}
 
 			@Override
@@ -585,25 +523,52 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public SocketResource getSocketResource(SocketChannel sc) {
-				return socketResourceOfFromSC;
+			public AcceptedConnection getAcceptedConnection(SocketChannel sc) {
+				return acceptedConnection;
 			}
 
 			@Override
-			public int getNumberOfSocketResources() {
+			public int getNumberOfAcceptedConnection() {
 				return 0;
 			}
 
 			@Override
 			public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-				// TODO Auto-generated method stub
-				
 			}
 		}
 
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
+		AcceptedConnection acceptedConnection = null;
+		AcceptedConnectionManagerIF acceptedConnectionManager = null;
+		{
+			
+			ServerExecutorIF executorOfAcceptedSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
-		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}
+			
+			PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(fromSC,
+					projectLoginManager);
+			
+			acceptedConnectionManager = new AcceptedConnectionManagerMock(fromSC,  
+					socketTimeOut, 
+					outputMessageQueueSize,
+					socketOutputStreamOfAcceptedSC,
+					personalLoginManagerOfAcceptedSC,
+					executorOfAcceptedSC,					
+					messageProtocol,
+					dataPacketBufferPool, 
+					serverIOEvenetController);
+			
+			acceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+		}
+		
+
+		WrapReadableMiddleObject inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -657,7 +622,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("4");
 			
 			try {
-				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getServerExecutor().getWrapMessageBlockingQueue());
+				messageProtocol.S2MList(fromSC, sos, acceptedConnection.getServerExecutor());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -668,7 +633,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+			inputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -695,14 +660,75 @@ public class ServerTaskTest extends AbstractJunitTest {
 			int index = 0;
 			String projectName = "sample_test";
 
-			serverTaskMock.execute(index, projectName, fromSC, socketResourceManager, socketResourceOfFromSC,
-					personalLoginManagerOfFromSC, wrapReadableMiddleObject, messageProtocol);
+			serverTaskMock.execute(index, projectName, fromSC, 
+					personalLoginManagerOfFromSC,
+					acceptedConnection,
+					projectLoginManager,
+					acceptedConnectionManager, 
+					inputMessageWrapReadableMiddleObject, messageProtocol);
 		} catch (InterruptedException e) {
 			fail("InterruptedException");
 		}
+		
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = acceptedConnection.getOutputMessageQueue();
+		if (outputMessageQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}		
+		
+		SocketOutputStream sos = null;
+		try {
+			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+		} catch (NoMoreDataPacketBufferException e) {
+			fail("fail to create a instance of SocketOutputStream");
+		}
+		
+		try {
+			messageProtocol.S2MList(fromSC, sos, new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue));
+		} catch (Exception e) {
+			fail("fail to close");
+		}
+		
+		
+		if (wrapReadableMiddleObjectQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		
+		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+		
+		AbstractMessage receviedOutputMessage = null;
+		try {
+			receviedOutputMessage = clientMessageUtility.buildOutputMessage(this.getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		} catch (DynamicClassCallException | BodyFormatException e) {
+			fail("fail to build a output message");
+		}
+		
+		if (! (receviedOutputMessage instanceof SelfExnRes)) {
+			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
+		}
+		
+		SelfExnRes selfExnRes = (SelfExnRes)receviedOutputMessage;
+		
+		if (! selfExnRes.getErrorType().equals(ErrorType.DynamicClassCallException)) {
+			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 에러 종류가 DynamicClassCallException 가 아님");
+		}
+		
+		if (selfExnRes.getErrorReason().indexOf("unknown error::fail to get the server message codec of the input message") < 0) {
+			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 코덱 얻기 실패가 아님");
+		}
+		
+		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 
-		wrapReadableMiddleObject.closeReadableMiddleObject();
-		socketResourceOfFromSC.close();
+		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		acceptedConnection.releaseResources();
 	}
 
 	@Test
@@ -711,6 +737,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		long socketTimeOut = 5000;
+		int outputMessageQueueSize = 5; 
 
 		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 		
@@ -744,167 +772,77 @@ public class ServerTaskTest extends AbstractJunitTest {
 					streamCharsetDecoder, dataPacketBufferPool);
 		}
 
+		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+				dataPacketBufferPool);
+		ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
+		
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
-
-		SocketResource socketResourceOfFromSC = null;
-		{
-			class ServerExecutorMock implements ServerExecutorIF {
-				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
-				
-				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
-					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {					
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {					
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-					
-				}
-
-				@Override
-				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-					return wrapMessageBlockingQueue;
-				}
-				
-			}
+		
+		class ServerExecutorMock implements ServerExecutorIF {
+			private ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue  = null;
 			
-			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
-
-			class OutputMessageWriterMock implements OutputMessageWriterIF {
-				private CharsetDecoder streamCharsetDecoder = null;
-				private int dataPacketBufferMaxCntPerMessage;
-				private MessageProtocolIF messageProtocol = null;
-				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-
-				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
-						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
-					this.streamCharsetDecoder = streamCharsetDecoder;
-					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-					this.messageProtocol = messageProtocol;
-					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {
-				}
-
-				@Override
-				public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-					if (null == toLetter) {
-						fail("the parameter toLetter is null");
-					}
-
-					log.info("toLetter={}", toLetter.toString());
-
-					String messageID = toLetter.getMessageID();
-
-					SingleItemDecoderIF dhbSingleItemDecoder = messageProtocol.getSingleItemDecoder();
-
-					FreeSizeInputStream fsis = new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage,
-							toLetter.getWrapBufferList(), streamCharsetDecoder, dataPacketBufferQueueManager);
-
-					try {
-						fsis.skip(messageProtocol.getMessageHeaderSize());
-						fsis.getUBPascalString();
-						fsis.getUnsignedShort();
-						fsis.getInt();
-
-						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
-								.newInstance();
-
-						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
-
-						if (!(resObj instanceof SelfExnRes)) {
-							String errorMessage = String.format(
-									"this output message[%s] is not a expected SelfExnRes message", resObj.toString());
-							fail(errorMessage);
-						}
-
-						SelfExnRes selfExnRes = (SelfExnRes) resObj;
-						if (!selfExnRes.getErrorPlace().equals(SelfExn.ErrorPlace.SERVER)) {
-							fail("에러 장소가 서버가 아님");
-						}
-
-						if (!selfExnRes.getErrorType().equals(SelfExn.ErrorType.DynamicClassCallException)) {
-							fail("에러 종류가 동적 클래스가 아님");
-						}
-
-						log.info("성공 :: {}", selfExnRes.toString());
-
-					} catch (Error | Exception e) {
-						log.warn("error", e);
-						fail("unknow error::OutputMessageWriterMock::#putIntoQueue");
-					} finally {
-						fsis.close();
-					}
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-				}
+			public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+				this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
 			}
 
-			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPool);
-
-			SocketOutputStream socketOutputStreamOfOwnerSC = null;
-			try {
-				socketOutputStreamOfOwnerSC = new SocketOutputStream(streamCharsetDecoder,
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			@Override
+			public void addNewSocket(SocketChannel newSC) {					
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
-					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
+			@Override
+			public int getNumberOfConnection() {
+				return 0;
+			}
+
+			@Override
+			public void removeSocket(SocketChannel sc) {					
+			}
+
+			@Override
+			public boolean isAlive() {
+				return false;
+			}
+
+			@Override
+			public void start() {
+			}
+
+			@Override
+			public void interrupt() {
+				
+			}
+
+			@Override
+			public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+					throws InterruptedException {
+				wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+			}				
 		}
+		
+		class AcceptedConnectionManagerMock implements AcceptedConnectionManagerIF {
+			private AcceptedConnection acceptedConnection = null;
 
-		class SocketResourceManagerMock implements SocketResourceManagerIF {
-			private SocketResource socketResourceOfFromSC = null;
-
-			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
-				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			public AcceptedConnectionManagerMock(SocketChannel acceptedSocketChannel,
+					long socketTimeOut,
+					int outputMessageQueueSize,
+					SocketOutputStream socketOutputStreamOfAcceptedSC,
+					PersonalLoginManager personalLoginManagerOfAcceptedSC,
+					ServerExecutorIF serverExecutorOfAcceptedSC,
+					MessageProtocolIF messageProtocol,						
+					DataPacketBufferPoolIF dataPacketBufferPool,
+					ServerIOEvenetControllerIF serverIOEvenetController) {				
+				acceptedConnection = new AcceptedConnection(this, 
+						acceptedSocketChannel,  
+						socketTimeOut, 
+						outputMessageQueueSize,
+						socketOutputStreamOfAcceptedSC,
+						personalLoginManagerOfAcceptedSC,
+						serverExecutorOfAcceptedSC,					
+						messageProtocol,
+						dataPacketBufferPool, 
+						serverIOEvenetController);
 			}
 
 			@Override
@@ -916,25 +854,51 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public SocketResource getSocketResource(SocketChannel sc) {
-				return socketResourceOfFromSC;
+			public AcceptedConnection getAcceptedConnection(SocketChannel sc) {
+				return acceptedConnection;
 			}
 
 			@Override
-			public int getNumberOfSocketResources() {
+			public int getNumberOfAcceptedConnection() {
 				return 0;
 			}
 
 			@Override
 			public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-				// TODO Auto-generated method stub
-				
 			}
 		}
 
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
+		AcceptedConnection acceptedConnection = null;
+		AcceptedConnectionManagerIF acceptedConnectionManager = null;
+		{
+			
+			ServerExecutorIF executorOfAcceptedSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
-		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}
+			
+			PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(fromSC,
+					projectLoginManager);
+			
+			acceptedConnectionManager = new AcceptedConnectionManagerMock(fromSC,  
+					socketTimeOut, 
+					outputMessageQueueSize,
+					socketOutputStreamOfAcceptedSC,
+					personalLoginManagerOfAcceptedSC,
+					executorOfAcceptedSC,					
+					messageProtocol,
+					dataPacketBufferPool, 
+					serverIOEvenetController);
+			
+			acceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+		}
+
+		WrapReadableMiddleObject inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -989,7 +953,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			
 			try {
-				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getServerExecutor().getWrapMessageBlockingQueue());
+				messageProtocol.S2MList(fromSC, sos, acceptedConnection.getServerExecutor());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -1000,7 +964,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+			inputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1041,14 +1005,72 @@ public class ServerTaskTest extends AbstractJunitTest {
 			int index = 0;
 			String projectName = "sample_test";
 
-			serverTaskMock.execute(index, projectName, fromSC, socketResourceManager, socketResourceOfFromSC,
-					personalLoginManagerOfFromSC, wrapReadableMiddleObject, messageProtocol);
+			serverTaskMock.execute(index, projectName, fromSC, 
+					personalLoginManagerOfFromSC,
+					acceptedConnection,
+					projectLoginManager,
+					acceptedConnectionManager, 
+					inputMessageWrapReadableMiddleObject, messageProtocol);
 		} catch (InterruptedException e) {
 			fail("InterruptedException");
 		}
 
-		wrapReadableMiddleObject.closeReadableMiddleObject();
-		socketResourceOfFromSC.close();
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = acceptedConnection.getOutputMessageQueue();
+		if (outputMessageQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}		
+		
+		SocketOutputStream sos = null;
+		try {
+			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+		} catch (NoMoreDataPacketBufferException e) {
+			fail("fail to create a instance of SocketOutputStream");
+		}
+		
+		try {
+			messageProtocol.S2MList(fromSC, sos, new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue));
+		} catch (Exception e) {
+			fail("fail to close");
+		}
+		
+		if (wrapReadableMiddleObjectQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+				
+		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+		
+		AbstractMessage receviedOutputMessage = null;
+		try {
+			receviedOutputMessage = clientMessageUtility.buildOutputMessage(this.getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		} catch (DynamicClassCallException | BodyFormatException e) {
+			fail("fail to build a output message");
+		}
+		
+		if (! (receviedOutputMessage instanceof SelfExnRes)) {
+			fail("입력 메시지 디코더 얻기 실패 실험 실패::강제적으로 입력 메시지 디코더 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
+		}
+		
+		SelfExnRes selfExnRes = (SelfExnRes)receviedOutputMessage;
+		
+		if (! selfExnRes.getErrorType().equals(ErrorType.DynamicClassCallException)) {
+			fail("입력 메시지 디코더 얻기 실패 실험 실패::강제적으로 입력 메시지 디코더 얻기 실패 예외를 던졌지만 그에 대한 에러 종류가 DynamicClassCallException 가 아님");
+		}
+		
+		if (selfExnRes.getErrorReason().indexOf("fail to get a input message decoder") < 0) {
+			fail("입력 메시지 디코더 얻기 실패 실험 실패::강제적으로 입력 메시지 디코더 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 디코더 얻기 실패가 아님");
+		}
+		
+		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		acceptedConnection.releaseResources();
 	}
 
 	@Test
@@ -1057,6 +1079,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		long socketTimeOut = 5000;
+		int outputMessageQueueSize = 5; 
 		
 		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
@@ -1089,167 +1113,77 @@ public class ServerTaskTest extends AbstractJunitTest {
 					streamCharsetDecoder, dataPacketBufferPool);
 		}
 
+		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+				dataPacketBufferPool);
+		ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
+		
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
-
-		SocketResource socketResourceOfFromSC = null;
-		{
-			class ServerExecutorMock implements ServerExecutorIF {
-				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
-				
-				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
-					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {					
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {					
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-					
-				}
-
-				@Override
-				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-					return wrapMessageBlockingQueue;
-				}
-				
-			}
+		
+		class ServerExecutorMock implements ServerExecutorIF {
+			private ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue  = null;
 			
-			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
-
-			class OutputMessageWriterMock implements OutputMessageWriterIF {
-				private CharsetDecoder streamCharsetDecoder = null;
-				private int dataPacketBufferMaxCntPerMessage;
-				private MessageProtocolIF messageProtocol = null;
-				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-
-				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
-						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
-					this.streamCharsetDecoder = streamCharsetDecoder;
-					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-					this.messageProtocol = messageProtocol;
-					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {
-				}
-
-				@Override
-				public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-					if (null == toLetter) {
-						fail("the parameter toLetter is null");
-					}
-
-					log.info("toLetter={}", toLetter.toString());
-
-					String messageID = toLetter.getMessageID();
-
-					SingleItemDecoderIF dhbSingleItemDecoder = messageProtocol.getSingleItemDecoder();
-
-					FreeSizeInputStream fsis = new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage,
-							toLetter.getWrapBufferList(), streamCharsetDecoder, dataPacketBufferQueueManager);
-
-					try {
-						fsis.skip(messageProtocol.getMessageHeaderSize());
-						fsis.getUBPascalString();
-						fsis.getUnsignedShort();
-						fsis.getInt();
-
-						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
-								.newInstance();
-
-						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
-
-						if (!(resObj instanceof SelfExnRes)) {
-							String errorMessage = String.format(
-									"this output message[%s] is not a expected SelfExnRes message", resObj.toString());
-							fail(errorMessage);
-						}
-
-						SelfExnRes selfExnRes = (SelfExnRes) resObj;
-						if (!selfExnRes.getErrorPlace().equals(SelfExn.ErrorPlace.SERVER)) {
-							fail("에러 장소가 서버가 아님");
-						}
-
-						if (!selfExnRes.getErrorType().equals(SelfExn.ErrorType.DynamicClassCallException)) {
-							fail("에러 종류가 동적 클래스가 아님");
-						}
-
-						log.info("성공 :: {}", selfExnRes.toString());
-
-					} catch (Error | Exception e) {
-						log.warn("error", e);
-						fail("unknow error::OutputMessageWriterMock::#putIntoQueue");
-					} finally {
-						fsis.close();
-					}
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-				}
+			public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+				this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
 			}
 
-			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPool);
-
-			SocketOutputStream socketOutputStreamOfOwnerSC = null;
-			try {
-				socketOutputStreamOfOwnerSC = new SocketOutputStream(streamCharsetDecoder,
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			@Override
+			public void addNewSocket(SocketChannel newSC) {					
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
-					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
+			@Override
+			public int getNumberOfConnection() {
+				return 0;
+			}
+
+			@Override
+			public void removeSocket(SocketChannel sc) {					
+			}
+
+			@Override
+			public boolean isAlive() {
+				return false;
+			}
+
+			@Override
+			public void start() {
+			}
+
+			@Override
+			public void interrupt() {
+				
+			}
+
+			@Override
+			public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+					throws InterruptedException {
+				wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+			}				
 		}
+		
+		class AcceptedConnectionManagerMock implements AcceptedConnectionManagerIF {
+			private AcceptedConnection acceptedConnection = null;
 
-		class SocketResourceManagerMock implements SocketResourceManagerIF {
-			private SocketResource socketResourceOfFromSC = null;
-
-			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
-				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			public AcceptedConnectionManagerMock(SocketChannel acceptedSocketChannel,
+					long socketTimeOut,
+					int outputMessageQueueSize,
+					SocketOutputStream socketOutputStreamOfAcceptedSC,
+					PersonalLoginManager personalLoginManagerOfAcceptedSC,
+					ServerExecutorIF serverExecutorOfAcceptedSC,
+					MessageProtocolIF messageProtocol,						
+					DataPacketBufferPoolIF dataPacketBufferPool,
+					ServerIOEvenetControllerIF serverIOEvenetController) {				
+				acceptedConnection = new AcceptedConnection(this, 
+						acceptedSocketChannel,  
+						socketTimeOut, 
+						outputMessageQueueSize,
+						socketOutputStreamOfAcceptedSC,
+						personalLoginManagerOfAcceptedSC,
+						serverExecutorOfAcceptedSC,					
+						messageProtocol,
+						dataPacketBufferPool, 
+						serverIOEvenetController);
 			}
 
 			@Override
@@ -1261,25 +1195,51 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public SocketResource getSocketResource(SocketChannel sc) {
-				return socketResourceOfFromSC;
+			public AcceptedConnection getAcceptedConnection(SocketChannel sc) {
+				return acceptedConnection;
 			}
 
 			@Override
-			public int getNumberOfSocketResources() {
+			public int getNumberOfAcceptedConnection() {
 				return 0;
 			}
 
 			@Override
 			public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-				// TODO Auto-generated method stub
-				
 			}
 		}
 
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
+		AcceptedConnection acceptedConnection = null;
+		AcceptedConnectionManagerIF acceptedConnectionManager = null;
+		{
+			
+			ServerExecutorIF executorOfAcceptedSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
-		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}
+			
+			PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(fromSC,
+					projectLoginManager);
+			
+			acceptedConnectionManager = new AcceptedConnectionManagerMock(fromSC,  
+					socketTimeOut, 
+					outputMessageQueueSize,
+					socketOutputStreamOfAcceptedSC,
+					personalLoginManagerOfAcceptedSC,
+					executorOfAcceptedSC,					
+					messageProtocol,
+					dataPacketBufferPool, 
+					serverIOEvenetController);
+			
+			acceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+		}
+
+		WrapReadableMiddleObject inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -1334,7 +1294,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			
 			try {
-				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getServerExecutor().getWrapMessageBlockingQueue());
+				messageProtocol.S2MList(fromSC, sos, acceptedConnection.getServerExecutor());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -1345,7 +1305,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+			inputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1385,14 +1345,77 @@ public class ServerTaskTest extends AbstractJunitTest {
 			int index = 0;
 			String projectName = "sample_test";
 
-			serverTaskMock.execute(index, projectName, fromSC, socketResourceManager, socketResourceOfFromSC,
-					personalLoginManagerOfFromSC, wrapReadableMiddleObject, messageProtocol);
+			serverTaskMock.execute(index, projectName, fromSC, 
+					personalLoginManagerOfFromSC,
+					acceptedConnection,
+					projectLoginManager,
+					acceptedConnectionManager, 
+					inputMessageWrapReadableMiddleObject, messageProtocol);
 		} catch (InterruptedException e) {
 			fail("InterruptedException");
 		}
 
-		wrapReadableMiddleObject.closeReadableMiddleObject();
-		socketResourceOfFromSC.close();
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = acceptedConnection.getOutputMessageQueue();
+		if (outputMessageQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}		
+		
+		SocketOutputStream sos = null;
+		try {
+			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+		} catch (NoMoreDataPacketBufferException e) {
+			fail("fail to create a instance of SocketOutputStream");
+		}
+		
+		log.info("before::wrapReadableMiddleObjectQueue size={}", wrapReadableMiddleObjectQueue.size());
+		
+		try {
+			messageProtocol.S2MList(fromSC, sos, new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue));
+		} catch (Exception e) {
+			fail("fail to close");
+		}
+		
+		log.info("after::wrapReadableMiddleObjectQueue size={}", wrapReadableMiddleObjectQueue.size());
+		
+		if (wrapReadableMiddleObjectQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		
+		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+		
+		AbstractMessage receviedOutputMessage = null;
+		try {
+			receviedOutputMessage = clientMessageUtility.buildOutputMessage(this.getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		} catch (DynamicClassCallException | BodyFormatException e) {
+			fail("fail to build a output message");
+		}
+		
+		if (! (receviedOutputMessage instanceof SelfExnRes)) {
+			fail("입력 메시지 디코더 얻기 실패 실험 실패::강제적으로 입력 메시지 디코더 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
+		}
+		
+		SelfExnRes selfExnRes = (SelfExnRes)receviedOutputMessage;
+		
+		if (! selfExnRes.getErrorType().equals(ErrorType.DynamicClassCallException)) {
+			fail("입력 메시지 디코더 얻기 실패 실험 실패::강제적으로 입력 메시지 디코더 얻기 실패 예외를 던졌지만 그에 대한 에러 종류가 DynamicClassCallException 가 아님");
+		}
+		
+		if (selfExnRes.getErrorReason().indexOf("unknown error::fail to get a input message decoder") < 0) {
+			fail("입력 메시지 디코더 얻기 실패 실험 실패::강제적으로 입력 메시지 디코더 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 디코더 얻기 실패가 아님");
+		}
+		
+		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		acceptedConnection.releaseResources();
 	}
 
 	@Test
@@ -1401,6 +1424,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		long socketTimeOut = 5000;
+		int outputMessageQueueSize = 5; 
 		
 		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
@@ -1433,167 +1458,77 @@ public class ServerTaskTest extends AbstractJunitTest {
 					streamCharsetDecoder, dataPacketBufferPool);
 		}
 
+		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+				dataPacketBufferPool);
+		ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
+		
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
-
-		SocketResource socketResourceOfFromSC = null;
-		{
-			class ServerExecutorMock implements ServerExecutorIF {
-				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
-				
-				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
-					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {					
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {					
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-					
-				}
-
-				@Override
-				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-					return wrapMessageBlockingQueue;
-				}
-				
-			}
+		
+		class ServerExecutorMock implements ServerExecutorIF {
+			private ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue  = null;
 			
-			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
-
-			class OutputMessageWriterMock implements OutputMessageWriterIF {
-				private CharsetDecoder streamCharsetDecoder = null;
-				private int dataPacketBufferMaxCntPerMessage;
-				private MessageProtocolIF messageProtocol = null;
-				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-
-				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
-						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
-					this.streamCharsetDecoder = streamCharsetDecoder;
-					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-					this.messageProtocol = messageProtocol;
-					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {
-				}
-
-				@Override
-				public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-					if (null == toLetter) {
-						fail("the parameter toLetter is null");
-					}
-
-					log.info("toLetter={}", toLetter.toString());
-
-					String messageID = toLetter.getMessageID();
-
-					SingleItemDecoderIF dhbSingleItemDecoder = messageProtocol.getSingleItemDecoder();
-
-					FreeSizeInputStream fsis = new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage,
-							toLetter.getWrapBufferList(), streamCharsetDecoder, dataPacketBufferQueueManager);
-
-					try {
-						fsis.skip(messageProtocol.getMessageHeaderSize());
-						fsis.getUBPascalString();
-						fsis.getUnsignedShort();
-						fsis.getInt();
-
-						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
-								.newInstance();
-
-						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
-
-						if (!(resObj instanceof SelfExnRes)) {
-							String errorMessage = String.format(
-									"this output message[%s] is not a expected SelfExnRes message", resObj.toString());
-							fail(errorMessage);
-						}
-
-						SelfExnRes selfExnRes = (SelfExnRes) resObj;
-						if (!selfExnRes.getErrorPlace().equals(SelfExn.ErrorPlace.SERVER)) {
-							fail("에러 장소가 서버가 아님");
-						}
-
-						if (!selfExnRes.getErrorType().equals(SelfExn.ErrorType.BodyFormatException)) {
-							fail("에러 종류가 바디 포맷 클래스가 아님");
-						}
-
-						log.info("성공 :: {}", selfExnRes.toString());
-
-					} catch (Error | Exception e) {
-						log.warn("error", e);
-						fail("unknow error::OutputMessageWriterMock::#putIntoQueue");
-					} finally {
-						fsis.close();
-					}
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-				}
+			public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+				this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
 			}
 
-			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPool);
-
-			SocketOutputStream socketOutputStreamOfOwnerSC = null;
-			try {
-				socketOutputStreamOfOwnerSC = new SocketOutputStream(streamCharsetDecoder,
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			@Override
+			public void addNewSocket(SocketChannel newSC) {					
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
-					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
+			@Override
+			public int getNumberOfConnection() {
+				return 0;
+			}
+
+			@Override
+			public void removeSocket(SocketChannel sc) {					
+			}
+
+			@Override
+			public boolean isAlive() {
+				return false;
+			}
+
+			@Override
+			public void start() {
+			}
+
+			@Override
+			public void interrupt() {
+				
+			}
+
+			@Override
+			public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+					throws InterruptedException {
+				wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+			}				
 		}
+		
+		class AcceptedConnectionManagerMock implements AcceptedConnectionManagerIF {
+			private AcceptedConnection acceptedConnection = null;
 
-		class SocketResourceManagerMock implements SocketResourceManagerIF {
-			private SocketResource socketResourceOfFromSC = null;
-
-			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
-				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			public AcceptedConnectionManagerMock(SocketChannel acceptedSocketChannel,
+					long socketTimeOut,
+					int outputMessageQueueSize,
+					SocketOutputStream socketOutputStreamOfAcceptedSC,
+					PersonalLoginManager personalLoginManagerOfAcceptedSC,
+					ServerExecutorIF serverExecutorOfAcceptedSC,
+					MessageProtocolIF messageProtocol,						
+					DataPacketBufferPoolIF dataPacketBufferPool,
+					ServerIOEvenetControllerIF serverIOEvenetController) {				
+				acceptedConnection = new AcceptedConnection(this, 
+						acceptedSocketChannel,  
+						socketTimeOut, 
+						outputMessageQueueSize,
+						socketOutputStreamOfAcceptedSC,
+						personalLoginManagerOfAcceptedSC,
+						serverExecutorOfAcceptedSC,					
+						messageProtocol,
+						dataPacketBufferPool, 
+						serverIOEvenetController);
 			}
 
 			@Override
@@ -1605,25 +1540,51 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public SocketResource getSocketResource(SocketChannel sc) {
-				return socketResourceOfFromSC;
+			public AcceptedConnection getAcceptedConnection(SocketChannel sc) {
+				return acceptedConnection;
 			}
 
 			@Override
-			public int getNumberOfSocketResources() {
+			public int getNumberOfAcceptedConnection() {
 				return 0;
 			}
 
 			@Override
 			public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-				// TODO Auto-generated method stub
-				
 			}
 		}
 
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
+		AcceptedConnection acceptedConnection = null;
+		AcceptedConnectionManagerIF acceptedConnectionManager = null;
+		{
+			
+			ServerExecutorIF executorOfAcceptedSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
-		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}
+			
+			PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(fromSC,
+					projectLoginManager);
+			
+			acceptedConnectionManager = new AcceptedConnectionManagerMock(fromSC,  
+					socketTimeOut, 
+					outputMessageQueueSize,
+					socketOutputStreamOfAcceptedSC,
+					personalLoginManagerOfAcceptedSC,
+					executorOfAcceptedSC,					
+					messageProtocol,
+					dataPacketBufferPool, 
+					serverIOEvenetController);
+			
+			acceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+		}
+
+		WrapReadableMiddleObject inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -1678,7 +1639,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			
 			try {
-				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getServerExecutor().getWrapMessageBlockingQueue());
+				messageProtocol.S2MList(fromSC, sos, acceptedConnection.getServerExecutor());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -1689,7 +1650,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+			inputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1739,14 +1700,75 @@ public class ServerTaskTest extends AbstractJunitTest {
 			int index = 0;
 			String projectName = "sample_test";
 
-			serverTaskMock.execute(index, projectName, fromSC, socketResourceManager, socketResourceOfFromSC,
-					personalLoginManagerOfFromSC, wrapReadableMiddleObject, messageProtocol);
+			serverTaskMock.execute(index, projectName, fromSC, 
+					personalLoginManagerOfFromSC,
+					acceptedConnection,
+					projectLoginManager,
+					acceptedConnectionManager, 
+					inputMessageWrapReadableMiddleObject, messageProtocol);
 		} catch (InterruptedException e) {
 			fail("InterruptedException");
 		}
+		
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = acceptedConnection.getOutputMessageQueue();
+		if (outputMessageQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}		
+		
+		SocketOutputStream sos = null;
+		try {
+			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+		} catch (NoMoreDataPacketBufferException e) {
+			fail("fail to create a instance of SocketOutputStream");
+		}
+				
+		try {
+			messageProtocol.S2MList(fromSC, sos, new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue));
+		} catch (Exception e) {
+			fail("fail to close");
+		}
+		
+		
+		if (wrapReadableMiddleObjectQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		
+		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+		
+		AbstractMessage receviedOutputMessage = null;
+		try {
+			receviedOutputMessage = clientMessageUtility.buildOutputMessage(this.getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		} catch (DynamicClassCallException | BodyFormatException e) {
+			fail("fail to build a output message");
+		}
+		
+		if (! (receviedOutputMessage instanceof SelfExnRes)) {
+			fail("입력 메시지 얻기 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
+		}
+		
+		SelfExnRes selfExnRes = (SelfExnRes)receviedOutputMessage;
+				
+		if (! selfExnRes.getErrorType().equals(ErrorType.BodyFormatException)) {
+			fail("입력 메시지 얻기 실험 실패::강제적으로 바디 포맷 예외를 던졌지만 그에 대한 에러 종류가 BodyFormatException 이 아님");
+		}
+		
+		if (selfExnRes.getErrorReason().indexOf("fail to get a input message from readable middle object") < 0) {
+			fail("입력 메시지 얻기 실험 실패::강제적으로 바디 포맷 예외를 던졌지만 그 원인이 입력 메시지 얻기 실패가 아님");
+		}
+		
+		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 
-		wrapReadableMiddleObject.closeReadableMiddleObject();
-		socketResourceOfFromSC.close();
+		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		acceptedConnection.releaseResources();
 	}
 
 	@Test
@@ -1755,6 +1777,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		long socketTimeOut = 5000;
+		int outputMessageQueueSize = 5; 
 		
 		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
@@ -1787,167 +1811,77 @@ public class ServerTaskTest extends AbstractJunitTest {
 					streamCharsetDecoder, dataPacketBufferPool);
 		}
 
+		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+				dataPacketBufferPool);
+		ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
+		
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
-
-		SocketResource socketResourceOfFromSC = null;
-		{
-			class ServerExecutorMock implements ServerExecutorIF {
-				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
-				
-				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
-					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {					
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {					
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-					
-				}
-
-				@Override
-				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-					return wrapMessageBlockingQueue;
-				}
-				
-			}
+		
+		class ServerExecutorMock implements ServerExecutorIF {
+			private ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue  = null;
 			
-			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
-
-			class OutputMessageWriterMock implements OutputMessageWriterIF {
-				private CharsetDecoder streamCharsetDecoder = null;
-				private int dataPacketBufferMaxCntPerMessage;
-				private MessageProtocolIF messageProtocol = null;
-				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-
-				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
-						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
-					this.streamCharsetDecoder = streamCharsetDecoder;
-					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-					this.messageProtocol = messageProtocol;
-					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {
-				}
-
-				@Override
-				public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-					if (null == toLetter) {
-						fail("the parameter toLetter is null");
-					}
-
-					log.info("toLetter={}", toLetter.toString());
-
-					String messageID = toLetter.getMessageID();
-
-					SingleItemDecoderIF dhbSingleItemDecoder = messageProtocol.getSingleItemDecoder();
-
-					FreeSizeInputStream fsis = new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage,
-							toLetter.getWrapBufferList(), streamCharsetDecoder, dataPacketBufferQueueManager);
-
-					try {
-						fsis.skip(messageProtocol.getMessageHeaderSize());
-						fsis.getUBPascalString();
-						fsis.getUnsignedShort();
-						fsis.getInt();
-
-						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
-								.newInstance();
-
-						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
-
-						if (!(resObj instanceof SelfExnRes)) {
-							String errorMessage = String.format(
-									"this output message[%s] is not a expected SelfExnRes message", resObj.toString());
-							fail(errorMessage);
-						}
-
-						SelfExnRes selfExnRes = (SelfExnRes) resObj;
-						if (!selfExnRes.getErrorPlace().equals(SelfExn.ErrorPlace.SERVER)) {
-							fail("에러 장소가 서버가 아님");
-						}
-
-						if (!selfExnRes.getErrorType().equals(SelfExn.ErrorType.BodyFormatException)) {
-							fail("에러 종류가 바디 포맷 클래스가 아님");
-						}
-
-						log.info("성공 :: {}", selfExnRes.toString());
-
-					} catch (Error | Exception e) {
-						log.warn("error", e);
-						fail("unknow error::OutputMessageWriterMock::#putIntoQueue");
-					} finally {
-						fsis.close();
-					}
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-				}
+			public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+				this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
 			}
 
-			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPool);
-
-			SocketOutputStream socketOutputStreamOfOwnerSC = null;
-			try {
-				socketOutputStreamOfOwnerSC = new SocketOutputStream(streamCharsetDecoder,
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			@Override
+			public void addNewSocket(SocketChannel newSC) {					
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
-					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
+			@Override
+			public int getNumberOfConnection() {
+				return 0;
+			}
+
+			@Override
+			public void removeSocket(SocketChannel sc) {					
+			}
+
+			@Override
+			public boolean isAlive() {
+				return false;
+			}
+
+			@Override
+			public void start() {
+			}
+
+			@Override
+			public void interrupt() {
+				
+			}
+
+			@Override
+			public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+					throws InterruptedException {
+				wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+			}				
 		}
+		
+		class AcceptedConnectionManagerMock implements AcceptedConnectionManagerIF {
+			private AcceptedConnection acceptedConnection = null;
 
-		class SocketResourceManagerMock implements SocketResourceManagerIF {
-			private SocketResource socketResourceOfFromSC = null;
-
-			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
-				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			public AcceptedConnectionManagerMock(SocketChannel acceptedSocketChannel,
+					long socketTimeOut,
+					int outputMessageQueueSize,
+					SocketOutputStream socketOutputStreamOfAcceptedSC,
+					PersonalLoginManager personalLoginManagerOfAcceptedSC,
+					ServerExecutorIF serverExecutorOfAcceptedSC,
+					MessageProtocolIF messageProtocol,						
+					DataPacketBufferPoolIF dataPacketBufferPool,
+					ServerIOEvenetControllerIF serverIOEvenetController) {				
+				acceptedConnection = new AcceptedConnection(this, 
+						acceptedSocketChannel,  
+						socketTimeOut, 
+						outputMessageQueueSize,
+						socketOutputStreamOfAcceptedSC,
+						personalLoginManagerOfAcceptedSC,
+						serverExecutorOfAcceptedSC,					
+						messageProtocol,
+						dataPacketBufferPool, 
+						serverIOEvenetController);
 			}
 
 			@Override
@@ -1959,25 +1893,51 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public SocketResource getSocketResource(SocketChannel sc) {
-				return socketResourceOfFromSC;
+			public AcceptedConnection getAcceptedConnection(SocketChannel sc) {
+				return acceptedConnection;
 			}
 
 			@Override
-			public int getNumberOfSocketResources() {
+			public int getNumberOfAcceptedConnection() {
 				return 0;
 			}
 
 			@Override
 			public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-				// TODO Auto-generated method stub
-				
 			}
 		}
 
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
+		AcceptedConnection acceptedConnection = null;
+		AcceptedConnectionManagerIF acceptedConnectionManager = null;
+		{
+			
+			ServerExecutorIF executorOfAcceptedSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
-		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}
+			
+			PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(fromSC,
+					projectLoginManager);
+			
+			acceptedConnectionManager = new AcceptedConnectionManagerMock(fromSC,  
+					socketTimeOut, 
+					outputMessageQueueSize,
+					socketOutputStreamOfAcceptedSC,
+					personalLoginManagerOfAcceptedSC,
+					executorOfAcceptedSC,					
+					messageProtocol,
+					dataPacketBufferPool, 
+					serverIOEvenetController);
+			
+			acceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+		}
+
+		WrapReadableMiddleObject inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -2032,7 +1992,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			
 			try {
-				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getServerExecutor().getWrapMessageBlockingQueue());
+				messageProtocol.S2MList(fromSC, sos, acceptedConnection.getServerExecutor());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -2043,7 +2003,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+			inputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -2092,14 +2052,75 @@ public class ServerTaskTest extends AbstractJunitTest {
 			int index = 0;
 			String projectName = "sample_test";
 
-			serverTaskMock.execute(index, projectName, fromSC, socketResourceManager, socketResourceOfFromSC,
-					personalLoginManagerOfFromSC, wrapReadableMiddleObject, messageProtocol);
+			serverTaskMock.execute(index, projectName, fromSC, 
+					personalLoginManagerOfFromSC,
+					acceptedConnection,
+					projectLoginManager,
+					acceptedConnectionManager, 
+					inputMessageWrapReadableMiddleObject, messageProtocol);
 		} catch (InterruptedException e) {
 			fail("InterruptedException");
 		}
 
-		wrapReadableMiddleObject.closeReadableMiddleObject();
-		socketResourceOfFromSC.close();
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = acceptedConnection.getOutputMessageQueue();
+		if (outputMessageQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}		
+		
+		SocketOutputStream sos = null;
+		try {
+			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+		} catch (NoMoreDataPacketBufferException e) {
+			fail("fail to create a instance of SocketOutputStream");
+		}
+				
+		try {
+			messageProtocol.S2MList(fromSC, sos, new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue));
+		} catch (Exception e) {
+			fail("fail to close");
+		}
+		
+		
+		if (wrapReadableMiddleObjectQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		
+		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+		
+		AbstractMessage receviedOutputMessage = null;
+		try {
+			receviedOutputMessage = clientMessageUtility.buildOutputMessage(this.getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		} catch (DynamicClassCallException | BodyFormatException e) {
+			fail("fail to build a output message");
+		}
+		
+		if (! (receviedOutputMessage instanceof SelfExnRes)) {
+			fail("입력 메시지 얻기 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
+		}
+		
+		SelfExnRes selfExnRes = (SelfExnRes)receviedOutputMessage;
+				
+		if (! selfExnRes.getErrorType().equals(ErrorType.BodyFormatException)) {
+			fail("입력 메시지 얻기 실험 실패::강제적으로 바디 포맷 예외를 던졌지만 그에 대한 에러 종류가 BodyFormatException 이 아님");
+		}
+		
+		if (selfExnRes.getErrorReason().indexOf("unknown error::fail to get a input message from readable middle object") < 0) {
+			fail("입력 메시지 얻기 실험 실패::강제적으로 바디 포맷 예외를 던졌지만 그 원인이 입력 메시지 얻기 실패가 아님");
+		}
+		
+		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		
+		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		acceptedConnection.releaseResources();
 	}
 
 	@Test
@@ -2108,6 +2129,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		long socketTimeOut = 5000;
+		int outputMessageQueueSize = 5; 
 
 		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 		
@@ -2140,172 +2163,77 @@ public class ServerTaskTest extends AbstractJunitTest {
 					streamCharsetDecoder, dataPacketBufferPool);
 		}
 
+		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+				dataPacketBufferPool);
+		ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
+		
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
-
-		SocketResource socketResourceOfFromSC = null;
-		{
-			class ServerExecutorMock implements ServerExecutorIF {
-				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
-				
-				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
-					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {					
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {					
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-					
-				}
-
-				@Override
-				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-					return wrapMessageBlockingQueue;
-				}
-				
-			}
+		
+		class ServerExecutorMock implements ServerExecutorIF {
+			private ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue  = null;
 			
-			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
-
-			class OutputMessageWriterMock implements OutputMessageWriterIF {
-				private CharsetDecoder streamCharsetDecoder = null;
-				private int dataPacketBufferMaxCntPerMessage;
-				private MessageProtocolIF messageProtocol = null;
-				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-
-				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
-						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
-					this.streamCharsetDecoder = streamCharsetDecoder;
-					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-					this.messageProtocol = messageProtocol;
-					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {
-				}
-
-				@Override
-				public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-					if (null == toLetter) {
-						fail("the parameter toLetter is null");
-					}
-
-					log.info("toLetter={}", toLetter.toString());
-
-					String messageID = toLetter.getMessageID();
-
-					SingleItemDecoderIF dhbSingleItemDecoder = messageProtocol.getSingleItemDecoder();
-
-					FreeSizeInputStream fsis = new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage,
-							toLetter.getWrapBufferList(), streamCharsetDecoder, dataPacketBufferQueueManager);
-
-					try {
-						fsis.skip(messageProtocol.getMessageHeaderSize());
-						fsis.getUBPascalString();
-						fsis.getUnsignedShort();
-						fsis.getInt();
-
-						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
-								.newInstance();
-
-						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
-
-						if (!(resObj instanceof SelfExnRes)) {
-							String errorMessage = String.format(
-									"this output message[%s] is not a expected SelfExnRes message", resObj.toString());
-							fail(errorMessage);
-						}
-
-						SelfExnRes selfExnRes = (SelfExnRes) resObj;
-						if (!selfExnRes.getErrorPlace().equals(SelfExn.ErrorPlace.SERVER)) {
-							fail("에러 장소가 서버가 아님");
-						}
-
-						if (!selfExnRes.getErrorType().equals(SelfExn.ErrorType.ServerTaskException)) {
-							fail("에러 종류가 서버 타스크 클래스가 아님");
-						}
-
-						if (selfExnRes.getErrorReason().indexOf(
-								"the synchronous output message can't be added becase another synchronous message is already registered in the toLetter list") < 0) {
-							fail("2번째 동기 출력 메시지를 추가할 수 없다는 에러가 아님");
-						}
-
-						log.info("성공 :: {}", selfExnRes.toString());
-
-					} catch (Error | Exception e) {
-						log.warn("error", e);
-						fail("unknow error::OutputMessageWriterMock::#putIntoQueue");
-					} finally {
-						fsis.close();
-					}
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-				}
+			public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+				this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
 			}
 
-			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPool);
-
-			SocketOutputStream socketOutputStreamOfOwnerSC = null;
-			try {
-				socketOutputStreamOfOwnerSC = new SocketOutputStream(streamCharsetDecoder,
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			@Override
+			public void addNewSocket(SocketChannel newSC) {					
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
-					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
+			@Override
+			public int getNumberOfConnection() {
+				return 0;
+			}
+
+			@Override
+			public void removeSocket(SocketChannel sc) {					
+			}
+
+			@Override
+			public boolean isAlive() {
+				return false;
+			}
+
+			@Override
+			public void start() {
+			}
+
+			@Override
+			public void interrupt() {
+				
+			}
+
+			@Override
+			public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+					throws InterruptedException {
+				wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+			}				
 		}
+		
+		class AcceptedConnectionManagerMock implements AcceptedConnectionManagerIF {
+			private AcceptedConnection acceptedConnection = null;
 
-		class SocketResourceManagerMock implements SocketResourceManagerIF {
-			private SocketResource socketResourceOfFromSC = null;
-
-			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
-				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			public AcceptedConnectionManagerMock(SocketChannel acceptedSocketChannel,
+					long socketTimeOut,
+					int outputMessageQueueSize,
+					SocketOutputStream socketOutputStreamOfAcceptedSC,
+					PersonalLoginManager personalLoginManagerOfAcceptedSC,
+					ServerExecutorIF serverExecutorOfAcceptedSC,
+					MessageProtocolIF messageProtocol,						
+					DataPacketBufferPoolIF dataPacketBufferPool,
+					ServerIOEvenetControllerIF serverIOEvenetController) {				
+				acceptedConnection = new AcceptedConnection(this, 
+						acceptedSocketChannel,  
+						socketTimeOut, 
+						outputMessageQueueSize,
+						socketOutputStreamOfAcceptedSC,
+						personalLoginManagerOfAcceptedSC,
+						serverExecutorOfAcceptedSC,					
+						messageProtocol,
+						dataPacketBufferPool, 
+						serverIOEvenetController);
 			}
 
 			@Override
@@ -2317,25 +2245,51 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public SocketResource getSocketResource(SocketChannel sc) {
-				return socketResourceOfFromSC;
+			public AcceptedConnection getAcceptedConnection(SocketChannel sc) {
+				return acceptedConnection;
 			}
 
 			@Override
-			public int getNumberOfSocketResources() {
+			public int getNumberOfAcceptedConnection() {
 				return 0;
 			}
 
 			@Override
 			public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-				// TODO Auto-generated method stub
-				
 			}
 		}
 
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
+		AcceptedConnection acceptedConnection = null;
+		AcceptedConnectionManagerIF acceptedConnectionManager = null;
+		{
+			
+			ServerExecutorIF executorOfAcceptedSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
-		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}
+			
+			PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(fromSC,
+					projectLoginManager);
+			
+			acceptedConnectionManager = new AcceptedConnectionManagerMock(fromSC,  
+					socketTimeOut, 
+					outputMessageQueueSize,
+					socketOutputStreamOfAcceptedSC,
+					personalLoginManagerOfAcceptedSC,
+					executorOfAcceptedSC,					
+					messageProtocol,
+					dataPacketBufferPool, 
+					serverIOEvenetController);
+			
+			acceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+		}
+
+		WrapReadableMiddleObject inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -2390,7 +2344,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			
 			try {
-				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getServerExecutor().getWrapMessageBlockingQueue());
+				messageProtocol.S2MList(fromSC, sos, acceptedConnection.getServerExecutor());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -2401,7 +2355,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+			inputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -2447,22 +2401,87 @@ public class ServerTaskTest extends AbstractJunitTest {
 			int index = 0;
 			String projectName = "sample_test";
 
-			serverTaskMock.execute(index, projectName, fromSC, socketResourceManager, socketResourceOfFromSC,
-					personalLoginManagerOfFromSC, wrapReadableMiddleObject, messageProtocol);
+			serverTaskMock.execute(index, projectName, fromSC, 
+					personalLoginManagerOfFromSC,
+					acceptedConnection,
+					projectLoginManager,
+					acceptedConnectionManager, 
+					inputMessageWrapReadableMiddleObject, messageProtocol);
 		} catch (InterruptedException e) {
 			fail("InterruptedException");
 		}
+		
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = acceptedConnection.getOutputMessageQueue();
+		if (outputMessageQueue.size() != 2) {
+			fail("예상 출력 메시지 갯수가 2개가 아님");
+		}
+		
+		/** 동기 메시지 2개를 넣을려다 실패한것이므로 두번째에 에러 내용이 담겨 있음 */
+		outputMessageQueue.poll();
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}		
+		
+		SocketOutputStream sos = null;
+		try {
+			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+		} catch (NoMoreDataPacketBufferException e) {
+			fail("fail to create a instance of SocketOutputStream");
+		}
+				
+		try {
+			messageProtocol.S2MList(fromSC, sos, new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue));
+		} catch (Exception e) {
+			fail("fail to close");
+		}
+		
+		
+		if (wrapReadableMiddleObjectQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		
+		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+		
+		AbstractMessage receviedOutputMessage = null;
+		try {
+			receviedOutputMessage = clientMessageUtility.buildOutputMessage(this.getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		} catch (DynamicClassCallException | BodyFormatException e) {
+			fail("fail to build a output message");
+		}
+		
+		if (! (receviedOutputMessage instanceof SelfExnRes)) {
+			fail("서버 타스크 실험 실패::2번 이상 동기 출력 메시지를 추가하여  에러를 발생하였지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
+		}
+		
+		SelfExnRes selfExnRes = (SelfExnRes)receviedOutputMessage;
+				
+		if (! selfExnRes.getErrorType().equals(ErrorType.ServerTaskException)) {
+			fail("서버 타스크 실험 실패::2번 이상 동기 출력 메시지를 추가하여  에러를 발생하였지만 그에 대한 에러 종류가 ServerTaskException 이 아님");
+		}
+		
+		if (selfExnRes.getErrorReason().indexOf("unknown error::fail to execuate the input message's task") < 0) {
+			fail("서버 타스크 실험 실패::2번 이상 동기 출력 메시지를 추가하여  에러를 발생하였지만 그 원인이 입력 메시지 타스크 수행 실패가 아님");
+		}
+		
+		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 
-		wrapReadableMiddleObject.closeReadableMiddleObject();
-		socketResourceOfFromSC.close();
+		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		acceptedConnection.releaseResources();
 	}
 
 	@Test
-	public void testDoTask_비동기입력메시지에동기출력메시지추가() {
+	public void testDoTask_비동기입력메시지에도불구하고동기출력메시지를보내려고함() {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		int dataPacketBufferMaxCntPerMessage = 10;
+		long socketTimeOut = 5000;
+		int outputMessageQueueSize = 5; 
 		
 		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
 
@@ -2494,175 +2513,78 @@ public class ServerTaskTest extends AbstractJunitTest {
 			messageProtocol = new THBMessageProtocol(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder,
 					streamCharsetDecoder, dataPacketBufferPool);
 		}
+		
+		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+				dataPacketBufferPool);
+		ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
 
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
-
-		SocketResource socketResourceOfFromSC = null;
-		{
-			class ServerExecutorMock implements ServerExecutorIF {
-				private ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue  = null;
-				
-				public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
-					wrapMessageBlockingQueue  = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {					
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {					
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-					
-				}
-
-				@Override
-				public ReceivedMessageBlockingQueueIF getWrapMessageBlockingQueue() {
-					return wrapMessageBlockingQueue;
-				}
-				
-			}
+		
+		class ServerExecutorMock implements ServerExecutorIF {
+			private ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue  = null;
 			
-			ServerExecutorIF executorOfOwnerSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
-
-			class OutputMessageWriterMock implements OutputMessageWriterIF {
-				private CharsetDecoder streamCharsetDecoder = null;
-				private int dataPacketBufferMaxCntPerMessage;
-				private MessageProtocolIF messageProtocol = null;
-				private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-
-				public OutputMessageWriterMock(CharsetDecoder streamCharsetDecoder,
-						int dataPacketBufferMaxCntPerMessage, MessageProtocolIF messageProtocol,
-						DataPacketBufferPoolIF dataPacketBufferQueueManager) {
-					this.streamCharsetDecoder = streamCharsetDecoder;
-					this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-					this.messageProtocol = messageProtocol;
-					this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-				}
-
-				@Override
-				public void addNewSocket(SocketChannel newSC) {
-				}
-
-				@Override
-				public int getNumberOfConnection() {
-					return 0;
-				}
-
-				@Override
-				public void removeSocket(SocketChannel sc) {
-				}
-
-				@Override
-				public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-					if (null == toLetter) {
-						fail("the parameter toLetter is null");
-					}
-
-					log.info("toLetter={}", toLetter.toString());
-
-					String messageID = toLetter.getMessageID();
-
-					SingleItemDecoderIF dhbSingleItemDecoder = messageProtocol.getSingleItemDecoder();
-
-					FreeSizeInputStream fsis = new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage,
-							toLetter.getWrapBufferList(), streamCharsetDecoder, dataPacketBufferQueueManager);
-
-					try {
-						fsis.skip(messageProtocol.getMessageHeaderSize());
-						fsis.getUBPascalString();
-						fsis.getUnsignedShort();
-						fsis.getInt();
-
-						AbstractMessageDecoder messageDecoder = (AbstractMessageDecoder) Class
-								.forName(IOPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID))
-								.newInstance();
-
-						AbstractMessage resObj = messageDecoder.decode(dhbSingleItemDecoder, fsis);
-
-						if (!(resObj instanceof SelfExnRes)) {
-							String errorMessage = String.format(
-									"this output message[%s] is not a expected SelfExnRes message", resObj.toString());
-							fail(errorMessage);
-						}
-
-						SelfExnRes selfExnRes = (SelfExnRes) resObj;
-						if (!selfExnRes.getErrorPlace().equals(SelfExn.ErrorPlace.SERVER)) {
-							fail("에러 장소가 서버가 아님");
-						}
-
-						if (!selfExnRes.getErrorType().equals(SelfExn.ErrorType.ServerTaskException)) {
-							fail("에러 종류가 서버 타스크 클래스가 아님");
-						}
-
-						if (selfExnRes.getErrorReason().indexOf(
-								"the synchronous output message can't be added becase the inputMessage is a asynchronous message") < 0) {
-							fail("비동기 입력 메시지에 동기 출력 메시지를 보냈다는 에러가 아님");
-						}
-
-						// the synchronous output message can't be added becase the inputMessage is a
-						// asynchronous message
-						log.info("성공 :: {}", selfExnRes.toString());
-
-					} catch (Error | Exception e) {
-						log.warn("error", e);
-						fail("unknow error::OutputMessageWriterMock::#putIntoQueue");
-					} finally {
-						fsis.close();
-					}
-				}
-
-				@Override
-				public boolean isAlive() {
-					return false;
-				}
-
-				@Override
-				public void start() {
-				}
-
-				@Override
-				public void interrupt() {
-				}
+			public ServerExecutorMock(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {					
+				this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
 			}
 
-			OutputMessageWriterIF outputMessageWriterOfOwnerSC = new OutputMessageWriterMock(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, messageProtocol, dataPacketBufferPool);
-
-			SocketOutputStream socketOutputStreamOfOwnerSC = null;
-			try {
-				socketOutputStreamOfOwnerSC = new SocketOutputStream(streamCharsetDecoder,
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			@Override
+			public void addNewSocket(SocketChannel newSC) {					
 			}
 
-			socketResourceOfFromSC = new SocketResource(fromSC, executorOfOwnerSC,
-					outputMessageWriterOfOwnerSC, socketOutputStreamOfOwnerSC, personalLoginManagerOfFromSC);
+			@Override
+			public int getNumberOfConnection() {
+				return 0;
+			}
+
+			@Override
+			public void removeSocket(SocketChannel sc) {					
+			}
+
+			@Override
+			public boolean isAlive() {
+				return false;
+			}
+
+			@Override
+			public void start() {
+			}
+
+			@Override
+			public void interrupt() {
+				
+			}
+
+			@Override
+			public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+					throws InterruptedException {
+				wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+			}				
 		}
+		
+		class AcceptedConnectionManagerMock implements AcceptedConnectionManagerIF {
+			private AcceptedConnection acceptedConnection = null;
 
-		class SocketResourceManagerMock implements SocketResourceManagerIF {
-			private SocketResource socketResourceOfFromSC = null;
-
-			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
-				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			public AcceptedConnectionManagerMock(SocketChannel acceptedSocketChannel,
+					long socketTimeOut,
+					int outputMessageQueueSize,
+					SocketOutputStream socketOutputStreamOfAcceptedSC,
+					PersonalLoginManager personalLoginManagerOfAcceptedSC,
+					ServerExecutorIF serverExecutorOfAcceptedSC,
+					MessageProtocolIF messageProtocol,						
+					DataPacketBufferPoolIF dataPacketBufferPool,
+					ServerIOEvenetControllerIF serverIOEvenetController) {				
+				acceptedConnection = new AcceptedConnection(this, 
+						acceptedSocketChannel,  
+						socketTimeOut, 
+						outputMessageQueueSize,
+						socketOutputStreamOfAcceptedSC,
+						personalLoginManagerOfAcceptedSC,
+						serverExecutorOfAcceptedSC,					
+						messageProtocol,
+						dataPacketBufferPool, 
+						serverIOEvenetController);
 			}
 
 			@Override
@@ -2674,25 +2596,51 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public SocketResource getSocketResource(SocketChannel sc) {
-				return socketResourceOfFromSC;
+			public AcceptedConnection getAcceptedConnection(SocketChannel sc) {
+				return acceptedConnection;
 			}
 
 			@Override
-			public int getNumberOfSocketResources() {
+			public int getNumberOfAcceptedConnection() {
 				return 0;
 			}
 
 			@Override
 			public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-				// TODO Auto-generated method stub
-				
 			}
 		}
 
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
+		AcceptedConnection acceptedConnection = null;
+		AcceptedConnectionManagerIF acceptedConnectionManager = null;
+		{
+			
+			ServerExecutorIF executorOfAcceptedSC = new ServerExecutorMock(wrapReadableMiddleObjectQueue);
 
-		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}
+			
+			PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(fromSC,
+					projectLoginManager);
+			
+			acceptedConnectionManager = new AcceptedConnectionManagerMock(fromSC,  
+					socketTimeOut, 
+					outputMessageQueueSize,
+					socketOutputStreamOfAcceptedSC,
+					personalLoginManagerOfAcceptedSC,
+					executorOfAcceptedSC,					
+					messageProtocol,
+					dataPacketBufferPool, 
+					serverIOEvenetController);
+			
+			acceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
+		}
+
+		WrapReadableMiddleObject inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
@@ -2747,7 +2695,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			
 			try {
-				messageProtocol.S2MList(fromSC, sos, socketResourceOfFromSC.getServerExecutor().getWrapMessageBlockingQueue());
+				messageProtocol.S2MList(fromSC, sos, acceptedConnection.getServerExecutor());
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -2758,7 +2706,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+			inputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -2803,13 +2751,74 @@ public class ServerTaskTest extends AbstractJunitTest {
 			int index = 0;
 			String projectName = "sample_test";
 
-			serverTaskMock.execute(index, projectName, fromSC, socketResourceManager, socketResourceOfFromSC,
-					personalLoginManagerOfFromSC, wrapReadableMiddleObject, messageProtocol);
+			serverTaskMock.execute(index, projectName, fromSC, 
+					personalLoginManagerOfFromSC,
+					acceptedConnection,
+					projectLoginManager,
+					acceptedConnectionManager, 
+					inputMessageWrapReadableMiddleObject, messageProtocol);
 		} catch (InterruptedException e) {
 			fail("InterruptedException");
 		}
 
-		wrapReadableMiddleObject.closeReadableMiddleObject();
-		socketResourceOfFromSC.close();
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = acceptedConnection.getOutputMessageQueue();
+		if (outputMessageQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+				
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}		
+		
+		SocketOutputStream sos = null;
+		try {
+			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+		} catch (NoMoreDataPacketBufferException e) {
+			fail("fail to create a instance of SocketOutputStream");
+		}
+				
+		try {
+			messageProtocol.S2MList(fromSC, sos, new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue));
+		} catch (Exception e) {
+			fail("fail to close");
+		}
+		
+		
+		if (wrapReadableMiddleObjectQueue.size() != 1) {
+			fail("예상 출력 메시지 갯수가 1개가 아님");
+		}
+		
+		
+		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
+		
+		AbstractMessage receviedOutputMessage = null;
+		try {
+			receviedOutputMessage = clientMessageUtility.buildOutputMessage(this.getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		} catch (DynamicClassCallException | BodyFormatException e) {
+			fail("fail to build a output message");
+		}
+		
+		if (! (receviedOutputMessage instanceof SelfExnRes)) {
+			fail("서버 타스크 실험 실패::2번 이상 동기 출력 메시지를 추가하여  에러를 발생하였지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
+		}
+		
+		SelfExnRes selfExnRes = (SelfExnRes)receviedOutputMessage;
+				
+		if (! selfExnRes.getErrorType().equals(ErrorType.ServerTaskException)) {
+			fail("서버 타스크 실험 실패::2번 이상 동기 출력 메시지를 추가하여  에러를 발생하였지만 그에 대한 에러 종류가 ServerTaskException 이 아님");
+		}
+		
+		if (selfExnRes.getErrorReason().indexOf("unknown error::fail to execuate the input message's task") < 0) {
+			fail("서버 타스크 실험 실패::2번 이상 동기 출력 메시지를 추가하여  에러를 발생하였지만 그 원인이 입력 메시지 타스크 수행 실패가 아님");
+		}
+		
+		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		
+		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		acceptedConnection.releaseResources();
 	}
 }

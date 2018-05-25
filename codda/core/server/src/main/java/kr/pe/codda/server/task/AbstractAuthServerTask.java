@@ -25,8 +25,9 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.SocketResource;
-import kr.pe.codda.server.SocketResourceManagerIF;
+import kr.pe.codda.server.ProjectLoginManagerIF;
+import kr.pe.codda.server.AcceptedConnection;
+import kr.pe.codda.server.AcceptedConnectionManagerIF;
 
 
 public abstract class AbstractAuthServerTask extends AbstractServerTask {
@@ -35,25 +36,26 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 	public void execute(int index, 
 			String projectName,
 			SocketChannel fromSC,
-			SocketResource fromSocketResource,
-			SocketResourceManagerIF socketResourceManager,
-			SocketResource socketResourceOfFromSC,
-			PersonalLoginManagerIF personalLoginManagerOfFromSC,
+			PersonalLoginManagerIF fromPersonalLoginManager,
+			AcceptedConnection fromAcceptedConnection,
+			ProjectLoginManagerIF projectLoginManager,
+			AcceptedConnectionManagerIF acceptedConnectionManger,			
 			WrapReadableMiddleObject wrapReadableMiddleObject,
 			MessageProtocolIF messageProtocol) throws InterruptedException {		
 		
-		if (! personalLoginManagerOfFromSC.isLogin()) {
+		if (! fromPersonalLoginManager.isLogin()) {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					SelfExn.ErrorType.valueOf(ServerTaskPermissionException.class),
 					"you are not logged in. this service requires a login",
-					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
 			
 			return;
 		}
-		super.execute(index, projectName, fromSC, fromSocketResource,
-				socketResourceManager, 
-				socketResourceOfFromSC,
-				personalLoginManagerOfFromSC,
+		super.execute(index, projectName, fromSC, 
+				fromPersonalLoginManager,
+				fromAcceptedConnection,
+				projectLoginManager,
+				acceptedConnectionManger,
 				wrapReadableMiddleObject, 
 				messageProtocol);
 	}

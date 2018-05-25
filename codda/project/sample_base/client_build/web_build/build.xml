@@ -105,7 +105,6 @@
 		</copy>
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="false">
 			<union refid="core.all.jarlibs" />
-			<union refid="logback.jarlibs" />
 		</copy>
 	</target>
 

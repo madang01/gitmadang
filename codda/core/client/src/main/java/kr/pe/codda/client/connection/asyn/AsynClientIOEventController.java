@@ -122,13 +122,15 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 				
 				ioEventSelector.select();
 				Set<SelectionKey> selectedKeySet = ioEventSelector.selectedKeys();
-				for (SelectionKey selectedKey : selectedKeySet) {
-					InterestedAsynConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
+				for (SelectionKey selectedKey : selectedKeySet) {					
 					if (selectedKey.isConnectable()) {
-						interestedAsynConnection.onConnect(selectedKey);						
+						InterestedAsynConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
+						interestedAsynConnection.onConnect(selectedKey);
 					} else if (selectedKey.isReadable()) {
+						InterestedAsynConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onRead(selectedKey);
 					} else if (selectedKey.isWritable()) {
+						InterestedAsynConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onWrite(selectedKey);
 					}
 				}

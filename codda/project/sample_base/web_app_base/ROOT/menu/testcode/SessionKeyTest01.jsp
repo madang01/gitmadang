@@ -1,6 +1,6 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%
 	String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보시이면 " 
 + "AbstractSessionKeyServlet 모듈 테스트 통과 안보이면 실패\n<script type=\"text/javascript\">alert(\"hello\");</script>";
 

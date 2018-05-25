@@ -15,9 +15,9 @@ import java.util.ArrayDeque;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
+import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
-import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.InterestedAsynConnectionIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.mainbox.AsynMessageMailbox;
@@ -98,10 +98,13 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {
 		
+		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
+		
+		
 		inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 		
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(this.getClass().getClassLoader(), inputMessage);
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
 		
 	
 		/*synchronized (inputMessageQueue) {
@@ -132,7 +135,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 			throw e;
 		}
 		
-		AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(classloaderOfInputMessage, outputMessageWrapReadableMiddleObject);
 		
 		
 		return outputMessage;
@@ -141,10 +144,12 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 	@Override
 	public void sendAsynInputMessage(AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
+		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
+		
 		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox.getNextMailID();
 		
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(this.getClass().getClassLoader(), inputMessage);
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
 		
 		/*synchronized (inputMessageQueue) {
 			if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {

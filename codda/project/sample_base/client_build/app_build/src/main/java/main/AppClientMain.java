@@ -1,27 +1,39 @@
 package main;
 
+import java.util.concurrent.TimeUnit;
+
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.client.AnyProjectConnectionPoolIF;
+import kr.pe.codda.client.ConnectionPoolManager;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.message.Echo.Echo;
 
-public class SinnoriAppClientMain {
+public class AppClientMain {
 
 	public static void main(String[] args) {
-		InternalLogger log = InternalLoggerFactory.getInstance("kr.pe.sinnori");
+		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 
 		log.info("start");
 
-		/*ConnectionPoolManager connectionPoolManager = ConnectionPoolManager.getInstance();
+		ConnectionPoolManager connectionPoolManager = ConnectionPoolManager.getInstance();
 
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = connectionPoolManager.getMainProjectConnectionPool();
 
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+		}
+		
 		java.util.Random random = new java.util.Random();
 
-		long beforeTime = 0;
-		long afterTime = 0;
+		long startTime = 0;
+		long endTime = 0;
 
 		int retryCount = 1000000;
 
-		beforeTime = System.currentTimeMillis();
+		startTime = System.nanoTime();
 
 		for (int i = 0; i < retryCount; i++) {
 			Echo echoInObj = new Echo();
@@ -48,10 +60,12 @@ public class SinnoriAppClientMain {
 			}
 		}
 
-		afterTime = System.currentTimeMillis();
+		endTime = System.nanoTime();
 
-		log.info("loop count[{}], elapsed time[{} ms], average time[{} ms]", retryCount, (afterTime - beforeTime),
-				(double) (afterTime - beforeTime) / retryCount);*/
+		log.info("loop count[{}], average time[{} nanosecound]", retryCount,
+				TimeUnit.MICROSECONDS.convert((endTime - startTime)/retryCount, TimeUnit.NANOSECONDS));
+		
+		System.exit(0);
 
 	}
 }

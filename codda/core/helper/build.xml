@@ -81,7 +81,7 @@
 	<target name="make.common" depends="dos.make.common" />	
 	
 	<target name="copy.common" depends="make.common">
-		<copy todir="${dir.mainlib}/ex" verbose="true" overwrite="true">
+		<copy todir="${dir.mainlib}/in" verbose="true" overwrite="true">
 			<fileset file="${dir.core.common.build}/dist/${core.common.jar.name}" />
 		</copy>
 		<copy todir="${dir.testlib}" verbose="true" overwrite="true">
@@ -94,9 +94,6 @@
 			<classpath>
 				<union refid="core.common.jarlibs" />
 				<fileset dir="${dir.mainlib}/in">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>

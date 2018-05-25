@@ -122,10 +122,12 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 		}
 		
 		try {
+			ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
+			
 			inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
 			inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 			
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(this.getClass().getClassLoader(), inputMessage);
+			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
 
 			synchronized (inputMessageQueue) {
 				if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {
@@ -152,7 +154,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 				throw e;
 			}
 			
-			AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+			AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(classloaderOfInputMessage, outputMessageWrapReadableMiddleObject);
 			
 			
 			return outputMessage;
@@ -168,7 +170,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox.getNextMailID();
 		
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(this.getClass().getClassLoader(), inputMessage);
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(inputMessage.getClass().getClassLoader(), inputMessage);
 		
 		synchronized (inputMessageQueue) {
 			if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {

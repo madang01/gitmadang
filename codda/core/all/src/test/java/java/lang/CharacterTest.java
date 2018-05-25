@@ -26,11 +26,11 @@ public class CharacterTest {
 
 	@Test
 	public void test() {
-		char  t1 = '한';
+		/*char  t1 = '한';
 		char firstJamo  = 'ㄱ';
 		char initialEnd  = 'ㅎ';
 		char neutralStart = 'ㅏ';
-		char neutralEnd = 'ㅣ';
+		char neutralEnd = 'ㅣ';*/
 		// initialStartChar
 	}
 	

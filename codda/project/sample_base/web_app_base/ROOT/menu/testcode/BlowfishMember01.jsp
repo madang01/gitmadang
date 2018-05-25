@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-	kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager serverSessionKeyManager = kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager.getInstance();
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+	kr.pe.codda.common.sessionkey.ServerSessionKeyManager serverSessionKeyManager = kr.pe.codda.common.sessionkey.ServerSessionKeyManager.getInstance();
 
 
 	String modulusHexStr = null;

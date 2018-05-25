@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 
 import org.junit.Test;
 
-import kr.pe.codda.common.AbstractJunitTest;
+import junitlib.AbstractJunitTest;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ValueChecker;
 

@@ -1,9 +1,9 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%
 %><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="echoRes" class="kr.pe.sinnori.impl.message.Echo.Echo" scope="request" /><%
-	// kr.pe.sinnori.impl.message.Echo.Echo echoRes = (kr.pe.sinnori.impl.message.Echo.Echo)request.getAttribute("echoRes");
+%><jsp:useBean id="echoRes" class="kr.pe.codda.impl.message.Echo.Echo" scope="request" /><%
+	// kr.pe.codda.impl.message.Echo.Echo echoRes = (kr.pe.codda.impl.message.Echo.Echo)request.getAttribute("echoRes");
 		
 	String erraseTime = (String)request.getAttribute("erraseTime");
 

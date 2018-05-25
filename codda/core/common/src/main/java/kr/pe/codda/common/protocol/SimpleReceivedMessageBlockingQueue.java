@@ -7,7 +7,7 @@ public class SimpleReceivedMessageBlockingQueue implements ReceivedMessageBlocki
 	
 	public SimpleReceivedMessageBlockingQueue(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {
 		this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
-	}			
+	}
 
 	@Override
 	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)

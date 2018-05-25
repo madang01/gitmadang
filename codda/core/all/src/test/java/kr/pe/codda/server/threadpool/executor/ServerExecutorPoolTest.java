@@ -11,7 +11,9 @@ import org.mockito.Mockito;
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.server.ServerObjectCacheManagerIF;
-import kr.pe.codda.server.SocketResourceManagerIF;
+import kr.pe.codda.server.AcceptedConnectionManagerIF;
+import kr.pe.codda.server.ProjectLoginManager;
+import kr.pe.codda.server.ProjectLoginManagerIF;
 
 public class ServerExecutorPoolTest extends AbstractJunitTest {
 
@@ -21,8 +23,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 10;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 10;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 		
 		try {
@@ -31,7 +34,8 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolSize,
 					poolMaxSize,
 					projectName,
-					inputMessageQueueSize, 
+					inputMessageQueueSize,
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -55,8 +59,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 0;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 10;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 				
 		try {
@@ -65,7 +70,8 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolSize,
 					poolMaxSize,
 					projectName,
-					inputMessageQueueSize, 
+					inputMessageQueueSize,
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -89,8 +95,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 1;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 10;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 				
 		try {
@@ -100,6 +107,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolMaxSize,
 					projectName,
 					inputMessageQueueSize, 
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -123,8 +131,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 2;
 		String projectName = null;
 		int inputMessageQueueSize = 0;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 				
 		try {
@@ -134,6 +143,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolMaxSize,
 					projectName,
 					inputMessageQueueSize, 
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -157,8 +167,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 0;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 				
 		try {
@@ -167,7 +178,8 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolSize,
 					poolMaxSize,
 					projectName,
-					inputMessageQueueSize, 
+					inputMessageQueueSize,
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -191,8 +203,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 1;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = null;
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 				
 		try {
@@ -201,7 +214,8 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolSize,
 					poolMaxSize,
 					projectName,
-					inputMessageQueueSize, 
+					inputMessageQueueSize,
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -225,8 +239,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 1;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = null;
+		AcceptedConnectionManagerIF socketResourceManager = null;
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 				
 		try {
@@ -235,7 +250,8 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolSize,
 					poolMaxSize,
 					projectName,
-					inputMessageQueueSize, 
+					inputMessageQueueSize,
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -259,8 +275,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 1;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = null;
 				
 		try {
@@ -270,6 +287,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolMaxSize,
 					projectName,
 					inputMessageQueueSize, 
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -294,8 +312,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 1;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);		
 		
 		try {
@@ -304,6 +323,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolMaxSize,
 					projectName,
 					inputMessageQueueSize, 
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -325,9 +345,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 3;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 1;
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);		
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 		
 		try {
@@ -335,7 +355,8 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolSize,
 					poolMaxSize,
 					projectName,
-					inputMessageQueueSize, 
+					inputMessageQueueSize,
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -357,9 +378,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 3;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 1;
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);		
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 		
 		try {
@@ -368,6 +389,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolMaxSize,
 					projectName,
 					inputMessageQueueSize, 
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);
@@ -397,8 +419,9 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int poolMaxSize = 5;
 		String projectName = "sample_test";
 		int inputMessageQueueSize = 1;
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		SocketResourceManagerIF socketResourceManager = Mockito.mock(SocketResourceManagerIF.class);		
+		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);		
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 				
 		try {
@@ -407,6 +430,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 					poolMaxSize,
 					projectName,
 					inputMessageQueueSize, 
+					projectLoginManager,
 					messageProtocol, 
 					socketResourceManager,
 					serverObjectCacheManager);

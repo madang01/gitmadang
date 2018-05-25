@@ -12,11 +12,11 @@ import org.apache.jmeter.samplers.SampleResult;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
-import kr.pe.sinnori.client.ConnectionPoolManager;
+import kr.pe.codda.client.AnyProjectConnectionPoolIF;
+import kr.pe.codda.client.ConnectionPoolManager;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.Echo.Echo;
 
 public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serializable {
@@ -31,8 +31,8 @@ public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serial
 
 	public Arguments getDefaultParameters() {
 		Arguments args = new Arguments();
-		args.addArgument("sinnori.installedPath", "d:\\gitsinnori\\sinnori");
-		args.addArgument("sinnori.projectName", "sample_base");
+		args.addArgument("installedPath", "d:\\gitsinnori\\sinnori");
+		args.addArgument("runningProjectName", "sample_base");
 
 		args.addArgument("host", "sinnori.pe.kr");
 		args.addArgument("port", "9090");
@@ -63,14 +63,14 @@ public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serial
 		// log.info("conn is null, thread={}", Thread.currentThread().getName());
 		
 		if (null == conn) {
-			String sinnoriRunningProjectName = context.getParameter("sinnori.projectName");
-			String sinnoriInstalledPathString = context.getParameter("sinnori.installedPath");
+			String runningProjectName = context.getParameter("runningProjectName");
+			String installedPathString = context.getParameter("installedPath");
 
 			String host = context.getParameter("host");
 			String nativePort = context.getParameter("port");
 			int port = 9090;
 
-			File sinnoriInstalledPath = new File(sinnoriInstalledPathString);
+			File sinnoriInstalledPath = new File(installedPathString);
 
 			if (!sinnoriInstalledPath.exists()) {
 				log.error("the sinnori installed path doesn't exist");

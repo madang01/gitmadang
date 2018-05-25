@@ -9,8 +9,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import kr.pe.codda.common.AbstractJunitTest;
-import kr.pe.codda.common.classloader.SimpleClassLoader;
+import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.classloader.ServerSimpleClassLoaderIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -21,21 +21,25 @@ import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.server.AcceptedConnection;
+import kr.pe.codda.server.AcceptedConnectionManagerIF;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.ServerObjectCacheManagerIF;
-import kr.pe.codda.server.SocketResourceManagerIF;
+import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
+public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {	
+	
 	@Test
 	public void testDoTask_ok() {
-		class ToLetterCarrierMock extends ToLetterCarrier {
+		class ToLetterCarrierMock extends ToLetterCarrier {		
 
-			public ToLetterCarrierMock(SocketChannel fromSC, AbstractMessage inputMessage,
-					SocketResourceManagerIF socketResourceManager, PersonalLoginManagerIF personalMemberManager,
-					MessageProtocolIF messageProtocol, SimpleClassLoader classLoaderOfServerTask,
-					ServerObjectCacheManagerIF serverObjectCacheManager) {
-				super(fromSC, inputMessage, socketResourceManager, personalMemberManager, messageProtocol, classLoaderOfServerTask);
+			public ToLetterCarrierMock(SocketChannel fromSC, AcceptedConnection fromAcceptedConnection,
+					AbstractMessage inputMessage, ProjectLoginManagerIF projectLoginManager,
+					AcceptedConnectionManagerIF acceptedConnectionManager, MessageProtocolIF messageProtocol,
+					ServerSimpleClassLoaderIF serverSimpleClassLoader) {
+				super(fromSC, fromAcceptedConnection, inputMessage, projectLoginManager, acceptedConnectionManager, messageProtocol,
+						serverSimpleClassLoader);
+				// TODO Auto-generated constructor stub
 			}
 
 			public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {

@@ -110,6 +110,8 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 				mainProjectPartConfiguration.getProjectName(),
 				mainProjectPartConfiguration.getClientAsynOutputMessageQueueSize(), clientMessageUtility);
 		
+		clientExecutorPool.startAll();
+		
 		if (mainProjectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
 			connectionPool = new SyncNoShareConnectionPool(mainProjectPartConfiguration,
 					clientMessageUtility,
@@ -135,16 +137,14 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 				
 				connectionPool = asynConnectionPool;
 			}
-			asynSelectorManger = new AsynClientIOEventController(asynConnectionPool);			
-			asynSelectorManger.start();
+			asynSelectorManger = new AsynClientIOEventController(asynConnectionPool);
 			
-			clientExecutorPool.startAll();
-		}
+			asynSelectorManger.start();
+		} 
 		
 		connectionPoolSupporter.start();
-		
-		 
 	}
+	
 
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
@@ -248,7 +248,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 
 	@Override
 	public String getPoolState() {
-		return null;
+		return connectionPool.getPoolState();
 	}
 
 }

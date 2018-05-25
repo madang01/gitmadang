@@ -15,6 +15,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder extends AbstractAntB
 		final String baseDirectory = ".";
 		final int depth=0;
 		boolean whetherOrNotToIncludeCoreLib = true; // 코어 라이브러리 포함 여부, true : 포함, false : 미포함
+		boolean whetherOrNotToIncludeLogbackLib = true; // 로그백 라이브러리 포함 여부, true : 포함, false : 미포함
 		
 		StringBuilder contentsStringBuilder = new StringBuilder();
 		addHeader(contentsStringBuilder);
@@ -61,7 +62,7 @@ public abstract class ServerAntBuildXMLFileContenetsBuilder extends AbstractAntB
 		addMakeCoreTargetPart(contentsStringBuilder, depth);
 		
 		addNewLine(contentsStringBuilder);
-		addCopyCoreTargetPart(contentsStringBuilder, depth, whetherOrNotToIncludeCoreLib);
+		addCopyCoreTargetPart(contentsStringBuilder, depth, whetherOrNotToIncludeCoreLib, whetherOrNotToIncludeLogbackLib);
 		
 		addNewLine(contentsStringBuilder);
 		addCompileMainTargetPart(contentsStringBuilder, depth);

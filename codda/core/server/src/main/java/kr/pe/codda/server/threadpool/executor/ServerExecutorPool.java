@@ -30,7 +30,8 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
 import kr.pe.codda.common.threadpool.ThreadPoolIF;
 import kr.pe.codda.server.ServerObjectCacheManagerIF;
-import kr.pe.codda.server.SocketResourceManagerIF;
+import kr.pe.codda.server.AcceptedConnectionManagerIF;
+import kr.pe.codda.server.ProjectLoginManagerIF;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드 폴
@@ -45,17 +46,19 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 	private int poolMaxSize;
 	private String projectName = null;
 	private int inputMessageQueueSize;
+	private ProjectLoginManagerIF projectLoginManager = null;
 	private MessageProtocolIF messageProtocol= null;
-	private SocketResourceManagerIF socketResourceManager;
+	private AcceptedConnectionManagerIF socketResourceManager;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
 
 	public ServerExecutorPool( 
 			int poolSize, 
 			int poolMaxSize,
 			String projectName,
-			int inputMessageQueueSize,			
+			int inputMessageQueueSize,
+			ProjectLoginManagerIF projectLoginManager,
 			MessageProtocolIF messageProtocol,
-			SocketResourceManagerIF socketResourceManager,
+			AcceptedConnectionManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) throws CoddaConfigurationException {
 		if (poolSize <= 0) {
 			String errorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize); 
@@ -85,6 +88,10 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 			throw new IllegalArgumentException("the parameter messageProtocol is null");
 		}
 		
+		if (null == projectLoginManager) {
+			throw new IllegalArgumentException("the parameter projectLoginManager is null");
+		}
+		
 		if (null == socketResourceManager) {
 			throw new IllegalArgumentException("the parameter socketResourceManager is null");
 		}
@@ -96,6 +103,7 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 		this.poolMaxSize = poolMaxSize;
 		this.projectName = projectName;		
 		this.inputMessageQueueSize = inputMessageQueueSize;
+		this.projectLoginManager = projectLoginManager;
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;
 		this.serverObjectCacheManager =  serverObjectCacheManager;
@@ -136,6 +144,7 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 				ServerExecutorIF handler = new ServerExecutor(size, 
 						projectName, 
 						inputMessageQueue, 
+						projectLoginManager,
 						messageProtocol, 
 						socketResourceManager, 
 						serverObjectCacheManager);

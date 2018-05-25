@@ -11,7 +11,7 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorIF;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorPoolIF;
 
-public class SocketResourceManager implements SocketResourceManagerIF {
+public class AcceptedConnectionManager implements AcceptedConnectionManagerIF {
 	// private Logger log = LoggerFactory.getLogger(SocketResourceManager.class);
 
 	// private final Object monitor = new Object();
@@ -23,14 +23,15 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ServerIOEvenetControllerIF serverIOEvenetController = null;
 
-	private ConcurrentHashMap<SocketChannel, SocketResource> socketChannel2SocketResourceHash = new ConcurrentHashMap<SocketChannel, SocketResource>();
+	private ConcurrentHashMap<SocketChannel, AcceptedConnection> socketChannel2SocketResourceHash = new ConcurrentHashMap<SocketChannel, AcceptedConnection>();
 
-	private ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();;
+	private ProjectLoginManagerIF projectLoginManager = null;
 	
 	// private ArrayDeque<WrapBuffer> outputMessageWrapBufferQueue = null;
 
-	public SocketResourceManager(long socketTimeOut,
+	public AcceptedConnectionManager(long socketTimeOut,
 			int outputMessageQueueSize,
+			ProjectLoginManagerIF projectLoginManager,
 			SocketOutputStreamFactoryIF socketOutputStreamFactory,			
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool,
@@ -41,6 +42,10 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		
 		if (outputMessageQueueSize <= 0) {
 			throw new IllegalArgumentException("the parameter outputMessageQueueSize is less than or equal to zero");
+		}
+		
+		if (null == projectLoginManager) {
+			throw new IllegalArgumentException("the parameter projectLoginManager is null");
 		}
 		
 		if (null == socketOutputStreamFactory) {
@@ -61,6 +66,7 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 
 		this.socketTimeOut = socketTimeOut;
 		this.outputMessageQueueSize = outputMessageQueueSize;
+		this.projectLoginManager = projectLoginManager;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
@@ -81,25 +87,27 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 			throw new IllegalArgumentException("the parameter newAcceptedSC is null");
 		}		
 
-		SocketOutputStream socketOutputStreamOfOwnerSC = socketOutputStreamFactory.newInstance();
+		SocketOutputStream socketOutputStreamOfAcceptedSC = socketOutputStreamFactory.newInstance();
 
-		PersonalLoginManager personalLoginManagerOfOwnerSC = new PersonalLoginManager(newAcceptedSC,
+		PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(newAcceptedSC,
 				projectLoginManager);
 		
-		ServerExecutorIF executorOfOwnerSC = serverExecutorPool.getExecutorWithMinimumNumberOfSockets();
+		ServerExecutorIF executorOfAcceptedSC = serverExecutorPool.getExecutorWithMinimumNumberOfSockets();
 
-		SocketResource socketResourceOfOwnerSC = new SocketResource(newAcceptedSC,
+		AcceptedConnection acceptedConnection = new AcceptedConnection(this, newAcceptedSC,
 				socketTimeOut,
 				outputMessageQueueSize,
-				messageProtocol,
-				executorOfOwnerSC, socketOutputStreamOfOwnerSC,
-				personalLoginManagerOfOwnerSC,
-				dataPacketBufferPool, serverIOEvenetController);
+				socketOutputStreamOfAcceptedSC,
+				personalLoginManagerOfAcceptedSC,
+				executorOfAcceptedSC,
+				messageProtocol,				
+				dataPacketBufferPool, 
+				serverIOEvenetController);
 
 		/** 소켓 자원 등록 작업 */
-		socketChannel2SocketResourceHash.put(newAcceptedSC, socketResourceOfOwnerSC);
+		socketChannel2SocketResourceHash.put(newAcceptedSC, acceptedConnection);
 		
-		executorOfOwnerSC.addNewSocket(newAcceptedSC);
+		executorOfAcceptedSC.addNewSocket(newAcceptedSC);
 	}
 
 	@Override
@@ -113,18 +121,18 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	}
 
 	@Override
-	public SocketResource getSocketResource(SocketChannel ownerSC) {
+	public AcceptedConnection getAcceptedConnection(SocketChannel ownerSC) {
 		if (null == ownerSC) {
 			throw new IllegalArgumentException("the ownerSC ownerSC is null");
 		}
 
-		SocketResource socketResource = socketChannel2SocketResourceHash.get(ownerSC);
+		AcceptedConnection socketResource = socketChannel2SocketResourceHash.get(ownerSC);
 
 		return socketResource;
 	}
 
 	@Override
-	public int getNumberOfSocketResources() {
+	public int getNumberOfAcceptedConnection() {
 		return socketChannel2SocketResourceHash.size();
 	}
 

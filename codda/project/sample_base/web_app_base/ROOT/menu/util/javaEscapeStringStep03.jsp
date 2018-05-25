@@ -1,6 +1,6 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%!
+%><%@page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%!
 	public void errorPrint(javax.servlet.jsp.JspWriter out, String errorMessage) throws java.io.IOException {
 		out.println("<!DOCTYPE html>");
 		out.println("<html>");

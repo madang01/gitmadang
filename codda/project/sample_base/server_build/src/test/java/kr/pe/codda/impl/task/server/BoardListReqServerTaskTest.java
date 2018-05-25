@@ -5,15 +5,15 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import kr.pe.codda.common.AbstractJunitTest;
+import junitlib.AbstractJunitTest;
 import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class BoardListReqServerTaskTest extends AbstractJunitTest {
+public class BoardListReqServerTaskTest extends AbstractJunitTest {	
 	@Test
-	public void testDoTask() {
+	public void testDoTask() {		
 		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
 		ToLetterCarrier toLetterCarrierMock = Mockito.mock(ToLetterCarrier.class);
 		int pageNo = 1;

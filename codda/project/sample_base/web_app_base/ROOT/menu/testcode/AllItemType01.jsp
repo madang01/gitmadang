@@ -1,8 +1,8 @@
-<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="allDataTypeReq" class="kr.pe.sinnori.impl.message.AllItemType.AllItemType" scope="request" /><%
-%><jsp:useBean id="allItemTypeRes" class="kr.pe.sinnori.impl.message.AllItemType.AllItemType" scope="request" /><%
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%
+%><jsp:useBean id="allDataTypeReq" class="kr.pe.codda.impl.message.AllItemType.AllItemType" scope="request" /><%
+%><jsp:useBean id="allItemTypeRes" class="kr.pe.codda.impl.message.AllItemType.AllItemType" scope="request" /><%
 	Boolean isSame = (Boolean) request.getAttribute("isSame");	
 %><!DOCTYPE html>
 <html>

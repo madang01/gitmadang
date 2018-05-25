@@ -41,7 +41,6 @@ public class EchoTestSvl extends AbstractServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				SiteTopMenuType.TEST_EXAMPLE);
-		
 		java.util.Random random = new java.util.Random();
 		Echo echoReq = new Echo();		
 		echoReq.setRandomInt(random.nextInt());

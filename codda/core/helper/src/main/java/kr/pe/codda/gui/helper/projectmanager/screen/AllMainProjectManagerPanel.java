@@ -30,9 +30,9 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.codda.common.buildsystem.MainProjectBuildSystemState;
 import kr.pe.codda.common.buildsystem.ProjectBuilder;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.exception.BuildSystemException;
 import kr.pe.codda.common.type.LineSeparatorType;
 import kr.pe.codda.common.util.CommonStaticUtil;
@@ -65,7 +65,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			throw new IllegalArgumentException("the parameter sinnoriInstalledPathString is null");
 		}
 		
-		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
+		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
 
 		File projectBasePath = new File(projectBasePathString);
 		if (!projectBasePath.exists()) {
@@ -305,7 +305,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 	 */
 	private void mainProjectNameListUpdateButtonActionPerformed(ActionEvent e) {
 		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
-		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
+		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
 
 		assert(null == projectBasePathString);
 		
@@ -360,7 +360,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			
 			try {
 				ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);				
-				projectBuilder.applySinnoriInstalledPath();
+				projectBuilder.applyInstalledPath();
 			} catch (BuildSystemException e1) {
 				log.warn(e1.getMessage(), e1);
 				showMessageDialog(e1.getMessage());

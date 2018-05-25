@@ -14,7 +14,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
@@ -71,7 +71,7 @@ public class BoardUploadSvl extends AbstractServlet {
 				.getRunningProjectConfiguration();
 		String mainProjectName = runningProjectConfiguration.getMainProjectName();
 		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
-		String webTempPathString = BuildSystemPathSupporter.getWebTempPathString(sinnoriInstalledPathString, mainProjectName);
+		String webTempPathString = WebRootBuildSystemPathSupporter.getWebTempPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		factory.setRepository(new File(webTempPathString));
 
