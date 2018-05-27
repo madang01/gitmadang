@@ -1,8 +1,10 @@
 package kr.pe.codda.server;
 
+import java.nio.channels.SelectionKey;
+
 public interface ServerIOEvenetControllerIF {
-	public void startWrite(InterestedConnectionIF asynInterestedConnection);
-	public void endWrite(InterestedConnectionIF asynInterestedConnection);
+	public void startWrite(ServerInterestedConnectionIF asynInterestedConnection);
+	public void endWrite(ServerInterestedConnectionIF asynInterestedConnection);
 	
-	public void setSocketResourceManager(AcceptedConnectionManagerIF socketResourceManager);
+	public void cancel(SelectionKey selectedKey);
 }

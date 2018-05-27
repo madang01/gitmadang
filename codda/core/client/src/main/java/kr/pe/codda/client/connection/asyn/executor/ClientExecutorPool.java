@@ -9,7 +9,7 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
 import kr.pe.codda.common.exception.NotSupportedException;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.threadpool.ThreadPoolIF;
 
 public class ClientExecutorPool implements ThreadPoolIF, ClientExecutorPoolIF {
@@ -59,7 +59,7 @@ public class ClientExecutorPool implements ThreadPoolIF, ClientExecutorPoolIF {
 
 		int size = pool.size();
 
-		ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(
+		ArrayBlockingQueue<ReadableMiddleObjectWrapper> outputMessageQueue = new ArrayBlockingQueue<ReadableMiddleObjectWrapper>(
 				outputMessageQueueSize);
 
 		ClientExecutor clientExecutor = new ClientExecutor(projectName, size, outputMessageQueue, clientMessageUtility);

@@ -164,8 +164,10 @@ public class THBSingleItemEncoderTest extends AbstractJunitTest {
 				@Override
 				public void putValue(int itemTypeID, String itemName, Object nativeItemValue, int itemSize,
 						String nativeItemCharset, BinaryOutputStreamIF binaryOutputStream) throws Exception {
-					@SuppressWarnings("unused")
+					
 					byte t[] = new byte[Integer.MAX_VALUE];
+					
+					log.info("temp buffer size={}", t.length);
 				}
 
 				@Override

@@ -1,1 +1,2 @@
-java -jar codda-helper.jar > tmp.log
+rem java -jar codda-helper.jar -n -x installedPath --installedPath=.
+java -jar codda-helper.jar

@@ -2,6 +2,8 @@ package kr.pe.codda.client;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.TimeUnit;
@@ -14,8 +16,8 @@ import kr.pe.codda.client.connection.ClientObjectCacheManager;
 import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporter;
-import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventController;
+import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.SingleAyncConnectionAdder;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorPool;
@@ -41,12 +43,26 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
 import kr.pe.codda.common.type.ConnectionType;
+import kr.pe.codda.common.type.MessageProtocolType;
 
-public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
+public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AnyProjectConnectionPool.class);
 	
 	private ProjectPartConfiguration mainProjectPartConfiguration = null;
-
+	
+	private String mainProjectName = null;
+	private Charset charset = null;
+	private ByteOrder byteOrder = null;
+	private long socketTimeout;	
+	private MessageProtocolType messageProtocolType = null;
+	private boolean clientDataPacketBufferIsDirect;
+	private int clientDataPacketBufferMaxCntPerMessage;
+	private int clientDataPacketBufferSize;
+	private int clientDataPacketBufferPoolSize;	
+	private int clientAsynExecutorPoolSize;
+	private int clientAsynOutputMessageQueueSize;
+	private ConnectionType connectionType = null;	
+	
 	private ConnectionPoolIF connectionPool = null;	
 	private ConnectionPoolSupporter connectionPoolSupporter = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
@@ -54,25 +70,38 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private AsynClientIOEventController asynSelectorManger = null;
+	
 
-	public AnyProjectConnectionPool(ProjectPartConfiguration mainProjectPartConfiguration) throws NoMoreDataPacketBufferException, IOException {
-		this.mainProjectPartConfiguration = mainProjectPartConfiguration;
-
+	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration) throws NoMoreDataPacketBufferException, IOException {
+		this.mainProjectPartConfiguration = projectPartConfiguration;
+		
+		mainProjectName = projectPartConfiguration.getProjectName();
+		charset = projectPartConfiguration.getCharset();
+		byteOrder = projectPartConfiguration.getByteOrder();
+		socketTimeout = projectPartConfiguration.getClientSocketTimeout();		
+		messageProtocolType = projectPartConfiguration.getMessageProtocolType();
+		clientDataPacketBufferIsDirect = projectPartConfiguration.getClientDataPacketBufferIsDirect();
+		clientDataPacketBufferMaxCntPerMessage = projectPartConfiguration.getClientDataPacketBufferMaxCntPerMessage();
+		clientDataPacketBufferSize = projectPartConfiguration.getClientDataPacketBufferSize();
+		clientDataPacketBufferPoolSize = projectPartConfiguration.getClientDataPacketBufferPoolSize();
+		clientAsynExecutorPoolSize = projectPartConfiguration.getClientAsynExecutorPoolSize();
+		clientAsynOutputMessageQueueSize = projectPartConfiguration.getClientAsynOutputMessageQueueSize();
+		connectionType = projectPartConfiguration.getConnectionType();
+		
 		CharsetEncoder charsetEncoderOfProject = CharsetUtil
-				.createCharsetEncoder(mainProjectPartConfiguration.getCharset());
+				.createCharsetEncoder(charset);
 		CharsetDecoder charsetDecoderOfProject = CharsetUtil
-				.createCharsetDecoder(mainProjectPartConfiguration.getCharset());
-
-		boolean isDirect = true;
-		this.dataPacketBufferPool = new DataPacketBufferPool(isDirect, mainProjectPartConfiguration.getByteOrder(),
-				mainProjectPartConfiguration.getDataPacketBufferSize(),
-				mainProjectPartConfiguration.getDataPacketBufferPoolSize());
+				.createCharsetDecoder(charset);
+		
+		this.dataPacketBufferPool = new DataPacketBufferPool(clientDataPacketBufferIsDirect, byteOrder,
+				clientDataPacketBufferSize,
+				clientDataPacketBufferPoolSize);
 
 		MessageProtocolIF messageProtocol = null;
 
-		switch (mainProjectPartConfiguration.getMessageProtocolType()) {
+		switch (messageProtocolType) {
 			case DHB: {
-				messageProtocol = new DHBMessageProtocol(mainProjectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+				messageProtocol = new DHBMessageProtocol(clientDataPacketBufferMaxCntPerMessage,
 						charsetEncoderOfProject, charsetDecoderOfProject, dataPacketBufferPool);
 	
 				break;
@@ -84,21 +113,21 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			 * charsetDecoderOfProject, dataPacketBufferPool); break; }
 			 */
 			case THB: {
-				messageProtocol = new THBMessageProtocol(mainProjectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+				messageProtocol = new THBMessageProtocol(clientDataPacketBufferMaxCntPerMessage,
 						charsetEncoderOfProject, charsetDecoderOfProject, dataPacketBufferPool);
 				break;
 			}
 			default: {
 				log.error(String.format("project[%s] 지원하지 않는 메시지 프로토콜[%s] 입니다.",
-						mainProjectPartConfiguration.getProjectName(),
-						mainProjectPartConfiguration.getMessageProtocolType().toString()));
+						mainProjectName,
+						messageProtocolType.toString()));
 				System.exit(1);
 			}
 		}
 		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
 		
 		socketOutputStreamFactory = new SocketOutputStreamFactory(charsetDecoderOfProject,
-				mainProjectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), dataPacketBufferPool);
+				clientDataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		
 		clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
 				dataPacketBufferPool);
@@ -106,22 +135,22 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		connectionPoolSupporter = new ConnectionPoolSupporter(1000L * 60 * 10);
 		
 		clientExecutorPool = new ClientExecutorPool(
-				mainProjectPartConfiguration.getClientAsynExecutorPoolSize(), 
-				mainProjectPartConfiguration.getProjectName(),
-				mainProjectPartConfiguration.getClientAsynOutputMessageQueueSize(), clientMessageUtility);
+				clientAsynExecutorPoolSize, 
+				mainProjectName,
+				clientAsynOutputMessageQueueSize, clientMessageUtility);
 		
 		clientExecutorPool.startAll();
 		
-		if (mainProjectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
-			connectionPool = new SyncNoShareConnectionPool(mainProjectPartConfiguration,
+		if (connectionType.equals(ConnectionType.SYNC_PRIVATE)) {
+			connectionPool = new SyncNoShareConnectionPool(projectPartConfiguration,
 					clientMessageUtility,
 					socketOutputStreamFactory,
 					connectionPoolSupporter);
 		} else {
 			AsynConnectionPoolIF asynConnectionPool = null;
 			
-			if (mainProjectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_PRIVATE)) {
-				asynConnectionPool = new AsynNoShareConnectionPool(mainProjectPartConfiguration,
+			if (connectionType.equals(ConnectionType.ASYN_PRIVATE)) {
+				asynConnectionPool = new AsynNoShareConnectionPool(projectPartConfiguration,
 						clientMessageUtility,
 						socketOutputStreamFactory,
 						connectionPoolSupporter,
@@ -129,7 +158,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 				
 				connectionPool = asynConnectionPool;
 			} else {
-				asynConnectionPool = new AsynShareConnectionPool(mainProjectPartConfiguration,
+				asynConnectionPool = new AsynShareConnectionPool(projectPartConfiguration,
 						clientMessageUtility,
 						socketOutputStreamFactory,
 						connectionPoolSupporter,
@@ -223,7 +252,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			throw new IOException("fail to register a connection to selector");
 		}
 		
-		ConnectionIF connectedConnection =  singleAyncConnectionAdder.poll(mainProjectPartConfiguration.getClientSocketTimeout());
+		ConnectionIF connectedConnection =  singleAyncConnectionAdder.poll(socketTimeout);
 		if (null == connectedConnection) {
 			if (! unregisteredAsynNoShareConnection.isConnected()) {
 				unregisteredAsynNoShareConnection.releaseResources();

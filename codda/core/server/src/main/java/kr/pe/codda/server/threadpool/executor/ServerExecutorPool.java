@@ -24,14 +24,14 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.threadpool.ThreadPoolIF;
-import kr.pe.codda.server.ServerObjectCacheManagerIF;
-import kr.pe.codda.server.AcceptedConnectionManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
+import kr.pe.codda.server.ServerObjectCacheManagerIF;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드 폴
@@ -43,23 +43,39 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 	private final Object monitor = new Object();
 	private final List<ServerExecutorIF> pool = new ArrayList<ServerExecutorIF>();
 	
+	private int poolSize;
 	private int poolMaxSize;
 	private String projectName = null;
 	private int inputMessageQueueSize;
 	private ProjectLoginManagerIF projectLoginManager = null;
-	private MessageProtocolIF messageProtocol= null;
-	private AcceptedConnectionManagerIF socketResourceManager;
+	private MessageProtocolIF messageProtocol= null;	
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
 
-	public ServerExecutorPool( 
-			int poolSize, 
-			int poolMaxSize,
-			String projectName,
-			int inputMessageQueueSize,
+	public ServerExecutorPool( ProjectPartConfiguration projectPartConfiguration,
 			ProjectLoginManagerIF projectLoginManager,
-			MessageProtocolIF messageProtocol,
-			AcceptedConnectionManagerIF socketResourceManager,
+			MessageProtocolIF messageProtocol,			
 			ServerObjectCacheManagerIF serverObjectCacheManager) throws CoddaConfigurationException {
+		if (null == projectPartConfiguration) {
+			throw new IllegalArgumentException("the parameter projectPartConfiguration is null");
+		}
+		
+		if (null == projectLoginManager) {
+			throw new IllegalArgumentException("the parameter projectLoginManager is null");
+		}
+		
+		if (null == messageProtocol) {
+			throw new IllegalArgumentException("the parameter messageProtocol is null");
+		}
+		
+		if (null == serverObjectCacheManager) {
+			throw new IllegalArgumentException("the parameter serverObjectCacheManager is null");
+		}
+		
+		poolSize = projectPartConfiguration.getServerExecutorPoolSize();
+		poolMaxSize = projectPartConfiguration.getServerExecutorPoolMaxSize();
+		projectName = projectPartConfiguration.getProjectName();		
+		inputMessageQueueSize = projectPartConfiguration.getServerInputMessageQueueSize();
+		
 		if (poolSize <= 0) {
 			String errorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize); 
 			throw new IllegalArgumentException(errorMessage);
@@ -82,33 +98,11 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 		if (inputMessageQueueSize <= 0) {
 			String errorMessage = String.format("the parameter inputMessageQueueSize[%d] is less than or equal to zero", inputMessageQueueSize); 
 			throw new IllegalArgumentException(errorMessage);
-		}
+		}		
 		
-		if (null == messageProtocol) {
-			throw new IllegalArgumentException("the parameter messageProtocol is null");
-		}
-		
-		if (null == projectLoginManager) {
-			throw new IllegalArgumentException("the parameter projectLoginManager is null");
-		}
-		
-		if (null == socketResourceManager) {
-			throw new IllegalArgumentException("the parameter socketResourceManager is null");
-		}
-		
-		if (null == serverObjectCacheManager) {
-			throw new IllegalArgumentException("the parameter serverObjectCacheManager is null");
-		}
-		
-		this.poolMaxSize = poolMaxSize;
-		this.projectName = projectName;		
-		this.inputMessageQueueSize = inputMessageQueueSize;
 		this.projectLoginManager = projectLoginManager;
 		this.messageProtocol = messageProtocol;
-		this.socketResourceManager = socketResourceManager;
 		this.serverObjectCacheManager =  serverObjectCacheManager;
-		
-		socketResourceManager.setServerExecutorPool(this);
 		
 		
 		for (int i = 0; i < poolSize; i++) {
@@ -123,8 +117,8 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 
 	@Override
 	public void addTask() throws IllegalStateException, NotSupportedException {
-		ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue = new
-				ArrayBlockingQueue<WrapReadableMiddleObject>(inputMessageQueueSize);
+		ArrayBlockingQueue<ReadableMiddleObjectWrapper> inputMessageQueue = new
+				ArrayBlockingQueue<ReadableMiddleObjectWrapper>(inputMessageQueueSize);
 		
 		synchronized (monitor) {
 			int size = pool.size();
@@ -145,8 +139,7 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 						projectName, 
 						inputMessageQueue, 
 						projectLoginManager,
-						messageProtocol, 
-						socketResourceManager, 
+						messageProtocol,  
 						serverObjectCacheManager);
 				pool.add(handler);
 			} catch (Exception e) {

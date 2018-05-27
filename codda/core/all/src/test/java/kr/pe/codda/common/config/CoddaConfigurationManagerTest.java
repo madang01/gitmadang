@@ -59,6 +59,8 @@ public class CoddaConfigurationManagerTest extends AbstractJunitTest {
 			}
 		}
 		
+		log.info(mainProjectPart.toString());
+		
 		if (mainProjectPart.toString().indexOf("null") >= 0) {
 			fail("Maybe main project part's one more variables are null");
 		}

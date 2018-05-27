@@ -17,7 +17,6 @@
 
 package kr.pe.codda.common.protocol.thb;
 
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -39,7 +38,7 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 
 /**
  * THB 메시지 프로토콜<br/> 
@@ -214,7 +213,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 
 	
 	@Override
-	public void S2MList(SocketChannel fromSC, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue) 
+	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {		
 		THBMessageHeader messageHeader = (THBMessageHeader)socketOutputStream.getUserDefObject();		
 				
@@ -284,14 +283,14 @@ public class THBMessageProtocol implements MessageProtocolIF {
 							throw new HeaderFormatException(errorMessage);
 						}
 
-						WrapReadableMiddleObject wrapReadableMiddleObject = 
-								new WrapReadableMiddleObject(fromSC, messageID, 
+						ReadableMiddleObjectWrapper readableMiddleObjectWrapper = 
+								new ReadableMiddleObjectWrapper(eventHandler, messageID, 
 										mailboxID, mailID, messageInputStream);
 						
 						try {
-							wrapMessageBlockingQueue.putReceivedMessage(wrapReadableMiddleObject);
+							wrapMessageBlockingQueue.putReceivedMessage(readableMiddleObjectWrapper);
 						} catch(InterruptedException e) {
-							wrapReadableMiddleObject.closeReadableMiddleObject();							
+							readableMiddleObjectWrapper.closeReadableMiddleObject();							
 							throw e;
 						}
 

@@ -1647,7 +1647,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		}
 
 		byte[] expectedValue = { 0x11, 0x22, 0x33 };
-		byte actualValue[] = new byte[expectedValue.length];
+		//byte actualValue[] = new byte[expectedValue.length];
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,

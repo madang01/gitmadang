@@ -24,7 +24,7 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.impl.message.Empty.Empty;
 import kr.pe.codda.impl.message.Empty.EmptyDecoder;
@@ -104,9 +104,9 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		
 		beforeTime= new Date().getTime();
 		
-		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
+		ArrayBlockingQueue<ReadableMiddleObjectWrapper> readableMiddleObjectWrapperQueue = new ArrayBlockingQueue<ReadableMiddleObjectWrapper>(10);
 		
-		SimpleReceivedMessageBlockingQueue simpleWrapMessageBlockingQueue = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+		SimpleReceivedMessageBlockingQueue simpleWrapMessageBlockingQueue = new SimpleReceivedMessageBlockingQueue(readableMiddleObjectWrapperQueue);
 		
 		
 		for (int i=0; i < retryCount; i++) {			
@@ -159,14 +159,14 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			
 			//log.info("5");
 			
-			while (! wrapReadableMiddleObjectQueue.isEmpty()) {
-				WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
-				Object readableMiddleObj = wrapReadableMiddleObject.getReadableMiddleObject();				
+			while (! readableMiddleObjectWrapperQueue.isEmpty()) {
+				ReadableMiddleObjectWrapper readableMiddleObjectWrapper = readableMiddleObjectWrapperQueue.poll();
+				Object readableMiddleObj = readableMiddleObjectWrapper.getReadableMiddleObject();				
 				
 				try {
 					AbstractMessage resObj = selfExnDecoder.decode(dhbSingleItemDecoder, readableMiddleObj);
-					resObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
-					resObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
+					resObj.messageHeaderInfo.mailboxID = readableMiddleObjectWrapper.getMailboxID();
+					resObj.messageHeaderInfo.mailID = readableMiddleObjectWrapper.getMailID();
 					
 					/*if (! (resObj instanceof SelfExn)) {
 						fail("resObj is not a instance of SelfExn class");
@@ -257,8 +257,8 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		
 		beforeTime= new Date().getTime();		
 		
-		ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(10);
-		SimpleReceivedMessageBlockingQueue simpleWrapMessageBlockingQueue = new SimpleReceivedMessageBlockingQueue(wrapReadableMiddleObjectQueue);
+		ArrayBlockingQueue<ReadableMiddleObjectWrapper> readableMiddleObjectWrapperQueue = new ArrayBlockingQueue<ReadableMiddleObjectWrapper>(10);
+		SimpleReceivedMessageBlockingQueue simpleWrapMessageBlockingQueue = new SimpleReceivedMessageBlockingQueue(readableMiddleObjectWrapperQueue);
 		
 		for (int i=0; i < retryCount; i++) {			
 			long beforeLocalTime= new Date().getTime();			
@@ -311,14 +311,14 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			
 			//log.info("5");
 			
-			while (! wrapReadableMiddleObjectQueue.isEmpty()) {
-				WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.poll();
-				Object readableMiddleObj = wrapReadableMiddleObject.getReadableMiddleObject();				
+			while (! readableMiddleObjectWrapperQueue.isEmpty()) {
+				ReadableMiddleObjectWrapper readableMiddleObjectWrapper = readableMiddleObjectWrapperQueue.poll();
+				Object readableMiddleObj = readableMiddleObjectWrapper.getReadableMiddleObject();				
 				
 				try {
 					AbstractMessage resObj = emptyDecoder.decode(dhbSingleItemDecoder, readableMiddleObj);
-					resObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
-					resObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
+					resObj.messageHeaderInfo.mailboxID = readableMiddleObjectWrapper.getMailboxID();
+					resObj.messageHeaderInfo.mailID = readableMiddleObjectWrapper.getMailID();
 					
 					/*if (! (resObj instanceof SelfExn)) {
 						fail("resObj is not a instance of SelfExn class");

@@ -3,15 +3,15 @@ package kr.pe.codda.common.protocol;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class SimpleReceivedMessageBlockingQueue implements ReceivedMessageBlockingQueueIF {
-	ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = null;
+	ArrayBlockingQueue<ReadableMiddleObjectWrapper> readableMiddleObjectWrapperQueue = null;
 	
-	public SimpleReceivedMessageBlockingQueue(ArrayBlockingQueue<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue) {
-		this.wrapReadableMiddleObjectQueue = wrapReadableMiddleObjectQueue;
+	public SimpleReceivedMessageBlockingQueue(ArrayBlockingQueue<ReadableMiddleObjectWrapper> readableMiddleObjectWrapperQueue) {
+		this.readableMiddleObjectWrapperQueue = readableMiddleObjectWrapperQueue;
 	}
 
 	@Override
-	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject)
+	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
 			throws InterruptedException {
-		wrapReadableMiddleObjectQueue.put(wrapReadableMiddleObject);
+		readableMiddleObjectWrapperQueue.put(readableMiddleObjectWrapper);
 	}
 }

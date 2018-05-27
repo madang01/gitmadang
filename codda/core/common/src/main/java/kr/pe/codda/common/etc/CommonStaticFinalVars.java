@@ -40,6 +40,7 @@ public abstract class CommonStaticFinalVars {
 	
 	public static final String ROOT_PROJECT_NAME = "codda";
 	
+	/** kr.pe.codda */
 	public static String BASE_PACKAGE_NAME = "kr.pe.codda";
 	
 	public static String BASE_DYNAMIC_CLASS_FULL_NAME = new StringBuilder(BASE_PACKAGE_NAME)

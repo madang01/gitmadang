@@ -18,7 +18,7 @@ import kr.pe.codda.client.connection.ClientMessageUtilityIF;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
-import kr.pe.codda.client.connection.asyn.InterestedAsynConnectionIF;
+import kr.pe.codda.client.connection.asyn.ClientInterestedConnectionIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.mainbox.AsynMessageMailbox;
 import kr.pe.codda.client.connection.asyn.mainbox.SyncMessageMailbox;
@@ -35,9 +35,9 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 
-public final class AsynNoShareConnection implements AsynConnectionIF, InterestedAsynConnectionIF, ReceivedMessageBlockingQueueIF {
+public final class AsynNoShareConnection implements AsynConnectionIF, ClientInterestedConnectionIF, ReceivedMessageBlockingQueueIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnection.class);
 	
 	private ProjectPartConfiguration projectPartConfiguration = null;
@@ -98,34 +98,16 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {
 		
-		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
-		
+		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();		
 		
 		inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 		
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
-		
-	
-		/*synchronized (inputMessageQueue) {
-			if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {
-				inputMessageQueue.wait(projectPartConfiguration.getClientSocketTimeout());
-				
-				if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {						
-					log.warn("socket[{}] timeout occurs when entering an input message[{}]", 
-							clientSC.hashCode(), inputMessage.toString());						
-					throw new SocketTimeoutException("socket timeout occurs when entering an input message");
-				}
-			}
-			
-			inputMessageQueue.addLast(inputMessageWrapBufferQueue);			
-			asynSelectorManger.startWrite(this);
-		}*/
-		
-		this.inputMessageWrapBufferQueue = inputMessageWrapBufferQueue;			
+		inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
+					
 		asynSelectorManger.startWrite(this);
 		
-		WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = null;
+		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
 		try {
 			outputMessageWrapReadableMiddleObject = syncMessageMailbox.getSyncOutputMessage();
 		} catch(SocketTimeoutException e) {
@@ -149,24 +131,8 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox.getNextMailID();
 		
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
-		
-		/*synchronized (inputMessageQueue) {
-			if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {
-				inputMessageQueue.wait(projectPartConfiguration.getClientSocketTimeout());
-				
-				if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {						
-					log.warn("socket[{}] timeout occurs when entering an input message[{}]", 
-							clientSC.hashCode(), inputMessage.toString());						
-					throw new SocketTimeoutException("socket timeout occurs when entering an input message");
-				}
-			}
-			
-			inputMessageQueue.addLast(inputMessageWrapBufferQueue);			
-			asynSelectorManger.startWrite(this);
-		}*/
-		
-		this.inputMessageWrapBufferQueue = inputMessageWrapBufferQueue;			
+		inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
+					
 		asynSelectorManger.startWrite(this);
 	}
 
@@ -196,7 +162,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 			}
 			releaseResources();
 			
-			selectedKey.channel();			
+			asynSelectorManger.cancel(selectedKey);			
 			return;
 		} catch (Exception e) {
 			log.warn("fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}", hashCode(), e.getMessage());
@@ -209,7 +175,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 			}
 			releaseResources();
 			
-			selectedKey.channel();
+			asynSelectorManger.cancel(selectedKey);
 			return;
 		}
 			
@@ -228,7 +194,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 				}
 				releaseResources();
 				
-				selectedKey.channel();
+				asynSelectorManger.cancel(selectedKey);
 				return;
 			}
 			
@@ -245,7 +211,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 				}
 				releaseResources();
 				
-				selectedKey.channel();
+				asynSelectorManger.cancel(selectedKey);
 				return;
 			}			
 		} else {
@@ -269,7 +235,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 				log.warn(errorMessage);
 				close();
 				releaseResources();
-				selectedKey.channel();
+				asynSelectorManger.cancel(selectedKey);
 				return;
 			}
 
@@ -292,7 +258,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 			}
 			releaseResources();
 			
-			selectedKey.channel();
+			asynSelectorManger.cancel(selectedKey);
 			return;
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder()
@@ -308,7 +274,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 						hashCode(), e1.getMessage());
 			}
 			releaseResources();
-			selectedKey.channel();
+			asynSelectorManger.cancel(selectedKey);
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
@@ -324,7 +290,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 						hashCode(), e1.getMessage());
 			}
 			releaseResources();
-			selectedKey.channel();
+			asynSelectorManger.cancel(selectedKey);
 			return;
 		}
 		
@@ -335,7 +301,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 		// FIXME!
 		// log.info("onWrite::call");
 				
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = this.inputMessageWrapBufferQueue;
+		// ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = this.inputMessageWrapBufferQueue;
 		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
 		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 		boolean loop = true;
@@ -347,7 +313,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 				String errorMessage = new StringBuilder()
 						.append("fail to write a sequence of bytes to this channel[")
 						.append(clientSC.hashCode())
-						.append("] because error occured, errmsg=")
+						.append("] because io error occured, errmsg=")
 						.append(e.getMessage()).toString();
 				log.warn(errorMessage, e);
 				try {
@@ -358,7 +324,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 				}
 				
 				releaseResources();
-				selectedKey.channel();
+				asynSelectorManger.cancel(selectedKey);
 				return;
 			}	
 			
@@ -373,33 +339,16 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 				clientMessageUtility.releaseWrapBuffer(currentWorkingWrapBuffer);
 				
 				if (inputMessageWrapBufferQueue.isEmpty()) {					
-					/*synchronized (inputMessageQueue) {
-						inputMessageQueue.removeFirst();
-						try {
-							if (inputMessageQueue.isEmpty()) {
-								asynSelectorManger.endWrite(this);
-								loop = false;
-								return;
-							}
-						} finally {
-							inputMessageQueue.notify();
-						}
-					}*/
-					
 					asynSelectorManger.endWrite(this);
 						
 					loop = false;
 					return;
-					
-					// inputMessageWrapBufferQueue = inputMessageQueue.peek();
 				}
 				
 				currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
 				currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 			}
 		}
-		
-		
 	}
 
 	@Override
@@ -432,12 +381,12 @@ public final class AsynNoShareConnection implements AsynConnectionIF, Interested
 	}
 
 	@Override
-	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {		
-		int mailboxID = wrapReadableMiddleObject.getMailboxID();
+	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper) throws InterruptedException {		
+		int mailboxID = readableMiddleObjectWrapper.getMailboxID();
 		if (CommonStaticFinalVars.ASYN_MAILBOX_ID == mailboxID) {
-			clientExecutor.putAsynOutputMessage(wrapReadableMiddleObject);
+			clientExecutor.putAsynOutputMessage(readableMiddleObjectWrapper);
 		} else {
-			syncMessageMailbox.putSyncOutputMessage(wrapReadableMiddleObject);
+			syncMessageMailbox.putSyncOutputMessage(readableMiddleObjectWrapper);
 		}
 	}
 	

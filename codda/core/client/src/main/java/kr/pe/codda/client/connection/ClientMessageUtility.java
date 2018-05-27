@@ -1,6 +1,5 @@
 package kr.pe.codda.client.connection;
 
-import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 
 import io.netty.util.internal.logging.InternalLogger;
@@ -19,7 +18,7 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 
 public class ClientMessageUtility implements ClientMessageUtilityIF {
@@ -53,20 +52,20 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 	}
 
 	public AbstractMessage buildOutputMessage(ClassLoader classLoader,
-			WrapReadableMiddleObject wrapReadableMiddleObject)
+			ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
 			throws DynamicClassCallException, BodyFormatException {
 		if (null == classLoader) {
 			throw new IllegalArgumentException("the parameter classLoader is null");
 		}
 		
-		if (null == wrapReadableMiddleObject) {
-			throw new IllegalArgumentException("the parameter wrapReadableMiddleObject is null");
+		if (null == readableMiddleObjectWrapper) {
+			throw new IllegalArgumentException("the parameter readableMiddleObjectWrapper is null");
 		}
 		
-		String messageID = wrapReadableMiddleObject.getMessageID();
-		int mailboxID = wrapReadableMiddleObject.getMailboxID();
-		int mailID = wrapReadableMiddleObject.getMailID();
-		Object middleReadObj = wrapReadableMiddleObject.getReadableMiddleObject();
+		String messageID = readableMiddleObjectWrapper.getMessageID();
+		int mailboxID = readableMiddleObjectWrapper.getMailboxID();
+		int mailID = readableMiddleObjectWrapper.getMailID();
+		Object middleReadObj = readableMiddleObjectWrapper.getReadableMiddleObject();
 
 		if (middleReadObj instanceof SelfExnRes) {
 			/** 소켓 쓰기시 IO Exception 발생 */
@@ -82,14 +81,14 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 			messageDecoder = messageCodec.getMessageDecoder();
 		} catch (DynamicClassCallException e) {
 			String errorMessage = new StringBuilder("fail to get the client message codec of the output message[")
-					.append(wrapReadableMiddleObject.toSimpleInformation()).append("]").toString();
+					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("]").toString();
 
 			log.warn(errorMessage);
 			throw new DynamicClassCallException(errorMessage);
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder(
 					"unknwon error::fail to get the client message codec of the output message[")
-							.append(wrapReadableMiddleObject.toSimpleInformation()).append("]::").append(e.getMessage())
+							.append(readableMiddleObjectWrapper.toSimpleInformation()).append("]::").append(e.getMessage())
 							.toString();
 
 			log.warn(errorMessage, e);
@@ -103,14 +102,14 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 			outputMessage.messageHeaderInfo.mailID = mailID;
 		} catch (BodyFormatException e) {
 			String errorMessage = new StringBuilder("fail to get a output message[")
-					.append(wrapReadableMiddleObject.toSimpleInformation()).append("] from readable middle object")
+					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("] from readable middle object")
 					.toString();
 
 			log.warn(errorMessage);
 			throw new BodyFormatException(errorMessage);
 		} catch (Exception | Error e) {
 			String errorMessage = new StringBuilder("unknwon error::fail to get a output message[")
-					.append(wrapReadableMiddleObject.toSimpleInformation()).append("] from readable middle object::")
+					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("] from readable middle object::")
 					.append(e.getMessage()).toString();
 
 			log.warn(errorMessage, e);
@@ -120,9 +119,9 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		return outputMessage;
 	}
 
-	public void S2MList(SocketChannel fromSC, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
+	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {
-		messageProtocol.S2MList(fromSC, socketOutputStream, wrapMessageBlockingQueue);
+		messageProtocol.S2MList(eventHandler, socketOutputStream, wrapMessageBlockingQueue);
 	}
 
 	public ArrayDeque<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage)

@@ -27,6 +27,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 			String host, int port,
 			int numberOfConnection,
 			MessageProtocolType messageProtocolType,
+			boolean clientDataPacketBufferIsDirect,
 			ConnectionType connectionType)
 			throws CoddaConfigurationException {		
 		 
@@ -34,78 +35,69 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		ProjectPartConfiguration projectPartConfigurationForTest = new ProjectPartConfiguration(ProjectType.MAIN,
 				projectName);
 		
+		//String host="localhost";
+		//int port=9090;
 		ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-		Charset charset = CommonStaticFinalVars.SOURCE_FILE_CHARSET;
-		int dataPacketBufferMaxCntPerMessage=50;
-		int dataPacketBufferSize=4096;
-		int dataPacketBufferPoolSize=1000;
+		Charset charset = CommonStaticFinalVars.SOURCE_FILE_CHARSET;		
 		int messageIDFixedSize=20;
-		// MessageProtocolType messageProtocolType;
-		String firstPrefixDynamicClassFullName="kr.pe.sinnori.impl.";			
+		//MessageProtocolType messageProtocolType = MessageProtocolType.DHB;					
 		long clientMonitorTimeInterval = 60*1000*5L;
-		// ConnectionType connectionType = connectionType;
+		// boolean clientDataPacketBufferIsDirect=true;
+		int clientDataPacketBufferMaxCntPerMessage=50;
+		int clientDataPacketBufferSize=2048;
+		int clientDataPacketBufferPoolSize=1000;
+		//ConnectionType connectionType = ConnectionType.ASYN_PRIVATE;
 		long clientSocketTimeout = 5000L;			
-		int clientConnectionCount = numberOfConnection;
-		int clientConnectionMaxCount = numberOfConnection;
+		int clientConnectionCount = 2;
+		int clientConnectionMaxCount = 4;
 		int clientAsynPirvateMailboxCntPerPublicConnection = 2;
 		int clientAsynInputMessageQueueSize = 5;
 		int clientAsynOutputMessageQueueSize = 5;
-		long clientWakeupIntervalOfSelectorForReadEventOnly = 10L;			
-		int clientAsynInputMessageWriterPoolSize = 2;			
-		int clientAsynOutputMessageReaderPoolSize = 2;			
+		long clientAsynSelectorWakeupInterval = 1L;			
 		int clientAsynExecutorPoolSize =2;
 		long serverMonitorTimeInterval = 5000L;
-		int serverMaxClients = numberOfConnection*2;
-		int serverAcceptQueueSize = 5;
+		boolean serverDataPacketBufferIsDirect=true;
+		int serverDataPacketBufferMaxCntPerMessage=50;
+		int serverDataPacketBufferSize=2048;
+		int serverDataPacketBufferPoolSize=1000;
+		int serverMaxClients = 10;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		long serverWakeupIntervalOfSelectorForReadEventOnly = 10L;			
-		int serverAcceptProcessorSize = 2; 
-		int serverAcceptProcessorMaxSize = serverAcceptProcessorSize;			
-		int serverInputMessageReaderPoolSize = 2;
-		int serverInputMessageReaderPoolMaxSize = serverInputMessageReaderPoolSize;
+		long serverSelectorWakeupInterval = 1L;
 		int serverExecutorPoolSize = 2;
-		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
-		int serverOutputMessageWriterPoolSize = 2;
-		int serverOutputMessageWriterPoolMaxSize = serverOutputMessageWriterPoolSize;	
-		String serverMybatisConfigFileRelativePathString = "kr/pe/sinnori/impl/mybatis/mybatisConfig.xml";
+		int serverExecutorPoolMaxSize = 3;
 		
-		projectPartConfigurationForTest.build(host, port, 
-				byteOrder, 
-				charset, 
-				dataPacketBufferMaxCntPerMessage, 
-				dataPacketBufferSize, 
-				dataPacketBufferPoolSize, 
-				messageIDFixedSize, 
-				messageProtocolType, 
-				firstPrefixDynamicClassFullName, 
-				clientMonitorTimeInterval, 
-				connectionType, 
-				clientSocketTimeout, 
-				clientConnectionCount, 
-				clientConnectionMaxCount, 
-				clientAsynPirvateMailboxCntPerPublicConnection, 
-				clientAsynInputMessageQueueSize, 
-				clientAsynOutputMessageQueueSize, 
-				clientWakeupIntervalOfSelectorForReadEventOnly, 
-				clientAsynInputMessageWriterPoolSize, 
-				clientAsynOutputMessageReaderPoolSize, 
-				clientAsynExecutorPoolSize, 
-				serverMonitorTimeInterval, 
-				serverMaxClients, 
-				serverAcceptQueueSize, 
-				serverInputMessageQueueSize, 
-				serverOutputMessageQueueSize, 
-				serverWakeupIntervalOfSelectorForReadEventOnly, 
-				serverAcceptProcessorSize, 
-				serverAcceptProcessorMaxSize, 
-				serverInputMessageReaderPoolSize, 
-				serverInputMessageReaderPoolMaxSize, 
-				serverExecutorPoolSize, 
-				serverExecutorPoolMaxSize, 
-				serverOutputMessageWriterPoolSize, 
-				serverOutputMessageWriterPoolMaxSize, 
-				serverMybatisConfigFileRelativePathString);
+		projectPartConfigurationForTest.build(host, 
+				port,
+				byteOrder,
+				charset,				
+				messageIDFixedSize,
+				messageProtocolType,		
+				clientMonitorTimeInterval,
+				clientDataPacketBufferIsDirect,
+				clientDataPacketBufferMaxCntPerMessage,
+				clientDataPacketBufferSize,
+				clientDataPacketBufferPoolSize,
+				connectionType,
+				clientSocketTimeout,			
+				clientConnectionCount,
+				clientConnectionMaxCount,
+				clientAsynPirvateMailboxCntPerPublicConnection,
+				clientAsynInputMessageQueueSize,
+				clientAsynOutputMessageQueueSize,
+				clientAsynSelectorWakeupInterval,
+				clientAsynExecutorPoolSize,
+				serverMonitorTimeInterval,
+				serverDataPacketBufferIsDirect,
+				serverDataPacketBufferMaxCntPerMessage,
+				serverDataPacketBufferSize,
+				serverDataPacketBufferPoolSize,
+				serverMaxClients,
+				serverSelectorWakeupInterval,
+				serverInputMessageQueueSize,
+				serverOutputMessageQueueSize,
+				serverExecutorPoolSize,
+				serverExecutorPoolMaxSize);
 
 		return projectPartConfigurationForTest;
 	}
@@ -114,9 +106,8 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 	public void testSendSyncInputMessage() {
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
-
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-
+		boolean clientDataPacketBufferIsDirect = false;
 		String host = null;
 		int port;
 		
@@ -131,6 +122,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 					host,  port,
 					numberOfConnection,
 					messageProtocolTypeForTest,
+					clientDataPacketBufferIsDirect,
 					ConnectionType.SYNC_PRIVATE);
 
 		} catch (Exception e) {
@@ -176,7 +168,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 					fail("empty 메시지 수신 실패");
 				}
 
-				if (!emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
+				if (! emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
 					fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
 				}
 			}

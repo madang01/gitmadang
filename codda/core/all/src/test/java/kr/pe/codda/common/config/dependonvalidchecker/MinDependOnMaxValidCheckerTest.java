@@ -88,13 +88,15 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 					ItemIDInfo.ViewType.TEXT, dependentSourceItemID,
 					"서버 비지니스 로직 수행 담당 쓰레드 갯수", "11", true,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							2, Integer.MAX_VALUE - 10));
+							2, Integer.MAX_VALUE - 10));			
 			
-			@SuppressWarnings({ "unused", "unchecked" })
+			@SuppressWarnings("unchecked")
 			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Integer>(
 					(ItemIDInfo<Integer>)dependentTargetItemIDInfo,
 					(ItemIDInfo<Integer>)dependentSourceItemIDInfo,
 					Integer.class);
+			
+			minDependOnMaxValidChecker.hashCode();
 
 			fail("bad generic test fail");
 		} catch (IllegalArgumentException e) {	
@@ -124,11 +126,13 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							2L, Long.MAX_VALUE - 10));
 			
-			@SuppressWarnings({ "unused", "unchecked" })
+			@SuppressWarnings({"unchecked" })
 			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Integer>(
 					(ItemIDInfo<Integer>)dependentTargetItemIDInfo,
 					(ItemIDInfo<Integer>)dependentSourceItemIDInfo,
 					Integer.class);
+			
+			minDependOnMaxValidChecker.hashCode();
 
 			fail("bad generic test fail");
 		} catch (IllegalArgumentException e) {	
@@ -312,9 +316,10 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 	public void testConstructor_NullParameter_dependentSourceItemIDInfo()
 			throws Exception {
 		try {
-			@SuppressWarnings("unused")
 			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Long>(
 					null, longTypeDependedItemIDInfo, Long.class);
+			
+			minDependOnMaxValidChecker.hashCode();
 		} catch (IllegalArgumentException e) {
 			log.info(
 					"'the parameter dependentSourceItemIDInfo is null' test ok, errormessage={}",
@@ -329,9 +334,10 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 	public void testConstructor_NullParameter_dependentTargetItemIDInfo()
 			throws Exception {
 		try {
-			@SuppressWarnings("unused")
 			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Long>(
 					longTypeDependentItemIDInfo, null, Long.class);
+			
+			minDependOnMaxValidChecker.hashCode();
 		} catch (IllegalArgumentException e) {
 			log.info(
 					"'the parameter dependentTargetItemIDInfo is null' test ok, errormessage={}",
@@ -346,10 +352,11 @@ public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 	public void testConstructor_NullParameter_genericTypeClass()
 			throws Exception {
 		try {
-			@SuppressWarnings("unused")
 			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Long>(
 					longTypeDependentItemIDInfo, longTypeDependedItemIDInfo,
 					null);
+			
+			minDependOnMaxValidChecker.hashCode();
 		} catch (IllegalArgumentException e) {
 			log.info(
 					"'the parameter genericTypeClass is null' test ok, errormessage={}",

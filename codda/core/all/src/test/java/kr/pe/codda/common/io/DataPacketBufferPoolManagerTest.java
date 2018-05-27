@@ -142,8 +142,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	
 	
 	@Test
-	public void testConstructor_theParameterByteOrder_null() {
-		@SuppressWarnings("unused")
+	public void testConstructor_theParameterByteOrder_null() {		
 		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = null;
@@ -153,6 +152,8 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		try {
 			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			
+			dataPacketBufferPool.hashCode();
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
@@ -168,8 +169,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstructor_theParameterDataPacketBufferSize_lessThanOrEqualToZero() {
-		@SuppressWarnings("unused")
+	public void testConstructor_theParameterDataPacketBufferSize_lessThanOrEqualToZero() {		
 		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
@@ -197,6 +197,8 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
+			dataPacketBufferPool.hashCode();
+			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
@@ -212,7 +214,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	
 	@Test
 	public void testConstructor_theParameterDataPacketBufferPoolSize_lessThanOrEqualToZero() {
-		@SuppressWarnings("unused")
+		
 		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.BIG_ENDIAN;
@@ -240,6 +242,8 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		try {
 			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			
+			dataPacketBufferPool.hashCode();
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {

@@ -1113,24 +1113,24 @@ public class MainProjectEditorPanel extends JPanel {
 		
 		ArrayList<String> otherProjectNameList = new ArrayList<String>();
 		
-		for (File fileOfList : projectBasePath.listFiles()) {
-			if (fileOfList.isDirectory()) {
-				if (!fileOfList.canRead()) {
-					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to read", fileOfList.getAbsolutePath());
+		for (File childFile : projectBasePath.listFiles()) {
+			if (childFile.isDirectory()) {
+				if (!childFile.canRead()) {
+					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to read", childFile.getAbsolutePath());
 					log.warn(errorMessage);
 					
 					showMessageDialog(errorMessage);
 					return;
 				}
 				
-				if (!fileOfList.canWrite()) {
-					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to write", fileOfList.getAbsolutePath());
+				if (!childFile.canWrite()) {
+					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to write", childFile.getAbsolutePath());
 					log.warn(errorMessage);
 					
 					showMessageDialog(errorMessage);
 					return;
 				}
-				String theProjectName = fileOfList.getName();
+				String theProjectName = childFile.getName();
 				if (!theProjectName.equals(mainProjectName)) {
 					otherProjectNameList.add(theProjectName);
 				}

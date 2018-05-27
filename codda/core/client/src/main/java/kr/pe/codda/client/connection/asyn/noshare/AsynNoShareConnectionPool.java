@@ -13,7 +13,7 @@ import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
-import kr.pe.codda.client.connection.asyn.InterestedAsynConnectionIF;
+import kr.pe.codda.client.connection.asyn.ClientInterestedConnectionIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorPoolIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
@@ -225,17 +225,17 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 	}	
 
 	@Override
-	public void removeUnregisteredConnection(InterestedAsynConnectionIF asynInterestedConnection) {
+	public void removeUnregisteredConnection(ClientInterestedConnectionIF asynInterestedConnection) {
 		numberOfUnregisteredConnection--;
 		log.info("remove the interedted connection[{}]", asynInterestedConnection.hashCode());
 	}
 
 	
-	public InterestedAsynConnectionIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
+	public ClientInterestedConnectionIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
 		SocketOutputStream sos = socketOutputStreamFactory.newInstance();
 		ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 		
-		InterestedAsynConnectionIF asynInterestedConnection = 
+		ClientInterestedConnectionIF asynInterestedConnection = 
 				new AsynNoShareConnection(projectPartConfiguration, sos, clientMessageUtility, this, clientExecutor, asynSelectorManger);		
 		return asynInterestedConnection;
 	}
@@ -245,7 +245,7 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 	}
 		
 	public void addConnection() throws NoMoreDataPacketBufferException, IOException {
-		InterestedAsynConnectionIF unregisteredAsynConnection = newUnregisteredConnection();
+		ClientInterestedConnectionIF unregisteredAsynConnection = newUnregisteredConnection();
 		addCountOfUnregisteredConnection();
 		asynSelectorManger.addUnregisteredAsynConnection(unregisteredAsynConnection);
 	}

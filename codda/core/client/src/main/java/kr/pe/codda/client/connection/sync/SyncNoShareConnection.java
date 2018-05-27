@@ -29,46 +29,51 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 
 public final class SyncNoShareConnection implements SyncConnectionIF, ReceivedMessageBlockingQueueIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnection.class);
 	
-	private ProjectPartConfiguration projectPartConfiguration = null;
 	private SocketOutputStream socketOutputStream = null;
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	
+	private String serverHost = null;
+	private int serverPort  = 0;
+	private long socketTimeout=0;
+	private int clientDataPacketBufferSize=0;
 	
 	private SocketChannel clientSC = null;
 	private Socket clientSocket = null;
 	private InputStream clinetInputStream = null;
-	private OutputStream clinetOutputStream = null;
-	
+	private OutputStream clinetOutputStream = null;	
 	private SyncMessageMailbox syncMessageMailbox = null;
 	private java.util.Date finalReadTime = new java.util.Date();
-	private boolean isQueueIn = true;	
+	private boolean isQueueIn = true;
 	
-	private byte[] socketBuffer = null; 
-	
-	private WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = null;	
+	private ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
+	private byte[] socketBuffer = null;
 	
 	public SyncNoShareConnection(ProjectPartConfiguration projectPartConfiguration, 
 			SocketOutputStream socketOutputStream,
 			ClientMessageUtilityIF clientMessageUtility) throws IOException {
 		
-		this.projectPartConfiguration = projectPartConfiguration;
 		this.socketOutputStream = socketOutputStream;
 		this.clientMessageUtility = clientMessageUtility;
 		
+		serverHost = projectPartConfiguration.getServerHost();
+		serverPort = projectPartConfiguration.getServerPort();
+		socketTimeout = projectPartConfiguration.getClientSocketTimeout();
+		clientDataPacketBufferSize = projectPartConfiguration.getClientDataPacketBufferSize();
+		
 		openSocketChannel();
 		
-		SocketAddress serverAddress = new InetSocketAddress(projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort());
+		SocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
 		// clientSC.connect(serverAddress);
 		
 		clientSocket = clientSC.socket();
 		try {
-			clientSocket.setSoTimeout((int)this.projectPartConfiguration.getClientSocketTimeout());
-			clientSocket.connect(serverAddress, (int)this.projectPartConfiguration.getClientSocketTimeout());
+			clientSocket.setSoTimeout((int)socketTimeout);
+			clientSocket.connect(serverAddress, (int)socketTimeout);
 			clinetInputStream = clientSocket.getInputStream();
 			clinetOutputStream = clientSocket.getOutputStream();
 		} catch(Exception e) {
@@ -81,9 +86,10 @@ public final class SyncNoShareConnection implements SyncConnectionIF, ReceivedMe
 		
 		
 		final int mailboxID = 1;
-		syncMessageMailbox = new SyncMessageMailbox(this, mailboxID, projectPartConfiguration.getClientSocketTimeout());
+		syncMessageMailbox = new SyncMessageMailbox(this, mailboxID, socketTimeout);
 		
-		socketBuffer = new byte[projectPartConfiguration.getDataPacketBufferSize()];
+		
+		socketBuffer = new byte[clientDataPacketBufferSize];
 	}
 	
 	private void openSocketChannel() throws IOException {
@@ -106,19 +112,16 @@ public final class SyncNoShareConnection implements SyncConnectionIF, ReceivedMe
 		inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 		
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
+		
 		while (! inputMessageWrapBufferQueue.isEmpty()) {
 			WrapBuffer inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
 			try {
 				ByteBuffer inputMessageByteBuffer = inputMessageWrapBuffer.getByteBuffer();
-				/*while(! inputMessageByteBuffer.hasRemaining()) {				
-					clientSC.write(inputMessageByteBuffer);
-				}*/
-				
 				int len = inputMessageByteBuffer.remaining();
-				inputMessageByteBuffer.get(socketBuffer, 0, len);
+				inputMessageByteBuffer.get(socketBuffer, 0, len);				
 				clinetOutputStream.write(socketBuffer, 0, len);
 				
-				clientMessageUtility.releaseWrapBuffer(inputMessageWrapBuffer);
+				clientMessageUtility.releaseWrapBuffer(inputMessageWrapBuffer);				
 			} catch(IOException e) {
 				clientMessageUtility.releaseWrapBuffer(inputMessageWrapBuffer);
 				while (! inputMessageWrapBufferQueue.isEmpty()) {
@@ -187,7 +190,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF, ReceivedMe
 	
 				clientMessageUtility.S2MList(clientSC, socketOutputStream, this);
 				
-				// log.info("numberOfReadBytes={}, wrapReadableMiddleObjectQueue.isEmpty={}", numberOfReadBytes, wrapReadableMiddleObjectQueue.isEmpty());
+				// log.info("numberOfReadBytes={}, readableMiddleObjectWrapperQueue.isEmpty={}", numberOfReadBytes, readableMiddleObjectWrapperQueue.isEmpty());
 			} while(null == outputMessageWrapReadableMiddleObject);			
 				
 		} catch (NoMoreDataPacketBufferException e) {
@@ -311,7 +314,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF, ReceivedMe
 	}
 
 	@Override
-	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
-		outputMessageWrapReadableMiddleObject = wrapReadableMiddleObject;
+	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper) throws InterruptedException {
+		outputMessageWrapReadableMiddleObject = readableMiddleObjectWrapper;
 	}
 }

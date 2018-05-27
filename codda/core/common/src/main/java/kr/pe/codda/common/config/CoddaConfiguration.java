@@ -306,6 +306,8 @@ public class CoddaConfiguration {
 							.append("]'s value[").append(itemValue)
 							.append("] to the project part value object's variable in the conifg file[")
 							.append(configFilePathString).append("]").toString();
+					log.info(errorMessage, e);
+					
 					throw new CoddaConfigurationException(errorMessage);
 				}
 			} else {

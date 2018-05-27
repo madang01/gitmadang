@@ -62,7 +62,7 @@ public class AppClientMain {
 
 		endTime = System.nanoTime();
 
-		log.info("loop count[{}], average time[{} nanosecound]", retryCount,
+		log.info("loop count[{}], average time[{} microseconds]", retryCount,
 				TimeUnit.MICROSECONDS.convert((endTime - startTime)/retryCount, TimeUnit.NANOSECONDS));
 		
 		System.exit(0);

@@ -1,6 +1,5 @@
 package kr.pe.codda.client.connection.asyn.executor;
 
-import java.nio.channels.SocketChannel;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -8,7 +7,7 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 
 public class ClientExecutor extends Thread implements ClientExecutorIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(ClientExecutor.class);
@@ -16,7 +15,7 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	private String projectName = null;
 	private int index;
 
-	private ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = null;
+	private ArrayBlockingQueue<ReadableMiddleObjectWrapper> outputMessageQueue = null;
 
 	private ClientMessageUtilityIF clientMessageUtility = null;
 
@@ -24,7 +23,7 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 			new ConcurrentHashMap<AsynConnectionIF, AsynConnectionIF>();
 
 	public ClientExecutor(String projectName, int index, 
-			ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue,
+			ArrayBlockingQueue<ReadableMiddleObjectWrapper> outputMessageQueue,
 			ClientMessageUtilityIF clientMessageUtility) {
 		this.projectName = projectName;
 		this.index = index;
@@ -37,14 +36,16 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				WrapReadableMiddleObject wrapReadableMiddleObject = outputMessageQueue.take();
+				ReadableMiddleObjectWrapper readableMiddleObjectWrapper = outputMessageQueue.take();
 
-				SocketChannel fromSC = wrapReadableMiddleObject.getFromSC();
-				String messageID = wrapReadableMiddleObject.getMessageID();
+				Object eventHandler = readableMiddleObjectWrapper.getEventHandler();
+				
+				AsynConnectionIF asynConnection = (AsynConnectionIF)eventHandler;
+				String messageID = readableMiddleObjectWrapper.getMessageID();
 
 				AbstractClientTask clientTask = clientMessageUtility.getClientTask(messageID);
 
-				clientTask.execute(index, projectName, fromSC, wrapReadableMiddleObject, clientMessageUtility);
+				clientTask.execute(index, projectName, asynConnection, readableMiddleObjectWrapper, clientMessageUtility);
 			}
 			log.warn("{} ClientExecutor[{}] loop exit", projectName, index);
 		} catch (InterruptedException e) {
@@ -75,10 +76,10 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	}
 
 	@Override
-	public void putAsynOutputMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
+	public void putAsynOutputMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper) throws InterruptedException {
 		
 		
-		outputMessageQueue.put(wrapReadableMiddleObject);
+		outputMessageQueue.put(readableMiddleObjectWrapper);
 	}	
 
 	public void finalize() {

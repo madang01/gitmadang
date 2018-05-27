@@ -19,10 +19,10 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 	
 
 	private AsynConnectionPoolIF asynConnectionPool = null;
-	private ConcurrentHashMap<SelectionKey, InterestedAsynConnectionIF> selectedKey2ConnectionHash = 
-			new ConcurrentHashMap<SelectionKey, InterestedAsynConnectionIF>();
+	private ConcurrentHashMap<SelectionKey, ClientInterestedConnectionIF> selectedKey2ConnectionHash = 
+			new ConcurrentHashMap<SelectionKey, ClientInterestedConnectionIF>();
 	
-	private LinkedBlockingDeque<InterestedAsynConnectionIF> unregisteredAsynConnectionQueue = new LinkedBlockingDeque<InterestedAsynConnectionIF>();
+	private LinkedBlockingDeque<ClientInterestedConnectionIF> unregisteredAsynConnectionQueue = new LinkedBlockingDeque<ClientInterestedConnectionIF>();
 	
 	public AsynClientIOEventController(AsynConnectionPoolIF connectionPool) throws IOException, NoMoreDataPacketBufferException {
 		this.asynConnectionPool = connectionPool;
@@ -32,7 +32,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 		ioEventSelector = Selector.open();
 		
 		while (connectionPool.isConnectionToAdd()) {
-			InterestedAsynConnectionIF unregisteredAsynConnection = connectionPool.newUnregisteredConnection();
+			ClientInterestedConnectionIF unregisteredAsynConnection = connectionPool.newUnregisteredConnection();
 			connectionPool.addCountOfUnregisteredConnection();			
 			unregisteredAsynConnectionQueue.addLast(unregisteredAsynConnection);
 			
@@ -42,7 +42,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 	}
 
 	@Override
-	public void addUnregisteredAsynConnection(InterestedAsynConnectionIF unregisteredAsynConnection) throws IOException {
+	public void addUnregisteredAsynConnection(ClientInterestedConnectionIF unregisteredAsynConnection) throws IOException {
 		if (getState().equals(Thread.State.NEW)) {
 			try {
 				unregisteredAsynConnection.close();
@@ -63,7 +63,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 	
 	private void processNewConnection() {					
 		while (! unregisteredAsynConnectionQueue.isEmpty()) {
-			InterestedAsynConnectionIF unregisteredAsynConnection = unregisteredAsynConnectionQueue.removeFirst();
+			ClientInterestedConnectionIF unregisteredAsynConnection = unregisteredAsynConnectionQueue.removeFirst();
 			
 			// FIXME!
 			// log.info("unregisteredAsynConnection[{}] start", unregisteredAsynConnection.hashCode());
@@ -124,13 +124,13 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 				Set<SelectionKey> selectedKeySet = ioEventSelector.selectedKeys();
 				for (SelectionKey selectedKey : selectedKeySet) {					
 					if (selectedKey.isConnectable()) {
-						InterestedAsynConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
+						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onConnect(selectedKey);
 					} else if (selectedKey.isReadable()) {
-						InterestedAsynConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
+						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onRead(selectedKey);
 					} else if (selectedKey.isWritable()) {
-						InterestedAsynConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
+						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onWrite(selectedKey);
 					}
 				}
@@ -146,7 +146,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 	}
 
 	@Override
-	public void startWrite(InterestedAsynConnectionIF asynInterestedConnectionIF) {
+	public void startWrite(ClientInterestedConnectionIF asynInterestedConnectionIF) {
 		SelectionKey selectedKey = asynInterestedConnectionIF.keyFor(ioEventSelector);
 		if (null == selectedKey) {
 			log.error("selectedKey is null");
@@ -162,7 +162,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 	}
 	
 	@Override
-	public void endWrite(InterestedAsynConnectionIF asynInterestedConnectionIF) {
+	public void endWrite(ClientInterestedConnectionIF asynInterestedConnectionIF) {
 		SelectionKey selectedKey = asynInterestedConnectionIF.keyFor(ioEventSelector);
 		if (null == selectedKey) {
 			log.error("selectedKey is null");
@@ -170,5 +170,10 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 		}
 		selectedKey.interestOps(selectedKey.interestOps() & ~SelectionKey.OP_WRITE);
 		ioEventSelector.wakeup();
+	}
+	
+	public void cancel(SelectionKey selectedKey) {
+		selectedKey2ConnectionHash.remove(selectedKey);
+		selectedKey.channel();
 	}
 }

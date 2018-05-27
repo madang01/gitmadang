@@ -16,8 +16,6 @@
  */
 package kr.pe.codda.common.protocol;
 
-import java.nio.channels.SocketChannel;
-
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.io.FreeSizeInputStream;
@@ -28,20 +26,20 @@ import kr.pe.codda.common.io.FreeSizeInputStream;
  * @author "Won Jonghoon"
  *
  */
-public class WrapReadableMiddleObject {
-	private InternalLogger log = InternalLoggerFactory.getInstance(WrapReadableMiddleObject.class);
+public class ReadableMiddleObjectWrapper {
+	private InternalLogger log = InternalLoggerFactory.getInstance(ReadableMiddleObjectWrapper.class);
 	
 	private String messageID = null;
 	private int mailboxID;
 	private int mailID;
 	private Object readableMiddleObject = null;
-	private SocketChannel fromSC = null;
+	private Object eventHandler = null;
 	
 	// private Date timestamp = new Date();
 	
 	// Intermediate object between stream and message
-	public WrapReadableMiddleObject(SocketChannel fromSC, String messageID, int mailboxID, int mailID, Object readableMiddleObject) {
-		this.fromSC = fromSC;
+	public ReadableMiddleObjectWrapper(Object eventHandler, String messageID, int mailboxID, int mailID, Object readableMiddleObject) {
+		this.eventHandler = eventHandler;
 		this.messageID = messageID;
 		this.mailboxID = mailboxID;
 		this.mailID = mailID;
@@ -67,8 +65,8 @@ public class WrapReadableMiddleObject {
 	/*public Date getTimestamp() {
 		return timestamp;
 	}*/
-	public SocketChannel getFromSC() {
-		return fromSC;
+	public Object getEventHandler() {
+		return eventHandler;
 	}
 	
 	
@@ -102,9 +100,9 @@ public class WrapReadableMiddleObject {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ReceivedLetter [fromSC=");
-		if (null != fromSC) {
-			builder.append(fromSC.hashCode());
+		builder.append("ReceivedLetter [eventHandler=");
+		if (null != eventHandler) {
+			builder.append(eventHandler.hashCode());
 		} else {
 			builder.append("null");
 		}
@@ -124,9 +122,9 @@ public class WrapReadableMiddleObject {
 	
 	public String toSimpleInformation() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("fromSC=");
-		if (null != fromSC) {
-			builder.append(fromSC.hashCode());
+		builder.append("eventHandler=");
+		if (null != eventHandler) {
+			builder.append(eventHandler.hashCode());
 		} else {
 			builder.append("null");
 		}

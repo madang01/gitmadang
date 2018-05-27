@@ -26,13 +26,11 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
-import kr.pe.codda.server.PersonalLoginManagerIF;
+import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.ServerObjectCacheManagerIF;
-import kr.pe.codda.server.AcceptedConnection;
-import kr.pe.codda.server.AcceptedConnectionManagerIF;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -50,11 +48,10 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	private int index;
 	private String projectName = null;
 	
-	private ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue;
+	private ArrayBlockingQueue<ReadableMiddleObjectWrapper> inputMessageQueue;
 	private ProjectLoginManagerIF projectLoginManager = null;
 	private MessageProtocolIF messageProtocol = null;
 	
-	private AcceptedConnectionManagerIF acceptedConnectionManager = null;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;	
 	
 	private final ConcurrentHashMap<SocketChannel, SocketChannel> socketChannelHash 
@@ -64,17 +61,15 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	
 	public ServerExecutor(int index,
 			String projectName,
-			ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue,
+			ArrayBlockingQueue<ReadableMiddleObjectWrapper> inputMessageQueue,
 			ProjectLoginManagerIF projectLoginManager,
 			MessageProtocolIF messageProtocol, 
-			AcceptedConnectionManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		this.index = index;		
 		this.projectName = projectName;
 		this.inputMessageQueue = inputMessageQueue;
 		this.projectLoginManager = projectLoginManager;
 		this.messageProtocol = messageProtocol;
-		this.acceptedConnectionManager = socketResourceManager;
 		this.serverObjectCacheManager = serverObjectCacheManager;
 	}	
 
@@ -84,22 +79,17 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 		
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				WrapReadableMiddleObject wrapReadableMiddleObject = inputMessageQueue.take();
+				ReadableMiddleObjectWrapper readableMiddleObjectWrapper = inputMessageQueue.take();
 				
 				// FIXME!
 				// log.info("{} ServerExecutor[{}] letterFromClient=[{}]", projectName, index, letterFromClient.toString());
 				
-				SocketChannel fromSC = wrapReadableMiddleObject.getFromSC();
-				String messageID = wrapReadableMiddleObject.getMessageID();
+				Object eventHandler = readableMiddleObjectWrapper.getEventHandler();
+				AcceptedConnection fromAcceptedConnection = (AcceptedConnection)eventHandler;
 				
-				AcceptedConnection fromAcceptedConnection = acceptedConnectionManager.getAcceptedConnection(fromSC);
-				if (null == fromAcceptedConnection) {
-					log.warn("the socket channel[{}] sending a input message[{}] failed to get a accpeted connection, so stop to do task",
-							fromSC.hashCode(), wrapReadableMiddleObject.toSimpleInformation());
-					continue;
-				}
+				String messageID = readableMiddleObjectWrapper.getMessageID();
 				
-				PersonalLoginManagerIF fromPersonalLoginManager = fromAcceptedConnection.getPersonalLoginManager();
+				// PersonalLoginManagerIF fromPersonalLoginManager = fromAcceptedConnection.getPersonalLoginManager();
 
 				try {
 					AbstractServerTask  serverTask = null;
@@ -110,10 +100,9 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 
 						SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);						
 						String errorReason = e.getMessage();			
-						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
-								errorType,
+						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(errorType,
 								errorReason,
-								wrapReadableMiddleObject, 
+								readableMiddleObjectWrapper, 
 								fromAcceptedConnection, messageProtocol);
 						
 						continue;
@@ -122,21 +111,18 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 						
 						SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 						String errorReason = "fail to get a input message server task::"+e.getMessage();			
-						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
 								errorType,
 								errorReason,
-								wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
+								readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
 						continue;
 					}
 					
 					try {
 						serverTask.execute(index, projectName, 
-								fromSC,
-								fromPersonalLoginManager,
 								fromAcceptedConnection,
-								projectLoginManager,
-								acceptedConnectionManager,								
-								wrapReadableMiddleObject, 
+								projectLoginManager,								
+								readableMiddleObjectWrapper, 
 								messageProtocol);
 					} catch (InterruptedException e) {
 						throw e;
@@ -145,10 +131,10 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 						
 						SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(ServerTaskException.class);
 						String errorReason = "fail to execute a input message server task::"+e.getMessage();			
-						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
 								errorType,
 								errorReason,
-								wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
+								readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
 						continue;
 					}
 				
@@ -160,7 +146,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 					 * 두번째 장소는 2번 연속 호출해도 무방하기때문에 안전하게 자원 반환을 보장하기위한 Executor#run 이다.
 					 * </pre>
 					 */
-					wrapReadableMiddleObject.closeReadableMiddleObject();
+					readableMiddleObjectWrapper.closeReadableMiddleObject();
 				}
 			}
 			
@@ -189,8 +175,8 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	}
 	
 	@Override
-	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
-		inputMessageQueue.put(wrapReadableMiddleObject);
+	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper) throws InterruptedException {
+		inputMessageQueue.put(readableMiddleObjectWrapper);
 	}
 	
 	public void finalize() {

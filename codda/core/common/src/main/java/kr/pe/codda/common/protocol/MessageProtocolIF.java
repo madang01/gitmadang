@@ -16,7 +16,6 @@
  */
 package kr.pe.codda.common.protocol;
 
-import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 
 import kr.pe.codda.common.exception.BodyFormatException;
@@ -39,7 +38,7 @@ public interface MessageProtocolIF {
 	public ArrayDeque<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException;
 	
-	public void S2MList(SocketChannel fromSC, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF receivedMessageBlockingQueue) 
+	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF receivedMessageBlockingQueue) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException;
 	
 	

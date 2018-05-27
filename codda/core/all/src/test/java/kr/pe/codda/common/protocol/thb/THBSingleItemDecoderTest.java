@@ -173,8 +173,10 @@ public class THBSingleItemDecoderTest extends AbstractJunitTest {
 				public Object getValue(int itemTypeID, String itemName, int itemSize, String nativeItemCharset,
 						BinaryInputStreamIF binaryInputStream) throws Exception {
 					
-					@SuppressWarnings("unused")
+					
 					byte t[] = new byte[Integer.MAX_VALUE];
+					
+					log.info("temp buffer size={}", t.length);
 					
 					return null;
 				}

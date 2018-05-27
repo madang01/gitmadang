@@ -25,11 +25,11 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.ConnectionIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 
 public final class SyncMessageMailbox {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SyncMessageMailbox.class);
-	private ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(1);
+	private ArrayBlockingQueue<ReadableMiddleObjectWrapper> outputMessageQueue = new ArrayBlockingQueue<ReadableMiddleObjectWrapper>(1);
 
 	//private final Object monitor = new Object();
 
@@ -92,29 +92,29 @@ public final class SyncMessageMailbox {
 		return mailID;
 	}
 
-	public void putSyncOutputMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
-		if (null == wrapReadableMiddleObject) {
-			throw new IllegalArgumentException("the parameter wrapReadableMiddleObject is null");
+	public void putSyncOutputMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper) throws InterruptedException {
+		if (null == readableMiddleObjectWrapper) {
+			throw new IllegalArgumentException("the parameter readableMiddleObjectWrapper is null");
 		}
 		
 
-		int fromMailboxID = wrapReadableMiddleObject.getMailboxID();
+		int fromMailboxID = readableMiddleObjectWrapper.getMailboxID();
 		if (mailboxID != fromMailboxID) {
 			log.warn("drop the received letter[{}][{}] because it's mailbox id is different form this mailbox id[{}]",
-					wrapReadableMiddleObject.toString(), mailboxID);
+					readableMiddleObjectWrapper.toString(), mailboxID);
 			
-			wrapReadableMiddleObject.closeReadableMiddleObject();
+			readableMiddleObjectWrapper.closeReadableMiddleObject();
 			return;
 		}
 
-		int fromMailID = wrapReadableMiddleObject.getMailID();		
+		int fromMailID = readableMiddleObjectWrapper.getMailID();		
 
 		//synchronized (monitor) {
 			if (mailID != fromMailID) {
 				log.warn("drop the received letter[{}] because it's mail id is different form this mailbox's mail id[{}]",
-						wrapReadableMiddleObject.toString(), mailID);
+						readableMiddleObjectWrapper.toString(), mailID);
 				
-				wrapReadableMiddleObject.closeReadableMiddleObject();
+				readableMiddleObjectWrapper.closeReadableMiddleObject();
 				return;
 			}
 		//}		
@@ -122,39 +122,39 @@ public final class SyncMessageMailbox {
 		// Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		
 		if (! outputMessageQueue.isEmpty()) {
-			WrapReadableMiddleObject oldWrapReadableMiddleObject  = outputMessageQueue.poll();
+			ReadableMiddleObjectWrapper oldWrapReadableMiddleObject  = outputMessageQueue.poll();
 			if (null != oldWrapReadableMiddleObject) {
 				log.warn(
 						"clear the old received message[{}] from the ouputmessage queue of this mailbox[mailID={}] becase new message recevied",
-						wrapReadableMiddleObject.toString(), mailID);
+						readableMiddleObjectWrapper.toString(), mailID);
 				
 				oldWrapReadableMiddleObject.closeReadableMiddleObject();
 			}
 		}
 		
-		boolean result = outputMessageQueue.offer(wrapReadableMiddleObject);		
+		boolean result = outputMessageQueue.offer(readableMiddleObjectWrapper);		
 		if (!result) {
 			log.warn("drop the received letter[{}] because it was failed to insert the received letter into the output message queue of this mailbox"
-		  , wrapReadableMiddleObject.toString()); 
+		  , readableMiddleObjectWrapper.toString()); 
 			
-			wrapReadableMiddleObject.closeReadableMiddleObject();
+			readableMiddleObjectWrapper.closeReadableMiddleObject();
 		}
 		 
 	}
 
-	public WrapReadableMiddleObject getSyncOutputMessage() throws IOException, InterruptedException {
+	public ReadableMiddleObjectWrapper getSyncOutputMessage() throws IOException, InterruptedException {
 		// synchronized (monitor) {
 
-		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+		ReadableMiddleObjectWrapper readableMiddleObjectWrapper = null;
 		boolean loop = false;
 
 		long currentWorkingSocketTimeOut = socketTimeOut;
 		long startTime = System.currentTimeMillis();
 		try {
 			 do {
-				 wrapReadableMiddleObject = outputMessageQueue.poll(currentWorkingSocketTimeOut, TimeUnit.MILLISECONDS);
+				 readableMiddleObjectWrapper = outputMessageQueue.poll(currentWorkingSocketTimeOut, TimeUnit.MILLISECONDS);
 				
-				if (null == wrapReadableMiddleObject) {
+				if (null == readableMiddleObjectWrapper) {
 					if (! conn.isConnected()) {						
 						log.warn("this connection[{}] disconnected so the input message's mail[mailboxID={}, mailID={}] lost", 
 								conn.hashCode(), mailboxID, mailID);
@@ -166,14 +166,14 @@ public final class SyncMessageMailbox {
 					throw new SocketTimeoutException("socket timeout occurred");
 				}				
 				
-				loop = (wrapReadableMiddleObject.getMailID() != mailID);
+				loop = (readableMiddleObjectWrapper.getMailID() != mailID);
 				if (loop) {
 					log.warn(
 							"drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]",
-							wrapReadableMiddleObject.toString(), mailID);
-					wrapReadableMiddleObject.closeReadableMiddleObject();
+							readableMiddleObjectWrapper.toString(), mailID);
+					readableMiddleObjectWrapper.closeReadableMiddleObject();
 
-					currentWorkingSocketTimeOut -= (startTime - System.currentTimeMillis());
+					currentWorkingSocketTimeOut = socketTimeOut - (startTime - System.currentTimeMillis());
 					if (currentWorkingSocketTimeOut <= 0) {
 						log.warn("this connection[{}] timeout occurred so the request mail[mailboxID={}, mailID={}] lost", 
 								conn.hashCode(), mailboxID, mailID);
@@ -185,7 +185,7 @@ public final class SyncMessageMailbox {
 			nextMailID();
 		}
 
-		return wrapReadableMiddleObject;
+		return readableMiddleObjectWrapper;
 	}
 	
 	

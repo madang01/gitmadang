@@ -17,7 +17,7 @@
 
 package kr.pe.codda.server.task;
 
-import java.nio.channels.SocketChannel;
+import java.nio.channels.SelectionKey;
 import java.util.ArrayDeque;
 
 import io.netty.util.internal.logging.InternalLogger;
@@ -33,11 +33,10 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.codda.server.AcceptedConnection;
-import kr.pe.codda.server.AcceptedConnectionManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 
 /**
@@ -48,38 +47,31 @@ import kr.pe.codda.server.ProjectLoginManagerIF;
 public class ToLetterCarrier {
 	private InternalLogger log = InternalLoggerFactory.getInstance(ToLetterCarrier.class);
 	
-	private SocketChannel fromSC = null;
 	private AcceptedConnection fromAcceptedConnection = null;
 	private AbstractMessage inputMessage;
 	private ProjectLoginManagerIF projectLoginManager = null;
 	
 	private AbstractMessage syncOutputMessage = null;	
 	
-	private AcceptedConnectionManagerIF acceptedConnectionManager = null;
 	
 	private MessageProtocolIF messageProtocol = null;
 	private ServerSimpleClassLoaderIF serverSimpleClassLoader = null;
 	
 	// private LinkedList<ToLetter> toLetterList = new LinkedList<ToLetter>();
 	
-	public ToLetterCarrier(SocketChannel fromSC, 
-			AcceptedConnection fromAcceptedConnection,
+	public ToLetterCarrier(AcceptedConnection fromAcceptedConnection,
 			AbstractMessage inputMessage,
 			ProjectLoginManagerIF projectLoginManager,
-			AcceptedConnectionManagerIF acceptedConnectionManager,
 			MessageProtocolIF messageProtocol,
 			ServerSimpleClassLoaderIF serverSimpleClassLoader) {
-		this.fromSC = fromSC;
 		this.fromAcceptedConnection = fromAcceptedConnection;
 		this.inputMessage = inputMessage;
 		this.projectLoginManager = projectLoginManager;
-		this.acceptedConnectionManager = acceptedConnectionManager;
 		this.messageProtocol = messageProtocol;
 		this.serverSimpleClassLoader = serverSimpleClassLoader;
 	}
 
-	private static SelfExnRes buildSelfExn(SocketChannel toSC, 
-			int mailboxIDOfSelfExn, 
+	private static SelfExnRes buildSelfExn(int mailboxIDOfSelfExn, 
 			int mailIDOfSelfExn, 
 			String errorMessageID,
 			SelfExn.ErrorType errorType, 
@@ -95,26 +87,9 @@ public class ToLetterCarrier {
 		selfExnRes.setErrorReason(errorReason);
 		
 		return selfExnRes;
-	}
+	}	
 
-	/*private static ToLetter buildToLetterOfSelfExn(SocketChannel toSC, 
-			SelfExnRes selfExnRes, 
-			MessageProtocolIF messageProtocol) throws 
-			NoMoreDataPacketBufferException, 
-			BodyFormatException, 
-			HeaderFormatException {
-		ArrayDeque<WrapBuffer> wrapBufferListOfSelfExn = messageProtocol.M2S(selfExnRes, CommonStaticFinalVars.SELFEXN_ENCODER);
-	
-		ToLetter toLetter = new ToLetter(toSC, 
-				selfExnRes.getMessageID(),
-				selfExnRes.messageHeaderInfo.mailboxID,
-				selfExnRes.messageHeaderInfo.mailID, wrapBufferListOfSelfExn);
-		
-		return toLetter;
-	}*/
-
-	private void doAddOutputMessage(SocketChannel toSC,	
-			AcceptedConnection socketResource,
+	private void doAddOutputMessage(AcceptedConnection targetAcceptedConnection,
 			AbstractMessage outputMessage, 
 			MessageProtocolIF messageProtocol) throws InterruptedException {
 		String messageIDToClient = outputMessage.getMessageID();
@@ -131,7 +106,7 @@ public class ToLetterCarrier {
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();
 			
-			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("unknown error::fail to get a server output message codec::").append(e.getMessage()).toString();
@@ -139,7 +114,7 @@ public class ToLetterCarrier {
 			log.warn(errorMessage, e);			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = errorMessage;
-			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 	
@@ -152,7 +127,7 @@ public class ToLetterCarrier {
 			log.warn(errorMessage);
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();
-			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("unknown error::fail to get a output message encoder::").append(e.getMessage()).toString();
@@ -160,7 +135,7 @@ public class ToLetterCarrier {
 			log.warn(errorMessage, e);			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = errorMessage;
-			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 	
@@ -180,7 +155,7 @@ public class ToLetterCarrier {
 			
 			log.warn(errorReason);
 			
-			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (BodyFormatException e) {
 			String errorMessage = new StringBuilder("fail to build a output message stream[")
@@ -192,7 +167,7 @@ public class ToLetterCarrier {
 			
 			log.warn(errorReason);
 			
-			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;			
 		} catch (Exception | Error e) {	
 			String errorMessage = new StringBuilder("unknown error::fail to build a output message stream[")
@@ -205,20 +180,20 @@ public class ToLetterCarrier {
 			
 			log.warn(errorReason, e);
 			
-			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 		
 		
-		socketResource.addOutputMessage(outputMessage, outputMessageWrapBufferQueue);
+		targetAcceptedConnection.addOutputMessage(outputMessage, outputMessageWrapBufferQueue);
 	}
 
-	private void doAddOutputErrorMessageToToLetterList(SocketChannel toSC,
+	private void doAddOutputErrorMessage(AcceptedConnection targetAcceptedConnection,
 			SelfExn.ErrorType errorType, 
 			String errorReason,
 			AbstractMessage outputMessage,			
 			MessageProtocolIF messageProtocol) throws InterruptedException {
-		SelfExnRes selfExnRes = buildSelfExn(toSC, 
+		SelfExnRes selfExnRes = buildSelfExn( 
 				outputMessage.messageHeaderInfo.mailboxID,
 				outputMessage.messageHeaderInfo.mailID,
 				outputMessage.getMessageID(),
@@ -230,32 +205,19 @@ public class ToLetterCarrier {
 			wrapBufferListOfSelfExn = messageProtocol.M2S(selfExnRes, CommonStaticFinalVars.SELFEXN_ENCODER);
 			
 		} catch (Exception e) {
-			String errorMessage = String.format("unknown error::fail to build the toLetter of SelfExn[%s], toSC[%d]::%s", 
+			String errorMessage = String.format("unknown error::fail to build the toLetter of SelfExn[%s], selectedKey[%d]::%s", 
 					selfExnRes.toString(),
-					toSC.hashCode(),
+					targetAcceptedConnection.hashCode(),
 					e.getMessage());
 			log.warn(errorMessage, e);
 			return;
 		}
-		AcceptedConnection socketResource = 
-				acceptedConnectionManager.getAcceptedConnection(toSC);
 		
-		if (null == socketResource) {
-			log.warn("the socket channel's resource doesn't exist");
-			return;
-		}
 		
-		socketResource.addOutputMessage(outputMessage, wrapBufferListOfSelfExn);
+		targetAcceptedConnection.addOutputMessage(outputMessage, wrapBufferListOfSelfExn);
 	}
 
-	/*private void doAddAsynOutputMessage(AbstractMessage outputMessage, SocketChannel toSC) throws InterruptedException {		
-		SocketResource socketResource = 
-				socketResourceManager.getSocketResource(toSC);
-		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		outputMessage.messageHeaderInfo.mailID = socketResource.getServerMailID();		
-		
-		doAddOutputMessage(toSC, outputMessage, messageProtocol);
-	}*/
+	
 	
 	public void addBypassOutputMessage(AbstractMessage bypassOutputMessage) throws InterruptedException {		
 		if (inputMessage.messageHeaderInfo.mailboxID == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
@@ -280,7 +242,7 @@ public class ToLetterCarrier {
 		this.syncOutputMessage =  syncOutputMessage;
 		
 		syncOutputMessage.messageHeaderInfo = inputMessage.messageHeaderInfo;		
-		doAddOutputMessage(fromSC, fromAcceptedConnection, syncOutputMessage, messageProtocol);
+		doAddOutputMessage(fromAcceptedConnection, syncOutputMessage, messageProtocol);
 	}
 	
 	public void addAsynOutputMessage(AbstractMessage asynOutputMessage) throws InterruptedException {
@@ -288,18 +250,10 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
 		}
 		
-		AcceptedConnection socketResource = 
-				acceptedConnectionManager.getAcceptedConnection(fromSC);
-		
-		if (null == socketResource) {
-			log.warn("the socket channel's resource doesn't exist");
-			return;
-		}
-		
 		asynOutputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		asynOutputMessage.messageHeaderInfo.mailID = socketResource.getServerMailID();	
+		asynOutputMessage.messageHeaderInfo.mailID = fromAcceptedConnection.getServerMailID();	
 		
-		doAddOutputMessage(fromSC, socketResource, asynOutputMessage, messageProtocol);
+		doAddOutputMessage(fromAcceptedConnection, asynOutputMessage, messageProtocol);
 	}
 	
 	public void addAsynOutputMessage(String loginUserID, AbstractMessage asynOutputMessage) throws InterruptedException, LoginUserNotFoundException {
@@ -311,33 +265,31 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
 		}
 		
-		SocketChannel toSC = projectLoginManager.getSocketChannel(loginUserID);
+		SelectionKey loginUserSelectionKey = projectLoginManager.getSelectionKey(loginUserID);
 		
-		if (null == toSC) {
-			String errorMessage = String.format("the parameter loginUserID[%s] is not a member or not a login user", loginUserID);
+		if (null == loginUserSelectionKey) {
+			String errorMessage = String.format("the user who has the parameter loginUserID[%s] is not a member or doens't login", loginUserID);
 			throw new LoginUserNotFoundException(errorMessage);
 		}
 		
-		AcceptedConnection toSocketResoruce = 
-				acceptedConnectionManager.getAcceptedConnection(toSC);
+		AcceptedConnection loignUserAcceptedConnection = projectLoginManager.getAcceptedConnection(loginUserSelectionKey);
+		
+		if (null == loignUserAcceptedConnection) {
+			String errorMessage = String.format("the user who has the parameter loginUserID[%s] was disconnected", loginUserID);
+			throw new LoginUserNotFoundException(errorMessage);
+		}
 		
 		asynOutputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		asynOutputMessage.messageHeaderInfo.mailID = toSocketResoruce.getServerMailID();		
+		asynOutputMessage.messageHeaderInfo.mailID = loignUserAcceptedConnection.getServerMailID();		
 		
-		doAddOutputMessage(toSC, toSocketResoruce, asynOutputMessage, messageProtocol);
+		doAddOutputMessage(loignUserAcceptedConnection, asynOutputMessage, messageProtocol);
 	}
 	
-	
-	
-	public static void putInputErrorMessageToOutputMessageQueue(SocketChannel fromSC, 
-			SelfExn.ErrorType errorType,
+	public static void putInputErrorMessageToOutputMessageQueue(SelfExn.ErrorType errorType,
 			String errorReason,			
-			WrapReadableMiddleObject wrapReadableMiddleObject,
-			AcceptedConnection fromSocketResource,
+			ReadableMiddleObjectWrapper readableMiddleObjectWrapper,
+			AcceptedConnection fromAcceptedConnection,
 			MessageProtocolIF messageProtocol) throws InterruptedException {
-		if (null == fromSC) {
-			throw new IllegalArgumentException("the parameter fromSC is null");
-		}
 		
 		if (null == errorType) {
 			throw new IllegalArgumentException("the parameter errorType is null");
@@ -347,11 +299,11 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter errorReason is null");
 		}
 		
-		if (null == wrapReadableMiddleObject) {
-			throw new IllegalArgumentException("the parameter wrapReadableMiddleObject is null");
+		if (null == readableMiddleObjectWrapper) {
+			throw new IllegalArgumentException("the parameter readableMiddleObjectWrapper is null");
 		}
 		
-		if (null == fromSocketResource) {
+		if (null == fromAcceptedConnection) {
 			throw new IllegalArgumentException("the parameter fromSocketResource is null");
 		}
 		
@@ -359,12 +311,11 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter messageProtocol is null");
 		}
 		
-		int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-		int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-		String errorMessageID = wrapReadableMiddleObject.getMessageID();
+		int mailboxIDOfSelfExn = readableMiddleObjectWrapper.getMailboxID();
+		int mailIDOfSelfExn = readableMiddleObjectWrapper.getMailID();
+		String errorMessageID = readableMiddleObjectWrapper.getMessageID();
 		
-		SelfExnRes selfExnRes = buildSelfExn(fromSC, 
-				mailboxIDOfSelfExn, 
+		SelfExnRes selfExnRes = buildSelfExn(mailboxIDOfSelfExn, 
 				mailIDOfSelfExn, 
 				errorMessageID, 
 				errorType,
@@ -378,13 +329,13 @@ public class ToLetterCarrier {
 			InternalLogger log = InternalLoggerFactory.getInstance(ToLetterCarrier.class);
 			String errorMessage = String.format("unknown error::fail to build the toLetter of SelfExn[%s], toSC[%d]::%s", 
 					selfExnRes.toString(),
-					fromSC.hashCode(),
+					fromAcceptedConnection.hashCode(),
 					e.getMessage());
 			log.warn(errorMessage, e);
 			return;
 		}
 		
-		fromSocketResource.addOutputMessage(selfExnRes, wrapBufferListOfSelfExn);
+		fromAcceptedConnection.addOutputMessage(selfExnRes, wrapBufferListOfSelfExn);
 	}
 
 	

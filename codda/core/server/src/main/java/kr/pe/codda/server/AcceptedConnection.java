@@ -40,10 +40,10 @@ import kr.pe.codda.server.threadpool.executor.ServerExecutorIF;
  * @author Won Jonghoon
  * 
  */
-public class AcceptedConnection implements InterestedConnectionIF {
+public class AcceptedConnection implements ServerInterestedConnectionIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AcceptedConnection.class);
-
-	private AcceptedConnectionManagerIF acceptedConnectionManager = null;
+	
+	private SelectionKey selectedKey = null;
 	private SocketChannel acceptedSocketChannel = null;
 	private long socketTimeOut=5000;
 	private int outputMessageQueueSize=5;
@@ -64,7 +64,7 @@ public class AcceptedConnection implements InterestedConnectionIF {
 	/** 클라이언트에 할당되는 서버 편지 식별자 */
 	private int serverMailID = Integer.MIN_VALUE;
 			
-	public AcceptedConnection(AcceptedConnectionManagerIF acceptedConnectionManager,
+	public AcceptedConnection(SelectionKey selectedKey,
 			SocketChannel acceptedSocketChannel,
 			long socketTimeOut,
 			int outputMessageQueueSize,
@@ -74,10 +74,7 @@ public class AcceptedConnection implements InterestedConnectionIF {
 			MessageProtocolIF messageProtocol,						
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			ServerIOEvenetControllerIF serverIOEvenetController) {
-		if (null == acceptedConnectionManager) {
-			throw new IllegalArgumentException("the parameter acceptedConnectionManager is null");
-		}
-		
+				
 		if (null == acceptedSocketChannel) {
 			throw new IllegalArgumentException("the parameter acceptedSocketChannel is null");
 		}
@@ -114,7 +111,7 @@ public class AcceptedConnection implements InterestedConnectionIF {
 			throw new IllegalArgumentException("the parameter serverIOEvenetController is null");
 		}
 		
-		this.acceptedConnectionManager = acceptedConnectionManager;
+		this.selectedKey = selectedKey;
 		this.acceptedSocketChannel = acceptedSocketChannel;
 		this.socketTimeOut = socketTimeOut;
 		this.outputMessageQueueSize = outputMessageQueueSize;
@@ -134,6 +131,10 @@ public class AcceptedConnection implements InterestedConnectionIF {
 	
 	public SocketChannel getOwnerSC() {
 		return acceptedSocketChannel;
+	}
+	
+	public SelectionKey getSelectionKey() {
+		return selectedKey;
 	}
 	
 	
@@ -202,13 +203,12 @@ public class AcceptedConnection implements InterestedConnectionIF {
 				log.warn(errorMessage);
 				close();
 				releaseResources();
-				selectedKey.channel();
 				return;
 			}
 
 			setFinalReadTime();
 			
-			messageProtocol.S2MList(acceptedSocketChannel, socketOutputStream, serverExecutor);		
+			messageProtocol.S2MList(this, socketOutputStream, serverExecutor);		
 				
 		} catch (NoMoreDataPacketBufferException e) {
 			String errorMessage = new StringBuilder()
@@ -220,8 +220,7 @@ public class AcceptedConnection implements InterestedConnectionIF {
 			
 			close();
 			
-			releaseResources();			
-			selectedKey.channel();
+			releaseResources();
 			return;
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder()
@@ -234,7 +233,6 @@ public class AcceptedConnection implements InterestedConnectionIF {
 			close();
 			
 			releaseResources();
-			selectedKey.channel();
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
@@ -247,7 +245,6 @@ public class AcceptedConnection implements InterestedConnectionIF {
 			close();
 			
 			releaseResources();
-			selectedKey.channel();
 			return;
 		}		
 	}
@@ -272,7 +269,6 @@ public class AcceptedConnection implements InterestedConnectionIF {
 				
 				close();				
 				releaseResources();
-				selectedKey.channel();
 				return;
 			} catch(Exception e) {
 				String errorMessage = new StringBuilder()
@@ -284,7 +280,6 @@ public class AcceptedConnection implements InterestedConnectionIF {
 				
 				close();				
 				releaseResources();
-				selectedKey.channel();
 				return;
 			}	
 			
@@ -330,8 +325,7 @@ public class AcceptedConnection implements InterestedConnectionIF {
 		 * 참고 : '메시지 입력 담당 쓰레드'(=InputMessageReader) 는 소켓이 닫히면 자동적으로 selector 에서 인지하여 제거되므로 따로 작업할 필요 없음
 		 */
 		serverExecutor.removeSocket(acceptedSocketChannel);
-		
-		acceptedConnectionManager.remove(acceptedSocketChannel);
+		serverIOEvenetController.cancel(selectedKey);
 	}
 
 	@Override

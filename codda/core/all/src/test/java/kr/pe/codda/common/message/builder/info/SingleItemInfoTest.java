@@ -26,20 +26,23 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 		String itemSize = null;
 		String itemCharset = null;
 		
-		@SuppressWarnings("unused")
+		
 		SingleItemInfo singleItemInfo = null;
 		
 		try {
 			singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 					itemDefaultValue, itemSize, itemCharset);
+			
+			log.info(singleItemInfo.toString());
+			
+			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = e.getMessage();
-			if (errorMessage.equals(expectedMessage)) return;
-			
-		}
-		
-		fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+			if (! errorMessage.equals(expectedMessage)) {
+				fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+			}
+		}		
 	}
 	
 	@Test
@@ -54,20 +57,22 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 		String itemSize = null;
 		String itemCharset = null;
 		
-		@SuppressWarnings("unused")
-		SingleItemInfo singleItemInfo = null;
 		
+		SingleItemInfo singleItemInfo = null;
 		try {
 			singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 					itemDefaultValue, itemSize, itemCharset);
+			
+			singleItemInfo.hashCode();
+			
+			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = e.getMessage();
-			if (errorMessage.equals(expectedMessage)) return;
-			
+			if (! errorMessage.equals(expectedMessage)) {
+				fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+			}			
 		}
-		
-		fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 	}
 	
 	@Test
@@ -82,20 +87,26 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 		String itemSize = null;
 		String itemCharset = null;
 		
-		@SuppressWarnings("unused")
+		
 		SingleItemInfo singleItemInfo = null;
 		
 		try {
 			singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 					itemDefaultValue, itemSize, itemCharset);
+			
+			singleItemInfo.hashCode();
+			
+			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = e.getMessage();
-			if (errorMessage.equals(expectedMessage)) return;
+			if (! errorMessage.equals(expectedMessage)) {
+				fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+			}
 			
 		}
 		
-		fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+		
 	}
 	
 	@Test
@@ -110,20 +121,23 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 		String itemSize = null;
 		String itemCharset = null;
 		
-		@SuppressWarnings("unused")
+		
 		SingleItemInfo singleItemInfo = null;
 		
 		try {
 			singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 					itemDefaultValue, itemSize, itemCharset);
+			
+			singleItemInfo.hashCode();
+			
+			fail("no IllegalArgumentException");			
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = e.getMessage();
-			if (errorMessage.equals(expectedMessage)) return;
-			
+			if (! errorMessage.equals(expectedMessage)) {
+				fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+			}			
 		}
-		
-		fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 	}
 	
 	@Test
@@ -159,20 +173,23 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 			String itemSize = null;
 			String itemCharset = null;
 			
-			@SuppressWarnings("unused")
+		
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
-				if (errorMessage.equals(expectedMessage)) continue;			
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());			
+				}				
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
-			
 		}
 	}
 	
@@ -197,20 +214,23 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 			String itemSize = null;
 			String itemCharset = null;
 			
-			@SuppressWarnings("unused")
+			
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
-				if (errorMessage.equals(expectedMessage)) continue;			
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());			
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
-			
 		}
 	}
 	
@@ -236,26 +256,25 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 				String itemSize = null;
 				String itemCharset = null;
 				
-				@SuppressWarnings("unused")
+				
 				SingleItemInfo singleItemInfo = null;
 				
 				try {
 					singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 							itemDefaultValue, itemSize, itemCharset);
+					
+					singleItemInfo.hashCode();
+					
+					fail("no IllegalArgumentException");
 				} catch (IllegalArgumentException e) {
 					log.warn(e.toString(), e);
 					
 					String errorMessage = e.getMessage();
 					
-					/*log.info("1.expectedMessage={}, \nerrorMessage={}, isSame={}", 
-							expectedMessage, errorMessage,
-							errorMessage.equals(expectedMessage));*/
-					
-					if (errorMessage.equals(expectedMessage)) continue;			
+					if (! errorMessage.equals(expectedMessage)) {
+						fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());			
+					}
 				}
-				
-				fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
-			
 		}
 	}
 	
@@ -294,27 +313,26 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 			String itemSize = null;
 			String itemCharset = null;			
 			
-			@SuppressWarnings("unused")
+			
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
 				
-							
-				
-				if (errorMessage.equals(expectedMessage)) break;			
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());			
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 		}
-		
 	}
-	
-	
 	
 	@Test
 	public void testConstructor_필수속성크기생략() {		
@@ -334,19 +352,22 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 			String itemSize = null;
 			String itemCharset = null;
 			
-			@SuppressWarnings("unused")
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
-				if (errorMessage.equals(expectedMessage)) continue;				
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());				
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 		}
 	}
 	
@@ -368,12 +389,15 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 			String itemSize = "-1";
 			String itemCharset = null;
 			
-			@SuppressWarnings("unused")
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
@@ -381,10 +405,10 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 				/*log.info("expectedMessage={}, \nerrorMessage={}, isSame={}", 
 						expectedMessage, errorMessage,
 						errorMessage.equals(expectedMessage));*/
-				if (errorMessage.equals(expectedMessage)) continue;				
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());				
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 		}
 	}
 	
@@ -407,12 +431,15 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 			String itemSize = "king";
 			String itemCharset = null;
 			
-			@SuppressWarnings("unused")
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
@@ -420,10 +447,10 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 				/*log.info("expectedMessage={}, \nerrorMessage={}, isSame={}", 
 						expectedMessage, errorMessage,
 						errorMessage.equals(expectedMessage));*/
-				if (errorMessage.equals(expectedMessage)) continue;				
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());				
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 		}
 	}
 	
@@ -452,12 +479,15 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 				itemSize = "10";						
 			}
 			
-			@SuppressWarnings("unused")
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
@@ -465,10 +495,10 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 				/*log.info("expectedMessage={}, errorMessage={}, isSame={}", 
 						expectedMessage, errorMessage,
 						errorMessage.equals(expectedMessage));*/
-				if (errorMessage.equals(expectedMessage)) continue;				
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());				
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 		}
 	}
 	
@@ -499,19 +529,21 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 				itemSize = "10";						
 			}
 			
-			@SuppressWarnings("unused")
+			
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				singleItemInfo.hashCode();
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
-				if (errorMessage.equals(expectedMessage)) continue;				
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());				
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 		}
 	}
 	
@@ -547,19 +579,22 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 			String itemSize = "10";
 			String itemCharset = null;
 			
-			@SuppressWarnings("unused")
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
-				if (errorMessage.equals(expectedMessage)) continue;				
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());				
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 		}
 	}
 	
@@ -597,19 +632,22 @@ public class SingleItemInfoTest extends AbstractJunitTest {
 				itemSize = "10";
 			}
 			
-			@SuppressWarnings("unused")
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
 				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
+				
+				singleItemInfo.hashCode();
+				
+				fail("no IllegalArgumentException");
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
 				String errorMessage = e.getMessage();
-				if (errorMessage.equals(expectedMessage)) continue;				
+				if (! errorMessage.equals(expectedMessage)) {
+					fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());				
+				}
 			}
-			
-			fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 		}		
 	}
 }

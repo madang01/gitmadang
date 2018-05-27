@@ -17,6 +17,8 @@
 
 package kr.pe.codda.server;
 
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
@@ -34,14 +36,22 @@ import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
+import kr.pe.codda.common.type.MessageProtocolType;
 import kr.pe.codda.server.threadpool.executor.ServerExecutorPool;
 
 
 public class AnyProjectServer {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AnyProjectServer.class);
 	
-	@SuppressWarnings("unused")
-	private ProjectPartConfiguration projectPartConfiguration = null;
+	private String mainProjectName = null;
+	private Charset charset = null;
+	private ByteOrder byteOrder = null;
+	private MessageProtocolType messageProtocolType = null;
+	private boolean serverDataPacketBufferIsDirect;
+	private int serverDataPacketBufferMaxCntPerMessage;
+	private int serverDataPacketBufferSize;
+	private int serverDataPacketBufferPoolSize;
+		
 	 
 	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
@@ -51,31 +61,35 @@ public class AnyProjectServer {
 	
 	private ServerObjectCacheManager serverObjectCacheManager = null;
 	
-	private AcceptedConnectionManagerIF socketResourceManager = null;
 	
 	private ServerIOEventController serverIOEventController = null;
 	
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, CoddaConfigurationException {
-		this.projectPartConfiguration = projectPartConfiguration;
+		mainProjectName = projectPartConfiguration.getProjectName();
+		charset = projectPartConfiguration.getCharset();
+		byteOrder = projectPartConfiguration.getByteOrder();
+		messageProtocolType = projectPartConfiguration.getMessageProtocolType();
+		serverDataPacketBufferIsDirect = projectPartConfiguration.getServerDataPacketBufferIsDirect();
+		serverDataPacketBufferMaxCntPerMessage = projectPartConfiguration.getServerDataPacketBufferMaxCntPerMessage();
+		serverDataPacketBufferSize = projectPartConfiguration.getServerDataPacketBufferSize();
+		serverDataPacketBufferPoolSize = projectPartConfiguration.getServerDataPacketBufferPoolSize();
 		
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
+		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charset);
+		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charset);
 		
-		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
-		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
 		
-		boolean isDirect = true;
-		this.dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
-				projectPartConfiguration.getByteOrder()
-						, projectPartConfiguration.getDataPacketBufferSize()
-						, projectPartConfiguration.getDataPacketBufferPoolSize());
+		this.dataPacketBufferPool = new DataPacketBufferPool(serverDataPacketBufferIsDirect, 
+				byteOrder, 
+				serverDataPacketBufferSize, 
+				serverDataPacketBufferPoolSize);
 		
 
 		MessageProtocolIF messageProtocol = null;
-		switch (projectPartConfiguration.getMessageProtocolType()) {
+		switch (messageProtocolType) {
 			case DHB: {
 				messageProtocol = new DHBMessageProtocol( 
-						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+						serverDataPacketBufferMaxCntPerMessage,
 						charsetEncoderOfProject, charsetDecoderOfProject, 
 						dataPacketBufferPool);
 	
@@ -90,14 +104,13 @@ public class AnyProjectServer {
 			}*/
 			case THB: {
 				messageProtocol = new THBMessageProtocol( 
-						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
+						serverDataPacketBufferMaxCntPerMessage, 
 						charsetEncoderOfProject, charsetDecoderOfProject, dataPacketBufferPool);
 				break;
 			}
 			default: {
 				log.error(String.format("project[%s] 지원하지 않는 메시지 프로토콜[%s] 입니다.",
-						projectPartConfiguration.getProjectName(), projectPartConfiguration
-								.getMessageProtocolType().toString()));
+						mainProjectName, messageProtocolType.toString()));
 				System.exit(1);
 			}
 		}
@@ -105,34 +118,24 @@ public class AnyProjectServer {
 		
 		SocketOutputStreamFactoryIF socketOutputStreamFactory = 
 				new SocketOutputStreamFactory(charsetDecoderOfProject,
-						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+						serverDataPacketBufferMaxCntPerMessage,
 						dataPacketBufferPool);
 		
 		serverObjectCacheManager = createNewServerObjectCacheManager();		
 		
-		serverIOEventController = new ServerIOEventController(projectPartConfiguration.getProjectName(),
-				projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
-				projectPartConfiguration.getServerMaxClients());
+		serverIOEventController = new ServerIOEventController(projectPartConfiguration,
+				socketOutputStreamFactory, 
+				messageProtocol,
+				dataPacketBufferPool);
 		
-		socketResourceManager = 
-				new AcceptedConnectionManager(projectPartConfiguration.getClientSocketTimeout(),
-						projectPartConfiguration.getServerOutputMessageQueueSize(),
-						projectLoginManager,
-						socketOutputStreamFactory, messageProtocol,
-						dataPacketBufferPool,
-						serverIOEventController);
-
-		executorPool = new ServerExecutorPool(				 
-				projectPartConfiguration.getServerExecutorPoolSize(),
-				projectPartConfiguration.getServerExecutorPoolMaxSize(),
-				projectPartConfiguration.getProjectName(),
-				projectPartConfiguration.getServerInputMessageQueueSize(), 
-				projectLoginManager,
+		executorPool = new ServerExecutorPool(projectPartConfiguration,
+				serverIOEventController,
 				messageProtocol, 
-				socketResourceManager,
 				serverObjectCacheManager);
 		
+		serverIOEventController.setServerExecutorPool(executorPool);
 		
+				
 	}
 
 	private ServerObjectCacheManager createNewServerObjectCacheManager() throws CoddaConfigurationException {
@@ -147,8 +150,8 @@ public class AnyProjectServer {
 	 * 서버 시작
 	 */	
 	synchronized public void startServer() {
-		serverIOEventController.start();
 		executorPool.startAll();
+		serverIOEventController.start();
 	}
 
 	/**
@@ -175,8 +178,8 @@ public class AnyProjectServer {
 		pollStateStringBuilder.append(dataPacketBufferPool.getDataPacketBufferPoolSize());
 		pollStateStringBuilder.append(", ");
 		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		pollStateStringBuilder.append("socketResourceManager.count=");
-		pollStateStringBuilder.append(socketResourceManager.getNumberOfAcceptedConnection());
+		pollStateStringBuilder.append("numberOfAcceptedConnection=");
+		pollStateStringBuilder.append(serverIOEventController.getNumberOfAcceptedConnection());
 		
 		// pollStateStringBuilder.append(inputMessageReaderPool.getPoolState());
 		return pollStateStringBuilder.toString();

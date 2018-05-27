@@ -1,6 +1,6 @@
 package kr.pe.codda.server;
 
-import java.nio.channels.SocketChannel;
+import java.nio.channels.SelectionKey;
 
 import kr.pe.codda.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.codda.common.updownfile.LocalTargetFileResourceManager;
@@ -8,48 +8,46 @@ import kr.pe.codda.common.updownfile.LocalTargetFileResourceManager;
 public class PersonalLoginManager implements PersonalLoginManagerIF {	
 	// private Logger log = LoggerFactory.getLogger(PersonalLoginManager.class);
 	
-	private String personalLoginID = null;
-	private SocketChannel personalSC = null;
+	private SelectionKey personalSelectionKey = null;
 	private ProjectLoginManagerIF projectLoginManager = null;
 	
-	public PersonalLoginManager(SocketChannel personalSC, 
+	private String personalLoginID = null;
+	
+	public PersonalLoginManager(SelectionKey personalSelectionKey, 
 			ProjectLoginManagerIF projectLoginManager) {
-		if (null == personalSC) {
-			throw new IllegalArgumentException("the parameter personalSC is null");
+		if (null == personalSelectionKey) {
+			throw new IllegalArgumentException("the parameter personalSelectionKey is null");
 		}
 		
 		if (null == projectLoginManager) {
 			throw new IllegalArgumentException("the parameter projectLoginManager is null");
 		}
 		
-		this.personalSC = personalSC;
-		this.projectLoginManager = projectLoginManager;
+		this.personalSelectionKey = personalSelectionKey;
+		this.projectLoginManager = projectLoginManager; 
 	}
 	
 	public boolean isLogin() {
-		return projectLoginManager.isLogin(personalSC);
+		return projectLoginManager.isLogin(personalSelectionKey);
 	}
 	
 	public void registerLoginUser(String loginID) {
 		this.personalLoginID = loginID;
-		projectLoginManager.registerloginUser(personalSC, loginID);
+		projectLoginManager.registerloginUser(personalSelectionKey, loginID);
 	}	
 	
-	public String getUserID() {
-		if (! personalSC.isConnected()) {
-			return null;
-		}
-		return projectLoginManager.getUserID(personalSC);
+	public String getUserID() {		
+		return projectLoginManager.getUserID(personalSelectionKey);
 	}
 	
 	
 	/** 로그 아웃시 할당 받은 자원을 해제한다. */
-	public void releaseLoginUserResource() {
+	protected void releaseLoginUserResource() {
 		if (null != personalLoginID) {
-			projectLoginManager.removeLoginUser(personalSC);
+			projectLoginManager.removeLoginUser(personalSelectionKey);
 			LocalSourceFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(personalLoginID);
 			LocalTargetFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(personalLoginID);
-		}		
+		}
 	}
 
 	/*@Override

@@ -42,10 +42,7 @@ public class WrapBuffer {
 	// private Throwable lastCallerThrowable = null;
 	private boolean isPoolBuffer = false;
 
-	/**
-	 * 생성자
-	 * @param capacity 큐 ByteBuffer 용량
-	 */
+	
 	public WrapBuffer(boolean isDirect, int capacity, ByteOrder byteOrderOfBuffer) {
 		this.isDirect = isDirect;
 		if (isDirect) {

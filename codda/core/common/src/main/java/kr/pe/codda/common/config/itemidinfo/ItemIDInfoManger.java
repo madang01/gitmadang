@@ -24,7 +24,6 @@ import kr.pe.codda.common.config.fileorpathstringgetter.SessionkeyRSAPrivatekeyF
 import kr.pe.codda.common.config.fileorpathstringgetter.SessionkeyRSAPublickeyFilePathStringGetter;
 import kr.pe.codda.common.config.itemidinfo.ItemIDInfo.ConfigurationPart;
 import kr.pe.codda.common.config.nativevalueconverter.GeneralConverterReturningCharset;
-import kr.pe.codda.common.config.nativevalueconverter.GeneralConverterReturningEmptyOrNoTrimString;
 import kr.pe.codda.common.config.nativevalueconverter.GeneralConverterReturningIntegerBetweenMinAndMax;
 import kr.pe.codda.common.config.nativevalueconverter.GeneralConverterReturningLongBetweenMinAndMax;
 import kr.pe.codda.common.config.nativevalueconverter.GeneralConverterReturningNoTrimString;
@@ -425,8 +424,41 @@ public class ItemIDInfoManger {
 					ItemIDInfo.ViewType.TEXT, itemID, "문자셋", "UTF-8",
 					isDefaultValueCheck, new GeneralConverterReturningCharset());
 			addProjectPartItemIDInfo(itemIDInfo);
+			
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<MessageProtocolType>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"메시지 프로토콜, DHB:교차 md5 헤더+바디, DJSON:길이+존슨문자열, THB:길이+바디",
+					"DHB", isDefaultValueCheck,
+					new SetTypeConverterReturningMessageProtocolType());
+			addProjectPartItemIDInfo(itemIDInfo);
+	
+			
+			/** 프로젝트 클라이언트 설정 부분 */
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_TIME_INTERVAL_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID, "모니터링 주기, 단위 ms", "5000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1000L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_IS_DIRECT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Boolean>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"whether or not this byte buffer is direct", "true",
+					isDefaultValueCheck,
+					new SetTypeConverterReturningBoolean());
+			addProjectPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -439,7 +471,7 @@ public class ItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -452,7 +484,7 @@ public class ItemIDInfoManger {
 							1024, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 			
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -463,51 +495,6 @@ public class ItemIDInfoManger {
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			/** 메시지 식별자 크기의 최소 크기는 내부적으로 사용하는 SelfExn 메시지를 기준으로 정했음. */
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"데이터 송수신시 메시지 식별자 크기",
-					"20",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							7, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<MessageProtocolType>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.SINGLE_SET, itemID,
-					"메시지 프로토콜, DHB:교차 md5 헤더+바디, DJSON:길이+존슨문자열, THB:길이+바디",
-					"DHB", isDefaultValueCheck,
-					new SetTypeConverterReturningMessageProtocolType());
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<String>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT, itemID,
-					"동적 클래스 패키지명 접두어, 동적 클래스 여부를 판단하는 기준",
-					CommonStaticFinalVars.BASE_DYNAMIC_CLASS_FULL_NAME, isDefaultValueCheck,
-					new GeneralConverterReturningNoTrimString());
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			/** 프로젝트 클라이언트 설정 부분 */
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_TIME_INTERVAL_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Long>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT, itemID, "모니터링 주기, 단위 ms", "5000",
-					isDefaultValueCheck,
-					new GeneralConverterReturningLongBetweenMinAndMax(
-							1000L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
 			
@@ -599,20 +586,6 @@ public class ItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-			
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_POOL_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"클라이언트 비동기 입출력 지원용 입력 메시지 소켓 쓰기 담당 쓰레드 갯수",
-					"2",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
 	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
@@ -626,29 +599,16 @@ public class ItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);			
-			
+					
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_POOL_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"클라이언트 비동기 입출력 지원용 입력 메시지 소켓 읽기 담당 쓰레드 갯수",
-					"4",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SELECTOR_WAKEUP_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.TEXT,
 					itemID,
 					"클라이언트 비동기 입출력 지원용 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기. 단위 ms",
-					"10", isDefaultValueCheck,
+					"1", isDefaultValueCheck,
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							1L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
@@ -664,6 +624,54 @@ public class ItemIDInfoManger {
 							1000L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_DATA_PACKET_BUFFER_IS_DIRECT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Boolean>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"whether or not this byte buffer is direct", "true",
+					isDefaultValueCheck,
+					new SetTypeConverterReturningBoolean());
+			addProjectPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"1개 메시지당 할당 받을 수 있는 데이터 패킷 버퍼 최대수",
+					"1000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+	
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_DATA_PACKET_BUFFER_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"데이터 패킷 버퍼 크기, 단위 byte",
+					"4096",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1024, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"데이터 패킷 버퍼 큐 크기",
+					"1000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
 			
 	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MAX_CLIENTS_ITEMID;
@@ -678,20 +686,18 @@ public class ItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-	
 			
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_SELECTOR_WAKEUP_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
+			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.TEXT,
 					itemID,
-					"접속 승인 큐 크기",
-					"10",
+					"서버 셀렉터 깨우는 간격",
+					"1",
 					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							10, Integer.MAX_VALUE));
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1L, Long.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
@@ -720,70 +726,6 @@ public class ItemIDInfoManger {
 							10, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Long>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"입력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기. 단위 ms",
-					"10", isDefaultValueCheck,
-					new GeneralConverterReturningLongBetweenMinAndMax(
-							1L, (long) Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"접속 요청이 승락된 클라이언트의 등록을 담당하는 쓰레드 최대 갯수",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"접속 요청이 승락된 클라이언트의 등록을 담당하는 쓰레드 갯수",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"입력 메시지 소켓 읽기 담당 쓰레드 최대 갯수",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"입력 메시지 소켓 읽기 담당 쓰레드 갯수",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -809,43 +751,7 @@ public class ItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"출력 메시지 소켓 쓰기 담당 쓰레드 최대 갯수",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"출력 메시지 소켓 쓰기 담당 쓰레드 갯수",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
-			isDefaultValueCheck = false;
-			itemIDInfo = new ItemIDInfo<String>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"mybatis 설정 파일의 상대 경로, [프로젝트 경로]/resources 경로 기준으로 읽어오며 구별자가 '/' 문자로된 상대 경로로 기술되어야 한다. ex) mybatis/mybatisConfig.xml",
-					"", isDefaultValueCheck,
-					new GeneralConverterReturningEmptyOrNoTrimString());
-			addProjectPartItemIDInfo(itemIDInfo);
+			
 	
 		} catch (CoddaConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
@@ -872,7 +778,7 @@ public class ItemIDInfoManger {
 				.getItemID());
 		if (null != olditemIDConfigInfo) {
 			String errorMessage = new StringBuilder("the item id[")
-					.append(itemIDInfo.getItemID()).append("] is registed")
+					.append(itemIDInfo.getItemID()).append("] was registed")
 					.toString();
 	
 			// log.warn(errorMessage);
@@ -983,62 +889,7 @@ public class ItemIDInfoManger {
 		}
 		
 	
-		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentTargetItemID[").append(dependentTargetItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new CoddaConfigurationException(errorMessage);
-			}
-	
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
-			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentSourceitemIDConfigInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentSourceItemID[").append(dependentSourceItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new CoddaConfigurationException(errorMessage);
-			}
-	
-			dependencyValidationHash
-					.put(dependentSourceItemID,
-							new MinAndMaxDependencyValidator<Integer>(
-									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
-									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
-									Integer.class));
-		}
-		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentTargetItemID[").append(dependentTargetItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new CoddaConfigurationException(errorMessage);
-			}
-	
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
-			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentSourceitemIDConfigInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentSourceItemID[").append(dependentSourceItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new CoddaConfigurationException(errorMessage);
-			}
-	
-			dependencyValidationHash
-					.put(dependentSourceItemID,
-							new MinAndMaxDependencyValidator<Integer>(
-									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
-									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
-									Integer.class));
-		}
+		
 		{
 			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
@@ -1051,34 +902,6 @@ public class ItemIDInfoManger {
 			}
 	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID;
-			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentSourceitemIDConfigInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentSourceItemID[").append(dependentSourceItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new CoddaConfigurationException(errorMessage);
-			}
-	
-			dependencyValidationHash
-					.put(dependentSourceItemID,
-							new MinAndMaxDependencyValidator<Integer>(
-									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
-									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
-									Integer.class));
-		}
-		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentTargetItemID[").append(dependentTargetItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new CoddaConfigurationException(errorMessage);
-			}
-	
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(

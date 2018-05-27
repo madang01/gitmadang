@@ -1,5 +1,5 @@
 package kr.pe.codda.common.protocol;
 
 public interface ReceivedMessageBlockingQueueIF {
-	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException;
+	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper) throws InterruptedException;
 }

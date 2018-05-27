@@ -18,45 +18,38 @@
 
 package kr.pe.codda.server.task;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
+import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
-import kr.pe.codda.server.AcceptedConnection;
-import kr.pe.codda.server.AcceptedConnectionManagerIF;
-
 
 public abstract class AbstractAuthServerTask extends AbstractServerTask {
 
 	@Override
 	public void execute(int index, 
 			String projectName,
-			SocketChannel fromSC,
-			PersonalLoginManagerIF fromPersonalLoginManager,
-			AcceptedConnection fromAcceptedConnection,
-			ProjectLoginManagerIF projectLoginManager,
-			AcceptedConnectionManagerIF acceptedConnectionManger,			
-			WrapReadableMiddleObject wrapReadableMiddleObject,
+			AcceptedConnection fromAcceptedConnection,			
+			ProjectLoginManagerIF projectLoginManager,						
+			ReadableMiddleObjectWrapper readableMiddleObjectWrapper,
 			MessageProtocolIF messageProtocol) throws InterruptedException {		
 		
+		PersonalLoginManagerIF fromPersonalLoginManager = fromAcceptedConnection.getPersonalLoginManager();
+		
 		if (! fromPersonalLoginManager.isLogin()) {
-			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
 					SelfExn.ErrorType.valueOf(ServerTaskPermissionException.class),
 					"you are not logged in. this service requires a login",
-					wrapReadableMiddleObject, fromAcceptedConnection, messageProtocol);
+					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
 			
 			return;
 		}
-		super.execute(index, projectName, fromSC, 
-				fromPersonalLoginManager,
-				fromAcceptedConnection,
+		super.execute(index, projectName,
+				fromAcceptedConnection,				
 				projectLoginManager,
-				acceptedConnectionManger,
-				wrapReadableMiddleObject, 
+				readableMiddleObjectWrapper, 
 				messageProtocol);
 	}
 }

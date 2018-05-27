@@ -1,9 +1,16 @@
 #!/bin/sh
+export CODDA_HOME=/home/madang01/gitmadang/codda
 export PROJECT_NAME=sample_base
-export SINNORI_INSTALL_PATH=/home/madang01/gitsinnori/sinnori
-export SINNORI_WEBLIB_PATH=$SINNORI_INSTALL_PATH/project/$PROJECT_NAME/client_build/web_build/corelib/ex
+export WEB_BUILD_PATH=$CODDA_HOME/project/$PROJECT_NAME/client_build/web_build
+export WEB_CORELIB_PATH=$WEB_BUILD_PATH/corelib/ex
+export WEB_MAINLIB_PATH=$WEB_BUILD_PATH/lib/main/ex
 
-for jarfile in $SINNORI_WEBLIB_PATH/*.jar
+for jarfile in $WEB_CORELIB_PATH/*.jar
+do
+        export CLASSPATH=$CLASSPATH:${jarfile}
+done
+
+for jarfile in $WEB_MAINLIB_PATH/*.jar
 do
         export CLASSPATH=$CLASSPATH:${jarfile}
 done
@@ -12,7 +19,7 @@ echo $CLASSPATH
 
 export JAVA_OPTS="$JAVA_OPTS \
 -Dfile.encoding=UTF-8 \
--Dlogback.configurationFile=$SINNORI_INSTALL_PATH/project/$PROJECT_NAME/config/logback.xml \
--Dsinnori.logPath=$SINNORI_INSTALL_PATH/project/$PROJECT_NAME/log/servlet \
--Dsinnori.installedPath=$SINNORI_INSTALL_PATH \
--Dsinnori.projectName=$PROJECT_NAME"
+-Dlogback.configurationFile=$CODDA_HOME/project/$PROJECT_NAME/config/logback.xml \
+-Dcodda.logPath=$CODDA_HOME/project/$PROJECT_NAME/log/servlet \
+-Dcodda.installedPath=$CODDA_HOME \
+-Dcodda.projectName=$PROJECT_NAME"

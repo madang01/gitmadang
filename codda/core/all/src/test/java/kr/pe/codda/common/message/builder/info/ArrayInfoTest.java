@@ -21,18 +21,23 @@ public class ArrayInfoTest extends AbstractJunitTest {
 		.append(arrayCntValue)
 		.append("]) as a signed decimal integer").toString();
 		
-		@SuppressWarnings("unused")
+		
 		ArrayInfo arrayInfo = null;
 		try {
 			arrayInfo = new ArrayInfo(arrayName, arrayCntType,
 				arrayCntValue);
+			
+			log.info(arrayInfo.toString());
+			
+			fail("no IllegalArgumentException");
+			
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = e.getMessage();
-			if (errorMessage.equals(expectedMessage)) return;
+			if (! errorMessage.equals(expectedMessage)) {
+				fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+			}
 		}
-		
-		fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
 	}
 
 	
@@ -48,19 +53,24 @@ public class ArrayInfoTest extends AbstractJunitTest {
 		.append(arrayName).append("]'s attribute 'cntvalue' value[")
 		.append(arrayCntValue)
 		.append("] is less than or equals to zero").toString();
-		
-		@SuppressWarnings("unused")
+				
 		ArrayInfo arrayInfo = null;
 		try {
 			arrayInfo = new ArrayInfo(arrayName, arrayCntType,
 				arrayCntValue);
+			
+			log.info(arrayInfo.toString());
+			
+			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = e.getMessage();
-			if (errorMessage.equals(expectedMessage)) return;
+			if (! errorMessage.equals(expectedMessage)) {
+				fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+			}
 		}
 		
-		fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+		
 	}
 	
 	@Test
@@ -76,17 +86,23 @@ public class ArrayInfoTest extends AbstractJunitTest {
 		.append(arrayCntType)
 		.append("] is not an element of direction set[direct, reference]").toString();
 		
-		@SuppressWarnings("unused")
+		
 		ArrayInfo arrayInfo = null;
 		try {
 			arrayInfo = new ArrayInfo(arrayName, arrayCntType,
 				arrayCntValue);
+			
+			log.info(arrayInfo.toString());
+			
+			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = e.getMessage();
-			if (errorMessage.equals(expectedMessage)) return;
+			if (! errorMessage.equals(expectedMessage)) {
+				fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+			}
 		}
 		
-		fail(new StringBuilder("'").append(testTitle).append("' test failed").toString());
+		
 	}
 }

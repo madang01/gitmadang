@@ -3,47 +3,139 @@ package kr.pe.codda.server.threadpool.executor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.server.ServerObjectCacheManagerIF;
-import kr.pe.codda.server.AcceptedConnectionManagerIF;
-import kr.pe.codda.server.ProjectLoginManager;
+import kr.pe.codda.common.type.ConnectionType;
+import kr.pe.codda.common.type.MessageProtocolType;
+import kr.pe.codda.common.type.ProjectType;
 import kr.pe.codda.server.ProjectLoginManagerIF;
+import kr.pe.codda.server.ServerObjectCacheManagerIF;
 
 public class ServerExecutorPoolTest extends AbstractJunitTest {
+	
+	private ProjectPartConfiguration buildMainProjectPartConfiguration(String projectName,
+			int serverExecutorPoolSize,
+			int serverExecutorPoolMaxSize,	
+			int serverInputMessageQueueSize) throws CoddaConfigurationException {		
+		
+		ProjectPartConfiguration projectPartConfigurationForTest = new ProjectPartConfiguration(ProjectType.MAIN,
+				projectName);
+		
+		String host="localhost";
+		int port=9090;
+		ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+		Charset charset = CommonStaticFinalVars.SOURCE_FILE_CHARSET;		
+		int messageIDFixedSize=20;
+		MessageProtocolType messageProtocolType = MessageProtocolType.DHB;					
+		long clientMonitorTimeInterval = 60*1000*5L;
+		boolean clientDataPacketBufferIsDirect=true;
+		int clientDataPacketBufferMaxCntPerMessage=50;
+		int clientDataPacketBufferSize=2048;
+		int clientDataPacketBufferPoolSize=1000;
+		ConnectionType connectionType = ConnectionType.ASYN_PRIVATE;
+		long clientSocketTimeout = 5000L;			
+		int clientConnectionCount = 2;
+		int clientConnectionMaxCount = 4;
+		int clientAsynPirvateMailboxCntPerPublicConnection = 2;
+		int clientAsynInputMessageQueueSize = 5;
+		int clientAsynOutputMessageQueueSize = 5;
+		long clientAsynSelectorWakeupInterval = 1L;			
+		int clientAsynExecutorPoolSize =2;
+		long serverMonitorTimeInterval = 5000L;
+		boolean serverDataPacketBufferIsDirect=true;
+		int serverDataPacketBufferMaxCntPerMessage=50;
+		int serverDataPacketBufferSize=2048;
+		int serverDataPacketBufferPoolSize=1000;
+		int serverMaxClients = 10;		
+		// int serverInputMessageQueueSize = 5;
+		int serverOutputMessageQueueSize = 5;
+		long serverSelectorWakeupInterval = 1L;
+		// int serverExecutorPoolSize = 2;
+		// int serverExecutorPoolMaxSize = 3;
+		
+		projectPartConfigurationForTest.build(host, 
+				port,
+				byteOrder,
+				charset,				
+				messageIDFixedSize,
+				messageProtocolType,		
+				clientMonitorTimeInterval,
+				clientDataPacketBufferIsDirect,
+				clientDataPacketBufferMaxCntPerMessage,
+				clientDataPacketBufferSize,
+				clientDataPacketBufferPoolSize,
+				connectionType,
+				clientSocketTimeout,			
+				clientConnectionCount,
+				clientConnectionMaxCount,
+				clientAsynPirvateMailboxCntPerPublicConnection,
+				clientAsynInputMessageQueueSize,
+				clientAsynOutputMessageQueueSize,
+				clientAsynSelectorWakeupInterval,
+				clientAsynExecutorPoolSize,
+				serverMonitorTimeInterval,
+				serverDataPacketBufferIsDirect,
+				serverDataPacketBufferMaxCntPerMessage,
+				serverDataPacketBufferSize,
+				serverDataPacketBufferPoolSize,
+				serverMaxClients,
+				serverSelectorWakeupInterval,
+				serverInputMessageQueueSize,
+				serverOutputMessageQueueSize,
+				serverExecutorPoolSize,
+				serverExecutorPoolMaxSize);
+
+		return projectPartConfigurationForTest;
+	}
 
 	@Test
 	public void testConstructor_theParameterPoolSize_lessThanOne() {
-		int poolSize = 0;
-		int poolMaxSize = 10;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 10;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
+		int serverExecutorPoolSize = 0;
+		int serverExecutorPoolMaxSize = 10;	
+		int serverInputMessageQueueSize = 10;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
+		try {
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}
+				
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 		
 		try {
 			@SuppressWarnings("unused")
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize,
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String exepecedErrorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize);
+			String exepecedErrorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", serverExecutorPoolSize);
 			
 			assertEquals(exepecedErrorMessage, errorMessage);
 			
@@ -55,31 +147,42 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testConstructor_theParameterPoolMaxSize_lessThanOne() {
-		int poolSize = 1;
-		int poolMaxSize = 0;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 10;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
+		int serverExecutorPoolSize = 1;
+		int serverExecutorPoolMaxSize = 0;	
+		int serverInputMessageQueueSize = 10;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
+		try {
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}
+		
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
-				
+		
 		try {
 			@SuppressWarnings("unused")
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize,
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String exepecedErrorMessage = String.format("the parameter poolMaxSize[%d] is less than or equal to zero", poolMaxSize);
+			String exepecedErrorMessage = String.format("the parameter poolMaxSize[%d] is less than or equal to zero", serverExecutorPoolMaxSize);
 			
 			assertEquals(exepecedErrorMessage, errorMessage);
 			
@@ -91,31 +194,43 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testConstructor_theParameterPoolSizeIsGreaterThanTheParameterPoolMaxSize() {
-		int poolSize = 2;
-		int poolMaxSize = 1;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 10;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
-		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		int serverExecutorPoolSize = 2;
+		int serverExecutorPoolMaxSize = 1;	
+		int serverInputMessageQueueSize = 10;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
+		try {
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}
 				
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
+		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		
 		try {
 			@SuppressWarnings("unused")
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize, 
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String exepecedErrorMessage = String.format("the parameter poolSize[%d] is greater than the parameter poolMaxSize[%d]", poolSize, poolMaxSize);
+			String exepecedErrorMessage = String.format("the parameter poolSize[%d] is greater than the parameter poolMaxSize[%d]", 
+					serverExecutorPoolSize, serverExecutorPoolMaxSize);
 			
 			assertEquals(exepecedErrorMessage, errorMessage);
 			
@@ -127,25 +242,35 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testConstructor_theParameterProjectName_null() {
-		int poolSize = 1;
-		int poolMaxSize = 2;
 		String projectName = null;
-		int inputMessageQueueSize = 0;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
-		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		int serverExecutorPoolSize = 1;
+		int serverExecutorPoolMaxSize = 2;	
+		int serverInputMessageQueueSize = 10;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
+		try {
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}
 				
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
+		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 		try {
 			@SuppressWarnings("unused")
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize, 
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			fail("no IllegalArgumentException");
@@ -163,31 +288,87 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testConstructor_theParameterInputMessageQueueSize_lessThanOne() {
-		int poolSize = 1;
-		int poolMaxSize = 2;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 0;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
-		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		int serverExecutorPoolSize = 1;
+		int serverExecutorPoolMaxSize = 2;	
+		int serverInputMessageQueueSize = 0;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
+		try {
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}
 				
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
+		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
 		try {
 			@SuppressWarnings("unused")
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize,
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String exepecedErrorMessage = String.format("the parameter inputMessageQueueSize[%d] is less than or equal to zero", inputMessageQueueSize);
+			String exepecedErrorMessage = String.format("the parameter inputMessageQueueSize[%d] is less than or equal to zero", serverInputMessageQueueSize);
+			
+			assertEquals(exepecedErrorMessage, errorMessage);
+			
+		} catch (Exception e) {
+			log.warn("error", e);
+			fail("error");
+		}
+	}
+	
+	@Test
+	public void testConstructor_theParameterProjectLoginManager_null() {
+		String projectName = "sample_test";
+		int serverExecutorPoolSize = 1;
+		int serverExecutorPoolMaxSize = 2;	
+		int serverInputMessageQueueSize = 1;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
+		try {
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}
+		
+		ProjectLoginManagerIF projectLoginManager = null;
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
+		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		try {
+			@SuppressWarnings("unused")
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
+					projectLoginManager,
+					messageProtocol, 					
+					serverObjectCacheManager);
+			
+			fail("no IllegalArgumentException");
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			String exepecedErrorMessage = "the parameter projectLoginManager is null";
 			
 			assertEquals(exepecedErrorMessage, errorMessage);
 			
@@ -199,25 +380,35 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testConstructor_theParameterMessageProtocol_null() {
-		int poolSize = 1;
-		int poolMaxSize = 2;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 1;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
+		int serverExecutorPoolSize = 1;
+		int serverExecutorPoolMaxSize = 2;	
+		int serverInputMessageQueueSize = 1;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
+		try {
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}
+		
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
 		MessageProtocolIF messageProtocol = null;
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
-				
 		try {
 			@SuppressWarnings("unused")
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize,
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			fail("no IllegalArgumentException");
@@ -233,63 +424,38 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		}
 	}
 	
-	@Test
-	public void testConstructor_theParameterSocketResourceManager_null() {
-		int poolSize = 1;
-		int poolMaxSize = 2;
-		String projectName = "sample_test";
-		int inputMessageQueueSize = 1;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = null;
-		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
-				
-		try {
-			@SuppressWarnings("unused")
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize,
-					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
-					serverObjectCacheManager);
-			
-			fail("no IllegalArgumentException");
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			String exepecedErrorMessage = "the parameter socketResourceManager is null";
-			
-			assertEquals(exepecedErrorMessage, errorMessage);
-			
-		} catch (Exception e) {
-			log.warn("error", e);
-			fail("error");
-		}
-	}
 	
 	@Test
 	public void testConstructor_theParameterServerObjectCacheManager_null() {
-		int poolSize = 1;
-		int poolMaxSize = 2;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 1;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
+		int serverExecutorPoolSize = 1;
+		int serverExecutorPoolMaxSize = 2;	
+		int serverInputMessageQueueSize = 1;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
+		try {
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}
+		
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
 		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
 		ServerObjectCacheManagerIF serverObjectCacheManager = null;
-				
 		try {
 			@SuppressWarnings("unused")
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize, 
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			fail("no IllegalArgumentException");
@@ -308,30 +474,39 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testConstructor_TheRealPoolSizeIsSameToTheParameterPoolSize() {
-		int poolSize = 1;
-		int poolMaxSize = 2;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 1;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
-		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);		
+		int serverExecutorPoolSize = 1;
+		int serverExecutorPoolMaxSize = 2;	
+		int serverInputMessageQueueSize = 1;
 		
+		ProjectPartConfiguration projectPartConfiguration = null;
 		try {
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize, 
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}	
+		
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
+		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		try {
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
-					serverObjectCacheManager);
-			
+					messageProtocol, 					
+					serverObjectCacheManager);			
 
 			int auctualPoolSize = executorPool.getPoolSize();
 			
-			assertEquals("실제 폴 크기가 파라미터 값으로 지정한 폴크기와 같은지 검사", poolSize, auctualPoolSize);
+			assertEquals("실제 폴 크기가 파라미터 값으로 지정한 폴크기와 같은지 검사", serverExecutorPoolSize, auctualPoolSize);
 			
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -341,31 +516,41 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testAddTask_ok() {
-		int poolSize = 2;
-		int poolMaxSize = 3;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 1;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);		
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
-		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		int serverExecutorPoolSize = 2;
+		int serverExecutorPoolMaxSize = 3;	
+		int serverInputMessageQueueSize = 1;
 		
+		ProjectPartConfiguration projectPartConfiguration = null;
 		try {
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize,
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}	
+		
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
+		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		try {
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			executorPool.addTask();
 			
 			int auctualPoolSize = executorPool.getPoolSize();
 			
-			assertEquals("1개 추가된 폴 크기 검사", poolSize+1, auctualPoolSize);
+			assertEquals("1개 추가된 폴 크기 검사", serverExecutorPoolSize+1, auctualPoolSize);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("error");
@@ -374,24 +559,34 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testAddTask_greaterThanTheParameterPoolMaxSize() {
-		int poolSize = 2;
-		int poolMaxSize = 3;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 1;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);		
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);
-		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		int serverExecutorPoolSize = 2;
+		int serverExecutorPoolMaxSize = 3;	
+		int serverInputMessageQueueSize = 1;
 		
+		ProjectPartConfiguration projectPartConfiguration = null;
 		try {
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize, 
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}	
+		
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
+		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		try {
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			executorPool.addTask();			
@@ -403,7 +598,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 			String exepecedErrorMessage = new StringBuilder("can't add a ServerExecutor in the project[")
 					.append(projectName)
 					.append("] becase the number of ServerExecutor is maximum[")
-					.append(poolMaxSize)
+					.append(serverExecutorPoolMaxSize)
 					.append("]").toString();
 			
 			assertEquals(exepecedErrorMessage, errorMessage);
@@ -415,24 +610,34 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testGetExecutorWithMinimumNumberOfSockets() {
-		int poolSize = 2;
-		int poolMaxSize = 5;
 		String projectName = "sample_test";
-		int inputMessageQueueSize = 1;
-		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
-		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
-		AcceptedConnectionManagerIF socketResourceManager = Mockito.mock(AcceptedConnectionManagerIF.class);		
-		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
-				
+		int serverExecutorPoolSize = 2;
+		int serverExecutorPoolMaxSize = 3;	
+		int serverInputMessageQueueSize = 1;
+		
+		ProjectPartConfiguration projectPartConfiguration = null;
 		try {
-			ServerExecutorPool executorPool = new ServerExecutorPool(				 
-					poolSize,
-					poolMaxSize,
-					projectName,
-					inputMessageQueueSize, 
+			projectPartConfiguration = buildMainProjectPartConfiguration(projectName,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize,
+					serverInputMessageQueueSize);
+		} catch (CoddaConfigurationException e) {
+			log.warn("error", e);
+
+			String errorMessage = new StringBuilder()
+					.append("fail to create a instance of ProjectPartConfiguration class, errmsg=")
+					.append(e.getMessage()).toString();
+
+			fail(errorMessage);
+		}	
+		
+		ProjectLoginManagerIF projectLoginManager = Mockito.mock(ProjectLoginManagerIF.class);
+		MessageProtocolIF messageProtocol = Mockito.mock(MessageProtocolIF.class);
+		ServerObjectCacheManagerIF serverObjectCacheManager = Mockito.mock(ServerObjectCacheManagerIF.class);
+		try {
+			ServerExecutorPool executorPool = new ServerExecutorPool(projectPartConfiguration,
 					projectLoginManager,
-					messageProtocol, 
-					socketResourceManager,
+					messageProtocol, 					
 					serverObjectCacheManager);
 			
 			ServerExecutorIF minServerExecutor = executorPool.getExecutorWithMinimumNumberOfSockets();

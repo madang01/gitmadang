@@ -18,7 +18,6 @@
 package kr.pe.codda.common.protocol.dhb;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -46,7 +45,7 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoder;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoderMatcher;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoderMatcherIF;
@@ -321,7 +320,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	
 
 	@Override
-	public void S2MList(SocketChannel fromSC, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
+	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {
 		if (null == socketOutputStream) {
 			throw new IllegalArgumentException("the parameter socketOutputStream is null");
@@ -445,14 +444,14 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 							throw new HeaderFormatException(errorMessage);
 						}						
 
-						WrapReadableMiddleObject wrapReadableMiddleObject = 
-								new WrapReadableMiddleObject(fromSC, 
+						ReadableMiddleObjectWrapper readableMiddleObjectWrapper = 
+								new ReadableMiddleObjectWrapper(eventHandler, 
 										messageID, mailboxID, mailID, messageInputStream);
 
 						try {
-							wrapMessageBlockingQueue.putReceivedMessage(wrapReadableMiddleObject);
+							wrapMessageBlockingQueue.putReceivedMessage(readableMiddleObjectWrapper);
 						} catch(InterruptedException e) {
-							wrapReadableMiddleObject.closeReadableMiddleObject();							
+							readableMiddleObjectWrapper.closeReadableMiddleObject();							
 							throw e;
 						}
 						

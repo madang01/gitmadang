@@ -21,7 +21,7 @@ import kr.pe.codda.client.connection.ClientMessageUtilityIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
-import kr.pe.codda.client.connection.asyn.InterestedAsynConnectionIF;
+import kr.pe.codda.client.connection.asyn.ClientInterestedConnectionIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.mainbox.AsynMessageMailbox;
 import kr.pe.codda.client.connection.asyn.mainbox.SyncMessageMailbox;
@@ -38,9 +38,9 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
-import kr.pe.codda.common.protocol.WrapReadableMiddleObject;
+import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 
-public final class AsynShareConnection implements AsynConnectionIF, InterestedAsynConnectionIF, ReceivedMessageBlockingQueueIF {
+public final class AsynShareConnection implements AsynConnectionIF, ClientInterestedConnectionIF, ReceivedMessageBlockingQueueIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynShareConnection.class);
 	
 	private ProjectPartConfiguration projectPartConfiguration = null;
@@ -144,7 +144,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 				asynSelectorManger.startWrite(this);
 			}
 			
-			WrapReadableMiddleObject outputMessageWrapReadableMiddleObject = null;
+			ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
 			try {
 				outputMessageWrapReadableMiddleObject = syncMessageMailbox.getSyncOutputMessage();
 			} catch(SocketTimeoutException e) {
@@ -214,7 +214,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 			}
 			releaseResources();
 			
-			selectedKey.channel();			
+			asynSelectorManger.cancel(selectedKey);			
 			return;
 		} catch (Exception e) {
 			log.warn("fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}", hashCode(), e.getMessage());
@@ -227,7 +227,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 			}
 			releaseResources();
 			
-			selectedKey.channel();
+			asynSelectorManger.cancel(selectedKey);
 			return;
 		}
 			
@@ -246,7 +246,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 				}
 				releaseResources();
 				
-				selectedKey.channel();
+				asynSelectorManger.cancel(selectedKey);
 				return;
 			}
 			
@@ -263,7 +263,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 				}
 				releaseResources();
 				
-				selectedKey.channel();
+				asynSelectorManger.cancel(selectedKey);
 				return;
 			}			
 		} else {
@@ -287,13 +287,13 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 				log.warn(errorMessage);
 				close();
 				releaseResources();
-				selectedKey.channel();
+				asynSelectorManger.cancel(selectedKey);
 				return;
 			}
 
 			setFinalReadTime();
 
-			clientMessageUtility.S2MList(clientSC, socketOutputStream, this);		
+			clientMessageUtility.S2MList(this, socketOutputStream, this);		
 				
 		} catch (NoMoreDataPacketBufferException e) {
 			String errorMessage = new StringBuilder()
@@ -310,7 +310,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 			}
 			releaseResources();
 			
-			selectedKey.channel();
+			asynSelectorManger.cancel(selectedKey);
 			return;
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder()
@@ -326,7 +326,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 						hashCode(), e1.getMessage());
 			}
 			releaseResources();
-			selectedKey.channel();
+			asynSelectorManger.cancel(selectedKey);
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
@@ -342,7 +342,7 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 						hashCode(), e1.getMessage());
 			}
 			releaseResources();
-			selectedKey.channel();
+			asynSelectorManger.cancel(selectedKey);
 			return;
 		}
 		
@@ -373,10 +373,9 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 				}
 				
 				releaseResources();
-				selectedKey.channel();
+				asynSelectorManger.cancel(selectedKey);
 				return;
-			}	
-			
+			}
 			
 			if (0 == numberOfBytesWritten) {
 				loop = false;
@@ -441,20 +440,20 @@ public final class AsynShareConnection implements AsynConnectionIF, InterestedAs
 	}
 
 	@Override
-	public void putReceivedMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
-		int mailboxID = wrapReadableMiddleObject.getMailboxID();
+	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper) throws InterruptedException {
+		int mailboxID = readableMiddleObjectWrapper.getMailboxID();
 		if (CommonStaticFinalVars.ASYN_MAILBOX_ID == mailboxID) {
-			clientExecutor.putAsynOutputMessage(wrapReadableMiddleObject);
+			clientExecutor.putAsynOutputMessage(readableMiddleObjectWrapper);
 		} else {
 			SyncMessageMailbox syncMessageMailbox = null;
 			try {
 				syncMessageMailbox = syncMessageMailboxList.get(mailboxID - 1);
 			} catch(IndexOutOfBoundsException e) {
 				log.warn("fail to match a mailbox of the received message[{}], errmsg={}", 
-						wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+						readableMiddleObjectWrapper.toSimpleInformation(), e.getMessage());
 				return;
 			}			
-			syncMessageMailbox.putSyncOutputMessage(wrapReadableMiddleObject);
+			syncMessageMailbox.putSyncOutputMessage(readableMiddleObjectWrapper);
 		}
 	}
 	

@@ -47,23 +47,6 @@ public class ProjectBuilder {
 	private String installedPathString;
 
 	private String projectPathString;
-	
-	private void checkValidPath(String title, String targetPathString) throws BuildSystemException {
-		File targetPath = new File(targetPathString);
-		if (!targetPath.exists()) {
-			String errorMessage = new StringBuilder(title).append("[")
-					.append(targetPathString).append("] does not exist")
-					.toString();
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!targetPath.isDirectory()) {
-			String errorMessage = new StringBuilder(title).append("[")
-					.append(targetPathString).append("] isn't a directory")
-					.toString();
-			throw new BuildSystemException(errorMessage);
-		}
-	}
 
 	public ProjectBuilder(String installedPathString, String mainProjectName) throws BuildSystemException {
 		if (null == installedPathString) {
@@ -99,6 +82,22 @@ public class ProjectBuilder {
 		this.projectPathString = projectPathString;	
 	}
 	
+	private void checkValidPath(String title, String targetPathString) throws BuildSystemException {
+		File targetPath = new File(targetPathString);
+		if (!targetPath.exists()) {
+			String errorMessage = new StringBuilder(title).append("[")
+					.append(targetPathString).append("] does not exist")
+					.toString();
+			throw new BuildSystemException(errorMessage);
+		}
+
+		if (!targetPath.isDirectory()) {
+			String errorMessage = new StringBuilder(title).append("[")
+					.append(targetPathString).append("] isn't a directory")
+					.toString();
+			throw new BuildSystemException(errorMessage);
+		}
+	}
 	
 	
 	/**

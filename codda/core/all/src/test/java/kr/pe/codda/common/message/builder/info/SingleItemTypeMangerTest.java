@@ -10,11 +10,10 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.type.SingleItemType;
 
-public class SingleItemTypeMangerTest extends AbstractJunitTest {
-	
-	
+public class SingleItemTypeMangerTest extends AbstractJunitTest {	
 	@Test
 	public void testGetSingleItemType_sigleItemID를통해얻은SigleItemType맞는지검사() {
 		for (SingleItemType expectedSingleItemType : SingleItemType.values()) {
@@ -26,8 +25,17 @@ public class SingleItemTypeMangerTest extends AbstractJunitTest {
 	
 	
 	@Test
-	public void test() {
-		File messageInfoFile = new File("D:\\gitmadang\\codda\\project\\sample_base\\resources\\message_info\\BoardDetailReq.xml");
+	public void testGetMesgXSLInputSream_메시지정보파일을스키마가지정된SAX파싱하기_OK() {
+		String projectMessageInfoDirectory = 
+		ProjectBuildSytemPathSupporter.getProjectMessageInfoDirectoryPathString(installedPath.getAbsolutePath(), mainProjectName);
+		
+		File messageInfoFileForSaxSchemaTest = new File(new StringBuilder().append(projectMessageInfoDirectory)
+				.append(File.separator).append("AllItemType.xml").toString());
+		
+		if (! messageInfoFileForSaxSchemaTest.exists()) {
+			log.warn("the message file[{}] for sax schema test doesn't exist", messageInfoFileForSaxSchemaTest.getAbsolutePath());
+			fail("the message file for sax schema test doesn't exist");
+		}
 		
 		MessageInfoSAXParser messageInfoSAXParser = null;
 		try {
@@ -39,14 +47,14 @@ public class SingleItemTypeMangerTest extends AbstractJunitTest {
 		}
 		MessageInfo messageInfo = null;
 		try {
-			messageInfo = messageInfoSAXParser.parse(messageInfoFile, true);
+			messageInfo = messageInfoSAXParser.parse(messageInfoFileForSaxSchemaTest, true);
 		} catch (IllegalArgumentException | SAXException | IOException e) {
 			String errorMessage = e.toString();
 			log.warn(errorMessage, e);
 			fail("fail to parse the message information file");
 		}
 		
-		
+		log.info("schema가 지정된 sax 파싱 성공, MessageInfo={}", messageInfo.toString());
 	}
 	
 	@Test
