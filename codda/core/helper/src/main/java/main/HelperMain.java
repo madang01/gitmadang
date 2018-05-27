@@ -1,6 +1,7 @@
 package main;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.ToolTipManager;
@@ -43,6 +44,13 @@ public class HelperMain {
 		
 		if (! installedPath.isDirectory()) {
 			log.error("the installed path[{}] is not a directory", installedPathString);
+			System.exit(1);
+		}
+		
+		try {
+			installedPathString = installedPath.getCanonicalPath();
+		} catch (IOException e) {
+			log.error("fail to get a canonical path[{}] ", installedPathString);
 			System.exit(1);
 		}
 		
