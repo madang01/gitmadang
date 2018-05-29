@@ -18,13 +18,13 @@ import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporter;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventController;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
-import kr.pe.codda.client.connection.asyn.SingleAyncConnectionAdder;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorPool;
-import kr.pe.codda.client.connection.asyn.noshare.AsynNoShareConnection;
 import kr.pe.codda.client.connection.asyn.noshare.AsynNoShareConnectionPool;
+import kr.pe.codda.client.connection.asyn.share.AsynShareConnection;
 import kr.pe.codda.client.connection.asyn.share.AsynShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncNoShareConnectionPool;
+import kr.pe.codda.client.connection.sync.SyncThreadSafeSingleConnection;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.exception.BodyFormatException;
@@ -48,7 +48,7 @@ import kr.pe.codda.common.type.MessageProtocolType;
 public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AnyProjectConnectionPool.class);
 	
-	private ProjectPartConfiguration mainProjectPartConfiguration = null;
+	private ProjectPartConfiguration projectPartConfiguration = null;
 	
 	private String mainProjectName = null;
 	private Charset charset = null;
@@ -73,7 +73,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	
 
 	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration) throws NoMoreDataPacketBufferException, IOException {
-		this.mainProjectPartConfiguration = projectPartConfiguration;
+		this.projectPartConfiguration = projectPartConfiguration;
 		
 		mainProjectName = projectPartConfiguration.getProjectName();
 		charset = projectPartConfiguration.getCharset();
@@ -166,7 +166,9 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				
 				connectionPool = asynConnectionPool;
 			}
-			asynSelectorManger = new AsynClientIOEventController(asynConnectionPool);
+			asynSelectorManger = new AsynClientIOEventController(
+					projectPartConfiguration.getClientSelectorWakeupInterval(),
+					asynConnectionPool);
 			
 			asynSelectorManger.start();
 		} 
@@ -234,12 +236,20 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	}
 
 	@Override
-	public ConnectionIF createConnection(String host, int port) throws InterruptedException, IOException, NoMoreDataPacketBufferException {
+	public ConnectionIF createAsynThreadSafeConnection(String host, int port) throws InterruptedException, IOException, NoMoreDataPacketBufferException {
+		ConnectionIF connectedConnection = null;
+		
 		ClientExecutorIF clientExecutor  = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
-		SingleAyncConnectionAdder singleAyncConnectionAdder = new SingleAyncConnectionAdder();
-		AsynNoShareConnection unregisteredAsynNoShareConnection = new AsynNoShareConnection(mainProjectPartConfiguration, 
+		SingleAyncShareConnectionAdder singleAyncShareConnectionAdder = new SingleAyncShareConnectionAdder();
+		AsynShareConnection unregisteredAsynNoShareConnection = 
+				new AsynShareConnection(projectPartConfiguration.getServerHost(),
+						projectPartConfiguration.getServerPort(),
+						projectPartConfiguration.getClientSocketTimeout(),
+						projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
+						projectPartConfiguration.getClientAsynInputMessageQueueSize(),					 
 				socketOutputStreamFactory.newInstance(), 
-				clientMessageUtility, singleAyncConnectionAdder, clientExecutor, asynSelectorManger);
+				clientMessageUtility, singleAyncShareConnectionAdder, 
+				clientExecutor, asynSelectorManger);
 		
 		try {
 			asynSelectorManger.addUnregisteredAsynConnection(unregisteredAsynNoShareConnection);
@@ -252,26 +262,37 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			throw new IOException("fail to register a connection to selector");
 		}
 		
-		ConnectionIF connectedConnection =  singleAyncConnectionAdder.poll(socketTimeout);
-		if (null == connectedConnection) {
-			if (! unregisteredAsynNoShareConnection.isConnected()) {
-				unregisteredAsynNoShareConnection.releaseResources();
-				
-				log.warn("this connection[{}] disconnected", 
-						unregisteredAsynNoShareConnection.hashCode());
-				throw new IOException("the connection has been disconnected");
-			}
-			
+		try {
+			connectedConnection =  singleAyncShareConnectionAdder.poll(socketTimeout);
+		} catch(SocketTimeoutException e) {			
 			log.warn("this connection[{}] timeout occurred", 
 					unregisteredAsynNoShareConnection.hashCode());
 			try {
+				/** WARNING! don't delete this code, this code is the code that closes the socket to cancel the connection registered in the selector */
 				unregisteredAsynNoShareConnection.close();
-			} catch(IOException e) {
-				log.warn("fail to close the connection[{}], errmsg={}", unregisteredAsynNoShareConnection.hashCode(), e.getMessage());
+			} catch(IOException e1) {
+				log.warn("fail to close the connection[{}], errmsg={}", unregisteredAsynNoShareConnection.hashCode(), e1.getMessage());
 			}			
 			
-			throw new SocketTimeoutException("socket timeout occurred");
+			throw e;
 		}
+		
+		
+		
+		
+		return connectedConnection;
+	}
+	
+	@Override
+	public ConnectionIF createSyncThreadSafeConnection(String host, int port) throws InterruptedException, IOException, NoMoreDataPacketBufferException {
+		ConnectionIF connectedConnection = null;
+		
+		connectedConnection = new SyncThreadSafeSingleConnection(projectPartConfiguration.getServerHost(),
+				projectPartConfiguration.getServerPort(),
+				projectPartConfiguration.getClientSocketTimeout(),
+				projectPartConfiguration.getClientDataPacketBufferSize(),
+				socketOutputStreamFactory.newInstance(), clientMessageUtility);
+		
 		return connectedConnection;
 	}
 

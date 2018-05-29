@@ -138,6 +138,21 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 
 					try {
 						for (SelectionKey selectedKey : selectedKeySet) {
+							if (! selectedKey.isValid()) {
+								AcceptedConnection accpetedConneciton = selectedKey2AcceptedConnectionHash.get(selectedKey);
+								
+								if (null == accpetedConneciton) {
+									log.warn("this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
+											selectedKey.hashCode(), selectedKey.channel().hashCode());
+									continue;
+								}
+								
+								accpetedConneciton.close();
+								accpetedConneciton.releaseResources();
+								cancel(selectedKey);								
+								continue;
+							}
+							
 
 							if (selectedKey.isAcceptable()) {
 								ServerSocketChannel readyChannel = (ServerSocketChannel) selectedKey.channel();

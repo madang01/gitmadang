@@ -22,7 +22,6 @@ import kr.pe.codda.client.connection.asyn.ClientInterestedConnectionIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.mainbox.AsynMessageMailbox;
 import kr.pe.codda.client.connection.asyn.mainbox.SyncMessageMailbox;
-import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.ConnectionPoolException;
@@ -34,13 +33,17 @@ import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
+import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 
 public final class AsynNoShareConnection implements AsynConnectionIF, ClientInterestedConnectionIF, ReceivedMessageBlockingQueueIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnection.class);
 	
-	private ProjectPartConfiguration projectPartConfiguration = null;
+	// private ProjectPartConfiguration projectPartConfiguration = null;
+	private String serverHost = null;
+	private int serverPort  = 0;
+	private long socketTimeout=0;
+	
 	private SocketOutputStream socketOutputStream = null;
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private AsynConnectedConnectionAdderIF asynConnectedConnectionAdder = null;
@@ -56,13 +59,17 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 	
 	private ClientExecutorIF clientExecutor = null;
 	
-	public AsynNoShareConnection(ProjectPartConfiguration projectPartConfiguration, 
+	public AsynNoShareConnection(String serverHost, 
+			int serverPort,
+			long socketTimeout, 
 			SocketOutputStream socketOutputStream,
 			ClientMessageUtilityIF clientMessageUtility,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
 			ClientExecutorIF clientExecutor,
 			AsynClientIOEventControllerIF asynSelectorManger) throws IOException {
-		this.projectPartConfiguration = projectPartConfiguration;
+		this.serverHost = serverHost;
+		this.serverPort = serverPort;
+		this.socketTimeout = socketTimeout;		
 		this.socketOutputStream = socketOutputStream;
 		this.clientMessageUtility = clientMessageUtility;
 		this.asynConnectedConnectionAdder = asynConnectedConnectionAdder;
@@ -72,7 +79,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 		openSocketChannel();
 		
 		final int mailboxID = 1;
-		syncMessageMailbox = new SyncMessageMailbox(this, mailboxID, projectPartConfiguration.getClientSocketTimeout());
+		syncMessageMailbox = new SyncMessageMailbox(this, mailboxID, this.socketTimeout);
 	}
 	
 	private void openSocketChannel() throws IOException {
@@ -100,6 +107,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 		
 		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();		
 		
+		syncMessageMailbox.nextMailID();
 		inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 		
@@ -297,11 +305,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 	}
 
 	@Override
-	public void onWrite(SelectionKey selectedKey) throws InterruptedException {		
-		// FIXME!
-		// log.info("onWrite::call");
-				
-		// ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = this.inputMessageWrapBufferQueue;
+	public void onWrite(SelectionKey selectedKey) throws InterruptedException {
 		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
 		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 		boolean loop = true;
@@ -366,7 +370,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 	
 	@Override
 	public boolean doConect() throws IOException {
-		SocketAddress serverAddress = new InetSocketAddress(projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort());
+		SocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
 		return clientSC.connect(serverAddress);
 	}
 
@@ -394,6 +398,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 	public boolean isConnected() {
 		return clientSC.isConnected();
 	}
+	
 	
 	/**
 	 * 큐 속에 들어갈때 상태 변경 메소드

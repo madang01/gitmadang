@@ -42,7 +42,7 @@ public abstract class ItemIDDefiner {
 		public static final String CLIENT_CONNECTION_MAX_COUNT_ITEMID = "client.connection.max_count.value";
 		public static final String CLIENT_CONNECTION_COUNT_ITEMID = "client.connection.count.value";
 		
-		public static final String CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID = "client.asyn.public.private_mailbox_cnt_per_connection.value";
+		public static final String CLIENT_ASYN_SYNC_MESSAGE_MAILBOX_COUNT_PER_ASYN_NOSHARE_CONNECTION_ITEMID = "client.asyn.sync_message_mailbox_count_per_asyn_noshare_connection.value";
 		public static final String CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID 			= "client.asyn.input_message_queue_size.value";
 		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID 	= "client.asyn.output_message_queue_size.value";
 		public static final String CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID = "client.asyn.executor.pool_size.value";

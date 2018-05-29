@@ -192,7 +192,11 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		SocketOutputStream sos = socketOutputStreamFactory.newInstance();
 		SyncNoShareConnection syncNoShareConnection = null;
 		try {
-			syncNoShareConnection = new SyncNoShareConnection(projectPartConfiguration, sos, clientMessageUtility);
+			syncNoShareConnection = new SyncNoShareConnection(projectPartConfiguration.getServerHost(),
+					projectPartConfiguration.getServerPort(),
+					projectPartConfiguration.getClientSocketTimeout(),
+					projectPartConfiguration.getClientDataPacketBufferSize(),
+					sos, clientMessageUtility);
 		} catch(Exception e) {
 			sos.close();
 			throw e;

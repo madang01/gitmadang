@@ -27,7 +27,7 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 
-public final class SyncNoShareConnection implements SyncConnectionIF {
+public class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnection.class);
 	
 	private SocketOutputStream socketOutputStream = null;
@@ -47,18 +47,19 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	private transient java.util.Date finalReadTime = new java.util.Date();
 	private boolean isQueueIn = true;
 	
-	public SyncNoShareConnection(String serverHost, 
+	public SyncThreadSafeSingleConnection(String serverHost, 
 			int serverPort,
-			long socketTimeout,  
+			long socketTimeout,
 			int clientDataPacketBufferSize,
 			SocketOutputStream socketOutputStream,
-			ClientMessageUtilityIF clientMessageUtility) throws IOException {		
+			ClientMessageUtilityIF clientMessageUtility) throws IOException {
+		
 		this.serverHost = serverHost;
 		this.serverPort = serverPort;
 		this.socketTimeout = socketTimeout;
-		this.clientDataPacketBufferSize = clientDataPacketBufferSize;		
+		this.clientDataPacketBufferSize = clientDataPacketBufferSize;
 		this.socketOutputStream = socketOutputStream;
-		this.clientMessageUtility = clientMessageUtility;		
+		this.clientMessageUtility = clientMessageUtility;
 		
 		openSocketChannel();
 		
@@ -67,7 +68,6 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 
 	private void connectAndBuildIOStream() throws IOException {
 		SocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
-		// clientSC.connect(serverAddress);
 		
 		clientSocket = clientSC.socket();
 		try {
@@ -116,7 +116,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	}
 
 	@Override
-	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
+	synchronized public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {		
 		

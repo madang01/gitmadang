@@ -56,7 +56,7 @@ public class ProjectPartConfiguration {
 	/***** 연결 클래스 관련 환경 변수 종료 *****/	
 	
 	/** 비동기+공유 연결의 개인 메일함 갯수 */
-	private Integer  clientAsynPirvateMailboxCntPerPublicConnection = null;
+	private Integer  clientSyncMessageMailboxCountPerAsynShareConnection = null;
 	
 	/** 비동기 출력 메시지 처리자 쓰레드 갯수 */
 	private Integer  clientAsynExecutorPoolSize = null;
@@ -170,8 +170,8 @@ public class ProjectPartConfiguration {
 	}
 	
 
-	public int getClientAsynPirvateMailboxCntPerPublicConnection() {
-		return clientAsynPirvateMailboxCntPerPublicConnection;
+	public int getClientSyncMessageMailboxCountPerAsynShareConnection() {
+		return clientSyncMessageMailboxCountPerAsynShareConnection;
 	}
 
 
@@ -436,7 +436,7 @@ public class ProjectPartConfiguration {
 			this.clientConnectionMaxCount = (Integer) nativeValue;		
 		
 		
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID)) {
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SYNC_MESSAGE_MAILBOX_COUNT_PER_ASYN_NOSHARE_CONNECTION_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -447,7 +447,7 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.clientAsynPirvateMailboxCntPerPublicConnection = (Integer) nativeValue;
+			this.clientSyncMessageMailboxCountPerAsynShareConnection = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -733,7 +733,7 @@ public class ProjectPartConfiguration {
 						clientConnectionMaxCount);		
 
 		mapping(new StringBuilder(prefexOfItemID).append(
-				ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID)
+				ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SYNC_MESSAGE_MAILBOX_COUNT_PER_ASYN_NOSHARE_CONNECTION_ITEMID)
 				.toString(), clientAsynPirvateMailboxCntPerPublicConnection);
 
 		mapping(new StringBuilder(prefexOfItemID)
@@ -825,7 +825,7 @@ public class ProjectPartConfiguration {
 		builder.append(", clientDataPacketBufferSize=");
 		builder.append(clientDataPacketBufferSize);
 		builder.append(", clientDataPacketBufferPoolSize=");
-		builder.append(clientDataPacketBufferPoolSize);	
+		builder.append(clientDataPacketBufferPoolSize);
 		builder.append(", connectionType=");
 		builder.append(connectionType);
 		builder.append(", clientSocketTimeout=");
@@ -834,15 +834,15 @@ public class ProjectPartConfiguration {
 		builder.append(clientConnectionCount);
 		builder.append(", clientConnectionMaxCount=");
 		builder.append(clientConnectionMaxCount);
-		builder.append(", clientAsynPirvateMailboxCntPerPublicConnection=");
-		builder.append(clientAsynPirvateMailboxCntPerPublicConnection);
+		builder.append(", clientSyncMessageMailboxCountPerAsynShareConnection=");
+		builder.append(clientSyncMessageMailboxCountPerAsynShareConnection);
 		builder.append(", clientAsynExecutorPoolSize=");
 		builder.append(clientAsynExecutorPoolSize);
 		builder.append(", clientAsynInputMessageQueueSize=");
-		builder.append(clientAsynInputMessageQueueSize);		
+		builder.append(clientAsynInputMessageQueueSize);
 		builder.append(", clientAsynOutputMessageQueueSize=");
 		builder.append(clientAsynOutputMessageQueueSize);
-		builder.append(", clientWakeupIntervalOfSelectorForReadEventOnly=");
+		builder.append(", clientSelectorWakeupInterval=");
 		builder.append(clientSelectorWakeupInterval);
 		builder.append(", serverMonitorTimeInterval=");
 		builder.append(serverMonitorTimeInterval);
@@ -861,7 +861,7 @@ public class ProjectPartConfiguration {
 		builder.append(", serverInputMessageQueueSize=");
 		builder.append(serverInputMessageQueueSize);
 		builder.append(", serverOutputMessageQueueSize=");
-		builder.append(serverOutputMessageQueueSize);				
+		builder.append(serverOutputMessageQueueSize);
 		builder.append(", serverExecutorPoolMaxSize=");
 		builder.append(serverExecutorPoolMaxSize);
 		builder.append(", serverExecutorPoolSize=");

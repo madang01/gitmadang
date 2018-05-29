@@ -15,16 +15,16 @@ import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 public class AsynClientIOEventController extends Thread implements AsynClientIOEventControllerIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynClientIOEventController.class);
 	
-	private Selector ioEventSelector = null;
-	
-
+	private long clientSelectorWakeupInterval;
 	private AsynConnectionPoolIF asynConnectionPool = null;
+	
+	private Selector ioEventSelector = null;
 	private ConcurrentHashMap<SelectionKey, ClientInterestedConnectionIF> selectedKey2ConnectionHash = 
 			new ConcurrentHashMap<SelectionKey, ClientInterestedConnectionIF>();
-	
 	private LinkedBlockingDeque<ClientInterestedConnectionIF> unregisteredAsynConnectionQueue = new LinkedBlockingDeque<ClientInterestedConnectionIF>();
 	
-	public AsynClientIOEventController(AsynConnectionPoolIF connectionPool) throws IOException, NoMoreDataPacketBufferException {
+	public AsynClientIOEventController(long clientSelectorWakeupInterval, AsynConnectionPoolIF connectionPool) throws IOException, NoMoreDataPacketBufferException {
+		this.clientSelectorWakeupInterval = clientSelectorWakeupInterval;
 		this.asynConnectionPool = connectionPool;
 		
 		asynConnectionPool.setAsynSelectorManger(this);
@@ -42,7 +42,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 	}
 
 	@Override
-	public void addUnregisteredAsynConnection(ClientInterestedConnectionIF unregisteredAsynConnection) throws IOException {
+	public void addUnregisteredAsynConnection(ClientInterestedConnectionIF unregisteredAsynConnection) throws IOException, InterruptedException {
 		if (getState().equals(Thread.State.NEW)) {
 			try {
 				unregisteredAsynConnection.close();
@@ -57,8 +57,21 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 		
 		unregisteredAsynConnectionQueue.addLast(unregisteredAsynConnection);
 		
-		
-		ioEventSelector.wakeup();		
+		boolean loop = false;
+		do {
+			ioEventSelector.wakeup();
+
+			try {
+				Thread.sleep(clientSelectorWakeupInterval);
+			} catch (InterruptedException e) {
+				log.info(
+						"give up the test checking whether the new socket[{}] is registered with the Selector because the socket has occurred",
+						unregisteredAsynConnection.hashCode());
+				throw e;
+			}
+			
+			loop = unregisteredAsynConnectionQueue.contains(unregisteredAsynConnection);
+		} while (loop);
 	}
 	
 	private void processNewConnection() {					
@@ -92,8 +105,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 					registeredSelectionKey = unregisteredAsynConnection.register(ioEventSelector, SelectionKey.OP_CONNECT);
 				}				
 				
-				selectedKey2ConnectionHash.put(registeredSelectionKey, unregisteredAsynConnection);
-				
+				selectedKey2ConnectionHash.put(registeredSelectionKey, unregisteredAsynConnection);				
 				
 			} catch (ClosedChannelException e) {
 				log.warn("fail to register the socket channel[{}] on selector, errmsg={}", 
@@ -122,7 +134,26 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 				
 				ioEventSelector.select();
 				Set<SelectionKey> selectedKeySet = ioEventSelector.selectedKeys();
-				for (SelectionKey selectedKey : selectedKeySet) {					
+				for (SelectionKey selectedKey : selectedKeySet) {	
+					if (! selectedKey.isValid()) {
+						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
+						if (null == interestedAsynConnection) {
+							log.info("this selectedKey2ConnectionHash map contains no mapping for the key that is the var selectedKey[hashcode={}, socket channel={}]", selectedKey.hashCode(), selectedKey.channel().hashCode());
+							continue;
+						}
+						
+						try {
+							interestedAsynConnection.close();
+						} catch(IOException e) {
+							log.warn("fail to close the connection[{}], errmsg={}", 
+									interestedAsynConnection.hashCode(),
+									e.getMessage());
+						}
+						interestedAsynConnection.releaseResources();
+						cancel(selectedKey);						
+						continue;
+					}
+					
 					if (selectedKey.isConnectable()) {
 						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onConnect(selectedKey);

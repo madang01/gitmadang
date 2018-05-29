@@ -34,7 +34,7 @@ public class HelperMain {
 	public void applyInstalledPath(String installedPathString) {
 		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 		
-		log.info("installedPathString=[{}]", installedPathString);
+		log.info("1.installedPathString=[{}]", installedPathString);
 		
 		File installedPath = new File(installedPathString);
 		if (! installedPath.exists()) {
@@ -54,6 +54,7 @@ public class HelperMain {
 			System.exit(1);
 		}
 		
+		log.info("2.installedPathString=[{}]", installedPathString);
 		
 		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(installedPathString);
 		

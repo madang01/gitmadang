@@ -201,7 +201,13 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		SocketOutputStream sos = socketOutputStreamFactory.newInstance();
 		ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 
-		ClientInterestedConnectionIF asynInterestedConnection = new AsynShareConnection(projectPartConfiguration, sos,
+		ClientInterestedConnectionIF asynInterestedConnection = new AsynShareConnection(
+				projectPartConfiguration.getServerHost(),
+				projectPartConfiguration.getServerPort(),
+				projectPartConfiguration.getClientSocketTimeout(),
+				projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
+				projectPartConfiguration.getClientAsynInputMessageQueueSize(),
+				sos,
 				clientMessageUtility, this, clientExecutor, asynSelectorManger);
 		return asynInterestedConnection;
 	}
@@ -210,7 +216,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		numberOfUnregisteredConnection++;
 	}
 
-	public void addConnection() throws NoMoreDataPacketBufferException, IOException {
+	public void addConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
 		ClientInterestedConnectionIF unregisteredAsynConnection = newUnregisteredConnection();
 		addCountOfUnregisteredConnection();
 		asynSelectorManger.addUnregisteredAsynConnection(unregisteredAsynConnection);

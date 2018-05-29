@@ -18,14 +18,13 @@ import java.util.concurrent.TimeUnit;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
+import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
-import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.ClientInterestedConnectionIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.mainbox.AsynMessageMailbox;
 import kr.pe.codda.client.connection.asyn.mainbox.SyncMessageMailbox;
-import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.ConnectionPoolException;
@@ -37,13 +36,19 @@ import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
+import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 
 public final class AsynShareConnection implements AsynConnectionIF, ClientInterestedConnectionIF, ReceivedMessageBlockingQueueIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynShareConnection.class);
 	
-	private ProjectPartConfiguration projectPartConfiguration = null;
+	// private ProjectPartConfiguration projectPartConfiguration = null;
+	private String serverHost = null;
+	private int serverPort  = 0;
+	private long socketTimeout=0;
+	int syncMessageMailboxCountPerAsynShareConnection;
+	int inputMessageQueueSize;
+	
 	private SocketOutputStream socketOutputStream = null;
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private AsynConnectedConnectionAdderIF asynConnectedConnectionAdder = null;
@@ -54,18 +59,26 @@ public final class AsynShareConnection implements AsynConnectionIF, ClientIntere
 	private ArrayBlockingQueue<SyncMessageMailbox> syncMessageMailboxQueue = null;
 	private ArrayList<SyncMessageMailbox> syncMessageMailboxList = new ArrayList<SyncMessageMailbox>();
 	
-	private ArrayDeque<ArrayDeque<WrapBuffer>> inputMessageQueue = null;
+	private ArrayDeque<ArrayDeque<WrapBuffer>> inputMessageStreamQueue = null;
 	private boolean isQueueIn = true;	
 	
 	private ClientExecutorIF clientExecutor = null;
 	
-	public AsynShareConnection(ProjectPartConfiguration projectPartConfiguration, 
+	public AsynShareConnection(String serverHost, 
+			int serverPort,
+			long socketTimeout, 
+			int syncMessageMailboxCountPerAsynShareConnection, 
+			int inputMessageQueueSize,
 			SocketOutputStream socketOutputStream,
 			ClientMessageUtilityIF clientMessageUtility,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
 			ClientExecutorIF clientExecutor,
 			AsynClientIOEventControllerIF asynSelectorManger) throws IOException {
-		this.projectPartConfiguration = projectPartConfiguration;
+		this.serverHost = serverHost;
+		this.serverPort = serverPort;
+		this.socketTimeout = socketTimeout;
+		this.syncMessageMailboxCountPerAsynShareConnection = syncMessageMailboxCountPerAsynShareConnection;
+		this.inputMessageQueueSize = inputMessageQueueSize;		
 		this.socketOutputStream = socketOutputStream;
 		this.clientMessageUtility = clientMessageUtility;
 		this.asynConnectedConnectionAdder = asynConnectedConnectionAdder;
@@ -74,19 +87,17 @@ public final class AsynShareConnection implements AsynConnectionIF, ClientIntere
 		
 		openSocketChannel();
 		
-		int numberOfMailbox = projectPartConfiguration.getClientAsynPirvateMailboxCntPerPublicConnection();
-		
-		syncMessageMailboxQueue = new ArrayBlockingQueue<SyncMessageMailbox>(numberOfMailbox);
+		syncMessageMailboxQueue = new ArrayBlockingQueue<SyncMessageMailbox>(syncMessageMailboxCountPerAsynShareConnection);
 		
 		
-		for (int i=0; i < numberOfMailbox; i++) {
-			SyncMessageMailbox syncMessageMailbox = new SyncMessageMailbox(this, i+1, projectPartConfiguration.getClientSocketTimeout());
+		for (int i=0; i < syncMessageMailboxCountPerAsynShareConnection; i++) {
+			SyncMessageMailbox syncMessageMailbox = new SyncMessageMailbox(this, i+1, socketTimeout);
 			
 			syncMessageMailboxQueue.add(syncMessageMailbox);
 			syncMessageMailboxList.add(syncMessageMailbox);
 		}
 				
-		inputMessageQueue = new ArrayDeque<ArrayDeque<WrapBuffer>>(projectPartConfiguration.getClientAsynInputMessageQueueSize());
+		inputMessageStreamQueue = new ArrayDeque<ArrayDeque<WrapBuffer>>(inputMessageQueueSize);
 	}
 	
 	
@@ -115,7 +126,7 @@ public final class AsynShareConnection implements AsynConnectionIF, ClientIntere
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {		
 		
-		SyncMessageMailbox syncMessageMailbox = syncMessageMailboxQueue.poll(projectPartConfiguration.getClientSocketTimeout(), TimeUnit.MILLISECONDS);
+		SyncMessageMailbox syncMessageMailbox = syncMessageMailboxQueue.poll(socketTimeout, TimeUnit.MILLISECONDS);
 		if (null == syncMessageMailbox) {
 			log.warn("drop the input message[{}] becase it failed to get a mailbox within socket timeout", inputMessage.toString());
 			throw new SocketTimeoutException("fail to get a mailbox within socket timeout");
@@ -124,23 +135,24 @@ public final class AsynShareConnection implements AsynConnectionIF, ClientIntere
 		try {
 			ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
 			
+			syncMessageMailbox.nextMailID();
 			inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
 			inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 			
 			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
 
-			synchronized (inputMessageQueue) {
-				if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {
-					inputMessageQueue.wait(projectPartConfiguration.getClientSocketTimeout());
+			synchronized (inputMessageStreamQueue) {
+				if (inputMessageStreamQueue.size() == inputMessageQueueSize) {
+					inputMessageStreamQueue.wait(socketTimeout);
 					
-					if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {						
+					if (inputMessageStreamQueue.size() == inputMessageQueueSize) {						
 						log.warn("socket[{}] timeout occurs when entering an input message[{}]", 
 								clientSC.hashCode(), inputMessage.toString());						
 						throw new SocketTimeoutException("socket timeout occurs when entering an input message");
 					}
 				}
 				
-				inputMessageQueue.addLast(inputMessageWrapBufferQueue);			
+				inputMessageStreamQueue.addLast(inputMessageWrapBufferQueue);			
 				asynSelectorManger.startWrite(this);
 			}
 			
@@ -167,23 +179,24 @@ public final class AsynShareConnection implements AsynConnectionIF, ClientIntere
 	public void sendAsynInputMessage(AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
 		
+		
 		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox.getNextMailID();
 		
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility.buildReadableWrapBufferList(inputMessage.getClass().getClassLoader(), inputMessage);
 		
-		synchronized (inputMessageQueue) {
-			if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {
-				inputMessageQueue.wait(projectPartConfiguration.getClientSocketTimeout());
+		synchronized (inputMessageStreamQueue) {
+			if (inputMessageStreamQueue.size() == inputMessageQueueSize) {
+				inputMessageStreamQueue.wait(socketTimeout);
 				
-				if (inputMessageQueue.size() == projectPartConfiguration.getClientAsynInputMessageQueueSize()) {						
+				if (inputMessageStreamQueue.size() == inputMessageQueueSize) {						
 					log.warn("socket[{}] timeout occurs when entering an input message[{}]", 
 							clientSC.hashCode(), inputMessage.toString());						
 					throw new SocketTimeoutException("socket timeout occurs when entering an input message");
 				}
 			}
 			
-			inputMessageQueue.addLast(inputMessageWrapBufferQueue);			
+			inputMessageStreamQueue.addLast(inputMessageWrapBufferQueue);			
 			asynSelectorManger.startWrite(this);
 		}
 	}
@@ -350,7 +363,7 @@ public final class AsynShareConnection implements AsynConnectionIF, ClientIntere
 
 	@Override
 	public void onWrite(SelectionKey selectedKey) throws InterruptedException {				
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageQueue.peek();
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageStreamQueue.peek();
 		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
 		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 		boolean loop = true;
@@ -387,21 +400,21 @@ public final class AsynShareConnection implements AsynConnectionIF, ClientIntere
 				clientMessageUtility.releaseWrapBuffer(currentWorkingWrapBuffer);
 				
 				if (inputMessageWrapBufferQueue.isEmpty()) {					
-					synchronized (inputMessageQueue) {
-						inputMessageQueue.removeFirst();
+					synchronized (inputMessageStreamQueue) {
+						inputMessageStreamQueue.removeFirst();
 						try {
-							if (inputMessageQueue.isEmpty()) {
+							if (inputMessageStreamQueue.isEmpty()) {
 								asynSelectorManger.endWrite(this);
 								loop = false;
 								return;
 							}
 						} finally {
-							inputMessageQueue.notify();
+							inputMessageStreamQueue.notify();
 						}
 					}
 					
 					
-					inputMessageWrapBufferQueue = inputMessageQueue.peek();
+					inputMessageWrapBufferQueue = inputMessageStreamQueue.peek();
 				}
 				
 				currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
@@ -423,9 +436,10 @@ public final class AsynShareConnection implements AsynConnectionIF, ClientIntere
 		return registedKey;
 	}
 	
+	
 	@Override
 	public boolean doConect() throws IOException {
-		SocketAddress serverAddress = new InetSocketAddress(projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort());
+		SocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
 		return clientSC.connect(serverAddress);
 	}
 

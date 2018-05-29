@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 
 public interface AsynClientIOEventControllerIF {
-	public void addUnregisteredAsynConnection(ClientInterestedConnectionIF asynInterestedConnection) throws IOException;
+	public void addUnregisteredAsynConnection(ClientInterestedConnectionIF asynInterestedConnection) throws IOException, InterruptedException;
 	
 	public void startWrite(ClientInterestedConnectionIF asynInterestedConnection);
 	public void endWrite(ClientInterestedConnectionIF asynInterestedConnection);
