@@ -97,22 +97,74 @@ public class HelperMain {
 		}
 	}
 	
+	public void createProject(String mainProjectName, boolean force) {
+		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
+		File installedPath = new File(".");
+		
+		String installedPathString = null;
+		try {
+			installedPathString = installedPath.getCanonicalPath();
+		} catch (IOException e) {
+			log.error("fail to get a canonical path[{}] ", installedPath.getAbsolutePath());
+			System.exit(1);
+		}
+		
+		log.info("installedPathString={}", installedPathString);
+		
+		ProjectBuilder projectBuilder = null;
+		
+		try {
+			projectBuilder = new ProjectBuilder(installedPathString, mainProjectName);
+		} catch (BuildSystemException e) {
+			log.error("fail to create a instance of ProjectBuilder class", e);
+			System.exit(1);
+		} 
+		
+		if (projectBuilder.whetherOnlyProjectPathExists()) {
+			if (force) {
+				try {
+					projectBuilder.dropProject();
+				} catch (BuildSystemException e) {
+					log.error("fail to drop the project["+mainProjectName+"]", e);
+					System.exit(1);
+				}
+			} else {
+				log.error("can't create the main project[{}] becase it exists", mainProjectName);
+				System.exit(1);
+			}
+		}
+		
+		boolean isServer=true;
+		boolean isAppClient=true;
+		boolean isWebClient=false; 
+		String servletSystemLibraryPathString="";
+		
+		try {
+			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
+		} catch (BuildSystemException e) {
+			log.error("fail to create the project["+mainProjectName+"]", e);
+			System.exit(1);
+		}
+	}
+	
 	public static void main(String[] args) {
 		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 		
-		int i=0;
-		for (String arg : args) {
-			log.info("{} 번째 arg=[{}]", i++, arg);
-		}
-		
 		Options options = new Options();
 		options.addOption("h", "help", false, "help");
-		options.addOption("n", null, true, "no gui mode, this option's the commandType[installedPath] argument defines a command type running in no gui mode");
-		options.getOption("n").setArgName("commandType");
+		options.addOption("n", null, true, "no gui mode, this option's the command[applyInstalledPath, createProject] argument defines a command running in no gui mode."
+				+ "\nthe command 'applyInstalledPath' reflects the installation path specified for all projects."
+				+ "\nthe command 'createProject' creates a project with the specified project name.");
+		options.getOption("n").setArgName("command");
 		
 		
 		options.addOption(null, "installedPath", true, "installed path");
 		options.getOption("installedPath").setArgName("installedPath");
+		
+		options.addOption(null, "projectName", true, "the project name");
+		options.getOption("projectName").setArgName("projectName");
+		
+		options.addOption(null, "force", false, "forced execution, ex) Forcibly remove an existing project when creating a project.");
 		
 		HelperMain helperMain = new HelperMain();
 		
@@ -124,7 +176,7 @@ public class HelperMain {
 	        
 	        if( line.hasOption( "h" ) ) {
 	        	 HelpFormatter formatter = new HelpFormatter();
-	        	 String header = "Codda is a GUI program to help you build your development environment\ncommandType set[installedPath]\n\n";
+	        	 String header = "Codda Helper(=codda-helper.jar) is a GUI program that helps development\n\n";
 	        	 String footer = "\nPlease report issues at k9200544@hanmail.net";
 	        	 
 	        	 formatter.setOptionComparator(null);
@@ -135,11 +187,11 @@ public class HelperMain {
 	            // print the value of block-size
 	            log.info("no gui mode");
 	            
-	            String commandType = line.getOptionValue("n");
+	            String command = line.getOptionValue("n");
 	            
-	            log.info("command type=[{}]", commandType);
+	            log.info("command=[{}]", command);
 	            
-	            if (commandType.equals("installedPath")) {
+	            if (command.equals("applyInstalledPath")) {
 	            	
 	            	if (! line.hasOption( "installedPath" )) {
 		            	log.error("no installed path argument");
@@ -149,9 +201,18 @@ public class HelperMain {
 	            	String installedPathString = line.getOptionValue("installedPath");
 	            	
 	            	helperMain.applyInstalledPath(installedPathString);
+	            } else if (command.equals("createProject")) {
+	            	if (! line.hasOption( "projectName" )) {
+		            	log.error("no installed path argument");
+		            	System.exit(1);
+		            }
+	            	
+	            	String mainProjectName = line.getOptionValue("projectName");
+	            	boolean force = line.hasOption( "force");
+	            	helperMain.createProject(mainProjectName, force);
 	            	
 	            } else {
-	            	log.error("unknown command type[{}]", commandType);
+	            	log.error("unknown command[{}]", command);
 	            	System.exit(1);
 	            }
 	            

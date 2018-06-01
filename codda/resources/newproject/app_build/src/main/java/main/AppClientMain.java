@@ -12,7 +12,7 @@ import kr.pe.codda.common.etc.CommonStaticFinalVars;
 
 
 
-public class SinnoriAppClientMain {
+public class AppClientMain {
 
 	public static void main(String[] args) {
 		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
