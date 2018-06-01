@@ -25,5 +25,5 @@ public interface ClientMessageUtilityIF {
 	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException;
 	
-	public void releaseWrapBuffer(WrapBuffer warpBuffer);
+	public void releaseWrapBuffer(WrapBuffer wrapBuffer);
 }

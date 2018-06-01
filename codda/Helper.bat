@@ -1,2 +1,2 @@
-rem java -jar codda-helper.jar -n -x installedPath --installedPath=.
+rem java -jar codda-helper.jar -n installedPath --installedPath=.
 java -jar codda-helper.jar

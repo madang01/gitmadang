@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.Echo;
+package kr.pe.codda.impl.message.Echo;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
@@ -22,11 +22,11 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * Echo 서버 코덱
+ * Echo 클라이언트 코덱
  * @author Won Jonghoon
  *
  */
-public final class EchoServerCodec implements MessageCodecIF {
+public final class EchoClientCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {

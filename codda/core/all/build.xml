@@ -69,7 +69,7 @@
 		<delete dir="${dir.dist}" />
 	</target>
 
-	<target name="init">
+	<target name="init" depends="clean">
 		<tstamp />
 		<mkdir dir="${dir.dist}" />
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />

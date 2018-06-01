@@ -43,6 +43,8 @@ import kr.pe.codda.server.threadpool.executor.ServerExecutorPool;
 public class AnyProjectServer {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AnyProjectServer.class);
 	
+	private String serverAPPINFClassPathString = null;
+	private String projectResourcesPathString = null;
 	private String mainProjectName = null;
 	private Charset charset = null;
 	private ByteOrder byteOrder = null;
@@ -50,30 +52,29 @@ public class AnyProjectServer {
 	private boolean serverDataPacketBufferIsDirect;
 	private int serverDataPacketBufferMaxCntPerMessage;
 	private int serverDataPacketBufferSize;
-	private int serverDataPacketBufferPoolSize;
-		
-	 
+	private int serverDataPacketBufferPoolSize;	 
 	
-	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;	
 	/** 비지니스 로직 처리 담당 쓰레드 폴 */
-	private ServerExecutorPool executorPool = null;
-	
-	private ServerObjectCacheManager serverObjectCacheManager = null;
-	
-	
+	private ServerExecutorPool executorPool = null;	
+	private ServerObjectCacheManager serverObjectCacheManager = null;	
 	private ServerIOEventController serverIOEventController = null;
 	
-	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
+	public AnyProjectServer(String serverAPPINFClassPathString,
+			String projectResourcesPathString, ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, CoddaConfigurationException {
-		mainProjectName = projectPartConfiguration.getProjectName();
+		this.serverAPPINFClassPathString = serverAPPINFClassPathString;
+		this.projectResourcesPathString = projectResourcesPathString;
+		
+		mainProjectName = projectPartConfiguration.getProjectName();		
 		charset = projectPartConfiguration.getCharset();
 		byteOrder = projectPartConfiguration.getByteOrder();
 		messageProtocolType = projectPartConfiguration.getMessageProtocolType();
 		serverDataPacketBufferIsDirect = projectPartConfiguration.getServerDataPacketBufferIsDirect();
 		serverDataPacketBufferMaxCntPerMessage = projectPartConfiguration.getServerDataPacketBufferMaxCntPerMessage();
 		serverDataPacketBufferSize = projectPartConfiguration.getServerDataPacketBufferSize();
-		serverDataPacketBufferPoolSize = projectPartConfiguration.getServerDataPacketBufferPoolSize();
+		serverDataPacketBufferPoolSize = projectPartConfiguration.getServerDataPacketBufferPoolSize();		
+		
 		
 		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charset);
 		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charset);
@@ -121,7 +122,10 @@ public class AnyProjectServer {
 						serverDataPacketBufferMaxCntPerMessage,
 						dataPacketBufferPool);
 		
-		serverObjectCacheManager = createNewServerObjectCacheManager();		
+		ServerClassLoaderFactory serverClassLoaderFactory = 
+				new ServerClassLoaderFactory(this.serverAPPINFClassPathString, this.projectResourcesPathString);
+		
+		serverObjectCacheManager = new ServerObjectCacheManager(serverClassLoaderFactory);		
 		
 		serverIOEventController = new ServerIOEventController(projectPartConfiguration,
 				socketOutputStreamFactory, 
@@ -138,13 +142,6 @@ public class AnyProjectServer {
 				
 	}
 
-	private ServerObjectCacheManager createNewServerObjectCacheManager() throws CoddaConfigurationException {
-		
-		ServerClassLoaderBuilder serverSimpleClassLoaderBuilder = 
-				new ServerClassLoaderBuilder();
-		
-		return new ServerObjectCacheManager(serverSimpleClassLoaderBuilder);
-	}
 	
 	/**
 	 * 서버 시작

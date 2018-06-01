@@ -44,10 +44,10 @@ public interface AnyProjectConnectionPoolIF {
 			throws InterruptedException, NotSupportedException, ConnectionPoolException, 
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException;
 		
-	public ConnectionIF createAsynThreadSafeConnection(String host, int port)
-			throws InterruptedException, IOException, NoMoreDataPacketBufferException;
+	public ConnectionIF createAsynThreadSafeConnection(String serverHost, int serverPort)
+			throws InterruptedException, IOException, NoMoreDataPacketBufferException, NotSupportedException;
 	
-	public ConnectionIF createSyncThreadSafeConnection(String host, int port)
+	public ConnectionIF createSyncThreadSafeConnection(String serverHost, int serverPort)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException;
 	
 	public String getPoolState();

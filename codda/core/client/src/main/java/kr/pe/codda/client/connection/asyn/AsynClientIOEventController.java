@@ -44,13 +44,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 	@Override
 	public void addUnregisteredAsynConnection(ClientInterestedConnectionIF unregisteredAsynConnection) throws IOException, InterruptedException {
 		if (getState().equals(Thread.State.NEW)) {
-			try {
-				unregisteredAsynConnection.close();
-			} catch (IOException e) {
-				log.warn("fail to close the socket channel[{}] becase this thread state has not yet started, errmsg={}", 
-						unregisteredAsynConnection.hashCode(), e.getMessage());
-			}
-			unregisteredAsynConnection.releaseResources();			
+			unregisteredAsynConnection.close();			
 			asynConnectionPool.removeUnregisteredConnection(unregisteredAsynConnection);
 			return;
 		}
@@ -61,18 +55,12 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 		do {
 			ioEventSelector.wakeup();
 
-			try {
-				Thread.sleep(clientSelectorWakeupInterval);
-			} catch (InterruptedException e) {
-				log.info(
-						"give up the test checking whether the new socket[{}] is registered with the Selector because the socket has occurred",
-						unregisteredAsynConnection.hashCode());
-				throw e;
-			}
+			Thread.sleep(clientSelectorWakeupInterval);
 			
 			loop = unregisteredAsynConnectionQueue.contains(unregisteredAsynConnection);
 		} while (loop);
 	}
+	
 	
 	private void processNewConnection() {					
 		while (! unregisteredAsynConnectionQueue.isEmpty()) {
@@ -85,13 +73,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 			try {
 				isConnected = unregisteredAsynConnection.doConect();
 			} catch (IOException e) {
-				try {
-					unregisteredAsynConnection.close();
-				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-							unregisteredAsynConnection.hashCode(), e1.getMessage());
-				}
-				unregisteredAsynConnection.releaseResources();
+				unregisteredAsynConnection.close();
 				asynConnectionPool.removeUnregisteredConnection(unregisteredAsynConnection);				
 				continue;
 			}
@@ -111,14 +93,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 				log.warn("fail to register the socket channel[{}] on selector, errmsg={}", 
 						unregisteredAsynConnection.hashCode(),
 						e.getMessage());
-
-				try {
-					unregisteredAsynConnection.close();
-				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}], errmsg={}", 
-							unregisteredAsynConnection.hashCode(), e1.getMessage());
-				}
-				unregisteredAsynConnection.releaseResources();
+				unregisteredAsynConnection.close();
 				asynConnectionPool.removeUnregisteredConnection(unregisteredAsynConnection);
 			}
 		}
@@ -142,14 +117,7 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 							continue;
 						}
 						
-						try {
-							interestedAsynConnection.close();
-						} catch(IOException e) {
-							log.warn("fail to close the connection[{}], errmsg={}", 
-									interestedAsynConnection.hashCode(),
-									e.getMessage());
-						}
-						interestedAsynConnection.releaseResources();
+						interestedAsynConnection.close();
 						cancel(selectedKey);						
 						continue;
 					}

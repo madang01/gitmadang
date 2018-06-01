@@ -48,7 +48,7 @@
 		<delete dir="${dir.dist}" />
 	</target>
 
-	<target name="init">
+	<target name="init" depends="clean">
 		<tstamp />
 		<mkdir dir="${dir.build}/main" />
 		<mkdir dir="${dir.build}/test" />

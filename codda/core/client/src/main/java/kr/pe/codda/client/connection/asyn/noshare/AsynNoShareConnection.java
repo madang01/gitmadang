@@ -15,6 +15,7 @@ import java.util.ArrayDeque;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
+import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
@@ -36,6 +37,14 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 
+/**
+ * <pre>
+ * Note that this implementation is not synchronized.
+ * </pre>
+ * 
+ * @author Won Jonghoon
+ *
+ */
 public final class AsynNoShareConnection implements AsynConnectionIF, ClientInterestedConnectionIF, ReceivedMessageBlockingQueueIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnection.class);
 	
@@ -48,6 +57,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private AsynConnectedConnectionAdderIF asynConnectedConnectionAdder = null;
 	private AsynClientIOEventControllerIF asynSelectorManger = null;
+	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 	
 	private SocketChannel clientSC = null;
 	private java.util.Date finalReadTime = new java.util.Date();
@@ -66,7 +76,8 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 			ClientMessageUtilityIF clientMessageUtility,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
 			ClientExecutorIF clientExecutor,
-			AsynClientIOEventControllerIF asynSelectorManger) throws IOException {
+			AsynClientIOEventControllerIF asynSelectorManger,
+			ConnectionPoolSupporterIF connectionPoolSupporter) throws IOException {
 		this.serverHost = serverHost;
 		this.serverPort = serverPort;
 		this.socketTimeout = socketTimeout;		
@@ -75,6 +86,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 		this.asynConnectedConnectionAdder = asynConnectedConnectionAdder;
 		this.clientExecutor = clientExecutor;
 		this.asynSelectorManger = asynSelectorManger;
+		this.connectionPoolSupporter = connectionPoolSupporter;
 		
 		openSocketChannel();
 		
@@ -96,6 +108,8 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 		finalReadTime = new java.util.Date();
 	}
 	
+	
+
 	public java.util.Date getFinalReadTime() {
 		return finalReadTime;
 	}
@@ -145,9 +159,36 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
+		
+		
+		try {
+			clientSC.close();
+		} catch(IOException e) {
+			log.warn("fail to close the socket channel[{}], errmsg={}", 
+					clientSC.hashCode(), e.getMessage());
+		}
+		
+		releaseResources();
+	}
+	
+	private void releaseResources() {
+		socketOutputStream.close();
 		clientExecutor.removeAsynConnection(this);
-		clientSC.close();
+		
+		if (null != inputMessageWrapBufferQueue) {
+			if (! inputMessageWrapBufferQueue.isEmpty()) {
+				log.info("the var inputMessageWrapBufferQueue is not a empty");
+				
+				do {
+					WrapBuffer wrapBuffer = inputMessageWrapBufferQueue.pollFirst();
+					clientMessageUtility.releaseWrapBuffer(wrapBuffer);
+				} while (inputMessageWrapBufferQueue.isEmpty());
+			}
+			
+		}
+		
+		log.info("this connection[{}]'s resources has been released", clientSC.hashCode());
 	}
 
 	public int hashCode() {
@@ -155,35 +196,27 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 	}
 
 	@Override
-	public void onConnect(SelectionKey selectedKey) {		
+	public void onConnect(SelectionKey selectedKey) {
+		
 		boolean isSuccess = false;
 		try {
 			isSuccess = clientSC.finishConnect();
 		} catch(IOException e) {
 			log.warn("fail to finish a connection[{}] becase io exception has been occurred, errmsg={}", hashCode(), e.getMessage());
 			
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
+			close();		
+			asynSelectorManger.cancel(selectedKey);
+			asynConnectedConnectionAdder.removeInterestedConnection(this);
+			connectionPoolSupporter.notice("fail to finish a connection becase of io error");
 			
-			asynSelectorManger.cancel(selectedKey);			
 			return;
 		} catch (Exception e) {
 			log.warn("fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}", hashCode(), e.getMessage());
 			
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
-			
+			close();				
 			asynSelectorManger.cancel(selectedKey);
+			asynConnectedConnectionAdder.removeInterestedConnection(this);
+			connectionPoolSupporter.notice("fail to finish a connection becase of unknown error");
 			return;
 		}
 			
@@ -194,13 +227,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 			} catch(Exception e) {
 				log.warn("fail to set this key's interest set to OP_READ becase unknown error has been occurred, errmsg={}", hashCode(), e.getMessage());
 				
-				try {
-					close();
-				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-							hashCode(), e1.getMessage());
-				}
-				releaseResources();
+				close();
 				
 				asynSelectorManger.cancel(selectedKey);
 				return;
@@ -211,20 +238,15 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 			} catch (ConnectionPoolException e) {
 				log.warn(e.getMessage(), e);			
 				asynConnectedConnectionAdder.removeInterestedConnection(this);
-				try {
-					close();
-				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-							hashCode(), e1.getMessage());
-				}
-				releaseResources();
+				close();
 				
 				asynSelectorManger.cancel(selectedKey);
 				return;
 			}			
 		} else {
 			log.debug("the interested connection[{}] unfinshed", hashCode());
-		}		
+		}	
+		
 	}
 
 	@Override
@@ -242,7 +264,6 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 
 				log.warn(errorMessage);
 				close();
-				releaseResources();
 				asynSelectorManger.cancel(selectedKey);
 				return;
 			}
@@ -258,13 +279,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
+			close();
 			
 			asynSelectorManger.cancel(selectedKey);
 			return;
@@ -275,13 +290,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
+			close();
 			asynSelectorManger.cancel(selectedKey);
 			return;
 		} catch (Exception e) {
@@ -291,13 +300,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
+			close();
 			asynSelectorManger.cancel(selectedKey);
 			return;
 		}
@@ -319,15 +322,8 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 						.append(clientSC.hashCode())
 						.append("] because io error occured, errmsg=")
 						.append(e.getMessage()).toString();
-				log.warn(errorMessage, e);
-				try {
-					close();
-				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}], errmsg={}", 
-							hashCode(), e1.getMessage());
-				}
-				
-				releaseResources();
+				log.warn(errorMessage, e);				
+				close();
 				asynSelectorManger.cancel(selectedKey);
 				return;
 			}	
@@ -355,13 +351,7 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 		}
 	}
 
-	@Override
-	public void releaseResources() {
-		socketOutputStream.close();
-		
-		log.info("this connection[{}]'s resources has been released", clientSC.hashCode());
-	}
-
+	
 	@Override
 	public SelectionKey register(Selector ioEventSelector, int wantedInterestOps) throws ClosedChannelException {		
 		SelectionKey registedKey = clientSC.register(ioEventSelector, wantedInterestOps);		

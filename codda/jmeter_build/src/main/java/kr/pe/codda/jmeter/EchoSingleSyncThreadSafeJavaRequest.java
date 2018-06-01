@@ -1,7 +1,6 @@
-package kr.pe.sinnori.jmeter;
+package kr.pe.codda.jmeter;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.SocketTimeoutException;
 
@@ -17,47 +16,41 @@ import kr.pe.codda.client.ConnectionIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.Echo.Echo;
+import kr.pe.codda.impl.message.Echo.Echo;
 
-public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serializable {
+public class EchoSingleSyncThreadSafeJavaRequest extends AbstractJavaSamplerClient implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6530083948693185629L;
 
-	private InternalLogger log = InternalLoggerFactory.getInstance(EchoJavaRequest.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(EchoSingleSyncThreadSafeJavaRequest.class);
 	private ConnectionIF conn = null;
-	private boolean isError = false;
 
 	public Arguments getDefaultParameters() {
 		Arguments args = new Arguments();
-		args.addArgument("installedPath", "d:\\gitsinnori\\sinnori");
+		args.addArgument("installedPath", "D:\\gitmadang\\codda");
 		args.addArgument("runningProjectName", "sample_base");
 
-		args.addArgument("host", "sinnori.pe.kr");
+		args.addArgument("host", "localhost");
 		args.addArgument("port", "9090");
 
 		return args;
+	}
+	
+	public SampleResult buildErrorSampleResult(String errorMessage) {
+		SampleResult result = new SampleResult();
+		result.sampleStart();
+		result.setSuccessful(false);
+		result.setSampleLabel(errorMessage);
+		result.sampleEnd();
+		return result;
 	}
 
 	@Override
 	public SampleResult runTest(JavaSamplerContext context) {
 		if (Thread.currentThread().isInterrupted()) {
-			SampleResult result = new SampleResult();
-			result.sampleStart();
-			result.setSuccessful(false);
-			result.setSampleLabel("InterruptedException-"+Thread.currentThread().getName());
-			result.sampleEnd();
-			return result;
-		}
-		
-		if (isError) {
-			SampleResult result = new SampleResult();
-			result.sampleStart();
-			result.setSuccessful(false);
-			result.setSampleLabel("unknow error");
-			result.sampleEnd();
-			return result;
+			return buildErrorSampleResult("InterruptedException-"+Thread.currentThread().getName());
 		}
 		
 		// log.info("conn is null, thread={}", Thread.currentThread().getName());
@@ -66,9 +59,9 @@ public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serial
 			String runningProjectName = context.getParameter("runningProjectName");
 			String installedPathString = context.getParameter("installedPath");
 
-			String host = context.getParameter("host");
+			String serverHost = context.getParameter("host");
 			String nativePort = context.getParameter("port");
-			int port = 9090;
+			int serverPort = 9090;
 
 			File sinnoriInstalledPath = new File(installedPathString);
 
@@ -83,7 +76,7 @@ public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serial
 			}
 
 			try {
-				port = Integer.parseInt(nativePort);
+				serverPort = Integer.parseInt(nativePort);
 			} catch (NumberFormatException e) {
 				log.error("the port[{}] is not a number, change to a default value[9090]", nativePort);
 				System.exit(1);
@@ -99,16 +92,9 @@ public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serial
 			AnyProjectConnectionPoolIF mainProjectConnectionPool = connectionPoolManager.getMainProjectConnectionPool();
 			
 			try {
-				conn = mainProjectConnectionPool.createConnection(host, port);
+				conn = mainProjectConnectionPool.createSyncThreadSafeConnection(serverHost, serverPort);
 			} catch (Exception e) {
-				// log.warn("1.fail to create a connection, thread="+Thread.currentThread().getName(), e);
-				// System.exit(1);
-				SampleResult result = new SampleResult();
-				result.sampleStart();
-				result.setSuccessful(false);
-				result.setSampleLabel("connection timeout");
-				result.sampleEnd();
-				return result;
+				return buildErrorSampleResult("connection timeout");
 			}				
 			
 			log.info("conn[{}] is connected, thread={}", conn.hashCode(), Thread.currentThread().getName());
@@ -119,14 +105,8 @@ public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serial
 		if (! conn.isConnected()) {
 			log.info("conn[{}] is disconencted, thread={}, isInterrupted={}", 
 					conn.hashCode(),
-					Thread.currentThread().getName(), Thread.currentThread().isInterrupted());
-			
-			SampleResult result = new SampleResult();
-			result.sampleStart();
-			result.setSuccessful(false);
-			result.setSampleLabel("conn[" + conn.hashCode() + "] was disconencted, thread="+Thread.currentThread().getName());
-			result.sampleEnd();
-			return result;
+					Thread.currentThread().getName(), Thread.currentThread().isInterrupted());			
+			return buildErrorSampleResult("conn[" + conn.hashCode() + "] was disconencted, thread="+Thread.currentThread().getName());
 		}
 
 		SampleResult result = new SampleResult();
@@ -170,18 +150,15 @@ public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serial
 			result.setSuccessful(false);
 			result.setSampleLabel("echo 메시지 입력/출력 unknown error");
 
-			log.warn(new StringBuilder("실패::알수없는 에러 발생, conn=").append(conn.hashCode())
+			String errorMessage = new StringBuilder("실패::알수없는 에러 발생, conn=").append(conn.hashCode())
 					.append(", thread=")
 					.append(Thread.currentThread().getName()).append(", errmsg=")
-					.append(e.getMessage()).toString(), e);
-			try {
-				conn.close();
-			} catch (IOException e1) {
-				log.error("2.fail to close the connection", e1);
-			}
-
-			// conn = null
-			isError = true;
+					.append(e.getMessage()).toString();
+			
+			
+			log.warn(errorMessage, e);
+			conn.close();
+			conn = null;
 		}
 		//
 
@@ -247,11 +224,7 @@ public class EchoJavaRequest extends AbstractJavaSamplerClient implements Serial
 		if (null != conn) {
 			log.info("teardownTest::close connection[{}]", conn.hashCode());
 
-			try {
-				conn.close();
-			} catch (IOException e) {
-				log.error("teardownTest::fail to close the connection", e);
-			}
+			conn.close();
 		} else {
 			log.info("teardownTest::connection is null");
 		}

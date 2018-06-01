@@ -189,7 +189,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 
 	@Override
 	public void addConnection() throws NoMoreDataPacketBufferException, IOException {
-		SocketOutputStream sos = socketOutputStreamFactory.newInstance();
+		SocketOutputStream sos = socketOutputStreamFactory.createSocketOutputStream();
 		SyncNoShareConnection syncNoShareConnection = null;
 		try {
 			syncNoShareConnection = new SyncNoShareConnection(projectPartConfiguration.getServerHost(),
@@ -219,5 +219,4 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 				.append(", connectionQueue.size=")
 				.append(connectionQueue.size()).toString();
 	}
-
 }

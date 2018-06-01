@@ -1,9 +1,10 @@
-package kr.pe.codda.client.connection.asyn.share;
+package kr.pe.codda.client.connection.sync;
 
 import static org.junit.Assert.fail;
 
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -11,6 +12,7 @@ import org.junit.Test;
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.client.AnyProjectConnectionPool;
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
+import kr.pe.codda.client.ConnectionIF;
 import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporter;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
@@ -23,7 +25,7 @@ import kr.pe.codda.common.type.ProjectType;
 import kr.pe.codda.impl.message.Empty.Empty;
 import kr.pe.codda.server.AnyProjectServer;
 
-public class AsynShareConnectionTest extends AbstractJunitTest {
+public class SyncThreadSafeSingleConnectionTest extends AbstractJunitTest {
 	
 	private ProjectPartConfiguration buildMainProjectPartConfiguration(String projectName,
 			String host, int port,
@@ -103,30 +105,31 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 
 		return projectPartConfigurationForTest;
 	}
-	
+
 	@Test
-	public void testSendSyncInputMessage_singleThreadOk() {
+	public void testSendSyncInputMessage_threadSafeOK() {
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
+		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.DHB;
 		boolean clientDataPacketBufferIsDirect = false;
-		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-
-		String host = null;
-		int port;
+		String serverHost = null;
+		int serverPort;
+		int numberOfThread = 3;
+		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread); 
 		
 		// host = "172.30.1.16";
-		host = "localhost";
-		port = 9291;
+		serverHost = "localhost";
+		serverPort = 9293;
 		
-		int clientConnectionCount = 1;
+		int clientConnectionCount = 0;
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
-					host,  port,
+					serverHost,  serverPort,
 					clientConnectionCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PUBLIC);
+					ConnectionType.SYNC_PRIVATE);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -138,7 +141,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 			fail(errorMessage);
 		}
 		
-		// log.info("{}", projectPartConfigurationForTest.getClientConnectionCount());
+		log.info("{}", projectPartConfigurationForTest.getClientConnectionCount());
 		
 		AnyProjectServer anyProjectServerForTest = null;
 		try {
@@ -154,10 +157,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		} catch (Exception e) {
 			log.warn("fail to start a server", e);
 			fail("fail to start a server");
-		}
-		
-		
-		Empty emptyReq = new Empty();
+		}		
 		
 		AnyProjectConnectionPoolIF  anyProjectConnectionPool  = null;
 		
@@ -166,135 +166,85 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		} catch (Exception e) {
 			log.warn("fail to create a asyn no-share connection pool", e);
 			fail("fail to create a asyn no-share connection pool");
-		}
+		}		
 		
+		ConnectionIF connection = null;
 		try {
-			Thread.sleep(1000L);
-		} catch (InterruptedException e) {
-		}
+			connection = anyProjectConnectionPool.createSyncThreadSafeConnection(serverHost, serverPort);
+		} catch (Exception e) {
+			log.warn("fail to create a sync thread safe connection", e);
+			fail("fail to create a sync thread safe connection");
+		}		
 		
-		try {
-			int retryCount = 100;
-			long startTime = System.nanoTime();
+		class ThreadSafeTester implements Runnable {
+			private ConnectionIF connection = null;
+			private int retryCount;
+			private ArrayBlockingQueue<String> noticeBlockingQueue = null;
 			
-			for (int i=0; i < retryCount; i++) {
-				AbstractMessage emptyRes =  anyProjectConnectionPool.sendSyncInputMessage(emptyReq);				
-				if (!(emptyRes instanceof Empty)) {
-					fail("empty 메시지 수신 실패");
+			public ThreadSafeTester(ConnectionIF connection, int retryCount, ArrayBlockingQueue<String> noticeBlockingQueue) {
+				this.connection = connection;
+				this.retryCount = retryCount;
+				this.noticeBlockingQueue = noticeBlockingQueue;
+			}			
+
+			@Override
+			public void run() {
+				log.info("start {}", Thread.currentThread().getName());				
+				
+				Empty emptyReq = new Empty();
+				
+				try {
+					long startTime = System.nanoTime();
+					
+					for (int i=0; i < retryCount; i++) {
+						AbstractMessage emptyRes =  connection.sendSyncInputMessage(emptyReq);				
+						if (!(emptyRes instanceof Empty)) {
+							fail("empty 메시지 수신 실패");
+						}
+
+						if (! emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
+							fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
+						}
+					}
+					
+					long endTime = System.nanoTime();
+					log.info("{} {} 회 평균시간[{}] microseconds",  
+							Thread.currentThread().getName(),
+							retryCount,
+							TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
+					
+					
+					
+				} catch (Exception e) {
+					log.warn("error", e);
+
+					String errorMessage = String.format(
+							"fail to get a output message::%s",
+							e.getMessage());
+
+					fail(errorMessage);
 				}
-
-				if (!emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
-					fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
-				}
+				
+				noticeBlockingQueue.offer(Thread.currentThread().getName());
 			}
-			
-			long endTime = System.nanoTime();
-			log.info("{} 회 평균시간[{}] microseconds", retryCount, TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
-			
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			String errorMessage = String.format(
-					"fail to get a output message::%s",
-					e.getMessage());
-
-			fail(errorMessage);
-		}
-	}
-	
-	@Test
-	public void testSendAsynInputMessage_ok() {
-		String testProjectName = "sample_test";
-		ProjectPartConfiguration projectPartConfigurationForTest = null;
-		boolean clientDataPacketBufferIsDirect = true;
-		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-
-		String host = null;
-		int port;
+		}		
 		
-		// host = "172.30.1.16";
-		host = "localhost";
-		port = 9291;
+		Thread[] threadSafeTester = new Thread[numberOfThread];
 		
-		int numberOfConnection = 1;
+		for (int i=0; i < numberOfThread; i++) {
+			threadSafeTester[i] = new Thread(new ThreadSafeTester(connection, 10000, noticeBlockingQueue));
+			threadSafeTester[i].start();
+		}		
 		
-		try {
-			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
-					host,  port,
-					numberOfConnection,
-					messageProtocolTypeForTest,
-					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PUBLIC);
-
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			String errorMessage = String.format(
-					"fail to mapping configuration's item value to ProjectPartConfiguration's item value::%s",
-					e.getMessage());
-
-			fail(errorMessage);
-		}
-		
-		// log.info("{}", projectPartConfigurationForTest.getClientConnectionCount());
-		
-		AnyProjectServer anyProjectServerForTest = null;
-		try {
-			String serverAPPINFClassPathString = ServerBuildSytemPathSupporter
-					.getServerAPPINFClassPathString(installedPath.getAbsolutePath(), 
-							mainProjectName);
-			String projectResourcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPath.getAbsolutePath(), mainProjectName);
-			
-			anyProjectServerForTest = new AnyProjectServer(serverAPPINFClassPathString,
-					projectResourcesPathString,
-					projectPartConfigurationForTest);
-			anyProjectServerForTest.startServer();
-		} catch (Exception e) {
-			log.warn("fail to start a server", e);
-			fail("fail to start a server");
-		}
-		
-		
-		Empty emptyReq = new Empty();
-		
-		AnyProjectConnectionPoolIF  anyProjectConnectionPool  = null;
-		
-		try {
-			anyProjectConnectionPool = new AnyProjectConnectionPool(projectPartConfigurationForTest);
-		} catch (Exception e) {
-			log.warn("fail to create a asyn no-share connection pool", e);
-			fail("fail to create a asyn no-share connection pool");
-		}
-		
-		try {
-			Thread.sleep(1000L);
-		} catch (InterruptedException e) {
-		}
-		
-		try {
-			int retryCount = 1;
-			long startTime = System.nanoTime();
-			
-			for (int i=0; i < retryCount; i++) {
-				anyProjectConnectionPool.sendAsynInputMessage(emptyReq);
+		for (int i=0; i < numberOfThread; i++) {
+			String endThreadName = null;
+			try {
+				endThreadName = noticeBlockingQueue.take();
+				log.info("end thread[{}]", endThreadName);
+			} catch (InterruptedException e) {
 			}
-			
-			long endTime = System.nanoTime();
-			log.info("{} 회 평균시간[{}] microseconds", retryCount, TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
-			
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			String errorMessage = String.format(
-					"fail to get a output message::%s",
-					e.getMessage());
-
-			fail(errorMessage);
 		}
 		
-		try {
-			Thread.sleep(1000L);
-		} catch (InterruptedException e) {
-		}
+		connection.close();
 	}
 }

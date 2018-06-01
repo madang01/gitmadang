@@ -15,7 +15,7 @@
 	</target>
 
 
-	<target name="init">
+	<target name="init" depends="clean">
 		<tstamp />
 		<mkdir dir="${dir.build}" />
 		<mkdir dir="${dir.dist}" />		

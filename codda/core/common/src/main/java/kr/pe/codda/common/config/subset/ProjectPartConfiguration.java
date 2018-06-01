@@ -53,6 +53,8 @@ public class ProjectPartConfiguration {
 	
 	private Integer  clientConnectionMaxCount = null;
 	
+	private Long  clientConnectionPoolSupporterTimeInterval = null;
+	
 	/***** 연결 클래스 관련 환경 변수 종료 *****/	
 	
 	/** 비동기+공유 연결의 개인 메일함 갯수 */
@@ -81,7 +83,6 @@ public class ProjectPartConfiguration {
 	
 	private Integer serverMaxClients = null;	
 	
-	private Long serverSelectorWakeupInterval = null;
 	
 	/***** 서버 비동기 입출력 지원용 자원 시작 *****/
 	private Integer  serverInputMessageQueueSize = null;
@@ -204,10 +205,6 @@ public class ProjectPartConfiguration {
 		return serverDataPacketBufferPoolSize;
 	}	
 
-	public long getServerSelectorWakeupInterval() {
-		return serverSelectorWakeupInterval;
-	}
-
 	public int getServerExecutorPoolSize() {
 		return serverExecutorPoolSize;
 	}
@@ -241,6 +238,10 @@ public class ProjectPartConfiguration {
 	public void changeServerAddress(String newServerHost, int newServerPort) {
 		this.serverHost = newServerHost;
 		this.serverPort = newServerPort;
+	}
+	
+	public Long getClientConnectionPoolSupporterTimeInterval() {
+		return clientConnectionPoolSupporterTimeInterval;
 	}
 
 	public void mapping(String itemKey, Object nativeValue) 
@@ -421,7 +422,7 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.clientConnectionCount = (Integer) nativeValue;
+			this.clientConnectionCount = (Integer) nativeValue;		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -435,7 +436,18 @@ public class ProjectPartConfiguration {
 			
 			this.clientConnectionMaxCount = (Integer) nativeValue;		
 		
-		
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_POOL_SUPPORTOR_TIME_INTERVAL_ITEMID)) {
+			if (!(nativeValue instanceof Long)) {
+				String errorMessage = new StringBuilder("the generic type[")
+				.append(nativeValue.getClass().getName())
+				.append("] of the parameter itemIDInfo[")
+				.append(itemID).append("] is differnet from the mapped variable's type[")
+				.append(Integer.class.getName())
+				.append("]").toString();
+				throw new CoddaConfigurationException(errorMessage);
+			}
+			
+			this.clientConnectionPoolSupporterTimeInterval = (Long) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SYNC_MESSAGE_MAILBOX_COUNT_PER_ASYN_NOSHARE_CONNECTION_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -568,20 +580,7 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.serverMaxClients = (Integer) nativeValue;
-			
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_SELECTOR_WAKEUP_INTERVAL_ITEMID)) {
-			if (!(nativeValue instanceof Long)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Long.class.getName())
-				.append("]").toString();
-				throw new CoddaConfigurationException(errorMessage);
-			}
-			
-			this.serverSelectorWakeupInterval = (Long) nativeValue;
+			this.serverMaxClients = (Integer) nativeValue;		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -653,6 +652,7 @@ public class ProjectPartConfiguration {
 			long clientSocketTimeout,			
 			int clientConnectionCount,
 			int clientConnectionMaxCount,
+			long clientConnectionPoolSupporterTimeInterval,
 			int clientAsynPirvateMailboxCntPerPublicConnection,
 			int clientAsynInputMessageQueueSize,
 			int clientAsynOutputMessageQueueSize,
@@ -664,7 +664,6 @@ public class ProjectPartConfiguration {
 			int serverDataPacketBufferSize,
 			int serverDataPacketBufferPoolSize,
 			int serverMaxClients,
-			long serverSelectorWakeupInterval,
 			int serverInputMessageQueueSize,
 			int serverOutputMessageQueueSize,
 			int serverExecutorPoolSize,
@@ -731,6 +730,10 @@ public class ProjectPartConfiguration {
 				new StringBuilder(prefexOfItemID)
 						.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID).toString(),
 						clientConnectionMaxCount);		
+		
+		mapping(new StringBuilder(prefexOfItemID)
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_POOL_SUPPORTOR_TIME_INTERVAL_ITEMID).toString(), 
+				clientConnectionPoolSupporterTimeInterval);
 
 		mapping(new StringBuilder(prefexOfItemID).append(
 				ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SYNC_MESSAGE_MAILBOX_COUNT_PER_ASYN_NOSHARE_CONNECTION_ITEMID)
@@ -776,9 +779,6 @@ public class ProjectPartConfiguration {
 		mapping(new StringBuilder(prefexOfItemID)
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MAX_CLIENTS_ITEMID).toString(), serverMaxClients);
 
-		mapping(new StringBuilder(prefexOfItemID)
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_SELECTOR_WAKEUP_INTERVAL_ITEMID).toString(), serverSelectorWakeupInterval);
-		
 		mapping(new StringBuilder(prefexOfItemID)
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID).toString(),
 				serverInputMessageQueueSize);
@@ -834,6 +834,8 @@ public class ProjectPartConfiguration {
 		builder.append(clientConnectionCount);
 		builder.append(", clientConnectionMaxCount=");
 		builder.append(clientConnectionMaxCount);
+		builder.append(", clientConnectionPoolSupporterTimeInterval=");
+		builder.append(clientConnectionPoolSupporterTimeInterval);
 		builder.append(", clientSyncMessageMailboxCountPerAsynShareConnection=");
 		builder.append(clientSyncMessageMailboxCountPerAsynShareConnection);
 		builder.append(", clientAsynExecutorPoolSize=");
@@ -856,8 +858,6 @@ public class ProjectPartConfiguration {
 		builder.append(serverDataPacketBufferPoolSize);
 		builder.append(", serverMaxClients=");
 		builder.append(serverMaxClients);
-		builder.append(", serverSelectorWakeupInterval=");
-		builder.append(serverSelectorWakeupInterval);
 		builder.append(", serverInputMessageQueueSize=");
 		builder.append(serverInputMessageQueueSize);
 		builder.append(", serverOutputMessageQueueSize=");

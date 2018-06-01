@@ -11,6 +11,8 @@ import org.junit.Test;
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.client.AnyProjectConnectionPool;
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporter;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
@@ -25,7 +27,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 	
 	private ProjectPartConfiguration buildMainProjectPartConfiguration(String projectName,
 			String host, int port,
-			int numberOfConnection,
+			int clientConnectionCount,
 			MessageProtocolType messageProtocolType,
 			boolean clientDataPacketBufferIsDirect,
 			ConnectionType connectionType)
@@ -48,8 +50,9 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		int clientDataPacketBufferPoolSize=1000;
 		//ConnectionType connectionType = ConnectionType.ASYN_PRIVATE;
 		long clientSocketTimeout = 5000L;			
-		int clientConnectionCount = 2;
+		// int clientConnectionCount = 2;
 		int clientConnectionMaxCount = 4;
+		long clientConnectionPoolSupporterTimeInterval = 600000L;
 		int clientAsynPirvateMailboxCntPerPublicConnection = 2;
 		int clientAsynInputMessageQueueSize = 5;
 		int clientAsynOutputMessageQueueSize = 5;
@@ -63,7 +66,6 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		int serverMaxClients = 10;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		long serverSelectorWakeupInterval = 1L;
 		int serverExecutorPoolSize = 2;
 		int serverExecutorPoolMaxSize = 3;
 		
@@ -82,6 +84,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 				clientSocketTimeout,			
 				clientConnectionCount,
 				clientConnectionMaxCount,
+				clientConnectionPoolSupporterTimeInterval,
 				clientAsynPirvateMailboxCntPerPublicConnection,
 				clientAsynInputMessageQueueSize,
 				clientAsynOutputMessageQueueSize,
@@ -93,7 +96,6 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 				serverDataPacketBufferSize,
 				serverDataPacketBufferPoolSize,
 				serverMaxClients,
-				serverSelectorWakeupInterval,
 				serverInputMessageQueueSize,
 				serverOutputMessageQueueSize,
 				serverExecutorPoolSize,
@@ -103,7 +105,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void testSendSyncInputMessage() {
+	public void testSendSyncInputMessage_singleThreadOk() {
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
@@ -115,12 +117,12 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		host = "localhost";
 		port = 9293;
 		
-		int numberOfConnection = 2;
+		int clientConnectionCount = 2;
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
 					host,  port,
-					numberOfConnection,
+					clientConnectionCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
 					ConnectionType.SYNC_PRIVATE);
@@ -139,7 +141,14 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		
 		AnyProjectServer anyProjectServerForTest = null;
 		try {
-			anyProjectServerForTest = new AnyProjectServer(projectPartConfigurationForTest);
+			String serverAPPINFClassPathString = ServerBuildSytemPathSupporter
+					.getServerAPPINFClassPathString(installedPath.getAbsolutePath(), 
+							mainProjectName);
+			String projectResourcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPath.getAbsolutePath(), mainProjectName);
+			
+			anyProjectServerForTest = new AnyProjectServer(serverAPPINFClassPathString,
+					projectResourcesPathString,
+					projectPartConfigurationForTest);
 			anyProjectServerForTest.startServer();
 		} catch (Exception e) {
 			log.warn("fail to start a server", e);
@@ -159,7 +168,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		}		
 		
 		try {
-			int retryCount = 1000000;
+			int retryCount = 100;
 			long startTime = System.nanoTime();
 			
 			for (int i=0; i < retryCount; i++) {

@@ -53,10 +53,6 @@ public class CoddaConfiguration {
 		if (installedPathString.equals("")) {
 			throw new IllegalArgumentException("the parameter installedPathString is a empty string");
 		}
-		
-		// FIXME!
-		// System.out.printf("installedPathString=%s, mainProjectName=%s", installedPathString, mainProjectName);
-		// System.out.println("");
 				
 
 		File installedPath = new File(installedPathString);
@@ -92,10 +88,6 @@ public class CoddaConfiguration {
 		this.configFilePathString = ProjectBuildSytemPathSupporter
 				.getProejctConfigFilePathString(installedPathString, mainProjectName);
 		
-		// FIXME!
-		// System.out.printf("configFilePathString=%s", configFilePathString);
-		// System.out.println("");
-
 		this.configSequencedProperties = SequencedPropertiesUtil
 				.loadSequencedPropertiesFile(configFilePathString, CommonStaticFinalVars.SOURCE_FILE_CHARSET);
 
@@ -411,7 +403,6 @@ public class CoddaConfiguration {
 		overwriteFile();
 	}
 
-	// FIXME!
 	public static void applyInstalledPath(String installedPathString, String mainProjectName)
 			throws IOException, CoddaConfigurationException {
 		String configFilePathString = ProjectBuildSytemPathSupporter

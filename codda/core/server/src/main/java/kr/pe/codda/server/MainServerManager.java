@@ -22,6 +22,8 @@ import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporter;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.AllSubProjectPartConfiguration;
@@ -48,7 +50,8 @@ public final class MainServerManager {
 	private HashMap<String, AnyProjectServer> subProjectServerHash = new HashMap<String, AnyProjectServer>(); 
 	private AnyProjectServer mainProjectServer = null;
 	private ServerProjectMonitor serverProjectMonitor = null;
-	private String mainPorjectName = null;
+	private String installedPathString = null;
+	private String mainProjectName = null;
 
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class MainProjectServerManagerHolder {
@@ -72,10 +75,16 @@ public final class MainServerManager {
 			ProjectPartConfiguration mainProjectPartConfiguration = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
 			AllSubProjectPartConfiguration allSubProjectPartConfiguration = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
 			
-			mainPorjectName = mainProjectPartConfiguration.getProjectName();
+			installedPathString = sinnoriRunningProjectConfiguration.getInstalledPathString();
+			mainProjectName = mainProjectPartConfiguration.getProjectName();
+			
+			String serverAPPINFClassPathString = ServerBuildSytemPathSupporter
+					.getServerAPPINFClassPathString(installedPathString, 
+							mainProjectName);
+			String projectResourcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPathString, mainProjectName);
 			
 			try {
-				mainProjectServer = new AnyProjectServer(mainProjectPartConfiguration);
+				mainProjectServer = new AnyProjectServer(serverAPPINFClassPathString, projectResourcesPathString, mainProjectPartConfiguration);
 			} catch (NoMoreDataPacketBufferException e) {
 				log.warn("NoMoreDataPacketBufferException", e);
 			} catch (CoddaConfigurationException e) {
@@ -87,7 +96,7 @@ public final class MainServerManager {
 			for (String subProjectName : subProjectNamelist) {
 				AnyProjectServer subProjectServer = null;
 				try {
-					subProjectServer = new AnyProjectServer(allSubProjectPartConfiguration.getSubProjectPartConfiguration(subProjectName));
+					subProjectServer = new AnyProjectServer(serverAPPINFClassPathString, projectResourcesPathString, allSubProjectPartConfiguration.getSubProjectPartConfiguration(subProjectName));
 					
 					subProjectServerHash.put(subProjectName, subProjectServer);
 				} catch (NoMoreDataPacketBufferException e) {
@@ -160,7 +169,7 @@ public final class MainServerManager {
 	public String getServerState() {
 		StringBuilder pollStateStringBuilder = new StringBuilder();
 		pollStateStringBuilder.append("main projectName[");
-		pollStateStringBuilder.append(mainPorjectName);
+		pollStateStringBuilder.append(mainProjectName);
 		pollStateStringBuilder.append("]'s AnyProjectServer state");
 		pollStateStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		pollStateStringBuilder.append(mainProjectServer.getProjectServerState());

@@ -46,6 +46,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		long clientSocketTimeout = 5000L;			
 		int clientConnectionCount = 2;
 		int clientConnectionMaxCount = 4;
+		long clientConnectionPoolSupporterTimeInterval = 600000L;
 		int clientAsynPirvateMailboxCntPerPublicConnection = 2;
 		int clientAsynInputMessageQueueSize = 5;
 		int clientAsynOutputMessageQueueSize = 5;
@@ -59,7 +60,6 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 		int serverMaxClients = 10;		
 		// int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		long serverSelectorWakeupInterval = 1L;
 		// int serverExecutorPoolSize = 2;
 		// int serverExecutorPoolMaxSize = 3;
 		
@@ -78,6 +78,7 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 				clientSocketTimeout,			
 				clientConnectionCount,
 				clientConnectionMaxCount,
+				clientConnectionPoolSupporterTimeInterval,
 				clientAsynPirvateMailboxCntPerPublicConnection,
 				clientAsynInputMessageQueueSize,
 				clientAsynOutputMessageQueueSize,
@@ -89,7 +90,6 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 				serverDataPacketBufferSize,
 				serverDataPacketBufferPoolSize,
 				serverMaxClients,
-				serverSelectorWakeupInterval,
 				serverInputMessageQueueSize,
 				serverOutputMessageQueueSize,
 				serverExecutorPoolSize,

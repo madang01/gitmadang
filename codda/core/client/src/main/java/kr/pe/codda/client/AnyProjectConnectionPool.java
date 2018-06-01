@@ -18,10 +18,11 @@ import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporter;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventController;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
+import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
+import kr.pe.codda.client.connection.asyn.AyncThreadSafeSingleConnectedConnectionAdder;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.client.connection.asyn.executor.ClientExecutorPool;
 import kr.pe.codda.client.connection.asyn.noshare.AsynNoShareConnectionPool;
-import kr.pe.codda.client.connection.asyn.share.AsynShareConnection;
 import kr.pe.codda.client.connection.asyn.share.AsynShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncNoShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncThreadSafeSingleConnection;
@@ -62,6 +63,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	private int clientAsynExecutorPoolSize;
 	private int clientAsynOutputMessageQueueSize;
 	private ConnectionType connectionType = null;	
+	private long clientConnectionPoolSupporterTimeInterval;
 	
 	private ConnectionPoolIF connectionPool = null;	
 	private ConnectionPoolSupporter connectionPoolSupporter = null;
@@ -87,6 +89,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		clientAsynExecutorPoolSize = projectPartConfiguration.getClientAsynExecutorPoolSize();
 		clientAsynOutputMessageQueueSize = projectPartConfiguration.getClientAsynOutputMessageQueueSize();
 		connectionType = projectPartConfiguration.getConnectionType();
+		clientConnectionPoolSupporterTimeInterval = projectPartConfiguration.getClientConnectionPoolSupporterTimeInterval();
 		
 		CharsetEncoder charsetEncoderOfProject = CharsetUtil
 				.createCharsetEncoder(charset);
@@ -132,7 +135,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
 				dataPacketBufferPool);
 		
-		connectionPoolSupporter = new ConnectionPoolSupporter(1000L * 60 * 10);
+		connectionPoolSupporter = new ConnectionPoolSupporter(clientConnectionPoolSupporterTimeInterval);
 		
 		clientExecutorPool = new ClientExecutorPool(
 				clientAsynExecutorPoolSize, 
@@ -171,6 +174,11 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 					asynConnectionPool);
 			
 			asynSelectorManger.start();
+			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
 		} 
 		
 		connectionPoolSupporter.start();
@@ -200,10 +208,9 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 					.append(conn.hashCode())
 					.append("] was closed because of IOException").toString();
 			log.warn(errorMessage, e);
-			try {
-				conn.close();
-			} catch (IOException e1) {
-			}
+			
+			conn.close();
+			
 
 			throw e;
 		} finally {
@@ -236,62 +243,60 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	}
 
 	@Override
-	public ConnectionIF createAsynThreadSafeConnection(String host, int port) throws InterruptedException, IOException, NoMoreDataPacketBufferException {
+	public ConnectionIF createAsynThreadSafeConnection(String serverHost, int serverPort) throws InterruptedException, IOException, NoMoreDataPacketBufferException, NotSupportedException {
+		if (connectionType.equals(ConnectionType.SYNC_PRIVATE)) {
+			throw new NotSupportedException("the connection type is sync_private, it must be asyn_private or asyn_public, check the connection type in configuration");
+		}
+		
 		ConnectionIF connectedConnection = null;
 		
 		ClientExecutorIF clientExecutor  = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
-		SingleAyncShareConnectionAdder singleAyncShareConnectionAdder = new SingleAyncShareConnectionAdder();
-		AsynShareConnection unregisteredAsynNoShareConnection = 
-				new AsynShareConnection(projectPartConfiguration.getServerHost(),
-						projectPartConfiguration.getServerPort(),
+		AyncThreadSafeSingleConnectedConnectionAdder ayncThreadSafeSingleConnectedConnectionAdder = new AyncThreadSafeSingleConnectedConnectionAdder();
+		AsynThreadSafeSingleConnection unregisteredAsynThreadSafeSingleConnection = 
+				new AsynThreadSafeSingleConnection(serverHost,
+						serverPort,
 						projectPartConfiguration.getClientSocketTimeout(),
 						projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
 						projectPartConfiguration.getClientAsynInputMessageQueueSize(),					 
-				socketOutputStreamFactory.newInstance(), 
-				clientMessageUtility, singleAyncShareConnectionAdder, 
-				clientExecutor, asynSelectorManger);
+				socketOutputStreamFactory.createSocketOutputStream(), 
+				clientMessageUtility, ayncThreadSafeSingleConnectedConnectionAdder, 
+				clientExecutor, asynSelectorManger, connectionPoolSupporter);
 		
 		try {
-			asynSelectorManger.addUnregisteredAsynConnection(unregisteredAsynNoShareConnection);
+			asynSelectorManger.addUnregisteredAsynConnection(unregisteredAsynThreadSafeSingleConnection);
 		} catch(IOException e) {
-			unregisteredAsynNoShareConnection.close();
-			unregisteredAsynNoShareConnection.releaseResources();
+			unregisteredAsynThreadSafeSingleConnection.close();
 			
-			log.warn("fail to register a connection[{}] to selector", unregisteredAsynNoShareConnection.hashCode());
+			log.warn("fail to register a connection[{}] to selector", unregisteredAsynThreadSafeSingleConnection.hashCode());
 			
 			throw new IOException("fail to register a connection to selector");
 		}
 		
 		try {
-			connectedConnection =  singleAyncShareConnectionAdder.poll(socketTimeout);
+			connectedConnection = ayncThreadSafeSingleConnectedConnectionAdder.poll(socketTimeout);
 		} catch(SocketTimeoutException e) {			
 			log.warn("this connection[{}] timeout occurred", 
-					unregisteredAsynNoShareConnection.hashCode());
-			try {
-				/** WARNING! don't delete this code, this code is the code that closes the socket to cancel the connection registered in the selector */
-				unregisteredAsynNoShareConnection.close();
-			} catch(IOException e1) {
-				log.warn("fail to close the connection[{}], errmsg={}", unregisteredAsynNoShareConnection.hashCode(), e1.getMessage());
-			}			
+					unregisteredAsynThreadSafeSingleConnection.hashCode());
+			
+			/** WARNING! don't delete this code, this code is the code that closes the socket to cancel the connection registered in the selector */
+			unregisteredAsynThreadSafeSingleConnection.close();
+				
 			
 			throw e;
 		}
-		
-		
-		
 		
 		return connectedConnection;
 	}
 	
 	@Override
-	public ConnectionIF createSyncThreadSafeConnection(String host, int port) throws InterruptedException, IOException, NoMoreDataPacketBufferException {
+	public ConnectionIF createSyncThreadSafeConnection(String serverHost, int serverPort) throws InterruptedException, IOException, NoMoreDataPacketBufferException {
 		ConnectionIF connectedConnection = null;
 		
-		connectedConnection = new SyncThreadSafeSingleConnection(projectPartConfiguration.getServerHost(),
-				projectPartConfiguration.getServerPort(),
+		connectedConnection = new SyncThreadSafeSingleConnection(serverHost,
+				serverPort,
 				projectPartConfiguration.getClientSocketTimeout(),
 				projectPartConfiguration.getClientDataPacketBufferSize(),
-				socketOutputStreamFactory.newInstance(), clientMessageUtility);
+				socketOutputStreamFactory.createSocketOutputStream(), clientMessageUtility);
 		
 		return connectedConnection;
 	}

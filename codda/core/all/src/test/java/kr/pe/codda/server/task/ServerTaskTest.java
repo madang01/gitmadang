@@ -338,7 +338,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		// fromAcceptedConnection.close();
-		fromAcceptedConnection.releaseResources();
+		fromAcceptedConnection.close();
 	}
 
 	@Test
@@ -624,7 +624,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		fromAcceptedConnection.releaseResources();
+		fromAcceptedConnection.close();
 	}
 
 	@Test
@@ -915,7 +915,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		fromAcceptedConnection.releaseResources();
+		fromAcceptedConnection.close();
 	}
 
 	@Test
@@ -1209,7 +1209,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		fromAcceptedConnection.releaseResources();
+		fromAcceptedConnection.close();
 	}
 
 	@Test
@@ -1511,7 +1511,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		fromAcceptedConnection.releaseResources();
+		fromAcceptedConnection.close();
 	}
 
 	@Test
@@ -1812,7 +1812,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		fromAcceptedConnection.releaseResources();
+		fromAcceptedConnection.close();
 	}
 
 	@Test
@@ -2112,7 +2112,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		fromAcceptedConnection.releaseResources();
+		fromAcceptedConnection.close();
 	}
 
 	@Test
@@ -2409,6 +2409,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		
 		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		fromAcceptedConnection.releaseResources();
+		fromAcceptedConnection.close();
 	}
 }

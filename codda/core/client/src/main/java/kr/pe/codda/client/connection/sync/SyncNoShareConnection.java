@@ -15,7 +15,6 @@ import java.util.Arrays;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
-import kr.pe.codda.client.connection.asyn.noshare.AsynNoShareConnection;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -27,8 +26,14 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 
+/**
+ * Note that this implementation is not synchronized.
+ * 
+ * @author Won jonghoon
+ *
+ */
 public final class SyncNoShareConnection implements SyncConnectionIF {
-	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnection.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SyncNoShareConnection.class);
 	
 	private SocketOutputStream socketOutputStream = null;
 	private ClientMessageUtilityIF clientMessageUtility = null;
@@ -40,8 +45,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	
 	private SocketChannel clientSC = null;
 	private Socket clientSocket = null;
-	private InputStream clinetInputStream = null;
-	private OutputStream clinetOutputStream = null;	
+	private InputStream clientInputStream = null;
+	private OutputStream clientOutputStream = null;	
 	private final int mailboxID = 1;	
 	private transient int mailID = Integer.MIN_VALUE;
 	private transient java.util.Date finalReadTime = new java.util.Date();
@@ -73,15 +78,10 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		try {
 			clientSocket.setSoTimeout((int)socketTimeout);
 			clientSocket.connect(serverAddress, (int)socketTimeout);
-			clinetInputStream = clientSocket.getInputStream();
-			clinetOutputStream = clientSocket.getOutputStream();
+			clientInputStream = clientSocket.getInputStream();
+			clientOutputStream = clientSocket.getOutputStream();
 		} catch(IOException e) {
-			try {
-				clientSC.close();
-			} catch (IOException e1) {
-			}
-			
-			releaseResources();
+			close();
 			
 			String errorMessage = new StringBuilder()
 					.append("an io error occurred when connecting to the server or building the I / O stream, errmsg=")
@@ -90,12 +90,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 			
 			throw e;
 		} catch(Exception e) {
-			try {
-				clientSC.close();
-			} catch (IOException e1) {
-			}
-			
-			releaseResources();
+			close();
 			
 			String errorMessage = new StringBuilder()
 					.append("an unknown error occurred when connecting to the server or building the I / O stream, errmsg=")
@@ -142,7 +137,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 				ByteBuffer inputMessageByteBuffer = inputMessageWrapBuffer.getByteBuffer();
 				int len = inputMessageByteBuffer.remaining();
 				inputMessageByteBuffer.get(socketBuffer, 0, len);				
-				clinetOutputStream.write(socketBuffer, 0, len);
+				clientOutputStream.write(socketBuffer, 0, len);
 				
 				clientMessageUtility.releaseWrapBuffer(inputMessageWrapBuffer);				
 			} catch(IOException e) {
@@ -158,14 +153,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 						.append("] because io error occured, errmsg=")
 						.append(e.getMessage()).toString();
 				log.warn(errorMessage, e);
-				try {
-					close();
-				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}], errmsg={}", 
-							hashCode(), e1.getMessage());
-				}
-				
-				releaseResources();
+				close();
 			} catch(Exception e) {
 				clientMessageUtility.releaseWrapBuffer(inputMessageWrapBuffer);
 				while (! inputMessageWrapBufferQueue.isEmpty()) {
@@ -179,14 +167,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 						.append("] because unknown error occured, errmsg=")
 						.append(e.getMessage()).toString();
 				log.warn(errorMessage, e);
-				try {
-					close();
-				} catch (IOException e1) {
-					log.warn("fail to close the socket channel[{}], errmsg={}", 
-							hashCode(), e1.getMessage());
-				}
-				
-				releaseResources();
+				close();
 			}	
 		}		
 		
@@ -195,7 +176,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 			do {
 				int numberOfReadBytes = 0;			
 				
-				numberOfReadBytes = socketOutputStream.read(clinetInputStream, socketBuffer);				
+				numberOfReadBytes = socketOutputStream.read(clientInputStream, socketBuffer);				
 	
 				if (numberOfReadBytes == -1) {
 					String errorMessage = new StringBuilder("this socket channel[")
@@ -204,7 +185,6 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	
 					log.warn(errorMessage);
 					close();
-					releaseResources();
 					throw new IOException(errorMessage);
 				}
 	
@@ -222,13 +202,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
+			close();
 			
 			throw e;
 		} catch (IOException e) {
@@ -238,13 +212,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
+			close();
 			throw e;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
@@ -253,13 +221,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			try {
-				close();
-			} catch (IOException e1) {
-				log.warn("fail to close the socket channel[{}] becase of io error, errmsg={}", 
-						hashCode(), e1.getMessage());
-			}
-			releaseResources();
+			close();
 			throw new IOException(errorMessage);
 		} finally {
 			Arrays.fill(socketBuffer, CommonStaticFinalVars.ZERO_BYTE);
@@ -278,8 +240,15 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	}
 
 	@Override
-	public void close() throws IOException {
-		clientSocket.close();
+	public void close() {
+		try {
+			clientSC.close();
+		} catch(IOException e) {
+			log.warn("fail to close the socket channel[{}], errmsg={}", 
+					clientSC.hashCode(), e.getMessage());
+		}		
+		
+		releaseResources();
 	}
 
 	@Override
@@ -305,22 +274,32 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		return isQueueIn;
 	}
 
-	public void releaseResources() {
+	private void releaseResources() {
 		socketOutputStream.close();
 		
-		if (null != clinetInputStream) {
+		if (null != clientInputStream) {
 			try {
-				clinetInputStream.close();
+				clientInputStream.close();
 			} catch(Exception e) {
-				log.warn("fail to close a input stream, errmsg={}", e.getMessage());
+				String errorMessage = new StringBuilder()
+						.append("fail to close the input stream of socket channel[")
+						.append(clientSC.hashCode())
+						.append("], errmsg=")
+						.append(e.getMessage()).toString();
+				log.warn(errorMessage);
 			}
 		}
 		
-		if (null != clinetOutputStream) {
+		if (null != clientOutputStream) {
 			try {
-				clinetOutputStream.close();
+				clientOutputStream.close();
 			} catch(Exception e) {
-				log.warn("fail to close a output stream, errmsg={}", e.getMessage());
+				String errorMessage = new StringBuilder()
+						.append("fail to close the output stream of socket channel[")
+						.append(clientSC.hashCode())
+						.append("], errmsg=")
+						.append(e.getMessage()).toString();
+				log.warn(errorMessage);
 			}
 		} 
 		

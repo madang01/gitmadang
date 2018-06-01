@@ -14,44 +14,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.Echo;
+package kr.pe.codda.impl.message.Echo;
 
+import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
-import kr.pe.codda.common.protocol.SingleItemEncoderIF;
-
+import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
+import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 /**
- * Echo 메시지 인코더
+ * Echo 메시지 디코더
  * @author Won Jonghoon
  *
  */
-public final class EchoEncoder extends AbstractMessageEncoder {
+public final class EchoDecoder extends AbstractMessageDecoder {
+
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
-		Echo echo = (Echo)messageObj;
-		encodeBody(echo, singleItemEncoder, writableMiddleObject);
-	}
-
-
-	private void encodeBody(Echo echo, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
+		Echo echo = new Echo();
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("Echo");
 
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "randomInt"
+		echo.setRandomInt((Integer)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "randomInt" // itemName
 			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
-			, echo.getRandomInt() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
-			, middleWritableObject);
+			, middleReadableObject));
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "startTime"
+		echo.setStartTime((Long)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "startTime" // itemName
 			, kr.pe.codda.common.type.SingleItemType.LONG // itemType
-			, echo.getStartTime() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
-			, middleWritableObject);
+			, middleReadableObject));
 
 		pathStack.pop();
+
+		return echo;
 	}
 }

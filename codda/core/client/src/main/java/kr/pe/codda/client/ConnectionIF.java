@@ -19,7 +19,7 @@ public interface ConnectionIF {
 			throws InterruptedException, NotSupportedException,
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException;
 	
-	public void close() throws IOException;
+	public void close();	
 	
 	public int hashCode();
 	

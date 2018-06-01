@@ -221,25 +221,29 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 		/*log.info("numberOfUnregisteredConnection={}, numberOfConnection={}, number of config's connection={}", 
 				numberOfUnregisteredConnection, numberOfConnection, projectPartConfiguration.getClientConnectionCount());*/
 		boolean isInterestedConnection = ((numberOfUnregisteredConnection + numberOfConnection)  < projectPartConfiguration.getClientConnectionCount());
+		
+
 		return isInterestedConnection;
 	}	
 
 	@Override
-	public void removeUnregisteredConnection(ClientInterestedConnectionIF asynInterestedConnection) {
+	public void removeUnregisteredConnection(ClientInterestedConnectionIF asynInterestedConnection) {		
 		numberOfUnregisteredConnection--;
+		
 		log.info("remove the interedted connection[{}]", asynInterestedConnection.hashCode());
 	}
 
 	
 	public ClientInterestedConnectionIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
-		SocketOutputStream sos = socketOutputStreamFactory.newInstance();
+		SocketOutputStream sos = socketOutputStreamFactory.createSocketOutputStream();
 		ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 		
 		ClientInterestedConnectionIF asynInterestedConnection = 
 				new AsynNoShareConnection(projectPartConfiguration.getServerHost(),
 						projectPartConfiguration.getServerPort(),
 						projectPartConfiguration.getClientSocketTimeout(),
-						sos, clientMessageUtility, this, clientExecutor, asynSelectorManger);		
+						sos, clientMessageUtility, this, 
+						clientExecutor, asynSelectorManger, connectionPoolSupporter);		
 		return asynInterestedConnection;
 	}
 	
@@ -291,7 +295,7 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 	@Override
 	public void removeInterestedConnection(AsynConnectionIF interestedAsynConnection) {
 		numberOfUnregisteredConnection--;
+		
 		log.info("remove the interedted connection[{}]", interestedAsynConnection.hashCode());
 	}
-
 }

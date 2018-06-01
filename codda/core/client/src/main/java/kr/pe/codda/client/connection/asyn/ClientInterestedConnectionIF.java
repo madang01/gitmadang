@@ -13,7 +13,6 @@ public interface ClientInterestedConnectionIF {
 	public void onConnect(SelectionKey selectedKey);
 	public void onRead(SelectionKey selectedKey) throws InterruptedException;
 	public void onWrite(SelectionKey selectedKey) throws InterruptedException;
-	public void close() throws IOException;
-	public void releaseResources();
+	public void close();	
 	public int hashCode();
 }

@@ -14,43 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.Echo;
+package kr.pe.codda.impl.message.Echo;
 
-import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.exception.DynamicClassCallException;
+import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
+import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
+import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * Echo 메시지
+ * Echo 서버 코덱
  * @author Won Jonghoon
  *
  */
-public class Echo extends AbstractMessage {
-	private int randomInt;
-	private long startTime;
+public final class EchoServerCodec implements MessageCodecIF {
 
-	public int getRandomInt() {
-		return randomInt;
-	}
-
-	public void setRandomInt(int randomInt) {
-		this.randomInt = randomInt;
-	}
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
+	@Override
+	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
+		return new EchoDecoder();
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("echo[");
-		builder.append("randomInt=");
-		builder.append(randomInt);
-		builder.append(", startTime=");
-		builder.append(startTime);
-		builder.append("]");
-		return builder.toString();
+	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
+		return new EchoEncoder();
 	}
 }

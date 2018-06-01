@@ -74,7 +74,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 			throw new IllegalArgumentException("the parameter newAcceptedSC is null");
 		}		
 
-		SocketOutputStream socketOutputStreamOfAcceptedSC = socketOutputStreamFactory.newInstance();
+		SocketOutputStream socketOutputStreamOfAcceptedSC = socketOutputStreamFactory.createSocketOutputStream();
 
 		PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(acceptedKey,
 				this);
@@ -148,7 +148,6 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 								}
 								
 								accpetedConneciton.close();
-								accpetedConneciton.releaseResources();
 								cancel(selectedKey);								
 								continue;
 							}

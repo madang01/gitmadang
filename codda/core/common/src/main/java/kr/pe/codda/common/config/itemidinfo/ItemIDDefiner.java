@@ -41,7 +41,7 @@ public abstract class ItemIDDefiner {
 		public static final String CLIENT_CONNECTION_TYPE_ITEMID = "client.connection.type.value";
 		public static final String CLIENT_CONNECTION_MAX_COUNT_ITEMID = "client.connection.max_count.value";
 		public static final String CLIENT_CONNECTION_COUNT_ITEMID = "client.connection.count.value";
-		
+		public static final String CLIENT_CONNECTION_POOL_SUPPORTOR_TIME_INTERVAL_ITEMID = "client.connection.pool.supportor.time_interval.value";
 		public static final String CLIENT_ASYN_SYNC_MESSAGE_MAILBOX_COUNT_PER_ASYN_NOSHARE_CONNECTION_ITEMID = "client.asyn.sync_message_mailbox_count_per_asyn_noshare_connection.value";
 		public static final String CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID 			= "client.asyn.input_message_queue_size.value";
 		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID 	= "client.asyn.output_message_queue_size.value";
@@ -54,7 +54,6 @@ public abstract class ItemIDDefiner {
 		public static final String SERVER_DATA_PACKET_BUFFER_SIZE_ITEMID = "server.data_packet_buffer.size.value";
 		public static final String SERVER_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID = "server.data_packet_buffer.pool_size.value";
 		public static final String SERVER_MAX_CLIENTS_ITEMID = "server.max_clients.value";
-		public static final String SERVER_SELECTOR_WAKEUP_INTERVAL_ITEMID = "server.selector.wakeup_interval.value";
 		public static final String SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.input_message_queue_size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.output_message_queue_size.value";
 		public static final String SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID = "server.pool.executor.max_size.value";

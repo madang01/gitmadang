@@ -1,31 +1,24 @@
-package kr.pe.codda.client;
+package kr.pe.codda.client.connection.asyn;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
-import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
 import kr.pe.codda.common.exception.ConnectionPoolException;
 
-public class SingleAyncShareConnectionAdder implements AsynConnectedConnectionAdderIF {
-	private InternalLogger log = InternalLoggerFactory.getInstance(SingleAyncShareConnectionAdder.class);
+public class AyncThreadSafeSingleConnectedConnectionAdder implements AsynConnectedConnectionAdderIF {
+	private InternalLogger log = InternalLoggerFactory.getInstance(AyncThreadSafeSingleConnectedConnectionAdder.class);
 	
 	private final Object monitor = new Object();
 	private AsynConnectionIF connectedAsynConnection = null;
-	private boolean isSocketTimeout=false;
-	 
+	private boolean isSocketTimeout=false;	 
 
 	@Override
 	public void addConnectedConnection(AsynConnectionIF connectedAsynConnection) throws ConnectionPoolException {
 		synchronized (monitor) {
 			if (isSocketTimeout) {
 				log.warn("socket timeout occured so drop the connected asyn share connection");
-				try {
-					connectedAsynConnection.close();
-				} catch (IOException e) {
-				}
+				connectedAsynConnection.close();
 				return;
 			}
 			this.connectedAsynConnection = connectedAsynConnection;

@@ -185,7 +185,23 @@ public class AcceptedConnection implements ServerInterestedConnectionIF {
 		} catch(Exception e) {
 			log.warn("fail to close the socket channel[{}], errmsg={}", acceptedSocketChannel.hashCode(), e.getMessage());
 		}
+		
+		releaseResources();
 	}	
+	
+	private void releaseResources() {
+		socketOutputStream.close();
+		personalLoginManager.releaseLoginUserResource();
+
+		/**
+		 * 참고 : '메시지 입력 담당 쓰레드'(=InputMessageReader) 는 소켓이 닫히면 자동적으로 selector 에서 인지하여 제거되므로 따로 작업할 필요 없음
+		 */
+		serverExecutor.removeSocket(acceptedSocketChannel);
+		serverIOEvenetController.cancel(selectedKey);
+		
+		log.info("this accepted socket channel[hashcode={}, selection key={}]'s resources has been released", 
+				acceptedSocketChannel.hashCode(), selectedKey.hashCode());
+	}
 
 	@Override
 	public void onRead(SelectionKey selectedKey) throws InterruptedException {
@@ -202,7 +218,6 @@ public class AcceptedConnection implements ServerInterestedConnectionIF {
 
 				log.warn(errorMessage);
 				close();
-				releaseResources();
 				return;
 			}
 
@@ -219,8 +234,6 @@ public class AcceptedConnection implements ServerInterestedConnectionIF {
 			log.warn(errorMessage, e);
 			
 			close();
-			
-			releaseResources();
 			return;
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder()
@@ -231,8 +244,6 @@ public class AcceptedConnection implements ServerInterestedConnectionIF {
 			log.warn(errorMessage, e);
 			
 			close();
-			
-			releaseResources();
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
@@ -243,8 +254,6 @@ public class AcceptedConnection implements ServerInterestedConnectionIF {
 			log.warn(errorMessage, e);
 			
 			close();
-			
-			releaseResources();
 			return;
 		}		
 	}
@@ -267,8 +276,7 @@ public class AcceptedConnection implements ServerInterestedConnectionIF {
 						.append(e.getMessage()).toString();
 				log.warn(errorMessage, e);
 				
-				close();				
-				releaseResources();
+				close();
 				return;
 			} catch(Exception e) {
 				String errorMessage = new StringBuilder()
@@ -278,8 +286,7 @@ public class AcceptedConnection implements ServerInterestedConnectionIF {
 						.append(e.getMessage()).toString();
 				log.warn(errorMessage, e);
 				
-				close();				
-				releaseResources();
+				close();
 				return;
 			}	
 			
@@ -317,16 +324,7 @@ public class AcceptedConnection implements ServerInterestedConnectionIF {
 		}
 	} 
 	
-	public void releaseResources() {
-		socketOutputStream.close();
-		personalLoginManager.releaseLoginUserResource();
-
-		/**
-		 * 참고 : '메시지 입력 담당 쓰레드'(=InputMessageReader) 는 소켓이 닫히면 자동적으로 selector 에서 인지하여 제거되므로 따로 작업할 필요 없음
-		 */
-		serverExecutor.removeSocket(acceptedSocketChannel);
-		serverIOEvenetController.cancel(selectedKey);
-	}
+	
 
 	@Override
 	public SelectionKey keyFor(Selector ioEventSelector) {

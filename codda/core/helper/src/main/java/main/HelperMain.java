@@ -9,7 +9,7 @@ import javax.swing.ToolTipManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -106,16 +106,13 @@ public class HelperMain {
 		}
 		
 		Options options = new Options();
-		options.addOption("n", "no gui");
-		
-		Option commandTypeOption = new Option( "x", true, "command type" );
-		commandTypeOption.setArgName("command type");
-		options.addOption(commandTypeOption);
+		options.addOption("h", "help", false, "help");
+		options.addOption("n", null, true, "no gui mode, this option's the commandType[installedPath] argument defines a command type running in no gui mode");
+		options.getOption("n").setArgName("commandType");
 		
 		
-		Option installedPathOption = new Option( null, "installedPath", true, "installed path" );
-		installedPathOption.setArgName("installed path");
-		options.addOption(installedPathOption);
+		options.addOption(null, "installedPath", true, "installed path");
+		options.getOption("installedPath").setArgName("installedPath");
 		
 		HelperMain helperMain = new HelperMain();
 		
@@ -125,16 +122,20 @@ public class HelperMain {
 	        // parse the command line arguments
 	        CommandLine line = parser.parse( options, args );
 	        
-	        if( line.hasOption( "n" ) ) {
+	        if( line.hasOption( "h" ) ) {
+	        	 HelpFormatter formatter = new HelpFormatter();
+	        	 String header = "Codda is a GUI program to help you build your development environment\ncommandType set[installedPath]\n\n";
+	        	 String footer = "\nPlease report issues at k9200544@hanmail.net";
+	        	 
+	        	 formatter.setOptionComparator(null);
+	        	 
+	        	 formatter.printHelp("java -jar codda-helper.jar", header, options, footer, true);
+	        	 
+	        } else if( line.hasOption( "n" ) ) {
 	            // print the value of block-size
 	            log.info("no gui mode");
 	            
-	            if (! line.hasOption( "x" )) {
-	            	log.error("no command type argument");
-	            	System.exit(1);
-	            }
-	            
-	            String commandType = line.getOptionValue("x");
+	            String commandType = line.getOptionValue("n");
 	            
 	            log.info("command type=[{}]", commandType);
 	            

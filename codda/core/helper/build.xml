@@ -62,8 +62,6 @@
 		<mkdir dir="${dir.build}/main" />
 		<mkdir dir="${dir.build}/test" />
 		<mkdir dir="${dir.dist}" />
-		<mkdir dir="${dir.mainlib}/in" />
-		<mkdir dir="${dir.mainlib}/ex" />
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 	</target>
 	

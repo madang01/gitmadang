@@ -2,31 +2,20 @@ package kr.pe.codda.server;
 
 import java.io.File;
 
-import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
-import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporter;
 import kr.pe.codda.common.classloader.ServerSystemClassLoaderClassManager;
 import kr.pe.codda.common.classloader.ServerSystemClassLoaderClassManagerIF;
 import kr.pe.codda.common.classloader.SimpleClassLoader;
-import kr.pe.codda.common.config.CoddaConfiguration;
-import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 
-public class ServerClassLoaderBuilder {
+public class ServerClassLoaderFactory {
 	private String serverAPPINFClassPathString = null;
 	private String projectResourcesPathString = null;
-	private ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager = null;
+	private ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager();
 	
-	public ServerClassLoaderBuilder() throws CoddaConfigurationException {
-		serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager();		
-		
-		CoddaConfiguration runningProjectConfiguration =  CoddaConfigurationManager.getInstance().getRunningProjectConfiguration();
-		
-		String mainProjectName = runningProjectConfiguration.getMainProjectName();
-		String installedPathString = runningProjectConfiguration.getInstalledPathString();
-		
-		
-		serverAPPINFClassPathString = ServerBuildSytemPathSupporter
-				.getServerAPPINFClassPathString(installedPathString, mainProjectName);
+	public ServerClassLoaderFactory(String serverAPPINFClassPathString,
+			String projectResourcesPathString) throws CoddaConfigurationException {
+		this.serverAPPINFClassPathString = serverAPPINFClassPathString;
+		this.projectResourcesPathString = projectResourcesPathString;
 		
 		File serverAPPINFClassPath = new File(serverAPPINFClassPathString);
 		
@@ -39,8 +28,6 @@ public class ServerClassLoaderBuilder {
 			String errorMessage = String.format("the server APP-INF class path[%s] isn't a directory", serverAPPINFClassPathString);
 		 	throw new CoddaConfigurationException(errorMessage);
 		}
-		
-		projectResourcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPathString, mainProjectName);
 		
 		File projectResourcesPath = new File(projectResourcesPathString);
 		
@@ -56,7 +43,7 @@ public class ServerClassLoaderBuilder {
 		
 	}
 	
-	public SimpleClassLoader build() {
+	public SimpleClassLoader createServerClassLoader() {
 		return new SimpleClassLoader(serverAPPINFClassPathString, projectResourcesPathString, serverSystemClassLoaderClassManager);
 	}
 }

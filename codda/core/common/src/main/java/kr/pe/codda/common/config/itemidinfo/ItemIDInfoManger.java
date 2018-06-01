@@ -533,6 +533,19 @@ public class ItemIDInfoManger {
 							0, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 			
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_POOL_SUPPORTOR_TIME_INTERVAL_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"연결 지원자 수행 주기",
+					"600000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1000L, Long.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+			
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -687,18 +700,6 @@ public class ItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 			
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_SELECTOR_WAKEUP_INTERVAL_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Long>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"서버 셀렉터 깨우는 간격",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningLongBetweenMinAndMax(
-							1L, Long.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
 	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
