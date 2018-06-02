@@ -55,12 +55,12 @@ public class EchoConnectionPoolJavaRequest extends AbstractJavaSamplerClient imp
 			File sinnoriInstalledPath = new File(installedPathString);
 
 			if (!sinnoriInstalledPath.exists()) {
-				log.error("the sinnori installed path doesn't exist");
+				log.error("the installed path[{}] doesn't exist", installedPathString);
 				System.exit(1);
 			}
 
 			if (!sinnoriInstalledPath.isDirectory()) {
-				log.error("the sinnori installed path isn't a directory");
+				log.error("the installed path[{}] isn't a directory", installedPathString);
 				System.exit(1);
 			}
 

@@ -3,7 +3,6 @@ package kr.pe.codda.client.connection.asyn.noshare;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -129,15 +128,8 @@ public final class AsynNoShareConnection implements AsynConnectionIF, ClientInte
 					
 		asynSelectorManger.startWrite(this);
 		
-		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
-		try {
-			outputMessageWrapReadableMiddleObject = syncMessageMailbox.getSyncOutputMessage();
-		} catch(SocketTimeoutException e) {
-			if (! isConnected()) {
-				throw new IOException("this socket is disconnected");
-			}
-			throw e;
-		}
+		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = syncMessageMailbox.getSyncOutputMessage();
+		
 		
 		AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(classloaderOfInputMessage, outputMessageWrapReadableMiddleObject);
 		

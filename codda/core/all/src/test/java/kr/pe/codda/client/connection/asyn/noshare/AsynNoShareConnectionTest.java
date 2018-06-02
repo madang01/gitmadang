@@ -268,10 +268,6 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 			fail("fail to create a asyn no-share connection pool");
 		}
 		
-		try {
-			Thread.sleep(1000L);
-		} catch (InterruptedException e) {
-		}
 		
 		class ThreadSafeTester implements Runnable {
 			private AnyProjectConnectionPoolIF  anyProjectConnectionPool = null;
@@ -329,7 +325,7 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 		Thread[] threadSafeTester = new Thread[numberOfThread];
 		
 		for (int i=0; i < numberOfThread; i++) {
-			threadSafeTester[i] = new Thread(new ThreadSafeTester(anyProjectConnectionPool, 10000, noticeBlockingQueue));
+			threadSafeTester[i] = new Thread(new ThreadSafeTester(anyProjectConnectionPool, 1000000, noticeBlockingQueue));
 			threadSafeTester[i].start();
 		}		
 		
@@ -404,11 +400,6 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 		} catch (Exception e) {
 			log.warn("fail to create a asyn no-share connection pool", e);
 			fail("fail to create a asyn no-share connection pool");
-		}
-		
-		try {
-			Thread.sleep(1000L);
-		} catch (InterruptedException e) {
 		}
 		
 		try {

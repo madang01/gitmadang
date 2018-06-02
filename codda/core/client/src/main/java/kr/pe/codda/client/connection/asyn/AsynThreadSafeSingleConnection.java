@@ -155,15 +155,8 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF, ClientI
 				asynClientIOEventController.startWrite(this);
 			}
 			
-			ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
-			try {
-				outputMessageWrapReadableMiddleObject = syncMessageMailbox.getSyncOutputMessage();
-			} catch(SocketTimeoutException e) {
-				if (! isConnected()) {
-					throw new IOException("this socket is disconnected");
-				}
-				throw e;
-			}
+			ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = syncMessageMailbox.getSyncOutputMessage();
+			
 			
 			AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(classloaderOfInputMessage, outputMessageWrapReadableMiddleObject);
 			
