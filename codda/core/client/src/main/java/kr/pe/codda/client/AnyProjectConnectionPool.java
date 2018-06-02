@@ -189,9 +189,9 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, BodyFormatException,
 			DynamicClassCallException, ServerTaskException, ServerTaskPermissionException, ConnectionPoolException {
-		long startTime = 0;
+		/*long startTime = 0;
 		long endTime = 0;
-		startTime = System.nanoTime();
+		startTime = System.nanoTime();*/
 
 		AbstractMessage outObj = null;
 		ConnectionIF conn = connectionPool.getConnection();
@@ -217,9 +217,9 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			connectionPool.release(conn);
 		}
 
-		endTime = System.nanoTime();
+		/*endTime = System.nanoTime();
 		log.debug("elapsed={}", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
-
+*/
 		return outObj;
 	}
 
