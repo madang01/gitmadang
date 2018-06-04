@@ -8,6 +8,9 @@ I think of myself as a coder.
 
 Codda is a collection of three things: Netty + Google protocol buffers + WAS.
 
+But I did not use these three things and implemented them on my own.
+
+
 (1) Defining a message information file, which is an xml file, creates sources that can be serialized / deserialized from the information file.
 
 (2) I created a server using the NIO selector and created a server connection API for the client.
@@ -23,7 +26,8 @@ That's why I defined Codda as an 'RPC development framework'.
 
 저는 제 스스로를 코더라고 생각합니다.
 
-Codda 는 Netty + Google protocol buffers + WAS 이렇게 3가지를 모아 놓은것입니다.
+Codda 는  Netty + Google protocol buffers + WAS 이렇게 3가지를 모아 놓은 것입니다. 
+하지만 이 3가지를 이용하지 않고 자체적으로 구현하였습니다.
 
 (1) xml 파일인 메시지 정보 파일을 정의하면 그 정보 파일로 부터 직렬화/역직렬화 할 수 있는 소스들이 만들어 집니다.
 
