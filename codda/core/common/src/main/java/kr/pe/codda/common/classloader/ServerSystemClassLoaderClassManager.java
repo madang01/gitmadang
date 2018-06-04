@@ -9,7 +9,7 @@ public class ServerSystemClassLoaderClassManager implements ServerSystemClassLoa
 	
 	public ServerSystemClassLoaderClassManager() {
 		
-		String[] noTaskSystemClassLoaderTargetMessageIDList = { "SelfExnRes" };
+		String[] noTaskSystemClassLoaderTargetMessageIDList = { "SelfExnRes"};
 
 		for (String systemClassLoaderTargetMessageID : noTaskSystemClassLoaderTargetMessageIDList) {
 			systemClassLoaderTargetClassFullNameSet

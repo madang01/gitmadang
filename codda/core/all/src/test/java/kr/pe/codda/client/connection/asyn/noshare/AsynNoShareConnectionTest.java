@@ -2,6 +2,7 @@ package kr.pe.codda.client.connection.asyn.noshare;
 
 import static org.junit.Assert.fail;
 
+import java.net.SocketTimeoutException;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -29,9 +30,13 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 	private ProjectPartConfiguration buildMainProjectPartConfiguration(String projectName,
 			String host, int port,
 			int clientConnectionCount,
+			int clientConnectionMaxCount,
 			MessageProtocolType messageProtocolType,
 			boolean clientDataPacketBufferIsDirect,
-			ConnectionType connectionType)
+			ConnectionType connectionType,
+			int serverMaxClients,
+			int serverExecutorPoolSize,
+			int serverExecutorPoolMaxSize)
 			throws CoddaConfigurationException {		
 		 
 		
@@ -48,11 +53,11 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 		// boolean clientDataPacketBufferIsDirect=true;
 		int clientDataPacketBufferMaxCntPerMessage=50;
 		int clientDataPacketBufferSize=2048;
-		int clientDataPacketBufferPoolSize=1000;
+		int clientDataPacketBufferPoolSize=2000;
 		//ConnectionType connectionType = ConnectionType.ASYN_PRIVATE;
 		long clientSocketTimeout = 5000L;			
 		// int clientConnectionCount = 2;
-		int clientConnectionMaxCount = 4;
+		// int clientConnectionMaxCount = 4;
 		long clientConnectionPoolSupporterTimeInterval = 600000L;
 		int clientAsynPirvateMailboxCntPerPublicConnection = 2;
 		int clientAsynInputMessageQueueSize = 5;
@@ -63,12 +68,12 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 		boolean serverDataPacketBufferIsDirect=true;
 		int serverDataPacketBufferMaxCntPerMessage=50;
 		int serverDataPacketBufferSize=2048;
-		int serverDataPacketBufferPoolSize=1000;
-		int serverMaxClients = 10;		
+		int serverDataPacketBufferPoolSize=2000;
+		// int serverMaxClients = 10;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		int serverExecutorPoolSize = 2;
-		int serverExecutorPoolMaxSize = 3;
+		// int serverExecutorPoolSize = 2;
+		//int serverExecutorPoolMaxSize = 3;
 		
 		projectPartConfigurationForTest.build(host, 
 				port,
@@ -107,27 +112,35 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 	
 	@Test
 	public void testSendSyncInputMessage_singleThreadOk() {
-		String testProjectName = "sample_test";
-		ProjectPartConfiguration projectPartConfigurationForTest = null;
+		String host = "localhost";
+		int port = 9290;
+		
+		/*String host = "172.30.1.15";
+		int port = 9090;*/
 		boolean clientDataPacketBufferIsDirect = true;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-
-		String host = null;
-		int port;
-		
-		// host = "172.30.1.16";
-		host = "localhost";
-		port = 9290;
-		
 		int clientConnectionCount = 2;
+		int clientConnectionMaxCount = clientConnectionCount;
+		int serverMaxClients = clientConnectionCount;
+		int serverExecutorPoolSize = 2;
+		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
+		
+		int retryCount = 10;
+		
+		String testProjectName = "sample_test";
+		ProjectPartConfiguration projectPartConfigurationForTest = null;
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
 					host,  port,
 					clientConnectionCount,
+					clientConnectionMaxCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PRIVATE);
+					ConnectionType.ASYN_PRIVATE,
+					serverMaxClients,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -139,7 +152,7 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 			fail(errorMessage);
 		}
 		
-		log.info("{}", projectPartConfigurationForTest.getClientConnectionCount());
+		// log.info("{}", projectPartConfigurationForTest.getClientConnectionCount());
 		
 		AnyProjectServer anyProjectServerForTest = null;
 		try {
@@ -169,13 +182,9 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 			fail("fail to create a asyn no-share connection pool");
 		}
 		
-		try {
-			Thread.sleep(1000L);
-		} catch (InterruptedException e) {
-		}
 		
 		try {
-			int retryCount = 100;
+			
 			long startTime = System.nanoTime();
 			
 			for (int i=0; i < retryCount; i++) {
@@ -201,34 +210,38 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 
 			fail(errorMessage);
 		}
-	}
-	
+	}	
 	
 	@Test
 	public void testSendSyncInputMessage_threadSafeOk() {
-		String testProjectName = "sample_test";
-		ProjectPartConfiguration projectPartConfigurationForTest = null;
+		String host = "localhost";
+		int port = 9291;
 		boolean clientDataPacketBufferIsDirect = true;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-
-		String host = null;
-		int port;
-		
-		// host = "172.30.1.16";
-		host = "localhost";
-		port = 9290;
-		
 		int clientConnectionCount = 3;
+		int clientConnectionMaxCount = clientConnectionCount;
+		int serverMaxClients = clientConnectionCount;
+		int serverExecutorPoolSize = 2;
+		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
+		
 		int numberOfThread = 3;
+		int retryCount = 10;
+		
+		String testProjectName = "sample_test";
+		ProjectPartConfiguration projectPartConfigurationForTest = null;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread); 
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
 					host,  port,
 					clientConnectionCount,
+					clientConnectionMaxCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PRIVATE);
+					ConnectionType.ASYN_PRIVATE,
+					serverMaxClients,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -268,6 +281,13 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 			fail("fail to create a asyn no-share connection pool");
 		}
 		
+		/** 연결된 소켓 폴 구성시  충분한 갯수의 연결된 소켓 확보하기 위해서 기다려 주는 시간 */
+		try {
+			Thread.sleep(1000L);
+		} catch (InterruptedException e) {
+			fail("InterruptedException");
+		}
+		
 		
 		class ThreadSafeTester implements Runnable {
 			private AnyProjectConnectionPoolIF  anyProjectConnectionPool = null;
@@ -283,21 +303,26 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 			@Override
 			public void run() {
 				log.info("start {}", Thread.currentThread().getName());				
-				
-				Empty emptyReq = new Empty();
-				
 				try {
 					long startTime = System.nanoTime();
 					
 					for (int i=0; i < retryCount; i++) {
-						AbstractMessage emptyRes =  anyProjectConnectionPool.sendSyncInputMessage(emptyReq);				
-						if (!(emptyRes instanceof Empty)) {
-							fail("empty 메시지 수신 실패");
-						}
+						try {
+							Empty emptyReq = new Empty();
+							AbstractMessage emptyRes =  anyProjectConnectionPool.sendSyncInputMessage(emptyReq);
+							
+							if (!(emptyRes instanceof Empty)) {
+								fail("empty 메시지 수신 실패");
+							}
 
-						if (! emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
-							fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
+							if (! emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
+								fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
+							}
+						} catch(SocketTimeoutException e) {
+							continue;
 						}
+										
+						
 					}
 					
 					long endTime = System.nanoTime();
@@ -325,7 +350,7 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 		Thread[] threadSafeTester = new Thread[numberOfThread];
 		
 		for (int i=0; i < numberOfThread; i++) {
-			threadSafeTester[i] = new Thread(new ThreadSafeTester(anyProjectConnectionPool, 1000000, noticeBlockingQueue));
+			threadSafeTester[i] = new Thread(new ThreadSafeTester(anyProjectConnectionPool, retryCount, noticeBlockingQueue));
 			threadSafeTester[i].start();
 		}		
 		
@@ -341,27 +366,32 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 	
 	@Test
 	public void testSendAsynInputMessage_ok() {
-		String testProjectName = "sample_test";
-		ProjectPartConfiguration projectPartConfigurationForTest = null;
+		String host = "localhost";;
+		int port = 9290;
 		boolean clientDataPacketBufferIsDirect = false;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-
-		String host = null;
-		int port;
+		int clientConnectionCount = 2;
+		int clientConnectionMaxCount = clientConnectionCount;
+		int serverMaxClients = clientConnectionCount;
+		int serverExecutorPoolSize = 2;
+		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
 		
-		// host = "172.30.1.16";
-		host = "localhost";
-		port = 9290;
+		int retryCount = 10;
 		
-		int numberOfConnection = 2;
+		String testProjectName = "sample_test";
+		ProjectPartConfiguration projectPartConfigurationForTest = null;
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
 					host,  port,
-					numberOfConnection,
+					clientConnectionCount,
+					clientConnectionMaxCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PRIVATE);
+					ConnectionType.ASYN_PRIVATE,
+					serverMaxClients,
+					serverExecutorPoolSize,
+					serverExecutorPoolMaxSize);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -402,8 +432,7 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 			fail("fail to create a asyn no-share connection pool");
 		}
 		
-		try {
-			int retryCount = 2;
+		try {			
 			long startTime = System.nanoTime();
 			
 			for (int i=0; i < retryCount; i++) {
