@@ -3,9 +3,11 @@
 (1) English version
 
 The name Codda means the program that coders make.
+
 I think of myself as a coder.
 
 Codda is a collection of three things: Netty + Google protocol buffers + WAS.
+
 (1) Defining a message information file, which is an xml file, creates sources that can be serialized / deserialized from the information file.
 
 (2) I created a server using the NIO selector and created a server connection API for the client.
@@ -18,6 +20,7 @@ That's why I defined Codda as an 'RPC development framework'.
 (2) Korea version
 
 코다(Codda) 라는 이름은 코더들이 만들어가는 프로그램이라는 뜻입니다.
+
 저는 제 스스로를 코더라고 생각합니다.
 
 Codda 는 Netty + Google protocol buffers + WAS 이렇게 3가지를 모아 놓은것입니다.
