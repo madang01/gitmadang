@@ -11,8 +11,8 @@ public interface ConnectionPoolIF {
 	public ConnectionIF getConnection() throws InterruptedException, SocketTimeoutException, ConnectionPoolException;	
 	public void release(ConnectionIF conn) throws ConnectionPoolException;
 	
-	public boolean isConnectionToAdd();
-	public void addConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException;
+	
+	public void addAllLostConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException;
 		
 	public String getPoolState();
 }

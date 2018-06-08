@@ -4,7 +4,6 @@ import java.net.SocketTimeoutException;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.exception.ConnectionPoolException;
 
 public class AyncThreadSafeSingleConnectedConnectionAdder implements AsynConnectedConnectionAdderIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AyncThreadSafeSingleConnectedConnectionAdder.class);
@@ -14,7 +13,7 @@ public class AyncThreadSafeSingleConnectedConnectionAdder implements AsynConnect
 	private boolean isSocketTimeout=false;	 
 
 	@Override
-	public void addConnectedConnection(AsynConnectionIF connectedAsynConnection) throws ConnectionPoolException {
+	public void addConnectedConnection(AsynConnectionIF connectedAsynConnection) {
 		synchronized (monitor) {
 			if (isSocketTimeout) {
 				log.warn("socket timeout occured so drop the connected asyn share connection");

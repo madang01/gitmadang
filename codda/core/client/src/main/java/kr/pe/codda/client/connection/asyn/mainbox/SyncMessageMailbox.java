@@ -121,50 +121,6 @@ public final class SyncMessageMailbox {
 			outputMessageReadableMiddleObjectWrapper = readableMiddleObjectWrapper;
 			monitor.notify();
 		}
-
-		/*int fromMailboxID = readableMiddleObjectWrapper.getMailboxID();
-		if (mailboxID != fromMailboxID) {
-			log.warn("drop the received letter[{}][{}] because it's mailbox id is different form this mailbox id[{}]",
-					readableMiddleObjectWrapper.toString(), mailboxID);
-
-			readableMiddleObjectWrapper.closeReadableMiddleObject();
-			return;
-		}
-
-		int fromMailID = readableMiddleObjectWrapper.getMailID();
-
-		// synchronized (monitor) {
-		if (mailID != fromMailID) {
-			log.warn("drop the received letter[{}] because it's mail id is different form this mailbox's mail id[{}]",
-					readableMiddleObjectWrapper.toString(), mailID);
-
-			readableMiddleObjectWrapper.closeReadableMiddleObject();
-			return;
-		}
-		// }
-
-		// Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-
-		if (!outputMessageQueue.isEmpty()) {
-			ReadableMiddleObjectWrapper oldWrapReadableMiddleObject = outputMessageQueue.poll();
-			if (null != oldWrapReadableMiddleObject) {
-				log.warn(
-						"clear the old received message[{}] from the ouputmessage queue of this mailbox[mailID={}] becase new message recevied",
-						readableMiddleObjectWrapper.toString(), mailID);
-
-				oldWrapReadableMiddleObject.closeReadableMiddleObject();
-			}
-		}
-
-		boolean result = outputMessageQueue.offer(readableMiddleObjectWrapper);
-		if (!result) {
-			log.warn(
-					"drop the received letter[{}] because it was failed to insert the received letter into the output message queue of this mailbox",
-					readableMiddleObjectWrapper.toString());
-
-			readableMiddleObjectWrapper.closeReadableMiddleObject();
-		}*/
-
 	}
 
 	public ReadableMiddleObjectWrapper getSyncOutputMessage() throws IOException, InterruptedException {
@@ -186,50 +142,6 @@ public final class SyncMessageMailbox {
 			}
 			return outputMessageReadableMiddleObjectWrapper;
 		}
-		// synchronized (monitor) {
-
-		/*ReadableMiddleObjectWrapper readableMiddleObjectWrapper = null;
-		boolean loop = false;
-
-		long currentWorkingSocketTimeOut = socketTimeOut;
-		long startTime = System.currentTimeMillis();
-
-		do {
-			readableMiddleObjectWrapper = outputMessageQueue.poll(currentWorkingSocketTimeOut, TimeUnit.MILLISECONDS);
-
-			if (null == readableMiddleObjectWrapper) {
-				if (!conn.isConnected()) {
-					log.warn(
-							"this connection[{}] disconnected so the input message's mail[mailboxID={}, mailID={}] lost",
-							conn.hashCode(), mailboxID, mailID);
-					throw new IOException("the connection has been disconnected");
-				}
-
-				log.warn("this connection[{}] timeout occurred so the request mail[mailboxID={}, mailID={}] lost",
-						conn.hashCode(), mailboxID, mailID);
-				throw new SocketTimeoutException("socket timeout occurred");
-			}
-
-			if (readableMiddleObjectWrapper.getMailID() == mailID) {
-				loop = false;
-				break;
-			}			
-			
-			log.warn(
-					"drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]",
-					readableMiddleObjectWrapper.toString(), mailID);
-			readableMiddleObjectWrapper.closeReadableMiddleObject();
-
-			currentWorkingSocketTimeOut = socketTimeOut - (startTime - System.currentTimeMillis());
-			if (currentWorkingSocketTimeOut <= 0) {
-				log.warn("this connection[{}] timeout occurred so the request mail[mailboxID={}, mailID={}] lost",
-						conn.hashCode(), mailboxID, mailID);
-				throw new SocketTimeoutException("socket timeout occurred");
-			}
-			
-		} while (loop);
-
-		return readableMiddleObjectWrapper;*/
 	}
 
 	@Override

@@ -23,6 +23,8 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 			new ConcurrentHashMap<SelectionKey, ClientInterestedConnectionIF>();
 	private LinkedBlockingDeque<ClientInterestedConnectionIF> unregisteredAsynConnectionQueue = new LinkedBlockingDeque<ClientInterestedConnectionIF>();
 	
+	
+	
 	public AsynClientIOEventController(long clientSelectorWakeupInterval, AsynConnectionPoolIF connectionPool) throws IOException, NoMoreDataPacketBufferException {
 		this.clientSelectorWakeupInterval = clientSelectorWakeupInterval;
 		this.asynConnectionPool = connectionPool;
@@ -31,34 +33,32 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 		
 		ioEventSelector = Selector.open();
 		
+		/** WARNING! 반듯이  AsynConnectionPoolIF#setAsynSelectorManger 를 통해 이 객체 등록이 선행되어야 한다 */
 		while (connectionPool.isConnectionToAdd()) {
-			ClientInterestedConnectionIF unregisteredAsynConnection = connectionPool.newUnregisteredConnection();
-			connectionPool.addCountOfUnregisteredConnection();			
-			unregisteredAsynConnectionQueue.addLast(unregisteredAsynConnection);
-			
-			// FIXME!
-			log.info("the unregisteredAsynConnection[{}] was registered to queue", unregisteredAsynConnection.hashCode());
+			connectionPool.addConnection();
 		}
+		
+		// selectorAlarm = new SelectorAlarm(ioEventSelector, this.clientSelectorWakeupInterval);
+		// selectorAlarm.start();
 	}
 
 	@Override
-	public void addUnregisteredAsynConnection(ClientInterestedConnectionIF unregisteredAsynConnection) throws IOException, InterruptedException {
-		if (getState().equals(Thread.State.NEW)) {
+	public void addUnregisteredAsynConnection(ClientInterestedConnectionIF unregisteredAsynConnection) {
+		/*if (getState().equals(Thread.State.NEW)) {
 			unregisteredAsynConnection.close();			
 			asynConnectionPool.removeUnregisteredConnection(unregisteredAsynConnection);
 			return;
-		}
+		}*/
 		
 		unregisteredAsynConnectionQueue.addLast(unregisteredAsynConnection);
 		
-		boolean loop = false;
-		do {
-			ioEventSelector.wakeup();
-
-			Thread.sleep(clientSelectorWakeupInterval);
-			
-			loop = unregisteredAsynConnectionQueue.contains(unregisteredAsynConnection);
-		} while (loop);
+		log.info("the unregisteredAsynConnection[{}] was registered to queue", unregisteredAsynConnection.hashCode());
+	}
+	
+	public void callSelectorAlarm() throws InterruptedException {	
+		// FIXME!
+		// selectorAlarm.startWork();
+		ioEventSelector.wakeup();
 	}
 	
 	
@@ -107,10 +107,14 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 			while (! isInterrupted()) {
 				processNewConnection();
 				
-				ioEventSelector.select();
+				
+				ioEventSelector.select(clientSelectorWakeupInterval);
+				// log.info("111111111111");
+				// selectorAlarm.stopWork();
+				
 				Set<SelectionKey> selectedKeySet = ioEventSelector.selectedKeys();
 				for (SelectionKey selectedKey : selectedKeySet) {	
-					if (! selectedKey.isValid()) {
+					/*if (! selectedKey.isValid()) {
 						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						if (null == interestedAsynConnection) {
 							log.info("this selectedKey2ConnectionHash map contains no mapping for the key that is the var selectedKey[hashcode={}, socket channel={}]", selectedKey.hashCode(), selectedKey.channel().hashCode());
@@ -120,18 +124,25 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 						interestedAsynConnection.close();
 						cancel(selectedKey);						
 						continue;
-					}
+					}*/
 					
 					if (selectedKey.isConnectable()) {
 						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onConnect(selectedKey);
-					} else if (selectedKey.isReadable()) {
+					} 
+					
+					if (selectedKey.isReadable()) {
 						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onRead(selectedKey);
-					} else if (selectedKey.isWritable()) {
+					}
+					
+					if (selectedKey.isWritable()) {
 						ClientInterestedConnectionIF  interestedAsynConnection = selectedKey2ConnectionHash.get(selectedKey);
 						interestedAsynConnection.onWrite(selectedKey);
 					}
+					
+					
+					
 				}
 				selectedKeySet.clear();				
 			}
@@ -148,31 +159,33 @@ public class AsynClientIOEventController extends Thread implements AsynClientIOE
 	public void startWrite(ClientInterestedConnectionIF asynInterestedConnectionIF) {
 		SelectionKey selectedKey = asynInterestedConnectionIF.keyFor(ioEventSelector);
 		if (null == selectedKey) {
-			log.error("selectedKey is null");
-			System.exit(1);
+			log.warn("selectedKey is null");
+			return;
 		}
 		
 		// FIXME!
 		// log.info("before interestOps={}", selectedKey.interestOps());
 		selectedKey.interestOps(selectedKey.interestOps() | SelectionKey.OP_WRITE);
-		// log.info("after interestOps={}", selectedKey.interestOps());
-		
 		ioEventSelector.wakeup();
+		// log.info("after interestOps={}", selectedKey.interestOps());
+		// selectorAlarm.startWork();
 	}
 	
 	@Override
 	public void endWrite(ClientInterestedConnectionIF asynInterestedConnectionIF) {
 		SelectionKey selectedKey = asynInterestedConnectionIF.keyFor(ioEventSelector);
 		if (null == selectedKey) {
-			log.error("selectedKey is null");
-			System.exit(1);
+			log.warn("selectedKey is null");
+			return;
 		}
 		selectedKey.interestOps(selectedKey.interestOps() & ~SelectionKey.OP_WRITE);
-		ioEventSelector.wakeup();
+		// ioEventSelector.wakeup();
 	}
 	
 	public void cancel(SelectionKey selectedKey) {
 		selectedKey2ConnectionHash.remove(selectedKey);
 		selectedKey.channel();
 	}
+	
+	
 }

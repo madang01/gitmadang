@@ -38,7 +38,7 @@ public interface MessageProtocolIF {
 	public ArrayDeque<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException;
 	
-	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF receivedMessageBlockingQueue) 
+	public void S2MList(SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF receivedMessageBlockingQueue) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException;
 	
 	

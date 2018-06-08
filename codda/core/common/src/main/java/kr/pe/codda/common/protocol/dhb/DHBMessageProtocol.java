@@ -320,7 +320,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	
 
 	@Override
-	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
+	public void S2MList(SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {
 		if (null == socketOutputStream) {
 			throw new IllegalArgumentException("the parameter socketOutputStream is null");
@@ -445,8 +445,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 						}						
 
 						ReadableMiddleObjectWrapper readableMiddleObjectWrapper = 
-								new ReadableMiddleObjectWrapper(eventHandler, 
-										messageID, mailboxID, mailID, messageInputStream);
+								new ReadableMiddleObjectWrapper(messageID, mailboxID, mailID, messageInputStream);
 
 						try {
 							wrapMessageBlockingQueue.putReceivedMessage(readableMiddleObjectWrapper);

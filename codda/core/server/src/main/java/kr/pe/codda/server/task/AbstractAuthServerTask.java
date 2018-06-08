@@ -29,14 +29,13 @@ import kr.pe.codda.server.ProjectLoginManagerIF;
 public abstract class AbstractAuthServerTask extends AbstractServerTask {
 
 	@Override
-	public void execute(int index, 
-			String projectName,
+	public void execute(String projectName,
 			AcceptedConnection fromAcceptedConnection,			
 			ProjectLoginManagerIF projectLoginManager,						
 			ReadableMiddleObjectWrapper readableMiddleObjectWrapper,
-			MessageProtocolIF messageProtocol) throws InterruptedException {		
+			MessageProtocolIF messageProtocol,
+			PersonalLoginManagerIF fromPersonalLoginManager) throws InterruptedException {		
 		
-		PersonalLoginManagerIF fromPersonalLoginManager = fromAcceptedConnection.getPersonalLoginManager();
 		
 		if (! fromPersonalLoginManager.isLogin()) {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
@@ -46,10 +45,10 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 			
 			return;
 		}
-		super.execute(index, projectName,
+		super.execute(projectName,
 				fromAcceptedConnection,				
 				projectLoginManager,
 				readableMiddleObjectWrapper, 
-				messageProtocol);
+				messageProtocol, fromPersonalLoginManager);
 	}
 }

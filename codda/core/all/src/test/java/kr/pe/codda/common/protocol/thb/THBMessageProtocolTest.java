@@ -3,10 +3,8 @@ package kr.pe.codda.common.protocol.thb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -23,8 +21,8 @@ import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
+import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.impl.message.Empty.Empty;
 import kr.pe.codda.impl.message.Empty.EmptyDecoder;
@@ -48,13 +46,6 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		int dataPacketBufferSize = 4096;
 		int dataPacketBufferPoolSize = 100;
 		
-		SocketChannel fromSC = null;
-		try {
-			fromSC = SocketChannel.open();
-		} catch (IOException e) {
-			log.warn(""+e.getMessage(), e);
-			fail("fail to open a new socket channel");
-		}
 		
 		try {
 			dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
@@ -150,7 +141,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			
 			
 			try {
-				thbMessageProtocol.S2MList(fromSC, sos, simpleWrapMessageBlockingQueue);
+				thbMessageProtocol.S2MList(sos, simpleWrapMessageBlockingQueue);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -209,15 +200,8 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		DataPacketBufferPoolIF dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 4096;
-		int dataPacketBufferPoolSize = 100;
+		int dataPacketBufferPoolSize = 100;		
 		
-		SocketChannel fromSC = null;
-		try {
-			fromSC = SocketChannel.open();
-		} catch (IOException e) {
-			log.warn(""+e.getMessage(), e);
-			fail("fail to open a new socket channel");
-		}
 		
 		try {
 			dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
@@ -302,7 +286,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			
 			
 			try {
-				thbMessageProtocol.S2MList(fromSC, sos, simpleWrapMessageBlockingQueue);
+				thbMessageProtocol.S2MList(sos, simpleWrapMessageBlockingQueue);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);

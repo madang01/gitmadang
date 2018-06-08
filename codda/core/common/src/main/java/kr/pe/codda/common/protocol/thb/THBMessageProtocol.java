@@ -213,7 +213,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 
 	
 	@Override
-	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue) 
+	public void S2MList(SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {		
 		THBMessageHeader messageHeader = (THBMessageHeader)socketOutputStream.getUserDefObject();		
 				
@@ -284,7 +284,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						}
 
 						ReadableMiddleObjectWrapper readableMiddleObjectWrapper = 
-								new ReadableMiddleObjectWrapper(eventHandler, messageID, 
+								new ReadableMiddleObjectWrapper(messageID, 
 										mailboxID, mailID, messageInputStream);
 						
 						try {

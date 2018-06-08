@@ -7,7 +7,10 @@ import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 
 public interface AsynConnectionPoolIF extends ConnectionPoolIF {
 	public void removeUnregisteredConnection(ClientInterestedConnectionIF asynInterestedConnection);
-	public ClientInterestedConnectionIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException;
-	public void addCountOfUnregisteredConnection();
+	//public ClientInterestedConnectionIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException;
+	// public void addCountOfUnregisteredConnection();
+	public boolean isConnectionToAdd();
+	public void addConnection() throws NoMoreDataPacketBufferException, IOException;
+	
 	public void setAsynSelectorManger(AsynClientIOEventControllerIF asynSelectorManger);
 }

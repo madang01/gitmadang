@@ -9,7 +9,8 @@ public class EmptyClientTask extends AbstractClientTask {
 
 	@Override
 	public void doTask(String projectName, AsynConnectionIF asynConnection, AbstractMessage outputMessage) throws Exception {
-		log.info("asyn connection[{}]::{}", asynConnection.hashCode(), outputMessage.toString());
+		// log.info("asynConnection[{}] doTask::{}", asynConnection.hashCode(), outputMessage.messageHeaderInfo.toString());
+		// log.info("doTask");
 	}
 	
 }

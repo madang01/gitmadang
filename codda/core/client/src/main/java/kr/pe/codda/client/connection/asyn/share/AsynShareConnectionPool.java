@@ -9,13 +9,11 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.ConnectionIF;
 import kr.pe.codda.client.connection.ClientMessageUtilityIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
+import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
-import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.ClientInterestedConnectionIF;
-import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
-import kr.pe.codda.client.connection.asyn.executor.ClientExecutorPoolIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
@@ -26,23 +24,30 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynShareConnectionPool.class);
 	private final Object monitor = new Object();
 
-	private ProjectPartConfiguration projectPartConfiguration = null;
+	// private ProjectPartConfiguration projectPartConfiguration = null;
+	private String projectName = null;
+	private String serverHost = null;
+	private int serverPort  = 0;
+	private long socketTimeout=0;
+	private int clientConnectionCount = 0; 
+	private int clientConnectionMaxCount = 0;
+	private int clientSyncMessageMailboxCountPerAsynShareConnection=0;
+	private int clientAsynInputMessageQueueCapacity=0;
+	
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
-	private ClientExecutorPoolIF clientExecutorPool = null;
-
 	private ArrayList<AsynShareConnection> connectionList = null;
 
-	private transient int index = -1;
-	private transient int numberOfUnregisteredConnection = 0;
+	private int index = -1;
+	private int numberOfUnregisteredConnection = 0;
 
-	private AsynClientIOEventControllerIF asynSelectorManger = null;
+	private AsynClientIOEventControllerIF asynClientIOEventController = null;
 
 	public AsynShareConnectionPool(ProjectPartConfiguration projectPartConfiguration,
 			ClientMessageUtilityIF clientMessageUtility, SocketOutputStreamFactoryIF socketOutputStreamFactory,
-			ConnectionPoolSupporterIF connectionPoolSupporter, ClientExecutorPoolIF clientExecutorPool)
+			ConnectionPoolSupporterIF connectionPoolSupporter)
 			throws NoMoreDataPacketBufferException, IOException {
 		if (null == projectPartConfiguration) {
 			throw new IllegalArgumentException("the parameter projectPartConfiguration is null");
@@ -59,37 +64,26 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 			throw new IllegalArgumentException("the parameter connectionPoolSupporter is null");
 		}
 
-		if (null == clientExecutorPool) {
-			throw new IllegalArgumentException("the parameter clientExecutorPool is null");
-		}
-
-		this.projectPartConfiguration = projectPartConfiguration;
+		this.projectName = projectPartConfiguration.getProjectName();
+		this.serverHost = projectPartConfiguration.getServerHost();
+		this.serverPort = projectPartConfiguration.getServerPort();
+		this.socketTimeout = projectPartConfiguration.getClientSocketTimeout();
+		this.clientConnectionCount = projectPartConfiguration.getClientConnectionCount();
+		this.clientConnectionMaxCount =  projectPartConfiguration.getClientConnectionMaxCount();
+		this.clientSyncMessageMailboxCountPerAsynShareConnection = projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection();
+		this.clientAsynInputMessageQueueCapacity = projectPartConfiguration.getClientAsynInputMessageQueueCapacity();
+		
 		this.clientMessageUtility = clientMessageUtility;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
-		this.clientExecutorPool = clientExecutorPool;
 
-		connectionList = new ArrayList<AsynShareConnection>(projectPartConfiguration.getClientConnectionMaxCount());
+		connectionList = new ArrayList<AsynShareConnection>(clientConnectionMaxCount);
 
 		connectionPoolSupporter.registerPool(this);
-
-		// numberOfInterrestedConnection =
-		// projectPartConfiguration.getClientConnectionCount();
-		/*
-		 * int numberOfConnection = projectPartConfiguration.getClientConnectionCount();
-		 * 
-		 * for (int i = 0; i < numberOfConnection; i++) { addInterestedConnection(); }
-		 */
-
-		/*
-		 * projectPartConfiguration.getClientConnectionCount();
-		 * projectPartConfiguration.getClientConnectionMaxCount();
-		 * projectPartConfiguration.getClientSocketTimeout();
-		 */
 	}
 
-	public void setAsynSelectorManger(AsynClientIOEventControllerIF asynIOEventManger) {
-		this.asynSelectorManger = asynIOEventManger;
+	public void setAsynSelectorManger(AsynClientIOEventControllerIF asynClientIOEventController) {
+		this.asynClientIOEventController = asynClientIOEventController;
 	}
 
 	@Override
@@ -97,7 +91,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		AsynShareConnection asynShareConnection = null;
 		boolean loop = false;
 
-		long currentSocketTimeOut = projectPartConfiguration.getClientSocketTimeout();
+		long currentSocketTimeOut = socketTimeout;
 		long startTime = System.currentTimeMillis();
 
 		synchronized (monitor) {
@@ -176,51 +170,59 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		}
 
 	}
-
-	@Override
+	
+	public void addAllLostConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
+		while (isConnectionToAdd()) {				
+			addConnection();
+		}
+		
+		asynClientIOEventController.callSelectorAlarm();
+	}
+	
 	public boolean isConnectionToAdd() {
-		// FIXME!
-		/*
-		 * log.
-		 * info("numberOfUnregisteredConnection={}, numberOfConnection={}, number of config's connection={}"
-		 * , numberOfUnregisteredConnection, numberOfConnection,
-		 * projectPartConfiguration.getClientConnectionCount());
-		 */
-		boolean isInterestedConnection = ((numberOfUnregisteredConnection
-				+ connectionList.size()) < projectPartConfiguration.getClientConnectionCount());
+		boolean isInterestedConnection  = false;
+		synchronized (monitor) {
+			isInterestedConnection = ((numberOfUnregisteredConnection
+					+ connectionList.size()) < clientConnectionCount);
+		}		
 		return isInterestedConnection;
+	}
+
+	public void addConnection() throws NoMoreDataPacketBufferException, IOException {
+		ClientInterestedConnectionIF unregisteredAsynConnection = newUnregisteredConnection();
+		addCountOfUnregisteredConnection();
+		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynConnection);
+	}
+
+	private void addCountOfUnregisteredConnection() {
+		synchronized (monitor) {
+			numberOfUnregisteredConnection++;
+		}		
 	}
 
 	@Override
 	public void removeUnregisteredConnection(ClientInterestedConnectionIF asynInterestedConnection) {
-		numberOfUnregisteredConnection--;
+		synchronized (monitor) {
+			numberOfUnregisteredConnection--;
+		}
+		
+		
 		log.info("remove the interedted connection[{}]", asynInterestedConnection.hashCode());
 	}
 
-	public ClientInterestedConnectionIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
+	private ClientInterestedConnectionIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
 		SocketOutputStream sos = socketOutputStreamFactory.createSocketOutputStream();
-		ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 
-		ClientInterestedConnectionIF asynInterestedConnection = new AsynShareConnection(
-				projectPartConfiguration.getServerHost(),
-				projectPartConfiguration.getServerPort(),
-				projectPartConfiguration.getClientSocketTimeout(),
-				projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
-				projectPartConfiguration.getClientAsynInputMessageQueueSize(),
+		ClientInterestedConnectionIF asynInterestedConnection = new AsynShareConnection(projectName,
+				serverHost,
+				serverPort,
+				socketTimeout,
+				clientSyncMessageMailboxCountPerAsynShareConnection,
+				clientAsynInputMessageQueueCapacity,
 				sos,
-				clientMessageUtility, this, clientExecutor, 
-				asynSelectorManger, connectionPoolSupporter);
+				clientMessageUtility, this, 
+				asynClientIOEventController, connectionPoolSupporter);
 		return asynInterestedConnection;
-	}
-
-	public void addCountOfUnregisteredConnection() {
-		numberOfUnregisteredConnection++;
-	}
-
-	public void addConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
-		ClientInterestedConnectionIF unregisteredAsynConnection = newUnregisteredConnection();
-		addCountOfUnregisteredConnection();
-		asynSelectorManger.addUnregisteredAsynConnection(unregisteredAsynConnection);
 	}
 
 	@Override
@@ -231,17 +233,17 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 	}
 
 	@Override
-	public void addConnectedConnection(AsynConnectionIF connectedAsynConnection) throws ConnectionPoolException {
-		if (0 == numberOfUnregisteredConnection) {
+	public void addConnectedConnection(AsynConnectionIF connectedAsynConnection) {
+		/*if (0 == numberOfUnregisteredConnection) {
 			throw new ConnectionPoolException(
 					"fail to add a connection because the var numberOfInterrestedConnection is zero");
-		}
+		}*/
 
 		synchronized (monitor) {
-			if (connectionList.size() >= projectPartConfiguration.getClientConnectionMaxCount()) {
+			/*if (connectionList.size() >= clientConnectionMaxCount) {
 				throw new ConnectionPoolException(
 						"fail to add a connection because this connection pool's size is max");
-			}
+			}*/
 
 			AsynShareConnection asynShareConnection = (AsynShareConnection) connectedAsynConnection;
 			numberOfUnregisteredConnection--;
@@ -257,7 +259,12 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 
 	@Override
 	public void removeInterestedConnection(AsynConnectionIF interestedAsynConnection) {
-		numberOfUnregisteredConnection--;
+		synchronized (monitor) {
+			numberOfUnregisteredConnection--;
+		}
+		
 		log.info("remove the interedted connection[{}]", interestedAsynConnection.hashCode());
 	}
+
+	
 }

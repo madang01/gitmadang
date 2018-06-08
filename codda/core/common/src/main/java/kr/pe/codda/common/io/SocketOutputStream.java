@@ -145,7 +145,7 @@ public class SocketOutputStream {
 		
 		lastByteBuffer = lastWrapBuffer.getByteBuffer();
 		
-		do {
+		//do {
 			if (! lastByteBuffer.hasRemaining()) {
 				lastWrapBuffer = addNewSocketOutputStreamWrapBuffer();
 				lastByteBuffer = lastWrapBuffer.getByteBuffer();
@@ -154,13 +154,13 @@ public class SocketOutputStream {
 			numRead = readableSocketChannel.read(lastByteBuffer);
 			
 			
-			if (numRead <= 0) {
-				break;
+			if (numRead > 0) {
+				numberOfWrittenBytes += numRead;
 			}
 			
-			numberOfWrittenBytes += numRead;			
+						
 			
-		} while(true);
+		//} while(true);
 		
 		return numRead;
 	}

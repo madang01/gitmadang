@@ -20,9 +20,6 @@ import kr.pe.codda.client.connection.asyn.AsynClientIOEventController;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
 import kr.pe.codda.client.connection.asyn.AyncThreadSafeSingleConnectedConnectionAdder;
-import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
-import kr.pe.codda.client.connection.asyn.executor.ClientExecutorPool;
-import kr.pe.codda.client.connection.asyn.noshare.AsynNoShareConnectionPool;
 import kr.pe.codda.client.connection.asyn.share.AsynShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncNoShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncThreadSafeSingleConnection;
@@ -59,22 +56,19 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	private boolean clientDataPacketBufferIsDirect;
 	private int clientDataPacketBufferMaxCntPerMessage;
 	private int clientDataPacketBufferSize;
-	private int clientDataPacketBufferPoolSize;	
-	private int clientAsynExecutorPoolSize;
-	private int clientAsynOutputMessageQueueSize;
+	private int clientDataPacketBufferPoolSize;
 	private ConnectionType connectionType = null;	
 	private long clientConnectionPoolSupporterTimeInterval;
 	
 	private ConnectionPoolIF connectionPool = null;	
 	private ConnectionPoolSupporter connectionPoolSupporter = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ClientExecutorPool clientExecutorPool = null;
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
-	private AsynClientIOEventController asynSelectorManger = null;
+	private AsynClientIOEventController asynClientIOEventController = null;
 	
 
-	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration) throws NoMoreDataPacketBufferException, IOException {
+	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 		this.projectPartConfiguration = projectPartConfiguration;
 		
 		mainProjectName = projectPartConfiguration.getProjectName();
@@ -85,9 +79,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		clientDataPacketBufferIsDirect = projectPartConfiguration.getClientDataPacketBufferIsDirect();
 		clientDataPacketBufferMaxCntPerMessage = projectPartConfiguration.getClientDataPacketBufferMaxCntPerMessage();
 		clientDataPacketBufferSize = projectPartConfiguration.getClientDataPacketBufferSize();
-		clientDataPacketBufferPoolSize = projectPartConfiguration.getClientDataPacketBufferPoolSize();
-		clientAsynExecutorPoolSize = projectPartConfiguration.getClientAsynExecutorPoolSize();
-		clientAsynOutputMessageQueueSize = projectPartConfiguration.getClientAsynOutputMessageQueueSize();
+		clientDataPacketBufferPoolSize = projectPartConfiguration.getClientDataPacketBufferPoolSize();		
 		connectionType = projectPartConfiguration.getConnectionType();
 		clientConnectionPoolSupporterTimeInterval = projectPartConfiguration.getClientConnectionPoolSupporterTimeInterval();
 		
@@ -137,12 +129,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		
 		connectionPoolSupporter = new ConnectionPoolSupporter(clientConnectionPoolSupporterTimeInterval);
 		
-		clientExecutorPool = new ClientExecutorPool(
-				clientAsynExecutorPoolSize, 
-				mainProjectName,
-				clientAsynOutputMessageQueueSize, clientMessageUtility);
 		
-		clientExecutorPool.startAll();
 		
 		if (connectionType.equals(ConnectionType.SYNC_PRIVATE)) {
 			connectionPool = new SyncNoShareConnectionPool(projectPartConfiguration,
@@ -150,30 +137,21 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 					socketOutputStreamFactory,
 					connectionPoolSupporter);
 		} else {
-			AsynConnectionPoolIF asynConnectionPool = null;
 			
-			if (connectionType.equals(ConnectionType.ASYN_PRIVATE)) {
-				asynConnectionPool = new AsynNoShareConnectionPool(projectPartConfiguration,
-						clientMessageUtility,
-						socketOutputStreamFactory,
-						connectionPoolSupporter,
-						clientExecutorPool);
-				
-				connectionPool = asynConnectionPool;
-			} else {
-				asynConnectionPool = new AsynShareConnectionPool(projectPartConfiguration,
-						clientMessageUtility,
-						socketOutputStreamFactory,
-						connectionPoolSupporter,
-						clientExecutorPool);
-				
-				connectionPool = asynConnectionPool;
-			}
-			asynSelectorManger = new AsynClientIOEventController(
+			
+			AsynConnectionPoolIF asynConnectionPool = 
+					new AsynShareConnectionPool(projectPartConfiguration,
+					clientMessageUtility,
+					socketOutputStreamFactory,
+					connectionPoolSupporter);
+			
+			connectionPool = asynConnectionPool;
+			
+			asynClientIOEventController = new AsynClientIOEventController(
 					projectPartConfiguration.getClientSelectorWakeupInterval(),
 					asynConnectionPool);
 			
-			asynSelectorManger.start();
+			asynClientIOEventController.start();
 			
 			try {
 				Thread.sleep(1000);
@@ -250,27 +228,19 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		
 		ConnectionIF connectedConnection = null;
 		
-		ClientExecutorIF clientExecutor  = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 		AyncThreadSafeSingleConnectedConnectionAdder ayncThreadSafeSingleConnectedConnectionAdder = new AyncThreadSafeSingleConnectedConnectionAdder();
 		AsynThreadSafeSingleConnection unregisteredAsynThreadSafeSingleConnection = 
-				new AsynThreadSafeSingleConnection(serverHost,
+				new AsynThreadSafeSingleConnection(mainProjectName, serverHost,
 						serverPort,
 						projectPartConfiguration.getClientSocketTimeout(),
 						projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
-						projectPartConfiguration.getClientAsynInputMessageQueueSize(),					 
+						projectPartConfiguration.getClientAsynInputMessageQueueCapacity(),					 
 				socketOutputStreamFactory.createSocketOutputStream(), 
 				clientMessageUtility, ayncThreadSafeSingleConnectedConnectionAdder, 
-				clientExecutor, asynSelectorManger, connectionPoolSupporter);
+				asynClientIOEventController, connectionPoolSupporter);		
 		
-		try {
-			asynSelectorManger.addUnregisteredAsynConnection(unregisteredAsynThreadSafeSingleConnection);
-		} catch(IOException e) {
-			unregisteredAsynThreadSafeSingleConnection.close();
-			
-			log.warn("fail to register a connection[{}] to selector", unregisteredAsynThreadSafeSingleConnection.hashCode());
-			
-			throw new IOException("fail to register a connection to selector");
-		}
+		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynThreadSafeSingleConnection);
+		asynClientIOEventController.callSelectorAlarm();		
 		
 		try {
 			connectedConnection = ayncThreadSafeSingleConnectedConnectionAdder.poll(socketTimeout);

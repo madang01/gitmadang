@@ -37,7 +37,6 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
 import kr.pe.codda.common.type.MessageProtocolType;
-import kr.pe.codda.server.threadpool.executor.ServerExecutorPool;
 
 
 public class AnyProjectServer {
@@ -46,8 +45,8 @@ public class AnyProjectServer {
 	private String serverAPPINFClassPathString = null;
 	private String projectResourcesPathString = null;
 	private String mainProjectName = null;
-	private Charset charset = null;
-	private ByteOrder byteOrder = null;
+	private Charset projectCharset = null;
+	private ByteOrder projectByteOrder = null;
 	private MessageProtocolType messageProtocolType = null;
 	private boolean serverDataPacketBufferIsDirect;
 	private int serverDataPacketBufferMaxCntPerMessage;
@@ -55,8 +54,6 @@ public class AnyProjectServer {
 	private int serverDataPacketBufferPoolSize;	 
 	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;	
-	/** 비지니스 로직 처리 담당 쓰레드 폴 */
-	private ServerExecutorPool executorPool = null;	
 	private ServerObjectCacheManager serverObjectCacheManager = null;	
 	private ServerIOEventController serverIOEventController = null;
 	
@@ -67,8 +64,8 @@ public class AnyProjectServer {
 		this.projectResourcesPathString = projectResourcesPathString;
 		
 		mainProjectName = projectPartConfiguration.getProjectName();		
-		charset = projectPartConfiguration.getCharset();
-		byteOrder = projectPartConfiguration.getByteOrder();
+		projectCharset = projectPartConfiguration.getCharset();
+		projectByteOrder = projectPartConfiguration.getByteOrder();
 		messageProtocolType = projectPartConfiguration.getMessageProtocolType();
 		serverDataPacketBufferIsDirect = projectPartConfiguration.getServerDataPacketBufferIsDirect();
 		serverDataPacketBufferMaxCntPerMessage = projectPartConfiguration.getServerDataPacketBufferMaxCntPerMessage();
@@ -76,12 +73,12 @@ public class AnyProjectServer {
 		serverDataPacketBufferPoolSize = projectPartConfiguration.getServerDataPacketBufferPoolSize();		
 		
 		
-		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charset);
-		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charset);
+		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectCharset);
+		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectCharset);
 		
 		
 		this.dataPacketBufferPool = new DataPacketBufferPool(serverDataPacketBufferIsDirect, 
-				byteOrder, 
+				projectByteOrder, 
 				serverDataPacketBufferSize, 
 				serverDataPacketBufferPoolSize);
 		
@@ -130,16 +127,7 @@ public class AnyProjectServer {
 		serverIOEventController = new ServerIOEventController(projectPartConfiguration,
 				socketOutputStreamFactory, 
 				messageProtocol,
-				dataPacketBufferPool);
-		
-		executorPool = new ServerExecutorPool(projectPartConfiguration,
-				serverIOEventController,
-				messageProtocol, 
-				serverObjectCacheManager);
-		
-		serverIOEventController.setServerExecutorPool(executorPool);
-		
-				
+				dataPacketBufferPool, serverObjectCacheManager);
 	}
 
 	
@@ -147,7 +135,6 @@ public class AnyProjectServer {
 	 * 서버 시작
 	 */	
 	synchronized public void startServer() {
-		executorPool.startAll();
 		serverIOEventController.start();
 	}
 
@@ -160,8 +147,6 @@ public class AnyProjectServer {
 		if (! serverIOEventController.isInterrupted()) {
 			serverIOEventController.interrupt();
 		}
-		
-		executorPool.stopAll();
 	}	
 
 	

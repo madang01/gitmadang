@@ -20,8 +20,6 @@ import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.server.threadpool.executor.ServerExecutorIF;
-import kr.pe.codda.server.threadpool.executor.ServerExecutorPoolIF;
 
 public class ServerIOEventController extends Thread implements ServerIOEvenetControllerIF, ProjectLoginManagerIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(ServerIOEventController.class);
@@ -32,11 +30,11 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	private int maxClients;
 	
 	private long socketTimeOut=5000;
-	private int outputMessageQueueSize=5;
+	private int serverOutputMessageQueueCapacity=5;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;		
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ServerExecutorPoolIF serverExecutorPool = null;
+	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
 	
 	private Selector ioEventSelector = null; // OP_ACCEPT 전용 selector
 	private ServerSocketChannel ssc = null;
@@ -47,25 +45,25 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	private HashMap<SelectionKey, String> selectedKey2LonginIDHash = new HashMap<SelectionKey, String>();
 	private HashMap<String, SelectionKey> longinID2SelectedKeyHash = new HashMap<String, SelectionKey>();
 	
+	
 	public ServerIOEventController(ProjectPartConfiguration projectPartConfiguration,				
 			SocketOutputStreamFactoryIF socketOutputStreamFactory,			
 			MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferPool) {
+			DataPacketBufferPoolIF dataPacketBufferPool,
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		
 		this.projectName = projectPartConfiguration.getProjectName();
 		this.serverHost = projectPartConfiguration.getServerHost();
 		this.serverPort = projectPartConfiguration.getServerPort();
 		this.maxClients = projectPartConfiguration.getClientConnectionMaxCount();
 		this.socketTimeOut = projectPartConfiguration.getClientSocketTimeout();
-		this.outputMessageQueueSize = projectPartConfiguration.getClientAsynOutputMessageQueueSize();
+		this.serverOutputMessageQueueCapacity = projectPartConfiguration.getServerOutputMessageQueueCapacity();
+		
 		
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
-	}
-	
-	public void setServerExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
-		this.serverExecutorPool = serverExecutorPool;
+		this.serverObjectCacheManager = serverObjectCacheManager;
 	}
 	
 	private void addNewAcceptedSocketChannel(SelectionKey acceptedKey, SocketChannel newAcceptedSC)
@@ -75,26 +73,20 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		}		
 
 		SocketOutputStream socketOutputStreamOfAcceptedSC = socketOutputStreamFactory.createSocketOutputStream();
-
-		PersonalLoginManager personalLoginManagerOfAcceptedSC = new PersonalLoginManager(acceptedKey,
-				this);
 		
-		ServerExecutorIF executorOfAcceptedSC = serverExecutorPool.getExecutorWithMinimumNumberOfSockets();
-
 		AcceptedConnection acceptedConnection = new AcceptedConnection(acceptedKey, newAcceptedSC,
+				projectName,
 				socketTimeOut,
-				outputMessageQueueSize,
+				serverOutputMessageQueueCapacity,
 				socketOutputStreamOfAcceptedSC,
-				personalLoginManagerOfAcceptedSC,
-				executorOfAcceptedSC,
+				this,
 				messageProtocol,				
 				dataPacketBufferPool, 
-				this);
+				this, serverObjectCacheManager);
 
 		/** 소켓 자원 등록 작업 */
 		selectedKey2AcceptedConnectionHash.put(acceptedKey, acceptedConnection);
 		
-		executorOfAcceptedSC.addNewSocket(newAcceptedSC);
 	}
 
 	
@@ -132,13 +124,21 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				int keyReady = ioEventSelector.select();
+				//log.info("keyReady={}", keyReady);
+				
 				if (keyReady > 0) {
 
 					Set<SelectionKey> selectedKeySet = ioEventSelector.selectedKeys();
 
 					try {
 						for (SelectionKey selectedKey : selectedKeySet) {
-							if (! selectedKey.isValid()) {
+							// FIXME!
+							/*log.info("111111111111::server, readyOps={}, interestOps={}, isWritable={}, isReadable={}", 
+									selectedKey.readyOps(),
+									selectedKey.interestOps(), selectedKey.isWritable(),
+									selectedKey.isReadable());*/
+							
+							/*if (! selectedKey.isValid()) {
 								AcceptedConnection accpetedConneciton = selectedKey2AcceptedConnectionHash.get(selectedKey);
 								
 								if (null == accpetedConneciton) {
@@ -150,7 +150,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 								accpetedConneciton.close();
 								cancel(selectedKey);								
 								continue;
-							}
+							}*/
 							
 
 							if (selectedKey.isAcceptable()) {
@@ -187,7 +187,9 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 											maxClients, acceptableSocketChannel.hashCode());
 
 								}								
-							} else if (selectedKey.isReadable()) {
+							}
+							
+							if (selectedKey.isReadable() && canRead()) {
 								AcceptedConnection accpetedConneciton = selectedKey2AcceptedConnectionHash.get(selectedKey);
 								
 								if (null == accpetedConneciton) {
@@ -197,7 +199,9 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 								}
 
 								accpetedConneciton.onRead(selectedKey);
-							} else if (selectedKey.isWritable()) {
+							} 
+							
+							if (selectedKey.isWritable()) {								
 								AcceptedConnection accpetedConneciton = selectedKey2AcceptedConnectionHash.get(selectedKey);
 								
 								if (null == accpetedConneciton) {
@@ -208,6 +212,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 
 								accpetedConneciton.onWrite(selectedKey);
 							}
+							
 						}
 					} finally {
 						selectedKeySet.clear();
@@ -243,31 +248,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		acceptedSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
 		acceptedSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 	}
-
-	@Override
-	public void startWrite(ServerInterestedConnectionIF asynInterestedConnectionIF) {
-		SelectionKey selectedKey = asynInterestedConnectionIF.keyFor(ioEventSelector);
-		if (null == selectedKey) {
-			log.warn("selectedKey is null", asynInterestedConnectionIF.hashCode());
-			return;
-		}
-
-		selectedKey.interestOps(selectedKey.interestOps() | SelectionKey.OP_WRITE);
-		
-		ioEventSelector.wakeup();
-	}
 	
-	@Override
-	public void endWrite(ServerInterestedConnectionIF asynInterestedConnectionIF) {
-		SelectionKey selectedKey = asynInterestedConnectionIF.keyFor(ioEventSelector);
-		if (null == selectedKey) {
-			log.error("selectedKey is null");
-			System.exit(1);
-		}
-		selectedKey.interestOps(selectedKey.interestOps() & ~SelectionKey.OP_WRITE);
-		ioEventSelector.wakeup();
-	}
-
 
 	@Override
 	public void cancel(SelectionKey selectedKey) {
@@ -413,4 +394,15 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	public AcceptedConnection getAcceptedConnection(SelectionKey selectedKey) {
 		return selectedKey2AcceptedConnectionHash.get(selectedKey);
 	}
+	
+
+	private boolean canRead() {
+		for (AcceptedConnection currentWorkingAcceptedConnection : selectedKey2AcceptedConnectionHash.values()) {
+			if (! currentWorkingAcceptedConnection.canRead()) {
+				return false;
+			}
+		}
+		
+		return true;
+	}	
 }

@@ -96,7 +96,8 @@ public class WrapBuffer {
 	 */
 	protected void queueOut() {
 		isInQueue = false;
-		// lastCallerThrowable = new Throwable();
+		
+		// log.info("hash code="+hashCode(), new Throwable());
 	}
 
 	@Override

@@ -3,10 +3,8 @@ package kr.pe.codda.common.protocol.dhb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -23,8 +21,8 @@ import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
+import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoder;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoderMatcher;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoderMatcherIF;
@@ -55,13 +53,6 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			fail("unknown error::" + e.getMessage());
 		}
 		
-		SocketChannel fromSC = null;
-		try {
-			fromSC = SocketChannel.open();
-		} catch (IOException e) {
-			log.warn(""+e.getMessage(), e);
-			fail("fail to open a new socket channel");
-		}
 		
 		DHBMessageProtocol dhbMessageProtocol = 
 				new DHBMessageProtocol( 
@@ -145,7 +136,7 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			
 			
 			try {
-				dhbMessageProtocol.S2MList(fromSC, sos, simpleWrapMessageBlockingQueue);
+				dhbMessageProtocol.S2MList(sos, simpleWrapMessageBlockingQueue);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);

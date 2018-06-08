@@ -190,7 +190,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	
 				setFinalReadTime();
 	
-				clientMessageUtility.S2MList(clientSC, socketOutputStream, syncReceivedMessageBlockingQueue);
+				clientMessageUtility.S2MList(socketOutputStream, syncReceivedMessageBlockingQueue);
 				
 				// log.info("numberOfReadBytes={}, readableMiddleObjectWrapperQueue.isEmpty={}", numberOfReadBytes, readableMiddleObjectWrapperQueue.isEmpty());
 			} while(! syncReceivedMessageBlockingQueue.isReceivedMessage());			

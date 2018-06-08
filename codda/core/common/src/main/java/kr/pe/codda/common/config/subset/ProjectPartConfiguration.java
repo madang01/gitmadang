@@ -64,8 +64,8 @@ public class ProjectPartConfiguration {
 	private Integer  clientAsynExecutorPoolSize = null;
 		
 	/** 입력 메시지 큐 크기 */
-	private Integer  clientAsynInputMessageQueueSize = null;	
-	private Integer  clientAsynOutputMessageQueueSize = null;
+	private Integer  clientAsynInputMessageQueueCapacity = null;	
+	private Integer  clientAsynOutputMessageQueueCapacity = null;
 	
 	/** 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기 */
 	private Long clientSelectorWakeupInterval = null;	
@@ -85,8 +85,8 @@ public class ProjectPartConfiguration {
 	
 	
 	/***** 서버 비동기 입출력 지원용 자원 시작 *****/
-	private Integer  serverInputMessageQueueSize = null;
-	private Integer  serverOutputMessageQueueSize = null;
+	private Integer  serverInputMessageQueueCapacity = null;
+	private Integer  serverOutputMessageQueueCapacity = null;
 	
 	// private Long serverAcceptSelectorTimeout = null;
 		
@@ -166,8 +166,8 @@ public class ProjectPartConfiguration {
 		return clientAsynExecutorPoolSize;
 	}
 
-	public int getClientAsynOutputMessageQueueSize() {
-		return clientAsynOutputMessageQueueSize;
+	public int getClientAsynOutputMessageQueueCapacity() {
+		return clientAsynOutputMessageQueueCapacity;
 	}
 	
 
@@ -181,8 +181,8 @@ public class ProjectPartConfiguration {
 		return clientSelectorWakeupInterval;
 	}
 
-	public int getClientAsynInputMessageQueueSize() {
-		return clientAsynInputMessageQueueSize;
+	public int getClientAsynInputMessageQueueCapacity() {
+		return clientAsynInputMessageQueueCapacity;
 	}	
 
 	public long getClientMonitorTimeInterval() {
@@ -213,12 +213,12 @@ public class ProjectPartConfiguration {
 		return serverExecutorPoolMaxSize;
 	}
 
-	public int getServerInputMessageQueueSize() {
-		return serverInputMessageQueueSize;
+	public int getServerInputMessageQueueCapacity() {
+		return serverInputMessageQueueCapacity;
 	}
 
-	public int getServerOutputMessageQueueSize() {
-		return serverOutputMessageQueueSize;
+	public int getServerOutputMessageQueueCapacity() {
+		return serverOutputMessageQueueCapacity;
 	}
 
 	
@@ -471,7 +471,7 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.clientAsynInputMessageQueueSize = (Integer) nativeValue;		
+			this.clientAsynInputMessageQueueCapacity = (Integer) nativeValue;		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -483,7 +483,7 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.clientAsynOutputMessageQueueSize = (Integer) nativeValue;
+			this.clientAsynOutputMessageQueueCapacity = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SELECTOR_WAKEUP_INTERVAL_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -581,7 +581,7 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.serverMaxClients = (Integer) nativeValue;		
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID)) {
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_CAPACITY_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -592,8 +592,8 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.serverInputMessageQueueSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID)) {
+			this.serverInputMessageQueueCapacity = (Integer) nativeValue;
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_CAPACITY_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -604,7 +604,7 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.serverOutputMessageQueueSize = (Integer) nativeValue;
+			this.serverOutputMessageQueueCapacity = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -780,11 +780,11 @@ public class ProjectPartConfiguration {
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MAX_CLIENTS_ITEMID).toString(), serverMaxClients);
 
 		mapping(new StringBuilder(prefexOfItemID)
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID).toString(),
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_CAPACITY_ITEMID).toString(),
 				serverInputMessageQueueSize);
 
 		mapping(new StringBuilder(prefexOfItemID)
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID).toString(),
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_CAPACITY_ITEMID).toString(),
 				serverOutputMessageQueueSize);		
 
 		mapping(new StringBuilder(prefexOfItemID)
@@ -841,9 +841,9 @@ public class ProjectPartConfiguration {
 		builder.append(", clientAsynExecutorPoolSize=");
 		builder.append(clientAsynExecutorPoolSize);
 		builder.append(", clientAsynInputMessageQueueSize=");
-		builder.append(clientAsynInputMessageQueueSize);
+		builder.append(clientAsynInputMessageQueueCapacity);
 		builder.append(", clientAsynOutputMessageQueueSize=");
-		builder.append(clientAsynOutputMessageQueueSize);
+		builder.append(clientAsynOutputMessageQueueCapacity);
 		builder.append(", clientSelectorWakeupInterval=");
 		builder.append(clientSelectorWakeupInterval);
 		builder.append(", serverMonitorTimeInterval=");
@@ -859,9 +859,9 @@ public class ProjectPartConfiguration {
 		builder.append(", serverMaxClients=");
 		builder.append(serverMaxClients);
 		builder.append(", serverInputMessageQueueSize=");
-		builder.append(serverInputMessageQueueSize);
-		builder.append(", serverOutputMessageQueueSize=");
-		builder.append(serverOutputMessageQueueSize);
+		builder.append(serverInputMessageQueueCapacity);
+		builder.append(", serverOutputMessageQueueCapacity=");
+		builder.append(serverOutputMessageQueueCapacity);
 		builder.append(", serverExecutorPoolMaxSize=");
 		builder.append(serverExecutorPoolMaxSize);
 		builder.append(", serverExecutorPoolSize=");

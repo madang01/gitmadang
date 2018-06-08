@@ -1,7 +1,6 @@
 package kr.pe.codda.client;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class ConnectionPoolManagerTest extends AbstractJunitTest {
 		
 		assertNotNull(mainProjectConnectionPool);
 		
-		assertNull(mainProjectConnectionPool.getPoolState());
+		assertNotNull(mainProjectConnectionPool.getPoolState());
 	}
 	
 }

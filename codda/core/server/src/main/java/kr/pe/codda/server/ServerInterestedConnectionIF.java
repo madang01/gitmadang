@@ -10,5 +10,6 @@ public interface ServerInterestedConnectionIF {
 	
 	// public void close() throws IOException;
 	// public void releaseResources();
+	public SelectionKey getSelectionKey();
 	public int hashCode();
 }

@@ -60,7 +60,7 @@ public abstract class AbstractJunitTest {
 			fail(e.getMessage());
 		}
 
-		log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
+		
 				
 		System
 				.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_RUNNING_PROJECT_NAME,
@@ -68,6 +68,8 @@ public abstract class AbstractJunitTest {
 		System
 				.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_INSTALLED_PATH,
 						installedPathString);
+		
+		log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 	}
 
 	

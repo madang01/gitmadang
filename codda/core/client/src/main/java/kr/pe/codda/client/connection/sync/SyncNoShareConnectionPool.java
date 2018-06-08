@@ -21,18 +21,26 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	
 	private final Object monitor = new Object();
 	
-	private ProjectPartConfiguration projectPartConfiguration = null;	
+	//private ProjectPartConfiguration projectPartConfiguration = null;	
+	private String serverHost = null;
+	private int serverPort  = 0;
+	private long socketTimeout=0;
+	private int clientConnectionCount = 0; 
+	@SuppressWarnings("unused")
+	private int clientConnectionMaxCount = 0;
+	private int clientDataPacketBufferSize = 0;
+	
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 	
 	private ArrayDeque<SyncNoShareConnection> connectionQueue = null;
-	private transient int numberOfConnection = 0;
+	private int numberOfConnection = 0;
 	
 	public SyncNoShareConnectionPool(ProjectPartConfiguration projectPartConfiguration, 
 			ClientMessageUtilityIF clientMessageUtility,
 			SocketOutputStreamFactoryIF socketOutputStreamFactory,
-			ConnectionPoolSupporterIF connectionPoolSupporter) throws NoMoreDataPacketBufferException, IOException {
+			ConnectionPoolSupporterIF connectionPoolSupporter) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 		if (null == projectPartConfiguration) {
 			throw new IllegalArgumentException("the parameter projectPartConfiguration is null");
 		}
@@ -49,7 +57,13 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		}
 				
 		
-		this.projectPartConfiguration = projectPartConfiguration;
+		this.serverHost = projectPartConfiguration.getServerHost();
+		this.serverPort = projectPartConfiguration.getServerPort();
+		this.socketTimeout = projectPartConfiguration.getClientSocketTimeout();
+		this.clientConnectionCount = projectPartConfiguration.getClientConnectionCount();
+		this.clientConnectionMaxCount =  projectPartConfiguration.getClientConnectionMaxCount();
+		this.clientDataPacketBufferSize = projectPartConfiguration.getClientDataPacketBufferSize();
+		
 		this.clientMessageUtility = clientMessageUtility;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
@@ -69,7 +83,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		 SyncNoShareConnection asynNoShareConnection = null;
 		boolean loop = false;
 		
-		long currentSocketTimeOut = projectPartConfiguration.getClientSocketTimeout();
+		long currentSocketTimeOut = socketTimeout;
 		long startTime = System.currentTimeMillis();
 
 		synchronized (monitor) {
@@ -181,26 +195,33 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		
 	}
 
-	@Override
-	public boolean isConnectionToAdd() {
-		boolean isInterestedConnection = (numberOfConnection  < projectPartConfiguration.getClientConnectionCount());
+	
+	private boolean isConnectionToAdd() {
+		boolean isInterestedConnection = false;
+		synchronized (monitor) {
+			isInterestedConnection = (numberOfConnection  < clientConnectionCount);
+		}
+		
 		return isInterestedConnection;
 	}
 
-	@Override
-	public void addConnection() throws NoMoreDataPacketBufferException, IOException {
+	
+	private void addConnection() throws NoMoreDataPacketBufferException, IOException {
+		
 		SocketOutputStream sos = socketOutputStreamFactory.createSocketOutputStream();
 		SyncNoShareConnection syncNoShareConnection = null;
 		try {
-			syncNoShareConnection = new SyncNoShareConnection(projectPartConfiguration.getServerHost(),
-					projectPartConfiguration.getServerPort(),
-					projectPartConfiguration.getClientSocketTimeout(),
-					projectPartConfiguration.getClientDataPacketBufferSize(),
+			syncNoShareConnection = new SyncNoShareConnection(serverHost,
+					serverPort,
+					socketTimeout,
+					clientDataPacketBufferSize,
 					sos, clientMessageUtility);
 		} catch(Exception e) {
 			sos.close();
 			throw e;
 		}
+		
+		
 		
 		log.info("the connection[{}] has been connected", syncNoShareConnection.hashCode());
 		
@@ -218,5 +239,12 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 				.append(numberOfConnection)
 				.append(", connectionQueue.size=")
 				.append(connectionQueue.size()).toString();
+	}
+
+	@Override
+	public void addAllLostConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
+		while (isConnectionToAdd()) {				
+			addConnection();
+		}
 	}
 }

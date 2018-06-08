@@ -37,13 +37,11 @@ protected InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolS
 				
 				log.debug("start the work adding the all missing connection");
 				
-				while (connectionPool.isConnectionToAdd()) {				
-					try {
-						connectionPool.addConnection();
-					} catch(IOException | NoMoreDataPacketBufferException e) {
-						log.warn("통제된 에러에 의한 루프 종료", e);
-						break;
-					}
+				try {
+					connectionPool.addAllLostConnection();
+				} catch(IOException | NoMoreDataPacketBufferException e) {
+					log.warn("통제된 에러에 의한 루프 종료", e);
+					break;
 				}
 				
 				log.debug("end the work adding the all missing connection");

@@ -54,8 +54,8 @@ public abstract class ItemIDDefiner {
 		public static final String SERVER_DATA_PACKET_BUFFER_SIZE_ITEMID = "server.data_packet_buffer.size.value";
 		public static final String SERVER_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID = "server.data_packet_buffer.pool_size.value";
 		public static final String SERVER_MAX_CLIENTS_ITEMID = "server.max_clients.value";
-		public static final String SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.input_message_queue_size.value";
-		public static final String SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.output_message_queue_size.value";
+		public static final String SERVER_POOL_INPUT_MESSAGE_QUEUE_CAPACITY_ITEMID = "server.pool.input_message_queue_size.value";
+		public static final String SERVER_POOL_OUTPUT_MESSAGE_QUEUE_CAPACITY_ITEMID = "server.pool.output_message_queue_size.value";
 		public static final String SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID = "server.pool.executor.max_size.value";
 		public static final String SERVER_POOL_EXECUTOR_SIZE_ITEMID = "server.pool.executor.size.value";
 	}

@@ -107,17 +107,16 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 	@Test
 	public void testSendSyncInputMessage_singleThreadOk() {
 		String testProjectName = "sample_test";
+		
+		String host = "localhost";;
+		int port = 9293;;
+		int clientConnectionCount = 2;
+		boolean clientDataPacketBufferIsDirect = false;
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-		boolean clientDataPacketBufferIsDirect = false;
-		String host = null;
-		int port;
 		
-		// host = "172.30.1.16";
-		host = "localhost";
-		port = 9293;
 		
-		int clientConnectionCount = 2;
+		int retryCount = 1000000;
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
@@ -137,7 +136,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 			fail(errorMessage);
 		}
 		
-		log.info("{}", projectPartConfigurationForTest.getClientConnectionCount());
+		// log.info("{}", projectPartConfigurationForTest.getClientConnectionCount());
 		
 		AnyProjectServer anyProjectServerForTest = null;
 		try {
@@ -168,7 +167,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		}		
 		
 		try {
-			int retryCount = 100;
+			
 			long startTime = System.nanoTime();
 			
 			for (int i=0; i < retryCount; i++) {

@@ -336,24 +336,5 @@ public class ToLetterCarrier {
 		}
 		
 		fromAcceptedConnection.addOutputMessage(selfExnRes, wrapBufferListOfSelfExn);
-	}
-
-	
-	
-	/*public void clearAllToLetterList() {
-		toLetterList.clear();
-	}
-	
-	public SocketResource getSocketResourceOfFromSC() {
-		return fromSocketResource;
-	}
-	
-	public void writeAllToLetterList(String title) {
-		int i=0;
-		for (ToLetter toLetter : toLetterList) {
-			log.info("%::전체삭제-잔존 메시지[{}]=[{}]", i++, toLetter.toString());
-		}
-	}*/
-	
-	
+	}	
 }

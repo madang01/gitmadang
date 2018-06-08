@@ -505,8 +505,8 @@ public class ItemIDInfoManger {
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.SINGLE_SET,
 					itemID,
-					"소캣 랩퍼 클래스인 연결 종류, ASYN_PRIVATE:비공유+비동기, ASYN_SHARE:공유+비동기, SYNC_PRIVATE:비공유+동기",
-					"ASYN_PRIVATE", isDefaultValueCheck,
+					"소캣 랩퍼 클래스인 연결 종류, ASYN_PUBLIC:공유+비동기, SYNC_PRIVATE:비공유+동기",
+					"ASYN_PUBLIC", isDefaultValueCheck,
 					new SetTypeConverterReturningConnectionType());
 			addProjectPartItemIDInfo(itemIDInfo);
 	
@@ -701,7 +701,7 @@ public class ItemIDInfoManger {
 			addProjectPartItemIDInfo(itemIDInfo);
 			
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_CAPACITY_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -714,7 +714,7 @@ public class ItemIDInfoManger {
 							10, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_CAPACITY_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,

@@ -53,12 +53,12 @@ public abstract class AbstractServerTask {
 		this.serverSimpleClassLoader = serverSimpleClassLoader;
 	}
 	
-	public void execute(int index, 
-			String projectName,
+	public void execute(String projectName,
 			AcceptedConnection fromAcceptedConnection,			
 			ProjectLoginManagerIF projectLoginManager,						
 			ReadableMiddleObjectWrapper readableMiddleObjectWrapper,
-			MessageProtocolIF messageProtocol) throws InterruptedException {
+			MessageProtocolIF messageProtocol,
+			PersonalLoginManagerIF fromPersonalLoginManager) throws InterruptedException {
 		
 		MessageCodecIF serverInputMessageCodec = null;
 
@@ -176,7 +176,7 @@ public abstract class AbstractServerTask {
 			return;
 		}
 		
-		PersonalLoginManagerIF fromPersonalLoginManager = fromAcceptedConnection.getPersonalLoginManager();
+// 		PersonalLoginManagerIF fromPersonalLoginManager = fromAcceptedConnection.getPersonalLoginManager();
 		
 		ToLetterCarrier toLetterCarrier = new ToLetterCarrier(fromAcceptedConnection,
 				inputMessage, 

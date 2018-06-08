@@ -17,8 +17,8 @@ import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
+import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 
 public class ClientMessageUtility implements ClientMessageUtilityIF {
@@ -119,9 +119,9 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		return outputMessage;
 	}
 
-	public void S2MList(Object eventHandler, SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
+	public void S2MList(SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {
-		messageProtocol.S2MList(eventHandler, socketOutputStream, wrapMessageBlockingQueue);
+		messageProtocol.S2MList(socketOutputStream, wrapMessageBlockingQueue);
 	}
 
 	public ArrayDeque<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage)
@@ -188,7 +188,13 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
-
+		
+		// FIXME!
+		/*if (dataPacketBufferPool.size() < 2000) {
+			log.info("dataPacketBufferPool.size={}", dataPacketBufferPool.size());
+		}*/
+		
+		
 		return wrapBufferList;
 	}
 

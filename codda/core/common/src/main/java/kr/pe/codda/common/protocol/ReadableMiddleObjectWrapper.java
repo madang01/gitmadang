@@ -33,13 +33,11 @@ public class ReadableMiddleObjectWrapper {
 	private int mailboxID;
 	private int mailID;
 	private Object readableMiddleObject = null;
-	private Object eventHandler = null;
 	
 	// private Date timestamp = new Date();
 	
 	// Intermediate object between stream and message
-	public ReadableMiddleObjectWrapper(Object eventHandler, String messageID, int mailboxID, int mailID, Object readableMiddleObject) {
-		this.eventHandler = eventHandler;
+	public ReadableMiddleObjectWrapper(String messageID, int mailboxID, int mailID, Object readableMiddleObject) {		
 		this.messageID = messageID;
 		this.mailboxID = mailboxID;
 		this.mailID = mailID;
@@ -65,9 +63,7 @@ public class ReadableMiddleObjectWrapper {
 	/*public Date getTimestamp() {
 		return timestamp;
 	}*/
-	public Object getEventHandler() {
-		return eventHandler;
-	}
+	
 	
 	
 	/**
@@ -79,9 +75,9 @@ public class ReadableMiddleObjectWrapper {
 	 */
 	public void closeReadableMiddleObject() {
 		if (readableMiddleObject instanceof FreeSizeInputStream) {
-			FreeSizeInputStream messageInputStream = (FreeSizeInputStream)readableMiddleObject;
+			FreeSizeInputStream messageStream = (FreeSizeInputStream)readableMiddleObject;
 			try {
-				messageInputStream.close();
+				messageStream.close();
 				
 				// FIXME!
 				//log.info("messageID[{}], mailboxID[{}], mailID[{}] 메시지 바디 스트림 정상 닫힘", messageID, mailboxID, mailID);
@@ -100,14 +96,7 @@ public class ReadableMiddleObjectWrapper {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ReceivedLetter [eventHandler=");
-		if (null != eventHandler) {
-			builder.append(eventHandler.hashCode());
-		} else {
-			builder.append("null");
-		}
-		
-		builder.append(", messageID=");
+		builder.append("ReceivedLetter [messageID=");		
 		builder.append(messageID);
 		builder.append(", mailboxID=");
 		builder.append(mailboxID);
@@ -122,13 +111,7 @@ public class ReadableMiddleObjectWrapper {
 	
 	public String toSimpleInformation() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("eventHandler=");
-		if (null != eventHandler) {
-			builder.append(eventHandler.hashCode());
-		} else {
-			builder.append("null");
-		}
-		builder.append(", messageID=");
+		builder.append("messageID=");
 		builder.append(messageID);
 		builder.append(", mailboxID=");
 		builder.append(mailboxID);

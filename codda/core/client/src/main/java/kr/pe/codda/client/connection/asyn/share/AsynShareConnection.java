@@ -7,7 +7,6 @@ import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
-import kr.pe.codda.client.connection.asyn.executor.ClientExecutorIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 
 /**
@@ -20,14 +19,14 @@ import kr.pe.codda.common.io.SocketOutputStream;
  */
 public final class AsynShareConnection extends AsynThreadSafeSingleConnection {
 	
-	public AsynShareConnection(String serverHost, int serverPort, long socketTimeout,
-			int syncMessageMailboxCountPerAsynShareConnection, int inputMessageQueueSize,
+	public AsynShareConnection(String projectName, String serverHost, int serverPort, long socketTimeout,
+			int syncMessageMailboxCountPerAsynShareConnection, int clientAsynInputMessageQueueCapacity,
 			SocketOutputStream socketOutputStream, ClientMessageUtilityIF clientMessageUtility,
-			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder, ClientExecutorIF clientExecutor,
+			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
 			AsynClientIOEventControllerIF asynClientIOEventController,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws IOException {
-		super(serverHost, serverPort, socketTimeout, syncMessageMailboxCountPerAsynShareConnection, inputMessageQueueSize,
-				socketOutputStream, clientMessageUtility, asynConnectedConnectionAdder, clientExecutor,
+		super(projectName, serverHost, serverPort, socketTimeout, syncMessageMailboxCountPerAsynShareConnection, clientAsynInputMessageQueueCapacity,
+				socketOutputStream, clientMessageUtility, asynConnectedConnectionAdder, 
 				asynClientIOEventController, connectionPoolSupporter);
 	}
 
