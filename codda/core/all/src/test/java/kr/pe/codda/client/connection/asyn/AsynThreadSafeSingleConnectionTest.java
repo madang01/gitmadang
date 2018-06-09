@@ -257,13 +257,13 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 		String serverHost = null;
 		int serverPort;
 		int numberOfThread = 3;
+		int numberOfConnection = 0;
+		int retryCount = 1000000;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread); 
 		
 		// host = "172.30.1.16";
 		serverHost = "localhost";
-		serverPort = 9293;
-		
-		int numberOfConnection = 0;
+		serverPort = 9293;		
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
@@ -374,7 +374,7 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 		Thread[] threadSafeTester = new Thread[numberOfThread];
 		
 		for (int i=0; i < numberOfThread; i++) {
-			threadSafeTester[i] = new Thread(new ThreadSafeTester(connection, 1000000, noticeBlockingQueue));
+			threadSafeTester[i] = new Thread(new ThreadSafeTester(connection, retryCount, noticeBlockingQueue));
 			threadSafeTester[i].start();
 		}		
 		

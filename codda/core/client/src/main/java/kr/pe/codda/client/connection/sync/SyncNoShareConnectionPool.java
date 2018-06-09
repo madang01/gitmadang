@@ -7,14 +7,16 @@ import java.util.ArrayDeque;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.ConnectionIF;
-import kr.pe.codda.client.connection.ClientMessageUtilityIF;
+import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
+import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SyncNoShareConnectionPool.class);
@@ -30,7 +32,10 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	private int clientConnectionMaxCount = 0;
 	private int clientDataPacketBufferSize = 0;
 	
-	private ClientMessageUtilityIF clientMessageUtility = null;
+	private MessageProtocolIF messageProtocol = null; 
+	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
+	
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 	
@@ -38,15 +43,25 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	private int numberOfConnection = 0;
 	
 	public SyncNoShareConnectionPool(ProjectPartConfiguration projectPartConfiguration, 
-			ClientMessageUtilityIF clientMessageUtility,
+			MessageProtocolIF messageProtocol, 
+			ClientObjectCacheManagerIF clientObjectCacheManager,
+			DataPacketBufferPoolIF dataPacketBufferPool,
 			SocketOutputStreamFactoryIF socketOutputStreamFactory,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 		if (null == projectPartConfiguration) {
 			throw new IllegalArgumentException("the parameter projectPartConfiguration is null");
 		}
 		
-		if (null == clientMessageUtility) {
-			throw new IllegalArgumentException("the parameter clientMessageUtility is null");
+		if (null == messageProtocol) {
+			throw new IllegalArgumentException("the parameter messageProtocol is null");
+		}
+		
+		if (null == clientObjectCacheManager) {
+			throw new IllegalArgumentException("the parameter clientObjectCacheManager is null");
+		}
+		
+		if (null == dataPacketBufferPool) {
+			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
 		}
 		
 		if (null == socketOutputStreamFactory) {
@@ -64,7 +79,9 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		this.clientConnectionMaxCount =  projectPartConfiguration.getClientConnectionMaxCount();
 		this.clientDataPacketBufferSize = projectPartConfiguration.getClientDataPacketBufferSize();
 		
-		this.clientMessageUtility = clientMessageUtility;
+		this.messageProtocol = messageProtocol;
+		this.clientObjectCacheManager = clientObjectCacheManager;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
 				
@@ -215,7 +232,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 					serverPort,
 					socketTimeout,
 					clientDataPacketBufferSize,
-					sos, clientMessageUtility);
+					sos, messageProtocol, clientObjectCacheManager, dataPacketBufferPool);
 		} catch(Exception e) {
 			sos.close();
 			throw e;

@@ -222,7 +222,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int numberOfThread = 3;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread);
 		
-		int retryCount = 10000;
+		int retryCount = 1000000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -464,7 +464,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int numberOfThread = 3;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread);
 		
-		int retryCount = 1000;
+		int retryCount = 1000000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -531,7 +531,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 
 			@Override
 			public void run() {
-				log.info("start {}", Thread.currentThread().getName());				
+				log.info("start");				
 				try {
 					long startTime = System.nanoTime();
 					
@@ -545,8 +545,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 					}
 					
 					long endTime = System.nanoTime();
-					log.info("{} {} 회 평균시간[{}] microseconds",  
-							Thread.currentThread().getName(),
+					log.info("{} 회 평균시간[{}] microseconds",
 							retryCount,
 							TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
 					

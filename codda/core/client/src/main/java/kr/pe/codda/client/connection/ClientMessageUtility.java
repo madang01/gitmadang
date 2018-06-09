@@ -4,13 +4,10 @@ import java.util.ArrayDeque;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.client.connection.asyn.executor.AbstractClientTask;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.HeaderFormatException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
@@ -18,12 +15,11 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 
-public class ClientMessageUtility implements ClientMessageUtilityIF {
-	private InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
-
+public abstract class ClientMessageUtility {
+	
+/*
 	private MessageProtocolIF messageProtocol = null;
 	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
@@ -45,13 +41,15 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		this.messageProtocol = messageProtocol;
 		this.clientObjectCacheManager = clientObjectCacheManager;
 		this.dataPacketBufferPool = dataPacketBufferPool;
-	}
+	}*/
 
-	public AbstractClientTask getClientTask(String messageID) throws DynamicClassCallException {
+	/*public AbstractClientTask getClientTask(String messageID) throws DynamicClassCallException {
 		return clientObjectCacheManager.getClientTask(messageID);
-	}
+	}*/
 
-	public AbstractMessage buildOutputMessage(ClassLoader classLoader,
+	public static AbstractMessage buildOutputMessage(MessageProtocolIF messageProtocol, 
+			ClientObjectCacheManagerIF clientObjectCacheManager, 
+			ClassLoader classLoader,
 			ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
 			throws DynamicClassCallException, BodyFormatException {
 		if (null == classLoader) {
@@ -61,6 +59,8 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		if (null == readableMiddleObjectWrapper) {
 			throw new IllegalArgumentException("the parameter readableMiddleObjectWrapper is null");
 		}
+		InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
+		
 		
 		String messageID = readableMiddleObjectWrapper.getMessageID();
 		int mailboxID = readableMiddleObjectWrapper.getMailboxID();
@@ -119,13 +119,17 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		return outputMessage;
 	}
 
-	public void S2MList(SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
+	/*public void S2MList(SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {
 		messageProtocol.S2MList(socketOutputStream, wrapMessageBlockingQueue);
-	}
+	}*/
 
-	public ArrayDeque<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage)
+	public static ArrayDeque<WrapBuffer> buildReadableWrapBufferList(MessageProtocolIF messageProtocol, 
+			ClientObjectCacheManagerIF clientObjectCacheManager,
+			ClassLoader classLoader, AbstractMessage inputMessage)
 			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
+		InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
+		
 		MessageCodecIF messageCodec = null;
 
 		try {
@@ -198,7 +202,7 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		return wrapBufferList;
 	}
 
-	public void releaseWrapBuffer(WrapBuffer warpBuffer) {
+	/*public void releaseWrapBuffer(WrapBuffer warpBuffer) {
 		dataPacketBufferPool.putDataPacketBuffer(warpBuffer);
-	}
+	}*/
 }

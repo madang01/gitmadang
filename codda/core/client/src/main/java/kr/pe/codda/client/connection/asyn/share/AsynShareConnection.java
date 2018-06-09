@@ -2,12 +2,14 @@ package kr.pe.codda.client.connection.asyn.share;
 
 import java.io.IOException;
 
-import kr.pe.codda.client.connection.ClientMessageUtilityIF;
+import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
+import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 /**
  * <pre>
@@ -18,16 +20,18 @@ import kr.pe.codda.common.io.SocketOutputStream;
  *
  */
 public final class AsynShareConnection extends AsynThreadSafeSingleConnection {
-	
+
 	public AsynShareConnection(String projectName, String serverHost, int serverPort, long socketTimeout,
 			int syncMessageMailboxCountPerAsynShareConnection, int clientAsynInputMessageQueueCapacity,
-			SocketOutputStream socketOutputStream, ClientMessageUtilityIF clientMessageUtility,
+			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
+			ClientObjectCacheManagerIF clientObjectCacheManager, DataPacketBufferPoolIF dataPacketBufferPool,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
 			AsynClientIOEventControllerIF asynClientIOEventController,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws IOException {
-		super(projectName, serverHost, serverPort, socketTimeout, syncMessageMailboxCountPerAsynShareConnection, clientAsynInputMessageQueueCapacity,
-				socketOutputStream, clientMessageUtility, asynConnectedConnectionAdder, 
-				asynClientIOEventController, connectionPoolSupporter);
+		super(projectName, serverHost, serverPort, socketTimeout, syncMessageMailboxCountPerAsynShareConnection,
+				clientAsynInputMessageQueueCapacity, socketOutputStream, messageProtocol, clientObjectCacheManager,
+				dataPacketBufferPool, asynConnectedConnectionAdder, asynClientIOEventController,
+				connectionPoolSupporter);
 	}
 
 	private boolean isQueueIn = true;
@@ -45,7 +49,7 @@ public final class AsynShareConnection extends AsynThreadSafeSingleConnection {
 	protected void queueOut() {
 		isQueueIn = false;
 	}
-	
+
 	public boolean isInQueue() {
 		return isQueueIn;
 	}

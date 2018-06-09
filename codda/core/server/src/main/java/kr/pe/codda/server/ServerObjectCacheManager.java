@@ -3,8 +3,7 @@ package kr.pe.codda.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.HashMap;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -22,8 +21,8 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 
 	private SimpleClassLoader workBaseClassLoader = null;
 
-	private final transient ConcurrentHashMap<String, ServerTaskObjectInfo> messageID2ServerTaskObjectInfoHash = new ConcurrentHashMap<String, ServerTaskObjectInfo>();
-	private ReentrantLock lock = new ReentrantLock();
+	private final HashMap<String, ServerTaskObjectInfo> messageID2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
+	// private ReentrantLock lock = new ReentrantLock();
 
 	public ServerObjectCacheManager(ServerClassLoaderFactory serverClassLoaderFactory) {
 		this.serverClassLoaderFactory = serverClassLoaderFactory;
@@ -90,16 +89,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 			log.warn(errorMessage);
 			throw new DynamicClassCallException(errorMessage);
 		}
-
-		/*
-		 * if (! (retObject instanceof AbstractServerTask)) { // FIXME! 죽은 코드 이어여함, 발생시
-		 * 원인 제거 필요함 String errorMessage =
-		 * String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]" +
-		 * "::클래스명으로 얻은 객체 타입[%s]이 AbstractServerTask 가 아닙니다.", this.hashCode(),
-		 * classFullName, retObject.getClass().getCanonicalName());
-		 * 
-		 * log.warn(errorMessage); throw new DynamicClassCallException(errorMessage); }
-		 */
+		
 		serverTask = (AbstractServerTask) retObject;
 		
 		serverTask.setServerSimpleClassloader(workBaseClassLoader);;
@@ -116,34 +106,21 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 			throws DynamicClassCallException, FileNotFoundException {
 		ServerTaskObjectInfo serverTaskObjectInfo = messageID2ServerTaskObjectInfoHash.get(messageID);
 		if (null == serverTaskObjectInfo) {
-			lock.lock();
-			try {
-				serverTaskObjectInfo = messageID2ServerTaskObjectInfoHash.get(messageID);
-				if (null == serverTaskObjectInfo) {
+			// lock.lock();
+			
 					
-					String classFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
-					serverTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
+			String classFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
+			serverTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
 
-					messageID2ServerTaskObjectInfoHash.put(messageID, serverTaskObjectInfo);
-				}
-			} finally {
-				lock.unlock();
-			}			
-		} else {
-			if (serverTaskObjectInfo.isModifed()) {
-				lock.lock();
-				try {
-					if (serverTaskObjectInfo.isModifed()) {
-						/** 새로운 서버 클래스 로더로 교체 */
-						workBaseClassLoader = serverClassLoaderFactory.createServerClassLoader();
-						String classFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
-						serverTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
-						messageID2ServerTaskObjectInfoHash.put(messageID, serverTaskObjectInfo);
-					}
-				} finally {
-					lock.unlock();
-				}
-			}
+			messageID2ServerTaskObjectInfoHash.put(messageID, serverTaskObjectInfo);
+						
+		} else if (serverTaskObjectInfo.isModifed()) {
+			/** 새로운 서버 클래스 로더로 교체 */
+			workBaseClassLoader = serverClassLoaderFactory.createServerClassLoader();
+			String classFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
+			serverTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
+			messageID2ServerTaskObjectInfoHash.put(messageID, serverTaskObjectInfo);
+				
 		}
 		return serverTaskObjectInfo;
 	}

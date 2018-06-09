@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.client.connection.ClientMessageUtilityIF;
+import kr.pe.codda.client.connection.ClientMessageUtility;
+import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.client.connection.asyn.executor.AbstractClientTask;
 import kr.pe.codda.client.connection.asyn.mainbox.AsynMessageMailbox;
@@ -29,9 +30,11 @@ import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
+import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 
@@ -46,7 +49,9 @@ public class AsynThreadSafeSingleConnection
 	int syncMessageMailboxCountPerAsynShareConnection;
 	int clientAsynInputMessageQueueCapacity;
 	private SocketOutputStream socketOutputStream = null;
-	private ClientMessageUtilityIF clientMessageUtility = null;
+	private MessageProtocolIF messageProtocol = null;
+	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private AsynConnectedConnectionAdderIF asynConnectedConnectionAdder = null;
 	private AsynClientIOEventControllerIF asynClientIOEventController = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
@@ -60,7 +65,8 @@ public class AsynThreadSafeSingleConnection
 
 	public AsynThreadSafeSingleConnection(String projectName, String serverHost, int serverPort, long socketTimeout,
 			int syncMessageMailboxCountPerAsynShareConnection, int clientAsynInputMessageQueueCapacity,
-			SocketOutputStream socketOutputStream, ClientMessageUtilityIF clientMessageUtility,
+			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
+			ClientObjectCacheManagerIF clientObjectCacheManager, DataPacketBufferPoolIF dataPacketBufferPool,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
 			AsynClientIOEventControllerIF asynClientIOEventController,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws IOException {
@@ -71,7 +77,9 @@ public class AsynThreadSafeSingleConnection
 		this.syncMessageMailboxCountPerAsynShareConnection = syncMessageMailboxCountPerAsynShareConnection;
 		this.clientAsynInputMessageQueueCapacity = clientAsynInputMessageQueueCapacity;
 		this.socketOutputStream = socketOutputStream;
-		this.clientMessageUtility = clientMessageUtility;
+		this.messageProtocol = messageProtocol;
+		this.clientObjectCacheManager = clientObjectCacheManager;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.asynConnectedConnectionAdder = asynConnectedConnectionAdder;
 		this.asynClientIOEventController = asynClientIOEventController;
 		this.connectionPoolSupporter = connectionPoolSupporter;
@@ -88,7 +96,8 @@ public class AsynThreadSafeSingleConnection
 			syncMessageMailboxList.add(syncMessageMailbox);
 		}
 
-		// inputMessageQueue = new ArrayBlockingQueue<ArrayDeque<WrapBuffer>>(this.clientAsynInputMessageQueueCapacity);
+		// inputMessageQueue = new
+		// ArrayBlockingQueue<ArrayDeque<WrapBuffer>>(this.clientAsynInputMessageQueueCapacity);
 	}
 
 	private void openSocketChannel() throws IOException {
@@ -130,16 +139,16 @@ public class AsynThreadSafeSingleConnection
 			inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
 			inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility
-					.buildReadableWrapBufferList(classloaderOfInputMessage, inputMessage);
+			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
+					messageProtocol, clientObjectCacheManager, classloaderOfInputMessage, inputMessage);
 
 			addInputMessage(inputMessage, inputMessageWrapBufferQueue);
 
 			ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = syncMessageMailbox
 					.getSyncOutputMessage();
 
-			AbstractMessage outputMessage = clientMessageUtility.buildOutputMessage(classloaderOfInputMessage,
-					outputMessageWrapReadableMiddleObject);
+			AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageProtocol,
+					clientObjectCacheManager, classloaderOfInputMessage, outputMessageWrapReadableMiddleObject);
 
 			return outputMessage;
 		} finally {
@@ -154,8 +163,8 @@ public class AsynThreadSafeSingleConnection
 		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox.getNextMailID();
 
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = clientMessageUtility
-				.buildReadableWrapBufferList(inputMessage.getClass().getClassLoader(), inputMessage);
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
+				messageProtocol, clientObjectCacheManager, inputMessage.getClass().getClassLoader(), inputMessage);
 
 		addInputMessage(inputMessage, inputMessageWrapBufferQueue);
 
@@ -163,31 +172,28 @@ public class AsynThreadSafeSingleConnection
 
 	private void addInputMessage(AbstractMessage inputMessage, ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue)
 			throws InterruptedException, SocketTimeoutException {
-		
+
 		synchronized (inputMessageQueue) {
 			if (inputMessageQueue.size() >= clientAsynInputMessageQueueCapacity) {
 				inputMessageQueue.wait(socketTimeout);
-				
+
 				if (inputMessageQueue.size() >= clientAsynInputMessageQueueCapacity) {
-					String errorMessage = new StringBuilder()
-							.append("fail to inserts the specified element[")
-							.append(inputMessage.toString())
-							.append("] into the input message queue while socket[")
-							.append(hashCode())
-							.append("timeout").toString();
-					
+					String errorMessage = new StringBuilder().append("fail to inserts the specified element[")
+							.append(inputMessage.toString()).append("] into the input message queue while socket[")
+							.append(hashCode()).append("timeout").toString();
+
 					while (!inputMessageWrapBufferQueue.isEmpty()) {
 						WrapBuffer wrapBuffer = inputMessageWrapBufferQueue.pollFirst();
-						clientMessageUtility.releaseWrapBuffer(wrapBuffer);
+						dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 					}
 
 					throw new SocketTimeoutException(errorMessage);
 				}
 			}
-			
+
 			inputMessageQueue.add(inputMessageWrapBufferQueue);
 			asynClientIOEventController.startWrite(this);
-		}		
+		}
 	}
 
 	@Override
@@ -211,7 +217,7 @@ public class AsynThreadSafeSingleConnection
 
 				while (!inputMessageWrapBufferQueue.isEmpty()) {
 					WrapBuffer wrapBuffer = inputMessageWrapBufferQueue.pollFirst();
-					clientMessageUtility.releaseWrapBuffer(wrapBuffer);
+					dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 				}
 			} while (!inputMessageQueue.isEmpty());
 		}
@@ -298,7 +304,7 @@ public class AsynThreadSafeSingleConnection
 
 			setFinalReadTime();
 
-			clientMessageUtility.S2MList(socketOutputStream, this);
+			messageProtocol.S2MList(socketOutputStream, this);
 
 		} catch (NoMoreDataPacketBufferException e) {
 			String errorMessage = new StringBuilder()
@@ -329,44 +335,44 @@ public class AsynThreadSafeSingleConnection
 
 	@Override
 	public void onWrite(SelectionKey selectedKey) throws InterruptedException {
-		
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageQueue.peek();
-			
-			WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
-			ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
-			
-			int numberOfBytesWritten = 0;
-			try {
-				numberOfBytesWritten = clientSC.write(currentWorkingByteBuffer);
-			} catch (IOException e) {
-				String errorMessage = new StringBuilder().append("fail to write a sequence of bytes to this channel[")
-						.append(clientSC.hashCode()).append("] because error occured, errmsg=").append(e.getMessage())
-						.toString();
-				log.warn(errorMessage, e);
-				close();
-				asynClientIOEventController.cancel(selectedKey);
-				return;
-			}
-			
-			if (numberOfBytesWritten > 0) {
-				if (! currentWorkingByteBuffer.hasRemaining()) {
-					inputMessageWrapBufferQueue.removeFirst();
-					clientMessageUtility.releaseWrapBuffer(currentWorkingWrapBuffer);
-					
-					if (inputMessageWrapBufferQueue.isEmpty()) {
-						synchronized (inputMessageQueue) {
-							inputMessageQueue.poll();
-							
-							if (inputMessageQueue.isEmpty()) {
-								selectedKey.interestOps(selectedKey.interestOps() & ~SelectionKey.OP_WRITE);
-							}						
-							inputMessageQueue.notify();
-						}						
-						return;
+
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageQueue.peek();
+
+		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
+		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
+
+		int numberOfBytesWritten = 0;
+		try {
+			numberOfBytesWritten = clientSC.write(currentWorkingByteBuffer);
+		} catch (IOException e) {
+			String errorMessage = new StringBuilder().append("fail to write a sequence of bytes to this channel[")
+					.append(clientSC.hashCode()).append("] because error occured, errmsg=").append(e.getMessage())
+					.toString();
+			log.warn(errorMessage, e);
+			close();
+			asynClientIOEventController.cancel(selectedKey);
+			return;
+		}
+
+		if (numberOfBytesWritten > 0) {
+			if (!currentWorkingByteBuffer.hasRemaining()) {
+				inputMessageWrapBufferQueue.removeFirst();
+				dataPacketBufferPool.putDataPacketBuffer(currentWorkingWrapBuffer);
+
+				if (inputMessageWrapBufferQueue.isEmpty()) {
+					synchronized (inputMessageQueue) {
+						inputMessageQueue.poll();
+
+						if (inputMessageQueue.isEmpty()) {
+							selectedKey.interestOps(selectedKey.interestOps() & ~SelectionKey.OP_WRITE);
+						}
+						inputMessageQueue.notify();
 					}
+					return;
 				}
 			}
-		
+		}
+
 	}
 
 	@Override
@@ -401,7 +407,7 @@ public class AsynThreadSafeSingleConnection
 
 				AbstractClientTask clientTask = null;
 				try {
-					clientTask = clientMessageUtility.getClientTask(messageID);
+					clientTask = clientObjectCacheManager.getClientTask(messageID);
 				} catch (DynamicClassCallException e) {
 					log.warn(e.getMessage());
 					return;
@@ -412,7 +418,7 @@ public class AsynThreadSafeSingleConnection
 
 				try {
 					clientTask.execute(hashCode(), projectName, this, readableMiddleObjectWrapper,
-							clientMessageUtility);
+							messageProtocol, clientObjectCacheManager);
 				} catch (InterruptedException e) {
 					throw e;
 				} catch (Exception | Error e) {
@@ -423,7 +429,7 @@ public class AsynThreadSafeSingleConnection
 			} finally {
 				readableMiddleObjectWrapper.closeReadableMiddleObject();
 			}
-			
+
 		} else {
 			SyncMessageMailbox syncMessageMailbox = null;
 			try {

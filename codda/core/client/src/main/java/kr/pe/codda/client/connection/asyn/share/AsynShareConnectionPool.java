@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.ConnectionIF;
-import kr.pe.codda.client.connection.ClientMessageUtilityIF;
+import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
@@ -17,8 +17,10 @@ import kr.pe.codda.client.connection.asyn.ClientInterestedConnectionIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
+import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnectedConnectionAdderIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynShareConnectionPool.class);
@@ -34,7 +36,9 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 	private int clientSyncMessageMailboxCountPerAsynShareConnection=0;
 	private int clientAsynInputMessageQueueCapacity=0;
 	
-	private ClientMessageUtilityIF clientMessageUtility = null;
+	private MessageProtocolIF messageProtocol = null; 
+	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
@@ -46,15 +50,25 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 	private AsynClientIOEventControllerIF asynClientIOEventController = null;
 
 	public AsynShareConnectionPool(ProjectPartConfiguration projectPartConfiguration,
-			ClientMessageUtilityIF clientMessageUtility, SocketOutputStreamFactoryIF socketOutputStreamFactory,
+			MessageProtocolIF messageProtocol, 
+			ClientObjectCacheManagerIF clientObjectCacheManager,
+			DataPacketBufferPoolIF dataPacketBufferPool, SocketOutputStreamFactoryIF socketOutputStreamFactory,
 			ConnectionPoolSupporterIF connectionPoolSupporter)
 			throws NoMoreDataPacketBufferException, IOException {
 		if (null == projectPartConfiguration) {
 			throw new IllegalArgumentException("the parameter projectPartConfiguration is null");
 		}
 
-		if (null == clientMessageUtility) {
-			throw new IllegalArgumentException("the parameter clientMessageUtility is null");
+		if (null == messageProtocol) {
+			throw new IllegalArgumentException("the parameter messageProtocol is null");
+		}
+		
+		if (null == clientObjectCacheManager) {
+			throw new IllegalArgumentException("the parameter clientObjectCacheManager is null");
+		}
+		
+		if (null == dataPacketBufferPool) {
+			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
 		}
 
 		if (null == socketOutputStreamFactory) {
@@ -73,7 +87,9 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		this.clientSyncMessageMailboxCountPerAsynShareConnection = projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection();
 		this.clientAsynInputMessageQueueCapacity = projectPartConfiguration.getClientAsynInputMessageQueueCapacity();
 		
-		this.clientMessageUtility = clientMessageUtility;
+		this.messageProtocol = messageProtocol;
+		this.clientObjectCacheManager = clientObjectCacheManager;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
 
@@ -220,7 +236,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 				clientSyncMessageMailboxCountPerAsynShareConnection,
 				clientAsynInputMessageQueueCapacity,
 				sos,
-				clientMessageUtility, this, 
+				messageProtocol, clientObjectCacheManager, dataPacketBufferPool, this, 
 				asynClientIOEventController, connectionPoolSupporter);
 		return asynInterestedConnection;
 	}
@@ -251,9 +267,8 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 
 			monitor.notify();
 		}
-
-		// FIXME!
-		log.info("adding a connected connection[{}] to this connection pool success",
+		
+		log.info("Successfully added the connected connection[{}] to this connection pool",
 				connectedAsynConnection.hashCode());
 	}
 

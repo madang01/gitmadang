@@ -10,8 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.client.connection.ClientMessageUtility;
-import kr.pe.codda.client.connection.ClientMessageUtilityIF;
 import kr.pe.codda.client.connection.ClientObjectCacheManager;
 import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
@@ -63,7 +61,8 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	private ConnectionPoolIF connectionPool = null;	
 	private ConnectionPoolSupporter connectionPoolSupporter = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ClientMessageUtilityIF clientMessageUtility = null;
+	private MessageProtocolIF messageProtocol = null;
+	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private AsynClientIOEventController asynClientIOEventController = null;
 	
@@ -91,8 +90,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		this.dataPacketBufferPool = new DataPacketBufferPool(clientDataPacketBufferIsDirect, byteOrder,
 				clientDataPacketBufferSize,
 				clientDataPacketBufferPoolSize);
-
-		MessageProtocolIF messageProtocol = null;
+		
 
 		switch (messageProtocolType) {
 			case DHB: {
@@ -119,13 +117,10 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				System.exit(1);
 			}
 		}
-		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		clientObjectCacheManager = new ClientObjectCacheManager();
 		
 		socketOutputStreamFactory = new SocketOutputStreamFactory(charsetDecoderOfProject,
 				clientDataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-		
-		clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
-				dataPacketBufferPool);
 		
 		connectionPoolSupporter = new ConnectionPoolSupporter(clientConnectionPoolSupporterTimeInterval);
 		
@@ -133,7 +128,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		
 		if (connectionType.equals(ConnectionType.SYNC_PRIVATE)) {
 			connectionPool = new SyncNoShareConnectionPool(projectPartConfiguration,
-					clientMessageUtility,
+					messageProtocol, clientObjectCacheManager, dataPacketBufferPool,
 					socketOutputStreamFactory,
 					connectionPoolSupporter);
 		} else {
@@ -141,7 +136,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			
 			AsynConnectionPoolIF asynConnectionPool = 
 					new AsynShareConnectionPool(projectPartConfiguration,
-					clientMessageUtility,
+							messageProtocol, clientObjectCacheManager, dataPacketBufferPool,
 					socketOutputStreamFactory,
 					connectionPoolSupporter);
 			
@@ -236,7 +231,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 						projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
 						projectPartConfiguration.getClientAsynInputMessageQueueCapacity(),					 
 				socketOutputStreamFactory.createSocketOutputStream(), 
-				clientMessageUtility, ayncThreadSafeSingleConnectedConnectionAdder, 
+				messageProtocol, clientObjectCacheManager, dataPacketBufferPool, ayncThreadSafeSingleConnectedConnectionAdder, 
 				asynClientIOEventController, connectionPoolSupporter);		
 		
 		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynThreadSafeSingleConnection);
@@ -266,7 +261,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				serverPort,
 				projectPartConfiguration.getClientSocketTimeout(),
 				projectPartConfiguration.getClientDataPacketBufferSize(),
-				socketOutputStreamFactory.createSocketOutputStream(), clientMessageUtility);
+				socketOutputStreamFactory.createSocketOutputStream(), messageProtocol, clientObjectCacheManager, dataPacketBufferPool);
 		
 		return connectedConnection;
 	}
