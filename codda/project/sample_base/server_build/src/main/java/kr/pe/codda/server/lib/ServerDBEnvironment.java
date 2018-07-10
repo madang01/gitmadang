@@ -61,11 +61,11 @@ public abstract class ServerDBEnvironment {
 			exists = create.fetchExists(create.select(SB_BOARD_INFO_TB.BOARD_ID)
 					.from(SB_BOARD_INFO_TB)
 					.where(SB_BOARD_INFO_TB.BOARD_ID
-							.eq(UByte.valueOf(BoardType.NOTICE.getValue()))));
+							.eq(UByte.valueOf(BoardType.NOTICE.getBoardID()))));
 			
 			if (! exists) {
 				int countOfInsert = create.insertInto(SB_BOARD_INFO_TB)
-				.set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(BoardType.NOTICE.getValue()))
+				.set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(BoardType.NOTICE.getBoardID()))
 				.set(SB_BOARD_INFO_TB.BOARD_NAME, BoardType.NOTICE.getName())
 				.set(SB_BOARD_INFO_TB.BOARD_INFO, "공지 게시판")
 				.execute();
@@ -79,11 +79,11 @@ public abstract class ServerDBEnvironment {
 			exists = create.fetchExists(create.select(SB_BOARD_INFO_TB.BOARD_ID)
 					.from(SB_BOARD_INFO_TB)
 					.where(SB_BOARD_INFO_TB.BOARD_ID
-							.eq(UByte.valueOf(BoardType.FREE.getValue()))));
+							.eq(UByte.valueOf(BoardType.FREE.getBoardID()))));
 			
 			if (! exists) {
 				int countOfInsert = create.insertInto(SB_BOARD_INFO_TB)
-				.set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(BoardType.FREE.getValue()))
+				.set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(BoardType.FREE.getBoardID()))
 				.set(SB_BOARD_INFO_TB.BOARD_NAME, BoardType.FREE.getName())
 				.set(SB_BOARD_INFO_TB.BOARD_INFO, "자유 게시판")
 				.execute();
@@ -97,11 +97,11 @@ public abstract class ServerDBEnvironment {
 			exists = create.fetchExists(create.select(SB_BOARD_INFO_TB.BOARD_ID)
 					.from(SB_BOARD_INFO_TB)
 					.where(SB_BOARD_INFO_TB.BOARD_ID
-							.eq(UByte.valueOf(BoardType.FAQ.getValue()))));
+							.eq(UByte.valueOf(BoardType.FAQ.getBoardID()))));
 			
 			if (! exists) {
 				int countOfInsert = create.insertInto(SB_BOARD_INFO_TB)
-				.set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(BoardType.FAQ.getValue()))
+				.set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(BoardType.FAQ.getBoardID()))
 				.set(SB_BOARD_INFO_TB.BOARD_NAME, BoardType.FAQ.getName())
 				.set(SB_BOARD_INFO_TB.BOARD_INFO, "FAQ 게시판")
 				.execute();
@@ -112,24 +112,30 @@ public abstract class ServerDBEnvironment {
 				}
 			}
 			
-			exists = create.fetchExists(create.select(SB_SEQ_TB.SQ_ID)
-					.from(SB_SEQ_TB)
-					.where(SB_SEQ_TB.SQ_ID
-							.eq(UByte.valueOf(SequenceType.UPLOAD_FILE_NAME.getValue()))));
-			
-			if (! exists) {
-				int countOfInsert = create.insertInto(SB_SEQ_TB)
-				.set(SB_SEQ_TB.SQ_ID, UByte.valueOf(SequenceType.UPLOAD_FILE_NAME.getValue()))
-				.set(SB_SEQ_TB.SQ_NAME, SequenceType.UPLOAD_FILE_NAME.getName())
-				.set(SB_SEQ_TB.SQ_VALUE, UInteger.valueOf(0))
-				.execute();
+			for (SequenceType sequenceTypeValue : SequenceType.values()) {
+				exists = create.fetchExists(create.select(SB_SEQ_TB.SQ_ID)
+						.from(SB_SEQ_TB)
+						.where(SB_SEQ_TB.SQ_ID
+								.eq(UByte.valueOf(sequenceTypeValue.getSequenceID()))));
 				
-				if (0 == countOfInsert) {
-					commit(conn);
-					throw new Exception("업로드 파일 이름 시퀀스 식별자 삽입 실패");
-				}
-			}			
-			
+				if (! exists) {
+					int countOfInsert = create.insertInto(SB_SEQ_TB)
+					.set(SB_SEQ_TB.SQ_ID, UByte.valueOf(sequenceTypeValue.getSequenceID()))
+					.set(SB_SEQ_TB.SQ_NAME, sequenceTypeValue.getName())
+					.set(SB_SEQ_TB.SQ_VALUE, UInteger.valueOf(0))
+					.execute();
+					
+					if (0 == countOfInsert) {
+						String errorMessage = new StringBuilder()
+								.append("fail to insert the sequence(id:")
+								.append(sequenceTypeValue.getSequenceID())
+								.append(", name:")
+								.append(sequenceTypeValue.getName())
+								.append(")").toString();
+						throw new Exception(errorMessage);
+					}
+				}	
+			}
 			
 			commit(conn);
 		} catch (Exception e) {

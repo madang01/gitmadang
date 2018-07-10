@@ -39,7 +39,7 @@ import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 
 public class AsynThreadSafeSingleConnection
-		implements AsynConnectionIF, ClientInterestedConnectionIF, ReceivedMessageBlockingQueueIF {
+		implements AsynConnectionIF, ClientIOEventHandlerIF, ReceivedMessageBlockingQueueIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynThreadSafeSingleConnection.class);
 
 	private String projectName = null;
@@ -53,10 +53,11 @@ public class AsynThreadSafeSingleConnection
 	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private AsynConnectedConnectionAdderIF asynConnectedConnectionAdder = null;
-	private AsynClientIOEventControllerIF asynClientIOEventController = null;
+	private ClientIOEventControllerIF asynClientIOEventController = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
 	private SocketChannel clientSC = null;
+	private SelectionKey personalSelectionKey = null;
 	private java.util.Date finalReadTime = new java.util.Date();
 	private ArrayBlockingQueue<SyncMessageMailbox> syncMessageMailboxQueue = null;
 	private ArrayList<SyncMessageMailbox> syncMessageMailboxList = new ArrayList<SyncMessageMailbox>();
@@ -68,7 +69,7 @@ public class AsynThreadSafeSingleConnection
 			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
 			ClientObjectCacheManagerIF clientObjectCacheManager, DataPacketBufferPoolIF dataPacketBufferPool,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
-			AsynClientIOEventControllerIF asynClientIOEventController,
+			ClientIOEventControllerIF asynClientIOEventController,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws IOException {
 		this.projectName = projectName;
 		this.serverHost = serverHost;
@@ -192,7 +193,8 @@ public class AsynThreadSafeSingleConnection
 			}
 
 			inputMessageQueue.add(inputMessageWrapBufferQueue);
-			asynClientIOEventController.startWrite(this);
+			personalSelectionKey.interestOps(personalSelectionKey.interestOps() | SelectionKey.OP_WRITE);
+			asynClientIOEventController.wakeup();
 		}
 	}
 
@@ -231,68 +233,56 @@ public class AsynThreadSafeSingleConnection
 
 	@Override
 	public void onConnect(SelectionKey selectedKey) {
-		if (clientSC.isConnectionPending()) {
-			boolean isSuccess = false;
-			try {
-				isSuccess = clientSC.finishConnect();
-			} catch (IOException e) {
-				log.warn("fail to finish a connection[{}] becase io exception has been occurred, errmsg={}", hashCode(),
-						e.getMessage());
+		boolean isSuccess = false;
+		try {
+			isSuccess = clientSC.finishConnect();
+		} catch (IOException e) {
+			log.warn("fail to finish a connection[{}] becase io exception has been occurred, errmsg={}", hashCode(),
+					e.getMessage());
 
-				close();
-				asynClientIOEventController.cancel(selectedKey);
-				asynConnectedConnectionAdder.removeInterestedConnection(this);
-				connectionPoolSupporter.notice("fail to finish a connection becase of io error");
-				return;
+			close();
+			asynClientIOEventController.cancel(selectedKey);
+			asynConnectedConnectionAdder.removeInterestedConnection(this);
+			connectionPoolSupporter.notice("fail to finish a connection becase of io error");
+			return;
+		} catch (Exception e) {
+			log.warn("fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}",
+					hashCode(), e.getMessage());
+
+			close();
+			asynClientIOEventController.cancel(selectedKey);
+			asynConnectedConnectionAdder.removeInterestedConnection(this);
+			connectionPoolSupporter.notice("fail to finish a connection becase of unknow error");
+			return;
+		}
+
+		if (isSuccess) {
+			// log.info("the interested connection[{}] finished", hashCode());
+			try {
+				selectedKey.interestOps(SelectionKey.OP_READ);
 			} catch (Exception e) {
-				log.warn("fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}",
+				log.warn(
+						"fail to set this key's interest set to OP_READ becase unknown error has been occurred, errmsg={}",
 						hashCode(), e.getMessage());
 
 				close();
+
 				asynClientIOEventController.cancel(selectedKey);
-				asynConnectedConnectionAdder.removeInterestedConnection(this);
-				connectionPoolSupporter.notice("fail to finish a connection becase of unknow error");
 				return;
 			}
-
-			if (isSuccess) {
-				// log.info("the interested connection[{}] finished", hashCode());
-				try {
-					selectedKey.interestOps(SelectionKey.OP_READ);
-				} catch (Exception e) {
-					log.warn(
-							"fail to set this key's interest set to OP_READ becase unknown error has been occurred, errmsg={}",
-							hashCode(), e.getMessage());
-
-					close();
-
-					asynClientIOEventController.cancel(selectedKey);
-					return;
-				}
-
-				// try {
-				asynConnectedConnectionAdder.addConnectedConnection(this);
-				/*
-				 * } catch (ConnectionPoolException e) { log.warn(e.getMessage(), e);
-				 * asynConnectedConnectionAdder.removeInterestedConnection(this); close();
-				 * 
-				 * asynClientIOEventController.cancel(selectedKey); return; }
-				 */
-			} else {
-				log.debug("the interested connection[{}] unfinshed", hashCode());
-			}
+			
+			personalSelectionKey = selectedKey;
+			asynConnectedConnectionAdder.addConnectedConnection(this);
 		}
 	}
 
 	@Override
 	public void onRead(SelectionKey selectedKey) throws InterruptedException {
-		try {
-			int numberOfReadBytes = 0;
-			do {
-				numberOfReadBytes = socketOutputStream.read(clientSC);
-			} while (numberOfReadBytes > 0);
-
-			if (numberOfReadBytes == -1) {
+		try {			
+			
+			int numberOfReadBytes = socketOutputStream.read(clientSC);
+			
+			if (-1 == numberOfReadBytes) {
 				String errorMessage = new StringBuilder("this socket channel[").append(clientSC.hashCode())
 						.append("] has reached end-of-stream").toString();
 
@@ -303,9 +293,8 @@ public class AsynThreadSafeSingleConnection
 			}
 
 			setFinalReadTime();
-
 			messageProtocol.S2MList(socketOutputStream, this);
-
+			
 		} catch (NoMoreDataPacketBufferException e) {
 			String errorMessage = new StringBuilder()
 					.append("the no more data packet buffer error occurred while reading the socket[")
@@ -377,24 +366,14 @@ public class AsynThreadSafeSingleConnection
 
 	@Override
 	public SelectionKey register(Selector ioEventSelector, int wantedInterestOps) throws ClosedChannelException {
-		SelectionKey registedKey = clientSC.register(ioEventSelector, wantedInterestOps);
-		return registedKey;
+		SelectionKey registeredSelectionKey = clientSC.register(ioEventSelector, wantedInterestOps);
+		return registeredSelectionKey;
 	}
 
 	@Override
 	public boolean doConect() throws IOException {
 		SocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
 		return clientSC.connect(serverAddress);
-	}
-
-	@Override
-	public SelectionKey keyFor(Selector ioEventSelector) {
-		return clientSC.keyFor(ioEventSelector);
-	}
-
-	@Override
-	public boolean finishConnect() throws IOException {
-		return clientSC.finishConnect();
 	}
 
 	@Override

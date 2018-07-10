@@ -30,45 +30,45 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSeqTbRecord extends UpdatableRecordImpl<SbSeqTbRecord> implements Record3<UByte, UInteger, String> {
 
-    private static final long serialVersionUID = 107243080;
+    private static final long serialVersionUID = -317462592;
 
     /**
-     * Setter for <code>SB_DB.SB_SEQ_TB.sq_id</code>. 시퀀스 식별자, 1:업로드 파일 이름 시퀀스
+     * Setter for <code>sb_db.sb_seq_tb.sq_id</code>. 시퀀스 식별자, 0:업로드 파일 이름 시퀀스, 1:공지게시판 시퀀스, 2:자유게시판시퀀스, 3:FAQ시퀀스
      */
     public void setSqId(UByte value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_SEQ_TB.sq_id</code>. 시퀀스 식별자, 1:업로드 파일 이름 시퀀스
+     * Getter for <code>sb_db.sb_seq_tb.sq_id</code>. 시퀀스 식별자, 0:업로드 파일 이름 시퀀스, 1:공지게시판 시퀀스, 2:자유게시판시퀀스, 3:FAQ시퀀스
      */
     public UByte getSqId() {
         return (UByte) get(0);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_SEQ_TB.sq_value</code>. 시퀀스 값
+     * Setter for <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값
      */
     public void setSqValue(UInteger value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_SEQ_TB.sq_value</code>. 시퀀스 값
+     * Getter for <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값
      */
     public UInteger getSqValue() {
         return (UInteger) get(1);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_SEQ_TB.sq_name</code>. 시퀀스 이름
+     * Setter for <code>sb_db.sb_seq_tb.sq_name</code>. 시퀀스 이름
      */
     public void setSqName(String value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_SEQ_TB.sq_name</code>. 시퀀스 이름
+     * Getter for <code>sb_db.sb_seq_tb.sq_name</code>. 시퀀스 이름
      */
     public String getSqName() {
         return (String) get(2);

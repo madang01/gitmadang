@@ -27,7 +27,6 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.util.HexUtil;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 
 
@@ -37,8 +36,7 @@ public class JSBNTestSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.TEST_EXAMPLE);
+		
 		
 		
 		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);

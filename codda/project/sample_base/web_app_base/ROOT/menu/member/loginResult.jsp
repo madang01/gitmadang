@@ -28,6 +28,7 @@
 		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>'));
 
 		var resultMessage = CryptoJS.AES.decrypt("<%= getCipheredBase64String(request, messageResultRes.toString()) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+				
 		document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
 
 		<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->
@@ -58,8 +59,8 @@
 <!-- header -->
 <div id="header">
 	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
-	if (! isLogin(request)) {
-%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
+		if (! isAdminLogin(request)) {
+	%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
 %><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}

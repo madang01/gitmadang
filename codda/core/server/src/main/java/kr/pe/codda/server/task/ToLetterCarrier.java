@@ -89,7 +89,7 @@ public class ToLetterCarrier {
 		return selfExnRes;
 	}	
 
-	private void doAddOutputMessage(AcceptedConnection targetAcceptedConnection,
+	private void doAddOutputMessage(AcceptedConnection toAcceptedConnection,
 			AbstractMessage outputMessage, 
 			MessageProtocolIF messageProtocol) throws InterruptedException {
 		String messageIDToClient = outputMessage.getMessageID();
@@ -106,7 +106,7 @@ public class ToLetterCarrier {
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();
 			
-			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("unknown error::fail to get a server output message codec::").append(e.getMessage()).toString();
@@ -114,7 +114,7 @@ public class ToLetterCarrier {
 			log.warn(errorMessage, e);			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = errorMessage;
-			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 	
@@ -127,7 +127,7 @@ public class ToLetterCarrier {
 			log.warn(errorMessage);
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();
-			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("unknown error::fail to get a output message encoder::").append(e.getMessage()).toString();
@@ -135,7 +135,7 @@ public class ToLetterCarrier {
 			log.warn(errorMessage, e);			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = errorMessage;
-			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 	
@@ -155,7 +155,7 @@ public class ToLetterCarrier {
 			
 			log.warn(errorReason);
 			
-			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (BodyFormatException e) {
 			String errorMessage = new StringBuilder("fail to build a output message stream[")
@@ -167,7 +167,7 @@ public class ToLetterCarrier {
 			
 			log.warn(errorReason);
 			
-			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;			
 		} catch (Exception | Error e) {	
 			String errorMessage = new StringBuilder("unknown error::fail to build a output message stream[")
@@ -180,15 +180,15 @@ public class ToLetterCarrier {
 			
 			log.warn(errorReason, e);
 			
-			doAddOutputErrorMessage(targetAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 		
 		
-		targetAcceptedConnection.addOutputMessage(outputMessage, outputMessageWrapBufferQueue);
+		toAcceptedConnection.addOutputMessage(outputMessage, outputMessageWrapBufferQueue);
 	}
 
-	private void doAddOutputErrorMessage(AcceptedConnection targetAcceptedConnection,
+	private void doAddOutputErrorMessage(AcceptedConnection toAcceptedConnection,
 			SelfExn.ErrorType errorType, 
 			String errorReason,
 			AbstractMessage outputMessage,			
@@ -205,16 +205,19 @@ public class ToLetterCarrier {
 			wrapBufferListOfSelfExn = messageProtocol.M2S(selfExnRes, CommonStaticFinalVars.SELFEXN_ENCODER);
 			
 		} catch (Exception e) {
-			String errorMessage = String.format("unknown error::fail to build the toLetter of SelfExn[%s], selectedKey[%d]::%s", 
-					selfExnRes.toString(),
-					targetAcceptedConnection.hashCode(),
-					e.getMessage());
+			String errorMessage = new StringBuilder()
+					.append("fail to build a output stream of the output message SelfExnRes[")
+					.append(selfExnRes.toString())
+					.append("] to send to to-client[")
+					.append(toAcceptedConnection.toSimpleInfomation())
+					.append("] because of unknown error, errmsg=")
+					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
 			return;
 		}
 		
 		
-		targetAcceptedConnection.addOutputMessage(outputMessage, wrapBufferListOfSelfExn);
+		toAcceptedConnection.addOutputMessage(outputMessage, wrapBufferListOfSelfExn);
 	}
 
 	
@@ -256,26 +259,26 @@ public class ToLetterCarrier {
 		doAddOutputMessage(fromAcceptedConnection, asynOutputMessage, messageProtocol);
 	}
 	
-	public void addAsynOutputMessage(String loginUserID, AbstractMessage asynOutputMessage) throws InterruptedException, LoginUserNotFoundException {
-		if (null == loginUserID) {
-			throw new IllegalArgumentException("the parameter loginUserID is null");
+	public void addAsynOutputMessage(String toLoginID, AbstractMessage asynOutputMessage) throws InterruptedException, LoginUserNotFoundException {
+		if (null == toLoginID) {
+			throw new IllegalArgumentException("the parameter toLoginID is null");
 		}
 		
 		if (null == asynOutputMessage) {
 			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
 		}
 		
-		SelectionKey loginUserSelectionKey = projectLoginManager.getSelectionKey(loginUserID);
+		SelectionKey loginIDSelectionKey = projectLoginManager.getSelectionKey(toLoginID);
 		
-		if (null == loginUserSelectionKey) {
-			String errorMessage = String.format("the user who has the parameter loginUserID[%s] is not a member or doens't login", loginUserID);
+		if (null == loginIDSelectionKey) {
+			String errorMessage = String.format("the user who has the parameter loginUserID[%s] is not a member or doens't login", toLoginID);
 			throw new LoginUserNotFoundException(errorMessage);
 		}
 		
-		AcceptedConnection loignUserAcceptedConnection = projectLoginManager.getAcceptedConnection(loginUserSelectionKey);
+		AcceptedConnection loignUserAcceptedConnection = projectLoginManager.getAcceptedConnection(loginIDSelectionKey);
 		
 		if (null == loignUserAcceptedConnection) {
-			String errorMessage = String.format("the user who has the parameter loginUserID[%s] was disconnected", loginUserID);
+			String errorMessage = String.format("the user who has the parameter loginUserID[%s] was disconnected", toLoginID);
 			throw new LoginUserNotFoundException(errorMessage);
 		}
 		
@@ -327,10 +330,13 @@ public class ToLetterCarrier {
 			
 		} catch (Exception e) {
 			InternalLogger log = InternalLoggerFactory.getInstance(ToLetterCarrier.class);
-			String errorMessage = String.format("unknown error::fail to build the toLetter of SelfExn[%s], toSC[%d]::%s", 
-					selfExnRes.toString(),
-					fromAcceptedConnection.hashCode(),
-					e.getMessage());
+			String errorMessage = new StringBuilder()
+					.append("fail to build a output stream of the output message SelfExnRes[")
+					.append(selfExnRes.toString())
+					.append("] to send to from-client[")
+					.append(fromAcceptedConnection.toSimpleInfomation())
+					.append("] because of unknown error, errmsg=")
+					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
 			return;
 		}

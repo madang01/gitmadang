@@ -29,10 +29,10 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTbRecord extends UpdatableRecordImpl<SbBoardInfoTbRecord> implements Record3<UByte, String, String> {
 
-    private static final long serialVersionUID = 312296397;
+    private static final long serialVersionUID = 1673220045;
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_INFO_TB.board_id</code>. 게시판 식별자,
+     * Setter for <code>sb_db.sb_board_info_tb.board_id</code>. 게시판 식별자,
 0 : 공지, 1:자유, 2:FAQ
      */
     public void setBoardId(UByte value) {
@@ -40,7 +40,7 @@ public class SbBoardInfoTbRecord extends UpdatableRecordImpl<SbBoardInfoTbRecord
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_INFO_TB.board_id</code>. 게시판 식별자,
+     * Getter for <code>sb_db.sb_board_info_tb.board_id</code>. 게시판 식별자,
 0 : 공지, 1:자유, 2:FAQ
      */
     public UByte getBoardId() {
@@ -48,28 +48,28 @@ public class SbBoardInfoTbRecord extends UpdatableRecordImpl<SbBoardInfoTbRecord
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_INFO_TB.board_name</code>. 게시판 이름
+     * Setter for <code>sb_db.sb_board_info_tb.board_name</code>. 게시판 이름
      */
     public void setBoardName(String value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_INFO_TB.board_name</code>. 게시판 이름
+     * Getter for <code>sb_db.sb_board_info_tb.board_name</code>. 게시판 이름
      */
     public String getBoardName() {
         return (String) get(1);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_INFO_TB.board_info</code>. 게시판 설명
+     * Setter for <code>sb_db.sb_board_info_tb.board_info</code>. 게시판 설명
      */
     public void setBoardInfo(String value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_INFO_TB.board_info</code>. 게시판 설명
+     * Getter for <code>sb_db.sb_board_info_tb.board_info</code>. 게시판 설명
      */
     public String getBoardInfo() {
         return (String) get(2);

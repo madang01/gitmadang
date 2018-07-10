@@ -18,42 +18,14 @@ import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 
 public abstract class ClientMessageUtility {
-	
-/*
-	private MessageProtocolIF messageProtocol = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
-	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-
-	public ClientMessageUtility(MessageProtocolIF messageProtocol, ClientObjectCacheManagerIF clientObjectCacheManager,
-			DataPacketBufferPoolIF dataPacketBufferPool) {
-		if (null == messageProtocol) {
-			throw new IllegalArgumentException("the parameter messageProtocol is null");
-		}
-
-		if (null == clientObjectCacheManager) {
-			throw new IllegalArgumentException("the parameter clientObjectCacheManager is null");
-		}
-
-		if (null == dataPacketBufferPool) {
-			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
-		}
-
-		this.messageProtocol = messageProtocol;
-		this.clientObjectCacheManager = clientObjectCacheManager;
-		this.dataPacketBufferPool = dataPacketBufferPool;
-	}*/
-
-	/*public AbstractClientTask getClientTask(String messageID) throws DynamicClassCallException {
-		return clientObjectCacheManager.getClientTask(messageID);
-	}*/
 
 	public static AbstractMessage buildOutputMessage(MessageProtocolIF messageProtocol, 
 			ClientObjectCacheManagerIF clientObjectCacheManager, 
-			ClassLoader classLoader,
+			ClassLoader sourceClassLoader,
 			ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
 			throws DynamicClassCallException, BodyFormatException {
-		if (null == classLoader) {
-			throw new IllegalArgumentException("the parameter classLoader is null");
+		if (null == sourceClassLoader) {
+			throw new IllegalArgumentException("the parameter sourceClassLoader is null");
 		}
 		
 		if (null == readableMiddleObjectWrapper) {
@@ -74,7 +46,7 @@ public abstract class ClientMessageUtility {
 			return selfExnRes;
 		}
 
-		MessageCodecIF messageCodec = clientObjectCacheManager.getClientMessageCodec(classLoader, messageID);
+		MessageCodecIF messageCodec = clientObjectCacheManager.getClientMessageCodec(sourceClassLoader, messageID);
 
 		AbstractMessageDecoder messageDecoder = null;
 		try {
@@ -119,21 +91,16 @@ public abstract class ClientMessageUtility {
 		return outputMessage;
 	}
 
-	/*public void S2MList(SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
-			throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {
-		messageProtocol.S2MList(socketOutputStream, wrapMessageBlockingQueue);
-	}*/
-
 	public static ArrayDeque<WrapBuffer> buildReadableWrapBufferList(MessageProtocolIF messageProtocol, 
 			ClientObjectCacheManagerIF clientObjectCacheManager,
-			ClassLoader classLoader, AbstractMessage inputMessage)
+			ClassLoader sourceClassLoader, AbstractMessage inputMessage)
 			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
 		
 		MessageCodecIF messageCodec = null;
 
 		try {
-			messageCodec = clientObjectCacheManager.getClientMessageCodec(classLoader, inputMessage.getMessageID());
+			messageCodec = clientObjectCacheManager.getClientMessageCodec(sourceClassLoader, inputMessage.getMessageID());
 		} catch (DynamicClassCallException e) {
 			/*String errorMessage = new StringBuilder("fail to get a client input message codec::").append(e.getMessage())
 					.toString();
@@ -201,8 +168,4 @@ public abstract class ClientMessageUtility {
 		
 		return wrapBufferList;
 	}
-
-	/*public void releaseWrapBuffer(WrapBuffer warpBuffer) {
-		dataPacketBufferPool.putDataPacketBuffer(warpBuffer);
-	}*/
 }

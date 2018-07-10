@@ -28,45 +28,45 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupInfoTbRecord extends UpdatableRecordImpl<SbGroupInfoTbRecord> implements Record3<Byte, String, String> {
 
-    private static final long serialVersionUID = -234579962;
+    private static final long serialVersionUID = -1893853242;
 
     /**
-     * Setter for <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자
+     * Setter for <code>sb_db.sb_group_info_tb.group_id</code>. 그룹 식별자
      */
     public void setGroupId(Byte value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자
+     * Getter for <code>sb_db.sb_group_info_tb.group_id</code>. 그룹 식별자
      */
     public Byte getGroupId() {
         return (Byte) get(0);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_GROUP_INFO_TB.group_name</code>.
+     * Setter for <code>sb_db.sb_group_info_tb.group_name</code>.
      */
     public void setGroupName(String value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_GROUP_INFO_TB.group_name</code>.
+     * Getter for <code>sb_db.sb_group_info_tb.group_name</code>.
      */
     public String getGroupName() {
         return (String) get(1);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_GROUP_INFO_TB.group_info</code>.
+     * Setter for <code>sb_db.sb_group_info_tb.group_info</code>.
      */
     public void setGroupInfo(String value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_GROUP_INFO_TB.group_info</code>.
+     * Getter for <code>sb_db.sb_group_info_tb.group_info</code>.
      */
     public String getGroupInfo() {
         return (String) get(2);

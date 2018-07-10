@@ -121,7 +121,6 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int serverMaxClients = clientConnectionCount;
 		int serverExecutorPoolSize = 3;
 		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
-				
 		int retryCount = 1000000;
 		
 		String testProjectName = "sample_test";

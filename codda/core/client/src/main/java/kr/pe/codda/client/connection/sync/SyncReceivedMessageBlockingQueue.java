@@ -8,6 +8,10 @@ public class SyncReceivedMessageBlockingQueue implements ReceivedMessageBlocking
 	
 	private ReadableMiddleObjectWrapper readableMiddleObjectWrapper = null;
 	
+	public void reset() {
+		readableMiddleObjectWrapper = null;
+	}
+	
 	@Override
 	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
 			throws InterruptedException {

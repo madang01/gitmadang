@@ -47,8 +47,6 @@ import kr.pe.codda.impl.message.LoginReq.LoginReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-import kr.pe.codda.weblib.sitemenu.SiteMenuManger;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 /**
  * 로그인
@@ -61,20 +59,19 @@ public class LoginSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		SiteTopMenuType targetSiteTopMenuType = getSiteTopMenuTypeFromParameter(req, SiteTopMenuType.MEMBER);
-		setSiteTopMenu(req, targetSiteTopMenuType);
+		
 
 		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
 		if (null == parmRequestType) {
-			firstPage(req, res, targetSiteTopMenuType);
+			firstPage(req, res);
 			return;
 		}
 
 		if (parmRequestType.equals("view")) {
-			firstPage(req, res, targetSiteTopMenuType);
+			firstPage(req, res);
 			return;
 		} else if (parmRequestType.equals("proc")) {
-			processPage(req, res, targetSiteTopMenuType);
+			processPage(req, res);
 			return;
 		} else {
 			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
@@ -90,7 +87,7 @@ public class LoginSvl extends AbstractServlet {
 		}
 	}
 
-	private void firstPage(HttpServletRequest req, HttpServletResponse res, SiteTopMenuType targetSiteTopMenuType)
+	private void firstPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
 		ServerSessionkeyIF webServerSessionkey = null;
@@ -108,10 +105,10 @@ public class LoginSvl extends AbstractServlet {
 			return;
 		}
 
-		doFirstPage(req, res, targetSiteTopMenuType, webServerSessionkey);
+		doFirstPage(req, res, webServerSessionkey);
 	}
 
-	private void processPage(HttpServletRequest req, HttpServletResponse res, SiteTopMenuType targetSiteTopMenuType)
+	private void processPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException,
 			IllegalArgumentException, SymmetricException {
@@ -236,10 +233,10 @@ public class LoginSvl extends AbstractServlet {
 				MessageResultRes messageResultRes = (MessageResultRes) loginOutputMessage;
 				if (messageResultRes.getIsSuccess()) {
 					HttpSession httpSession = req.getSession();
-					httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID, userId);
+					httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID, userId);
 				}
 
-				doProcessPage(req, res, targetSiteTopMenuType, successURL, webServerSymmetricKey, webServerSessionkey,
+				doProcessPage(req, res, successURL, webServerSymmetricKey, webServerSessionkey,
 						messageResultRes);
 				return;
 			} else {
@@ -270,16 +267,21 @@ public class LoginSvl extends AbstractServlet {
 		}
 	}
 
-	private void doFirstPage(HttpServletRequest req, HttpServletResponse res, SiteTopMenuType targetSiteTopMenuType,
+	private void doFirstPage(HttpServletRequest req, HttpServletResponse res, 
 			ServerSessionkeyIF webServerSessionkey) {
+		String successURL = req.getParameter("successURL");
 		
-		req.setAttribute("successURL", SiteMenuManger.getInstance().getBodyURL(targetSiteTopMenuType));		
+		if (null == successURL) {
+			successURL = "/";
+		}
+		
+		req.setAttribute("successURL", successURL);		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		printJspPage(req, res, "/menu/member/login.jsp");
 	}
 
-	private void doProcessPage(HttpServletRequest req, HttpServletResponse res, SiteTopMenuType targetSiteTopMenuType,
+	private void doProcessPage(HttpServletRequest req, HttpServletResponse res,
 			String successURL, ServerSymmetricKeyIF webServerSymmetricKey, ServerSessionkeyIF webServerSessionkey,
 			MessageResultRes messageResultRes) {
 

@@ -36,7 +36,6 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 /**
  * 게시판 댓글 등록 처리
@@ -49,9 +48,6 @@ public class BoardReplySvl extends AbstractLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.COMMUNITY);
-		
 		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
 		if (null == parmRequestType) {		
 			firstPage(req, res);			
@@ -270,7 +266,7 @@ public class BoardReplySvl extends AbstractLoginServlet {
 		boardReplyReq.setSubject(parmSubject);
 		boardReplyReq.setContent(parmContent);
 		boardReplyReq.setAttachId(attachId);
-		boardReplyReq.setUserId(getLoginUserIDFromHttpSession(req));
+		boardReplyReq.setUserId(getLoginedUserID(req));
 		boardReplyReq.setIp(req.getRemoteAddr());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

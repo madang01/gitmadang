@@ -38,10 +38,10 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupInfoTb extends TableImpl<SbGroupInfoTbRecord> {
 
-    private static final long serialVersionUID = 1543224470;
+    private static final long serialVersionUID = -1659689834;
 
     /**
-     * The reference instance of <code>SB_DB.SB_GROUP_INFO_TB</code>
+     * The reference instance of <code>sb_db.sb_group_info_tb</code>
      */
     public static final SbGroupInfoTb SB_GROUP_INFO_TB = new SbGroupInfoTb();
 
@@ -54,36 +54,36 @@ public class SbGroupInfoTb extends TableImpl<SbGroupInfoTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자
+     * The column <code>sb_db.sb_group_info_tb.group_id</code>. 그룹 식별자
      */
     public final TableField<SbGroupInfoTbRecord, Byte> GROUP_ID = createField("group_id", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "그룹 식별자");
 
     /**
-     * The column <code>SB_DB.SB_GROUP_INFO_TB.group_name</code>.
+     * The column <code>sb_db.sb_group_info_tb.group_name</code>.
      */
     public final TableField<SbGroupInfoTbRecord, String> GROUP_NAME = createField("group_name", org.jooq.impl.SQLDataType.VARCHAR(45), this, "");
 
     /**
-     * The column <code>SB_DB.SB_GROUP_INFO_TB.group_info</code>.
+     * The column <code>sb_db.sb_group_info_tb.group_info</code>.
      */
     public final TableField<SbGroupInfoTbRecord, String> GROUP_INFO = createField("group_info", org.jooq.impl.SQLDataType.CLOB, this, "");
 
     /**
-     * Create a <code>SB_DB.SB_GROUP_INFO_TB</code> table reference
+     * Create a <code>sb_db.sb_group_info_tb</code> table reference
      */
     public SbGroupInfoTb() {
-        this(DSL.name("SB_GROUP_INFO_TB"), null);
+        this(DSL.name("sb_group_info_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_GROUP_INFO_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_group_info_tb</code> table reference
      */
     public SbGroupInfoTb(String alias) {
         this(DSL.name(alias), SB_GROUP_INFO_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_GROUP_INFO_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_group_info_tb</code> table reference
      */
     public SbGroupInfoTb(Name alias) {
         this(alias, SB_GROUP_INFO_TB);

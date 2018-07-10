@@ -20,6 +20,7 @@ import kr.pe.codda.impl.jooq.tables.SbGroupInfoTb;
 import kr.pe.codda.impl.jooq.tables.SbGroupTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
+import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
 
 import org.jooq.Catalog;
 import org.jooq.Table;
@@ -39,68 +40,73 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = 1376161855;
+    private static final long serialVersionUID = 526546208;
 
     /**
-     * The reference instance of <code>SB_DB</code>
+     * The reference instance of <code>sb_db</code>
      */
     public static final SbDb SB_DB = new SbDb();
 
     /**
-     * The table <code>SB_DB.OA_MEMBER_TB</code>.
+     * The table <code>sb_db.oa_member_tb</code>.
      */
     public final OaMemberTb OA_MEMBER_TB = kr.pe.codda.impl.jooq.tables.OaMemberTb.OA_MEMBER_TB;
 
     /**
-     * The table <code>SB_DB.SB_BOARD_FILEINFO_TB</code>.
+     * The table <code>sb_db.sb_board_fileinfo_tb</code>.
      */
     public final SbBoardFileinfoTb SB_BOARD_FILEINFO_TB = kr.pe.codda.impl.jooq.tables.SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB;
 
     /**
-     * The table <code>SB_DB.SB_BOARD_FILELIST_TB</code>.
+     * The table <code>sb_db.sb_board_filelist_tb</code>.
      */
     public final SbBoardFilelistTb SB_BOARD_FILELIST_TB = kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
 
     /**
-     * The table <code>SB_DB.SB_BOARD_INFO_TB</code>.
+     * The table <code>sb_db.sb_board_info_tb</code>.
      */
     public final SbBoardInfoTb SB_BOARD_INFO_TB = kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 
     /**
-     * The table <code>SB_DB.SB_BOARD_TB</code>.
+     * The table <code>sb_db.sb_board_tb</code>.
      */
     public final SbBoardTb SB_BOARD_TB = kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
     /**
-     * The table <code>SB_DB.SB_BOARD_VOTE_TB</code>.
+     * The table <code>sb_db.sb_board_vote_tb</code>.
      */
     public final SbBoardVoteTb SB_BOARD_VOTE_TB = kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
 
     /**
-     * The table <code>SB_DB.SB_GROUP_INFO_TB</code>.
+     * The table <code>sb_db.sb_group_info_tb</code>.
      */
     public final SbGroupInfoTb SB_GROUP_INFO_TB = kr.pe.codda.impl.jooq.tables.SbGroupInfoTb.SB_GROUP_INFO_TB;
 
     /**
-     * The table <code>SB_DB.SB_GROUP_TB</code>.
+     * The table <code>sb_db.sb_group_tb</code>.
      */
     public final SbGroupTb SB_GROUP_TB = kr.pe.codda.impl.jooq.tables.SbGroupTb.SB_GROUP_TB;
 
     /**
-     * The table <code>SB_DB.SB_MEMBER_TB</code>.
+     * The table <code>sb_db.sb_member_tb</code>.
      */
     public final SbMemberTb SB_MEMBER_TB = kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
     /**
-     * The table <code>SB_DB.SB_SEQ_TB</code>.
+     * The table <code>sb_db.sb_seq_tb</code>.
      */
     public final SbSeqTb SB_SEQ_TB = kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
+
+    /**
+     * The table <code>sb_db.sb_sitemenu_tb</code>.
+     */
+    public final SbSitemenuTb SB_SITEMENU_TB = kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
     /**
      * No further instances allowed
      */
     private SbDb() {
-        super("SB_DB", null);
+        super("sb_db", null);
     }
 
 
@@ -130,6 +136,7 @@ public class SbDb extends SchemaImpl {
             SbGroupInfoTb.SB_GROUP_INFO_TB,
             SbGroupTb.SB_GROUP_TB,
             SbMemberTb.SB_MEMBER_TB,
-            SbSeqTb.SB_SEQ_TB);
+            SbSeqTb.SB_SEQ_TB,
+            SbSitemenuTb.SB_SITEMENU_TB);
     }
 }

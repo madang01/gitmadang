@@ -26,9 +26,7 @@ import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.AllItemType.AllItemType;
-import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 /**
  * 모든 데이터 타입을 갖는 AllItemType 메시지 교환 테스트
@@ -39,10 +37,7 @@ import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 public class AllItemTypeTestSvl extends AbstractServlet {
 
 	@Override
-	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.TEST_EXAMPLE);
-	
+	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {	
 		java.util.Random random = new java.util.Random();
 		
 		AllItemType allDataTypeReq = new AllItemType();

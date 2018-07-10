@@ -12,7 +12,6 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractSessionKeyServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 @SuppressWarnings("serial")
 public class BoardListSvl extends AbstractSessionKeyServlet {
@@ -20,10 +19,8 @@ public class BoardListSvl extends AbstractSessionKeyServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.COMMUNITY);
 		
-		short boardId = BoardType.FREE.getValue();
+		short boardId = BoardType.FREE.getBoardID();
 		String parmBoardId = req.getParameter("boardId");		
 		if (null != parmBoardId) {
 			try {

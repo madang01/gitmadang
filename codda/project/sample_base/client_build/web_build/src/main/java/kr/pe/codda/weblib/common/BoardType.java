@@ -1,33 +1,33 @@
 package kr.pe.codda.weblib.common;
 
 public enum BoardType {
-	NOTICE((short)0, "공지"), FREE((short)1, "자유"), FAQ((short)2, "FAQ");
+	NOTICE((short)0, "notice"), FREE((short)1, "free board"), FAQ((short)2, "FAQ");
 	
-	private short boardTypeValue;
+	private short boardID;
 	private String boardTypeName;
 	
-	private BoardType(short boardTypeValue, String boardTypeName) {
-		this.boardTypeValue = boardTypeValue;
+	private BoardType(short boardID, String boardTypeName) {
+		this.boardID = boardID;
 		this.boardTypeName = boardTypeName;
 	}
 	
-	public short getValue() {
-		return boardTypeValue;
+	public short getBoardID() {
+		return boardID;
 	}
 	
 	public String getName() {
 		return boardTypeName;
 	}
 	
-	public static BoardType valueOf(short boardTypeValue) {
+	public static BoardType valueOf(short boardID) {
 		BoardType[] boradTypes = BoardType.values();
 		for (BoardType boardType : boradTypes) {
-			if (boardType.getValue() == boardTypeValue) {
+			if (boardType.getBoardID() == boardID) {
 				return boardType;
 			}
 		}
 		
-		throw new IllegalArgumentException("the parameter boardTypeValue["+boardTypeValue+"] is a element of BoardType set");
+		throw new IllegalArgumentException("the parameter boardTypeValue["+boardID+"] is a element of BoardType set");
 	}
 	
 	public static String getSetString() {
@@ -39,7 +39,7 @@ public enum BoardType {
 			} else {
 				setStringBuilder.append(", ");
 			}
-			setStringBuilder.append(boardType.getValue());
+			setStringBuilder.append(boardType.getBoardID());
 			setStringBuilder.append(":");
 			setStringBuilder.append(boardType.getName());
 		}

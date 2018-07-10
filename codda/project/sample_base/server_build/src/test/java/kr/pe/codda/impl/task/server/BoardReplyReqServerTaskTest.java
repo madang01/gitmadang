@@ -9,20 +9,20 @@ import junitlib.AbstractJunitTest;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.MembershipLevel;
+import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class BoardReplyReqServerTaskTest extends AbstractJunitTest {	
 	@Test
 	public void test() {
 		String sqlString = new StringBuilder("if ({0} = ")
-				.append(MembershipLevel.USER.getValue())
+				.append(MemberType.USER.getValue())
 				.append(", '")
-				.append(MembershipLevel.USER.getName())
+				.append(MemberType.USER.getName())
 				.append("', if ({0} = ")
-				.append(MembershipLevel.ADMIN.getValue())
+				.append(MemberType.ADMIN.getValue())
 				.append(", '")
-				.append(MembershipLevel.ADMIN.getName())
+				.append(MemberType.ADMIN.getName())
 				.append("', '알수없음'))").toString();
 		// "if ({0} = 1, '일반회원', if ({0} = 0, '관리자', '알수없음'))"
 		
@@ -36,7 +36,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		ToLetterCarrier toLetterCarrierMock = Mockito.mock(ToLetterCarrier.class);
 				
 		BoardReplyReq inObj = new BoardReplyReq();
-		inObj.setBoardId(BoardType.FREE.getValue());
+		inObj.setBoardId(BoardType.FREE.getBoardID());
 		inObj.setParentBoardNo(7);
 		inObj.setSubject("테스트 주제02-3");
 		inObj.setContent("내용::그림2-3하나를 그리다");

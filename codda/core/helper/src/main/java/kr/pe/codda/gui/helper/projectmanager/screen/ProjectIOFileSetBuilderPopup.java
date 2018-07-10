@@ -615,7 +615,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			String messageInfoTargetPathString = ProjectBuildSytemPathSupporter.getProjectMessageInfoDirectoryPathString(sinnoriInstalledPathString, targetProjectName);
 
 			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
-			if (!targetMessageInfoXMLPath.exists()) {
+			if (! targetMessageInfoXMLPath.exists()) {
 				String errorMessage = String.format("target project[%s]'s message info path[%s] doesn't exist",
 						targetProjectName, messageInfoTargetPathString);
 				log.warn(errorMessage);
@@ -1031,14 +1031,14 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			String messageInfoTargetPathString = ProjectBuildSytemPathSupporter.getProjectMessageInfoDirectoryPathString(sinnoriInstalledPathString, targetProjectName);
 
 			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
-			if (targetMessageInfoXMLPath.exists()) {
+			if (! targetMessageInfoXMLPath.exists()) {
 				String errorMessage = String.format("target project[%s]'s message info path[%s] doesn't exist",
 						targetProjectName, messageInfoTargetPathString);
 				log.warn(errorMessage);
 				showMessageDialog(errorMessage);
 				return;
 			}
-			if (targetMessageInfoXMLPath.canWrite()) {
+			if (! targetMessageInfoXMLPath.canWrite()) {
 				String errorMessage = String.format("target project[%s]'s message info path[%s] can't be written",
 						targetProjectName, messageInfoTargetPathString);
 				log.warn(errorMessage);

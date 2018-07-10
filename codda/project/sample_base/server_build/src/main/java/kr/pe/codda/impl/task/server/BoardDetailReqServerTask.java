@@ -108,7 +108,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
-			Record19<UInteger, UByte, UInteger, UShort, UInteger, UByte, String, String, String, Integer, String, String, Timestamp, Timestamp, UInteger, String, Object, Byte, String> 
+			Record19<UInteger, UByte, UInteger, UShort, UInteger, UByte, String, String, String, Integer, String, String, Timestamp, Timestamp, UInteger, String, Object, String, String> 
 			boardRecord = create.select(SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ,
 							SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH, SB_BOARD_TB.SUBJECT, SB_BOARD_TB.CONTENT,
 							SB_BOARD_TB.WRITER_ID, SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.IP,
@@ -117,7 +117,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 							SB_MEMBER_TB.NICKNAME,
 							create.selectCount().from(SB_BOARD_VOTE_TB)
 									.where(SB_BOARD_VOTE_TB.BOARD_NO.eq(SB_BOARD_TB.BOARD_NO)).asField("votes"),
-							SB_MEMBER_TB.LEVEL, SB_MEMBER_TB.MEMBER_ST)
+							SB_MEMBER_TB.MEMBER_TYPE, SB_MEMBER_TB.MEMBER_ST)
 					.from(SB_BOARD_TB).join(SB_MEMBER_TB).on(SB_BOARD_TB.WRITER_ID.eq(SB_MEMBER_TB.USER_ID))
 					.where(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardDetailReq.getBoardNo()))).forUpdate()
 					.fetchOne();
@@ -163,7 +163,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			boardDetailRes.setIp(boardRecord.get(SB_BOARD_TB.IP));
 			boardDetailRes.setRegisterDate(boardRecord.get(SB_BOARD_TB.REG_DT));
 			boardDetailRes.setModifiedDate(boardRecord.get(SB_BOARD_TB.MOD_DT));
-			boardDetailRes.setMembershipLevel(boardRecord.get(SB_MEMBER_TB.LEVEL));
+			boardDetailRes.setMemberType(boardRecord.get(SB_MEMBER_TB.MEMBER_TYPE));
 			boardDetailRes.setMemberState(boardRecord.get(SB_MEMBER_TB.MEMBER_ST));
 			boardDetailRes.setAttachId(boardRecord.get(SB_BOARD_TB.ATTACH_ID).longValue());
 

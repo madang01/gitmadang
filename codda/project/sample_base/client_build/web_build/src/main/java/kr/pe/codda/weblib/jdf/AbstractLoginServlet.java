@@ -7,8 +7,6 @@ import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.codda.weblib.sitemenu.SiteMenuManger;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 @SuppressWarnings("serial")
 public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {	
@@ -17,8 +15,6 @@ public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {
 		if (! isLogin(req)) {
 			String requestURI = req.getRequestURI();
 			
-			SiteTopMenuType targetSiteTopMenuType = SiteMenuManger.getInstance().getTopMenuFromLeftmenuURL(requestURI);
-			setSiteTopMenu(req, targetSiteTopMenuType);
 						
 			// log.info("requestURI={}", requestURI);
 			

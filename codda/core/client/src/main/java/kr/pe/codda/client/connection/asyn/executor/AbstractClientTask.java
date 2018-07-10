@@ -13,6 +13,13 @@ import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 
 public abstract class AbstractClientTask {
 	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractClientTask.class);
+	
+	private ClassLoader sourceClassLoader = null;
+	
+	public void setSourceClassLoader(ClassLoader sourceClassLoader) {
+		this.sourceClassLoader = sourceClassLoader;
+	}
+	 
 
 	public void execute(int index, String projectName, AsynConnectionIF asynConnection,
 			ReadableMiddleObjectWrapper readableMiddleObjectWrapper, MessageProtocolIF messageProtocol,
@@ -22,7 +29,7 @@ public abstract class AbstractClientTask {
 		AbstractMessage outputMessage = null;
 		try {
 			outputMessage = ClientMessageUtility.buildOutputMessage(messageProtocol, clientObjectCacheManager,
-					this.getClass().getClassLoader(), readableMiddleObjectWrapper);
+					sourceClassLoader, readableMiddleObjectWrapper);
 		} catch (BodyFormatException | DynamicClassCallException e) {
 			return;
 		}

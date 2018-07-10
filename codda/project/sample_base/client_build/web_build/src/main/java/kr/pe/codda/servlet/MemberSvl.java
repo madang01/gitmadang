@@ -47,7 +47,6 @@ import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 import nl.captcha.Captcha;
 
 /**
@@ -63,8 +62,7 @@ public class MemberSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.MEMBER);
+		
 		
 		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
 		if (null == parmRequestType) {		

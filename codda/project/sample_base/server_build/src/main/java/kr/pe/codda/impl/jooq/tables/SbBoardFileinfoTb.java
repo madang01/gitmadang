@@ -42,10 +42,10 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFileinfoTb extends TableImpl<SbBoardFileinfoTbRecord> {
 
-    private static final long serialVersionUID = 1632715849;
+    private static final long serialVersionUID = -279229303;
 
     /**
-     * The reference instance of <code>SB_DB.SB_BOARD_FILEINFO_TB</code>
+     * The reference instance of <code>sb_db.sb_board_fileinfo_tb</code>
      */
     public static final SbBoardFileinfoTb SB_BOARD_FILEINFO_TB = new SbBoardFileinfoTb();
 
@@ -58,46 +58,46 @@ public class SbBoardFileinfoTb extends TableImpl<SbBoardFileinfoTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILEINFO_TB.attach_id</code>. 업로드 식별자, 자동증가
+     * The column <code>sb_db.sb_board_fileinfo_tb.attach_id</code>. 업로드 식별자, 자동증가
      */
     public final TableField<SbBoardFileinfoTbRecord, UInteger> ATTACH_ID = createField("attach_id", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true), this, "업로드 식별자, 자동증가");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILEINFO_TB.owner_id</code>. 첨부 파일 등록자 아이디
+     * The column <code>sb_db.sb_board_fileinfo_tb.owner_id</code>. 첨부 파일 등록자 아이디
      */
     public final TableField<SbBoardFileinfoTbRecord, String> OWNER_ID = createField("owner_id", org.jooq.impl.SQLDataType.VARCHAR(20).nullable(false), this, "첨부 파일 등록자 아이디");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILEINFO_TB.ip</code>. 첨부 파일 등록자 IP 주소
+     * The column <code>sb_db.sb_board_fileinfo_tb.ip</code>. 첨부 파일 등록자 IP 주소
      */
     public final TableField<SbBoardFileinfoTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(15), this, "첨부 파일 등록자 IP 주소");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILEINFO_TB.reg_dt</code>. 최초 등록일
+     * The column <code>sb_db.sb_board_fileinfo_tb.reg_dt</code>. 최초 등록일
      */
     public final TableField<SbBoardFileinfoTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "최초 등록일");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILEINFO_TB.mod_dt</code>. 최근 수정일
+     * The column <code>sb_db.sb_board_fileinfo_tb.mod_dt</code>. 최근 수정일
      */
     public final TableField<SbBoardFileinfoTbRecord, Timestamp> MOD_DT = createField("mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "최근 수정일");
 
     /**
-     * Create a <code>SB_DB.SB_BOARD_FILEINFO_TB</code> table reference
+     * Create a <code>sb_db.sb_board_fileinfo_tb</code> table reference
      */
     public SbBoardFileinfoTb() {
-        this(DSL.name("SB_BOARD_FILEINFO_TB"), null);
+        this(DSL.name("sb_board_fileinfo_tb"), null);
     }
-
+    
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_FILEINFO_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_fileinfo_tb</code> table reference
      */
     public SbBoardFileinfoTb(String alias) {
         this(DSL.name(alias), SB_BOARD_FILEINFO_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_FILEINFO_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_fileinfo_tb</code> table reference
      */
     public SbBoardFileinfoTb(Name alias) {
         this(alias, SB_BOARD_FILEINFO_TB);

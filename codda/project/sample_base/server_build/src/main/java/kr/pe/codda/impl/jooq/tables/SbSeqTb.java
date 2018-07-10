@@ -40,10 +40,10 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSeqTb extends TableImpl<SbSeqTbRecord> {
 
-    private static final long serialVersionUID = -1930821643;
+    private static final long serialVersionUID = 662120353;
 
     /**
-     * The reference instance of <code>SB_DB.SB_SEQ_TB</code>
+     * The reference instance of <code>sb_db.sb_seq_tb</code>
      */
     public static final SbSeqTb SB_SEQ_TB = new SbSeqTb();
 
@@ -56,36 +56,36 @@ public class SbSeqTb extends TableImpl<SbSeqTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_SEQ_TB.sq_id</code>. 시퀀스 식별자, 1:업로드 파일 이름 시퀀스
+     * The column <code>sb_db.sb_seq_tb.sq_id</code>. 시퀀스 식별자, 0:업로드 파일 이름 시퀀스, 1:공지게시판 시퀀스, 2:자유게시판시퀀스, 3:FAQ시퀀스
      */
-    public final TableField<SbSeqTbRecord, UByte> SQ_ID = createField("sq_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "시퀀스 식별자, 1:업로드 파일 이름 시퀀스");
+    public final TableField<SbSeqTbRecord, UByte> SQ_ID = createField("sq_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "시퀀스 식별자, 0:업로드 파일 이름 시퀀스, 1:공지게시판 시퀀스, 2:자유게시판시퀀스, 3:FAQ시퀀스");
 
     /**
-     * The column <code>SB_DB.SB_SEQ_TB.sq_value</code>. 시퀀스 값
+     * The column <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값
      */
     public final TableField<SbSeqTbRecord, UInteger> SQ_VALUE = createField("sq_value", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "시퀀스 값");
 
     /**
-     * The column <code>SB_DB.SB_SEQ_TB.sq_name</code>. 시퀀스 이름
+     * The column <code>sb_db.sb_seq_tb.sq_name</code>. 시퀀스 이름
      */
     public final TableField<SbSeqTbRecord, String> SQ_NAME = createField("sq_name", org.jooq.impl.SQLDataType.VARCHAR(45), this, "시퀀스 이름");
 
     /**
-     * Create a <code>SB_DB.SB_SEQ_TB</code> table reference
+     * Create a <code>sb_db.sb_seq_tb</code> table reference
      */
     public SbSeqTb() {
-        this(DSL.name("SB_SEQ_TB"), null);
+        this(DSL.name("sb_seq_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_SEQ_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_seq_tb</code> table reference
      */
     public SbSeqTb(String alias) {
         this(DSL.name(alias), SB_SEQ_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_SEQ_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_seq_tb</code> table reference
      */
     public SbSeqTb(Name alias) {
         this(alias, SB_SEQ_TB);

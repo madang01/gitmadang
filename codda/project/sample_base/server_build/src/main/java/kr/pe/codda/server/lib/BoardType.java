@@ -3,16 +3,16 @@ package kr.pe.codda.server.lib;
 public enum BoardType {
 	NOTICE((short)0, "공지"), FREE((short)1, "자유"), FAQ((short)2, "FAQ");
 	
-	private short boardTypeValue;
+	private short boardID;
 	private String boardTypeName;
 	
-	private BoardType(short boardTypeValue, String boardTypeName) {
-		this.boardTypeValue = boardTypeValue;
+	private BoardType(short boardID, String boardTypeName) {
+		this.boardID = boardID;
 		this.boardTypeName = boardTypeName;
 	}
 	
-	public short getValue() {
-		return boardTypeValue;
+	public short getBoardID() {
+		return boardID;
 	}
 	
 	public String getName() {
@@ -22,7 +22,7 @@ public enum BoardType {
 	public static BoardType valueOf(short boardTypeValue) {
 		BoardType[] boradTypes = BoardType.values();
 		for (BoardType boardType : boradTypes) {
-			if (boardType.getValue() == boardTypeValue) {
+			if (boardType.getBoardID() == boardTypeValue) {
 				return boardType;
 			}
 		}

@@ -30,73 +30,73 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class OaMemberTbRecord extends UpdatableRecordImpl<OaMemberTbRecord> implements Record5<String, String, String, String, Timestamp> {
 
-    private static final long serialVersionUID = -336144409;
+    private static final long serialVersionUID = -1851435033;
 
     /**
-     * Setter for <code>SB_DB.OA_MEMBER_TB.id</code>.
+     * Setter for <code>sb_db.oa_member_tb.id</code>.
      */
     public void setId(String value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>SB_DB.OA_MEMBER_TB.id</code>.
+     * Getter for <code>sb_db.oa_member_tb.id</code>.
      */
     public String getId() {
         return (String) get(0);
     }
 
     /**
-     * Setter for <code>SB_DB.OA_MEMBER_TB.pwd</code>.
+     * Setter for <code>sb_db.oa_member_tb.pwd</code>.
      */
     public void setPwd(String value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>SB_DB.OA_MEMBER_TB.pwd</code>.
+     * Getter for <code>sb_db.oa_member_tb.pwd</code>.
      */
     public String getPwd() {
         return (String) get(1);
     }
 
     /**
-     * Setter for <code>SB_DB.OA_MEMBER_TB.email</code>.
+     * Setter for <code>sb_db.oa_member_tb.email</code>.
      */
     public void setEmail(String value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>SB_DB.OA_MEMBER_TB.email</code>.
+     * Getter for <code>sb_db.oa_member_tb.email</code>.
      */
     public String getEmail() {
         return (String) get(2);
     }
 
     /**
-     * Setter for <code>SB_DB.OA_MEMBER_TB.phone</code>.
+     * Setter for <code>sb_db.oa_member_tb.phone</code>.
      */
     public void setPhone(String value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>SB_DB.OA_MEMBER_TB.phone</code>.
+     * Getter for <code>sb_db.oa_member_tb.phone</code>.
      */
     public String getPhone() {
         return (String) get(3);
     }
 
     /**
-     * Setter for <code>SB_DB.OA_MEMBER_TB.regdate</code>.
+     * Setter for <code>sb_db.oa_member_tb.regdate</code>.
      */
     public void setRegdate(Timestamp value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>SB_DB.OA_MEMBER_TB.regdate</code>.
+     * Getter for <code>sb_db.oa_member_tb.regdate</code>.
      */
     public Timestamp getRegdate() {
         return (Timestamp) get(4);

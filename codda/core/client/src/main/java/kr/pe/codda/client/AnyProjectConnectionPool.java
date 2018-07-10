@@ -14,7 +14,7 @@ import kr.pe.codda.client.connection.ClientObjectCacheManager;
 import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporter;
-import kr.pe.codda.client.connection.asyn.AsynClientIOEventController;
+import kr.pe.codda.client.connection.asyn.ClientIOEventController;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
 import kr.pe.codda.client.connection.asyn.AyncThreadSafeSingleConnectedConnectionAdder;
@@ -64,7 +64,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	private MessageProtocolIF messageProtocol = null;
 	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
-	private AsynClientIOEventController asynClientIOEventController = null;
+	private ClientIOEventController asynClientIOEventController = null;
 	
 
 	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
@@ -142,7 +142,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			
 			connectionPool = asynConnectionPool;
 			
-			asynClientIOEventController = new AsynClientIOEventController(
+			asynClientIOEventController = new ClientIOEventController(
 					projectPartConfiguration.getClientSelectorWakeupInterval(),
 					asynConnectionPool);
 			
@@ -235,7 +235,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				asynClientIOEventController, connectionPoolSupporter);		
 		
 		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynThreadSafeSingleConnection);
-		asynClientIOEventController.callSelectorAlarm();		
+		asynClientIOEventController.wakeup();		
 		
 		try {
 			connectedConnection = ayncThreadSafeSingleConnectedConnectionAdder.poll(socketTimeout);

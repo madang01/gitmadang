@@ -63,7 +63,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		int serverDataPacketBufferMaxCntPerMessage=50;
 		int serverDataPacketBufferSize=2048;
 		int serverDataPacketBufferPoolSize=1000;
-		int serverMaxClients = 10;		
+		int serverMaxClients = 100000;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
 		int serverExecutorPoolSize = 2;
@@ -114,7 +114,6 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		boolean clientDataPacketBufferIsDirect = false;
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-		
 		
 		int retryCount = 1000000;
 		

@@ -34,8 +34,8 @@
 <!-- header -->
 <div id="header">
 	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
-	if (! isLogin(request)) {
-%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
+		if (! isAdminLogin(request)) {
+	%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
 %><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}
@@ -56,7 +56,7 @@
 
 	<form name="goListForm" method="post" action="/servlet/BoardList">
 	<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" />
-	<input type="hidden" name="boardId" value="<%= kr.pe.codda.weblib.common.BoardType.FREE.getValue() %>" />
+	<input type="hidden" name="boardId" value="<%=kr.pe.codda.weblib.common.BoardType.FREE.getBoardID()%>" />
 	</form>
 	<session>
 	사랑방 - body part

@@ -39,10 +39,10 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
 
-    private static final long serialVersionUID = -1781378260;
+    private static final long serialVersionUID = 534333164;
 
     /**
-     * The reference instance of <code>SB_DB.SB_BOARD_INFO_TB</code>
+     * The reference instance of <code>sb_db.sb_board_info_tb</code>
      */
     public static final SbBoardInfoTb SB_BOARD_INFO_TB = new SbBoardInfoTb();
 
@@ -55,37 +55,37 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_BOARD_INFO_TB.board_id</code>. 게시판 식별자,
+     * The column <code>sb_db.sb_board_info_tb.board_id</code>. 게시판 식별자,
 0 : 공지, 1:자유, 2:FAQ
      */
     public final TableField<SbBoardInfoTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시판 식별자,\n0 : 공지, 1:자유, 2:FAQ");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_INFO_TB.board_name</code>. 게시판 이름
+     * The column <code>sb_db.sb_board_info_tb.board_name</code>. 게시판 이름
      */
     public final TableField<SbBoardInfoTbRecord, String> BOARD_NAME = createField("board_name", org.jooq.impl.SQLDataType.VARCHAR(30), this, "게시판 이름");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_INFO_TB.board_info</code>. 게시판 설명
+     * The column <code>sb_db.sb_board_info_tb.board_info</code>. 게시판 설명
      */
     public final TableField<SbBoardInfoTbRecord, String> BOARD_INFO = createField("board_info", org.jooq.impl.SQLDataType.CLOB, this, "게시판 설명");
 
     /**
-     * Create a <code>SB_DB.SB_BOARD_INFO_TB</code> table reference
+     * Create a <code>sb_db.sb_board_info_tb</code> table reference
      */
     public SbBoardInfoTb() {
-        this(DSL.name("SB_BOARD_INFO_TB"), null);
+        this(DSL.name("sb_board_info_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_INFO_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_info_tb</code> table reference
      */
     public SbBoardInfoTb(String alias) {
         this(DSL.name(alias), SB_BOARD_INFO_TB);
     }
-
+    
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_INFO_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_info_tb</code> table reference
      */
     public SbBoardInfoTb(Name alias) {
         this(alias, SB_BOARD_INFO_TB);

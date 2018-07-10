@@ -8,17 +8,14 @@ import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.JavaGarbageCollectionReq.JavaGarbageCollectionReq;
 import kr.pe.codda.impl.message.JavaGarbageCollectionRes.JavaGarbageCollectionRes;
-import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 @SuppressWarnings("serial")
 public class JavaGarbageCollectionSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.TEST_EXAMPLE);
+		
 		
 		JavaGarbageCollectionReq javaGarbageCollectionReq = new JavaGarbageCollectionReq();
 		

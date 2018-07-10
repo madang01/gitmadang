@@ -30,7 +30,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberStateType;
-import kr.pe.codda.server.lib.MembershipLevel;
+import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
@@ -250,7 +250,7 @@ public class LoginReqServerTask extends AbstractServerTask {
 			*/
 			
 			Record resultOfMember = create.select(
-					SB_MEMBER_TB.LEVEL,
+					SB_MEMBER_TB.MEMBER_TYPE,
 					SB_MEMBER_TB.MEMBER_ST,
 					SB_MEMBER_TB.PWD_FAIL_CNT,
 					SB_MEMBER_TB.PWD_BASE64,
@@ -268,20 +268,19 @@ public class LoginReqServerTask extends AbstractServerTask {
 				return;
 			}
 			
-			byte nativeMembershipLevel = resultOfMember.get(SB_MEMBER_TB.LEVEL);
+			String nativeMemberType = resultOfMember.get(SB_MEMBER_TB.MEMBER_TYPE);
 			String memberState = resultOfMember.get(SB_MEMBER_TB.MEMBER_ST);
 			short pwdFailedCount = resultOfMember.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
 			String pwdMDBase64 =  resultOfMember.get(SB_MEMBER_TB.PWD_BASE64);
 			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);			
 			
 			try {
-				@SuppressWarnings("unused")
-				MembershipLevel membershipLevel = MembershipLevel.valueOf(nativeMembershipLevel);
+				MemberType.valueOf(nativeMemberType, false);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = new StringBuilder("회원[")
 						.append(userId)
 						.append("]의 멤버 구분[")
-						.append(nativeMembershipLevel)
+						.append(nativeMemberType)
 						.append("]이 잘못되었습니다").toString();
 				
 				// log.warn(errorMessage);

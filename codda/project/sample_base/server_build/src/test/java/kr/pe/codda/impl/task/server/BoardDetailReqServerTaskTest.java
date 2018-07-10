@@ -2,8 +2,6 @@ package kr.pe.codda.impl.task.server;
 
 import static org.junit.Assert.fail;
 
-import java.nio.channels.SocketChannel;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -14,7 +12,6 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.server.AcceptedConnection;
-import kr.pe.codda.server.AcceptedConnectionManagerIF;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.lib.BoardType;
@@ -24,16 +21,12 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoTask() {		
-		class ToLetterCarrierMock extends ToLetterCarrier {
+		class ToLetterCarrierMock extends ToLetterCarrier {			
 
-			
-
-			public ToLetterCarrierMock(SocketChannel fromSC, AcceptedConnection fromAcceptedConnection,
-					AbstractMessage inputMessage, ProjectLoginManagerIF projectLoginManager,
-					AcceptedConnectionManagerIF acceptedConnectionManager, MessageProtocolIF messageProtocol,
+			public ToLetterCarrierMock(AcceptedConnection fromAcceptedConnection, AbstractMessage inputMessage,
+					ProjectLoginManagerIF projectLoginManager, MessageProtocolIF messageProtocol,
 					ServerSimpleClassLoaderIF serverSimpleClassLoader) {
-				super(fromSC, fromAcceptedConnection, inputMessage, projectLoginManager, acceptedConnectionManager, messageProtocol,
-						serverSimpleClassLoader);
+				super(fromAcceptedConnection, inputMessage, projectLoginManager, messageProtocol, serverSimpleClassLoader);
 			}
 
 			public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {
@@ -47,10 +40,10 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
-		ToLetterCarrier toLetterCarrierMock = new ToLetterCarrierMock(null, null, null, null, null, null, null);
+		ToLetterCarrier toLetterCarrierMock = new ToLetterCarrierMock(null, null, null, null, null);
 				
 		BoardDetailReq inObj = new BoardDetailReq();
-		inObj.setBoardId(BoardType.FREE.getValue());
+		inObj.setBoardId(BoardType.FREE.getBoardID());
 		inObj.setBoardNo(6);
 		
 		

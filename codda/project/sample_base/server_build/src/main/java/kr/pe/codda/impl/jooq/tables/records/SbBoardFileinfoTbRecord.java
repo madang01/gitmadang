@@ -31,73 +31,73 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFileinfoTbRecord extends UpdatableRecordImpl<SbBoardFileinfoTbRecord> implements Record5<UInteger, String, String, Timestamp, Timestamp> {
 
-    private static final long serialVersionUID = -833855078;
+    private static final long serialVersionUID = 1594634714;
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILEINFO_TB.attach_id</code>. 업로드 식별자, 자동증가
+     * Setter for <code>sb_db.sb_board_fileinfo_tb.attach_id</code>. 업로드 식별자, 자동증가
      */
     public void setAttachId(UInteger value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILEINFO_TB.attach_id</code>. 업로드 식별자, 자동증가
+     * Getter for <code>sb_db.sb_board_fileinfo_tb.attach_id</code>. 업로드 식별자, 자동증가
      */
     public UInteger getAttachId() {
         return (UInteger) get(0);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILEINFO_TB.owner_id</code>. 첨부 파일 등록자 아이디
+     * Setter for <code>sb_db.sb_board_fileinfo_tb.owner_id</code>. 첨부 파일 등록자 아이디
      */
     public void setOwnerId(String value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILEINFO_TB.owner_id</code>. 첨부 파일 등록자 아이디
+     * Getter for <code>sb_db.sb_board_fileinfo_tb.owner_id</code>. 첨부 파일 등록자 아이디
      */
     public String getOwnerId() {
         return (String) get(1);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILEINFO_TB.ip</code>. 첨부 파일 등록자 IP 주소
+     * Setter for <code>sb_db.sb_board_fileinfo_tb.ip</code>. 첨부 파일 등록자 IP 주소
      */
     public void setIp(String value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILEINFO_TB.ip</code>. 첨부 파일 등록자 IP 주소
+     * Getter for <code>sb_db.sb_board_fileinfo_tb.ip</code>. 첨부 파일 등록자 IP 주소
      */
     public String getIp() {
         return (String) get(2);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILEINFO_TB.reg_dt</code>. 최초 등록일
+     * Setter for <code>sb_db.sb_board_fileinfo_tb.reg_dt</code>. 최초 등록일
      */
     public void setRegDt(Timestamp value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILEINFO_TB.reg_dt</code>. 최초 등록일
+     * Getter for <code>sb_db.sb_board_fileinfo_tb.reg_dt</code>. 최초 등록일
      */
     public Timestamp getRegDt() {
         return (Timestamp) get(3);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILEINFO_TB.mod_dt</code>. 최근 수정일
+     * Setter for <code>sb_db.sb_board_fileinfo_tb.mod_dt</code>. 최근 수정일
      */
     public void setModDt(Timestamp value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILEINFO_TB.mod_dt</code>. 최근 수정일
+     * Getter for <code>sb_db.sb_board_fileinfo_tb.mod_dt</code>. 최근 수정일
      */
     public Timestamp getModDt() {
         return (Timestamp) get(4);

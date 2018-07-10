@@ -176,7 +176,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			.join(SB_BOARD_TB).on(a.field(SB_BOARD_TB.BOARD_NO).eq(SB_BOARD_TB.BOARD_NO))
 			.asTable("c");			
 			
-			Table<Record16<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp, String, Byte, String>> 
+			Table<Record16<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp, String, String, String>> 
 			t =	create.select(
 					c.field(SB_BOARD_TB.BOARD_ID),
 					c.field(SB_BOARD_TB.BOARD_NO),					
@@ -192,7 +192,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					c.field(SB_BOARD_TB.REG_DT),
 					c.field(SB_BOARD_TB.MOD_DT),
 					SB_MEMBER_TB.NICKNAME,
-					SB_MEMBER_TB.LEVEL,
+					SB_MEMBER_TB.MEMBER_TYPE,
 					SB_MEMBER_TB.MEMBER_ST)
 			.from(c)
 			.join(SB_MEMBER_TB)
@@ -213,7 +213,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					t.field(SB_BOARD_TB.IP),
 					t.field(SB_BOARD_TB.REG_DT),
 					t.field(SB_BOARD_TB.MOD_DT),
-					JooqSqlUtil.getFieldOfMemberGbNm(t.field(SB_MEMBER_TB.LEVEL)).as("member_gb_nm"),
+					JooqSqlUtil.getFieldOfMemberGbNm(t.field(SB_MEMBER_TB.MEMBER_TYPE)).as("member_gb_nm"),
 					t.field(SB_MEMBER_TB.MEMBER_ST),
 					t.field(SB_MEMBER_TB.NICKNAME),
 					DSL.count(SB_BOARD_VOTE_TB.BOARD_NO).as("votes")

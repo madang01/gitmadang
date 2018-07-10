@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardDetailRes;
 
 import kr.pe.codda.common.message.AbstractMessage;
@@ -21,7 +22,7 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
- * BoardDetailRes 메시지 인코더
+ * BoardDetailRes message encoder
  * @author Won Jonghoon
  *
  */
@@ -205,9 +206,9 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			}
 		}
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "membershipLevel"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-			, boardDetailRes.getMembershipLevel() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberType"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardDetailRes.getMemberType() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

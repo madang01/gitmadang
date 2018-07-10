@@ -20,18 +20,18 @@ public abstract class JooqSqlUtil {
 		return DSL.field("SYSDATE()", type);
 	}
 	
-	public static Field<String> getFieldOfMemberGbNm(Field<Byte> memberGbField) {
-		String sqlString = new StringBuilder("if ({0} = ")
-				.append(MembershipLevel.USER.getValue())
-				.append(", '")
-				.append(MembershipLevel.USER.getName())
-				.append("', if ({0} = ")
-				.append(MembershipLevel.ADMIN.getValue())
-				.append(", '")
-				.append(MembershipLevel.ADMIN.getName())
+	public static Field<String> getFieldOfMemberGbNm(Field<String> memberTypeField) {
+		String sqlString = new StringBuilder("if ({0} = '")
+				.append(MemberType.USER.getValue())
+				.append("', '")
+				.append(MemberType.USER.getName())
+				.append("', if ({0} = '")
+				.append(MemberType.ADMIN.getValue())
+				.append("', '")
+				.append(MemberType.ADMIN.getName())
 				.append("', '알수없음'))").toString();
 		// "if ({0} = 1, '일반회원', if ({0} = 0, '관리자', '알수없음'))"
 		return DSL.field(sqlString, 
-				String.class, memberGbField);
+				String.class, memberTypeField);
 	}
 }

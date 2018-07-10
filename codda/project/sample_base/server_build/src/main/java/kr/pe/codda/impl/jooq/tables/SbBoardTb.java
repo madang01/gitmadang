@@ -17,7 +17,6 @@ import kr.pe.codda.impl.jooq.tables.records.SbBoardTbRecord;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Schema;
@@ -44,10 +43,10 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = 933047640;
+    private static final long serialVersionUID = 973799479;
 
     /**
-     * The reference instance of <code>SB_DB.SB_BOARD_TB</code>
+     * The reference instance of <code>sb_db.sb_board_tb</code>
      */
     public static final SbBoardTb SB_BOARD_TB = new SbBoardTb();
 
@@ -60,96 +59,96 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.board_no</code>. 글 번호
-     */
-    public final TableField<SbBoardTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true), this, "글 번호");
-
-    /**
-     * The column <code>SB_DB.SB_BOARD_TB.group_no</code>. 그룹 번호
-     */
-    public final TableField<SbBoardTbRecord, UInteger> GROUP_NO = createField("group_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "그룹 번호");
-
-    /**
-     * The column <code>SB_DB.SB_BOARD_TB.group_sq</code>. 그룹 즉 동일한 그룹 번호(=group_no)  에서의 순번
-     */
-    public final TableField<SbBoardTbRecord, UShort> GROUP_SQ = createField("group_sq", org.jooq.impl.SQLDataType.SMALLINTUNSIGNED.nullable(false), this, "그룹 즉 동일한 그룹 번호(=group_no)  에서의 순번");
-
-    /**
-     * The column <code>SB_DB.SB_BOARD_TB.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
-     */
-    public final TableField<SbBoardTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.");
-
-    /**
-     * The column <code>SB_DB.SB_BOARD_TB.depth</code>. 트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.
-     */
-    public final TableField<SbBoardTbRecord, UByte> DEPTH = createField("depth", org.jooq.impl.SQLDataType.TINYINTUNSIGNED, this, "트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.");
-
-    /**
-     * The column <code>SB_DB.SB_BOARD_TB.board_id</code>. 게시판 종류 식별자, 어떤 게시판인지 설명하는 게시판 정보(board_info) 테이블을 바라본다.
+     * The column <code>sb_db.sb_board_tb.board_id</code>. 게시판 종류 식별자, 어떤 게시판인지 설명하는 게시판 정보(board_info) 테이블을 바라본다.
      */
     public final TableField<SbBoardTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시판 종류 식별자, 어떤 게시판인지 설명하는 게시판 정보(board_info) 테이블을 바라본다.");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.writer_id</code>. 작성자
+     * The column <code>sb_db.sb_board_tb.board_no</code>. 글 번호
+     */
+    public final TableField<SbBoardTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "글 번호");
+
+    /**
+     * The column <code>sb_db.sb_board_tb.group_no</code>. 그룹 번호
+     */
+    public final TableField<SbBoardTbRecord, UInteger> GROUP_NO = createField("group_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "그룹 번호");
+
+    /**
+     * The column <code>sb_db.sb_board_tb.group_sq</code>. 그룹 즉 동일한 그룹 번호(=group_no)  에서 0 부터 시작되는 순번
+     */
+    public final TableField<SbBoardTbRecord, UShort> GROUP_SQ = createField("group_sq", org.jooq.impl.SQLDataType.SMALLINTUNSIGNED.nullable(false), this, "그룹 즉 동일한 그룹 번호(=group_no)  에서 0 부터 시작되는 순번");
+
+    /**
+     * The column <code>sb_db.sb_board_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
+     */
+    public final TableField<SbBoardTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.");
+
+    /**
+     * The column <code>sb_db.sb_board_tb.depth</code>. 트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.
+     */
+    public final TableField<SbBoardTbRecord, UByte> DEPTH = createField("depth", org.jooq.impl.SQLDataType.TINYINTUNSIGNED, this, "트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.");
+
+    /**
+     * The column <code>sb_db.sb_board_tb.writer_id</code>. 작성자
      */
     public final TableField<SbBoardTbRecord, String> WRITER_ID = createField("writer_id", org.jooq.impl.SQLDataType.VARCHAR(20).nullable(false), this, "작성자");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.subject</code>. 제목
+     * The column <code>sb_db.sb_board_tb.subject</code>. 제목
      */
     public final TableField<SbBoardTbRecord, String> SUBJECT = createField("subject", org.jooq.impl.SQLDataType.VARCHAR(255), this, "제목");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.content</code>. 본문
+     * The column <code>sb_db.sb_board_tb.content</code>. 본문
      */
     public final TableField<SbBoardTbRecord, String> CONTENT = createField("content", org.jooq.impl.SQLDataType.CLOB, this, "본문");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.attach_id</code>.
+     * The column <code>sb_db.sb_board_tb.attach_id</code>.
      */
     public final TableField<SbBoardTbRecord, UInteger> ATTACH_ID = createField("attach_id", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.view_cnt</code>. 조회수
+     * The column <code>sb_db.sb_board_tb.view_cnt</code>. 조회수
      */
     public final TableField<SbBoardTbRecord, Integer> VIEW_CNT = createField("view_cnt", org.jooq.impl.SQLDataType.INTEGER, this, "조회수");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.board_st</code>. 게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
+     * The column <code>sb_db.sb_board_tb.board_st</code>. 게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
      */
     public final TableField<SbBoardTbRecord, String> BOARD_ST = createField("board_st", org.jooq.impl.SQLDataType.CHAR(1), this, "게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.ip</code>.
+     * The column <code>sb_db.sb_board_tb.ip</code>.
      */
     public final TableField<SbBoardTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(15), this, "");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.reg_dt</code>. 최초 작성일
+     * The column <code>sb_db.sb_board_tb.reg_dt</code>. 최초 작성일
      */
     public final TableField<SbBoardTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "최초 작성일");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.mod_dt</code>. 최근 수정일
+     * The column <code>sb_db.sb_board_tb.mod_dt</code>. 최근 수정일
      */
     public final TableField<SbBoardTbRecord, Timestamp> MOD_DT = createField("mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "최근 수정일");
 
     /**
-     * Create a <code>SB_DB.SB_BOARD_TB</code> table reference
+     * Create a <code>sb_db.sb_board_tb</code> table reference
      */
     public SbBoardTb() {
-        this(DSL.name("SB_BOARD_TB"), null);
+        this(DSL.name("sb_board_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_tb</code> table reference
      */
     public SbBoardTb(String alias) {
         this(DSL.name(alias), SB_BOARD_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_tb</code> table reference
      */
     public SbBoardTb(Name alias) {
         this(alias, SB_BOARD_TB);
@@ -177,14 +176,6 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     @Override
     public List<Index> getIndexes() {
         return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_FK2_IDX, Indexes.SB_BOARD_TB_SB_BOARD_FK3_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Identity<SbBoardTbRecord, UInteger> getIdentity() {
-        return Keys.IDENTITY_SB_BOARD_TB;
     }
 
     /**

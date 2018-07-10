@@ -1,6 +1,7 @@
 package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
+import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
@@ -13,6 +14,7 @@ import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 import kr.pe.codda.common.message.AbstractMessage;
@@ -86,8 +88,9 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(boardReplyReq.toString());
 
+		BoardType boardType = null;
 		try {
-			BoardType.valueOf(boardReplyReq.getBoardId());
+			boardType = BoardType.valueOf(boardReplyReq.getBoardId());
 		} catch (IllegalArgumentException e) {
 			log.warn(e.getMessage(), e);
 			sendErrorOutputMessage("잘못된 게시판 종류입니다", toLetterCarrier, boardReplyReq);
@@ -133,6 +136,8 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardReplyReq);
 			return;
 		}
+		
+		final int sequenceID = boardType.getBoardID()+1;
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
@@ -143,6 +148,35 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			
+			Record resultOfSeqManager = create.select(SB_SEQ_TB.SQ_VALUE)
+			.from(SB_SEQ_TB)
+			.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(sequenceID)))
+			.forUpdate().fetchOne();
+			
+			if (null == resultOfSeqManager) {
+				String errorMessage = new StringBuilder("시퀀스 식별자[")
+						.append(sequenceID)
+						.append("]의 시퀀스를 가져오는데 실패하였습니다").toString();
+				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardReplyReq);
+				return;
+			}
+			
+			
+			int countOfUpdate = create.update(SB_SEQ_TB)
+					.set(SB_SEQ_TB.SQ_VALUE, SB_SEQ_TB.SQ_VALUE.add(1))
+					.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(sequenceID)))
+				.execute();
+			
+			if (0 == countOfUpdate) {
+				String errorMessage = new StringBuilder("시퀀스 식별자[")
+						.append(sequenceID)
+						.append("]의 시퀀스 갱신이 실패하였습니다").toString();
+				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardReplyReq);
+				return;
+			}
+			
+			long seqValue = resultOfSeqManager.get(SB_SEQ_TB.SQ_VALUE).longValue();
 			
 			// UInteger.valueOf(boardReplyReq.getParentBoardNo()
 			
@@ -217,7 +251,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 					, SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST
 					, SB_BOARD_TB.IP
 					, SB_BOARD_TB.REG_DT, SB_BOARD_TB.MOD_DT)
-			.select(create.select(DSL.val(UInteger.valueOf(0)).as(SB_BOARD_TB.BOARD_NO.getName())
+			.select(create.select(DSL.val(UInteger.valueOf(seqValue)).as(SB_BOARD_TB.BOARD_NO.getName())
 					, SB_BOARD_TB.GROUP_NO
 					, SB_BOARD_TB.GROUP_SQ.add(1).as(SB_BOARD_TB.GROUP_SQ.getName())
 					, DSL.inline(UInteger.valueOf(boardReplyReq.getParentBoardNo())).as(SB_BOARD_TB.PARENT_NO.getName())

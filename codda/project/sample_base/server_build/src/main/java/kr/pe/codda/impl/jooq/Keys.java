@@ -16,6 +16,7 @@ import kr.pe.codda.impl.jooq.tables.SbGroupInfoTb;
 import kr.pe.codda.impl.jooq.tables.SbGroupTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
+import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
 import kr.pe.codda.impl.jooq.tables.records.OaMemberTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbBoardFileinfoTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbBoardFilelistTbRecord;
@@ -26,6 +27,7 @@ import kr.pe.codda.impl.jooq.tables.records.SbGroupInfoTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbGroupTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbMemberTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbSeqTbRecord;
+import kr.pe.codda.impl.jooq.tables.records.SbSitemenuTbRecord;
 
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
@@ -36,7 +38,7 @@ import org.jooq.types.UInteger;
 
 /**
  * A class modelling foreign key relationships and constraints of tables of 
- * the <code>SB_DB</code> schema.
+ * the <code>sb_db</code> schema.
  */
 @Generated(
     value = {
@@ -53,7 +55,7 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final Identity<SbBoardFileinfoTbRecord, UInteger> IDENTITY_SB_BOARD_FILEINFO_TB = Identities0.IDENTITY_SB_BOARD_FILEINFO_TB;
-    public static final Identity<SbBoardTbRecord, UInteger> IDENTITY_SB_BOARD_TB = Identities0.IDENTITY_SB_BOARD_TB;
+    public static final Identity<SbSitemenuTbRecord, UInteger> IDENTITY_SB_SITEMENU_TB = Identities0.IDENTITY_SB_SITEMENU_TB;
 
     // -------------------------------------------------------------------------
     // UNIQUE and PRIMARY KEY definitions
@@ -70,6 +72,7 @@ public class Keys {
     public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_PRIMARY = UniqueKeys0.KEY_SB_MEMBER_TB_PRIMARY;
     public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = UniqueKeys0.KEY_SB_MEMBER_TB_SB_MEMBER_IDX1;
     public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = UniqueKeys0.KEY_SB_SEQ_TB_PRIMARY;
+    public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_PRIMARY = UniqueKeys0.KEY_SB_SITEMENU_TB_PRIMARY;
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
@@ -91,21 +94,22 @@ public class Keys {
 
     private static class Identities0 {
         public static Identity<SbBoardFileinfoTbRecord, UInteger> IDENTITY_SB_BOARD_FILEINFO_TB = Internal.createIdentity(SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.ATTACH_ID);
-        public static Identity<SbBoardTbRecord, UInteger> IDENTITY_SB_BOARD_TB = Internal.createIdentity(SbBoardTb.SB_BOARD_TB, SbBoardTb.SB_BOARD_TB.BOARD_NO);
+        public static Identity<SbSitemenuTbRecord, UInteger> IDENTITY_SB_SITEMENU_TB = Internal.createIdentity(SbSitemenuTb.SB_SITEMENU_TB, SbSitemenuTb.SB_SITEMENU_TB.MENU_NO);
     }
 
     private static class UniqueKeys0 {
-        public static final UniqueKey<OaMemberTbRecord> KEY_OA_MEMBER_TB_PRIMARY = Internal.createUniqueKey(OaMemberTb.OA_MEMBER_TB, "KEY_OA_MEMBER_TB_PRIMARY", OaMemberTb.OA_MEMBER_TB.ID);
-        public static final UniqueKey<SbBoardFileinfoTbRecord> KEY_SB_BOARD_FILEINFO_TB_PRIMARY = Internal.createUniqueKey(SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, "KEY_SB_BOARD_FILEINFO_TB_PRIMARY", SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.ATTACH_ID);
-        public static final UniqueKey<SbBoardFilelistTbRecord> KEY_SB_BOARD_FILELIST_TB_PRIMARY = Internal.createUniqueKey(SbBoardFilelistTb.SB_BOARD_FILELIST_TB, "KEY_SB_BOARD_FILELIST_TB_PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_SQ);
-        public static final UniqueKey<SbBoardInfoTbRecord> KEY_SB_BOARD_INFO_TB_PRIMARY = Internal.createUniqueKey(SbBoardInfoTb.SB_BOARD_INFO_TB, "KEY_SB_BOARD_INFO_TB_PRIMARY", SbBoardInfoTb.SB_BOARD_INFO_TB.BOARD_ID);
-        public static final UniqueKey<SbBoardTbRecord> KEY_SB_BOARD_TB_PRIMARY = Internal.createUniqueKey(SbBoardTb.SB_BOARD_TB, "KEY_SB_BOARD_TB_PRIMARY", SbBoardTb.SB_BOARD_TB.BOARD_NO);
-        public static final UniqueKey<SbBoardVoteTbRecord> KEY_SB_BOARD_VOTE_TB_PRIMARY = Internal.createUniqueKey(SbBoardVoteTb.SB_BOARD_VOTE_TB, "KEY_SB_BOARD_VOTE_TB_PRIMARY", SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO, SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID);
-        public static final UniqueKey<SbGroupInfoTbRecord> KEY_SB_GROUP_INFO_TB_PRIMARY = Internal.createUniqueKey(SbGroupInfoTb.SB_GROUP_INFO_TB, "KEY_SB_GROUP_INFO_TB_PRIMARY", SbGroupInfoTb.SB_GROUP_INFO_TB.GROUP_ID);
-        public static final UniqueKey<SbGroupTbRecord> KEY_SB_GROUP_TB_PRIMARY = Internal.createUniqueKey(SbGroupTb.SB_GROUP_TB, "KEY_SB_GROUP_TB_PRIMARY", SbGroupTb.SB_GROUP_TB.GROUP_ID, SbGroupTb.SB_GROUP_TB.USER_ID);
-        public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_PRIMARY = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_SB_MEMBER_TB_PRIMARY", SbMemberTb.SB_MEMBER_TB.USER_ID);
-        public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_SB_MEMBER_TB_sb_member_idx1", SbMemberTb.SB_MEMBER_TB.NICKNAME);
-        public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = Internal.createUniqueKey(SbSeqTb.SB_SEQ_TB, "KEY_SB_SEQ_TB_PRIMARY", SbSeqTb.SB_SEQ_TB.SQ_ID);
+        public static final UniqueKey<OaMemberTbRecord> KEY_OA_MEMBER_TB_PRIMARY = Internal.createUniqueKey(OaMemberTb.OA_MEMBER_TB, "KEY_oa_member_tb_PRIMARY", OaMemberTb.OA_MEMBER_TB.ID);
+        public static final UniqueKey<SbBoardFileinfoTbRecord> KEY_SB_BOARD_FILEINFO_TB_PRIMARY = Internal.createUniqueKey(SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, "KEY_sb_board_fileinfo_tb_PRIMARY", SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.ATTACH_ID);
+        public static final UniqueKey<SbBoardFilelistTbRecord> KEY_SB_BOARD_FILELIST_TB_PRIMARY = Internal.createUniqueKey(SbBoardFilelistTb.SB_BOARD_FILELIST_TB, "KEY_sb_board_filelist_tb_PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_SQ);
+        public static final UniqueKey<SbBoardInfoTbRecord> KEY_SB_BOARD_INFO_TB_PRIMARY = Internal.createUniqueKey(SbBoardInfoTb.SB_BOARD_INFO_TB, "KEY_sb_board_info_tb_PRIMARY", SbBoardInfoTb.SB_BOARD_INFO_TB.BOARD_ID);
+        public static final UniqueKey<SbBoardTbRecord> KEY_SB_BOARD_TB_PRIMARY = Internal.createUniqueKey(SbBoardTb.SB_BOARD_TB, "KEY_sb_board_tb_PRIMARY", SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.BOARD_NO);
+        public static final UniqueKey<SbBoardVoteTbRecord> KEY_SB_BOARD_VOTE_TB_PRIMARY = Internal.createUniqueKey(SbBoardVoteTb.SB_BOARD_VOTE_TB, "KEY_sb_board_vote_tb_PRIMARY", SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO, SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID, SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_ID);
+        public static final UniqueKey<SbGroupInfoTbRecord> KEY_SB_GROUP_INFO_TB_PRIMARY = Internal.createUniqueKey(SbGroupInfoTb.SB_GROUP_INFO_TB, "KEY_sb_group_info_tb_PRIMARY", SbGroupInfoTb.SB_GROUP_INFO_TB.GROUP_ID);
+        public static final UniqueKey<SbGroupTbRecord> KEY_SB_GROUP_TB_PRIMARY = Internal.createUniqueKey(SbGroupTb.SB_GROUP_TB, "KEY_sb_group_tb_PRIMARY", SbGroupTb.SB_GROUP_TB.GROUP_ID, SbGroupTb.SB_GROUP_TB.USER_ID);
+        public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_PRIMARY = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_sb_member_tb_PRIMARY", SbMemberTb.SB_MEMBER_TB.USER_ID);
+        public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_sb_member_tb_sb_member_idx1", SbMemberTb.SB_MEMBER_TB.NICKNAME);
+        public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = Internal.createUniqueKey(SbSeqTb.SB_SEQ_TB, "KEY_sb_seq_tb_PRIMARY", SbSeqTb.SB_SEQ_TB.SQ_ID);
+        public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_PRIMARY = Internal.createUniqueKey(SbSitemenuTb.SB_SITEMENU_TB, "KEY_sb_sitemenu_tb_PRIMARY", SbSitemenuTb.SB_SITEMENU_TB.MENU_NO);
     }
 
     private static class ForeignKeys0 {
@@ -114,7 +118,7 @@ public class Keys {
         public static final ForeignKey<SbBoardTbRecord, SbBoardInfoTbRecord> SB_BOARD_FK1 = Internal.createForeignKey(kr.pe.codda.impl.jooq.Keys.KEY_SB_BOARD_INFO_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "sb_board_fk1", SbBoardTb.SB_BOARD_TB.BOARD_ID);
         public static final ForeignKey<SbBoardTbRecord, SbMemberTbRecord> SB_BOARD_FK2 = Internal.createForeignKey(kr.pe.codda.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "sb_board_fk2", SbBoardTb.SB_BOARD_TB.WRITER_ID);
         public static final ForeignKey<SbBoardTbRecord, SbBoardFileinfoTbRecord> SB_BOARD_FK3 = Internal.createForeignKey(kr.pe.codda.impl.jooq.Keys.KEY_SB_BOARD_FILEINFO_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "sb_board_fk3", SbBoardTb.SB_BOARD_TB.ATTACH_ID);
-        public static final ForeignKey<SbBoardVoteTbRecord, SbBoardTbRecord> SB_BOARD_VOTE_FK1 = Internal.createForeignKey(kr.pe.codda.impl.jooq.Keys.KEY_SB_BOARD_TB_PRIMARY, SbBoardVoteTb.SB_BOARD_VOTE_TB, "sb_board_vote_fk1", SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO);
+        public static final ForeignKey<SbBoardVoteTbRecord, SbBoardTbRecord> SB_BOARD_VOTE_FK1 = Internal.createForeignKey(kr.pe.codda.impl.jooq.Keys.KEY_SB_BOARD_TB_PRIMARY, SbBoardVoteTb.SB_BOARD_VOTE_TB, "sb_board_vote_fk1", SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_ID, SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO);
         public static final ForeignKey<SbBoardVoteTbRecord, SbMemberTbRecord> SB_BOARD_VOTE_FK2 = Internal.createForeignKey(kr.pe.codda.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardVoteTb.SB_BOARD_VOTE_TB, "sb_board_vote_fk2", SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID);
         public static final ForeignKey<SbGroupTbRecord, SbGroupInfoTbRecord> SB_GROUP_FK1 = Internal.createForeignKey(kr.pe.codda.impl.jooq.Keys.KEY_SB_GROUP_INFO_TB_PRIMARY, SbGroupTb.SB_GROUP_TB, "sb_group_fk1", SbGroupTb.SB_GROUP_TB.GROUP_ID);
         public static final ForeignKey<SbGroupTbRecord, SbMemberTbRecord> SB_GROUP_FK2 = Internal.createForeignKey(kr.pe.codda.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbGroupTb.SB_GROUP_TB, "sb_group_fk2", SbGroupTb.SB_GROUP_TB.USER_ID);

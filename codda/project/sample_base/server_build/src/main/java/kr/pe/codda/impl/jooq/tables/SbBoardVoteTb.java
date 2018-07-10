@@ -25,6 +25,7 @@ import org.jooq.TableField;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
+import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 
@@ -41,10 +42,10 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardVoteTb extends TableImpl<SbBoardVoteTbRecord> {
 
-    private static final long serialVersionUID = 1015442648;
+    private static final long serialVersionUID = 147303151;
 
     /**
-     * The reference instance of <code>SB_DB.SB_BOARD_VOTE_TB</code>
+     * The reference instance of <code>sb_db.sb_board_vote_tb</code>
      */
     public static final SbBoardVoteTb SB_BOARD_VOTE_TB = new SbBoardVoteTb();
 
@@ -57,41 +58,46 @@ public class SbBoardVoteTb extends TableImpl<SbBoardVoteTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_BOARD_VOTE_TB.board_no</code>.
+     * The column <code>sb_db.sb_board_vote_tb.board_id</code>.
+     */
+    public final TableField<SbBoardVoteTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "");
+
+    /**
+     * The column <code>sb_db.sb_board_vote_tb.board_no</code>.
      */
     public final TableField<SbBoardVoteTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_VOTE_TB.user_id</code>.
+     * The column <code>sb_db.sb_board_vote_tb.user_id</code>.
      */
     public final TableField<SbBoardVoteTbRecord, String> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.VARCHAR(20).nullable(false), this, "");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_VOTE_TB.ip</code>.
+     * The column <code>sb_db.sb_board_vote_tb.ip</code>.
      */
     public final TableField<SbBoardVoteTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(15), this, "");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_VOTE_TB.reg_dt</code>.
+     * The column <code>sb_db.sb_board_vote_tb.reg_dt</code>.
      */
     public final TableField<SbBoardVoteTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
-     * Create a <code>SB_DB.SB_BOARD_VOTE_TB</code> table reference
+     * Create a <code>sb_db.sb_board_vote_tb</code> table reference
      */
     public SbBoardVoteTb() {
-        this(DSL.name("SB_BOARD_VOTE_TB"), null);
+        this(DSL.name("sb_board_vote_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_VOTE_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_vote_tb</code> table reference
      */
     public SbBoardVoteTb(String alias) {
         this(DSL.name(alias), SB_BOARD_VOTE_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_VOTE_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_vote_tb</code> table reference
      */
     public SbBoardVoteTb(Name alias) {
         this(alias, SB_BOARD_VOTE_TB);
@@ -118,7 +124,7 @@ public class SbBoardVoteTb extends TableImpl<SbBoardVoteTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_VOTE_TB_PRIMARY, Indexes.SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2_IDX);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_VOTE_TB_PRIMARY, Indexes.SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK1, Indexes.SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2_IDX);
     }
 
     /**

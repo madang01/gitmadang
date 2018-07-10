@@ -47,6 +47,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	private int serverPort = 0;
 	private long socketTimeout = 0;
 	private int clientDataPacketBufferSize = 0;
+	private byte[] socketBuffer = null;
 
 	private SocketChannel clientSC = null;
 	private Socket clientSocket = null;
@@ -54,8 +55,9 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	private OutputStream clientOutputStream = null;
 	private final int mailboxID = 1;
 	private transient int mailID = Integer.MIN_VALUE;
-	private transient java.util.Date finalReadTime = new java.util.Date();
+	private transient java.util.Date finalReadTime = new java.util.Date();	
 	private boolean isQueueIn = true;
+	private SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
 
 	public SyncNoShareConnection(String serverHost, int serverPort, long socketTimeout, int clientDataPacketBufferSize,
 			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
@@ -69,6 +71,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		this.messageProtocol = messageProtocol;
 		this.clientObjectCacheManager = clientObjectCacheManager;
 		this.dataPacketBufferPool = dataPacketBufferPool;
+		
+		socketBuffer = new byte[this.clientDataPacketBufferSize];
 
 		openSocketChannel();
 
@@ -120,21 +124,22 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {
 
-		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
-
-		byte[] socketBuffer = new byte[clientDataPacketBufferSize];
+		ClassLoader inputMessageClassLoader = inputMessage.getClass().getClassLoader();
+		
 
 		if (Integer.MAX_VALUE == mailID) {
 			mailID = Integer.MIN_VALUE;
 		} else {
 			mailID++;
 		}
+		
+		
 
 		inputMessage.messageHeaderInfo.mailboxID = mailboxID;
 		inputMessage.messageHeaderInfo.mailID = mailID;
 
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
-				messageProtocol, clientObjectCacheManager, classloaderOfInputMessage, inputMessage);
+				messageProtocol, clientObjectCacheManager, inputMessageClassLoader, inputMessage);
 
 		while (!inputMessageWrapBufferQueue.isEmpty()) {
 			WrapBuffer inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
@@ -172,12 +177,11 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 			}
 		}
 
-		SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
+		syncReceivedMessageBlockingQueue.reset();
+		
 		try {
 			do {
-				int numberOfReadBytes = 0;
-
-				numberOfReadBytes = socketOutputStream.read(clientInputStream, socketBuffer);
+				int numberOfReadBytes = socketOutputStream.read(clientInputStream, socketBuffer);
 
 				if (numberOfReadBytes == -1) {
 					String errorMessage = new StringBuilder("this socket channel[").append(clientSC.hashCode())
@@ -221,7 +225,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		}
 
 		AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageProtocol,
-				clientObjectCacheManager, classloaderOfInputMessage,
+				clientObjectCacheManager, inputMessageClassLoader,
 				syncReceivedMessageBlockingQueue.getReadableMiddleObjectWrapper());
 
 		return outputMessage;

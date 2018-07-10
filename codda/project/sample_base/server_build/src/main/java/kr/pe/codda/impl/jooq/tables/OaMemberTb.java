@@ -39,10 +39,10 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class OaMemberTb extends TableImpl<OaMemberTbRecord> {
 
-    private static final long serialVersionUID = -1287877512;
+    private static final long serialVersionUID = 191007864;
 
     /**
-     * The reference instance of <code>SB_DB.OA_MEMBER_TB</code>
+     * The reference instance of <code>sb_db.oa_member_tb</code>
      */
     public static final OaMemberTb OA_MEMBER_TB = new OaMemberTb();
 
@@ -55,46 +55,46 @@ public class OaMemberTb extends TableImpl<OaMemberTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.OA_MEMBER_TB.id</code>.
+     * The column <code>sb_db.oa_member_tb.id</code>.
      */
     public final TableField<OaMemberTbRecord, String> ID = createField("id", org.jooq.impl.SQLDataType.VARCHAR(30).nullable(false), this, "");
 
     /**
-     * The column <code>SB_DB.OA_MEMBER_TB.pwd</code>.
+     * The column <code>sb_db.oa_member_tb.pwd</code>.
      */
     public final TableField<OaMemberTbRecord, String> PWD = createField("pwd", org.jooq.impl.SQLDataType.VARCHAR(45), this, "");
 
     /**
-     * The column <code>SB_DB.OA_MEMBER_TB.email</code>.
+     * The column <code>sb_db.oa_member_tb.email</code>.
      */
     public final TableField<OaMemberTbRecord, String> EMAIL = createField("email", org.jooq.impl.SQLDataType.VARCHAR(45), this, "");
 
     /**
-     * The column <code>SB_DB.OA_MEMBER_TB.phone</code>.
+     * The column <code>sb_db.oa_member_tb.phone</code>.
      */
     public final TableField<OaMemberTbRecord, String> PHONE = createField("phone", org.jooq.impl.SQLDataType.VARCHAR(45), this, "");
 
     /**
-     * The column <code>SB_DB.OA_MEMBER_TB.regdate</code>.
+     * The column <code>sb_db.oa_member_tb.regdate</code>.
      */
     public final TableField<OaMemberTbRecord, Timestamp> REGDATE = createField("regdate", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
-     * Create a <code>SB_DB.OA_MEMBER_TB</code> table reference
+     * Create a <code>sb_db.oa_member_tb</code> table reference
      */
     public OaMemberTb() {
-        this(DSL.name("OA_MEMBER_TB"), null);
+        this(DSL.name("oa_member_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.OA_MEMBER_TB</code> table reference
+     * Create an aliased <code>sb_db.oa_member_tb</code> table reference
      */
     public OaMemberTb(String alias) {
         this(DSL.name(alias), OA_MEMBER_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.OA_MEMBER_TB</code> table reference
+     * Create an aliased <code>sb_db.oa_member_tb</code> table reference
      */
     public OaMemberTb(Name alias) {
         this(alias, OA_MEMBER_TB);

@@ -417,7 +417,7 @@ public abstract class CommonStaticUtil {
 		return isHangul;
 	}
 	
-	/*public static boolean isAlphabet(char c) {
+	public static boolean isAlphabet(char c) {
 		boolean isAlphabet = false;
 		if (c >= 'a' && c <= 'z') {
 			isAlphabet =  true;
@@ -429,17 +429,25 @@ public abstract class CommonStaticUtil {
 	
 	public static boolean isDigit(char c) {
 		boolean isDigit = false;
-		if (c >= '1' && c <= '9') {
+		if (c >= '0' && c <= '9') {
 			isDigit =  true;
 		}
 		return isDigit;
 	}
 	
-	public static boolean isDigit(char c) {
-		boolean isDigit = false;
-		if (c >= '1' && c <= '9') {
-			isDigit =  true;
+	public static boolean isAlphabetAndDigit(String sourceString) {		
+		for (char c : sourceString.toCharArray()) {
+			if (! isDigit(c) && !isAlphabet(c)) {
+				return false;
+			}
 		}
-		return isDigit;
-	}*/
+		return true;
+	}
+	
+	public static boolean isAlphabetAndDigitWithRegular(String sourceString) {		
+		String regex = "[a-zA-Z0-9]+";
+		
+		boolean isValid = sourceString.matches(regex);
+		return isValid;
+	}
 }

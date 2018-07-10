@@ -40,10 +40,10 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
 
-    private static final long serialVersionUID = 1779386315;
+    private static final long serialVersionUID = 598271538;
 
     /**
-     * The reference instance of <code>SB_DB.SB_MEMBER_TB</code>
+     * The reference instance of <code>sb_db.sb_member_tb</code>
      */
     public static final SbMemberTb SB_MEMBER_TB = new SbMemberTb();
 
@@ -56,76 +56,81 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.user_id</code>. 사용자 아이디
+     * The column <code>sb_db.sb_member_tb.user_id</code>. 사용자 아이디
      */
     public final TableField<SbMemberTbRecord, String> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.VARCHAR(20).nullable(false), this, "사용자 아이디");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.nickname</code>. 별명
+     * The column <code>sb_db.sb_member_tb.nickname</code>. 별명
      */
     public final TableField<SbMemberTbRecord, String> NICKNAME = createField("nickname", org.jooq.impl.SQLDataType.VARCHAR(45).nullable(false), this, "별명");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.pwd_base64</code>. 비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.
+     * The column <code>sb_db.sb_member_tb.pwd_base64</code>. 비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.
      */
     public final TableField<SbMemberTbRecord, String> PWD_BASE64 = createField("pwd_base64", org.jooq.impl.SQLDataType.VARCHAR(88), this, "비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.pwd_salt_base64</code>. 비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값
+     * The column <code>sb_db.sb_member_tb.pwd_salt_base64</code>. 비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값
      */
     public final TableField<SbMemberTbRecord, String> PWD_SALT_BASE64 = createField("pwd_salt_base64", org.jooq.impl.SQLDataType.VARCHAR(12), this, "비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.level</code>. 회원 등급, 0:관리자, 1:일반회원
+     * The column <code>sb_db.sb_member_tb.member_type</code>. 회원 구분, A:관리자, M:일반회원
      */
-    public final TableField<SbMemberTbRecord, Byte> LEVEL = createField("level", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "회원 등급, 0:관리자, 1:일반회원");
+    public final TableField<SbMemberTbRecord, String> MEMBER_TYPE = createField("member_type", org.jooq.impl.SQLDataType.CHAR(1).nullable(false), this, "회원 구분, A:관리자, M:일반회원");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.member_st</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴
+     * The column <code>sb_db.sb_member_tb.member_st</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴
      */
     public final TableField<SbMemberTbRecord, String> MEMBER_ST = createField("member_st", org.jooq.impl.SQLDataType.CHAR(1), this, "회원 상태, Y : 정상, B:블락, W:탈퇴");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.pwd_hint</code>. 비밀번호 힌트, 비밀번호 분실시 답변 유도용 사용자한테 보여주는 힌트
+     * The column <code>sb_db.sb_member_tb.pwd_hint</code>. 비밀번호 힌트, 비밀번호 분실시 답변 유도용 사용자한테 보여주는 힌트
      */
     public final TableField<SbMemberTbRecord, String> PWD_HINT = createField("pwd_hint", org.jooq.impl.SQLDataType.CLOB, this, "비밀번호 힌트, 비밀번호 분실시 답변 유도용 사용자한테 보여주는 힌트");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.pwd_answer</code>. 비밀번호 답변, 비밀번호 분실시 맞춘다면 비밀번호 재 설정 혹은 비밀번호 초기화를 진행한다.
+     * The column <code>sb_db.sb_member_tb.pwd_answer</code>. 비밀번호 답변, 비밀번호 분실시 맞춘다면 비밀번호 재 설정 혹은 비밀번호 초기화를 진행한다.
      */
     public final TableField<SbMemberTbRecord, String> PWD_ANSWER = createField("pwd_answer", org.jooq.impl.SQLDataType.CLOB, this, "비밀번호 답변, 비밀번호 분실시 맞춘다면 비밀번호 재 설정 혹은 비밀번호 초기화를 진행한다.");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.pwd_fail_cnt</code>. 비밀번호 틀린 횟수, 로그인시 비밀번호 틀릴 경우 1 씩 증가하며 최대 n 번까지 시도 가능하다.  비밀번호를 맞쳤을 경우 0 으로 초기화 된다.
+     * The column <code>sb_db.sb_member_tb.pwd_fail_cnt</code>. 비밀번호 틀린 횟수, 로그인시 비밀번호 틀릴 경우 1 씩 증가하며 최대 n 번까지 시도 가능하다.  비밀번호를 맞쳤을 경우 0 으로 초기화 된다.
      */
     public final TableField<SbMemberTbRecord, UByte> PWD_FAIL_CNT = createField("pwd_fail_cnt", org.jooq.impl.SQLDataType.TINYINTUNSIGNED, this, "비밀번호 틀린 횟수, 로그인시 비밀번호 틀릴 경우 1 씩 증가하며 최대 n 번까지 시도 가능하다.  비밀번호를 맞쳤을 경우 0 으로 초기화 된다.");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.reg_dt</code>. 회원 가입일
+     * The column <code>sb_db.sb_member_tb.reg_dt</code>. 회원 가입일
      */
     public final TableField<SbMemberTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "회원 가입일");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.mod_dt</code>. 회원 정보 수정일
+     * The column <code>sb_db.sb_member_tb.mod_dt</code>. 회원 정보 수정일
      */
     public final TableField<SbMemberTbRecord, Timestamp> MOD_DT = createField("mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "회원 정보 수정일");
 
     /**
-     * Create a <code>SB_DB.SB_MEMBER_TB</code> table reference
+     * The column <code>sb_db.sb_member_tb.ip</code>.
+     */
+    public final TableField<SbMemberTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(15), this, "");
+
+    /**
+     * Create a <code>sb_db.sb_member_tb</code> table reference
      */
     public SbMemberTb() {
-        this(DSL.name("SB_MEMBER_TB"), null);
+        this(DSL.name("sb_member_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_MEMBER_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_member_tb</code> table reference
      */
     public SbMemberTb(String alias) {
         this(DSL.name(alias), SB_MEMBER_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_MEMBER_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_member_tb</code> table reference
      */
     public SbMemberTb(Name alias) {
         this(alias, SB_MEMBER_TB);

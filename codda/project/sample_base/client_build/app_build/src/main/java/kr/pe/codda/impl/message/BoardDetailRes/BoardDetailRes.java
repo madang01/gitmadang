@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardDetailRes;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * BoardDetailRes 메시지
+ * BoardDetailRes message
  * @author Won Jonghoon
  *
  */
@@ -76,7 +77,7 @@ public class BoardDetailRes extends AbstractMessage {
 	}
 
 	private java.util.List<AttachFile> attachFileList;
-	private short membershipLevel;
+	private String memberType;
 	private String memberState;
 
 	public long getBoardNo() {
@@ -212,12 +213,12 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setAttachFileList(java.util.List<AttachFile> attachFileList) {
 		this.attachFileList = attachFileList;
 	}
-	public short getMembershipLevel() {
-		return membershipLevel;
+	public String getMemberType() {
+		return memberType;
 	}
 
-	public void setMembershipLevel(short membershipLevel) {
-		this.membershipLevel = membershipLevel;
+	public void setMemberType(String memberType) {
+		this.memberType = memberType;
 	}
 	public String getMemberState() {
 		return memberState;
@@ -291,8 +292,8 @@ public class BoardDetailRes extends AbstractMessage {
 				builder.append("]");
 			}
 		}
-		builder.append(", membershipLevel=");
-		builder.append(membershipLevel);
+		builder.append(", memberType=");
+		builder.append(memberType);
 		builder.append(", memberState=");
 		builder.append(memberState);
 		builder.append("]");

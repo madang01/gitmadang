@@ -24,9 +24,7 @@ import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.Echo.Echo;
-import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 /**
  * Echo 메시지 교환 테스트
@@ -39,8 +37,7 @@ public class EchoTestSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.TEST_EXAMPLE);
+		
 		java.util.Random random = new java.util.Random();
 		Echo echoReq = new Echo();		
 		echoReq.setRandomInt(random.nextInt());

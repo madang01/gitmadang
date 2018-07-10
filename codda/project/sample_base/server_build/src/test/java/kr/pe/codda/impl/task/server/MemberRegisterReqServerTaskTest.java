@@ -2,7 +2,6 @@ package kr.pe.codda.impl.task.server;
 
 import static org.junit.Assert.fail;
 
-import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 
 import org.apache.commons.codec.binary.Base64;
@@ -22,7 +21,6 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.AcceptedConnection;
-import kr.pe.codda.server.AcceptedConnectionManagerIF;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.task.ToLetterCarrier;
@@ -33,13 +31,12 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 	public void testDoTask_ok() {
 		class ToLetterCarrierMock extends ToLetterCarrier {		
 
-			public ToLetterCarrierMock(SocketChannel fromSC, AcceptedConnection fromAcceptedConnection,
-					AbstractMessage inputMessage, ProjectLoginManagerIF projectLoginManager,
-					AcceptedConnectionManagerIF acceptedConnectionManager, MessageProtocolIF messageProtocol,
+			
+
+			public ToLetterCarrierMock(AcceptedConnection fromAcceptedConnection, AbstractMessage inputMessage,
+					ProjectLoginManagerIF projectLoginManager, MessageProtocolIF messageProtocol,
 					ServerSimpleClassLoaderIF serverSimpleClassLoader) {
-				super(fromSC, fromAcceptedConnection, inputMessage, projectLoginManager, acceptedConnectionManager, messageProtocol,
-						serverSimpleClassLoader);
-				// TODO Auto-generated constructor stub
+				super(fromAcceptedConnection, inputMessage, projectLoginManager, messageProtocol, serverSimpleClassLoader);
 			}
 
 			public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {
@@ -56,7 +53,7 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 			}
 		}
 		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
-		ToLetterCarrier toLetterCarrierMock = new ToLetterCarrierMock(null, null, null, null, null, null, null);
+		ToLetterCarrier toLetterCarrierMock = new ToLetterCarrierMock(null, null, null, null, null);
 				
 		String userID = "test00";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};

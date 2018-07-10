@@ -18,7 +18,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		ToLetterCarrier toLetterCarrierMock = Mockito.mock(ToLetterCarrier.class);
 				
 		BoardWriteReq inObj = new BoardWriteReq();
-		inObj.setBoardId(BoardType.FREE.getValue());
+		inObj.setBoardId(BoardType.FREE.getBoardID());
 		inObj.setSubject("테스트 주제06");
 		inObj.setContent("내용::그림2하나를 그리다");
 		inObj.setAttachId(0);

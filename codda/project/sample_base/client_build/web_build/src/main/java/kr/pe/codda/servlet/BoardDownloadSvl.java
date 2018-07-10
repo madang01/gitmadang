@@ -17,22 +17,17 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.codda.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 @SuppressWarnings("serial")
 public class BoardDownloadSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
-			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.COMMUNITY);
-		
+			throws Exception {		
 		if (! isLogin(req)) {
 			String errorMessage = new StringBuilder("파일 업로드는 로그인 서비스 입니다. 로그인 하시기 바랍니다.").toString();		
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);			
 			return;
@@ -41,7 +36,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		String parmAttachId = req.getParameter("attachId");
 		if (null == parmAttachId) {
 			String errorMessage = "업로드 식별자를 넣어주세요.";
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -53,7 +48,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		}catch (NumberFormatException nfe) {
 			String errorMessage = new StringBuilder("자바 long 타입 변수인 업로드 식별자 값[")
 			.append(parmAttachId).append("]이 잘못되었습니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -62,7 +57,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		if (attachId <= 0) {
 			String errorMessage = new StringBuilder("업로드 식별자 값[")
 			.append(parmAttachId).append("]은 0 보다 커야합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -71,7 +66,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		String parmAttachSeq = req.getParameter("attachSeq");
 		if (null == parmAttachSeq) {
 			String errorMessage = "업로드 파일 순번를 넣어주세요.";
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -83,7 +78,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		}catch (NumberFormatException nfe) {
 			String errorMessage = new StringBuilder("자바 short 타입 변수인 업로드 파일 순번 값[")
 			.append(parmAttachSeq).append("]이 잘못되었습니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -92,7 +87,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		if (attachSeq < 0) {
 			String errorMessage = new StringBuilder("업로드 파일 순번 값[")
 			.append(parmAttachSeq).append("]은 0 보다 작거나 커야합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -103,7 +98,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			.append(parmAttachSeq).append("]은 ")
 			.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
 			.append(" 값 보다 작거나 같아야 합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -114,7 +109,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		boardDownloadFileReq.setAttachSeq(attachSeq);
 		
 		// FIXME!
-		log.debug("inObj={},  userId={}, ip={}", boardDownloadFileReq.toString(), getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+		log.debug("inObj={},  userId={}, ip={}", boardDownloadFileReq.toString(), getLoginedUserID(req), req.getRemoteAddr());
 		
 	
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

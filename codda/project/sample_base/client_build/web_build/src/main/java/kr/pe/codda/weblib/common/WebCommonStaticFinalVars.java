@@ -16,12 +16,12 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY_IV = "ivBase64";
 	
 	
-	public static final String WEBSITE_TITLE = "Sinnori Home";
+	public static final String WEBSITE_TITLE = "Codda Home";
 	
 	
-	public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_USERID = "userID";
-	public static final String SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY = "kr.pe.sinnori.sessionkey";
-	public static final String SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY = "kr.pe.sinnori.privatekey";
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USERID = "userID";
+	public static final String SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY = "kr.pe.codda.sessionkey";
+	public static final String SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY = "kr.pe.codda.privatekey";
 	
 	/**
 	 * <pre>

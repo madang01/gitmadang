@@ -9,9 +9,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
-import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 /**
  * 
@@ -24,8 +22,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.COMMUNITY);
+		
 		
 		String parmBoardId = req.getParameter("boardId");
 		if (null == parmBoardId) {
@@ -90,7 +87,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		BoardVoteReq inObj =  new BoardVoteReq();
 		inObj.setBoardId(boardId);
 		inObj.setBoardNo(boardNo);
-		inObj.setUserId(getLoginUserIDFromHttpSession(req));
+		inObj.setUserId(getLoginedUserID(req));
 		inObj.setIp(req.getRemoteAddr());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

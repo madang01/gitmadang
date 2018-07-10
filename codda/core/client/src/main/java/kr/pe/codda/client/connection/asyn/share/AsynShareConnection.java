@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
-import kr.pe.codda.client.connection.asyn.AsynClientIOEventControllerIF;
+import kr.pe.codda.client.connection.asyn.ClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
@@ -26,7 +26,7 @@ public final class AsynShareConnection extends AsynThreadSafeSingleConnection {
 			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
 			ClientObjectCacheManagerIF clientObjectCacheManager, DataPacketBufferPoolIF dataPacketBufferPool,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
-			AsynClientIOEventControllerIF asynClientIOEventController,
+			ClientIOEventControllerIF asynClientIOEventController,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws IOException {
 		super(projectName, serverHost, serverPort, socketTimeout, syncMessageMailboxCountPerAsynShareConnection,
 				clientAsynInputMessageQueueCapacity, socketOutputStream, messageProtocol, clientObjectCacheManager,

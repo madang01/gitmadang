@@ -40,10 +40,10 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
 
-    private static final long serialVersionUID = -2120743294;
+    private static final long serialVersionUID = 811369058;
 
     /**
-     * The reference instance of <code>SB_DB.SB_BOARD_FILELIST_TB</code>
+     * The reference instance of <code>sb_db.sb_board_filelist_tb</code>
      */
     public static final SbBoardFilelistTb SB_BOARD_FILELIST_TB = new SbBoardFilelistTb();
 
@@ -56,41 +56,41 @@ public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILELIST_TB.attach_id</code>. 업로드 식별자
+     * The column <code>sb_db.sb_board_filelist_tb.attach_id</code>. 업로드 식별자
      */
     public final TableField<SbBoardFilelistTbRecord, UInteger> ATTACH_ID = createField("attach_id", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "업로드 식별자");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILELIST_TB.attach_sq</code>. 첨부 파일 순번, 자동 증가
+     * The column <code>sb_db.sb_board_filelist_tb.attach_sq</code>. 첨부 파일 순번, 자동 증가
      */
     public final TableField<SbBoardFilelistTbRecord, UInteger> ATTACH_SQ = createField("attach_sq", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "첨부 파일 순번, 자동 증가");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILELIST_TB.attach_fname</code>. 첨부 파일 이름
+     * The column <code>sb_db.sb_board_filelist_tb.attach_fname</code>. 첨부 파일 이름
      */
     public final TableField<SbBoardFilelistTbRecord, String> ATTACH_FNAME = createField("attach_fname", org.jooq.impl.SQLDataType.VARCHAR(255), this, "첨부 파일 이름");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_FILELIST_TB.sys_fname</code>. 첨부 파일의 시스템 절대 경로 파일명
+     * The column <code>sb_db.sb_board_filelist_tb.sys_fname</code>. 첨부 파일의 시스템 절대 경로 파일명
      */
     public final TableField<SbBoardFilelistTbRecord, String> SYS_FNAME = createField("sys_fname", org.jooq.impl.SQLDataType.VARCHAR(600), this, "첨부 파일의 시스템 절대 경로 파일명");
 
     /**
-     * Create a <code>SB_DB.SB_BOARD_FILELIST_TB</code> table reference
+     * Create a <code>sb_db.sb_board_filelist_tb</code> table reference
      */
     public SbBoardFilelistTb() {
-        this(DSL.name("SB_BOARD_FILELIST_TB"), null);
+        this(DSL.name("sb_board_filelist_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_FILELIST_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_filelist_tb</code> table reference
      */
     public SbBoardFilelistTb(String alias) {
         this(DSL.name(alias), SB_BOARD_FILELIST_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_BOARD_FILELIST_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_board_filelist_tb</code> table reference
      */
     public SbBoardFilelistTb(Name alias) {
         this(alias, SB_BOARD_FILELIST_TB);

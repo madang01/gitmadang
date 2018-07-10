@@ -40,10 +40,10 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupTb extends TableImpl<SbGroupTbRecord> {
 
-    private static final long serialVersionUID = 1461425464;
+    private static final long serialVersionUID = -1083926152;
 
     /**
-     * The reference instance of <code>SB_DB.SB_GROUP_TB</code>
+     * The reference instance of <code>sb_db.sb_group_tb</code>
      */
     public static final SbGroupTb SB_GROUP_TB = new SbGroupTb();
 
@@ -56,36 +56,36 @@ public class SbGroupTb extends TableImpl<SbGroupTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_GROUP_TB.group_id</code>.
+     * The column <code>sb_db.sb_group_tb.group_id</code>.
      */
     public final TableField<SbGroupTbRecord, Byte> GROUP_ID = createField("group_id", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "");
 
     /**
-     * The column <code>SB_DB.SB_GROUP_TB.user_id</code>.
+     * The column <code>sb_db.sb_group_tb.user_id</code>.
      */
     public final TableField<SbGroupTbRecord, String> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.VARCHAR(20).nullable(false), this, "");
 
     /**
-     * The column <code>SB_DB.SB_GROUP_TB.reg_dt</code>.
+     * The column <code>sb_db.sb_group_tb.reg_dt</code>.
      */
     public final TableField<SbGroupTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
-     * Create a <code>SB_DB.SB_GROUP_TB</code> table reference
+     * Create a <code>sb_db.sb_group_tb</code> table reference
      */
     public SbGroupTb() {
-        this(DSL.name("SB_GROUP_TB"), null);
+        this(DSL.name("sb_group_tb"), null);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_GROUP_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_group_tb</code> table reference
      */
     public SbGroupTb(String alias) {
         this(DSL.name(alias), SB_GROUP_TB);
     }
 
     /**
-     * Create an aliased <code>SB_DB.SB_GROUP_TB</code> table reference
+     * Create an aliased <code>sb_db.sb_group_tb</code> table reference
      */
     public SbGroupTb(Name alias) {
         this(alias, SB_GROUP_TB);

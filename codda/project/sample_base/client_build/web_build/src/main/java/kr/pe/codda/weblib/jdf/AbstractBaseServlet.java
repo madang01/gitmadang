@@ -12,7 +12,6 @@ import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSuppor
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 @SuppressWarnings("serial")
 public abstract class AbstractBaseServlet extends HttpServlet {
@@ -26,7 +25,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	public boolean isLogin(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		String userId = (String) httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
 		if (null == userId || userId.equals("")) {
 			return false;
 		}
@@ -40,7 +39,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	 */		
 	public boolean isLogin(HttpSession httpSession) {
 		String userId = (String) httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
 		if (null == userId || userId.equals("")) {
 			return false;
 		}
@@ -52,10 +51,10 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	 * @param req HttpServletRequest 객체
 	 * @return 로그인 아이디
 	 */
-	public String getLoginUserIDFromHttpSession(HttpServletRequest req) {
+	public String getLoginedUserID(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		
-		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);
+		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
 		if (null == loginUserIDValue) {
 			return "guest";
 		}
@@ -90,81 +89,5 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 		attachSystemFullFileNameBuilder.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_SUFFIX);
 		
 		return attachSystemFullFileNameBuilder.toString();
-	}
-	
-	/*public SiteTopMenuType setSiteTopMenuRequestAtrributeMatchingTopMenuParameter(HttpServletRequest req, SiteTopMenuType defaultSiteTopMenuType) {
-		if (null == req) {
-			throw new IllegalArgumentException("the parameter req is null");
-		}
-		if (null == defaultSiteTopMenuType) {
-			throw new IllegalArgumentException("the parameter defaultSiteTopMenuType is null");
-		}
-		String parmTopmenu = req.getParameter("topmenu");
-		if (null == parmTopmenu) {
-			parmTopmenu = String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
-		}
-		parmTopmenu = parmTopmenu.trim();	
-		if (parmTopmenu.equals("")) parmTopmenu=String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
-		
-		int nTopMenu = 0;
-		
-		try {
-			nTopMenu = Integer.parseInt(parmTopmenu);
-		} catch (NumberFormatException num_e) {
-			// num_e.prin
-		}
-		
-		SiteTopMenuType targetSiteTopMenuType = SiteTopMenuType.match(nTopMenu);
-		
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, targetSiteTopMenuType);
-		return targetSiteTopMenuType;
-	}*/
-	
-	
-	public SiteTopMenuType getSiteTopMenuTypeFromParameter(HttpServletRequest req, SiteTopMenuType defaultSiteTopMenuType) {
-		if (null == req) {
-			throw new IllegalArgumentException("the parameter req is null");
-		}
-		if (null == defaultSiteTopMenuType) {
-			throw new IllegalArgumentException("the parameter defaultSiteTopMenuType is null");
-		}
-		String parmTopmenu = req.getParameter(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU);
-		if (null == parmTopmenu) {
-			parmTopmenu = String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
-		}
-		parmTopmenu = parmTopmenu.trim();	
-		if (parmTopmenu.equals("")) parmTopmenu=String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
-		
-		
-		SiteTopMenuType targetSiteTopMenuType = defaultSiteTopMenuType;
-		
-		try {
-			int siteTopMenuTypeValue = Integer.parseInt(parmTopmenu);			
-			targetSiteTopMenuType = SiteTopMenuType.match(siteTopMenuTypeValue);
-		} catch (NumberFormatException num_e) {
-		}
-		
-		
-		return targetSiteTopMenuType;
-	}
-
-	protected void setSiteTopMenu(HttpServletRequest req, SiteTopMenuType targetSiteTopMenuType) {
-		if (null == req) {
-			throw new IllegalArgumentException("the parameter req is null");
-		}
-		if (null == targetSiteTopMenuType) {
-			throw new IllegalArgumentException("the parameter targetSiteTopMenuType is null");
-		}
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, targetSiteTopMenuType);
-	}
-	
-	protected void setSiteLeftMenu(HttpServletRequest req, String leftmenuURL) {
-		if (null == req) {
-			throw new IllegalArgumentException("the parameter req is null");
-		}
-		if (null == leftmenuURL) {
-			throw new IllegalArgumentException("the parameter leftmenuURL is null");
-		}
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_LEFTMENU, leftmenuURL);
 	}
 }

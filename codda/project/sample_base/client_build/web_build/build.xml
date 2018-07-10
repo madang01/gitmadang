@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<project name="sample_base_webclient" default="compile.webclass.only" basedir=".">
+<project name="sample_base_member_webclient" default="compile.webclass.only" basedir=".">
 	<property name="dir.main.src" location="src/main/java" />
 	<property name="dir.weblib.build" location="build/weblib" />
 	<property name="dir.main.lib" location="lib/main" />

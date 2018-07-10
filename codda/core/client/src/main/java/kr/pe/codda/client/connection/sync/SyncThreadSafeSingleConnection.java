@@ -41,6 +41,8 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	private int serverPort = 0;
 	private long socketTimeout = 0;
 	private int clientDataPacketBufferSize = 0;
+	private byte[] socketBuffer = null;
+	
 
 	private SocketChannel clientSC = null;
 	private Socket clientSocket = null;
@@ -49,6 +51,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	private final int mailboxID = 1;
 	private transient int mailID = Integer.MIN_VALUE;
 	private transient java.util.Date finalReadTime = new java.util.Date();
+	private SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
 
 	public SyncThreadSafeSingleConnection(String serverHost, int serverPort, long socketTimeout,
 			int clientDataPacketBufferSize, SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
@@ -63,6 +66,8 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 		this.messageProtocol = messageProtocol;
 		this.clientObjectCacheManager = clientObjectCacheManager;
 		this.dataPacketBufferPool = dataPacketBufferPool;
+		
+		socketBuffer = new byte[this.clientDataPacketBufferSize];
 
 		openSocketChannel();
 
@@ -157,7 +162,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 
 		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
 
-		byte[] socketBuffer = new byte[clientDataPacketBufferSize];
+		
 
 		if (Integer.MAX_VALUE == mailID) {
 			mailID = Integer.MIN_VALUE;
@@ -208,7 +213,8 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 			}
 		}
 
-		SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
+		
+		syncReceivedMessageBlockingQueue.reset();
 		try {
 			do {
 				int numberOfReadBytes = 0;

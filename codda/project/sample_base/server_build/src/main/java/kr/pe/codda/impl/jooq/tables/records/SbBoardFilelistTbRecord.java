@@ -29,59 +29,59 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFilelistTbRecord extends UpdatableRecordImpl<SbBoardFilelistTbRecord> implements Record4<UInteger, UInteger, String, String> {
 
-    private static final long serialVersionUID = 534026371;
+    private static final long serialVersionUID = 860407939;
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILELIST_TB.attach_id</code>. 업로드 식별자
+     * Setter for <code>sb_db.sb_board_filelist_tb.attach_id</code>. 업로드 식별자
      */
     public void setAttachId(UInteger value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILELIST_TB.attach_id</code>. 업로드 식별자
+     * Getter for <code>sb_db.sb_board_filelist_tb.attach_id</code>. 업로드 식별자
      */
     public UInteger getAttachId() {
         return (UInteger) get(0);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILELIST_TB.attach_sq</code>. 첨부 파일 순번, 자동 증가
+     * Setter for <code>sb_db.sb_board_filelist_tb.attach_sq</code>. 첨부 파일 순번, 자동 증가
      */
     public void setAttachSq(UInteger value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILELIST_TB.attach_sq</code>. 첨부 파일 순번, 자동 증가
+     * Getter for <code>sb_db.sb_board_filelist_tb.attach_sq</code>. 첨부 파일 순번, 자동 증가
      */
     public UInteger getAttachSq() {
         return (UInteger) get(1);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILELIST_TB.attach_fname</code>. 첨부 파일 이름
+     * Setter for <code>sb_db.sb_board_filelist_tb.attach_fname</code>. 첨부 파일 이름
      */
     public void setAttachFname(String value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILELIST_TB.attach_fname</code>. 첨부 파일 이름
+     * Getter for <code>sb_db.sb_board_filelist_tb.attach_fname</code>. 첨부 파일 이름
      */
     public String getAttachFname() {
         return (String) get(2);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_FILELIST_TB.sys_fname</code>. 첨부 파일의 시스템 절대 경로 파일명
+     * Setter for <code>sb_db.sb_board_filelist_tb.sys_fname</code>. 첨부 파일의 시스템 절대 경로 파일명
      */
     public void setSysFname(String value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_FILELIST_TB.sys_fname</code>. 첨부 파일의 시스템 절대 경로 파일명
+     * Getter for <code>sb_db.sb_board_filelist_tb.sys_fname</code>. 첨부 파일의 시스템 절대 경로 파일명
      */
     public String getSysFname() {
         return (String) get(3);

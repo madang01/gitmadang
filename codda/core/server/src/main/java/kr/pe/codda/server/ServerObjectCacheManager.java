@@ -19,7 +19,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 
 	private ServerClassLoaderFactory serverClassLoaderFactory = null;
 
-	private SimpleClassLoader workBaseClassLoader = null;
+	private SimpleClassLoader currentWorkingClassLoader = null;
 
 	private final HashMap<String, ServerTaskObjectInfo> messageID2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
 	// private ReentrantLock lock = new ReentrantLock();
@@ -27,7 +27,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 	public ServerObjectCacheManager(ServerClassLoaderFactory serverClassLoaderFactory) {
 		this.serverClassLoaderFactory = serverClassLoaderFactory;
 
-		this.workBaseClassLoader = serverClassLoaderFactory.createServerClassLoader();
+		this.currentWorkingClassLoader = serverClassLoaderFactory.createServerClassLoader();
 	}
 
 	private ServerTaskObjectInfo getNewServerTaskFromWorkBaseClassload(String classFullName)
@@ -37,7 +37,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 		String classFileName = null;
 
 		try {
-			retClass = workBaseClassLoader.loadClass(classFullName);		
+			retClass = currentWorkingClassLoader.loadClass(classFullName);		
 		} catch (ClassNotFoundException e) {
 			// String errorMessage =
 			// String.format("ServerClassLoader hashCode=[%d],
@@ -47,7 +47,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 			throw new DynamicClassCallException(e.getMessage());
 		}
 
-		classFileName = workBaseClassLoader.getClassFileName(classFullName);
+		classFileName = currentWorkingClassLoader.getClassFileName(classFullName);
 
 		Object retObject = null;
 		try {
@@ -92,7 +92,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 		
 		serverTask = (AbstractServerTask) retObject;
 		
-		serverTask.setServerSimpleClassloader(workBaseClassLoader);;
+		serverTask.setServerSimpleClassloader(currentWorkingClassLoader);;
 
 		// log.info("classFileName={}", classFileName);
 
@@ -116,7 +116,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 						
 		} else if (serverTaskObjectInfo.isModifed()) {
 			/** 새로운 서버 클래스 로더로 교체 */
-			workBaseClassLoader = serverClassLoaderFactory.createServerClassLoader();
+			currentWorkingClassLoader = serverClassLoaderFactory.createServerClassLoader();
 			String classFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
 			serverTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
 			messageID2ServerTaskObjectInfoHash.put(messageID, serverTaskObjectInfo);

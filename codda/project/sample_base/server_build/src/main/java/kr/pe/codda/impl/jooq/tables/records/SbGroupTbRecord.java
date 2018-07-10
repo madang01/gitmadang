@@ -30,45 +30,45 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupTbRecord extends UpdatableRecordImpl<SbGroupTbRecord> implements Record3<Byte, String, Timestamp> {
 
-    private static final long serialVersionUID = -282032227;
+    private static final long serialVersionUID = -877896803;
 
     /**
-     * Setter for <code>SB_DB.SB_GROUP_TB.group_id</code>.
+     * Setter for <code>sb_db.sb_group_tb.group_id</code>.
      */
     public void setGroupId(Byte value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_GROUP_TB.group_id</code>.
+     * Getter for <code>sb_db.sb_group_tb.group_id</code>.
      */
     public Byte getGroupId() {
         return (Byte) get(0);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_GROUP_TB.user_id</code>.
+     * Setter for <code>sb_db.sb_group_tb.user_id</code>.
      */
     public void setUserId(String value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_GROUP_TB.user_id</code>.
+     * Getter for <code>sb_db.sb_group_tb.user_id</code>.
      */
     public String getUserId() {
         return (String) get(1);
     }
 
     /**
-     * Setter for <code>SB_DB.SB_GROUP_TB.reg_dt</code>.
+     * Setter for <code>sb_db.sb_group_tb.reg_dt</code>.
      */
     public void setRegDt(Timestamp value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_GROUP_TB.reg_dt</code>.
+     * Getter for <code>sb_db.sb_group_tb.reg_dt</code>.
      */
     public Timestamp getRegDt() {
         return (Timestamp) get(2);

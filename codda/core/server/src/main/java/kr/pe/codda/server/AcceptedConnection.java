@@ -20,7 +20,6 @@ package kr.pe.codda.server;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 
@@ -48,7 +47,7 @@ import kr.pe.codda.server.task.ToLetterCarrier;
  * @author Won Jonghoon
  * 
  */
-public class AcceptedConnection implements ServerInterestedConnectionIF, ReceivedMessageBlockingQueueIF, PersonalLoginManagerIF {
+public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessageBlockingQueueIF, PersonalLoginManagerIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AcceptedConnection.class);
 
 	private SelectionKey personalSelectionKey = null;
@@ -81,6 +80,10 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 			DataPacketBufferPoolIF dataPacketBufferPool, ServerIOEvenetControllerIF serverIOEvenetController,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 
+		if (null == personalSelectionKey) {
+			throw new IllegalArgumentException("the parameter personalSelectionKey is null");
+		}
+		
 		if (null == acceptedSocketChannel) {
 			throw new IllegalArgumentException("the parameter acceptedSocketChannel is null");
 		}
@@ -134,11 +137,6 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 		return acceptedSocketChannel;
 	}
 
-	public SelectionKey getSelectionKey() {
-		return personalSelectionKey;
-	}
-	
-
 	/**
 	 * 마지막으로 읽은 시간을 반환한다.
 	 * 
@@ -183,6 +181,8 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 			log.warn("fail to close the socket channel[{}], errmsg={}", acceptedSocketChannel.hashCode(),
 					e.getMessage());
 		}
+		
+		serverIOEvenetController.cancel(personalSelectionKey);
 
 		releaseResources();
 	}
@@ -199,20 +199,8 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 
 	@Override
 	public void onRead(SelectionKey personalSelectionKey) throws InterruptedException {
-		/*int outputMessageQueueSize = outputMessageQueue.size();
-		if (outputMessageQueueSize >= outputMessageQueueMaxSize) {
-			log.warn("the var outputMessageQueue.size[{}] is greater or equal to the var outputMessageQueueMaxSize[{}]",
-					outputMessageQueueSize, outputMessageQueueMaxSize);
-			return;
-		}*/
-		
 		try {
-			int numberOfReadBytes = 0;
-			// do {
-			numberOfReadBytes = socketOutputStream.read(acceptedSocketChannel);
-			// } while (numberOfReadBytes > 0);
-			
-			//log.info("numberOfReadBytes={}, inputMessageCount={}", numberOfReadBytes, inputMessageCount);
+			int numberOfReadBytes = socketOutputStream.read(acceptedSocketChannel);
 
 			if (numberOfReadBytes == -1) {
 				String errorMessage = new StringBuilder("this socket channel[").append(acceptedSocketChannel.hashCode())
@@ -221,10 +209,9 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 				log.warn(errorMessage);
 				close();
 				return;
-			}
-
+			} 
+			
 			setFinalReadTime();
-
 			messageProtocol.S2MList(socketOutputStream, this);
 
 		} catch (NoMoreDataPacketBufferException e) {
@@ -240,6 +227,7 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 					.append(acceptedSocketChannel.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
 
+			
 			close();
 			return;
 		} catch (Exception e) {
@@ -254,11 +242,6 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 
 	@Override
 	public void onWrite(SelectionKey personalSelectionKey) throws InterruptedException {
-
-		/*
-		 * if (outputMessageQueue.isEmpty()) { return; }
-		 */
-
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue.peek();
 		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
 		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
@@ -312,11 +295,6 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 
 	}
 
-	@Override
-	public SelectionKey keyFor(Selector ioEventSelector) {
-		return acceptedSocketChannel.keyFor(ioEventSelector);
-	}
-
 	public void addOutputMessage(AbstractMessage outputMessage, ArrayDeque<WrapBuffer> outputMessageWrapBufferQueue)
 			throws InterruptedException {		
 		
@@ -335,19 +313,7 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 		return acceptedSocketChannel.hashCode();
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("AcceptedConnection [");
-		builder.append("acceptedSocketChannel=");
-		builder.append(acceptedSocketChannel.hashCode());
-		builder.append(", finalReadTime=");
-		builder.append(finalReadTime);
-		builder.append(", serverMailID=");
-		builder.append(serverMailID);
-		builder.append("]");
-		return builder.toString();
-	}
+	
 
 	@Override
 	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
@@ -405,18 +371,27 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 
 	@Override
 	public boolean isLogin() {
-		return projectLoginManager.isLogin(personalSelectionKey);
+		if (null == personalLoginID) {
+			return false;
+		}		
+		
+		boolean isConnected = acceptedSocketChannel.isConnected();
+		
+		return isConnected;
 	}
 
 	@Override
 	public void registerLoginUser(String loginID) {
+		if (null == loginID) {
+			throw new IllegalArgumentException("the parameter loginID is null");
+		}
 		this.personalLoginID = loginID;
 		projectLoginManager.registerloginUser(personalSelectionKey, loginID);
 	}
 
 	@Override
-	public String getUserID() {
-		return projectLoginManager.getUserID(personalSelectionKey);
+	public String getLoginID() {
+		return personalLoginID;
 	}
 	
 	/** 로그 아웃시 할당 받은 자원을 해제한다. */
@@ -431,4 +406,15 @@ public class AcceptedConnection implements ServerInterestedConnectionIF, Receive
 	public boolean canRead() {
 		return  (outputMessageQueue.size() < serverOutputMessageQueueCapacity);
 	}
+	
+	
+	public String toSimpleInfomation() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("personalSelectionKey=");
+		builder.append(personalSelectionKey);
+		builder.append(", acceptedSocketChannel=");
+		builder.append(acceptedSocketChannel);
+		return builder.toString();
+	}
+	
 }

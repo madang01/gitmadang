@@ -39,6 +39,6 @@
 	<singleitem name="attachSeq" type="unsigned integer" />	
 	<singleitem name="attachFileName" type="us pascal string" />
 </array>
-<singleitem name="membershipLevel" type="unsigned byte" />
+<singleitem name="memberType" type="ub pascal string" />
 <singleitem name="memberState" type="us pascal string" />
 </message>

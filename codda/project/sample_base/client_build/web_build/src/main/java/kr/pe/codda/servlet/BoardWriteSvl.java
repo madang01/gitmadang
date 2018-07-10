@@ -37,7 +37,6 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 /**
  * 게시판 최상의 글 등록 처리
@@ -50,8 +49,7 @@ public class BoardWriteSvl extends AbstractLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.COMMUNITY);
+		
 		
 		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
 		if (null == parmRequestType) {
@@ -202,7 +200,7 @@ public class BoardWriteSvl extends AbstractLoginServlet {
 		
 		HttpSession httpSession = req.getSession();
 		
-		Object userIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);	
+		Object userIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);	
 		if (null == userIDValue)   {
 			String errorMessage = "게시판 쓰기는 로그인한 후에 가능합니다";
 			printErrorMessagePage(req, res, errorMessage, "");

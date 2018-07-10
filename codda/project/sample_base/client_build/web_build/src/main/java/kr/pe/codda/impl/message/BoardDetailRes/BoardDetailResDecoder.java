@@ -14,14 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardDetailRes;
 
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
+
 /**
- * BoardDetailRes 메시지 디코더
+ * BoardDetailRes message decoder
  * @author Won Jonghoon
  *
  */
@@ -207,10 +209,10 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 
 		boardDetailRes.setAttachFileList(attachFile$2List);
 
-		boardDetailRes.setMembershipLevel((Short)
+		boardDetailRes.setMemberType((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "membershipLevel" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, "memberType" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

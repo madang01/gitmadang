@@ -137,12 +137,12 @@
 	<!-- header -->
 	<div id="header">
 		<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
-		if (! isLogin(request)) {
-	%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
-		} else {
-	%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
-		}
-	%>
+			if (! isAdminLogin(request)) {
+		%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%
+			} else {
+		%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
+			}
+		%>
 		
 		</div>
 		<div id="branding"><p><span class="templogo"><!-- your logo here -->Sinnori Framework</span><br />of the developer, by the developer, for the developer</p></div>
@@ -150,7 +150,7 @@
 
 	<!-- top menu -->
 	<div id="menu">
-		<ul><%= buildTopMenuPartString(request) %></ul>
+		<ul><%=buildTopMenuPartString(request)%></ul>
 	</div> <!-- end top menu -->
 	<!-- bodywrap -->
 	<div id="bodytop">&nbsp;</div>
@@ -167,52 +167,52 @@
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript"
 	src="/js/cryptoJS/components/cipher-core-min.js"></script>
-<h1><%= BoardType.valueOf(boardDetailRes.getBoardId()).getName() %> 게시판 - 상세 보기</h1>
+<h1><%=BoardType.valueOf(boardDetailRes.getBoardId()).getName()%> 게시판 - 상세 보기</h1>
 <br />
 <script type="text/javascript">
 	
 </script>
 <form name=goModofyForm method="post" action="/servlet/BoardModify">
-	<input type="hidden" name="topmenu" value="<%= getCurrentTopMenuIndex(request) %>" /> 
+	<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" /> 
 	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE%>" value="view" /> 
 	<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 	<input type="hidden" name="boardNo" value="<%=parmBoardNo%>" />
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
+	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
 </form>
 
 <form name=goReplyForm method="post" action="/servlet/BoardReply">
-	<input type="hidden" name="topmenu" value="<%= getCurrentTopMenuIndex(request) %>" /> 
+	<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" /> 
 	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE%>" value="view" />
 	<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 	<input type="hidden" name="parentBoardNo" value="<%=parmBoardNo%>" />
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" /> 
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
+	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" /> 
+	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
 </form>
 
 <form name=goVoteForm target=voteResultFrame method="post" action="/servlet/BoardVote">
-	<input type="hidden" name="topmenu" value="<%= getCurrentTopMenuIndex(request) %>" />
+	<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" />
 	<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 	<input type="hidden" name="boardNo" value="<%=parmBoardNo%>" />
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
+	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
 </form>
 
 <form name=goListForm method="post" action="/servlet/BoardList">
-	<input type="hidden" name="topmenu" value="<%= getCurrentTopMenuIndex(request) %>" /> <input
+	<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" /> <input
 		type="hidden" name="boardId" value="<%=parmBoardId%>" />
 </form>
 
 <form name=goDownloadForm target="downloadResultFrame" method="post" action="/servlet/BoardDownload">
-	<input type="hidden" name="topmenu" value="<%= getCurrentTopMenuIndex(request) %>" />
+	<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" />
 	<input type="hidden" name="attachId" /> <input type="hidden" name="attachSeq" />
 </form>
 
 <form name=frm onSubmit="return false">
 	<div>
 		<%
-			if (isLogin(request)) {
-				String userId = getLoginUserIDFromHttpSession(request);
+			if (isAdminLogin(request)) {
+				String userId = getLoginedAdminID(request);
 		%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
 			if (userId.equals(boardDetailRes.getWriterId())) {
 		%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%
@@ -243,8 +243,8 @@
 
 				<%
 					java.util.List<BoardDetailRes.AttachFile> attachFileList = boardDetailRes
-																				.getAttachFileList();
-																		if (null != attachFileList) {
+																										.getAttachFileList();
+																								if (null != attachFileList) {
 				%>
 				<tr>
 					<td style="width: 90px">첨부 파일</td>
@@ -252,12 +252,12 @@
 						<div>
 							<%
 								for (BoardDetailRes.AttachFile attachFile : attachFileList) {
-																																							if (isLogin(request)) {
+																																																						if (isAdminLogin(request)) {
 							%><a href="#" onClick="goDownload(<%=boardDetailRes.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%></a><br /><%
 								} else {
 							%><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%>&nbsp;<%
 								}
-																																						}
+																																																					}
 							%>
 						</div>
 					</td>
@@ -279,8 +279,8 @@
 	<br />
 	<div>
 		<%
-			if (isLogin(request)) {
-					String userId = getLoginUserIDFromHttpSession(request);
+			if (isAdminLogin(request)) {
+					String userId = getLoginedAdminID(request);
 		%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
 			if (userId.equals(boardDetailRes.getWriterId())) {
 		%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%

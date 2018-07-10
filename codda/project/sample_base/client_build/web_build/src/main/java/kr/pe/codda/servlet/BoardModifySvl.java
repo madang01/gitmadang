@@ -38,7 +38,6 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 /**
  * 게시판 글 수정 처리
@@ -50,9 +49,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
-				SiteTopMenuType.COMMUNITY);
-		
+				
 		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
 		if (null == parmRequestType) {		
 			firstPage(req, res);			
@@ -128,7 +125,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 		}catch (NumberFormatException nfe) {
 			String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 번호 값[")
 			.append(parmBoardId).append("]이 잘못되었습니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
@@ -137,7 +134,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 		if (boardNo <= 0) {
 			String errorMessage = new StringBuilder("게시판 번호 값[")
 			.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
@@ -148,14 +145,14 @@ public class BoardModifySvl extends AbstractLoginServlet {
 		inObj.setBoardNo(boardNo);
 		
 		// FIXME!
-		log.debug("inObj={}, userId={}, ip={}", inObj.toString(), getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+		log.debug("inObj={}, userId={}, ip={}", inObj.toString(), getLoginedUserID(req), req.getRemoteAddr());
 		
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(inObj);
 		
 		// FIXME!
-		log.debug("inObj={}, messageFromServer={}, userId={}, ip={}", inObj.toString(), messageFromServer.toString(), getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+		log.debug("inObj={}, messageFromServer={}, userId={}, ip={}", inObj.toString(), messageFromServer.toString(), getLoginedUserID(req), req.getRemoteAddr());
 		
 		if (messageFromServer instanceof BoardDetailRes) {
 			doFirstPage(req, res, parmBoardId, parmBoardNo, (BoardDetailRes)messageFromServer);
@@ -301,7 +298,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 		boardModifyReq.setSubject(parmSubject);
 		boardModifyReq.setContent(parmContent);
 		boardModifyReq.setAttachId(attachId);
-		boardModifyReq.setUserId(getLoginUserIDFromHttpSession(req));
+		boardModifyReq.setUserId(getLoginedUserID(req));
 		boardModifyReq.setIp(req.getRemoteAddr());
 		
 		// FIXME!

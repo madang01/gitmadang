@@ -1,14 +1,88 @@
 package kr.pe.codda.weblib.sitemenu;
 
-public class SiteMenuInfo extends AbstractSiteMenuInfo {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class SiteMenuInfo {
+	private long siteMenuNo;
+	private String siteMenuName = null;
+	private SiteURLInfo siteURLInfo = null;
 	
-	protected void build() {
-		add("소개", "/menu/about.jsp"); 
-		add("시작하기", "/menu/stepbystep/main.jsp");
-		add("다운로드", "/menu/download/main.jsp");
-		add("사랑방", "/menu/board/body.jsp");
-		add("문서", "/menu/techdoc/body.jsp");
-		add("회원", "/menu/member/body.jsp");
-		add("실험과 검증", "/menu/testcode/body.jsp");
+	private final List<SiteMenuInfo> childSiteMenuInfoList =	new ArrayList<SiteMenuInfo>();
+	
+	
+	public SiteMenuInfo(long siteMenuNo, String siteMenuName, SiteURLInfo siteURLInfo) {
+		if (null == siteMenuName) {
+			throw new IllegalArgumentException("the paramter siteMenuName is null");
+		}
+		
+		if (null == siteURLInfo) {
+			throw new IllegalArgumentException("the paramter siteURLInfo is null");
+		}		
+		
+		this.siteMenuNo = siteMenuNo;
+		this.siteMenuName= siteMenuName;
+		this.siteURLInfo = siteURLInfo;
 	}
+	
+	public Long getSiteMenuNo() {
+		return siteMenuNo;
+	}
+	
+	public String getSiteMenuName() {
+		return siteMenuName;
+	}
+	
+	public String getSiteURL() {
+		return siteURLInfo.getURL();
+	}
+	
+	
+	public void addChildSiteMenu(SiteMenuInfo childSiteMenuInfo) {
+		childSiteMenuInfoList.add(childSiteMenuInfo);
+	}
+	
+	public List<SiteMenuInfo> getChildSiteMenuInfoList() {
+		return Collections.unmodifiableList(childSiteMenuInfoList);
+	}
+	
+	
+	/*public SiteMenuInfo getSiteMenuInfo(HttpServletRequest req) {
+		if (null == req) {
+			throw new IllegalArgumentException("the parameter req is null");
+		}
+		
+		if (siteURLInfo.isSiteURL(req)) {
+			return this;
+		}
+		
+		for (SiteMenuInfo childSiteMenuInfo : childSiteMenuInfoList) {
+			SiteMenuInfo siteMenuInfo = childSiteMenuInfo.getSiteMenuInfo(req);
+			
+			if (null != siteMenuInfo) {
+				return siteMenuInfo;
+			}
+		}
+		
+		return null;
+	}
+	
+	public SiteMenuInfo getSiteMenuInfo(SiteURLInfo targetSiteURLInfo) {
+		if (null == targetSiteURLInfo) {
+			throw new IllegalArgumentException("the parameter targetSiteURLInfo is null");
+		}
+		
+		if (siteURLInfo.equals(targetSiteURLInfo)) {
+			return this;
+		}
+		
+		for (SiteMenuInfo childSiteMenuInfo : childSiteMenuInfoList) {
+			if (childSiteMenuInfo.equals(targetSiteURLInfo)) {
+				return childSiteMenuInfo;
+			}
+		}
+		
+		return null;
+	}*/
 }

@@ -20,7 +20,7 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 		int pageSize = 20;
 		
 		BoardListReq inObj = new BoardListReq();
-		inObj.setBoardId(BoardType.FREE.getValue());
+		inObj.setBoardId(BoardType.FREE.getBoardID());
 		inObj.setPageSize(pageSize);
 		inObj.setStartNo((pageNo-1)*pageSize);
 		

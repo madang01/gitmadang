@@ -114,7 +114,7 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 		boolean clientDataPacketBufferIsDirect = false;
 		String serverHost = null;
 		int serverPort;
-		int numberOfThread = 3;
+		int numberOfThread = 3;		
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread); 
 		
 		// host = "172.30.1.16";

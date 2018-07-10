@@ -27,7 +27,7 @@ import org.jooq.impl.CatalogImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DefaultCatalog extends CatalogImpl {
 
-    private static final long serialVersionUID = 883041433;
+    private static final long serialVersionUID = -1344232295;
 
     /**
      * The reference instance of <code></code>
@@ -35,7 +35,7 @@ public class DefaultCatalog extends CatalogImpl {
     public static final DefaultCatalog DEFAULT_CATALOG = new DefaultCatalog();
 
     /**
-     * The schema <code>SB_DB</code>.
+     * The schema <code>sb_db</code>.
      */
     public final SbDb SB_DB = kr.pe.codda.impl.jooq.SbDb.SB_DB;
 
