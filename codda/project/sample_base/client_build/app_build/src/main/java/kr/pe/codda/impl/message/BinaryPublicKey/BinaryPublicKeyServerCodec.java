@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BinaryPublicKey;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,7 +23,7 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * BinaryPublicKey 서버 코덱
+ * BinaryPublicKey server codec
  * @author Won Jonghoon
  *
  */
@@ -32,7 +33,7 @@ public final class BinaryPublicKeyServerCodec implements MessageCodecIF {
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		return new BinaryPublicKeyDecoder();
 	}
-	
+
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
 		return new BinaryPublicKeyEncoder();

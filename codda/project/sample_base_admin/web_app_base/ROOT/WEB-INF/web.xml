@@ -39,12 +39,57 @@
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuManagement</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuManagementSvl</servlet-class>
+		<servlet-name>MenuList</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuListSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuManagement</servlet-name>
-		<url-pattern>/servlet/MenuManagement</url-pattern>
+		<servlet-name>MenuList</servlet-name>
+		<url-pattern>/servlet/MenuList</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuModify</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuModifySvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuModify</servlet-name>
+		<url-pattern>/servlet/MenuModify</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuUpMove</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuUpMoveSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuUpMove</servlet-name>
+		<url-pattern>/servlet/MenuUpMove</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuDownMove</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuDownMoveSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuDownMove</servlet-name>
+		<url-pattern>/servlet/MenuDownMove</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>ChildMenuAdd</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.ChildMenuAddSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ChildMenuAdd</servlet-name>
+		<url-pattern>/servlet/ChildMenuAdd</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>RootMenuAdd</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.RootMenuAddSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RootMenuAdd</servlet-name>
+		<url-pattern>/servlet/RootMenuAdd</url-pattern>
 	</servlet-mapping>
 	
 

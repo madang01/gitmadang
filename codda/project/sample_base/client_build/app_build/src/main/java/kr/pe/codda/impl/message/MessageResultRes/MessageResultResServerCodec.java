@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.MessageResultRes;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,7 +23,7 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * MessageResultRes 서버 코덱
+ * MessageResultRes server codec
  * @author Won Jonghoon
  *
  */

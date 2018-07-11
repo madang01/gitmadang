@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BinaryPublicKey;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * BinaryPublicKey 메시지
+ * BinaryPublicKey message
  * @author Won Jonghoon
  *
  */

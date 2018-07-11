@@ -1,4 +1,5 @@
-<%@page import="java.util.ArrayList"%><%
+<%@page import="kr.pe.codda.impl.message.ChildMenuAddRes.ChildMenuAddRes"%><%
+%><%@page import="java.util.ArrayList"%><%
 %><%@page import="java.util.List"%><%
 %><%@page import="com.google.gson.Gson"%><%
 %><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
@@ -268,7 +269,7 @@
 		modifyMenuCallBack(modifyMenuMessageResultRes);
 	}
 	
-	function modifyMenuCallBack() {
+	function modifyMenuOkCallBack() {
 		var resultMessageView = document.getElementById("resultMessageView");
 		var rowIndex = __rowIndex;			
 		var g = document.modifyMenuFrm;
@@ -298,7 +299,7 @@
 		moveMenuUpCallBack();
 	}
 	
-	function moveMenuUpCallBack() {
+	function moveMenuUpOkCallBack() {
 		var g = document.moveMenuUpFrm;
 		var resultMessageView = document.getElementById("resultMessageView");
 		
@@ -367,7 +368,7 @@
 		moveMenuDownCallBack();
 	}
 	
-	function moveMenuDownCallBack() {
+	function moveMenuDownOkCallBack() {
 		var g = document.moveMenuDownFrm;
 		var resultMessageView = document.getElementById("resultMessageView");
 		
@@ -426,31 +427,30 @@
 		__rowIndex = rowIndex;
 		$("#childMenuModal").modal();<%
 		
-		MessageResultRes addChildMenuMessageResultRes = new MessageResultRes();
-		
-		addChildMenuMessageResultRes.setIsSuccess(true);
-		addChildMenuMessageResultRes.setResultMessage("지정한 메뉴의 하단 이동이 성공하였습니다");
+		ChildMenuAddRes childMenuAddRes = new ChildMenuAddRes();
+		childMenuAddRes.setMenuNo(4);
+		childMenuAddRes.setOrderSeq((short)1);
 %>
-		var addChildMenuMessageResultRes = <%= new Gson().toJson(addChildMenuMessageResultRes) %>;
+		var childMenuAddRes = <%= new Gson().toJson(childMenuAddRes) %>;
 		
-		addChildMenuCallBack(addChildMenuMessageResultRes);
+		addChildMenuOkCallBack(childMenuAddRes);
 		
 	}
 	
-	function addChildMenuCallBack(addChildMenuRes) {
+	function addChildMenuOkCallBack(childMenuAddRes) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		var rowIndex = __rowIndex;
 		var parentMenu = menuListResJson.menuList[rowIndex];
 		var g = document.addChildMenuFrm;
 		
 		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 부모 메뉴["+childMenuAddRes.parentNo+"]의 자식 메뉴["+childMenuAddRes.menuNo+"] 생성이 성공하였습니다";
+		resultMessageView.innerHTML = "<strong>Success!</strong> 부모 메뉴["+parentMenu.menuNo+"]의 자식 메뉴["+childMenuAddRes.menuNo+"] 생성이 성공하였습니다";
 				
 		var childMenu = {};
-		childMenu.menuNo = addChildMenuRes.menuNo;
+		childMenu.menuNo = childMenuAddRes.menuNo;
 		childMenu.parentNo = parentMenu.menuNo;
 		childMenu.depth = parentMenu.depth + 1;
-		childMenu.orderSeq = addChildMenuRes.orderSeq;
+		childMenu.orderSeq = childMenuAddRes.orderSeq;
 		childMenu.menuName = g.menuName.value;
 		childMenu.linkURL = g.linkURL.value;
 		
@@ -465,19 +465,19 @@
 		listView.display  = 'show';
 	}
 	
-	function addRootMenuCallBack(addRootMenuRes) {
+	function addRootMenuOkCallBack(rootMenuAddRes) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		var parentMenu = menuListResJson.menuList[rowIndex];
 		var g = document.addRootMenuFrm;
 		
 		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 최상위 메뉴["+addRootMenuRes.menu+"] 생성이 성공하였습니다";
+		resultMessageView.innerHTML = "<strong>Success!</strong> 루트 메뉴["+rootMenuAddRes.menuNo+"] 생성이 성공하였습니다";
 				
 		var rootMenu = {};
-		rootMenu.menuNo = addRootMenuRes.menuNo;
+		rootMenu.menuNo = rootMenuAddRes.menuNo;
 		rootMenu.parentNo = 0;
 		rootMenu.depth = 0;
-		rootMenu.orderSeq = addRootMenuRes.orderSeq;
+		rootMenu.orderSeq = rootMenuAddRes.orderSeq;
 		rootMenu.menuName = g.menuName.value;
 		rootMenu.linkURL = g.linkURL.value;
 		
@@ -492,15 +492,15 @@
 		listView.display  = 'show';
 	}
 	
-	function errorCallBack(errorMessage) {
+	function errorMessageCallBack(errorMessage) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
-		resultMessageView.setAttribute("class", "alert alert-warning");
+		resultMessageView.setAttribute("class", "alert alert-warning fade in");
 		resultMessageView.innerHTML = "<strong>Warning!</strong> " + errorMessage;
 	}
 	
 	function reload() {
-		documnet.location.href = "/servlet/MenuManagement?<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>=list"; 
+		documnet.location.href = "/servlet/MenuList"; 
 	}
 	
 	function init() {
@@ -512,16 +512,13 @@
 </head>
 <body>
 <%= adminSiteMenuManger.getSiteNavbarString(isAdminLogin(request)) %>
-<form name="moveMenuUpFrm" action="/servlet/MenuManagement">
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="moveMenuUp">
+<form name="moveMenuUpFrm" action="/servlet/MenuUpMove" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
-<form name="moveMenuDownFrm" action="/servlet/MenuManagement">
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="moveMenuDown">
+<form name="moveMenuDownFrm" action="/servlet/MenuDownMove" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
-<form name="modifyMenuFrm" action="/servlet/MenuManagement">
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="modifyMenu">
+<form name="modifyMenuFrm" action="/servlet/MenuModify" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 	<input type="hidden" name="menuName">
 	<input type="hidden" name="linkURL">
@@ -557,11 +554,7 @@
 						<h4 class="modal-title">자식 메뉴 추가 화면</h4>
 					</div>
 					<div class="modal-body">
-						<form name="addChildMenuFrm" onSubmit="return false" class="form-inline" action="/servlet/MenuManagement">
-							<div class="form-group">
-							    <label class="sr-only" for="requestTypeForChildMenu"></label>
-							    <input type="hidden" id="requestTypeForChildMenu" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="addChildMenu">
-							 </div>							
+						<form name="addChildMenuFrm" class="form-inline" onSubmit="return false" action="/servlet/ChildMenuAdd" target="hiddenFrame">
 							<div class="form-group">
 							    <label class="sr-only" for="parentNoForChildMenu">부모 메뉴번호</label>
 							    <input type="hidden" id="parentNoForChildMenu" name="parentNo">
@@ -594,11 +587,7 @@
 						<h4 class="modal-title">루트 메뉴 추가 화면</h4>
 					</div>
 					<div class="modal-body">
-						<form name="addRootMenuFrm" onSubmit="return false" class="form-inline" action="/servlet/MenuManagement">
-							<div class="form-group">
-							    <label class="sr-only" for="requestTypeForRootMenu"></label>
-							    <input type="hidden" id="requestTypeForRootMenu" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="addRootMenu">
-							 </div>
+						<form name="addRootMenuFrm" class="form-inline" onSubmit="return false" action="/servlet/RootMenuAdd" target="hiddenFrame">							
 							 <div class="form-group">
 							    <label for="menuNameForRootMenu">메뉴명</label>
 							    <input type="text" id="menuNameForRootMenu" name="menuName">
@@ -616,6 +605,7 @@
 				</div>			
 			</div>
 		</div>
+		<iframe id="hiddenFrame" height="0" width="0" name="hiddenFrame"></iframe>
 	</div>
 </body>
 </html>

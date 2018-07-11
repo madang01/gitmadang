@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BinaryPublicKey;
 
 import kr.pe.codda.common.message.AbstractMessage;
@@ -21,7 +22,7 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
- * BinaryPublicKey 메시지 인코더
+ * BinaryPublicKey message encoder
  * @author Won Jonghoon
  *
  */
@@ -31,6 +32,7 @@ public final class BinaryPublicKeyEncoder extends AbstractMessageEncoder {
 		BinaryPublicKey binaryPublicKey = (BinaryPublicKey)messageObj;
 		encodeBody(binaryPublicKey, singleItemEncoder, writableMiddleObject);
 	}
+
 
 	private void encodeBody(BinaryPublicKey binaryPublicKey, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();

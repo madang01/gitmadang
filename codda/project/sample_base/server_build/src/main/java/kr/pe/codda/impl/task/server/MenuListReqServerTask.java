@@ -92,9 +92,6 @@ public class MenuListReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(menuListReq.toString());
 		
-		MenuListRes menuListRes = new MenuListRes();
-		long startParnetNo = 0L;
-		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
@@ -105,11 +102,12 @@ public class MenuListReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
 			
-			java.util.List<MenuListRes.Menu> menuList = new ArrayList<MenuListRes.Menu>();
-			menuListRes.setMenuList(menuList);
-			
+			long startParnetNo = 0L;
+			java.util.List<MenuListRes.Menu> menuList = new ArrayList<MenuListRes.Menu>();			
 			buildMenuListRes(menuList, create, startParnetNo);
 			
+			MenuListRes menuListRes = new MenuListRes();
+			menuListRes.setMenuList(menuList);
 			menuListRes.setCnt(menuList.size());
 			
 			sendSuccessOutputMessageForCommit(menuListRes, conn, toLetterCarrier);

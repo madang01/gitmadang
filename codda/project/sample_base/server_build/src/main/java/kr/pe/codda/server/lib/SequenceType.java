@@ -1,10 +1,11 @@
 package kr.pe.codda.server.lib;
 
 public enum SequenceType {
-	UPLOAD_FILE_NAME((short)0, "업로드 파일 이름에 사용되는 시퀀스"),
-	NOTICE_BOARD((short)1, "공지 게시판에 사용되는 시퀀스"),
-	FREE_BOARD((short)2, "공지 게시판에 사용되는 시퀀스"),
-	FAQ_BOARD((short)3, "FAQ 게시판에 사용되는 시퀀스");
+	MENU((short)0, "메뉴에 사용되는 시퀀스"),
+	UPLOAD_FILE_NAME((short)1, "업로드 파일 이름에 사용되는 시퀀스"),
+	NOTICE_BOARD((short)2, "공지 게시판에 사용되는 시퀀스"),
+	FREE_BOARD((short)3, "공지 게시판에 사용되는 시퀀스"),
+	FAQ_BOARD((short)4, "FAQ 게시판에 사용되는 시퀀스");
 	
 	private short sequenceID;
 	private String sequenceTypeName;

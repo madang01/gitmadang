@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BinaryPublicKey;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,7 +23,7 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * BinaryPublicKey 클라이언트 코덱
+ * BinaryPublicKey client codec
  * @author Won Jonghoon
  *
  */
