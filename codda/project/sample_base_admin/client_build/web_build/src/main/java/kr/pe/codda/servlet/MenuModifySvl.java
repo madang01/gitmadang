@@ -18,7 +18,7 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 	private void printErrorMessageCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
 		req.setAttribute("errorMessage", errorMessage);
 		printJspPage(req, res, "/jsp/menu/errorMessageCallback.jsp");
-	}
+	}	
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -72,6 +72,8 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 		}
 		
 		String parmMenuName = req.getParameter("menuName");
+		log.info("the paramter 'menuName'=[{}]", parmMenuName);
+		
 		if (null == parmMenuName) {
 			String errorMessage = "파라미터 '메뉴이름'(=menuName) 값을 넣어주세요";
 			
@@ -81,6 +83,9 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 			printErrorMessageCallBackPage(req, res, errorMessage);
 			return;
 		}
+		
+		
+		
 		
 		String parmLinkURL = req.getParameter("linkURL");
 		
@@ -112,7 +117,9 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 			printJspPage(req, res, "/jsp/menu/modifyMenuOkCallBack.jsp");
 			return;
 		} else {
-			String errorMessage = "메뉴 수정이 실패했습니다";
+			String errorMessage = new StringBuilder().append("메뉴[")
+					.append(menuModifyReq.getMenuNo())
+					.append("] 수정이 실패했습니다").toString();
 			String debugMessage = new StringBuilder("입력 메시지[")
 					.append(menuModifyReq.getMessageID())
 					.append("]에 대한 비 정상 출력 메시지[")

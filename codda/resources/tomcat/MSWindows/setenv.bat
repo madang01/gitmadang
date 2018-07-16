@@ -1,8 +1,8 @@
 REM 'Dynamically build a Java classpath in a Windows batch file' 참고 사이트 : http://alvinalexander.com/blog/post/page-1/thu-mar-9-2006-dynamically-build-environment-variables-in-dos-c
 
 SET CODDA_HOME=D:\gitmadang\codda
-SET PROJECT_NAME=sample_base
-SET WEB_BUILD_HOME=%CODDA_HOME%\project\%PROJECT_NAME%\client_build\web_build
+SET PROJECT_NAME=sample_base_admin
+SET WEB_BUILD_HOME=%CODDA_HOME%\project\%PROJECT_NAME%\client_build\web_build\
 SET WEB_CORELIB_PATH=%WEB_BUILD_HOME%\corelib\ex
 SET WEB_MAINLIB_PATH=%WEB_BUILD_HOME%\lib\main\ex
 SET CLASSPATH=

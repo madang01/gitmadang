@@ -17,6 +17,7 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MenuDownMoveReq.MenuDownMoveReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -27,68 +28,46 @@ import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class MenuDownMoveServerTask extends AbstractServerTask {
-	@SuppressWarnings("unused")
-	private void sendErrorOutputtMessageForCommit(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
-	
-	
-	private void sendErrorOutputMessageForRollback(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
-		if (null != conn) {
-			try {
-				conn.rollback();
-			} catch (Exception e) {
-				log.warn("fail to rollback");
-			}
-		}		
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
+public class MenuDownMoveReqServerTask extends AbstractServerTask {	
 	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
+			AbstractMessage inputMessage) throws InterruptedException {	
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(inputMessage.getMessageID());
 		messageResultRes.setIsSuccess(false);		
 		messageResultRes.setResultMessage(errorMessage);
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
-	}
-	
-	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
-			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		
-		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}
+	}	
 	
 	
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
-		doWork(projectName, personalLoginManager, toLetterCarrier, (MenuDownMoveReq)inputMessage);
+		try {
+			AbstractMessage outputMessage = doService((MenuDownMoveReq)inputMessage);
+			toLetterCarrier.addSyncOutputMessage(outputMessage);
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			log.warn("errmsg=={}, inObj={}", errorMessage, inputMessage.toString());
+			
+			sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+			return;
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder().append("unknwon errmsg=")
+					.append(e.getMessage())
+					.append(", inObj=")
+					.append(inputMessage.toString()).toString();
+			
+			log.warn(errorMessage, e);
+
+			sendErrorOutputMessage("메뉴 하단 이동이 실패하였습니다", toLetterCarrier, inputMessage);
+			return;
+		}
 		
 	}
-	public void doWork(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
-			MenuDownMoveReq menuDownMoveReq) throws Exception {
+	public MessageResultRes doService(MenuDownMoveReq menuDownMoveReq) throws Exception {
 		// FIXME!
 		log.info(menuDownMoveReq.toString());
 		
@@ -104,7 +83,7 @@ public class MenuDownMoveServerTask extends AbstractServerTask {
 			
 			UInteger sourceMenuNo = UInteger.valueOf(menuDownMoveReq.getMenuNo());
 			
-			/** lock */
+			/** '메뉴 순서' 를 위한 lock */
 			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE)
 			.from(SB_SEQ_TB)
 			.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(SequenceType.MENU.getSequenceID())))
@@ -114,8 +93,13 @@ public class MenuDownMoveServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder("메뉴 시퀀스 식별자[")
 						.append(SequenceType.MENU.getSequenceID())
 						.append("]의 시퀀스를 가져오는데 실패하였습니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuDownMoveReq);
-				return;
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			
@@ -128,12 +112,18 @@ public class MenuDownMoveServerTask extends AbstractServerTask {
 			.fetchOne();
 			
 			if (null == sourceMenuRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("지정한 메뉴[")
 						.append(menuDownMoveReq.getMenuNo())
-						.append("]가 존재하지 않습니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuDownMoveReq);
-				return;
+						.append("]가 존재하지 않습니다").toString();				
+				
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			UByte sourceMenuOrderSeq  = sourceMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ); 
@@ -148,21 +138,33 @@ public class MenuDownMoveServerTask extends AbstractServerTask {
 				.and(SB_SITEMENU_TB.ORDER_SQ.eq(lowerMenuOrderSeq))
 				.fetchOne();
 			} catch(TooManyRowsException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("지정한 메뉴[")
 						.append(menuDownMoveReq.getMenuNo())
 						.append("]보다 한칸 낮은 메뉴가 다수 존재합니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuDownMoveReq);
-				return;
+				
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			if (null == lowerMenuRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("지정한 메뉴[")
 						.append(menuDownMoveReq.getMenuNo())
-						.append("]보다 한칸 낮은 메뉴가 존재하지 않습니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuDownMoveReq);
-				return;
+						.append("]보다 한칸 낮은 메뉴가 존재하지 않습니다").toString();				
+				
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			
@@ -174,12 +176,18 @@ public class MenuDownMoveServerTask extends AbstractServerTask {
 			.execute();
 			
 			if (0 == sourceMenuDowndateCount) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("메뉴[")
 						.append(menuDownMoveReq.getMenuNo())
 						.append("] 순서를 한칸 아래로 조정하는데  실패하였습니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuDownMoveReq);
-				return;
+				
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			int lowerMenuDowndateCount = create.update(SB_SITEMENU_TB)
@@ -188,15 +196,33 @@ public class MenuDownMoveServerTask extends AbstractServerTask {
 					.execute();
 					
 			if (0 == lowerMenuDowndateCount) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("메뉴[")
 						.append(menuDownMoveReq.getMenuNo())
 						.append("]의 한칸 아래 메뉴[")
 						.append(lowerMenuNo)
-						.append("]순서를  조정하는데  실패하였습니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuDownMoveReq);
-				return;
+						.append("]순서를  조정하는데  실패하였습니다").toString();			
+				
+				throw new ServerServiceException(errorMessage);
 			}
+			
+			try {
+				conn.commit();
+			} catch (Exception e) {
+				log.warn("fail to commit");
+			}
+			
+			log.info("메뉴[번호:{}, 순서:{}] <--하단 메뉴 이동에 따른 순서 뒤바뀜--> 위치가 뒤 바뀐 메뉴[번호:{}, 순서:{}]",
+					menuDownMoveReq.getMenuNo(),
+					sourceMenuOrderSeq,
+					lowerMenuNo,
+					lowerMenuOrderSeq);
 			
 			MessageResultRes messageResultRes = new MessageResultRes();
 			messageResultRes.setTaskMessageID(menuDownMoveReq.getMessageID());
@@ -206,19 +232,21 @@ public class MenuDownMoveServerTask extends AbstractServerTask {
 					.append(menuDownMoveReq.getMenuNo())
 					.append("]의 상단 이동 처리가 완료되었습니다").toString());
 			
-			sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
-			
-			log.info("메뉴[번호:{}, 순서:{}] <--하단 메뉴 이동에 따른 순서 뒤바뀜--> 위치가 뒤 바뀐 메뉴[번호:{}, 순서:{}]",
-					menuDownMoveReq.getMenuNo(),
-					sourceMenuOrderSeq,
-					lowerMenuNo,
-					lowerMenuOrderSeq);
-			return;			
+			return messageResultRes;
+		} catch (ServerServiceException e) {
+			throw e;
 		} catch (Exception e) {
-			log.warn("unknown error", e);
-			sendErrorOutputMessageForRollback("메뉴 하단 이동이 실패하였습니다", conn, toLetterCarrier, menuDownMoveReq);
-			return;
-
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+			
+			log.warn("unknown error", e);			
+			
+			throw e;
 		} finally {
 			if (null != conn) {
 				try {

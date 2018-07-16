@@ -99,7 +99,7 @@
 
 	<target name="make.core.all" depends="make.dos.core.all" />
 
-	<target name="copy.core.all" depends="make.core.all">
+	<target name="copy.core" depends="make.core.all">
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
 			<fileset file="${dir.core.all.build}/dist/${core.all.jar.name}" />
 		</copy>
@@ -107,8 +107,16 @@
 			<union refid="core.all.jarlibs" />
 		</copy>
 	</target>
+	
+	<target name="clean.web">
+		<delete dir="${dir.main.build}" />
+		<delete dir="${dir.weblib.build}" />
+		<delete dir="${dir.dist}" />
+		<delete dir="${dir.webinf.lib}" />
+		<delete dir="${dir.webinf.class}" />
+	</target>
 
-	<target name="compile.weblib" depends="copy.core.all">
+	<target name="compile.weblib" depends="clean.web,init.var">
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.weblib.build}">
 			<include name="kr/pe/codda/weblib/**" />
 			<classpath>

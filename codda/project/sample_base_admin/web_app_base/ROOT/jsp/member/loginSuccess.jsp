@@ -36,17 +36,23 @@
 	function init() {
 		<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->
 		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);
+		var privateKeyBase64 = CryptoJS.enc.Base64.stringify(privateKey);
 		
 		var rsa = new RSAKey();
 		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
 			
-		var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
+		var sessionKeyHex = rsa.encrypt(privateKeyBase64);		
 		var sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
 	
-		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', CryptoJS.enc.Base64.stringify(privateKey));
-		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY %>', sessionkeyBase64);
+		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', privateKeyBase64);
+		
+		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
 
-		document.gofrm.submit();
+		var g = document.gofrm;
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = sessionkeyBase64;
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+		
+		g.submit();
 	}
 	
 	window.onload = init;
@@ -54,18 +60,26 @@
 </script>
 </head>
 <body>
-<%=adminSiteMenuManger.getSiteNavbarString(isAdminLogin(request))%>
+<%= adminSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isAdminLogin(request)) %>
 	
 	<div class="container-fluid">
 		<h3>Admin Login Result</h3>
-		<form name=gofrm method=get action="<%= loginRequestPageInformation.getRequestURI() %>"><%
+		<form name=gofrm method=post action="<%= loginRequestPageInformation.getRequestURI() %>">
+			<input type=hidden name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" >
+			<input type=hidden name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" ><%
 	ArrayList<Map.Entry<String, String>> parameterEntryList = loginRequestPageInformation.getParameterEntryList();
 		
 	for (Map.Entry<String, String> parameterEntry : parameterEntryList) {
 		String parameterKey = parameterEntry.getKey();
 		String parameterValue = parameterEntry.getValue();
+		
+		if (parameterKey.equals(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY) ||
+				parameterKey.equals(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)) {
+			continue;
+		}
+		
 %>
-		<textarea name="<%= StringEscapeUtils.escapeHtml4(parameterKey) %>" style="display:none;"><%= StringEscapeUtils.escapeHtml4(parameterValue) %></textarea><%
+		<textarea name="<%= StringEscapeUtils.escapeHtml4(parameterKey) %>" style="visibility:hidden;"><%= StringEscapeUtils.escapeHtml4(parameterValue) %></textarea><%
 	}
 %>
 		</form>

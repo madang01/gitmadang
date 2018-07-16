@@ -11,7 +11,7 @@ import kr.pe.codda.impl.message.MenuListRes.MenuListRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
-public class MenuListSvl extends AbstractAdminLoginServlet {
+public class MenuManagementSvl extends AbstractAdminLoginServlet {
 
 	private static final long serialVersionUID = -5023286397753637436L;
 
@@ -26,7 +26,7 @@ public class MenuListSvl extends AbstractAdminLoginServlet {
 			MenuListRes menuListRes = (MenuListRes)outputMessage;
 			
 			req.setAttribute("menuListRes", menuListRes);
-			printJspPage(req, res, "/jsp/menu/menuList.jsp");
+			printJspPage(req, res, "/jsp/menu/menuManagement.jsp");
 			return;
 		} else if (outputMessage instanceof MessageResultRes) {
 			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;

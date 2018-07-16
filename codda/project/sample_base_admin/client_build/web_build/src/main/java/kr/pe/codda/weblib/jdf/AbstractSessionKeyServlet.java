@@ -16,14 +16,9 @@
 
 package kr.pe.codda.weblib.jdf;
 
-import java.util.Enumeration;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.text.StringEscapeUtils;
-
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
@@ -42,7 +37,7 @@ import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 @SuppressWarnings("serial")
 public abstract class AbstractSessionKeyServlet extends AbstractServlet {	
 
-	protected String getRedirectPageStringGettingSessionkey(HttpServletRequest req, String modulusHexString) {
+	/*protected String getRedirectPageStringGettingSessionkey(HttpServletRequest req, String modulusHexString) {
 		String requestURI = req.getRequestURI();
 		
 		StringBuilder pageStrBuilder = new StringBuilder("<!DOCTYPE html><html><head>");
@@ -239,10 +234,10 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append("</body>");
 		pageStrBuilder.append("</html>");
 		
-		//log.info(pageStrBuilder.toString());
+		// log.info(pageStrBuilder.toString());
 		
 		return pageStrBuilder.toString();
-	}
+	}*/
 	
 	
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {		
@@ -253,6 +248,8 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		//log.info("parmIVBase64=[{}]", parmIVBase64);
 		//System.out.println("parmSessionKeyBase64="+parmSessionKeyBase64);
 		// System.out.println("parmIVBase64="+parmIVBase64);
+		
+		// log.info("req.getRequestURI=[{}]", req.getRequestURI());
 		
 		
 		ServerSessionkeyIF webServerSessionkey  = null;
@@ -266,15 +263,21 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}
-				
-		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
+		}		
 		
-		if (null == parmSessionKeyBase64 || null == parmIVBase64) {			
-			java.io.PrintWriter out = res.getWriter();
+		
+		if (null == parmSessionKeyBase64 || null == parmIVBase64) {
+			String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
+			
+			/*java.io.PrintWriter out = res.getWriter();
 			out.write(getRedirectPageStringGettingSessionkey(req, modulusHexString));
 			out.flush();
-			out.close();
+			out.close();*/
+			log.info("req.getRequestURI=[{}]", req.getRequestURI());			
+			req.setAttribute("requestURI", req.getRequestURI());
+			
+			req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, modulusHexString);
+			printJspPage(req, res, JDF_SESSION_KEY_PAGE);
 			return;
 		}
 		
@@ -306,6 +309,8 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		
 		//log.info("sessionkeyBytes=[{}]", HexUtil.getHexStringFromByteArray(sessionkeyBytes));
 		//log.info("ivBytes=[{}]", HexUtil.getHexStringFromByteArray(ivBytes));
+		
+		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, 
 				webServerSessionkey.getModulusHexStrForWeb());		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes));

@@ -16,6 +16,7 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MenuListReq.MenuListReq;
 import kr.pe.codda.impl.message.MenuListRes.MenuListRes;
@@ -26,41 +27,10 @@ import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class MenuListReqServerTask extends AbstractServerTask {
-
-	@SuppressWarnings("unused")
-	private void sendErrorOutputtMessageForCommit(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
-	
-	
-	private void sendErrorOutputMessageForRollback(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
-		if (null != conn) {
-			try {
-				conn.rollback();
-			} catch (Exception e) {
-				log.warn("fail to rollback");
-			}
-		}		
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
-	
+public class MenuListReqServerTask extends AbstractServerTask {	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(inputMessage.getMessageID());
@@ -69,26 +39,33 @@ public class MenuListReqServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
-			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		
-		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}
-
 
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
-		doWork(projectName, personalLoginManager, toLetterCarrier, (MenuListReq)inputMessage);
+		try {
+			AbstractMessage outputMessage = doService((MenuListReq)inputMessage);
+			toLetterCarrier.addSyncOutputMessage(outputMessage);
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			log.warn("errmsg=={}, inObj={}", errorMessage, inputMessage.toString());
+			
+			sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+			return;
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder().append("unknwon errmsg=")
+					.append(e.getMessage())
+					.append(", inObj=")
+					.append(inputMessage.toString()).toString();
+			
+			log.warn(errorMessage, e);
+						
+			sendErrorOutputMessage("메뉴 목록 조회가 실패하였습니다", toLetterCarrier, inputMessage);
+			return;
+		}
 	}
 
-	public void doWork(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
-			MenuListReq menuListReq) throws Exception {
+	public MenuListRes doService(MenuListReq menuListReq) throws Exception {
 		// FIXME!
 		log.info(menuListReq.toString());
 		
@@ -106,17 +83,29 @@ public class MenuListReqServerTask extends AbstractServerTask {
 			java.util.List<MenuListRes.Menu> menuList = new ArrayList<MenuListRes.Menu>();			
 			buildMenuListRes(menuList, create, startParnetNo);
 			
+			try {
+				conn.commit();
+			} catch (Exception e) {
+				log.warn("fail to commit");
+			}
+			
 			MenuListRes menuListRes = new MenuListRes();
 			menuListRes.setMenuList(menuList);
 			menuListRes.setCnt(menuList.size());
 			
-			sendSuccessOutputMessageForCommit(menuListRes, conn, toLetterCarrier);
-			return;			
+			return menuListRes;		
 		} catch (Exception e) {
-			log.warn("unknown error", e);
-			sendErrorOutputMessageForRollback("메뉴 목록 조회가 실패하였습니다", conn, toLetterCarrier, menuListReq);
-			return;
-
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+			
+			log.warn("unknown error", e);			
+			
+			throw e;
 		} finally {
 			if (null != conn) {
 				try {

@@ -15,50 +15,25 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
+import kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class RootMenuAddServerTask extends AbstractServerTask {
-	@SuppressWarnings("unused")
-	private void sendErrorOutputtMessageForCommit(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
+public class RootMenuAddReqServerTask extends AbstractServerTask {
 	
-	
-	private void sendErrorOutputMessageForRollback(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
-		if (null != conn) {
-			try {
-				conn.rollback();
-			} catch (Exception e) {
-				log.warn("fail to rollback");
-			}
-		}		
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
 	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(inputMessage.getMessageID());
@@ -67,29 +42,38 @@ public class RootMenuAddServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
-			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		
-		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}
-	
 	
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
-		doWork(projectName, personalLoginManager, toLetterCarrier, (RootMenuAddReq)inputMessage);
+		try {
+			AbstractMessage outputMessage = doService((RootMenuAddReq)inputMessage);
+			toLetterCarrier.addSyncOutputMessage(outputMessage);
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			log.warn("errmsg=={}, inObj={}", errorMessage, inputMessage.toString());
+			
+			sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+			return;
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder().append("unknwon errmsg=")
+					.append(e.getMessage())
+					.append(", inObj=")
+					.append(inputMessage.toString()).toString();
+			
+			log.warn(errorMessage, e);	
+			
+			
+			sendErrorOutputMessage("루트 메뉴 추가하는데 실패하였습니다", toLetterCarrier, inputMessage);
+			return;
+		}
 		
 	}
-	public void doWork(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
-			RootMenuAddReq rootMenuAddReq) throws Exception {
-		
+	public RootMenuAddRes doService(RootMenuAddReq rootMenuAddReq) throws Exception {		
 		// FIXME!
 		log.info(rootMenuAddReq.toString());
+		
+		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
@@ -101,73 +85,117 @@ public class RootMenuAddServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
 			
+			/** '메뉴 순서' 를 위한 lock */
 			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE)
 			.from(SB_SEQ_TB)
-			.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(SequenceType.MENU.getSequenceID())))
+			.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID))
 			.forUpdate().fetchOne();
 			
 			if (null == menuSeqRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder("메뉴 시퀀스 식별자[")
-						.append(SequenceType.MENU.getSequenceID())
+						.append(menuSequenceID)
 						.append("]의 시퀀스를 가져오는데 실패하였습니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, rootMenuAddReq);
-				return;
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			UInteger rootMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);
 			
+			int seqUpdateCnt = create.update(SB_SEQ_TB)
+					.set(SB_SEQ_TB.SQ_VALUE, SB_SEQ_TB.SQ_VALUE.add(1))
+					.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID))
+				.execute();
 			
-			short orderSeq = create.selectCount()
+			if (0 == seqUpdateCnt) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("메뉴 시퀀스 식별자[")
+						.append(menuSequenceID)
+						.append("]의 시퀀스 갱신하는데 실패하였습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			UByte newOrderSeq = create.select(
+					JooqSqlUtil.getFieldOfNewSiteMenuOrderSq(SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
 			.from(SB_SITEMENU_TB)
 			.where(SB_SITEMENU_TB.PARENT_NO.eq(UInteger.valueOf(0)))
-			.fetchOne(0, short.class);
-			
-			if (orderSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			.fetchOne(0, UByte.class);
+
+			if (newOrderSeq.shortValue() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("루트 메뉴 갯수가 최대치에 도달하여 더 이상 추가할 수 없습니다")
 						.toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, rootMenuAddReq);
-				return;
+				throw new ServerServiceException(errorMessage);
 			}
-			
+									
 			
 			int rootMenuInsertCount = create.insertInto(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.MENU_NO, rootMenuNo)
 			.set(SB_SITEMENU_TB.PARENT_NO, UInteger.valueOf(0))
 			.set(SB_SITEMENU_TB.DEPTH, UByte.valueOf(0))
-			.set(SB_SITEMENU_TB.ORDER_SQ, UByte.valueOf(orderSeq))
+			.set(SB_SITEMENU_TB.ORDER_SQ, newOrderSeq)
 			.set(SB_SITEMENU_TB.MENU_NM, rootMenuAddReq.getMenuName())
 			.set(SB_SITEMENU_TB.LINK_URL, rootMenuAddReq.getLinkURL())
 			.execute();
 			
 			if (0 == rootMenuInsertCount) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("루트 메뉴 추가하는데 실패하였습니다")
 						.toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, rootMenuAddReq);
-				return;
+				throw new ServerServiceException(errorMessage);
 			}
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(rootMenuAddReq.getMessageID());
-			messageResultRes.setIsSuccess(true);		
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append("루트 메뉴[")
-					.append(rootMenuNo)
-					.append("] 추가가 완료되었습니다").toString());
-			
-			sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
+			try {
+				conn.commit();
+			} catch (Exception e) {
+				log.warn("fail to commit");
+			}
 			
 			log.info("루트 메뉴[번호:{}, 메뉴명:{}, URL:{}] 추가 완료",
 					rootMenuNo,
 					rootMenuAddReq.getMenuName(),
 					rootMenuAddReq.getLinkURL());
-			return;			
+			
+			RootMenuAddRes rootMenuAddRes = new RootMenuAddRes();
+			rootMenuAddRes.setMenuNo(rootMenuNo.longValue());
+			rootMenuAddRes.setOrderSeq(newOrderSeq.shortValue());
+						
+			return rootMenuAddRes;
+		} catch (ServerServiceException e) {
+			throw e;
 		} catch (Exception e) {
-			log.warn("unknown error", e);
-			sendErrorOutputMessageForRollback("루트 메뉴 추가하는데 실패하였습니다", conn, toLetterCarrier, rootMenuAddReq);
-			return;
-
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+			
+			log.warn("unknown error", e);			
+			
+			throw e;
 		} finally {
 			if (null != conn) {
 				try {

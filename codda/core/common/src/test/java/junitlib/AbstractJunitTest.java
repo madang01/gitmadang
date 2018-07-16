@@ -20,7 +20,7 @@ public abstract class AbstractJunitTest {
 	protected final static String mainProjectName = "sample_base";
 	
 	@BeforeClass
-	 public static void setUpBeforeClass() throws Exception {
+	public static void setUpBeforeClass() throws Exception {
 		installedBasePath = new File("D:\\gitmadang");
 		
 		if (! installedBasePath.exists()) {

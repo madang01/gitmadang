@@ -26,7 +26,7 @@
 </head>
 	<body>
 		<div class="container-fluid">
-			<h1>메시지 수정 성공 콜백</h1>		
+			<h1>메시지 수정 성공 콜백</h1>	
 		</div>
-	<body>
+	</body>
 </html>

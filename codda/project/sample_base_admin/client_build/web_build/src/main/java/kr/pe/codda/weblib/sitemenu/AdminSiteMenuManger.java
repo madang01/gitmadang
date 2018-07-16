@@ -28,7 +28,7 @@ public class AdminSiteMenuManger {
 	 * @throws NoMoreDataPacketBufferException 
 	 */
 	private AdminSiteMenuManger() {
-		topSiteMenuInfoList.add(new SiteMenuInfo(1, "메뉴 관리", "/servlet/MenuManagement?requestType=list"));
+		topSiteMenuInfoList.add(new SiteMenuInfo(1, "메뉴 관리", "/servlet/MenuManagement"));
 		topSiteMenuInfoList.add(new SiteMenuInfo(2, "사용자 관리", "/servlet/UserManagement"));
 		topSiteMenuInfoList.add(new SiteMenuInfo(3, "사용자별 메뉴 권한 설정", "/servlet/PagePermissionSetting"));
 	}
@@ -69,13 +69,21 @@ public class AdminSiteMenuManger {
 		return tapStringBuilder.toString();
 	}
 	
-	private String getSiteNavbarString(List<SiteMenuInfo> siteMenuInfoList, int tapStep) {
+	private String getSiteNavbarString(String url, List<SiteMenuInfo> siteMenuInfoList, int tapStep) {
 		StringBuilder siteNavbarStringBuilder = new StringBuilder();
 		for (SiteMenuInfo siteMenuInfo : siteMenuInfoList) {
 			List<SiteMenuInfo> childSiteMenuInfoList =  siteMenuInfo.getChildSiteMenuInfoList();
 			if (childSiteMenuInfoList.isEmpty()) {
 				siteNavbarStringBuilder.append(getTabStrings(tapStep));
-				siteNavbarStringBuilder.append("<li><a href=\"");
+				
+				if (url.equals(siteMenuInfo.getSiteURL())) {
+					siteNavbarStringBuilder.append("<li class=\"active\">");
+				} else {
+					siteNavbarStringBuilder.append("<li>");
+				}
+				
+				
+				siteNavbarStringBuilder.append("<a href=\"");
 				siteNavbarStringBuilder.append(siteMenuInfo.getSiteURL());
 				siteNavbarStringBuilder.append("\">");
 				siteNavbarStringBuilder.append(siteMenuInfo.getSiteMenuName());
@@ -97,7 +105,7 @@ public class AdminSiteMenuManger {
 				siteNavbarStringBuilder.append("<ul class=\"dropdown-menu\">");
 				siteNavbarStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				
-				siteNavbarStringBuilder.append(getSiteNavbarString(childSiteMenuInfoList, tapStep+2));
+				siteNavbarStringBuilder.append(getSiteNavbarString(url, childSiteMenuInfoList, tapStep+2));
 				siteNavbarStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				
 				siteNavbarStringBuilder.append(getTabStrings(tapStep+1));
@@ -108,7 +116,11 @@ public class AdminSiteMenuManger {
 		return siteNavbarStringBuilder.toString();
 	}
 	
-	public String getSiteNavbarString(boolean isLogin) {
+	public String getSiteNavbarString(String menuGroupURL, boolean isLogin) {
+		if (null == menuGroupURL) {
+			menuGroupURL = "/";
+		}
+		
 		final int tapStep = 1;
 		StringBuilder siteNavbarStringBuilder = new StringBuilder()
 				.append(getTabStrings(tapStep))
@@ -146,11 +158,20 @@ public class AdminSiteMenuManger {
 				.append(CommonStaticFinalVars.NEWLINE)
 				.append(getTabStrings(tapStep+3))
 				.append("<ul class=\"nav navbar-nav\">")				
-				.append(CommonStaticFinalVars.NEWLINE)
-				.append(getTabStrings(tapStep+4))
-				.append("<li class=\"active\"><a href=\"/\">Home</a></li>")				
-				.append(CommonStaticFinalVars.NEWLINE)
-				.append(getSiteNavbarString(topSiteMenuInfoList, tapStep+4))				
+				.append(CommonStaticFinalVars.NEWLINE);
+		
+		
+		if (menuGroupURL.equals("/")) {
+			siteNavbarStringBuilder.append(getTabStrings(tapStep+4))
+			.append("<li class=\"active\"><a href=\"/\">Home</a></li>")				
+			.append(CommonStaticFinalVars.NEWLINE);
+		} else {
+			siteNavbarStringBuilder.append(getTabStrings(tapStep+4))
+			.append("<li><a href=\"/\">Home</a></li>")				
+			.append(CommonStaticFinalVars.NEWLINE);
+		}		
+				
+		siteNavbarStringBuilder.append(getSiteNavbarString(menuGroupURL, topSiteMenuInfoList, tapStep+4))				
 				.append(getTabStrings(tapStep+3))
 				.append("</ul>")				
 				.append(CommonStaticFinalVars.NEWLINE)

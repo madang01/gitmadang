@@ -33,7 +33,7 @@
 </script>
 </head>
 <body>
-<%=adminSiteMenuManger.getSiteNavbarString(isAdminLogin(request))%>
+<%= adminSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isAdminLogin(request)) %>
 	
 	<div class="container-fluid">
 		<h3>에러 내용</h3>

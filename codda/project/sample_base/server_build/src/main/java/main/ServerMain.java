@@ -8,7 +8,7 @@ import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.NotFoundProjectException;
 import kr.pe.codda.server.AnyProjectServer;
 import kr.pe.codda.server.MainServerManager;
-import kr.pe.codda.server.lib.ServerDBEnvironment;
+import kr.pe.codda.server.lib.ServerDBUtil;
 
 public class ServerMain {
 
@@ -16,7 +16,7 @@ public class ServerMain {
 		Logger log = LoggerFactory.getLogger(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 		
 		try {
-			ServerDBEnvironment.setup();
+			ServerDBUtil.initializeDBEnvoroment();
 			
 			AnyProjectServer mainProjectServer = MainServerManager.getInstance().getMainProjectServer();
 			mainProjectServer.startServer();

@@ -46,6 +46,9 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 		return true;
 	}
 	
+	
+	
+	
 	/**
 	 * 어드민의 로그인 아이디를 반환한다. 단 로그인을 안했을 경우 손님을 뜻하는 guest 아이디로 고정된다.
 	 * @param req HttpServletRequest 객체
@@ -55,6 +58,41 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 		HttpSession httpSession = req.getSession();
 		
 		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID);
+		if (null == loginUserIDValue) {
+			return "guest";
+		}
+		
+		String loginUserID = (String) loginUserIDValue;
+		if (loginUserID.equals("")) {
+			loginUserID = "guest";
+		}
+		
+		return loginUserID;
+	}
+	
+	public boolean isUserLogin(HttpServletRequest req) {
+		HttpSession httpSession = req.getSession();
+		String userId = (String) httpSession
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
+		if (null == userId || userId.equals("")) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean isUserLogin(HttpSession httpSession) {
+		String userId = (String) httpSession
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
+		if (null == userId || userId.equals("")) {
+			return false;
+		}
+		return true;
+	}
+	
+	public String getLoginedUserID(HttpServletRequest req) {
+		HttpSession httpSession = req.getSession();
+		
+		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
 		if (null == loginUserIDValue) {
 			return "guest";
 		}

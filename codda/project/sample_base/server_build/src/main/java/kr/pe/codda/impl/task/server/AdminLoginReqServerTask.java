@@ -280,9 +280,9 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 			} catch(IllegalArgumentException e) {
 				String errorMessage = new StringBuilder("회원[")
 						.append(userId)
-						.append("]의 등급[")
+						.append("] 구분[")
 						.append(nativeMemberType)
-						.append("]이 잘못되었습니다").toString();
+						.append("]가 잘못되었습니다").toString();
 				
 				// log.warn(errorMessage);
 				
@@ -293,7 +293,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 			if (! membershipLevel.equals(MemberType.ADMIN)) {
 				String errorMessage = new StringBuilder("회원[")
 						.append(userId)
-						.append("]의 등급[")
+						.append("] 구분[")
 						.append(nativeMemberType)
 						.append("]이 어드민이 아닙니다").toString();				
 				// log.warn(errorMessage);

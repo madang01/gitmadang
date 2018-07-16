@@ -30,7 +30,7 @@ public enum MemberType {
 		
 		MemberType[] memberTypes = MemberType.values();
 		for (MemberType memberType : memberTypes) {
-			if (memberType.getValue() == nativeMemberTypeValue) {
+			if (memberType.getValue().equals(nativeMemberTypeValue)) {
 				return memberType;
 			}
 		}	

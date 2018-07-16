@@ -6,6 +6,9 @@ import java.util.Map;
 import kr.pe.codda.weblib.jdf.LoginRequestPageInformation;
 
 public abstract class WebCommonStaticFinalVars {	
+	public static final String SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL = "menuGroupURL";
+	
+	
 	public static final String REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY = "webServerSymmetricKey";
 	public static final String REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING = "modulusHexString";
 	
@@ -22,7 +25,7 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USERID = "userID";
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID = "adminID";
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION = "loginRequestPageInformation";
-	public static final String SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY = "kr.pe.codda.sessionkey";
+	//public static final String SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY = "kr.pe.codda.sessionkey";
 	public static final String SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY = "kr.pe.codda.privatekey";
 	
 	

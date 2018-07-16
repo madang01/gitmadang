@@ -21,8 +21,26 @@
     </description>
 	
 	<servlet>
+		<servlet-name>Sample</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.SampleSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Sample</servlet-name>
+		<url-pattern>/servlet/Sample</url-pattern>
+	</servlet-mapping>
+	
+	
+	<servlet>
 		<servlet-name>Member</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.MemberSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Member</servlet-name>
@@ -32,6 +50,10 @@
 	<servlet>
 		<servlet-name>AdminLogin</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.AdminLoginSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>AdminLogin</servlet-name>
@@ -39,17 +61,25 @@
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuList</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuListSvl</servlet-class>
+		<servlet-name>MenuManagement</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuManagementSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuList</servlet-name>
-		<url-pattern>/servlet/MenuList</url-pattern>
+		<servlet-name>MenuManagement</servlet-name>
+		<url-pattern>/servlet/MenuManagement</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
 		<servlet-name>MenuModify</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.MenuModifySvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MenuModify</servlet-name>
@@ -57,8 +87,25 @@
 	</servlet-mapping>
 	
 	<servlet>
+		<servlet-name>MenuDelete</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuDeleteSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuDelete</servlet-name>
+		<url-pattern>/servlet/MenuDelete</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>MenuUpMove</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.MenuUpMoveSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MenuUpMove</servlet-name>
@@ -68,6 +115,10 @@
 	<servlet>
 		<servlet-name>MenuDownMove</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.MenuDownMoveSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MenuDownMove</servlet-name>
@@ -77,6 +128,10 @@
 	<servlet>
 		<servlet-name>ChildMenuAdd</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.ChildMenuAddSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ChildMenuAdd</servlet-name>
@@ -86,6 +141,10 @@
 	<servlet>
 		<servlet-name>RootMenuAdd</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.RootMenuAddSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>RootMenuAdd</servlet-name>

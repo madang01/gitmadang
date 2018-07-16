@@ -31,11 +31,11 @@ public final class ChildMenuAddResClientCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("the client don't need a message decoder because it is a message[ChildMenuAddRes] that is not sent from server to client");
+		return new ChildMenuAddResDecoder();
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new ChildMenuAddResEncoder();
+		throw new DynamicClassCallException("the client don't need a message encoder because it is a message[ChildMenuAddRes] that is not sent from client to server");
 	}
 }

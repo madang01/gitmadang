@@ -106,9 +106,7 @@ public class LoginReqServerTask extends AbstractServerTask {
 			ToLetterCarrier toLetterCarrier,
 			LoginReq loginReq) throws Exception {
 		// FIXME!
-		log.info(loginReq.toString());
-		
-		
+		log.info(loginReq.toString());		
 		
 		String idCipherBase64 = loginReq.getIdCipherBase64();		
 		String pwdCipherBase64 = loginReq.getPwdCipherBase64();		

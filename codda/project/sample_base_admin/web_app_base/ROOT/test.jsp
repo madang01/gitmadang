@@ -1,8 +1,11 @@
 <%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%
 %><%@ page import="kr.pe.codda.weblib.sitemenu.AdminSiteMenuManger" %><%
 	AdminSiteMenuManger adminSiteMenuManger = AdminSiteMenuManger.getInstance();
+	
+	String tmp= request.getParameter("tmp"); 
+	
+	log.info("tmp={}", tmp);
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -24,12 +27,15 @@
 </script>
 </head>
 <body>
-<%=adminSiteMenuManger.getSiteNavbarString(isAdminLogin(request))%>	
+<%= adminSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isAdminLogin(request)) %>	
 	<div class="container-fluid">
 		<h3>Test Page</h3>
-		<form name="frm" action="test01.jsp">
-			<input type="hidden" name=t1 value="hello\nking\t\uD55C\uAE00" />
+		<a href="/servlet/MenuModify?menuNo=60&menuName=테스트2&linkURL=/test2">메뉴60번 수정</a>
+		<form name="frm" method="post" class="form-inline" action="/test.jsp">
+			<input type="text" name="tmp">		
+			<button type="submit" class="btn btn-default">추가</button>
 		</form>
+		파라미터 'tmp' = [<%= tmp %>]
 	</div>
 </body>
 </html>

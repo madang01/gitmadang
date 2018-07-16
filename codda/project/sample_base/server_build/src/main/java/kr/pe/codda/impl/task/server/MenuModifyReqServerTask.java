@@ -12,6 +12,7 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MenuModifyReq.MenuModifyReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -21,40 +22,11 @@ import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class MenuModifyReqServerTask extends AbstractServerTask {
-	@SuppressWarnings("unused")
-	private void sendErrorOutputtMessageForCommit(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
-	
-	
-	private void sendErrorOutputMessageForRollback(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
-		if (null != conn) {
-			try {
-				conn.rollback();
-			} catch (Exception e) {
-				log.warn("fail to rollback");
-			}
-		}		
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
+public class MenuModifyReqServerTask extends AbstractServerTask {	
 	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(inputMessage.getMessageID());
@@ -63,26 +35,33 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
-			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		
-		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}
-	
 	
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
-		doWork(projectName, personalLoginManager, toLetterCarrier, (MenuModifyReq)inputMessage);
-		
+		try {
+			AbstractMessage outputMessage = doService((MenuModifyReq)inputMessage);
+			toLetterCarrier.addSyncOutputMessage(outputMessage);
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			log.warn("errmsg=={}, inObj={}", errorMessage, inputMessage.toString());
+			
+			sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+			return;
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder().append("unknwon errmsg=")
+					.append(e.getMessage())
+					.append(", inObj=")
+					.append(inputMessage.toString()).toString();
+			
+			log.warn(errorMessage, e);
+						
+			sendErrorOutputMessage("메뉴 수정이 실패하였습니다", toLetterCarrier, inputMessage);
+			return;
+		}
 	}
-	public void doWork(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
-			MenuModifyReq menuModifyReq) throws Exception {
+		
+	public MessageResultRes doService(MenuModifyReq menuModifyReq) throws Exception {
 		// FIXME!
 		log.info(menuModifyReq.toString());
 		
@@ -102,12 +81,17 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 			.fetchOne();
 			
 			if (null == menuRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("수정할 메뉴[")
 						.append(menuModifyReq.getMenuNo())
 						.append("]가 존재하지 않습니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuModifyReq);
-				return;
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			
@@ -118,13 +102,32 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 			.execute();
 			
 			if (0 == menuUpdateCount) {
+				
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder()
 						.append("메뉴[")
 						.append(menuModifyReq.getMenuNo())
 						.append("] 수정이 실패하였습니다").toString();
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuModifyReq);
-				return;
+				throw new ServerServiceException(errorMessage);
 			}
+			
+			try {
+				conn.commit();
+			} catch (Exception e) {
+				log.warn("fail to commit");
+			}
+			
+			
+			log.info("메뉴[{}] 수정전 {메뉴명[{}], URL[{}]}, 수정후 {메뉴명[{}], URL[{}]}", 
+					menuRecord.getValue(SB_SITEMENU_TB.MENU_NM),
+					menuRecord.getValue(SB_SITEMENU_TB.LINK_URL),
+					menuModifyReq.getMenuName(),
+					menuModifyReq.getLinkURL());
 			
 			MessageResultRes messageResultRes = new MessageResultRes();
 			messageResultRes.setTaskMessageID(menuModifyReq.getMessageID());
@@ -134,18 +137,21 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 					.append(menuModifyReq.getMenuNo())
 					.append("] 수정 처리가 완료되었습니다").toString());
 			
-			sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
-			
-			log.info("메뉴[{}] 수정전 {메뉴명[{}], URL[{}]}, 수정후 {메뉴명[{}], URL[{}]}", 
-					menuRecord.getValue(SB_SITEMENU_TB.MENU_NM),
-					menuRecord.getValue(SB_SITEMENU_TB.LINK_URL),
-					menuModifyReq.getMenuName(),
-					menuModifyReq.getLinkURL());
-			return;			
+			return messageResultRes;
+		} catch (ServerServiceException e) {
+			throw e;
 		} catch (Exception e) {
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+			
 			log.warn("unknown error", e);
-			sendErrorOutputMessageForRollback("메뉴 수정이 실패하였습니다", conn, toLetterCarrier, menuModifyReq);
-			return;
+			
+			throw e;
 
 		} finally {
 			if (null != conn) {

@@ -31,11 +31,11 @@ public final class RootMenuAddResServerCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new RootMenuAddResDecoder();
+		throw new DynamicClassCallException("the server don't need a message decoder because it is a message[RootMenuAddRes] that is not sent from client to server");
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("the server don't need a message encoder because it is a message[RootMenuAddRes] that is not sent from server to client");
+		return new RootMenuAddResEncoder();
 	}
 }

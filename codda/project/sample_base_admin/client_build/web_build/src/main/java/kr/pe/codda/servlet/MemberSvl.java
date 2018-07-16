@@ -64,12 +64,7 @@ public class MemberSvl extends AbstractServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
 		
 		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == parmRequestType) {		
-			firstPage(req, res);			
-			return;
-		}
-		
-		if (parmRequestType.equals("view")) {
+		if (null == parmRequestType || parmRequestType.equals("input")) {
 			firstPage(req, res);
 			return;
 		} else if (parmRequestType.equals("proc")) {		
@@ -106,14 +101,14 @@ public class MemberSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		
-		printJspPage(req, res, "/jsp/member/Member01.jsp");
+		printJspPage(req, res, "/jsp/member/memberRegistrationInput.jsp");
 	}
 		
 	private void processPage(HttpServletRequest req, HttpServletResponse res) throws IllegalArgumentException, SymmetricException, IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
 		String parmSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
 		String parmIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
 	
-		String parmId = req.getParameter("id");
+		String parmUserID = req.getParameter("userID");
 		String parmPwd = req.getParameter("pwd");
 		String parmNickname = req.getParameter("nickname");
 		String parmPwdHint = req.getParameter("pwdHint");
@@ -121,10 +116,10 @@ public class MemberSvl extends AbstractServlet {
 		String parmCaptchaAnswer = req.getParameter("answer");
 		
 		log.info("parm sessionkeyBase64=[{}], parm ivBase64=[{}], " +
-				"parm id=[{}], parm pwd=[{}], parm nickname=[{}], " +
+				"parm userID=[{}], parm pwd=[{}], parm nickname=[{}], " +
 				"parm pwdHint=[{}], parm pwdAnswer=[{}], parm answer=[{}]", 
 				parmSessionKeyBase64, parmIVBase64, 
-				parmId, parmPwd, parmNickname, 
+				parmUserID, parmPwd, parmNickname, 
 				parmPwdHint, parmPwdAnswer, parmCaptchaAnswer);
 		
 		if (null == parmSessionKeyBase64) {
@@ -139,7 +134,7 @@ public class MemberSvl extends AbstractServlet {
 			return;
 		}
 		
-		if (null == parmId) {
+		if (null == parmUserID) {
 			String errorMessage = "아이디 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
@@ -243,7 +238,7 @@ public class MemberSvl extends AbstractServlet {
 			return;
 		}
 	
-		byte[] userIdBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmId));
+		byte[] userIdBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmUserID));
 		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwd));
 		byte[] nicknameBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmNickname));
 		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwdHint));
@@ -298,19 +293,6 @@ public class MemberSvl extends AbstractServlet {
 			if (memberRegisterOutputMessage instanceof MessageResultRes) {
 				MessageResultRes messageResultRes = (MessageResultRes)memberRegisterOutputMessage;
 				
-				if (! messageResultRes.getMessageID().equals(memberRegisterReq.getMessageID())) {
-					String errorMessage = "회원 가입이 실패했습니다";
-					String debugMessage = new StringBuilder("입력 메시지[")
-							.append(memberRegisterReq.getMessageID())
-							.append("]에 대한 비 정상 출력 메시지[")
-							.append(memberRegisterOutputMessage.toString())
-							.append("] 도착").toString();					
-					log.error(debugMessage);
-
-					printErrorMessagePage(req, res, errorMessage, debugMessage);
-					return;
-				}
-				
 				doProcessPage(req, res, webServerSymmetricKey, webServerSessionkey, messageResultRes);
 				return;
 			} else {
@@ -351,6 +333,6 @@ public class MemberSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		
-		printJspPage(req, res, "/jsp/member/Member02.jsp");
+		printJspPage(req, res, "/jsp/member/memberRegistrationResult.jsp");
 	}
 }
