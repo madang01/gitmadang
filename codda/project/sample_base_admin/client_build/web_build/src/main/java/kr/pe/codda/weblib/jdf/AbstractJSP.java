@@ -107,10 +107,6 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 		return (String)modulusHexStringValue;
 	}
 	
-	public String getMenuPartString() {
-		return null;
-	}
-	
 	protected String getGroupRequestURL(HttpServletRequest req) {		
 		Object groupRequestURL = req.getAttribute(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL);
 		
@@ -119,4 +115,6 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 		}
 		return (String)groupRequestURL;
 	}
+	
+	abstract public String getSiteNavbarString(HttpServletRequest request);
 }

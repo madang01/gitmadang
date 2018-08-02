@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * MenuDownMoveReq message encoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class MenuDownMoveReqEncoder extends AbstractMessageEncoder {

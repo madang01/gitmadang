@@ -1,27 +1,30 @@
 package kr.pe.codda.weblib.common;
 
 public abstract class WebCommonStaticFinalVars {
-	/** 사이트 최상위 메뉴는 2가지 용도로 사용된다. 첫번째  REQUEST 속성 키 이름, 마지막 두번째  파라미터 키 이름 */
-	public static final String REQUEST_KEY_NAME_OF_SITE_TOPMENU = "topmenu";
-	/** request attribute key and parameter key name */
-	public static final String REQUEST_KEY_NAME_OF_SITE_LEFTMENU = "leftmenu";
+	public static final String SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL = "menuGroupURL";
+	
 	
 	public static final String REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY = "webServerSymmetricKey";
 	public static final String REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING = "modulusHexString";
 	
 	
 	public static final String PARAMETER_KEY_NAME_OF_REQUEST_TYPE = "requestType";
-	public static final String PARAMETER_KEY_NAME_OF_BODYURL_FOR_PAGEWRAPPER = "bodyurl";
+	// public static final String PARAMETER_KEY_NAME_OF_BODYURL_FOR_PAGEWRAPPER = "bodyurl";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY = "sessionkeyBase64";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY_IV = "ivBase64";
 	
 	
-	public static final String WEBSITE_TITLE = "Codda Home";
+	public static final String WEBSITE_TITLE = "Codda Admin Home";
 	
 	
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USERID = "userID";
-	public static final String SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY = "kr.pe.codda.sessionkey";
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID = "adminID";
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION = "loginRequestPageInformation";
+	//public static final String SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY = "kr.pe.codda.sessionkey";
 	public static final String SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY = "kr.pe.codda.privatekey";
+	
+	
+	// public static final LoginRequestPageInformation DEFAULT_LOGIN_REQUEST_PAGE_INFORMATION = new LoginRequestPageInformation("/", new ArrayList<Map.Entry<String, String>>()); 
 	
 	/**
 	 * <pre>

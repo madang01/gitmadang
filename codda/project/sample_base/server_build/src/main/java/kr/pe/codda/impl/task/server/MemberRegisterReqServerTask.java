@@ -18,6 +18,7 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
@@ -37,7 +38,7 @@ import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class MemberRegisterReqServerTask extends AbstractServerTask {
 
-	private void sendErrorOutputtMessageForCommit(String errorMessage,
+	/*private void sendErrorOutputtMessageForCommit(String errorMessage,
 			Connection conn,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
@@ -62,7 +63,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			}
 		}		
 		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
+	}*/
 	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
@@ -76,7 +77,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
+	/*private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
 			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
 		try {
 			conn.commit();
@@ -85,7 +86,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		}
 		
 		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}
+	}*/
 	
 	private String getDecryptedString(byte[] cipherBytes, ServerSymmetricKeyIF serverSymmetricKey)
 			throws InterruptedException, IllegalArgumentException, SymmetricException {		
@@ -97,15 +98,33 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
-		MemberRegisterReq inObj = (MemberRegisterReq) inputMessage;
+		// MemberRegisterReq inObj = (MemberRegisterReq) inputMessage;
 		
-		doWork(projectName, personalLoginManager, toLetterCarrier, inObj);		
+		// doWork(projectName, personalLoginManager, toLetterCarrier, inObj);
+		
+		try {
+			AbstractMessage outputMessage = doService((MemberRegisterReq)inputMessage);
+			toLetterCarrier.addSyncOutputMessage(outputMessage);
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			log.warn("errmsg=={}, inObj={}", errorMessage, inputMessage.toString());
+			
+			sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+			return;
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder().append("unknwon errmsg=")
+					.append(e.getMessage())
+					.append(", inObj=")
+					.append(inputMessage.toString()).toString();
+			
+			log.warn(errorMessage, e);
+						
+			sendErrorOutputMessage("회원 가입이 실패하였습니다", toLetterCarrier, inputMessage);
+			return;
+		}
 	}	
 	
-	public void doWork(String projectName, 
-			PersonalLoginManagerIF personalLoginManager, 
-			ToLetterCarrier toLetterCarrier,
-			MemberRegisterReq memberRegisterReq) throws Exception {
+	public MessageResultRes doService(MemberRegisterReq memberRegisterReq) throws Exception {
 		// FIXME!
 		log.info(memberRegisterReq.toString());
 
@@ -118,38 +137,53 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		String ivBase64 = memberRegisterReq.getIvBase64();
 		
 		if (null == idCipherBase64) {
-			sendErrorOutputMessage("아이디를 입력해 주세요", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("아이디를 입력해 주세요", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "아이디를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == pwdCipherBase64) {
-			sendErrorOutputMessage("비밀번호를 입력해 주세요", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("비밀번호를 입력해 주세요", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "비밀번호를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == nicknameCipherBase64) {
-			sendErrorOutputMessage("별명을 입력해 주세요", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("별명을 입력해 주세요", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "별명을 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == hintCipherBase64) {
-			sendErrorOutputMessage("비밀번호 분실 힌트를 입력해 주세요", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("비밀번호 분실 힌트를 입력해 주세요", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "비밀번호 분실 힌트를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == answerCipherBase64) {
-			sendErrorOutputMessage("비밀번호 분실 답변을 입력해 주세요", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("비밀번호 분실 답변을 입력해 주세요", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "비밀번호 분실 답변을 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == sessionKeyBase64) {
-			sendErrorOutputMessage("세션키를 입력해 주세요", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("세션키를 입력해 주세요", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "세션키를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == ivBase64) {
-			sendErrorOutputMessage("세션키 소금값을 입력해 주세요", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("세션키 소금값을 입력해 주세요", toLetterCarrier, memberRegisterReq);
+			return;*/
+			
+			String errorMessage = "세션키 소금값을 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 
@@ -164,50 +198,64 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		try {
 			idCipherBytes = Base64.decodeBase64(idCipherBase64);
 		} catch(Exception e) {
-			sendErrorOutputMessage("아이디 암호문은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("아이디 암호문은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "아이디 암호문은 base64 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			pwdCipherBytes = Base64.decodeBase64(pwdCipherBase64);
 		} catch(Exception e) {
-			sendErrorOutputMessage("비밀번호 암호문은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("비밀번호 암호문은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "비밀번호 암호문은 base64 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			nicknameCipherBytes = Base64.decodeBase64(nicknameCipherBase64);
 		} catch(Exception e) {
-			sendErrorOutputMessage("별명은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("별명은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "별명은 base64 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			hintCipherBytes = Base64.decodeBase64(hintCipherBase64);
 		} catch(Exception e) {
-			sendErrorOutputMessage("비밀번호 분실 힌트는 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("비밀번호 분실 힌트는 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "비밀번호 분실 힌트는 base64 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			answerCipherBytes = Base64.decodeBase64(answerCipherBase64);
 		} catch(Exception e) {
-			sendErrorOutputMessage("비밀번호 분실 답변은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("비밀번호 분실 답변은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "비밀번호 분실 답변은 base64 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			sessionKeyBytes = Base64.decodeBase64(sessionKeyBase64);
 		} catch(Exception e) {
-			sendErrorOutputMessage("세션키는 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("세션키는 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "세션키는 base64 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			ivBytes = Base64.decodeBase64(ivBase64);
 		} catch(Exception e) {
-			sendErrorOutputMessage("세션키 소금값은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage("세션키 소금값은 base64 인코딩되지 않았습니다", toLetterCarrier, memberRegisterReq);
+			return;*/
+			String errorMessage = "세션키 소금값은 base64 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		ServerSymmetricKeyIF serverSymmetricKey = null;
@@ -216,15 +264,30 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 					.getMainProjectServerSessionkey();
 			serverSymmetricKey = serverSessionkey.getNewInstanceOfServerSymmetricKey(sessionKeyBytes, ivBytes);
 		} catch (IllegalArgumentException e) {
-			String errorMessage = String.format("잘못된 파라미터로 인한 대칭키 생성 실패, sessionKeyMemberRegisterReq=[%s]", memberRegisterReq.toString());
+			/*String errorMessage = String.format("잘못된 파라미터로 인한 대칭키 생성 실패, sessionKeyMemberRegisterReq=[%s]", memberRegisterReq.toString());
 			log.warn(errorMessage, e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			
+			String debugMessage = new StringBuilder().append("잘못된 파라미터로 인한 대칭키 생성 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "대칭키 생성 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		} catch (SymmetricException e) {
-			String errorMessage = String.format("알수 없는 이유로 대칭키 생성 실패, sessionKeyMemberRegisterReq=[%s]", memberRegisterReq.toString());
+			/*String errorMessage = String.format("알수 없는 이유로 대칭키 생성 실패, sessionKeyMemberRegisterReq=[%s]", memberRegisterReq.toString());
 			log.warn(errorMessage, e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("알수 없는 이유로 대칭키 생성 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "대칭키 생성 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		}
 
 		String userID = null;
@@ -235,114 +298,191 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		try {
 			userID = getDecryptedString(idCipherBytes, serverSymmetricKey);
 		} catch (IllegalArgumentException e) {
-			String errorMessage = "아이디에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "아이디에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("잘못된 파라미터로 인한 아이디 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "아이디 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		} catch (SymmetricException e) {
-			String errorMessage = "아이디에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "아이디에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(memberRegisterReq.toString(), e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("알 수 없는 에러로 인한 아이디 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "아이디 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			ValueChecker.checkValidUserId(userID);
 		} catch (IllegalArgumentException e) {
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
+			return;*/
+			
+			throw new ServerServiceException(e.getMessage());
 		}
 
 		
 		try {
 			nickname = getDecryptedString(nicknameCipherBytes, serverSymmetricKey);
 		} catch (IllegalArgumentException e) {
-			String errorMessage = "별명에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "별명에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("잘못된 파라미터로 인한 별명 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "별명 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		} catch (SymmetricException e) {
-			String errorMessage = "별명에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "별명에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(memberRegisterReq.toString(), e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			
+			String debugMessage = new StringBuilder().append("알 수 없는 에러로 인한 별명 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "별명 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			ValueChecker.checkValidNickname(nickname);
 		} catch (IllegalArgumentException e) {
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
+			return;*/
+			throw new ServerServiceException(e.getMessage());
 		}
 
 		try {
 			pwdHint = getDecryptedString(hintCipherBytes, serverSymmetricKey);
 		} catch (IllegalArgumentException e) {
-			String errorMessage = "비밀번호 분실 힌트에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "비밀번호 분실 힌트에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("잘못된 파라미터로 인한 비밀번호 힌트 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "비밀번호 힌트 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		} catch (SymmetricException e) {
-			String errorMessage = "비밀번호 분실 힌트에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "비밀번호 분실 힌트에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(memberRegisterReq.toString(), e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("알 수 없는 에러로 인한 비밀번호 힌트 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "비밀번호 힌트 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		}
 
 		
 		try {
 			ValueChecker.checkValidPwdHint(pwdHint);
 		} catch (RuntimeException e) {
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
+			return;*/
+			throw new ServerServiceException(e.getMessage());
 		}
 
 		try {
 			pwdAnswer = getDecryptedString(answerCipherBytes, serverSymmetricKey);
 		} catch (IllegalArgumentException e) {
-			String errorMessage = "비밀번호 분실 답변에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "비밀번호 분실 답변에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("잘못된 파라미터로 인한 비밀번호 분실 답변 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "비밀번호 분실 답변 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		} catch (SymmetricException e) {
-			String errorMessage = "비밀번호 분실 답변에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "비밀번호 분실 답변에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(memberRegisterReq.toString(), e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("알 수 없는 에러로 인한 비밀번호 분실 답변 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "비밀번호 분실 답변 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			ValueChecker.checkValidPwdAnswer(pwdAnswer);
 		} catch (RuntimeException e) {
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
+			return;*/
+			throw new ServerServiceException(e.getMessage());
 		}
 
 		/**
 		 * 비밀번호외 항목들은 철저히 보안을 유지 해야 하므로 찍지 않음. 필요시 특정 아이디에 한에서만 찍도록 해야함.
 		 */
-		log.info("회원가입 아이디[{}] 처리전", userID);
+		// log.info("회원가입 아이디[{}] 처리전", userID);
 		
 		byte[] passwordBytes = null;
 		try {
 			passwordBytes = serverSymmetricKey.decrypt(pwdCipherBytes);
 		} catch (IllegalArgumentException e) {
-			String errorMessage = "비밀번호에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "비밀번호에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("잘못된 파라미터로 인한 비밀번호 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "비밀번호 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		} catch (SymmetricException e) {
-			String errorMessage = "비밀번호에 대한 복호문을 얻는데 실패하였습니다";
+			/*String errorMessage = "비밀번호에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(memberRegisterReq.toString(), e);
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			String debugMessage = new StringBuilder().append("알 수 없는 에러로 인한 비밀번호 복호화 실패, ")
+					.append(memberRegisterReq.toString()).toString();
+			
+			log.warn(debugMessage, e);
+			
+			String errorMessage = "비밀번호 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
 		}
 					
 		try {
 			ValueChecker.checkValidPwd(passwordBytes);
 		} catch(IllegalArgumentException e) {
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
-			return;
+			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, memberRegisterReq);
+			return;*/
+			throw new ServerServiceException(e.getMessage());
 		}
 
 		Random random = new Random();
@@ -388,11 +528,19 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			
 			// if (0 != countOfSameIDMember) {
 			if (isSameIDMember) {
+				/*
+				sendErrorOutputtMessageForCommit(errorMessage, conn, toLetterCarrier, memberRegisterReq);
+				return;*/
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
 						.append("] 입니다").toString();
-				sendErrorOutputtMessageForCommit(errorMessage, conn, toLetterCarrier, memberRegisterReq);
-				return;
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			boolean isSameNicknameMember = create.fetchExists(create.select()
@@ -406,11 +554,22 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			
 			if (0 != countOfSameNicknameMember) {*/
 			if (isSameNicknameMember) {
-				String errorMessage = new StringBuilder("기존 회원과 중복되는 별명[")
+				/*String errorMessage = new StringBuilder("기존 회원과 중복되는 별명[")
 						.append(nickname)
 						.append("] 입니다").toString();
 				sendErrorOutputtMessageForCommit(errorMessage, conn, toLetterCarrier, memberRegisterReq);
-				return;
+				return;*/
+				
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("기존 회원과 중복되는 별명[")
+						.append(nickname)
+						.append("] 입니다").toString();
+				throw new ServerServiceException(errorMessage);
 			}
 			
 		/*	insert into SB_MEMBER_TB  
@@ -441,9 +600,24 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			.set(SB_MEMBER_TB.MOD_DT, SB_MEMBER_TB.REG_DT).execute();
 			
 			if (0 == resultOfInsert) {
-				String errorMessage = "1.회원 가입 실패하였습니다";
+				/*String errorMessage = "1.회원 가입 실패하였습니다";
 				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, memberRegisterReq);
-				return;
+				return;*/
+				
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "회원 등록하는데 실패하였습니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			try {
+				conn.commit();
+			} catch (Exception e) {
+				log.warn("fail to commit");
 			}
 			
 			MessageResultRes messageResultRes = new MessageResultRes();
@@ -451,15 +625,29 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			messageResultRes.setIsSuccess(true);		
 			messageResultRes.setResultMessage("회원 가입 성공하였습니다");
 			
-			sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
-			return;		
+			/*sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
+			return;	*/
+			return messageResultRes;
+		} catch (ServerServiceException e) {
+			throw e;
 		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknown error, inObj=")
+			/*String errorMessage = new StringBuilder("unknown error, inObj=")
 					.append(memberRegisterReq.toString()).toString();
 			log.warn(errorMessage, e);
 			
 			sendErrorOutputMessageForRollback("2.회원 가입 실패하였습니다", conn, toLetterCarrier, memberRegisterReq);
-			return;
+			return;*/
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+			
+			log.warn("unknown error", e);
+			
+			throw e;
 		} finally {
 			if (null != conn) {
 				try {

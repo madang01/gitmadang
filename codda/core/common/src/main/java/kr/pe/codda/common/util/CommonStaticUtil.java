@@ -405,7 +405,11 @@ public abstract class CommonStaticUtil {
 		}
 	}
 	
-	public static boolean isHangul(char c) {
+	/**
+	 * @param c
+	 * @return 낱글자 한글 포함한 한글 여부를 반환한다
+	 */
+	public static boolean isHangul(final char c) {
 		boolean isHangul = false;
 		if (c >= 'ㄱ' && c <= 'ㅎ') {
 			isHangul =  true;
@@ -417,7 +421,20 @@ public abstract class CommonStaticUtil {
 		return isHangul;
 	}
 	
-	public static boolean isAlphabet(char c) {
+	/**
+	 * 
+	 * @param c
+	 * @return 초성과 중성 혹은 종성까지 조합된 한글 여부를 반환한다
+	 */
+	public static boolean isFullHangul(final char c) {
+		boolean isHangul = false;
+		if (c >= '가' && c <= '힣') {
+			isHangul =  true;
+		}
+		return isHangul;
+	}
+	
+	/*public static boolean isAlphabet(final char c) {
 		boolean isAlphabet = false;
 		if (c >= 'a' && c <= 'z') {
 			isAlphabet =  true;
@@ -427,17 +444,41 @@ public abstract class CommonStaticUtil {
 		return isAlphabet;
 	}
 	
-	public static boolean isDigit(char c) {
+	public static boolean isDigit(final char c) {
 		boolean isDigit = false;
 		if (c >= '0' && c <= '9') {
 			isDigit =  true;
 		}
 		return isDigit;
+	}*/
+	
+	public static boolean isPunct(final char c) {
+	    boolean isPunct = false;
+	    
+	    if (c >= '!' && c <= '/') {
+	    	isPunct = true;
+	    } else if (c >= ':' && c <= '@') {
+	    	isPunct = true;
+	    } else if (c >= '[' && c <= '`') {
+	    	isPunct = true;
+	    } else if (c >= '{' && c <= '~') {
+	    	isPunct = true;
+	    }
+	    return isPunct;
+	}
+	
+	public static boolean isLineSeparator(char c) {
+		boolean isWhiteSpace = false;
+		if (('\r' == c) || ('\n' == c) || ('\u0085' == c) || ('\u2028' == c) || ('\u2029' == c)) {
+			isWhiteSpace = true;
+		}
+		
+		return isWhiteSpace;
 	}
 	
 	public static boolean isAlphabetAndDigit(String sourceString) {		
 		for (char c : sourceString.toCharArray()) {
-			if (! isDigit(c) && !isAlphabet(c)) {
+			if (! Character.isDigit(c) && ! Character.isAlphabetic(c)) {
 				return false;
 			}
 		}

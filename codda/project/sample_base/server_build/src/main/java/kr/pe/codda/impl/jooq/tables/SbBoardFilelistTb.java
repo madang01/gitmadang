@@ -24,6 +24,7 @@ import org.jooq.TableField;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
+import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 
@@ -40,7 +41,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
 
-    private static final long serialVersionUID = 811369058;
+    private static final long serialVersionUID = 7525989;
 
     /**
      * The reference instance of <code>sb_db.sb_board_filelist_tb</code>
@@ -56,14 +57,19 @@ public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
     }
 
     /**
-     * The column <code>sb_db.sb_board_filelist_tb.attach_id</code>. 업로드 식별자
+     * The column <code>sb_db.sb_board_filelist_tb.board_id</code>.
      */
-    public final TableField<SbBoardFilelistTbRecord, UInteger> ATTACH_ID = createField("attach_id", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "업로드 식별자");
+    public final TableField<SbBoardFilelistTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "");
 
     /**
-     * The column <code>sb_db.sb_board_filelist_tb.attach_sq</code>. 첨부 파일 순번, 자동 증가
+     * The column <code>sb_db.sb_board_filelist_tb.board_no</code>.
      */
-    public final TableField<SbBoardFilelistTbRecord, UInteger> ATTACH_SQ = createField("attach_sq", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "첨부 파일 순번, 자동 증가");
+    public final TableField<SbBoardFilelistTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "");
+
+    /**
+     * The column <code>sb_db.sb_board_filelist_tb.attach_sq</code>. 첨부 파일 순번
+     */
+    public final TableField<SbBoardFilelistTbRecord, UInteger> ATTACH_SQ = createField("attach_sq", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "첨부 파일 순번");
 
     /**
      * The column <code>sb_db.sb_board_filelist_tb.attach_fname</code>. 첨부 파일 이름

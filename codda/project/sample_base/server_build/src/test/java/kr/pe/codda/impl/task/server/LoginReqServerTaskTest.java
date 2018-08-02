@@ -20,8 +20,8 @@ import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
-import kr.pe.codda.impl.message.LoginReq.LoginReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.impl.message.UserLoginReq.UserLoginReq;
 import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
@@ -139,7 +139,7 @@ public class LoginReqServerTaskTest extends AbstractJunitTest {
 		
 		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);
 		
-		LoginReq inObj = new LoginReq();
+		UserLoginReq inObj = new UserLoginReq();
 		inObj.setIdCipherBase64(Base64.encodeBase64String(idCipherTextBytes));
 		inObj.setPwdCipherBase64(Base64.encodeBase64String(passwordCipherTextBytes));
 		inObj.setSessionKeyBase64(Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes()));

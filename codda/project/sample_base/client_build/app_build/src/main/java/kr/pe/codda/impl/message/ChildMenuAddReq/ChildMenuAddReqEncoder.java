@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * ChildMenuAddReq message encoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class ChildMenuAddReqEncoder extends AbstractMessageEncoder {

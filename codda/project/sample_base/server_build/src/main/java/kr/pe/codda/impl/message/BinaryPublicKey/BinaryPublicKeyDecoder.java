@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BinaryPublicKey message decoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class BinaryPublicKeyDecoder extends AbstractMessageDecoder {

@@ -23,6 +23,7 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
 import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
@@ -39,7 +40,7 @@ import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class BoardListReqServerTask extends AbstractServerTask {
 
-	@SuppressWarnings("unused")
+	/*@SuppressWarnings("unused")
 	private void sendErrorOutputtMessageForCommit(String errorMessage,
 			Connection conn,			
 			ToLetterCarrier toLetterCarrier,
@@ -66,7 +67,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			}
 		}		
 		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
+	}*/
 	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
@@ -80,7 +81,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
+	/*private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
 			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
 		try {
 			conn.commit();
@@ -89,25 +90,45 @@ public class BoardListReqServerTask extends AbstractServerTask {
 		}
 		
 		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}
+	}*/
 
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
-		doWork(projectName, personalLoginManager, toLetterCarrier, (BoardListReq)inputMessage);
+		try {
+			AbstractMessage outputMessage = doService((BoardListReq)inputMessage);
+			toLetterCarrier.addSyncOutputMessage(outputMessage);
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			log.warn("errmsg=={}, inObj={}", errorMessage, inputMessage.toString());
+			
+			sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+			return;
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder().append("unknwon errmsg=")
+					.append(e.getMessage())
+					.append(", inObj=")
+					.append(inputMessage.toString()).toString();
+			
+			log.warn(errorMessage, e);
+						
+			sendErrorOutputMessage("회원 가입이 실패하였습니다", toLetterCarrier, inputMessage);
+			return;
+		}
 	}
 	
-	public void doWork(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
-			BoardListReq boardListReq) throws Exception {
+	public BoardListRes doService(BoardListReq boardListReq) throws Exception {
 		// FIXME!
 		log.info(boardListReq.toString());
 		
 		try {
 			ValueChecker.checkValidBoardId(boardListReq.getBoardId());
 		} catch(IllegalArgumentException e) {
-			log.warn(e.getMessage(), e);
+			/*log.warn(e.getMessage(), e);
 			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardListReq);
-			return;
+			return;*/
+			String errorMessage = "잘못된 게시판 식별자입니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		
@@ -224,6 +245,10 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					t.field(SB_BOARD_TB.GROUP_SQ).asc()).fetch();
 			
 			
+			
+			conn.commit();
+			
+			
 			java.util.List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
 			  
 			if (null != boardListResult) {
@@ -260,13 +285,23 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			boardListRes.setBoardList(boardList);
 			// log.info(boardListRes.toString());
 			
-			sendSuccessOutputMessageForCommit(boardListRes, conn, toLetterCarrier);
-			return;
+			// sendSuccessOutputMessageForCommit(boardListRes, conn, toLetterCarrier);
+			return boardListRes;
+		/*} catch (ServerServiceException e) {
+			throw e;*/
 		} catch (Exception e) {
-			log.warn("unknown error", e);
+			/*log.warn("unknown error", e);
 			sendErrorOutputMessageForRollback("게시판 조회가 실패하였습니다", conn, toLetterCarrier, boardListReq);
-			return;
+			return;*/
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
 
+			throw e;
 		} finally {
 			if (null != conn) {
 				try {

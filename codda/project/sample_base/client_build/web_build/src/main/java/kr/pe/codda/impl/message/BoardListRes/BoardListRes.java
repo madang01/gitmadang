@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardListRes;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * BoardListRes 메시지
- * @author Won Jonghoon
+ * BoardListRes message
+ * @author Won Jonghooon
  *
  */
 public class BoardListRes extends AbstractMessage {

@@ -14,8 +14,10 @@
 	<property name="dir.core.server.build" location="../../../../core/server" />
 	<property name="core.all.jar.name" value="codda-core-all.jar" />
 	<property name="weblib.jar.name" value="CoddaWebLib.jar" />
-	<property name="dir.webinf.class" location="../../web_app_base/ROOT/WEB-INF/classes" />
-	<property name="dir.webinf.lib" location="../../web_app_base/ROOT/WEB-INF/lib" />
+	<property name="dir.user.webinf.class" location="../../web_app_base/ROOT/WEB-INF/classes" />
+	<property name="dir.user.webinf.lib" location="../../web_app_base/ROOT/WEB-INF/lib" />
+	<property name="dir.admin.webinf.class" location="../../../sample_base_admin/web_app_base/ROOT/WEB-INF/classes" />
+	<property name="dir.admin.webinf.lib" location="../../../sample_base_admin/web_app_base/ROOT/WEB-INF/lib" />
 	<property file="webAnt.properties" />
 	<property name="java.complile.option.debug" value="on" />
 
@@ -61,32 +63,22 @@
 		<fileset file="${dir.core.common.build}/lib/test/commons-exec-1.3.jar" />
 	</union>
 
-	<target name="clean">
-		<delete dir="${dir.main.build}" />
-		<delete dir="${dir.weblib.build}" />
-		<delete dir="${dir.dist}" />
+	<target name="clean.corelib">
 		<delete dir="${dir.corelib}" />
-		<delete dir="${dir.webinf.lib}" />
-		<delete dir="${dir.webinf.class}" />
 	</target>
-
-	<target name="init.var">
+	
+	<target name="init.core.var" depends="clean.corelib">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
 		<echo message="servlet.systemlib.path=${servlet.systemlib.path}" />
-		<mkdir dir="${dir.main.lib}/ex" />
-		<mkdir dir="${dir.main.lib}/in" />
-		<mkdir dir="${dir.weblib.build}" />
 		<mkdir dir="${dir.corelib}/ex" />
 		<mkdir dir="${dir.corelib}/in" />
-		<mkdir dir="${dir.dist}" />
-		<mkdir dir="${dir.webinf.lib}" />
-		<mkdir dir="${dir.webinf.class}" />
 	</target>
+	
 
-	<target name="make.unix.core.all" if="is.unix.yes" depends="init.var">
+	<target name="make.unix.core.all" if="is.unix.yes" depends="init.core.var">
 		<exec dir="${dir.core.all.build}" executable="ant" />
 	</target>
 
@@ -99,7 +91,7 @@
 
 	<target name="make.core.all" depends="make.dos.core.all" />
 
-	<target name="copy.core.all" depends="make.core.all">
+	<target name="copy.core" depends="make.core.all">
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
 			<fileset file="${dir.core.all.build}/dist/${core.all.jar.name}" />
 		</copy>
@@ -107,8 +99,35 @@
 			<union refid="core.all.jarlibs" />
 		</copy>
 	</target>
+	
+	<target name="clean">
+		<delete dir="${dir.main.build}" />
+		<delete dir="${dir.weblib.build}" />
+		<delete dir="${dir.dist}" />
+		<delete dir="${dir.user.webinf.lib}" />
+		<delete dir="${dir.user.webinf.class}" />
+		<delete dir="${dir.admin.webinf.lib}" />
+		<delete dir="${dir.admin.webinf.class}" />
+	</target>
 
-	<target name="compile.weblib" depends="copy.core.all">
+	<target name="init.var">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
+		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
+		<echo message="servlet.systemlib.path=${servlet.systemlib.path}" />
+		<mkdir dir="${dir.main.lib}/ex" />
+		<mkdir dir="${dir.main.lib}/in" />
+		<mkdir dir="${dir.weblib.build}" />
+		<mkdir dir="${dir.dist}" />
+		<mkdir dir="${dir.user.webinf.lib}" />
+		<mkdir dir="${dir.user.webinf.class}" />
+		<mkdir dir="${dir.admin.webinf.lib}" />
+		<mkdir dir="${dir.admin.webinf.class}" />
+	</target>
+	
+
+	<target name="compile.weblib" depends="init.var">
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.weblib.build}">
 			<include name="kr/pe/codda/weblib/**" />
 			<classpath>
@@ -142,18 +161,39 @@
 	</target>
 
 	<target name="dist.weblib" depends="make.weblib">
-		<copy todir="${dir.webinf.lib}" verbose="true" overwrite="true">
+		<copy todir="${dir.user.webinf.lib}" verbose="true" overwrite="true">
 			<fileset file="${dir.dist}/${weblib.jar.name}" />
 		</copy>
-		<copy todir="${dir.webinf.lib}" verbose="true" overwrite="false">
+		<copy todir="${dir.user.webinf.lib}" verbose="true" overwrite="false">
+			<fileset file="${dir.main.lib}/ex/*.jar" />
+		</copy>
+		
+		<copy todir="${dir.admin.webinf.lib}" verbose="true" overwrite="true">
+			<fileset file="${dir.dist}/${weblib.jar.name}" />
+		</copy>
+		<copy todir="${dir.admin.webinf.lib}" verbose="true" overwrite="false">
 			<fileset file="${dir.main.lib}/ex/*.jar" />
 		</copy>
 	</target>
 
 	<target name="compile.webclass" depends="dist.weblib">
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.webinf.class}" excludes="kr/pe/codda/weblib/**">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.user.webinf.class}" excludes="kr/pe/codda/weblib/**">
 			<classpath>
-				<fileset dir="${dir.webinf.lib}">
+				<fileset dir="${dir.user.webinf.lib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${servlet.systemlib.path}">
+					<include name="**/*-api.jar" />
+				</fileset>
+				<fileset dir="${dir.corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.admin.webinf.class}" excludes="kr/pe/codda/weblib/**">
+			<classpath>
+				<fileset dir="${dir.admin.webinf.lib}">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${servlet.systemlib.path}">
@@ -169,15 +209,29 @@
 	<target name="all" depends="compile.webclass" />
 
 	<target name="clean.webclass">
-		<delete dir="${dir.webinf.class}" />
+		<delete dir="${dir.user.webinf.class}" />
 	</target>
 
 	<target name="compile.webclass.only">
-		<mkdir dir="${dir.webinf.class}" />
+		<mkdir dir="${dir.user.webinf.class}" />
 
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.webinf.class}" excludes="kr/pe/codda/weblib/**">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.user.webinf.class}" excludes="kr/pe/codda/weblib/**">
 			<classpath>
-				<fileset dir="${dir.webinf.lib}">
+				<fileset dir="${dir.user.webinf.lib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${servlet.systemlib.path}">
+					<include name="**/*-api.jar" />
+				</fileset>
+				<fileset dir="${dir.corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.admin.webinf.class}" excludes="kr/pe/codda/weblib/**">
+			<classpath>
+				<fileset dir="${dir.admin.webinf.lib}">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${servlet.systemlib.path}">

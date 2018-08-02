@@ -12,13 +12,9 @@ import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {	
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
-		if (! isLogin(req)) {
+		if (! isUserLogin(req)) {
 			String requestURI = req.getRequestURI();
-			
-						
-			// log.info("requestURI={}", requestURI);
-			
-			
+
 			ServerSessionkeyIF webServerSessionkey  = null;
 			try {
 				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
@@ -35,7 +31,7 @@ public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {
 			req.setAttribute("successURL", requestURI);
 			req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 					webServerSessionkey.getModulusHexStrForWeb());
-			printJspPage(req, res, JDF_LOGIN_PAGE);
+			printJspPage(req, res, JDF_USER_LOGIN_INPUT_PAGE);
 			return;
 		} else {
 			super.performPreTask(req, res);

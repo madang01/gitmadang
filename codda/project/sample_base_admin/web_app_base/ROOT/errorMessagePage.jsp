@@ -2,7 +2,7 @@
 <%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
 <%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%>
 <%@ page import="kr.pe.codda.weblib.sitemenu.AdminSiteMenuManger" %><%
-%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><jsp:useBean id="userMessage" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="debugMessage" class="java.lang.String" scope="request" /><%
 	AdminSiteMenuManger adminSiteMenuManger = AdminSiteMenuManger.getInstance();

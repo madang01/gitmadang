@@ -15,7 +15,6 @@ import kr.pe.codda.impl.jooq.SbDb;
 import kr.pe.codda.impl.jooq.tables.records.SbSitemenuTbRecord;
 
 import org.jooq.Field;
-import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Schema;
@@ -41,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
 
-    private static final long serialVersionUID = -1510884379;
+    private static final long serialVersionUID = 128618057;
 
     /**
      * The reference instance of <code>sb_db.sb_sitemenu_tb</code>
@@ -59,7 +58,7 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
     /**
      * The column <code>sb_db.sb_sitemenu_tb.menu_no</code>.
      */
-    public final TableField<SbSitemenuTbRecord, UInteger> MENU_NO = createField("menu_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).identity(true), this, "");
+    public final TableField<SbSitemenuTbRecord, UInteger> MENU_NO = createField("menu_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "");
 
     /**
      * The column <code>sb_db.sb_sitemenu_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
@@ -128,15 +127,7 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_SITEMENU_TB_PRIMARY);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Identity<SbSitemenuTbRecord, UInteger> getIdentity() {
-        return Keys.IDENTITY_SB_SITEMENU_TB;
+        return Arrays.<Index>asList(Indexes.SB_SITEMENU_TB_PRIMARY, Indexes.SB_SITEMENU_TB_SB_SITEMENU_IDX1);
     }
 
     /**

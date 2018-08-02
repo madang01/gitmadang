@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
  * AdminLoginReq server codec
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class AdminLoginReqServerCodec implements MessageCodecIF {

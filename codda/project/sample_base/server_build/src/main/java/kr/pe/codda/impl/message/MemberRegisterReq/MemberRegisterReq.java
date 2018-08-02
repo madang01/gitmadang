@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * MemberRegisterReq message
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public class MemberRegisterReq extends AbstractMessage {

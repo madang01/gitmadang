@@ -15,14 +15,44 @@
                       http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	version="3.0" metadata-complete="true">
 
-	<display-name>Welcome to Sinnori</display-name>
+	<display-name>Welcome to Codda</display-name>
 	<description>
-	Welcome to Sinnori
+	Welcome to Codda
     </description>
+	
+	<servlet>
+		<servlet-name>UserLogin</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.UserLoginSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/UserLogin</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserLogin</servlet-name>
+		<url-pattern>/servlet/UserLogin</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>UserMemberRegistration</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.UserMemberRegistrationSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserMemberRegistration</servlet-name>
+		<url-pattern>/servlet/UserMemberRegistration</url-pattern>
+	</servlet-mapping>	
 	
 	<servlet>
 		<servlet-name>SessionKeyTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.SessionKeyTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/SessionKeyTest</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>SessionKeyTest</servlet-name>
@@ -30,17 +60,12 @@
 	</servlet-mapping>	
 
 	<servlet>
-		<servlet-name>Member</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MemberSvl</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Member</servlet-name>
-		<url-pattern>/servlet/Member</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
 		<servlet-name>JDFNotLoginTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.JDFNotLoginTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JDFNotLoginTest</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JDFNotLoginTest</servlet-name>
@@ -50,6 +75,10 @@
 	<servlet>
 		<servlet-name>JSBNTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.JSBNTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JSBNTest</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JSBNTest</servlet-name>
@@ -59,6 +88,10 @@
 	<servlet>
 		<servlet-name>CryptoJSMDTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.CryptoJSMDTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/CryptoJSMDTest</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CryptoJSMDTest</servlet-name>
@@ -68,6 +101,10 @@
 	<servlet>
 		<servlet-name>CryptoJSSKTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.CryptoJSSKTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/CryptoJSSKTest</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CryptoJSSKTest</servlet-name>
@@ -77,6 +114,10 @@
 	<servlet>
 		<servlet-name>EchoTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.EchoTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/EchoTest</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>EchoTest</servlet-name>
@@ -86,24 +127,25 @@
 	<servlet>
 		<servlet-name>AllItemTypeTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.AllItemTypeTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/AllItemTypeTest</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>AllItemTypeTest</servlet-name>
 		<url-pattern>/servlet/AllItemTypeTest</url-pattern>
 	</servlet-mapping>
 
-	<servlet>
-		<servlet-name>SimpleCounter</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.SimpleCounterSvl</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>SimpleCounter</servlet-name>
-		<url-pattern>/servlet/SimpleCounter</url-pattern>
-	</servlet-mapping>
+	
 
 	<servlet>
 		<servlet-name>JDFLoginTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.JDFLoginTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JDFLoginTest</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JDFLoginTest</servlet-name>
@@ -111,17 +153,12 @@
 	</servlet-mapping>
 
 	<servlet>
-		<servlet-name>Login</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.LoginSvl</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Login</servlet-name>
-		<url-pattern>/servlet/Login</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
 		<servlet-name>BoardList</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardListSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardList</servlet-name>
@@ -131,6 +168,10 @@
 	<servlet>
 		<servlet-name>BoardVote</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardVoteSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardVote</servlet-name>
@@ -140,6 +181,10 @@
 	<servlet>
 		<servlet-name>BoardDetail</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardDetailSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardDetail</servlet-name>
@@ -159,6 +204,10 @@
 	<servlet>
 		<servlet-name>BoardReply</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardReplySvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardReply</servlet-name>
@@ -168,6 +217,10 @@
 	<servlet>
 		<servlet-name>BoardModify</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardModifySvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardModify</servlet-name>
@@ -177,6 +230,10 @@
 	<servlet>
 		<servlet-name>BoardUpload</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardUploadSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardUpload</servlet-name>
@@ -186,6 +243,10 @@
 	<servlet>
 		<servlet-name>BoardDownload</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardDownloadSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>BoardDownload</servlet-name>
@@ -196,6 +257,10 @@
 	<servlet>
 		<servlet-name>JavaGarbageCollection</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.JavaGarbageCollectionSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JavaGarbageCollection</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JavaGarbageCollection</servlet-name>
@@ -205,12 +270,16 @@
 	<servlet>
 		<servlet-name>JavaStringConversionTool</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.JavaStringConversionToolSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JavaStringConversionTool</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JavaStringConversionTool</servlet-name>
 		<url-pattern>/servlet/JavaStringConversionTool</url-pattern>
 	</servlet-mapping>
-
+	
 	<!-- Simple Captcha start -->
 	<servlet>
         <servlet-name>StickyCaptcha</servlet-name>

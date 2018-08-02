@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.SeqValueRes;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,8 +23,8 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * SeqValueRes 클라이언트 코덱
- * @author Won Jonghoon
+ * SeqValueRes client codec
+ * @author Won Jonghooon
  *
  */
 public final class SeqValueResClientCodec implements MessageCodecIF {

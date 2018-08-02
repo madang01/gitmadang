@@ -39,7 +39,8 @@ import kr.pe.codda.weblib.htmlstring.HtmlStringUtil;
  */
 @SuppressWarnings("serial")
 public abstract class JDFBaseServlet extends AbstractBaseServlet {
-	protected String JDF_LOGIN_PAGE = null;
+	protected String JDF_ADMIN_LOGIN_INPUT_PAGE = "/jsp/member/adminLoginInput.jsp";
+	protected String JDF_USER_LOGIN_INPUT_PAGE = null;
 	protected String JDF_ERROR_MESSAGE_PAGE = null;
 	protected String JDF_SESSION_KEY_PAGE = null;
 	protected boolean JDF_SERVLET_TRACE = true;
@@ -57,7 +58,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					.getRunningProjectConfiguration()
 					.getCommonPartConfiguration();
 		
-		JDF_LOGIN_PAGE = commonPart.getJdfLoginPage();
+		JDF_USER_LOGIN_INPUT_PAGE = commonPart.getJdfLoginPage();
 		JDF_ERROR_MESSAGE_PAGE = commonPart.getJdfErrorMessagePage();
 		JDF_SERVLET_TRACE = commonPart.getJdfServletTrace();
 		JDF_SESSION_KEY_PAGE = "/sessionKeyRedirect.jsp";

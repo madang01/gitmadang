@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * ChildMenuAddRes message decoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class ChildMenuAddResDecoder extends AbstractMessageDecoder {

@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BinaryPublicKey message
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public class BinaryPublicKey extends AbstractMessage {

@@ -28,6 +28,11 @@ public abstract class ServerCommonStaticFinalVars {
 	/** 비밀번호 힌트 최대 문자수 혹은 비밀번호 답변 최대 문자수 */
 	public static final int MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS = 30;
 	
+	
+	public static final int MIN_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS = 2;
+	public static final int MAX_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS = 30;
+	
+	
 	/** 별명 최소 문자수 */
 	public static final int MIN_NUMBER_OF_NICKNAME_CHARRACTERS = 4;
 	/** 별명 최대 문자수 */

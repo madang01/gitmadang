@@ -1,6 +1,6 @@
 <%@page import="com.google.gson.Gson"%><%
 %><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%
-%><%@page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+%><%@page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><jsp:useBean id="childMenuAddRes" class="kr.pe.codda.impl.message.ChildMenuAddRes.ChildMenuAddRes" scope="request" /><%
 %><!DOCTYPE html>
 <html lang="ko">

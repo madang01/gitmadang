@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardVoteReq;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * BoardVoteReq 메시지
- * @author Won Jonghoon
+ * BoardVoteReq message
+ * @author Won Jonghooon
  *
  */
 public class BoardVoteReq extends AbstractMessage {

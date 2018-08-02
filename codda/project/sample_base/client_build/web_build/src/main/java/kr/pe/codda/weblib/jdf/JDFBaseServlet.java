@@ -17,6 +17,7 @@
 package kr.pe.codda.weblib.jdf;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -26,8 +27,10 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.codda.weblib.htmlstring.HtmlStringUtil;
+import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil;
+import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE;
 
 /**
  * <pre>
@@ -38,9 +41,10 @@ import kr.pe.codda.weblib.htmlstring.HtmlStringUtil;
  */
 @SuppressWarnings("serial")
 public abstract class JDFBaseServlet extends AbstractBaseServlet {
-	// protected String WEB_LAYOUT_CONTROL_PAGE = null;
-	protected String JDF_LOGIN_PAGE = null;
+	protected String JDF_ADMIN_LOGIN_INPUT_PAGE = "/jsp/member/adminLoginInput.jsp";
+	protected String JDF_USER_LOGIN_INPUT_PAGE = null;
 	protected String JDF_ERROR_MESSAGE_PAGE = null;
+	protected String JDF_SESSION_KEY_PAGE = null;
 	protected boolean JDF_SERVLET_TRACE = true;
 
 	/**
@@ -56,10 +60,10 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					.getRunningProjectConfiguration()
 					.getCommonPartConfiguration();
 		
-		// WEB_LAYOUT_CONTROL_PAGE = commonPart.getWebLayoutControlPage();
-		JDF_LOGIN_PAGE = commonPart.getJdfLoginPage();
+		JDF_USER_LOGIN_INPUT_PAGE = commonPart.getJdfLoginPage();
 		JDF_ERROR_MESSAGE_PAGE = commonPart.getJdfErrorMessagePage();
 		JDF_SERVLET_TRACE = commonPart.getJdfServletTrace();
+		JDF_SESSION_KEY_PAGE = "/sessionKeyRedirect.jsp";
 	}
 
 	/**
@@ -123,6 +127,15 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
+		
+		
+		Enumeration<String> keys = req.getParameterNames();
+		while (keys.hasMoreElements()) {
+			String paramKey = keys.nextElement();
+			
+			log.info("get::key:{},value={}", paramKey, req.getParameter(paramKey));
+		}
+		
 		performBasePreTask(req, res);
 	}
 
@@ -172,6 +185,13 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
+		Enumeration<String> keys = req.getParameterNames();
+		while (keys.hasMoreElements()) {
+			String paramKey = keys.nextElement();
+			
+			log.info("post::key:{},value={}", paramKey, req.getParameter(paramKey));
+		}
+		
 		performBasePreTask(req, res);
 	}
 
@@ -184,8 +204,46 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	 */
 	protected void performBasePreTask(HttpServletRequest req,
 			HttpServletResponse res) throws ServletException, IOException {
-
-		req.setCharacterEncoding(CommonStaticFinalVars.SOURCE_FILE_CHARSET.name());
+		// req.setCharacterEncoding(CommonStaticFinalVars.DEFUALT_CHARSET.name());
+		// res.setContentType("text/html;charset=UTF-8");
+		
+		String menuGroupURL = this.getInitParameter(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL);
+		if (null == menuGroupURL) {
+			log.warn("the servlet init parameter '{}' is null in requestURI[{}]", 
+					WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL,
+					req.getRequestURI());
+			menuGroupURL = "/";
+		}
+		
+		if (menuGroupURL.equals("/servlet/BoardList")) {
+			String paramBoardId = req.getParameter("boardId");
+			short boardId = BoardType.FREE.getBoardID();
+			BoardType boardType = BoardType.FREE;
+			
+			if (null != paramBoardId) {
+				try {
+					boardId = Short.parseShort(paramBoardId);
+					
+					try {
+						boardType = BoardType.valueOf(boardId);
+					} catch(IllegalArgumentException e) {
+						log.error("the parameter 'boardId'[{}] is not a BoardType in the request URI[{}]", paramBoardId, req.getRequestURI());
+						System.exit(1);
+					}
+				} catch (NumberFormatException nfe) {
+					log.error("the parameter 'boardId'[{}] is not a short type in the request URI[{}]", paramBoardId, req.getRequestURI());
+					System.exit(1);
+				}
+			} else {
+				log.error("the parameter 'boardId' doesn't exist in the request URI[{}]", req.getRequestURI());
+				System.exit(1);
+			}		
+			
+			menuGroupURL = new StringBuilder(menuGroupURL).append("?boardId=")
+					.append(boardType.getBoardID()).toString();
+		}
+		
+		req.setAttribute(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL, menuGroupURL);
 		
 		String traceLogBaseMsg = null;
 		long start = 0, end = 0;
@@ -380,12 +438,14 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 				java.io.PrintWriter out = null;
 				try {
 					out = res.getWriter();
-					out.print("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
+					out.print("<!DOCTYPE html><html lang=\"ko\"><head><meta charset=\"UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
 					out.print("<title>");
 					out.print(WebCommonStaticFinalVars.WEBSITE_TITLE);
 					out.print("</title>");
 					out.println("</head><body bgcolor=white>");
-					out.println(HtmlStringUtil.toHtml4BRString(debugMessage));
+					out.println(StringReplacementActorUtil.replace(debugMessage, 
+							STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+							STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR));
 					out.println("</body></html>");				
 				} finally {
 					try {

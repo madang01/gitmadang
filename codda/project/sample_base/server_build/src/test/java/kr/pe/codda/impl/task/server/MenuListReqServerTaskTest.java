@@ -9,8 +9,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.impl.message.MenuListReq.MenuListReq;
-import kr.pe.codda.impl.message.MenuListRes.MenuListRes;
+import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
+import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
 import kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -26,15 +26,15 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoServie_ok() {
-		MenuListReqServerTask menuListReqServerTask = new MenuListReqServerTask();
+		ArraySiteMenuReqServerTask menuListReqServerTask = new ArraySiteMenuReqServerTask();
 		
-		MenuListReq menuListReq = new MenuListReq();
+		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
 		
 		try {
-			MenuListRes MenuListRes = menuListReqServerTask.doService(menuListReq);
+			ArraySiteMenuRes ArraySiteMenuRes = menuListReqServerTask.doService(menuListReq);
 			
 			
-			for (MenuListRes.Menu menu : MenuListRes.getMenuList()) {
+			for (ArraySiteMenuRes.Menu menu : ArraySiteMenuRes.getMenuList()) {
 				StringBuilder tabStringBuilder = new StringBuilder();
 				for (int i=0; i < menu.getDepth(); i++) {
 					tabStringBuilder.append("\t");
@@ -44,21 +44,21 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 			
 		} catch (Exception e) {
 			log.warn("error", e);
-			fail("fail to get a output message 'MenuListRes'");
+			fail("fail to get a output message 'ArraySiteMenuRes'");
 		}
 	}
 	
 	@Test
 	public void testDoServie_두번루트메뉴등록하여목록점검() {
-		MenuListReqServerTask menuListReqServerTask = new MenuListReqServerTask();
-		MenuListReq menuListReq = new MenuListReq();
-		MenuListRes beforeMenuListRes = null;
-		MenuListRes afterMenuListRes = null;
+		ArraySiteMenuReqServerTask menuListReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
+		ArraySiteMenuRes beforeMenuListRes = null;
+		ArraySiteMenuRes afterMenuListRes = null;
 		try {
 			beforeMenuListRes = menuListReqServerTask.doService(menuListReq);
 		} catch (Exception e) {
 			log.warn("error", e);
-			fail("fail to get a output message 'MenuListRes'");
+			fail("fail to get a output message 'ArraySiteMenuRes'");
 		}		
 		
 		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
@@ -79,10 +79,10 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 			afterMenuListRes = menuListReqServerTask.doService(menuListReq);
 		} catch (Exception e) {
 			log.warn("error", e);
-			fail("fail to get a output message 'MenuListRes'");
+			fail("fail to get a output message 'ArraySiteMenuRes'");
 		}
 		
-		java.util.List<MenuListRes.Menu> afterMenulist = afterMenuListRes.getMenuList();
+		java.util.List<ArraySiteMenuRes.Menu> afterMenulist = afterMenuListRes.getMenuList();
 		
 		if (afterMenulist.size() == 0) {
 			fail("등록후 목록의 크기가 0 입니다, 즉 루트 메뉴 추가 실패");
@@ -91,17 +91,17 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		Set<Long> beforeMenuNoSet = new HashSet<Long>();
 		Set<Long> afterMenuNoSet = new HashSet<Long>();
 		
-		for (MenuListRes.Menu menu : beforeMenuListRes.getMenuList()) {
+		for (ArraySiteMenuRes.Menu menu : beforeMenuListRes.getMenuList()) {
 			beforeMenuNoSet.add(menu.getMenuNo());
 		}
 		
-		for (MenuListRes.Menu menu : afterMenuListRes.getMenuList()) {
+		for (ArraySiteMenuRes.Menu menu : afterMenuListRes.getMenuList()) {
 			afterMenuNoSet.add(menu.getMenuNo());
 		}
 		
 		int lastIndex = afterMenuListRes.getMenuList().size() - 1;
 		
-		MenuListRes.Menu lastMenu = afterMenuListRes.getMenuList().get(lastIndex);
+		ArraySiteMenuRes.Menu lastMenu = afterMenuListRes.getMenuList().get(lastIndex);
 		
 		if (lastMenu.getMenuNo() != firstRootMenuAddRes.getMenuNo()) {
 			log.info("after list::{}", afterMenuListRes.toString());

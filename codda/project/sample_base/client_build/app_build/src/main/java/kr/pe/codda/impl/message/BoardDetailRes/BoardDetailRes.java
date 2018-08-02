@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardDetailRes message
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public class BoardDetailRes extends AbstractMessage {

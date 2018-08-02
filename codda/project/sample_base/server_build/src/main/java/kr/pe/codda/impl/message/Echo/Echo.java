@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.Echo;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * Echo 메시지
- * @author Won Jonghoon
+ * Echo message
+ * @author Won Jonghooon
  *
  */
 public class Echo extends AbstractMessage {

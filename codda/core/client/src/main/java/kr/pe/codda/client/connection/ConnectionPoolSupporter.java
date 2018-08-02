@@ -42,6 +42,9 @@ protected InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolS
 				} catch(IOException | NoMoreDataPacketBufferException e) {
 					log.warn("통제된 에러에 의한 루프 종료", e);
 					break;
+				} catch(Exception e) {
+					log.warn("알수 없는 에러에 의한 루프 종료", e);
+					break;
 				}
 				
 				log.debug("end the work adding the all missing connection");

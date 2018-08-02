@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.SeqValueRes;
 
 import kr.pe.codda.common.message.AbstractMessage;
@@ -21,8 +22,8 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
- * SeqValueRes 메시지 인코더
- * @author Won Jonghoon
+ * SeqValueRes message encoder
+ * @author Won Jonghooon
  *
  */
 public final class SeqValueResEncoder extends AbstractMessageEncoder {

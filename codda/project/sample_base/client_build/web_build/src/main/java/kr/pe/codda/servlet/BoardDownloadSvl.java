@@ -25,7 +25,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {		
-		if (! isLogin(req)) {
+		if (! isUserLogin(req)) {
 			String errorMessage = new StringBuilder("파일 업로드는 로그인 서비스 입니다. 로그인 하시기 바랍니다.").toString();		
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
 			

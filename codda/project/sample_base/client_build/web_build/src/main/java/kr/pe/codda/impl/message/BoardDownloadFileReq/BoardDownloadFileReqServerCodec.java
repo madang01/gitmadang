@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardDownloadFileReq;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,8 +23,8 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * BoardDownloadFileReq 서버 코덱
- * @author Won Jonghoon
+ * BoardDownloadFileReq server codec
+ * @author Won Jonghooon
  *
  */
 public final class BoardDownloadFileReqServerCodec implements MessageCodecIF {

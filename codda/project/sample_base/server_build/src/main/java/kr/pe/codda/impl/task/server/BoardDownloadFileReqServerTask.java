@@ -13,6 +13,7 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.codda.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
@@ -24,7 +25,7 @@ import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class BoardDownloadFileReqServerTask extends AbstractServerTask {
-	private void sendErrorOutputMessageForCommit(String errorMessage,
+	/*private void sendErrorOutputMessageForCommit(String errorMessage,
 			Connection conn,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {		
@@ -48,7 +49,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			}
 		}		
 		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
+	}*/
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
@@ -61,7 +62,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
+	/*private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
 			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
 		try {
 			conn.commit();
@@ -70,7 +71,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 		}
 		
 		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}
+	}*/
 	
 
 	@Override
@@ -78,11 +79,29 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			PersonalLoginManagerIF personalLoginManager, 
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
-		doWork(projectName, toLetterCarrier, (BoardDownloadFileReq)inputMessage);
+		try {
+			AbstractMessage outputMessage = doService((BoardDownloadFileReq)inputMessage);
+			toLetterCarrier.addSyncOutputMessage(outputMessage);
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			log.warn("errmsg=={}, inObj={}", errorMessage, inputMessage.toString());
+			
+			sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+			return;
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder().append("unknwon errmsg=")
+					.append(e.getMessage())
+					.append(", inObj=")
+					.append(inputMessage.toString()).toString();
+			
+			log.warn(errorMessage, e);
+						
+			sendErrorOutputMessage("다운로드가 실패하였습니다", toLetterCarrier, inputMessage);
+			return;
+		}
 	}
 	
-	private void doWork(String projectName,
-			ToLetterCarrier toLetterCarrier, BoardDownloadFileReq boardDownloadFileReq)
+	public BoardDownloadFileRes doService(BoardDownloadFileReq boardDownloadFileReq)
 			throws Exception {
 		// FIXME!
 		log.info(boardDownloadFileReq.toString());
@@ -106,10 +125,19 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			.fetchOne();
 			
 			if (null == attachedFileListRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = "다운 로드 파일 정보가 존재하지 않습니다";
-				sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardDownloadFileReq);
-				return;
+				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardDownloadFileReq);
+				return;*/
+				throw new ServerServiceException(errorMessage);
 			}
+			
+			conn.commit();
 			
 			BoardDownloadFileRes boardDownloadFileRes = new BoardDownloadFileRes();
 			boardDownloadFileRes.setOwnerId(attachedFileListRecord.getValue(SB_BOARD_FILEINFO_TB.OWNER_ID));
@@ -118,24 +146,26 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			boardDownloadFileRes.setAttachFiledName(attachedFileListRecord.getValue(SB_BOARD_FILELIST_TB.ATTACH_FNAME));
 			boardDownloadFileRes.setSystemFileName(attachedFileListRecord.getValue(SB_BOARD_FILELIST_TB.SYS_FNAME));
 			
-			sendSuccessOutputMessageForCommit(boardDownloadFileRes, conn, toLetterCarrier);
-			return;
+			// sendSuccessOutputMessageForCommit(boardDownloadFileRes, conn, toLetterCarrier);
+			return boardDownloadFileRes;
+		} catch (ServerServiceException e) {
+			throw e;
 		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknown error, inObj=")
-					.append(boardDownloadFileReq.toString()).toString();
-			log.warn(errorMessage, e);
-
 			if (null != conn) {
 				try {
 					conn.rollback();
 				} catch (Exception e1) {
 					log.warn("fail to rollback");
 				}
-			}			
+			}	
 			
-			sendErrorOutputMessageForRollback("다운 로드 파일 정보를 얻는데 실패하였습니다", conn, toLetterCarrier, boardDownloadFileReq);
-			return;
-
+			/*String errorMessage = new StringBuilder("unknown error, inObj=")
+					.append(boardDownloadFileReq.toString()).toString();
+			log.warn(errorMessage, e);	*/				
+			
+			/*sendErrorOutputMessageForRollback("다운 로드 파일 정보를 얻는데 실패하였습니다", conn, toLetterCarrier, boardDownloadFileReq);
+			return;*/
+			throw e;
 		} finally {
 			if (null != conn) {
 				try {

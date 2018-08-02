@@ -88,9 +88,36 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		
 		connectionQueue = new ArrayDeque<SyncNoShareConnection>(projectPartConfiguration.getClientConnectionMaxCount());
 		
-		for (int i=0; i < projectPartConfiguration.getClientConnectionCount(); i++) {
-			addConnection();
-		}		
+		try {
+			for (int i=0; i < projectPartConfiguration.getClientConnectionCount(); i++) {
+				addConnection();
+			}	
+		} catch(NoMoreDataPacketBufferException e) {
+			log.warn("stops adding SyncNoShareConnection because a data packet buffer error has occurred");
+			
+		} catch(IOException e) {
+			log.warn("stops adding SyncNoShareConnection because an I/O error has occurred", e);
+		
+			log.info("removes all of the SyncNoShareConnection from the queue because an I/O error has occurred");
+			while (! connectionQueue.isEmpty()) {
+				SyncNoShareConnection syncNoShareConnection = connectionQueue.removeFirst();
+				syncNoShareConnection.close();
+				
+				log.info("removes the SyncNoShareConnection[{}] from the queue because an I/O error has occurred", syncNoShareConnection.hashCode());
+			}
+			numberOfConnection = 0;
+		} catch(Exception e) {
+			log.warn("stops adding SyncNoShareConnection because an unknown error has occurred", e);
+			
+			log.info("removes all of the SyncNoShareConnection from the queue because an I/O error has occurred");
+			while (! connectionQueue.isEmpty()) {
+				SyncNoShareConnection syncNoShareConnection = connectionQueue.removeFirst();
+				syncNoShareConnection.close();
+				
+				log.info("removes the SyncNoShareConnection[{}] from the queue because an I/O error has occurred", syncNoShareConnection.hashCode());
+			}
+			numberOfConnection = 0;
+		}
 		
 		connectionPoolSupporter.registerPool(this);
 	}
@@ -226,21 +253,15 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	private void addConnection() throws NoMoreDataPacketBufferException, IOException {
 		
 		SocketOutputStream sos = socketOutputStreamFactory.createSocketOutputStream();
-		SyncNoShareConnection syncNoShareConnection = null;
-		try {
-			syncNoShareConnection = new SyncNoShareConnection(serverHost,
+		
+		SyncNoShareConnection syncNoShareConnection = new SyncNoShareConnection(serverHost,
 					serverPort,
 					socketTimeout,
 					clientDataPacketBufferSize,
 					sos, messageProtocol, clientObjectCacheManager, dataPacketBufferPool);
-		} catch(Exception e) {
-			sos.close();
-			throw e;
-		}
+				
 		
-		
-		
-		log.info("the connection[{}] has been connected", syncNoShareConnection.hashCode());
+		log.info("the SyncNoShareConnection[{}] has been connected", syncNoShareConnection.hashCode());
 		
 		synchronized (monitor) {
 			connectionQueue.addLast(syncNoShareConnection);

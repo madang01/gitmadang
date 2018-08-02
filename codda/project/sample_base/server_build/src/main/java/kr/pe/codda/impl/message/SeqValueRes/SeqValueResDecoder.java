@@ -14,15 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.SeqValueRes;
 
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
+
 /**
- * SeqValueRes 메시지 디코더
- * @author Won Jonghoon
+ * SeqValueRes message decoder
+ * @author Won Jonghooon
  *
  */
 public final class SeqValueResDecoder extends AbstractMessageDecoder {

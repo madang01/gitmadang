@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardDownloadFileReq;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * BoardDownloadFileReq 메시지
- * @author Won Jonghoon
+ * BoardDownloadFileReq message
+ * @author Won Jonghooon
  *
  */
 public class BoardDownloadFileReq extends AbstractMessage {

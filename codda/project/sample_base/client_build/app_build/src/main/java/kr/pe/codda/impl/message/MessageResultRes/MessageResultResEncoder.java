@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * MessageResultRes message encoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class MessageResultResEncoder extends AbstractMessageEncoder {

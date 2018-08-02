@@ -180,7 +180,7 @@ public class AdminSiteMenuManger {
 				.append(CommonStaticFinalVars.NEWLINE)
 				.append(getTabStrings(tapStep+4))
 				.append("<li><a href=\"")
-				.append("/servlet/Member")
+				.append("/servlet/AdminMemberRegistration")
 				.append("\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up</a></li>")
 				.append(CommonStaticFinalVars.NEWLINE);				
 		

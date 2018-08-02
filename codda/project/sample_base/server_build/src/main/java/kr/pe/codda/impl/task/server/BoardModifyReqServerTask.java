@@ -15,6 +15,7 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.jooq.tables.records.SbBoardTbRecord;
 import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
@@ -29,7 +30,7 @@ import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class BoardModifyReqServerTask extends AbstractServerTask {
-	private void sendErrorOutputMessageForCommit(String errorMessage,
+	/*private void sendErrorOutputMessageForCommit(String errorMessage,
 			Connection conn,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {		
@@ -53,7 +54,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 		}		
 		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
+	}*/
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
@@ -66,7 +67,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, 
+	/*private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, 
 			Connection conn,
 			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
 		try {
@@ -76,7 +77,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 		
 		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}
+	}*/
 	
 	@Override
 	public void doTask(String projectName, 
@@ -84,55 +85,81 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		
-		doWork(projectName, personalLoginManager, toLetterCarrier, (BoardModifyReq)inputMessage);
+		try {
+			AbstractMessage outputMessage = doService((BoardModifyReq)inputMessage);
+			toLetterCarrier.addSyncOutputMessage(outputMessage);
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			log.warn("errmsg=={}, inObj={}", errorMessage, inputMessage.toString());
+			
+			sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+			return;
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder().append("unknwon errmsg=")
+					.append(e.getMessage())
+					.append(", inObj=")
+					.append(inputMessage.toString()).toString();
+			
+			log.warn(errorMessage, e);
+						
+			sendErrorOutputMessage("게시글 수정하는데 실패하였습니다", toLetterCarrier, inputMessage);
+			return;
+		}
 	}
 	
-	public void doWork(String projectName, 
-			PersonalLoginManagerIF personalLoginManager, 
-			ToLetterCarrier toLetterCarrier,
-			BoardModifyReq boardModifyReq) throws Exception {
+	public MessageResultRes doService(BoardModifyReq boardModifyReq) throws Exception {
 		// FIXME!
 		log.info(boardModifyReq.toString());
 		
 		try {
 			BoardType.valueOf(boardModifyReq.getBoardId());
 		} catch(IllegalArgumentException e) {
-			log.warn(e.getMessage(), e);
+			/*log.warn(e.getMessage(), e);
 			sendErrorOutputMessage("잘못된 게시판 종류입니다", toLetterCarrier, boardModifyReq);
-			return;
+			return;*/
+			String errorMessage = "잘못된 게시판 식별자입니다";
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			ValueChecker.checkValidSubject(boardModifyReq.getSubject());
 		} catch(RuntimeException e) {
-			log.warn(e.getMessage(), e);
+			/*log.warn(e.getMessage(), e);
 			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardModifyReq);
-			return;
+			return;*/
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			ValueChecker.checkValidContent(boardModifyReq.getContent());
 		} catch(RuntimeException e) {
-			log.warn(e.getMessage(), e);
+			/*log.warn(e.getMessage(), e);
 			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardModifyReq);
-			return;
+			return;*/
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			ValueChecker.checkValidWriterId(boardModifyReq.getUserId());
 		} catch(RuntimeException e) {
-			log.warn(e.getMessage(), e);
+			/*log.warn(e.getMessage(), e);
 			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardModifyReq);
-			return;
+			return;*/
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		
 		try {
 			ValueChecker.checkValidIP(boardModifyReq.getIp());
 		} catch(RuntimeException e) {
-			log.warn(e.getMessage(), e);
+			/*log.warn(e.getMessage(), e);
 			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardModifyReq);
-			return;
+			return;*/
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
 		}
 		
 		DataSource dataSource = DBCPManager.getInstance()
@@ -160,11 +187,18 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			.forUpdate().fetchOne();
 			
 			if (null == boardRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder("해당 게시글[")
 						.append(boardModifyReq.getBoardNo())
 						.append("이 존재 하지 않습니다").toString();
-				sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
-				return;
+				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
+				return;*/
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			short boardTypeValue = boardRecord.get(SB_BOARD_TB.BOARD_ID).shortValue();
@@ -173,16 +207,29 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				@SuppressWarnings("unused")
 				BoardType boardType = BoardType.valueOf(boardTypeValue);
 			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder("해당 게시글[")
 						.append(boardModifyReq.getBoardNo())
 						.append("의 게시판 식별자[")
 						.append(boardTypeValue)
 						.append("]가 잘못되어 있습니다").toString();
-				sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
-				return;
+				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
+				return;*/
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			if (boardModifyReq.getBoardId() != boardTypeValue) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder("해당 게시글[")
 						.append(boardModifyReq.getBoardNo())
 						.append("의 게시판 식별자[")
@@ -190,33 +237,49 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 						.append("]와 입력 메시지상의 게시판 식별자[")
 						.append(boardModifyReq.getBoardId())
 						.append("]가 상이합니다").toString();
-				sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
-				return;
+				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
+				return;*/
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			
 			String writerID = boardRecord.get(SB_BOARD_TB.WRITER_ID);
 			
 			if (! boardModifyReq.getUserId().equals(writerID)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder("해당 게시글[")
 						.append(boardModifyReq.getBoardNo())
 						.append("]의 작성자[")
 						.append(boardModifyReq.getUserId())
 						.append("]만이 수정 할 수 있습니다").toString();
-				sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
-				return;
+				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
+				return;*/
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			String nativeMemberStateType = boardRecord.get(SB_MEMBER_TB.MEMBER_ST);
 			MemberStateType memberStateType =  MemberStateType.valueOf(nativeMemberStateType, false);
 			if (! memberStateType.equals(MemberStateType.OK)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
 				String errorMessage = new StringBuilder("비 정상 회원[")
 						.append(memberStateType.getName())
 						.append("]은 해당 게시글[")
 						.append(boardModifyReq.getBoardNo())
 						.append("는 접근 할 수 없습니다").toString();				
-				sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
-				return;
+				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardModifyReq);
+				return;*/
+				
+				throw new ServerServiceException(errorMessage);
 			}
 			
 			/*
@@ -242,10 +305,19 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			if (0 == countOfUpdate) {
-				String errorMessage = "1.게시글 수정이 실패하였습니다";
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardModifyReq);
-				return;
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "게시글 DB 수정하는데 실패하였습니다";
+				/*sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardModifyReq);
+				return;*/
+				throw new ServerServiceException(errorMessage);
 			}
+			
+			conn.commit();
 			
 			
 			MessageResultRes messageResultRes = new MessageResultRes();
@@ -253,13 +325,25 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			messageResultRes.setIsSuccess(true);		
 			messageResultRes.setResultMessage("게시글 수정이 성공하였습니다");
 			
-			sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
+			//sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
 			
+			return messageResultRes;
+		} catch (ServerServiceException e) {
+			throw e;
 		} catch (Exception e) {
-			log.warn("unknown error", e);
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+			
+			/*log.warn("unknown error", e);
 			
 			sendErrorOutputMessageForRollback("2.게시글 수정이 실패하였습니다", conn, toLetterCarrier, boardModifyReq);
-			return;
+			return;*/
+			throw e;
 
 		} finally {
 			if (null != conn) {

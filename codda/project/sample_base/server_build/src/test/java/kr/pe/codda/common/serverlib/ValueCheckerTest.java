@@ -61,17 +61,39 @@ public class ValueCheckerTest extends AbstractJunitTest {
 			pawdHitStringBuilder.append("a");
 		}
 		
+		String pwdHint = pawdHitStringBuilder.toString();
+		
 		try {
-			ValueChecker.checkValidPwdHint(pawdHitStringBuilder.toString());
+			ValueChecker.checkValidPwdHint(pwdHint);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  new StringBuilder("비밀번호 분실 힌트는 한글, 영문, 숫자 조합으로 최소 ")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자 최대 ")
+			String expectedErrorMessage =  new StringBuilder("비밀번호 분실시 힌트[")
+					.append(pwdHint)
+					.append("]의 글자수는 최대 글자수[")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자를 요구합니다").toString();
+					.append("] 보다 큽니다").toString();
+			
+			assertEquals(expectedErrorMessage, errorMessage);
+		}
+	}
+	
+	@Test
+	public void testCheckValidPwdHint_최소글자수미달() {
+		String pwdHint = "a";
+		
+		try {
+			ValueChecker.checkValidPwdHint(pwdHint);
+			
+			fail("no IllegalArgumentException");
+		} catch(IllegalArgumentException e) {			
+			String errorMessage = e.getMessage();
+			String expectedErrorMessage =  new StringBuilder("비밀번호 분실시 힌트[")
+					.append(pwdHint)
+					.append("]의 글자수는 최소 글자수[")
+					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
+					.append("] 보다 작습니다").toString();
 			
 			assertEquals(expectedErrorMessage, errorMessage);
 		}
@@ -95,7 +117,7 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		String password = null;;
 		byte[] passwordBytes = null;
 		
-		password = "j1fuev#";
+		password = "j1fev#";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
 			ValueChecker.checkValidPwd(passwordBytes);
@@ -136,17 +158,43 @@ public class ValueCheckerTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testCheckValidPwd_badPasswordChar() {
+	public void testCheckValidPwd_비밀번호가저장된바이트배열에서음수값을포함한경우() {
 		String password = null;;
 		byte[] passwordBytes = null;
 		
-		password = "j1fue=\riv#";
+		password = "한글iv#";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
 			ValueChecker.checkValidPwd(passwordBytes);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
+			// log.info("추적용", e);
+			
+			String errorMessage = e.getMessage();
+			String expectedErrorMessage =  new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
+					.append("자 최대 ")
+					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
+					.append("자를 요구합니다").toString();
+			assertEquals(expectedErrorMessage, errorMessage);
+		}
+	}
+	
+	@Test
+	public void testCheckValidPwd_비밀번호가저장된바이트배열에서특수문자가포함된경우() {
+		String password = null;;
+		byte[] passwordBytes = null;
+		
+		password = "ab37!@\r#";
+		passwordBytes = password.getBytes(Charset.forName("utf-8"));
+		try {
+			ValueChecker.checkValidPwd(passwordBytes);
+			
+			fail("no IllegalArgumentException");
+		} catch(IllegalArgumentException e) {
+			// log.info("추적용", e);
+			
 			String errorMessage = e.getMessage();
 			String expectedErrorMessage =  new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -224,5 +272,13 @@ public class ValueCheckerTest extends AbstractJunitTest {
 			log.warn("error", e);
 			fail(e.getMessage());
 		}
+	}
+	
+	@Test
+	public void testTrim() {
+		String value = "\r\n한글  \r\n ";
+		String trimValue = value.trim();
+		
+		log.info("trimValue=[{}][len={}]", trimValue, trimValue.length());
 	}
 }

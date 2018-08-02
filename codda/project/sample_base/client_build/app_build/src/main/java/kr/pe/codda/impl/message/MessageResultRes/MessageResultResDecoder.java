@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * MessageResultRes message decoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class MessageResultResDecoder extends AbstractMessageDecoder {

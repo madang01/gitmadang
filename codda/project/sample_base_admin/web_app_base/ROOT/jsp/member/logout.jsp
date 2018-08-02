@@ -3,5 +3,5 @@
 	session.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID, null);
 %>
 <script>				
-top.document.location.href = "/";
+top.document.location.href = "/about.jsp";
 </script>

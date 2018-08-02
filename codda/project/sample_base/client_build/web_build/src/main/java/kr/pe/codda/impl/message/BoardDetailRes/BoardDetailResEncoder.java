@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardDetailRes message encoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class BoardDetailResEncoder extends AbstractMessageEncoder {

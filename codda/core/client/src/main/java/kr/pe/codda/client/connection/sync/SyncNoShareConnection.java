@@ -78,6 +78,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 
 		connectAndBuildIOStream();
 	}
+	
+	
 
 	private void connectAndBuildIOStream() throws IOException {
 		SocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
@@ -96,6 +98,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 					.append("an io error occurred when connecting to the server or building the I / O stream, errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
+			
+			
 
 			throw e;
 		} catch (Exception e) {
@@ -105,6 +109,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 					"an unknown error occurred when connecting to the server or building the I / O stream, errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
+			
+			
 
 			throw new IOException();
 		}
@@ -132,8 +138,6 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		} else {
 			mailID++;
 		}
-		
-		
 
 		inputMessage.messageHeaderInfo.mailboxID = mailboxID;
 		inputMessage.messageHeaderInfo.mailID = mailID;
@@ -240,6 +244,21 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 
 	@Override
 	public void close() {
+		if (null != clientInputStream) {
+			try {
+				clientInputStream.close();
+			} catch(Exception e1) {
+				
+			}
+		}
+		
+		if (null != clientOutputStream) {
+			try {
+				clientInputStream.close();
+			} catch(Exception e1) {					
+			}
+		}
+		
 		try {
 			clientSC.close();
 		} catch (IOException e) {

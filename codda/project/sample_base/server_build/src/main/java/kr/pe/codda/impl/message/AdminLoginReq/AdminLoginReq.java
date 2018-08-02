@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * AdminLoginReq message
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public class AdminLoginReq extends AbstractMessage {

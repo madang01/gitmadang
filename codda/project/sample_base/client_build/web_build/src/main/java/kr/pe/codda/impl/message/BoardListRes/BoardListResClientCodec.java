@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardListRes;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,8 +23,8 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * BoardListRes 클라이언트 코덱
- * @author Won Jonghoon
+ * BoardListRes client codec
+ * @author Won Jonghooon
  *
  */
 public final class BoardListResClientCodec implements MessageCodecIF {

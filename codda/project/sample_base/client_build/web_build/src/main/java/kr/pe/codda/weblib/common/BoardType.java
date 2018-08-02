@@ -6,8 +6,8 @@ public enum BoardType {
 	private short boardID;
 	private String boardTypeName;
 	
-	private BoardType(short boardID, String boardTypeName) {
-		this.boardID = boardID;
+	private BoardType(short boardTypeID, String boardTypeName) {
+		this.boardID = boardTypeID;
 		this.boardTypeName = boardTypeName;
 	}
 	

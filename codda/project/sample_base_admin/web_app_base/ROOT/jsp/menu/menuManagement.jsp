@@ -2,20 +2,16 @@
 %><%@page import="java.util.List"%><%
 %><%@page import="com.google.gson.Gson"%><%
 %><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@page import="kr.pe.codda.weblib.sitemenu.AdminSiteMenuManger" %><%
-%><%@page import="kr.pe.codda.impl.message.MenuListRes.MenuListRes" %><%
-%><%@page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@page import="kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes" %><%
+%><%@page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+	ArraySiteMenuRes arraySiteMenuRes = (ArraySiteMenuRes)request.getAttribute("arraySiteMenuRes"); 
 	
-
-	AdminSiteMenuManger adminSiteMenuManger = AdminSiteMenuManger.getInstance();
-	MenuListRes menuListRes = (MenuListRes)request.getAttribute("menuListRes"); 
-	
-	if (null == menuListRes) {
-		menuListRes = new MenuListRes();
+	if (null == arraySiteMenuRes) {
+		arraySiteMenuRes = new ArraySiteMenuRes();
 		
-		List<MenuListRes.Menu> menuList = new ArrayList<MenuListRes.Menu>();
+		List<ArraySiteMenuRes.Menu> menuList = new ArrayList<ArraySiteMenuRes.Menu>();
 		{
-			MenuListRes.Menu menu = new MenuListRes.Menu();
+			ArraySiteMenuRes.Menu menu = new ArraySiteMenuRes.Menu();
 			menu.setMenuNo(1);
 			menu.setParentNo(0);
 			menu.setOrderSeq((short)0);
@@ -27,7 +23,7 @@
 		}
 		
 		{
-			MenuListRes.Menu menu = new MenuListRes.Menu();
+			ArraySiteMenuRes.Menu menu = new ArraySiteMenuRes.Menu();
 			menu.setMenuNo(2);
 			menu.setParentNo(0);
 			menu.setOrderSeq((short)1);
@@ -39,7 +35,7 @@
 		}
 		
 		{
-			MenuListRes.Menu menu = new MenuListRes.Menu();
+			ArraySiteMenuRes.Menu menu = new ArraySiteMenuRes.Menu();
 			menu.setMenuNo(3);
 			menu.setParentNo(0);
 			menu.setOrderSeq((short)2);
@@ -50,11 +46,11 @@
 			menuList.add(menu);
 		}
 		
-		menuListRes.setCnt(menuList.size());
-		menuListRes.setMenuList(menuList);
+		arraySiteMenuRes.setCnt(menuList.size());
+		arraySiteMenuRes.setMenuList(menuList);
 	}
 	
-	String menuListResJsonString = new Gson().toJson(menuListRes);
+	String menuListResJsonString = new Gson().toJson(arraySiteMenuRes);
 	
 %><!DOCTYPE html>
 <html lang="ko">
@@ -540,10 +536,11 @@
 		listView.display  = 'show';
 	}
 	
-	function errorMessageCallBack(errorMessage) {
+	function adminLoginErrorCallBack(errorMessage) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
-		resultMessageView.setAttribute("class", "alert alert-warning fade in");
+		// resultMessageView.setAttribute("class", "alert alert-warning fade in");
+		resultMessageView.setAttribute("class", "alert alert-warning");
 		resultMessageView.innerHTML = "<strong>Warning!</strong> " + errorMessage;
 	}
 	
@@ -559,7 +556,7 @@
 </script>
 </head>
 <body>
-<%= adminSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isAdminLogin(request)) %>
+<%= getSiteNavbarString(request) %>
 <form name="moveMenuUpFrm" method="post" action="/servlet/MenuUpMove" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
@@ -656,7 +653,7 @@
 				</div>			
 			</div>
 		</div>
-		<iframe id="hiddenFrame" height="100" width="100" name="hiddenFrame"></iframe>
+		<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;visibility:hidden"></iframe>
 	</div>
 </body>
 </html>

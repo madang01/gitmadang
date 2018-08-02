@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * AllItemType message
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public class AllItemType extends AbstractMessage {

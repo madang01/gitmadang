@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.JavaGarbageCollectionRes;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * JavaGarbageCollectionRes 메시지
- * @author Won Jonghoon
+ * JavaGarbageCollectionRes message
+ * @author Won Jonghooon
  *
  */
 public class JavaGarbageCollectionRes extends AbstractMessage {

@@ -6,58 +6,24 @@ import java.util.Arrays;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.common.classloader.ServerSimpleClassLoaderIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
-import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.server.AcceptedConnection;
-import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.ProjectLoginManagerIF;
-import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {	
 	
 	@Test
-	public void testDoTask_ok() {
-		class ToLetterCarrierMock extends ToLetterCarrier {		
-
-			
-
-			public ToLetterCarrierMock(AcceptedConnection fromAcceptedConnection, AbstractMessage inputMessage,
-					ProjectLoginManagerIF projectLoginManager, MessageProtocolIF messageProtocol,
-					ServerSimpleClassLoaderIF serverSimpleClassLoader) {
-				super(fromAcceptedConnection, inputMessage, projectLoginManager, messageProtocol, serverSimpleClassLoader);
-			}
-
-			public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {
-				if (! (syncOutputMessage instanceof MessageResultRes)) {
-					fail("the parameter syncOutputMessage is not a instance of MessageResultRes class");
-				}
-				
-				MessageResultRes messageResultRes = (MessageResultRes)syncOutputMessage;
-				if (! messageResultRes.getIsSuccess()) {
-					fail("fail to login");
-				}
-				
-				log.info("member register success", syncOutputMessage.toString());
-			}
-		}
-		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
-		ToLetterCarrier toLetterCarrierMock = new ToLetterCarrierMock(null, null, null, null, null);
-				
-		String userID = "test00";
+	public void testDoService_ok() {		
+		String userID = "test01";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
-		String nickname = "임시가입자";
+		String nickname = "단위테스터용아이디";
 		String pwdHint = "힌트 그것이 알고싶다";
 		String pwdAnswer = "말이여 방구여";
 		
@@ -113,20 +79,21 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 			fail("fail to encrypt id");
 		}
 		
-		MemberRegisterReq inObj = new MemberRegisterReq();
-		inObj.setIdCipherBase64(Base64.encodeBase64String(idCipherTextBytes));
-		inObj.setPwdCipherBase64(Base64.encodeBase64String(passwordCipherTextBytes));
-		inObj.setNicknameCipherBase64(Base64.encodeBase64String(nicknameCipherTextBytes));
-		inObj.setHintCipherBase64(Base64.encodeBase64String(pwdHintCipherTextBytes));
-		inObj.setAnswerCipherBase64(Base64.encodeBase64String(pwdAnswerCipherTextBytes));
-		inObj.setSessionKeyBase64(Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes()));
-		inObj.setIvBase64(Base64.encodeBase64String(clientSessionKey.getDupIVBytes()));
+		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
+		memberRegisterReq.setIdCipherBase64(Base64.encodeBase64String(idCipherTextBytes));
+		memberRegisterReq.setPwdCipherBase64(Base64.encodeBase64String(passwordCipherTextBytes));
+		memberRegisterReq.setNicknameCipherBase64(Base64.encodeBase64String(nicknameCipherTextBytes));
+		memberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(pwdHintCipherTextBytes));
+		memberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(pwdAnswerCipherTextBytes));
+		memberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes()));
+		memberRegisterReq.setIvBase64(Base64.encodeBase64String(clientSessionKey.getDupIVBytes()));
 	
 		MemberRegisterReqServerTask memberRegisterReqServerTask= new MemberRegisterReqServerTask();
 		
 		try {
-			memberRegisterReqServerTask.doTask(mainProjectName, 
-					personalLoginManagerMock, toLetterCarrierMock, inObj);
+			@SuppressWarnings("unused")
+			MessageResultRes messageResultRes = 
+					memberRegisterReqServerTask.doService(memberRegisterReq);
 		} catch (Exception e) {
 			log.warn("fail to execuate doTask", e);
 			fail("fail to execuate doTask");

@@ -10,8 +10,6 @@ import java.util.List;
 
 import javax.annotation.Generated;
 
-import kr.pe.codda.impl.jooq.tables.OaMemberTb;
-import kr.pe.codda.impl.jooq.tables.SbBoardFileinfoTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardInfoTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardTb;
@@ -40,22 +38,12 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = 526546208;
+    private static final long serialVersionUID = -2034966400;
 
     /**
      * The reference instance of <code>sb_db</code>
      */
     public static final SbDb SB_DB = new SbDb();
-
-    /**
-     * The table <code>sb_db.oa_member_tb</code>.
-     */
-    public final OaMemberTb OA_MEMBER_TB = kr.pe.codda.impl.jooq.tables.OaMemberTb.OA_MEMBER_TB;
-
-    /**
-     * The table <code>sb_db.sb_board_fileinfo_tb</code>.
-     */
-    public final SbBoardFileinfoTb SB_BOARD_FILEINFO_TB = kr.pe.codda.impl.jooq.tables.SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB;
 
     /**
      * The table <code>sb_db.sb_board_filelist_tb</code>.
@@ -127,8 +115,6 @@ public class SbDb extends SchemaImpl {
 
     private final List<Table<?>> getTables0() {
         return Arrays.<Table<?>>asList(
-            OaMemberTb.OA_MEMBER_TB,
-            SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB,
             SbBoardFilelistTb.SB_BOARD_FILELIST_TB,
             SbBoardInfoTb.SB_BOARD_INFO_TB,
             SbBoardTb.SB_BOARD_TB,

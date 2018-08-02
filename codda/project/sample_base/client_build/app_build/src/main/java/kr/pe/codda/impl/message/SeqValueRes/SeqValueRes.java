@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.SeqValueRes;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * SeqValueRes 메시지
- * @author Won Jonghoon
+ * SeqValueRes message
+ * @author Won Jonghooon
  *
  */
 public class SeqValueRes extends AbstractMessage {

@@ -83,7 +83,7 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
     public SbBoardInfoTb(String alias) {
         this(DSL.name(alias), SB_BOARD_INFO_TB);
     }
-    
+
     /**
      * Create an aliased <code>sb_db.sb_board_info_tb</code> table reference
      */

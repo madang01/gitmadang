@@ -1,11 +1,6 @@
 package kr.pe.codda.weblib.common;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import kr.pe.codda.weblib.jdf.LoginRequestPageInformation;
-
-public abstract class WebCommonStaticFinalVars {	
+public abstract class WebCommonStaticFinalVars {
 	public static final String SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL = "menuGroupURL";
 	
 	
@@ -14,7 +9,7 @@ public abstract class WebCommonStaticFinalVars {
 	
 	
 	public static final String PARAMETER_KEY_NAME_OF_REQUEST_TYPE = "requestType";
-	public static final String PARAMETER_KEY_NAME_OF_BODYURL_FOR_PAGEWRAPPER = "bodyurl";
+	// public static final String PARAMETER_KEY_NAME_OF_BODYURL_FOR_PAGEWRAPPER = "bodyurl";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY = "sessionkeyBase64";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY_IV = "ivBase64";
 	
@@ -29,7 +24,7 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY = "kr.pe.codda.privatekey";
 	
 	
-	public static final LoginRequestPageInformation DEFAULT_LOGIN_REQUEST_PAGE_INFORMATION = new LoginRequestPageInformation("/", new ArrayList<Map.Entry<String, String>>()); 
+	// public static final LoginRequestPageInformation DEFAULT_LOGIN_REQUEST_PAGE_INFORMATION = new LoginRequestPageInformation("/", new ArrayList<Map.Entry<String, String>>()); 
 	
 	/**
 	 * <pre>

@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * MenuUpMoveReq message
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public class MenuUpMoveReq extends AbstractMessage {

@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
  * BinaryPublicKey server codec
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class BinaryPublicKeyServerCodec implements MessageCodecIF {

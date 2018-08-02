@@ -47,7 +47,6 @@ import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-import kr.pe.codda.weblib.jdf.LoginRequestPageInformation;
 
 /**
  * 로그인
@@ -62,14 +61,14 @@ public class AdminLoginSvl extends AbstractServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
 		if (null == parmRequestType) {
-			parmRequestType= "view";
+			parmRequestType= "input";
 		}
 
-		if (parmRequestType.equals("view")) {
-			viewPage(req, res);
+		if (parmRequestType.equals("input")) {
+			loginInputPage(req, res);
 			return;
 		} else if (parmRequestType.equals("proc")) {
-			processPage(req, res);
+			loginResultPage(req, res);
 			return;
 		} else {
 			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
@@ -85,7 +84,7 @@ public class AdminLoginSvl extends AbstractServlet {
 		}
 	}
 
-	private void viewPage(HttpServletRequest req, HttpServletResponse res)
+	private void loginInputPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
 		ServerSessionkeyIF webServerSessionkey = null;
@@ -103,11 +102,10 @@ public class AdminLoginSvl extends AbstractServlet {
 			return;
 		}
 
-		saveLoginRequestPageInformationInSession(req, WebCommonStaticFinalVars.DEFAULT_LOGIN_REQUEST_PAGE_INFORMATION);
-		doViewPage(req, res, webServerSessionkey.getModulusHexStrForWeb());
+		doLoginInputPage(req, res, webServerSessionkey.getModulusHexStrForWeb());
 	}
 
-	private void processPage(HttpServletRequest req, HttpServletResponse res)
+	private void loginResultPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException,
 			IllegalArgumentException, SymmetricException {
@@ -279,62 +277,9 @@ public class AdminLoginSvl extends AbstractServlet {
 		binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
 
 		AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);
-		if (binaryPublicKeyOutputMessage instanceof BinaryPublicKey) {
-			BinaryPublicKey binaryPublicKeyRes = (BinaryPublicKey) binaryPublicKeyOutputMessage;
-			byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
-
-			ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance()
-					.getNewClientSessionKey(binaryPublicKeyBytes);
-
-			byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();
-			byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
-			ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
-			AdminLoginReq adminLoginReq = new AdminLoginReq();
-
-			adminLoginReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(idBytes)));
-			adminLoginReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
-			adminLoginReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
-			adminLoginReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));			
-
-			AbstractMessage loginOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(adminLoginReq);
-			if (loginOutputMessage instanceof MessageResultRes) {
-				MessageResultRes messageResultRes = (MessageResultRes) loginOutputMessage;
-				if (messageResultRes.getIsSuccess()) {
-					HttpSession httpSession = req.getSession();
-					httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID, userId);
-								
-					LoginRequestPageInformation loginRequestPageInformation = (LoginRequestPageInformation)httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION);
-					httpSession.removeAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION);
-					
-					if (null == loginRequestPageInformation) { 
-						loginRequestPageInformation = WebCommonStaticFinalVars.DEFAULT_LOGIN_REQUEST_PAGE_INFORMATION;
-					}
-					
-					doLoginSuccessPage(req, res, 
-							webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(),
-							loginRequestPageInformation);
-					return;
-				} else {
-					doLoginFailurePage(req, res, 
-							webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
-							messageResultRes.getResultMessage());
-					return;
-				}
-			} else {
-				String errorMessage = "로그인 실패했습니다";
-				String debugMessage = new StringBuilder("입력 메시지[")
-						.append(adminLoginReq.getMessageID())
-						.append("]에 대한 비 정상 출력 메시지[")
-						.append(loginOutputMessage.toString())
-						.append("] 도착").toString();
-				
-				log.error(debugMessage);
-
-				printErrorMessagePage(req, res, errorMessage, debugMessage);
-				return;
-			}
-		} else {			
-			String errorMessage = "로그인 실패했습니다";
+		
+		if (!(binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
+			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
 			String debugMessage = new StringBuilder("입력 메시지[")
 					.append(binaryPublicKeyReq.getMessageID())
 					.append("]에 대한 비 정상 출력 메시지[")
@@ -343,7 +288,59 @@ public class AdminLoginSvl extends AbstractServlet {
 			
 			log.error(debugMessage);
 
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			doLoginFailurePage(req, res, 
+					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
+					errorMessage);
+			return;
+		}
+		
+		
+		
+		BinaryPublicKey binaryPublicKeyRes = (BinaryPublicKey) binaryPublicKeyOutputMessage;
+		byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
+
+		ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance()
+				.getNewClientSessionKey(binaryPublicKeyBytes);
+
+		byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();
+		byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
+		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
+		AdminLoginReq adminLoginReq = new AdminLoginReq();
+
+		adminLoginReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(idBytes)));
+		adminLoginReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
+		adminLoginReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
+		adminLoginReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));			
+
+		AbstractMessage loginOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(adminLoginReq);
+		if (!(loginOutputMessage instanceof MessageResultRes)) {
+			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
+			String debugMessage = new StringBuilder("입력 메시지[")
+					.append(adminLoginReq.getMessageID())
+					.append("]에 대한 비 정상 출력 메시지[")
+					.append(loginOutputMessage.toString())
+					.append("] 도착").toString();
+			
+			log.error(debugMessage);
+
+			doLoginFailurePage(req, res, 
+					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
+					errorMessage);
+			return;
+		}		
+		
+		MessageResultRes messageResultRes = (MessageResultRes) loginOutputMessage;
+		if (messageResultRes.getIsSuccess()) {
+			HttpSession httpSession = req.getSession();
+			httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID, userId);
+			
+			doLoginSuccessPage(req, res, 
+					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb());
+			return;
+		} else {
+			doLoginFailurePage(req, res, 
+					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
+					messageResultRes.getResultMessage());
 			return;
 		}
 	}
@@ -357,31 +354,27 @@ public class AdminLoginSvl extends AbstractServlet {
 				modulusHexString);
 		req.setAttribute("errorMessage", errorMessage);
 		
-		printJspPage(req, res, "/jsp/member/loginFailure.jsp");
+		printJspPage(req, res, "/jsp/member/adminLoginFailureCallBack.jsp");
 	}
 
 	private void doLoginSuccessPage(HttpServletRequest req, HttpServletResponse res,
 			ServerSymmetricKeyIF webServerSymmetricKey,
-			String modulusHexString, 
-			LoginRequestPageInformation loginRequestPageInformation) {		
+			String modulusHexString) {		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				modulusHexString);
-		req.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION, loginRequestPageInformation);
 
-		printJspPage(req, res, "/jsp/member/loginSuccess.jsp");
+		printJspPage(req, res, "/jsp/member/adminLoginOKCallBack.jsp");
 	}
 	
-	private void saveLoginRequestPageInformationInSession(HttpServletRequest req, LoginRequestPageInformation loginRequestPageInformation) {		
-		HttpSession httpSession = req.getSession();			
-		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION, loginRequestPageInformation);
-	}
 
-	private void doViewPage(HttpServletRequest req, HttpServletResponse res, 
+	private void doLoginInputPage(HttpServletRequest req, HttpServletResponse res, 
 			String modulusHexString) {		
+		
+		req.setAttribute("requestURI", "/");
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				modulusHexString);
-		printJspPage(req, res, "/jsp/member/login.jsp");
+		printJspPage(req, res, JDF_ADMIN_LOGIN_INPUT_PAGE);
 	}
 
 }

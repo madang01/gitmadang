@@ -2,20 +2,27 @@ package kr.pe.codda.impl.task.server;
 
 import static org.junit.Assert.fail;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
-import kr.pe.codda.server.PersonalLoginManagerIF;
+import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.task.ToLetterCarrier;
+import kr.pe.codda.server.lib.ServerDBUtil;
 
 public class BoardListReqServerTaskTest extends AbstractJunitTest {	
+	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		AbstractJunitTest.setUpBeforeClass();		
+		
+		ServerDBUtil.initializeDBEnvoroment();
+	}
+	
 	@Test
-	public void testDoTask() {		
-		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
-		ToLetterCarrier toLetterCarrierMock = Mockito.mock(ToLetterCarrier.class);
+	public void testDoService_ok() {		
 		int pageNo = 1;
 		int pageSize = 20;
 		
@@ -27,10 +34,13 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
 		
 		try {
-			boardListReqServerTask.doTask(mainProjectName, 
-					personalLoginManagerMock, toLetterCarrierMock, inObj);
+			BoardListRes boardListRes = boardListReqServerTask.doService(inObj);
+			log.info(boardListRes.toString());
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
 		} catch (Exception e) {
-			log.warn("fail to execuate doTask", e);
+			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
 		}
 	}

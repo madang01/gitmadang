@@ -1,7 +1,7 @@
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
 <%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%>
 <%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%>
-<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+<%@ page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><!DOCTYPE html>
 <html lang="ko">

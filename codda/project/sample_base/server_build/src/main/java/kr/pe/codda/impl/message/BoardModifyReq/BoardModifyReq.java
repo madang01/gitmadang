@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.BoardModifyReq;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * BoardModifyReq 메시지
- * @author Won Jonghoon
+ * BoardModifyReq message
+ * @author Won Jonghooon
  *
  */
 public class BoardModifyReq extends AbstractMessage {

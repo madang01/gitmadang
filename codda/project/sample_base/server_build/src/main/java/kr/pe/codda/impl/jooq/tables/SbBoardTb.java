@@ -43,7 +43,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = 973799479;
+    private static final long serialVersionUID = 1047280737;
 
     /**
      * The reference instance of <code>sb_db.sb_board_tb</code>
@@ -104,11 +104,6 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     public final TableField<SbBoardTbRecord, String> CONTENT = createField("content", org.jooq.impl.SQLDataType.CLOB, this, "본문");
 
     /**
-     * The column <code>sb_db.sb_board_tb.attach_id</code>.
-     */
-    public final TableField<SbBoardTbRecord, UInteger> ATTACH_ID = createField("attach_id", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "");
-
-    /**
      * The column <code>sb_db.sb_board_tb.view_cnt</code>. 조회수
      */
     public final TableField<SbBoardTbRecord, Integer> VIEW_CNT = createField("view_cnt", org.jooq.impl.SQLDataType.INTEGER, this, "조회수");
@@ -117,6 +112,11 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      * The column <code>sb_db.sb_board_tb.board_st</code>. 게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
      */
     public final TableField<SbBoardTbRecord, String> BOARD_ST = createField("board_st", org.jooq.impl.SQLDataType.CHAR(1), this, "게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글");
+
+    /**
+     * The column <code>sb_db.sb_board_tb.next_attach_sq</code>. 다음 첨부 파일 시퀀스 번호, 0부터 시작
+     */
+    public final TableField<SbBoardTbRecord, UInteger> NEXT_ATTACH_SQ = createField("next_attach_sq", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "다음 첨부 파일 시퀀스 번호, 0부터 시작");
 
     /**
      * The column <code>sb_db.sb_board_tb.ip</code>.
@@ -175,7 +175,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_FK2_IDX, Indexes.SB_BOARD_TB_SB_BOARD_FK3_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_FK2_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1);
     }
 
     /**
@@ -199,7 +199,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<ForeignKey<SbBoardTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbBoardTbRecord, ?>>asList(Keys.SB_BOARD_FK1, Keys.SB_BOARD_FK2, Keys.SB_BOARD_FK3);
+        return Arrays.<ForeignKey<SbBoardTbRecord, ?>>asList(Keys.SB_BOARD_FK1, Keys.SB_BOARD_FK2);
     }
 
     /**
