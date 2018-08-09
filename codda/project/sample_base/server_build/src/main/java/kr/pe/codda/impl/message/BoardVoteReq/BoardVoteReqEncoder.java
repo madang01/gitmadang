@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardVoteReq message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardVoteReqEncoder extends AbstractMessageEncoder {
@@ -39,9 +39,9 @@ public final class BoardVoteReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardVoteReq");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardId"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, boardVoteReq.getBoardId() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardVoteReq.getBoardID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -53,9 +53,9 @@ public final class BoardVoteReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "userId"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "userID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardVoteReq.getUserId() // itemValue
+			, boardVoteReq.getUserID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

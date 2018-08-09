@@ -160,12 +160,12 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UByte newOrderSeq = create.select(JooqSqlUtil.getFieldOfNewSiteMenuOrderSq(SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
+			short newOrderSeq = create.select(JooqSqlUtil.getIfField(SB_SITEMENU_TB.ORDER_SQ.max(), 0, SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
 			.from(SB_SITEMENU_TB)
 			.where(SB_SITEMENU_TB.PARENT_NO.eq(parentMenuNo))
-			.fetchOne(0, UByte.class);
+			.fetchOne(0, Short.class);
 			
-			if (newOrderSeq.shortValue() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			if (newOrderSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -182,7 +182,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			.set(SB_SITEMENU_TB.MENU_NO, childMenuNo)
 			.set(SB_SITEMENU_TB.PARENT_NO, parentMenuNo)
 			.set(SB_SITEMENU_TB.DEPTH, UByte.valueOf(childMenuDepth))
-			.set(SB_SITEMENU_TB.ORDER_SQ, newOrderSeq)
+			.set(SB_SITEMENU_TB.ORDER_SQ, UByte.valueOf(newOrderSeq))
 			.set(SB_SITEMENU_TB.MENU_NM, childMenuAddReq.getMenuName())
 			.set(SB_SITEMENU_TB.LINK_URL, childMenuAddReq.getLinkURL())
 			.execute();
@@ -215,7 +215,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			
 			ChildMenuAddRes childMenuAddRes = new ChildMenuAddRes();
 			childMenuAddRes.setMenuNo(childMenuNo.longValue());
-			childMenuAddRes.setOrderSeq(newOrderSeq.shortValue());
+			childMenuAddRes.setOrderSeq(newOrderSeq);
 			
 			return childMenuAddRes;
 		} catch (ServerServiceException e) {

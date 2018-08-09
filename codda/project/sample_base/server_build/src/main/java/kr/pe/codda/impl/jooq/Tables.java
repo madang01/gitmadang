@@ -7,6 +7,7 @@ package kr.pe.codda.impl.jooq;
 import javax.annotation.Generated;
 
 import kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb;
+import kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardInfoTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardVoteTb;
@@ -34,6 +35,11 @@ public class Tables {
      * The table <code>sb_db.sb_board_filelist_tb</code>.
      */
     public static final SbBoardFilelistTb SB_BOARD_FILELIST_TB = kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
+
+    /**
+     * The table <code>sb_db.sb_board_history_tb</code>.
+     */
+    public static final SbBoardHistoryTb SB_BOARD_HISTORY_TB = kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 
     /**
      * The table <code>sb_db.sb_board_info_tb</code>.

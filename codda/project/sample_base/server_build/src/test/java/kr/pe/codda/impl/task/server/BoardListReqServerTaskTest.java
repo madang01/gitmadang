@@ -18,23 +18,23 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment();
+		ServerDBUtil.initializeDBEnvoroment("testAdmin");
 	}
 	
 	@Test
 	public void testDoService_ok() {		
 		int pageNo = 1;
-		int pageSize = 20;
+		int pageLength = 20;
 		
-		BoardListReq inObj = new BoardListReq();
-		inObj.setBoardId(BoardType.FREE.getBoardID());
-		inObj.setPageSize(pageSize);
-		inObj.setStartNo((pageNo-1)*pageSize);
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setBoardID(BoardType.FREE.getBoardID());
+		boardListReq.setPageLength(pageLength);		
+		boardListReq.setPageOffset((pageNo-1)*pageLength);
 		
 		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
 		
 		try {
-			BoardListRes boardListRes = boardListReqServerTask.doService(inObj);
+			BoardListRes boardListRes = boardListReqServerTask.doService(boardListReq);
 			log.info(boardListRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);

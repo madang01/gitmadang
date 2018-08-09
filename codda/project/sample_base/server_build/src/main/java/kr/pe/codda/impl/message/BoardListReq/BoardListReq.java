@@ -21,46 +21,46 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardListReq message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardListReq extends AbstractMessage {
-	private short boardId;
-	private int startNo;
-	private int pageSize;
+	private short boardID;
+	private int pageOffset;
+	private int pageLength;
 
-	public short getBoardId() {
-		return boardId;
-	}
-
-	public void setBoardId(short boardId) {
-		this.boardId = boardId;
-	}
-	public int getStartNo() {
-		return startNo;
+	public short getBoardID() {
+		return boardID;
 	}
 
-	public void setStartNo(int startNo) {
-		this.startNo = startNo;
+	public void setBoardID(short boardID) {
+		this.boardID = boardID;
 	}
-	public int getPageSize() {
-		return pageSize;
+	public int getPageOffset() {
+		return pageOffset;
 	}
 
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
+	public void setPageOffset(int pageOffset) {
+		this.pageOffset = pageOffset;
+	}
+	public int getPageLength() {
+		return pageLength;
+	}
+
+	public void setPageLength(int pageLength) {
+		this.pageLength = pageLength;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardListReq[");
-		builder.append("boardId=");
-		builder.append(boardId);
-		builder.append(", startNo=");
-		builder.append(startNo);
-		builder.append(", pageSize=");
-		builder.append(pageSize);
+		builder.append("boardID=");
+		builder.append(boardID);
+		builder.append(", pageOffset=");
+		builder.append(pageOffset);
+		builder.append(", pageLength=");
+		builder.append(pageLength);
 		builder.append("]");
 		return builder.toString();
 	}

@@ -11,6 +11,6 @@ public abstract class AbstractAdminJSP extends AbstractJSP {
 
 	@Override
 	public String getSiteNavbarString(HttpServletRequest request) {
-		return adminSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isAdminLogin(request));
+		return adminSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isAdminLoginedIn(request));
 	}
 }

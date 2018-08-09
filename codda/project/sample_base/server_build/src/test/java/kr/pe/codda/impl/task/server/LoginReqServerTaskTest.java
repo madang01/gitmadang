@@ -145,7 +145,7 @@ public class LoginReqServerTaskTest extends AbstractJunitTest {
 		inObj.setSessionKeyBase64(Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes()));
 		inObj.setIvBase64(Base64.encodeBase64String(clientSessionKey.getDupIVBytes()));
 	
-		LoginReqServerTask loginReqServerTask= new LoginReqServerTask();
+		LoginReqServerTask loginReqServerTask = new LoginReqServerTask();
 		
 		try {
 			loginReqServerTask.doTask(mainProjectName, 

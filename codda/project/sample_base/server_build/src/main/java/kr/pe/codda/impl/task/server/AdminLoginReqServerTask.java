@@ -202,7 +202,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidUserId(userId);
+			ValueChecker.checkValidUserID(userId);
 		} catch(IllegalArgumentException e) {						
 			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, adminLoginReq);
 			return;*/

@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardDownloadFileRes message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardDownloadFileResEncoder extends AbstractMessageEncoder {
@@ -39,37 +39,30 @@ public final class BoardDownloadFileResEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardDownloadFileRes");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ownerId"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDownloadFileRes.getOwnerId() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardDownloadFileRes.getBoardID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachId"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardNo"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, boardDownloadFileRes.getAttachId() // itemValue
+			, boardDownloadFileRes.getBoardNo() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, boardDownloadFileRes.getAttachSeq() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileSeq"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardDownloadFileRes.getAttachedFileSeq() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachFiledName"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileName"
 			, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
-			, boardDownloadFileRes.getAttachFiledName() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "systemFileName"
-			, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
-			, boardDownloadFileRes.getSystemFileName() // itemValue
+			, boardDownloadFileRes.getAttachedFileName() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

@@ -1,6 +1,6 @@
 package kr.pe.codda.impl.task.server;
 
-import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
+import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
 
 import java.sql.Connection;
@@ -12,6 +12,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 import kr.pe.codda.common.exception.ServerServiceException;
@@ -71,11 +72,8 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		log.info(boardVoteReq.toString());	
 		
 		try {
-			ValueChecker.checkValidUserId(boardVoteReq.getUserId());
+			ValueChecker.checkValidUserID(boardVoteReq.getUserID());
 		} catch(RuntimeException e) {
-			/*log.warn(e.getMessage(), e);
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardVoteReq);
-			return;*/
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
@@ -84,12 +82,12 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		try {
 			ValueChecker.checkValidIP(boardVoteReq.getIp());
 		} catch(RuntimeException e) {
-			/*log.warn(e.getMessage(), e);
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardVoteReq);
-			return;*/
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		UByte boardID = UByte.valueOf(boardVoteReq.getBoardID());
+		UInteger boardNo = UInteger.valueOf(boardVoteReq.getBoardNo());
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
@@ -101,49 +99,47 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
 			
-			Record1<String> boardRecod = create.select(SB_BOARD_TB.WRITER_ID)
-			.from(SB_BOARD_TB)
-			.where(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardVoteReq.getBoardNo()))).fetchOne();
+			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardVoteReq.getUserID());	
 			
-			if (null == boardRecod) {
+			Record1<String> 
+			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
+			.from(SB_BOARD_HISTORY_TB)
+			.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
+			.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
+			.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0)))
+			.fetchOne();
+			
+			if (null == firstWriterBoardRecord) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("해당 게시글[")
-						.append(boardVoteReq.getBoardNo())
-						.append("]이 존재하지 않습니다").toString();
-				
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardVoteReq);
-				return;*/
+				String errorMessage = new StringBuilder("해당 게시글의 최초 작성자 정보가 존재 하지 않습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String writerID = boardRecod.getValue(SB_BOARD_TB.WRITER_ID);
+			String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
 			
-			if (writerID.equals(boardVoteReq.getUserId())) {
+			if (firstWriterID.equals(boardVoteReq.getUserID())) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("자기글[")
+				String errorMessage = new StringBuilder("자신의 글[")
 						.append(boardVoteReq.getBoardNo())
-						.append("]은 추천할 수 없습니다").toString();
-				
-				/*
-				sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardVoteReq);
-				return;*/
+						.append("]은 본인 스스로 추천할 수 없습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 			
 			boolean isVoted = create.fetchExists(create.select()
 					.from(SB_BOARD_VOTE_TB)
-					.where(SB_BOARD_VOTE_TB.BOARD_NO.eq(UInteger.valueOf(boardVoteReq.getBoardNo())))
-					.and(SB_BOARD_VOTE_TB.USER_ID.eq(boardVoteReq.getUserId())));
+					.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(boardID))
+					.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(boardNo))
+					.and(SB_BOARD_VOTE_TB.USER_ID.eq(boardVoteReq.getUserID())));
 			
 			if (isVoted) {
 				try {
@@ -152,15 +148,13 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "이미 추천을 했습니다";
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, boardVoteReq);
-				return;*/
+				String errorMessage = "이미 추천을 하셨습니다";
 				throw new ServerServiceException(errorMessage);
 			}
 			
 			int countOfInsert = create.insertInto(SB_BOARD_VOTE_TB)
 			.set(SB_BOARD_VOTE_TB.BOARD_NO, UInteger.valueOf(boardVoteReq.getBoardNo()))
-			.set(SB_BOARD_VOTE_TB.USER_ID, boardVoteReq.getUserId())
+			.set(SB_BOARD_VOTE_TB.USER_ID, boardVoteReq.getUserID())
 			.set(SB_BOARD_VOTE_TB.IP, boardVoteReq.getIp())
 			.set(SB_BOARD_VOTE_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
 			.execute();
@@ -172,30 +166,21 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "1.게시글에 대한 추천이 실패하였습니다";
-				/*sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardVoteReq);
-				return;*/
+				String errorMessage = "해당 글에 대한 추천이 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
-			}
+			}			
 			
-			
-			conn.commit();
-			
+			conn.commit();			
 			
 			MessageResultRes messageResultRes = new MessageResultRes();
 			messageResultRes.setTaskMessageID(boardVoteReq.getMessageID());
 			messageResultRes.setIsSuccess(true);
 			messageResultRes.setResultMessage("게시글에 대한 추천이 성공하였습니다");
-			/*sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
-			return;*/
+			
 			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
-			/*log.warn("unknown error", e);
-
-			sendErrorOutputMessageForRollback("2.게시글에 대한 추천이 실패하였습니다", conn, toLetterCarrier, boardVoteReq);
-			return;*/
 			if (null != conn) {
 				try {
 					conn.rollback();

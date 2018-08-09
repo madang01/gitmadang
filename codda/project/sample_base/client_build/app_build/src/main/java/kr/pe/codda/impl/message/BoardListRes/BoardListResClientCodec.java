@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
  * BoardListRes client codec
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardListResClientCodec implements MessageCodecIF {

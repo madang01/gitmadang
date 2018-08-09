@@ -17,8 +17,8 @@
 <messageID>BoardVoteReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>게시판 글 추천 요청 메시지</desc>
-<singleitem name="boardId" type="unsigned integer" />
+<singleitem name="boardID" type="unsigned byte" />
 <singleitem name="boardNo" type="unsigned integer" />
-<singleitem name="userId" type="ub pascal string" />
+<singleitem name="userID" type="ub pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 </message>

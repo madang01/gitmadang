@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSeqTb extends TableImpl<SbSeqTbRecord> {
 
-    private static final long serialVersionUID = -1668096479;
+    private static final long serialVersionUID = 1006871663;
 
     /**
      * The reference instance of <code>sb_db.sb_seq_tb</code>
@@ -56,9 +56,9 @@ public class SbSeqTb extends TableImpl<SbSeqTbRecord> {
     }
 
     /**
-     * The column <code>sb_db.sb_seq_tb.sq_id</code>. 시퀀스 식별자, 0:메뉴, 1:업로드 파일 이름 시퀀스, 2:공지게시판 시퀀스, 3:자유게시판시퀀스, 4:FAQ시퀀스
+     * The column <code>sb_db.sb_seq_tb.sq_id</code>. 시퀀스 식별자, 0:메뉴, 1:공지게시판 시퀀스, 2:자유게시판시퀀스, 3:FAQ시퀀스
      */
-    public final TableField<SbSeqTbRecord, UByte> SQ_ID = createField("sq_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "시퀀스 식별자, 0:메뉴, 1:업로드 파일 이름 시퀀스, 2:공지게시판 시퀀스, 3:자유게시판시퀀스, 4:FAQ시퀀스");
+    public final TableField<SbSeqTbRecord, UByte> SQ_ID = createField("sq_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "시퀀스 식별자, 0:메뉴, 1:공지게시판 시퀀스, 2:자유게시판시퀀스, 3:FAQ시퀀스");
 
     /**
      * The column <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값

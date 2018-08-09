@@ -21,13 +21,13 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardListRes message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardListRes extends AbstractMessage {
-	private short boardId;
-	private long startNo;
-	private int pageSize;
+	private short boardID;
+	private long pageOffset;
+	private int pageLength;
 	private long total;
 	private int cnt;
 
@@ -37,15 +37,14 @@ public class BoardListRes extends AbstractMessage {
 		private int groupSeq;
 		private long parentNo;
 		private short depth;
-		private String subject;
-		private String writerId;
-		private String nickname;
+		private String writerID;
 		private int viewCount;
-		private int votes;
 		private String boardSate;
-		private java.sql.Timestamp registerDate;
-		private java.sql.Timestamp modifiedDate;
-		private String memberGubunName;
+		private java.sql.Timestamp registeredDate;
+		private String nickname;
+		private int votes;
+		private String subject;
+		private java.sql.Timestamp finalModifiedDate;
 
 		public long getBoardNo() {
 			return boardNo;
@@ -82,26 +81,12 @@ public class BoardListRes extends AbstractMessage {
 		public void setDepth(short depth) {
 			this.depth = depth;
 		}
-		public String getSubject() {
-			return subject;
+		public String getWriterID() {
+			return writerID;
 		}
 
-		public void setSubject(String subject) {
-			this.subject = subject;
-		}
-		public String getWriterId() {
-			return writerId;
-		}
-
-		public void setWriterId(String writerId) {
-			this.writerId = writerId;
-		}
-		public String getNickname() {
-			return nickname;
-		}
-
-		public void setNickname(String nickname) {
-			this.nickname = nickname;
+		public void setWriterID(String writerID) {
+			this.writerID = writerID;
 		}
 		public int getViewCount() {
 			return viewCount;
@@ -110,13 +95,6 @@ public class BoardListRes extends AbstractMessage {
 		public void setViewCount(int viewCount) {
 			this.viewCount = viewCount;
 		}
-		public int getVotes() {
-			return votes;
-		}
-
-		public void setVotes(int votes) {
-			this.votes = votes;
-		}
 		public String getBoardSate() {
 			return boardSate;
 		}
@@ -124,26 +102,40 @@ public class BoardListRes extends AbstractMessage {
 		public void setBoardSate(String boardSate) {
 			this.boardSate = boardSate;
 		}
-		public java.sql.Timestamp getRegisterDate() {
-			return registerDate;
+		public java.sql.Timestamp getRegisteredDate() {
+			return registeredDate;
 		}
 
-		public void setRegisterDate(java.sql.Timestamp registerDate) {
-			this.registerDate = registerDate;
+		public void setRegisteredDate(java.sql.Timestamp registeredDate) {
+			this.registeredDate = registeredDate;
 		}
-		public java.sql.Timestamp getModifiedDate() {
-			return modifiedDate;
-		}
-
-		public void setModifiedDate(java.sql.Timestamp modifiedDate) {
-			this.modifiedDate = modifiedDate;
-		}
-		public String getMemberGubunName() {
-			return memberGubunName;
+		public String getNickname() {
+			return nickname;
 		}
 
-		public void setMemberGubunName(String memberGubunName) {
-			this.memberGubunName = memberGubunName;
+		public void setNickname(String nickname) {
+			this.nickname = nickname;
+		}
+		public int getVotes() {
+			return votes;
+		}
+
+		public void setVotes(int votes) {
+			this.votes = votes;
+		}
+		public String getSubject() {
+			return subject;
+		}
+
+		public void setSubject(String subject) {
+			this.subject = subject;
+		}
+		public java.sql.Timestamp getFinalModifiedDate() {
+			return finalModifiedDate;
+		}
+
+		public void setFinalModifiedDate(java.sql.Timestamp finalModifiedDate) {
+			this.finalModifiedDate = finalModifiedDate;
 		}
 
 		@Override
@@ -160,24 +152,22 @@ public class BoardListRes extends AbstractMessage {
 			builder.append(parentNo);
 			builder.append(", depth=");
 			builder.append(depth);
-			builder.append(", subject=");
-			builder.append(subject);
-			builder.append(", writerId=");
-			builder.append(writerId);
-			builder.append(", nickname=");
-			builder.append(nickname);
+			builder.append(", writerID=");
+			builder.append(writerID);
 			builder.append(", viewCount=");
 			builder.append(viewCount);
-			builder.append(", votes=");
-			builder.append(votes);
 			builder.append(", boardSate=");
 			builder.append(boardSate);
-			builder.append(", registerDate=");
-			builder.append(registerDate);
-			builder.append(", modifiedDate=");
-			builder.append(modifiedDate);
-			builder.append(", memberGubunName=");
-			builder.append(memberGubunName);
+			builder.append(", registeredDate=");
+			builder.append(registeredDate);
+			builder.append(", nickname=");
+			builder.append(nickname);
+			builder.append(", votes=");
+			builder.append(votes);
+			builder.append(", subject=");
+			builder.append(subject);
+			builder.append(", finalModifiedDate=");
+			builder.append(finalModifiedDate);
 			builder.append("]");
 			return builder.toString();
 		}
@@ -185,26 +175,26 @@ public class BoardListRes extends AbstractMessage {
 
 	private java.util.List<Board> boardList;
 
-	public short getBoardId() {
-		return boardId;
+	public short getBoardID() {
+		return boardID;
 	}
 
-	public void setBoardId(short boardId) {
-		this.boardId = boardId;
+	public void setBoardID(short boardID) {
+		this.boardID = boardID;
 	}
-	public long getStartNo() {
-		return startNo;
-	}
-
-	public void setStartNo(long startNo) {
-		this.startNo = startNo;
-	}
-	public int getPageSize() {
-		return pageSize;
+	public long getPageOffset() {
+		return pageOffset;
 	}
 
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
+	public void setPageOffset(long pageOffset) {
+		this.pageOffset = pageOffset;
+	}
+	public int getPageLength() {
+		return pageLength;
+	}
+
+	public void setPageLength(int pageLength) {
+		this.pageLength = pageLength;
 	}
 	public long getTotal() {
 		return total;
@@ -232,12 +222,12 @@ public class BoardListRes extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardListRes[");
-		builder.append("boardId=");
-		builder.append(boardId);
-		builder.append(", startNo=");
-		builder.append(startNo);
-		builder.append(", pageSize=");
-		builder.append(pageSize);
+		builder.append("boardID=");
+		builder.append(boardID);
+		builder.append(", pageOffset=");
+		builder.append(pageOffset);
+		builder.append(", pageLength=");
+		builder.append(pageLength);
 		builder.append(", total=");
 		builder.append(total);
 		builder.append(", cnt=");

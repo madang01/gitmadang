@@ -40,7 +40,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
 
-    private static final long serialVersionUID = 598271538;
+    private static final long serialVersionUID = -423423782;
 
     /**
      * The reference instance of <code>sb_db.sb_member_tb</code>
@@ -113,7 +113,7 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     /**
      * The column <code>sb_db.sb_member_tb.ip</code>.
      */
-    public final TableField<SbMemberTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(15), this, "");
+    public final TableField<SbMemberTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(40), this, "");
 
     /**
      * Create a <code>sb_db.sb_member_tb</code> table reference

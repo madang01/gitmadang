@@ -22,8 +22,8 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		String parmMenuNo = req.getParameter("menuNo");
-		if (null == parmMenuNo) {
+		String paramMenuNo = req.getParameter("menuNo");
+		if (null == paramMenuNo) {
 			String errorMessage = "파라미터 '메뉴번호'(=menuNo) 값을 넣어주세요";			
 			log.warn(errorMessage);
 			printErrorMessageCallBackPage(req, res, errorMessage);
@@ -33,11 +33,11 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 		long nativeMenuNo;
 		
 		try {
-			nativeMenuNo = Long.parseLong(parmMenuNo);
+			nativeMenuNo = Long.parseLong(paramMenuNo);
 		} catch(NumberFormatException e) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '메뉴번호'(=menuNo[")
-					.append(parmMenuNo)
+					.append(paramMenuNo)
 					.append("])의 값이 long 타입 정수가 아닙니다").toString();
 			
 			log.warn(errorMessage);
@@ -49,7 +49,7 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 		if (nativeMenuNo < 0) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '메뉴번호'(=menuNo[")
-					.append(parmMenuNo)
+					.append(paramMenuNo)
 					.append("])의 값이 음수입니다").toString();
 			
 			log.warn(errorMessage);
@@ -61,7 +61,7 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 		if (nativeMenuNo > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '메뉴번호'(=menuNo[")
-					.append(parmMenuNo)
+					.append(paramMenuNo)
 					.append("])의 값이 최대값[")
 					.append(CommonStaticFinalVars.UNSIGNED_INTEGER_MAX)
 					.append("] 보다 큽니다").toString();
@@ -71,10 +71,10 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		String parmMenuName = req.getParameter("menuName");
-		log.info("the paramter 'menuName'=[{}]", parmMenuName);
+		String paramMenuName = req.getParameter("menuName");
+		log.info("the paramter 'menuName'=[{}]", paramMenuName);
 		
-		if (null == parmMenuName) {
+		if (null == paramMenuName) {
 			String errorMessage = "파라미터 '메뉴이름'(=menuName) 값을 넣어주세요";
 			
 			
@@ -87,9 +87,9 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 		
 		
 		
-		String parmLinkURL = req.getParameter("linkURL");
+		String paramLinkURL = req.getParameter("linkURL");
 		
-		if (null == parmLinkURL) {
+		if (null == paramLinkURL) {
 			String errorMessage = "파라미터 '링크 URL'(=linkURL) 값을 넣어주세요";
 			
 			log.warn(errorMessage);
@@ -101,8 +101,8 @@ public class MenuModifySvl extends AbstractAdminLoginServlet {
 		
 		MenuModifyReq menuModifyReq = new MenuModifyReq();
 		menuModifyReq.setMenuNo(nativeMenuNo);
-		menuModifyReq.setMenuName(parmMenuName);
-		menuModifyReq.setLinkURL(parmLinkURL);
+		menuModifyReq.setMenuName(paramMenuName);
+		menuModifyReq.setLinkURL(paramLinkURL);
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuModifyReq);

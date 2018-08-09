@@ -137,7 +137,7 @@
 	<!-- header -->
 	<div id="header">
 		<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
-			if (! isAdminLogin(request)) {
+			if (! isAdminLoginedIn(request)) {
 		%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%
 			} else {
 		%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
@@ -211,8 +211,8 @@
 <form name=frm onSubmit="return false">
 	<div>
 		<%
-			if (isAdminLogin(request)) {
-				String userId = getLoginedAdminID(request);
+			if (isAdminLoginedIn(request)) {
+				String userId = getLoginedAdminIDFromHttpSession(request);
 		%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
 			if (userId.equals(boardDetailRes.getWriterId())) {
 		%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%
@@ -243,8 +243,8 @@
 
 				<%
 					java.util.List<BoardDetailRes.AttachFile> attachFileList = boardDetailRes
-																										.getAttachFileList();
-																								if (null != attachFileList) {
+																														.getAttachFileList();
+																												if (null != attachFileList) {
 				%>
 				<tr>
 					<td style="width: 90px">첨부 파일</td>
@@ -252,12 +252,12 @@
 						<div>
 							<%
 								for (BoardDetailRes.AttachFile attachFile : attachFileList) {
-																																																						if (isAdminLogin(request)) {
+																																																																if (isAdminLoginedIn(request)) {
 							%><a href="#" onClick="goDownload(<%=boardDetailRes.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%></a><br /><%
 								} else {
 							%><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%>&nbsp;<%
 								}
-																																																					}
+																																																															}
 							%>
 						</div>
 					</td>
@@ -279,8 +279,8 @@
 	<br />
 	<div>
 		<%
-			if (isAdminLogin(request)) {
-					String userId = getLoginedAdminID(request);
+			if (isAdminLoginedIn(request)) {
+					String userId = getLoginedAdminIDFromHttpSession(request);
 		%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
 			if (userId.equals(boardDetailRes.getWriterId())) {
 		%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%

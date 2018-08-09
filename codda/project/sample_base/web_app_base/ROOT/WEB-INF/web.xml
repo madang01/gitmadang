@@ -136,7 +136,6 @@
 		<servlet-name>AllItemTypeTest</servlet-name>
 		<url-pattern>/servlet/AllItemTypeTest</url-pattern>
 	</servlet-mapping>
-
 	
 
 	<servlet>
@@ -193,12 +192,29 @@
 
 
 	<servlet>
-		<servlet-name>BoardWrite</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardWriteSvl</servlet-class>
+		<servlet-name>BoardWriteInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.BoardWriteInputSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BoardWrite</servlet-name>
-		<url-pattern>/servlet/BoardWrite</url-pattern>
+		<servlet-name>BoardWriteInput</servlet-name>
+		<url-pattern>/servlet/BoardWriteInput</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet>
+		<servlet-name>BoardWriteProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.BoardWriteProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardWriteProcess</servlet-name>
+		<url-pattern>/servlet/BoardWriteProcess</url-pattern>
 	</servlet-mapping>
 
 	<servlet>

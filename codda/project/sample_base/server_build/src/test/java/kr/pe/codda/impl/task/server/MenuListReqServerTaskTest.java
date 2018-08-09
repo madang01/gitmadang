@@ -21,7 +21,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment();		
+		ServerDBUtil.initializeDBEnvoroment("testAdmin");		
 	}
 	
 	@Test

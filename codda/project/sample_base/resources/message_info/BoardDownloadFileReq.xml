@@ -16,7 +16,9 @@
 <message>
 <messageID>BoardDownloadFileReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
-<desc>게시판 다운로드 파일 처리를 위한 정보 조회 요청, Mybatis DTO</desc>
-<singleitem name="attachId" type="unsigned integer" />
-<singleitem name="attachSeq" type="unsigned integer" />
+<desc>게시판 다운로드 파일 요청</desc>
+<singleitem name="boardID" type="unsigned byte" />
+<singleitem name="boardNo" type="unsigned integer" />
+<singleitem name="attachedFileSeq" type="unsigned byte" />
+<singleitem name="requestUserID" type="ub pascal string" />
 </message>

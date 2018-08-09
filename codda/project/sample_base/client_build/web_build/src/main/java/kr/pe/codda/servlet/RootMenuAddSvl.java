@@ -22,8 +22,8 @@ public class RootMenuAddSvl extends AbstractAdminLoginServlet {
 	
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		String parmMenuName = req.getParameter("menuName");
-		if (null == parmMenuName) {
+		String paramMenuName = req.getParameter("menuName");
+		if (null == paramMenuName) {
 			String errorMessage = "파라미터 '메뉴이름'(=menuName) 값을 넣어주세요";
 			
 			
@@ -33,9 +33,9 @@ public class RootMenuAddSvl extends AbstractAdminLoginServlet {
 			return;
 		}		
 		
-		String parmLinkURL = req.getParameter("linkURL");
+		String paramLinkURL = req.getParameter("linkURL");
 		
-		if (null == parmLinkURL) {
+		if (null == paramLinkURL) {
 			String errorMessage = "파라미터 '링크 URL'(=linkURL) 값을 넣어주세요";
 			
 			log.warn(errorMessage);
@@ -45,8 +45,8 @@ public class RootMenuAddSvl extends AbstractAdminLoginServlet {
 		}
 		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
-		rootMenuAddReq.setMenuName(parmMenuName);
-		rootMenuAddReq.setLinkURL(parmLinkURL);
+		rootMenuAddReq.setMenuName(paramMenuName);
+		rootMenuAddReq.setLinkURL(paramLinkURL);
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(rootMenuAddReq);

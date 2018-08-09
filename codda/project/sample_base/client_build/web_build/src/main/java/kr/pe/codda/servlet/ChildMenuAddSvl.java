@@ -23,8 +23,8 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 	
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		String parmParentNo = req.getParameter("parentNo");
-		if (null == parmParentNo) {
+		String paramParentNo = req.getParameter("parentNo");
+		if (null == paramParentNo) {
 			String errorMessage = "파라미터 '부모메뉴번호'(=parentNo) 값을 넣어주세요";			
 			log.warn(errorMessage);
 			printErrorMessageCallBackPage(req, res, errorMessage);
@@ -34,11 +34,11 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 		long nativeParentNo;
 		
 		try {
-			nativeParentNo = Long.parseLong(parmParentNo);
+			nativeParentNo = Long.parseLong(paramParentNo);
 		} catch(NumberFormatException e) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '부모메뉴번호'(=parentNo[")
-					.append(parmParentNo)
+					.append(paramParentNo)
 					.append("])의 값이 long 타입 정수가 아닙니다").toString();
 			
 			log.warn(errorMessage);
@@ -50,7 +50,7 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 		if (nativeParentNo < 0) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '부모메뉴번호'(=parentNo[")
-					.append(parmParentNo)
+					.append(paramParentNo)
 					.append("])의 값이 음수입니다").toString();
 			
 			log.warn(errorMessage);
@@ -62,7 +62,7 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 		if (nativeParentNo > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '부모메뉴번호'(=parentNo[")
-					.append(parmParentNo)
+					.append(paramParentNo)
 					.append("])의 값이 최대값[")
 					.append(CommonStaticFinalVars.UNSIGNED_INTEGER_MAX)
 					.append("] 보다 큽니다").toString();
@@ -72,8 +72,8 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		String parmMenuName = req.getParameter("menuName");
-		if (null == parmMenuName) {
+		String paramMenuName = req.getParameter("menuName");
+		if (null == paramMenuName) {
 			String errorMessage = "파라미터 '메뉴이름'(=menuName) 값을 넣어주세요";
 			
 			
@@ -83,9 +83,9 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		String parmLinkURL = req.getParameter("linkURL");
+		String paramLinkURL = req.getParameter("linkURL");
 		
-		if (null == parmLinkURL) {
+		if (null == paramLinkURL) {
 			String errorMessage = "파라미터 '링크 URL'(=linkURL) 값을 넣어주세요";
 			
 			log.warn(errorMessage);
@@ -96,8 +96,8 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 		
 		ChildMenuAddReq childMenuAddReq = new ChildMenuAddReq();
 		childMenuAddReq.setParentNo(nativeParentNo);
-		childMenuAddReq.setMenuName(parmMenuName);
-		childMenuAddReq.setLinkURL(parmLinkURL);
+		childMenuAddReq.setMenuName(paramMenuName);
+		childMenuAddReq.setLinkURL(paramLinkURL);
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(childMenuAddReq);

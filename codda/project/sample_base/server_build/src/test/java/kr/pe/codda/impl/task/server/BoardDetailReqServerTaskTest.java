@@ -1,56 +1,194 @@
 package kr.pe.codda.impl.task.server;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.codec.binary.Base64;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.common.classloader.ServerSimpleClassLoaderIF;
-import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.protocol.MessageProtocolIF;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.common.exception.SymmetricException;
+import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
+import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
+import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
+import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
-import kr.pe.codda.server.AcceptedConnection;
-import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.ProjectLoginManagerIF;
+import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
+import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
+import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
+import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.task.ToLetterCarrier;
+import kr.pe.codda.server.lib.ServerDBUtil;
 
-public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
+public class BoardDetailReqServerTaskTest extends AbstractJunitTest {	
 	
-	@Test
-	public void testDoTask() {		
-		class ToLetterCarrierMock extends ToLetterCarrier {			
-
-			public ToLetterCarrierMock(AcceptedConnection fromAcceptedConnection, AbstractMessage inputMessage,
-					ProjectLoginManagerIF projectLoginManager, MessageProtocolIF messageProtocol,
-					ServerSimpleClassLoaderIF serverSimpleClassLoader) {
-				super(fromAcceptedConnection, inputMessage, projectLoginManager, messageProtocol, serverSimpleClassLoader);
-			}
-
-			public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {
-				if (! (syncOutputMessage instanceof BoardDetailRes)) {
-					fail("the parameter syncOutputMessage is not a instance of MessageResultRes class");
-				}
-				
-				
-				log.info("success, outObj={}", syncOutputMessage.toString());
-			}
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		AbstractJunitTest.setUpBeforeClass();		
+		
+		ServerDBUtil.initializeDBEnvoroment("testAdmin");
+		
+		createTestID("test01");
+	}
+	
+	
+	/**
+	 * 테스트 아이디 'test01' 을 생성한다.
+	 */
+	private static void createTestID(String wantedUserID) {
+		String userID = wantedUserID;
+		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+		String nickname = "단위테스터용아이디";
+		String pwdHint = "힌트 그것이 알고싶다";
+		String pwdAnswer = "말이여 방구여";
+		
+		
+		ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+		// serverSessionkeyManager.getMainProjectServerSessionkey().getDupPublicKeyBytes();
+		
+		ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
+		ClientSessionKeyIF clientSessionKey = null;
+		try {
+			clientSessionKey = clientSessionKeyManager
+					.getNewClientSessionKey(serverSessionkeyManager.getMainProjectServerSessionkey().getDupPublicKeyBytes());
+		} catch (SymmetricException e) {
+			fail("fail to get a ClientSessionKey");
 		}
 		
-		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
-		ToLetterCarrier toLetterCarrierMock = new ToLetterCarrierMock(null, null, null, null, null);
-				
-		BoardDetailReq inObj = new BoardDetailReq();
-		inObj.setBoardId(BoardType.FREE.getBoardID());
-		inObj.setBoardNo(6);
+		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
 		
-		
-		BoardDetailReqServerTask boardDetailReqServerTask= new BoardDetailReqServerTask();
+		byte[] idCipherTextBytes = null;
 		try {
-			boardDetailReqServerTask.doTask(mainProjectName, 
-					personalLoginManagerMock, toLetterCarrierMock, inObj);
+			idCipherTextBytes = clientSymmetricKey.encrypt(userID.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));
+		} catch (Exception e) {
+			fail("fail to encrypt id");
+		}
+		byte[] passwordCipherTextBytes = null;
+		
+		try {
+			passwordCipherTextBytes = clientSymmetricKey.encrypt(passwordBytes);
+		} catch (Exception e) {
+			fail("fail to encrypt password");
+		}
+		
+		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);
+		
+		byte[] nicknameCipherTextBytes = null;
+		try {
+			nicknameCipherTextBytes = clientSymmetricKey.encrypt(nickname.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));
+		} catch (Exception e) {
+			fail("fail to encrypt id");
+		}
+		
+		byte[] pwdHintCipherTextBytes = null;
+		try {
+			pwdHintCipherTextBytes = clientSymmetricKey.encrypt(pwdHint.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));
+		} catch (Exception e) {
+			fail("fail to encrypt id");
+		}
+		
+		byte[] pwdAnswerCipherTextBytes = null;
+		try {
+			pwdAnswerCipherTextBytes = clientSymmetricKey.encrypt(pwdAnswer.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));
+		} catch (Exception e) {
+			fail("fail to encrypt id");
+		}
+		
+		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
+		memberRegisterReq.setIdCipherBase64(Base64.encodeBase64String(idCipherTextBytes));
+		memberRegisterReq.setPwdCipherBase64(Base64.encodeBase64String(passwordCipherTextBytes));
+		memberRegisterReq.setNicknameCipherBase64(Base64.encodeBase64String(nicknameCipherTextBytes));
+		memberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(pwdHintCipherTextBytes));
+		memberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(pwdAnswerCipherTextBytes));
+		memberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes()));
+		memberRegisterReq.setIvBase64(Base64.encodeBase64String(clientSessionKey.getDupIVBytes()));
+	
+		MemberRegisterReqServerTask memberRegisterReqServerTask= new MemberRegisterReqServerTask();
+		
+		try {
+			@SuppressWarnings("unused")
+			MessageResultRes messageResultRes = 
+					memberRegisterReqServerTask.doService(memberRegisterReq);
+		} catch (ServerServiceException e) {
+			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
+					.append(userID)
+					.append("] 입니다").toString();
+			String actualErrorMessag = e.getMessage();
+			
+			log.warn(actualErrorMessag, e);
+			
+			assertEquals(expectedErrorMessage, actualErrorMessag);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to create a test ID");
+		}
+	}
+	
+	
+	@Test
+	public void testDoService_ok() {
+		String userID = "test01";
+		
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setSubject("테스트 주제1234");
+		boardWriteReq.setContent("내용::그림 하나를 그리다, 하하호호");		
+		boardWriteReq.setWriterID(userID);
+		boardWriteReq.setIp("172.16.0.1");
+		
+		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
+		{
+			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
+			attachedFile.setAttachedFileName("반짝반짝작은별01.jpg");
+			
+			attachedFileList.add(attachedFile);
+		}
+		
+		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
+		boardWriteReq.setNewAttachedFileList(attachedFileList);
+		
+		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		
+		BoardWriteRes boardWriteRes = null;
+		try {
+			boardWriteRes = boardWriteReqServerTask.doService(boardWriteReq);
+			log.info(boardWriteRes.toString());
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+				
+		BoardDetailReq boardDetailReq = new BoardDetailReq();
+		boardDetailReq.setBoardID(boardWriteRes.getBoardID());
+		boardDetailReq.setBoardNo(boardWriteRes.getBoardNo());
+		boardDetailReq.setRequestUserID(userID);
+		
+		
+		BoardDetailReqServerTask boardDetailReqServerTask = new BoardDetailReqServerTask();
+		try {
+			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doService(boardDetailReq);
+			
+			assertEquals(boardWriteReq.getSubject(), boardDetailRes.getSubject());
+			assertEquals(boardWriteReq.getContent(), boardDetailRes.getContent());
+			assertEquals(boardWriteReq.getWriterID(), boardDetailRes.getWriterID());
+			assertEquals(boardWriteReq.getIp(), boardDetailRes.getWriterIP());
+			
+			
+			assertEquals(boardWriteReq.getNewAttachedFileList().get(0).getAttachedFileName(), 
+					boardDetailRes.getAttachedFileList().get(0).getAttachedFileName());			
+			
+			log.info(boardDetailRes.toString());
 		} catch (Exception e) {
 			log.warn("fail to execuate doTask", e);
 			fail("fail to execuate doTask");

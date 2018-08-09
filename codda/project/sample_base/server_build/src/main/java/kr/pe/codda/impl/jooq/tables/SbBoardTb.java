@@ -4,7 +4,6 @@
 package kr.pe.codda.impl.jooq.tables;
 
 
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,7 +42,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = 1047280737;
+    private static final long serialVersionUID = 1421373636;
 
     /**
      * The reference instance of <code>sb_db.sb_board_tb</code>
@@ -89,21 +88,6 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     public final TableField<SbBoardTbRecord, UByte> DEPTH = createField("depth", org.jooq.impl.SQLDataType.TINYINTUNSIGNED, this, "트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.");
 
     /**
-     * The column <code>sb_db.sb_board_tb.writer_id</code>. 작성자
-     */
-    public final TableField<SbBoardTbRecord, String> WRITER_ID = createField("writer_id", org.jooq.impl.SQLDataType.VARCHAR(20).nullable(false), this, "작성자");
-
-    /**
-     * The column <code>sb_db.sb_board_tb.subject</code>. 제목
-     */
-    public final TableField<SbBoardTbRecord, String> SUBJECT = createField("subject", org.jooq.impl.SQLDataType.VARCHAR(255), this, "제목");
-
-    /**
-     * The column <code>sb_db.sb_board_tb.content</code>. 본문
-     */
-    public final TableField<SbBoardTbRecord, String> CONTENT = createField("content", org.jooq.impl.SQLDataType.CLOB, this, "본문");
-
-    /**
      * The column <code>sb_db.sb_board_tb.view_cnt</code>. 조회수
      */
     public final TableField<SbBoardTbRecord, Integer> VIEW_CNT = createField("view_cnt", org.jooq.impl.SQLDataType.INTEGER, this, "조회수");
@@ -112,26 +96,6 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      * The column <code>sb_db.sb_board_tb.board_st</code>. 게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
      */
     public final TableField<SbBoardTbRecord, String> BOARD_ST = createField("board_st", org.jooq.impl.SQLDataType.CHAR(1), this, "게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글");
-
-    /**
-     * The column <code>sb_db.sb_board_tb.next_attach_sq</code>. 다음 첨부 파일 시퀀스 번호, 0부터 시작
-     */
-    public final TableField<SbBoardTbRecord, UInteger> NEXT_ATTACH_SQ = createField("next_attach_sq", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "다음 첨부 파일 시퀀스 번호, 0부터 시작");
-
-    /**
-     * The column <code>sb_db.sb_board_tb.ip</code>.
-     */
-    public final TableField<SbBoardTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(15), this, "");
-
-    /**
-     * The column <code>sb_db.sb_board_tb.reg_dt</code>. 최초 작성일
-     */
-    public final TableField<SbBoardTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "최초 작성일");
-
-    /**
-     * The column <code>sb_db.sb_board_tb.mod_dt</code>. 최근 수정일
-     */
-    public final TableField<SbBoardTbRecord, Timestamp> MOD_DT = createField("mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "최근 수정일");
 
     /**
      * Create a <code>sb_db.sb_board_tb</code> table reference
@@ -175,7 +139,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_FK2_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1);
     }
 
     /**
@@ -199,7 +163,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<ForeignKey<SbBoardTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbBoardTbRecord, ?>>asList(Keys.SB_BOARD_FK1, Keys.SB_BOARD_FK2);
+        return Arrays.<ForeignKey<SbBoardTbRecord, ?>>asList(Keys.SB_BOARD_FK1);
     }
 
     /**

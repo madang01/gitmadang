@@ -22,8 +22,8 @@ public class MenuUpMoveSvl extends AbstractAdminLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		String parmMenuNo = req.getParameter("menuNo");
-		if (null == parmMenuNo) {
+		String paramMenuNo = req.getParameter("menuNo");
+		if (null == paramMenuNo) {
 			String errorMessage = "파라미터 '메뉴번호'(=menuNo) 값을 넣어주세요";			
 			log.warn(errorMessage);
 			printErrorMessageCallBackPage(req, res, errorMessage);
@@ -33,11 +33,11 @@ public class MenuUpMoveSvl extends AbstractAdminLoginServlet {
 		long nativeMenuNo;
 		
 		try {
-			nativeMenuNo = Long.parseLong(parmMenuNo);
+			nativeMenuNo = Long.parseLong(paramMenuNo);
 		} catch(NumberFormatException e) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '메뉴번호'(=menuNo[")
-					.append(parmMenuNo)
+					.append(paramMenuNo)
 					.append("])의 값이 long 타입 정수가 아닙니다").toString();
 			
 			log.warn(errorMessage);
@@ -49,7 +49,7 @@ public class MenuUpMoveSvl extends AbstractAdminLoginServlet {
 		if (nativeMenuNo < 0) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '메뉴번호'(=menuNo[")
-					.append(parmMenuNo)
+					.append(paramMenuNo)
 					.append("])의 값이 음수입니다").toString();
 			
 			log.warn(errorMessage);
@@ -61,7 +61,7 @@ public class MenuUpMoveSvl extends AbstractAdminLoginServlet {
 		if (nativeMenuNo > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 			String errorMessage = new StringBuilder()
 					.append("파라미터 '메뉴번호'(=menuNo[")
-					.append(parmMenuNo)
+					.append(paramMenuNo)
 					.append("])의 값이 최대값[")
 					.append(CommonStaticFinalVars.UNSIGNED_INTEGER_MAX)
 					.append("] 보다 큽니다").toString();

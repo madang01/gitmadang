@@ -12,31 +12,89 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
+import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.codda.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.weblib.jdf.AbstractServlet;
+import kr.pe.codda.weblib.common.BoardType;
+import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
 
 @SuppressWarnings("serial")
-public class BoardDownloadSvl extends AbstractServlet {
+public class BoardDownloadSvl extends AbstractLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {		
-		if (! isUserLogin(req)) {
-			String errorMessage = new StringBuilder("파일 업로드는 로그인 서비스 입니다. 로그인 하시기 바랍니다.").toString();		
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
-			
-			doDownloadErrorAlertPage(req, res, errorMessage);			
+		
+		String paramBoardID = req.getParameter("boardID");
+		
+		if (null == paramBoardID) {
+			String errorMessage = "게시판 식별자 값을 넣어 주세요.";
+			String debugMessage = "the web parameter 'boardID' is null";			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+
+		short boardID = 0;
+		try {
+			boardID = Short.parseShort(paramBoardID);
+		} catch (NumberFormatException nfe) {
+			String errorMessage = "잘못된 게시판 식별자 입니다";
+			String debugMessage = new StringBuilder("the web parameter 'boardID'[").append(paramBoardID)
+					.append("] is not a short").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+
+		try {
+			BoardType.valueOf(boardID);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = "알 수 없는 게시판 식별자 입니다";
+			String debugMessage = new StringBuilder("the web parameter 'boardID'[").append(paramBoardID)
+					.append("] is not a element of set[").append(BoardType.getSetString()).append("]").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+
+		String paramBoardNo = req.getParameter("boardNo");
+
+		if (null == paramBoardNo) {
+			String errorMessage = "게시판 번호 값을 넣어 주세요";
+			String debugMessage = "the web parameter 'boardNo' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+
+		long boardNo = 0L;
+
+		try {
+			boardNo = Long.parseLong(paramBoardNo);
+		} catch (NumberFormatException nfe) {
+			String errorMessage = "잘못된 게시판 번호입니다";
+			String debugMessage = new StringBuilder("the web parameter \"boardNo\"'s value[").append(paramBoardNo)
+					.append("] is not a Long").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+
+		if (boardNo <= 0) {
+			String errorMessage = "게시판 번호는 0 보다 커야 합니다";
+			String debugMessage = new StringBuilder("the web parameter \"boardNo\"'s value[").append(paramBoardNo)
+					.append("] is less than or equal to zero").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		String parmAttachId = req.getParameter("attachId");
-		if (null == parmAttachId) {
+		
+		String paramAttachId = req.getParameter("attachId");
+		if (null == paramAttachId) {
 			String errorMessage = "업로드 식별자를 넣어주세요.";
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -44,11 +102,11 @@ public class BoardDownloadSvl extends AbstractServlet {
 		
 		long attachId = 0L;
 		try {
-			attachId = Long.parseLong(parmAttachId);
+			attachId = Long.parseLong(paramAttachId);
 		}catch (NumberFormatException nfe) {
 			String errorMessage = new StringBuilder("자바 long 타입 변수인 업로드 식별자 값[")
-			.append(parmAttachId).append("]이 잘못되었습니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
+			.append(paramAttachId).append("]이 잘못되었습니다.").toString();
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
@@ -56,60 +114,62 @@ public class BoardDownloadSvl extends AbstractServlet {
 		
 		if (attachId <= 0) {
 			String errorMessage = new StringBuilder("업로드 식별자 값[")
-			.append(parmAttachId).append("]은 0 보다 커야합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
+			.append(paramAttachId).append("]은 0 보다 커야합니다.").toString();
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 		
-		String parmAttachSeq = req.getParameter("attachSeq");
-		if (null == parmAttachSeq) {
-			String errorMessage = "업로드 파일 순번를 넣어주세요.";
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
+		String paramAttachedFileSeq = req.getParameter("attachedFileSeq");
+		if (null == paramAttachedFileSeq) {
+			String errorMessage = "첨부 파일 순번를 넣어주세요.";
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}		
 		
-		short attachSeq = 0;
+		short attachedFileSeq = 0;
 		try {
-			attachSeq = Short.parseShort(parmAttachSeq);
+			attachedFileSeq = Short.parseShort(paramAttachedFileSeq);
 		}catch (NumberFormatException nfe) {
-			String errorMessage = new StringBuilder("자바 short 타입 변수인 업로드 파일 순번 값[")
-			.append(parmAttachSeq).append("]이 잘못되었습니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
+			String errorMessage = new StringBuilder("자바 short 타입 변수인 첨부 파일 순번 값[")
+			.append(paramAttachedFileSeq).append("]이 잘못되었습니다.").toString();
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 		
-		if (attachSeq < 0) {
-			String errorMessage = new StringBuilder("업로드 파일 순번 값[")
-			.append(parmAttachSeq).append("]은 0 보다 작거나 커야합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
+		if (attachedFileSeq < 0) {
+			String errorMessage = new StringBuilder("첨부 파일 순번 값[")
+			.append(paramAttachedFileSeq).append("]은 0 보다 작거나 커야합니다.").toString();
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 		
-		if (attachSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+		if (attachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder("업로드 파일 순번 값[")
-			.append(parmAttachSeq).append("]은 ")
+			.append(paramAttachedFileSeq).append("]은 ")
 			.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
 			.append(" 값 보다 작거나 같아야 합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserID(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}		
 		
+		
 		BoardDownloadFileReq boardDownloadFileReq = new BoardDownloadFileReq();
-		boardDownloadFileReq.setAttachId(attachId);
-		boardDownloadFileReq.setAttachSeq(attachSeq);
+		boardDownloadFileReq.setBoardID(boardID);
+		boardDownloadFileReq.setBoardNo(boardNo);
+		boardDownloadFileReq.setAttachedFileSeq(attachedFileSeq);
 		
 		// FIXME!
-		log.debug("inObj={},  userId={}, ip={}", boardDownloadFileReq.toString(), getLoginedUserID(req), req.getRemoteAddr());
+		log.debug("inObj={},  userId={}, ip={}", boardDownloadFileReq.toString(), getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 		
 	
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
@@ -117,53 +177,28 @@ public class BoardDownloadSvl extends AbstractServlet {
 		
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardDownloadFileReq);
 		
-		if (! (outputMessage instanceof BoardDownloadFileRes)) {
-			String errorMessage = null;
-			
-			if (outputMessage instanceof MessageResultRes) {
-				MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+		if ((outputMessage instanceof MessageResultRes)) {
+			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+			String errorMessage = messageResultRes.getResultMessage();
+			String debugMessage = "";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		} else if (! (outputMessage instanceof BoardDownloadFileRes)) {
+			String errorMessage = "다운 로드 파일 정보를 얻는데 실패하였습니다";
 				
-				errorMessage = messageResultRes.getResultMessage();
-				
-				if (! messageResultRes.getMessageID().equals(boardDownloadFileReq.getMessageID())) {
-					String debugMessage = new StringBuilder("입력 메시지[")
-							.append(boardDownloadFileReq.getMessageID())
-							.append("]에 대한 비 정상 출력 메시지[")
-							.append(outputMessage.toString())
-							.append("] 도착").toString();
-					
-					log.error(debugMessage);
-				}
-			} else {
-				errorMessage = "다운 로드 파일 정보를 얻는데 실패하였습니다";
-				
-				String debugMessage = new StringBuilder("입력 메시지[")
+			String debugMessage = new StringBuilder("입력 메시지[")
 						.append(boardDownloadFileReq.getMessageID())
 						.append("]에 대한 비 정상 출력 메시지[")
 						.append(outputMessage.toString())
 						.append("] 도착").toString();
 				
 				log.error(debugMessage);
-			}
-			doDownloadErrorAlertPage(req, res, errorMessage);
+		
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 				
 		BoardDownloadFileRes boardDownloadFileRes = (BoardDownloadFileRes) outputMessage;
-		
-		/*String ownerId = boardDownloadFileOutDTO.getOwnerId();
-		
-		if (! ownerId.equals(getUserId(req))) {
-			String errorMessage = new StringBuilder("업로드 파일 소유자[")
-			.append(ownerId).append("] 와 로그인 아이디[")
-			.append(getUserId(req))
-			.append("] 가 다릅니다.").toString();
-			log.warn("{}, ip={}", errorMessage, req.getRemoteAddr());
-			
-			req.setAttribute("errorMessage", errorMessage);			
-			printJspPage(req, res, goPage);
-			return;
-		}*/
 				
 		/**
 		 * 참고 사이트 : http://goodcodes.tistory.com/14
@@ -173,41 +208,60 @@ public class BoardDownloadSvl extends AbstractServlet {
 		 * Posted in Tomcat & JSP by 흔들리는내마음
 		 */
 
-		File downloadFile = new File(boardDownloadFileRes.getSystemFileName());
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				.getRunningProjectConfiguration();
+		String mainProjectName = runningProjectConfiguration.getMainProjectName();
+		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
+		String attachedFileFullName = new StringBuilder(WebRootBuildSystemPathSupporter
+				.getWebUploadPathString(sinnoriInstalledPathString, mainProjectName)).append(File.separator)
+						.append(WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_PREFIX).append("_BoardID")
+						.append(boardID).append("_BoardNo")
+						.append(boardNo).append("Seq").append(attachedFileSeq)
+						.append(WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_SUFFIX).toString();
+		File downloadFile = new File(attachedFileFullName);
 		// SecureCoding 파일명을 받는 경우 ../ 에 대한 체크가 필요하다.(지정디렉토리 이외의 디렉토리 금지 루틴)
 
+		if (! downloadFile.exists()) {
+			String errorMessage = new StringBuilder().append("다운 로드 할 대상 파일[")
+					.append(attachedFileFullName)
+					.append("]이 존재 하지 않습니다").toString();
+			String debugMessage = "";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
 		// 브라우저 별 처리
 		if (downloadFile.exists()) {
 			// 1. content-type의 세팅
 			res.setContentType("application/octet-stream;charset=UTF-8");
-			String filename = boardDownloadFileRes.getAttachFiledName();
+			String attachedFileName = boardDownloadFileRes.getAttachedFileName();
 
 			System.out.println("");
 			// 브라우저별 한글 인코딩
 			if (getBrowser(req).equals("MSIE")) {
 				// URLEncode하고 +문자만 공백으로 바꾸는 경우
-				filename = URLEncoder.encode(filename, "UTF-8")
+				attachedFileName = URLEncoder.encode(attachedFileName, "UTF-8")
 						.replaceAll("\\+", "%20");
 			} else if (getBrowser(req).equals("Chrome")) {
 				// char단위로 검색하여 ~표시보다 char값이 높을 때(ascii코드값이 아닌경우)만 URLEncode한다.
 				StringBuffer sb = new StringBuffer();
-				for (int i = 0; i < filename.length(); i++) {
-					char c = filename.charAt(i);
+				for (int i = 0; i < attachedFileName.length(); i++) {
+					char c = attachedFileName.charAt(i);
 					if (c > '~') {
 						sb.append(URLEncoder.encode("" + c, "UTF-8"));
 					} else {
 						sb.append(c);
 					}
 				}
-				filename = sb.toString();
+				attachedFileName = sb.toString();
 			} else {
 				// latin1(8859_1)
-				filename = new String(filename.getBytes("UTF-8"), "8859_1");
+				attachedFileName = new String(attachedFileName.getBytes("UTF-8"), "8859_1");
 			}
 
 			// 2. content-disposition의 세팅
 			res.addHeader("Content-Disposition", "attachment;filename=\""
-					+ filename + "\"");
+					+ attachedFileName + "\"");
 			byte[] bytes = new byte[1024];
 			FileInputStream fis = null;
 			BufferedInputStream bis = null;

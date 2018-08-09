@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardListRes message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardListResEncoder extends AbstractMessageEncoder {
@@ -39,23 +39,23 @@ public final class BoardListResEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardListRes");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardId"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-			, boardListRes.getBoardId() // itemValue
+			, boardListRes.getBoardID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "startNo"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageOffset"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, boardListRes.getStartNo() // itemValue
+			, boardListRes.getPageOffset() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageSize"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageLength"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
-			, boardListRes.getPageSize() // itemValue
+			, boardListRes.getPageLength() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -132,23 +132,9 @@ public final class BoardListResEncoder extends AbstractMessageEncoder {
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "subject"
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "writerID"
 					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-					, board$2.getSubject() // itemValue
-					, -1 // itemSize
-					, null // nativeItemCharset
-					, board$2MiddleWritableObject);
-
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "writerId"
-					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-					, board$2.getWriterId() // itemValue
-					, -1 // itemSize
-					, null // nativeItemCharset
-					, board$2MiddleWritableObject);
-
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "nickname"
-					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-					, board$2.getNickname() // itemValue
+					, board$2.getWriterID() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);
@@ -160,13 +146,6 @@ public final class BoardListResEncoder extends AbstractMessageEncoder {
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "votes"
-					, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
-					, board$2.getVotes() // itemValue
-					, -1 // itemSize
-					, null // nativeItemCharset
-					, board$2MiddleWritableObject);
-
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardSate"
 					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 					, board$2.getBoardSate() // itemValue
@@ -174,23 +153,37 @@ public final class BoardListResEncoder extends AbstractMessageEncoder {
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "registerDate"
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "registeredDate"
 					, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
-					, board$2.getRegisterDate() // itemValue
+					, board$2.getRegisteredDate() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "modifiedDate"
-					, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
-					, board$2.getModifiedDate() // itemValue
-					, -1 // itemSize
-					, null // nativeItemCharset
-					, board$2MiddleWritableObject);
-
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberGubunName"
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "nickname"
 					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-					, board$2.getMemberGubunName() // itemValue
+					, board$2.getNickname() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "votes"
+					, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
+					, board$2.getVotes() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "subject"
+					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+					, board$2.getSubject() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "finalModifiedDate"
+					, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+					, board$2.getFinalModifiedDate() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);

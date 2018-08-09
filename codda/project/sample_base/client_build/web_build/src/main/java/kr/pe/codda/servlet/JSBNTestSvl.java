@@ -39,16 +39,16 @@ public class JSBNTestSvl extends AbstractServlet {
 		
 		
 		
-		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == parmRequestType) {		
+		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == paramRequestType) {		
 			firstPage(req, res);			
 			return;
 		}
 		
-		if (parmRequestType.equals("view")) {
+		if (paramRequestType.equals("view")) {
 			firstPage(req, res);
 			return;
-		} else if (parmRequestType.equals("proc")) {		
+		} else if (paramRequestType.equals("proc")) {		
 			processPage(req, res);
 			return;
 		} else {
@@ -57,7 +57,7 @@ public class JSBNTestSvl extends AbstractServlet {
 					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
 					.append("\"")
 					.append("'s value[")
-					.append(parmRequestType)			
+					.append(paramRequestType)			
 					.append("] is not a elment of request type set[view, proc]").toString();
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -87,20 +87,20 @@ public class JSBNTestSvl extends AbstractServlet {
 	
 	private void processPage(HttpServletRequest req, HttpServletResponse res) {
 		
-		String parmEncryptedBytesWithPublicKeyHex = req.getParameter("encryptedBytesWithPublicKey");
-		String parmPlainText = req.getParameter("plainText");
+		String paramEncryptedBytesWithPublicKeyHex = req.getParameter("encryptedBytesWithPublicKey");
+		String paramPlainText = req.getParameter("plainText");
 		
-		log.info("parmEncryptedBytesWithPublicKeyHex[{}]", parmEncryptedBytesWithPublicKeyHex);
-		log.info("parmPlainText[{}]", parmPlainText);
+		log.info("paramEncryptedBytesWithPublicKeyHex[{}]", paramEncryptedBytesWithPublicKeyHex);
+		log.info("paramPlainText[{}]", paramPlainText);
 		
-		if (null == parmEncryptedBytesWithPublicKeyHex) {
+		if (null == paramEncryptedBytesWithPublicKeyHex) {
 			String errorMessage = "공개키로 암호화한 암호문을 입력해 주세요";
 			String debugMessage = "the web parameter 'encryptedBytesWithPublicKey' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (null == parmPlainText) {
+		if (null == paramPlainText) {
 			String errorMessage = "평문을 입력해 주세요";
 			String debugMessage = "the web parameter 'plainText' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -122,11 +122,11 @@ public class JSBNTestSvl extends AbstractServlet {
 		
 		
 		String plainTextHex = HexUtil
-				.getHexStringFromByteArray(parmPlainText.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));		
+				.getHexStringFromByteArray(paramPlainText.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));		
 		//log.info("plainText hex[%s]", plainTextHex);
 		// String sessionKeyHex =  new String(HexUtil.hexToByteArray(sessionKeyDoubleHex));
 		//log.info("sessionKeyHex=[%s]", sessionKeyHex);
-		byte encryptedBytesWithPublicKey[] = HexUtil.getByteArrayFromHexString(parmEncryptedBytesWithPublicKeyHex);
+		byte encryptedBytesWithPublicKey[] = HexUtil.getByteArrayFromHexString(paramEncryptedBytesWithPublicKeyHex);
 		
 		byte decryptUsingPrivateKey[] = null;
 		try {
@@ -135,8 +135,8 @@ public class JSBNTestSvl extends AbstractServlet {
 			String errorMessage = "fail to initialize a Cipher class instance with a key and a set of algorithm parameters";
 			log.warn(errorMessage, e);			
 			
-			String debugMessage = new StringBuilder("parmEncryptedBytesWithPublicKeyHex=[")
-					.append(parmEncryptedBytesWithPublicKeyHex)					
+			String debugMessage = new StringBuilder("paramEncryptedBytesWithPublicKeyHex=[")
+					.append(paramEncryptedBytesWithPublicKeyHex)					
 					.append("], errmsg=").append(e.getMessage()).toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 		}			
@@ -149,7 +149,7 @@ public class JSBNTestSvl extends AbstractServlet {
 		
 		String decryptedPlainText = new String(decryptUsingPrivateKey);
 		
-		req.setAttribute("orignalPlainText", parmPlainText);
+		req.setAttribute("orignalPlainText", paramPlainText);
 		req.setAttribute("decryptedPlainText", decryptedPlainText);
 		req.setAttribute("isSame", String.valueOf(isSame));		
 		printJspPage(req, res, "/menu/testcode/JSBNTest02.jsp");	

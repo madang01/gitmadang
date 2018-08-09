@@ -16,6 +16,15 @@
  */
 package kr.pe.codda.server.lib;
 
+import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+
+import java.sql.Connection;
+
+import org.jooq.DSLContext;
+import org.jooq.Record2;
+
+import io.netty.util.internal.logging.InternalLogger;
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
 /**
@@ -25,29 +34,29 @@ import kr.pe.codda.common.util.CommonStaticUtil;
  */
 public class ValueChecker {
 	/**
-	 * 아이디에 대한 입력값 검사를 수행한다.
-	 * @param id 아이디
+	 * 사용자 아이디에 대한 입력값 검사를 수행한다.
+	 * @param userID 아이디
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
-	public static void checkValidUserId(String userId) throws IllegalArgumentException {
-		if (null == userId) {
-			throw new IllegalArgumentException("the parameter userId is null");
+	public static void checkValidUserID(String userID) throws IllegalArgumentException {
+		if (null == userID) {
+			throw new IllegalArgumentException("the parameter userID is null");
 		}		
 		
-		char[] userIdChars = userId.toCharArray();
+		char[] userIDChars = userID.toCharArray();
 		
-		if (userIdChars.length < ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS) {
+		if (userIDChars.length < ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS) {
 			String errorMessage = new StringBuilder("사용자 아이디[")
-					.append(userId)
+					.append(userID)
 					.append("]의 글자수는 최소 글자수[")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS)
 					.append("] 보다 작습니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (userIdChars.length > ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS) {
+		if (userIDChars.length > ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS) {
 			String errorMessage = new StringBuilder("사용자 아이디[")
-					.append(userId)
+					.append(userID)
 					.append("]의 글자수는 최대 글자수[")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS)
 					.append("] 보다 큽니다").toString();
@@ -56,20 +65,20 @@ public class ValueChecker {
 		
 		int i=0;
 		
-		char firstChar = userIdChars[i];
-		if (Character.isAlphabetic(firstChar)) {
+		char firstChar = userIDChars[i];
+		if (! Character.isAlphabetic(firstChar)) {
 			String errorMessage = new StringBuilder("사용자 아이디[")
-					.append(userId)
-					.append("]는 첫글자가 영문이 아닙니다").toString();
+					.append(userID)
+					.append("]의 첫글자가 영문이 아닙니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		for (i++; i < userIdChars.length; i++) {
-			char c = userIdChars[i];
+		for (i++; i < userIDChars.length; i++) {
+			char c = userIDChars[i];
 			if (! Character.isDigit(c) && ! Character.isAlphabetic(c)) {
 				String errorMessage = new StringBuilder("사용자 아이디[")
-						.append(userId)
-						.append("]는 첫글자 이후 문자는 영문과 숫자 조합이어야 합니다").toString();
+						.append(userID)
+						.append("]의 첫글자 이후 문자는 영문과 숫자 조합이어야 합니다").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
@@ -96,12 +105,12 @@ public class ValueChecker {
 	
 	/**
 	 * 작성자 아이디에 대한 입력값 검사를 수행한다.
-	 * @param writerId 작성자 아이디
+	 * @param writerID 작성자 아이디
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
-	public static void checkValidWriterId(String writerId) throws IllegalArgumentException {
-		if (null == writerId) {
-			throw new IllegalArgumentException("the parameter writerId is null");
+	public static void checkValidWriterID(String writerID) throws IllegalArgumentException {
+		if (null == writerID) {
+			throw new IllegalArgumentException("the parameter writerID is null");
 		}
 		
 		
@@ -123,20 +132,20 @@ public class ValueChecker {
 			throw new IllegalArgumentException(errorMessage);
 		}*/
 		
-		char[] writerIdChars = writerId.toCharArray();
+		char[] writerIDChars = writerID.toCharArray();
 		
-		if (writerIdChars.length < ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS) {
+		if (writerIDChars.length < ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS) {
 			String errorMessage = new StringBuilder("작성자 아이디[")
-					.append(writerId)
+					.append(writerID)
 					.append("]의 글자수는 최소 글자수[")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS)
 					.append("] 보다 작습니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (writerIdChars.length > ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS) {
+		if (writerIDChars.length > ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS) {
 			String errorMessage = new StringBuilder("작성자 아이디[")
-					.append(writerId)
+					.append(writerID)
 					.append("]의 글자수는 최대 글자수[")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS)
 					.append("] 보다 큽니다").toString();
@@ -145,19 +154,19 @@ public class ValueChecker {
 		
 		int i=0;
 		
-		char firstChar = writerIdChars[i];
-		if (Character.isAlphabetic(firstChar)) {
+		char firstChar = writerIDChars[i];
+		if (! Character.isAlphabetic(firstChar)) {
 			String errorMessage = new StringBuilder("작성자 아이디[")
-					.append(writerId)
+					.append(writerID)
 					.append("]는 첫글자가 영문이 아닙니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		for (i++; i < writerIdChars.length; i++) {
-			char c = writerIdChars[i];
+		for (i++; i < writerIDChars.length; i++) {
+			char c = writerIDChars[i];
 			if (! Character.isDigit(c) && ! Character.isAlphabetic(c)) {
 				String errorMessage = new StringBuilder("작성자 아이디[")
-						.append(writerId)
+						.append(writerID)
 						.append("]는 첫글자 이후 문자는 영문과 숫자 조합이어야 합니다").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
@@ -384,8 +393,8 @@ public class ValueChecker {
 		}
 		
 		for (char c : pwdHintChars) {
-			if (! CommonStaticUtil.isFullHangul(c)  && ! Character.isAlphabetic(c) && ! Character.isDigit(c) && c != ' ') {
-				String errorMessage = new StringBuilder("비밀번호 분실시 힌트는 공백이 들어간 한글(가-힣), 영문, 숫자 조합으로 최소 ")
+			if (CommonStaticUtil.isLineSeparator(c)) {				
+				String errorMessage = new StringBuilder("비밀번호 분실시 힌트는 한줄로 최소 ")
 						.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
 						.append("자 최대 ")
 						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
@@ -395,7 +404,7 @@ public class ValueChecker {
 		}
 		
 		if (pwdHintChars.length > 0 && (pwdHintChars[0] == ' ' || pwdHintChars[pwdHintChars.length -1 ] == ' ')) {
-			String errorMessage = new StringBuilder("비밀번호 분실시 힌트는 앞뒤로 공백없이 한글, 영문, 숫자 조합으로 최소 ")
+			String errorMessage = new StringBuilder("비밀번호 분실시 힌트는 앞뒤로 공백없이 한줄로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
@@ -493,8 +502,8 @@ public class ValueChecker {
 		}
 		
 		for (char c : pwdAnswerChars) {
-			if (! CommonStaticUtil.isFullHangul(c)  && ! Character.isAlphabetic(c) && ! Character.isDigit(c) && c != ' ') {
-				String errorMessage = new StringBuilder("비밀번호 분실시 답변은 공백이 들어간 한글(가-힣), 영문, 숫자 조합으로 최소 ")
+			if (CommonStaticUtil.isLineSeparator(c)) {
+				String errorMessage = new StringBuilder("비밀번호 분실시 답변은 한줄으며 최소 ")
 						.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
 						.append("자 최대 ")
 						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
@@ -504,7 +513,7 @@ public class ValueChecker {
 		}
 		
 		if (pwdAnswerChars.length > 0 && (pwdAnswerChars[0] == ' ' || pwdAnswerChars[pwdAnswerChars.length -1 ] == ' ')) {
-			String errorMessage = new StringBuilder("비밀번호 분실시 답변의 앞뒤로 공백없이 한글, 영문, 숫자 조합으로 최소 ")
+			String errorMessage = new StringBuilder("비밀번호 분실시 답변의 앞뒤로 공백없이 한줄로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
@@ -693,6 +702,83 @@ public class ValueChecker {
 		}		
 	}*/
 	
-	
+	/**
+	 * <pre>
+	 * 지정한 아이디가 정상인지 아래와 같은 검사를 수행하여 
+	 * 비정상시 예외를 던지고 최종 멤버 타입을 반환한다
+	 * 
+	 * (1) 회원 테이블에 존재 여부
+	 * (2) 회원 테이블에 들어간 회원 상태 값이 옳바른지 여부 
+	 * (3) 블락 여부
+	 * (4) 탈퇴 여부
+	 * 
+	 * WARNING! 파라미터 null 검사를 수행하지 않습니다
+	 * </pre>
+	 * 
+	 * @param conn
+	 * @param create
+	 * @param log
+	 * @param userID 사용자 아이디
+	 * @throws ServerServiceException 비정상인 경우 던지는 예외
+	 * @return  멤버 타입
+	 */
+	public static String checkValidMemberStateForUserID(Connection conn, DSLContext create, InternalLogger log, String userID) throws ServerServiceException {
+		Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.MEMBER_ST, SB_MEMBER_TB.MEMBER_TYPE)
+				.from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(userID))
+				.fetchOne();
+		
+		if (null == memberRecord) {
+			try {
+				conn.rollback();
+			} catch (Exception e) {
+				log.warn("fail to rollback");
+			}
+			
+			String errorMessage = new StringBuilder("존재하지 않는 잘못된 아이디[")
+					.append(userID)
+					.append(" 입니다").toString();				
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		String memeberState = memberRecord.getValue(SB_MEMBER_TB.MEMBER_ST);
+		
+		MemberStateType memberStateType = null;
+		try {
+			memberStateType = MemberStateType.valueOf(memeberState, false);
+		} catch(IllegalArgumentException e) {
+			try {
+				conn.rollback();
+			} catch (Exception e1) {
+				log.warn("fail to rollback");
+			}
+			
+			String errorMessage = new StringBuilder("해당 아이디[")
+					.append(userID)
+					.append("]의 멤버 상태[")
+					.append(memeberState)
+					.append("] 가 잘못되었습니다").toString();				
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (MemberStateType.BLOCK.equals(memberStateType)) {
+			try {
+				conn.rollback();
+			} catch (Exception e1) {
+				log.warn("fail to rollback");
+			}
+			
+			String errorMessage = new StringBuilder("해당 아이디[")
+					.append(userID)
+					.append("는 블락된 사용자입니다").toString();				
+			throw new ServerServiceException(errorMessage);
+		} else if (MemberStateType.WITHDRAWAL.equals(memberStateType)) {
+			String errorMessage = new StringBuilder("해당 아이디[")
+					.append(userID)
+					.append("는 탈퇴한 사용자입니다").toString();				
+			throw new ServerServiceException(errorMessage);
+		}		
+		
+		return memberRecord.getValue(SB_MEMBER_TB.MEMBER_TYPE);
+	}
 	
 }

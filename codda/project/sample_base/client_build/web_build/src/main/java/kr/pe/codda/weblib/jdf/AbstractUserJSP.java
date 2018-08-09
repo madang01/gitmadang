@@ -12,6 +12,6 @@ public abstract class AbstractUserJSP extends AbstractJSP {
 
 	@Override
 	public String getSiteNavbarString(HttpServletRequest request) {
-		return userSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isUserLogin(request));
+		return userSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isUserLoginedIn(request));
 	}
 }

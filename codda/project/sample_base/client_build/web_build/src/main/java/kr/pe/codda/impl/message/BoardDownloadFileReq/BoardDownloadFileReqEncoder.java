@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardDownloadFileReq message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardDownloadFileReqEncoder extends AbstractMessageEncoder {
@@ -39,16 +39,30 @@ public final class BoardDownloadFileReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardDownloadFileReq");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachId"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, boardDownloadFileReq.getAttachId() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardDownloadFileReq.getBoardID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardNo"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, boardDownloadFileReq.getAttachSeq() // itemValue
+			, boardDownloadFileReq.getBoardNo() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileSeq"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardDownloadFileReq.getAttachedFileSeq() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardDownloadFileReq.getRequestUserID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

@@ -11,6 +11,7 @@ import java.util.List;
 import javax.annotation.Generated;
 
 import kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb;
+import kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardInfoTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardVoteTb;
@@ -38,7 +39,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = -2034966400;
+    private static final long serialVersionUID = -730146023;
 
     /**
      * The reference instance of <code>sb_db</code>
@@ -49,6 +50,11 @@ public class SbDb extends SchemaImpl {
      * The table <code>sb_db.sb_board_filelist_tb</code>.
      */
     public final SbBoardFilelistTb SB_BOARD_FILELIST_TB = kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
+
+    /**
+     * The table <code>sb_db.sb_board_history_tb</code>.
+     */
+    public final SbBoardHistoryTb SB_BOARD_HISTORY_TB = kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 
     /**
      * The table <code>sb_db.sb_board_info_tb</code>.
@@ -116,6 +122,7 @@ public class SbDb extends SchemaImpl {
     private final List<Table<?>> getTables0() {
         return Arrays.<Table<?>>asList(
             SbBoardFilelistTb.SB_BOARD_FILELIST_TB,
+            SbBoardHistoryTb.SB_BOARD_HISTORY_TB,
             SbBoardInfoTb.SB_BOARD_INFO_TB,
             SbBoardTb.SB_BOARD_TB,
             SbBoardVoteTb.SB_BOARD_VOTE_TB,

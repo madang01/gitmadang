@@ -41,16 +41,16 @@ public class CryptoJSMDTestSvl extends AbstractServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {		
 		
-		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == parmRequestType) {		
+		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == paramRequestType) {		
 			firstPage(req, res);			
 			return;
 		}
 		
-		if (parmRequestType.equals("view")) {
+		if (paramRequestType.equals("view")) {
 			firstPage(req, res);
 			return;
-		} else if (parmRequestType.equals("proc")) {		
+		} else if (paramRequestType.equals("proc")) {		
 			processPage(req, res);
 			return;
 		} else {
@@ -59,7 +59,7 @@ public class CryptoJSMDTestSvl extends AbstractServlet {
 					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
 					.append("\"")
 					.append("'s value[")
-					.append(parmRequestType)			
+					.append(paramRequestType)			
 					.append("] is not a elment of request type set[view, proc]").toString();
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -72,29 +72,29 @@ public class CryptoJSMDTestSvl extends AbstractServlet {
 	}
 	
 	private void processPage(HttpServletRequest req, HttpServletResponse res) {
-		String parmAlgorithm = req.getParameter("algorithm");		
-		String parmJavascriptMDHex = req.getParameter("javascriptMD");
-		String parmPlainText = req.getParameter("plainText");
+		String paramAlgorithm = req.getParameter("algorithm");		
+		String paramJavascriptMDHex = req.getParameter("javascriptMD");
+		String paramPlainText = req.getParameter("plainText");
 		
-		log.info("parmAlgorithm[{}]", parmAlgorithm);
-		log.info("parmJavascriptMDHex[{}]", parmJavascriptMDHex);
-		log.info("parmPlainText[{}]", parmPlainText);
+		log.info("paramAlgorithm[{}]", paramAlgorithm);
+		log.info("paramJavascriptMDHex[{}]", paramJavascriptMDHex);
+		log.info("paramPlainText[{}]", paramPlainText);
 		
-		if (null == parmAlgorithm) {
+		if (null == paramAlgorithm) {
 			String errorMessage = "알고리즘을 입력해 주세요";
 			String debugMessage = "the web parameter 'algorithm' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (null == parmJavascriptMDHex) {
+		if (null == paramJavascriptMDHex) {
 			String errorMessage = "알고리즘을 입력해 주세요";
 			String debugMessage = "the web parameter 'javascriptMD' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (null == parmPlainText) {
+		if (null == paramPlainText) {
 			String errorMessage = "평문을 입력해 주세요";
 			String debugMessage = "the web parameter 'plainText' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -102,25 +102,25 @@ public class CryptoJSMDTestSvl extends AbstractServlet {
 		}
 		
 		
-		byte[] javascriptMD = HexUtil.getByteArrayFromHexString(parmJavascriptMDHex);
+		byte[] javascriptMD = HexUtil.getByteArrayFromHexString(paramJavascriptMDHex);
 		
 		
 		MessageDigest md = null;
 		try {
-			md = MessageDigest.getInstance(parmAlgorithm);
+			md = MessageDigest.getInstance(paramAlgorithm);
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = "fail to get a MessageDigest class instance";
 			log.warn(errorMessage, e);			
 			
 			String debugMessage = new StringBuilder("the web parameter 'algorithm'[")
-					.append(parmAlgorithm)
+					.append(paramAlgorithm)
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		md.update(parmPlainText.replaceAll("\r\n", "\n").getBytes());
+		md.update(paramPlainText.replaceAll("\r\n", "\n").getBytes());
 		
 		byte serverMD[] =  md.digest();
 		
@@ -128,8 +128,8 @@ public class CryptoJSMDTestSvl extends AbstractServlet {
 		
 		String isSame = String.valueOf(Arrays.equals(javascriptMD, serverMD));
 		
-		req.setAttribute("plainText", parmPlainText);
-		req.setAttribute("javascriptMDHex", parmJavascriptMDHex);
+		req.setAttribute("plainText", paramPlainText);
+		req.setAttribute("javascriptMDHex", paramJavascriptMDHex);
 		req.setAttribute("serverMDHex", HexUtil.getHexStringFromByteArray(serverMD));
 		req.setAttribute("isSame", isSame);
 		

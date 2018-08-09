@@ -16,26 +16,25 @@
 <message>
 <messageID>BoardListRes</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
-<desc>게시판 목록 응답 메시지, Mybatis DTO</desc>
-<singleitem name="boardId" type="unsigned byte" />
-<singleitem name="startNo" type="unsigned integer" />
-<singleitem name="pageSize" type="unsigned short" />
+<desc>게시판 목록 응답 메시지</desc>
+<singleitem name="boardID" type="unsigned byte" />
+<singleitem name="pageOffset" type="unsigned integer" />
+<singleitem name="pageLength" type="unsigned short" />
 <singleitem name="total" type="unsigned integer" />
 <singleitem name="cnt" type="integer" />
 <array name="board" cnttype="reference" cntvalue="cnt">
 	<singleitem name="boardNo" type="unsigned integer" />
 	<singleitem name="groupNo" type="unsigned integer" />	
 	<singleitem name="groupSeq" type="unsigned short" />
-	<singleitem name="parentNo" type="unsigned integer" />
+	<singleitem name="parentNo" type="unsigned integer" />	
 	<singleitem name="depth" type="unsigned byte" />
-	<singleitem name="subject" type="ub pascal string" />
-	<singleitem name="writerId" type="ub pascal string" />
-	<singleitem name="nickname" type="ub pascal string" />
+	<singleitem name="writerID" type="ub pascal string" />
 	<singleitem name="viewCount" type="integer" />
-	<singleitem name="votes" type="integer" />
 	<singleitem name="boardSate" type="ub pascal string" />
-	<singleitem name="registerDate" type="java sql timestamp" />
-	<singleitem name="modifiedDate" type="java sql timestamp" />
-	<singleitem name="memberGubunName" type="ub pascal string" />
+	<singleitem name="registeredDate" type="java sql timestamp" />
+	<singleitem name="nickname" type="ub pascal string" />
+	<singleitem name="votes" type="integer" />
+	<singleitem name="subject" type="ub pascal string" />	
+	<singleitem name="finalModifiedDate" type="java sql timestamp" />	
 </array>
 </message>

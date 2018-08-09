@@ -21,66 +21,56 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardDownloadFileRes message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardDownloadFileRes extends AbstractMessage {
-	private String ownerId;
-	private long attachId;
-	private long attachSeq;
-	private String attachFiledName;
-	private String systemFileName;
+	private short boardID;
+	private long boardNo;
+	private short attachedFileSeq;
+	private String attachedFileName;
 
-	public String getOwnerId() {
-		return ownerId;
-	}
-
-	public void setOwnerId(String ownerId) {
-		this.ownerId = ownerId;
-	}
-	public long getAttachId() {
-		return attachId;
+	public short getBoardID() {
+		return boardID;
 	}
 
-	public void setAttachId(long attachId) {
-		this.attachId = attachId;
+	public void setBoardID(short boardID) {
+		this.boardID = boardID;
 	}
-	public long getAttachSeq() {
-		return attachSeq;
-	}
-
-	public void setAttachSeq(long attachSeq) {
-		this.attachSeq = attachSeq;
-	}
-	public String getAttachFiledName() {
-		return attachFiledName;
+	public long getBoardNo() {
+		return boardNo;
 	}
 
-	public void setAttachFiledName(String attachFiledName) {
-		this.attachFiledName = attachFiledName;
+	public void setBoardNo(long boardNo) {
+		this.boardNo = boardNo;
 	}
-	public String getSystemFileName() {
-		return systemFileName;
+	public short getAttachedFileSeq() {
+		return attachedFileSeq;
 	}
 
-	public void setSystemFileName(String systemFileName) {
-		this.systemFileName = systemFileName;
+	public void setAttachedFileSeq(short attachedFileSeq) {
+		this.attachedFileSeq = attachedFileSeq;
+	}
+	public String getAttachedFileName() {
+		return attachedFileName;
+	}
+
+	public void setAttachedFileName(String attachedFileName) {
+		this.attachedFileName = attachedFileName;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardDownloadFileRes[");
-		builder.append("ownerId=");
-		builder.append(ownerId);
-		builder.append(", attachId=");
-		builder.append(attachId);
-		builder.append(", attachSeq=");
-		builder.append(attachSeq);
-		builder.append(", attachFiledName=");
-		builder.append(attachFiledName);
-		builder.append(", systemFileName=");
-		builder.append(systemFileName);
+		builder.append("boardID=");
+		builder.append(boardID);
+		builder.append(", boardNo=");
+		builder.append(boardNo);
+		builder.append(", attachedFileSeq=");
+		builder.append(attachedFileSeq);
+		builder.append(", attachedFileName=");
+		builder.append(attachedFileName);
 		builder.append("]");
 		return builder.toString();
 	}

@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardDetailRes message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardDetailResEncoder extends AbstractMessageEncoder {
@@ -39,16 +39,16 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardDetailRes");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardNo"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, boardDetailRes.getBoardNo() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardDetailRes.getBoardID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardId"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-			, boardDetailRes.getBoardId() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardNo"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, boardDetailRes.getBoardNo() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -81,6 +81,34 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "viewCount"
+			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
+			, boardDetailRes.getViewCount() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardSate"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardDetailRes.getBoardSate() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "nickname"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardDetailRes.getNickname() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "votes"
+			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
+			, boardDetailRes.getVotes() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "subject"
 			, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
 			, boardDetailRes.getSubject() // itemValue
@@ -95,130 +123,95 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "writerId"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "writerID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getWriterId() // itemValue
+			, boardDetailRes.getWriterID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "nickname"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "writerIP"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getNickname() // itemValue
+			, boardDetailRes.getWriterIP() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "viewCount"
-			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
-			, boardDetailRes.getViewCount() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "votes"
-			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
-			, boardDetailRes.getVotes() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardSate"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getBoardSate() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ip"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getIp() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "registerDate"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "registeredDate"
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
-			, boardDetailRes.getRegisterDate() // itemValue
+			, boardDetailRes.getRegisteredDate() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "modifiedDate"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "finalModifierIP"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardDetailRes.getFinalModifierIP() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "finalModifierID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardDetailRes.getFinalModifierID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "finalModifiedDate"
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
-			, boardDetailRes.getModifiedDate() // itemValue
+			, boardDetailRes.getFinalModifiedDate() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachId"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, boardDetailRes.getAttachId() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachFileCnt"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileCnt"
 			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
-			, boardDetailRes.getAttachFileCnt() // itemValue
+			, boardDetailRes.getAttachedFileCnt() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		java.util.List<BoardDetailRes.AttachFile> attachFile$2List = boardDetailRes.getAttachFileList();
+		java.util.List<BoardDetailRes.AttachedFile> attachedFile$2List = boardDetailRes.getAttachedFileList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
-		if (null == attachFile$2List) {
+		if (null == attachedFile$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
-			if (0 != boardDetailRes.getAttachFileCnt()) {
-				String errorMessage = new StringBuilder("the var attachFile$2List is null but the value referenced by the array size[boardDetailRes.getAttachFileCnt()][").append(boardDetailRes.getAttachFileCnt()).append("] is not zero").toString();
+			if (0 != boardDetailRes.getAttachedFileCnt()) {
+				String errorMessage = new StringBuilder("the var attachedFile$2List is null but the value referenced by the array size[boardDetailRes.getAttachedFileCnt()][").append(boardDetailRes.getAttachedFileCnt()).append("] is not zero").toString();
 				throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
-			int attachFile$2ListSize = attachFile$2List.size();
+			int attachedFile$2ListSize = attachedFile$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (boardDetailRes.getAttachFileCnt() != attachFile$2ListSize) {
-				String errorMessage = new StringBuilder("the var attachFile$2ListSize[").append(attachFile$2ListSize).append("] is not same to the value referenced by the array size[boardDetailRes.getAttachFileCnt()][").append(boardDetailRes.getAttachFileCnt()).append("]").toString();
+			if (boardDetailRes.getAttachedFileCnt() != attachedFile$2ListSize) {
+				String errorMessage = new StringBuilder("the var attachedFile$2ListSize[").append(attachedFile$2ListSize).append("] is not same to the value referenced by the array size[boardDetailRes.getAttachedFileCnt()][").append(boardDetailRes.getAttachedFileCnt()).append("]").toString();
 				throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object attachFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "attachFile", attachFile$2ListSize, middleWritableObject);
-			for (int i2=0; i2 < attachFile$2ListSize; i2++) {
-				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("AttachFile").append("[").append(i2).append("]").toString());
-				Object attachFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), attachFile$2ArrayMiddleObject, i2);
-				BoardDetailRes.AttachFile attachFile$2 = attachFile$2List.get(i2);
+			Object attachedFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "attachedFile", attachedFile$2ListSize, middleWritableObject);
+			for (int i2=0; i2 < attachedFile$2ListSize; i2++) {
+				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("AttachedFile").append("[").append(i2).append("]").toString());
+				Object attachedFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), attachedFile$2ArrayMiddleObject, i2);
+				BoardDetailRes.AttachedFile attachedFile$2 = attachedFile$2List.get(i2);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
-					, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-					, attachFile$2.getAttachSeq() // itemValue
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileSeq"
+					, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+					, attachedFile$2.getAttachedFileSeq() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
-					, attachFile$2MiddleWritableObject);
+					, attachedFile$2MiddleWritableObject);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachFileName"
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileName"
 					, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
-					, attachFile$2.getAttachFileName() // itemValue
+					, attachedFile$2.getAttachedFileName() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
-					, attachFile$2MiddleWritableObject);
+					, attachedFile$2MiddleWritableObject);
 
 				pathStack.pop();
 			}
 		}
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberType"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getMemberType() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberState"
-			, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
-			, boardDetailRes.getMemberState() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
 
 		pathStack.pop();
 	}

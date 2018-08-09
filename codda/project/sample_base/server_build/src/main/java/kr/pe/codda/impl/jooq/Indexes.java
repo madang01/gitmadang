@@ -7,6 +7,7 @@ package kr.pe.codda.impl.jooq;
 import javax.annotation.Generated;
 
 import kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb;
+import kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardInfoTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardVoteTb;
@@ -39,10 +40,11 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index SB_BOARD_FILELIST_TB_PRIMARY = Indexes0.SB_BOARD_FILELIST_TB_PRIMARY;
+    public static final Index SB_BOARD_HISTORY_TB_PRIMARY = Indexes0.SB_BOARD_HISTORY_TB_PRIMARY;
+    public static final Index SB_BOARD_HISTORY_TB_SB_BOARD_HISTORY_FK2_IDX = Indexes0.SB_BOARD_HISTORY_TB_SB_BOARD_HISTORY_FK2_IDX;
     public static final Index SB_BOARD_INFO_TB_PRIMARY = Indexes0.SB_BOARD_INFO_TB_PRIMARY;
     public static final Index SB_BOARD_TB_PRIMARY = Indexes0.SB_BOARD_TB_PRIMARY;
     public static final Index SB_BOARD_TB_SB_BOARD_FK1_IDX = Indexes0.SB_BOARD_TB_SB_BOARD_FK1_IDX;
-    public static final Index SB_BOARD_TB_SB_BOARD_FK2_IDX = Indexes0.SB_BOARD_TB_SB_BOARD_FK2_IDX;
     public static final Index SB_BOARD_TB_SB_BOARD_IDX1 = Indexes0.SB_BOARD_TB_SB_BOARD_IDX1;
     public static final Index SB_BOARD_VOTE_TB_PRIMARY = Indexes0.SB_BOARD_VOTE_TB_PRIMARY;
     public static final Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK1 = Indexes0.SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK1;
@@ -62,12 +64,13 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     private static class Indexes0 {
-        public static Index SB_BOARD_FILELIST_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB, new OrderField[] { SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_NO, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_SQ }, true);
+        public static Index SB_BOARD_FILELIST_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB, new OrderField[] { SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_NO, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ }, true);
+        public static Index SB_BOARD_HISTORY_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardHistoryTb.SB_BOARD_HISTORY_TB, new OrderField[] { SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_ID, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_NO, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.HISTORY_SQ }, true);
+        public static Index SB_BOARD_HISTORY_TB_SB_BOARD_HISTORY_FK2_IDX = Internal.createIndex("sb_board_history_fk2_idx", SbBoardHistoryTb.SB_BOARD_HISTORY_TB, new OrderField[] { SbBoardHistoryTb.SB_BOARD_HISTORY_TB.MODIFIER_ID }, false);
         public static Index SB_BOARD_INFO_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardInfoTb.SB_BOARD_INFO_TB, new OrderField[] { SbBoardInfoTb.SB_BOARD_INFO_TB.BOARD_ID }, true);
         public static Index SB_BOARD_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.BOARD_NO }, true);
         public static Index SB_BOARD_TB_SB_BOARD_FK1_IDX = Internal.createIndex("sb_board_fk1_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID }, false);
-        public static Index SB_BOARD_TB_SB_BOARD_FK2_IDX = Internal.createIndex("sb_board_fk2_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.WRITER_ID }, false);
-        public static Index SB_BOARD_TB_SB_BOARD_IDX1 = Internal.createIndex("sb_board_idx1", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.GROUP_NO }, false);
+        public static Index SB_BOARD_TB_SB_BOARD_IDX1 = Internal.createIndex("sb_board_idx1", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.BOARD_NO, SbBoardTb.SB_BOARD_TB.GROUP_NO }, false);
         public static Index SB_BOARD_VOTE_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO, SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID, SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_ID }, true);
         public static Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK1 = Internal.createIndex("sb_board_vote_fk1", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_ID, SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO }, false);
         public static Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2_IDX = Internal.createIndex("sb_board_vote_fk2_idx", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID }, false);

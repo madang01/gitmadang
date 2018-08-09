@@ -19,9 +19,9 @@ public class BoardVoteReqServerTaskTest extends AbstractJunitTest {
 		
 		
 		BoardVoteReq inObj = new BoardVoteReq();
-		inObj.setBoardId(BoardType.FREE.getBoardID());
+		inObj.setBoardID(BoardType.FREE.getBoardID());
 		inObj.setBoardNo(7);
-		inObj.setUserId("test02");
+		inObj.setUserID("test02");
 		inObj.setIp("127.0.0.1");		
 		
 		BoardVoteReqServerTask boardVoteReqServerTask= new BoardVoteReqServerTask();

@@ -20,39 +20,39 @@ public class BoardDetailSvl extends AbstractServlet {
 			throws Exception {
 				
 		
-		String parmBoardId = req.getParameter("boardId");
-		if (null == parmBoardId) {
+		String paramBoardID = req.getParameter("boardID");
+		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자를 입력해 주세요";
-			String debugMessage = "the web parameter 'boardId' is null";
+			String debugMessage = "the web parameter 'boardID' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		short boardId = 0;
+		short boardID = 0;
 		try {
-			boardId = Short.parseShort(parmBoardId);
+			boardID = Short.parseShort(paramBoardID);
 		}catch (NumberFormatException nfe) {
 			String errorMessage = "잘못된 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder("the web parameter 'boardId'[")
-					.append(parmBoardId).append("] is not a short").toString();
+			String debugMessage = new StringBuilder("the web parameter 'boardID'[")
+					.append(paramBoardID).append("] is not a short").toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		try {
-			BoardType.valueOf(boardId);
+			BoardType.valueOf(boardID);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = "알 수 없는 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder("the web parameter 'boardId'[")
-					.append(parmBoardId).append("] is not a element of set[")
+			String debugMessage = new StringBuilder("the web parameter 'boardID'[")
+					.append(paramBoardID).append("] is not a element of set[")
 					.append(BoardType.getSetString())
 					.append("]").toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		String parmBoardNo = req.getParameter("boardNo");
-		if (null == parmBoardNo) {
+		String paramBoardNo = req.getParameter("boardNo");
+		if (null == paramBoardNo) {
 			String errorMessage = "게시판 번호를 입력해 주세요";
 			String debugMessage = "the web parameter 'boardNo' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -62,11 +62,11 @@ public class BoardDetailSvl extends AbstractServlet {
 		
 		long boardNo = 0L;
 		try {
-			boardNo = Long.parseLong(parmBoardNo);
+			boardNo = Long.parseLong(paramBoardNo);
 		}catch (NumberFormatException nfe) {
 			String errorMessage = "잘못된 게시판 번호입니다";
 			String debugMessage = new StringBuilder("the web parameter \"boardN\"'s value[")
-					.append(parmBoardNo)
+					.append(paramBoardNo)
 					.append("] is a Long").toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -75,7 +75,7 @@ public class BoardDetailSvl extends AbstractServlet {
 		if (boardNo <= 0) {
 			String errorMessage = "게시판 번호 값은 0 보다 커야합니다.";
 			String debugMessage = new StringBuilder("the web parameter \"boardN\"'s value[")
-					.append(parmBoardNo)
+					.append(paramBoardNo)
 					.append("] is less than or equal to zero").toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -83,7 +83,7 @@ public class BoardDetailSvl extends AbstractServlet {
 		
 		
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
-		boardDetailReq.setBoardId(boardId);
+		boardDetailReq.setBoardID(boardID);
 		boardDetailReq.setBoardNo(boardNo);
 		
 		// FIXME!
@@ -93,18 +93,14 @@ public class BoardDetailSvl extends AbstractServlet {
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardDetailReq);
-		if (outputMessage instanceof BoardDetailRes) {
-			BoardDetailRes outObj = (BoardDetailRes)outputMessage;				
-			
-			doDetailPage(req, res, parmBoardId, parmBoardNo, outObj);
-			return;
-		} else if (outputMessage instanceof MessageResultRes) {
+		
+		if (outputMessage instanceof MessageResultRes) {
 			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
 			String errorMessage = "게시판 상세 조회가 실패하였습니다";
 			String debugMessage = messageResultRes.toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);	
 			return;
-		} else {
+		} else if (! (outputMessage instanceof BoardDetailRes)){
 			String errorMessage = "게시판 상세 조회가 실패했습니다";
 			String debugMessage = new StringBuilder("입력 메시지[")
 					.append(boardDetailReq.getMessageID())
@@ -116,15 +112,14 @@ public class BoardDetailSvl extends AbstractServlet {
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}		
+		}	
+		
+		
+		BoardDetailRes boardDetailRes = (BoardDetailRes)outputMessage;
+		req.setAttribute("boardDetailRes", boardDetailRes);
+		printJspPage(req, res, "/menu/board/BoardDetail01.jsp");
+		return;
+		 	
 	}
 	
-	private void doDetailPage(HttpServletRequest req, HttpServletResponse res,
-			String parmBoardId, String parmBoardNo,
-			BoardDetailRes boardDetailRes) {
-		req.setAttribute("parmBoardId", parmBoardId);
-		req.setAttribute("parmBoardNo", parmBoardNo);
-		req.setAttribute("boardDetailRes", boardDetailRes);
-		printJspPage(req, res, "/menu/board/BoardDetail01.jsp");	
-	}
 }

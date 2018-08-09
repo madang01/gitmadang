@@ -16,16 +16,16 @@ public class JavaStringConversionToolSvl extends AbstractServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		
 		
-		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == parmRequestType) {
+		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == paramRequestType) {
 			firstPage(req, res);			
 			return;
 		}
 		
-		if (parmRequestType.equals("view")) {
+		if (paramRequestType.equals("view")) {
 			firstPage(req, res);
 			return;
-		} else if (parmRequestType.equals("proc")) {		
+		} else if (paramRequestType.equals("proc")) {		
 			processPage(req, res);
 			return;
 		} else {
@@ -34,7 +34,7 @@ public class JavaStringConversionToolSvl extends AbstractServlet {
 					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
 					.append("\"")
 					.append("'s value[")
-					.append(parmRequestType)			
+					.append(paramRequestType)			
 					.append("] is not a elment of request type set[view, proc]").toString();
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -47,15 +47,15 @@ public class JavaStringConversionToolSvl extends AbstractServlet {
 	}
 	
 	private void processPage(HttpServletRequest req, HttpServletResponse res) {
-		String parmSourceString = req.getParameter("sourceString");
-		if (null == parmSourceString) {
+		String paramSourceString = req.getParameter("sourceString");
+		if (null == paramSourceString) {
 			String errorMessage = "자바 문자열로 변환을 원하는 문자열을 넣어 주세요";
 			String debugMessage = "the web parameter 'sourceString' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);	
 			return;
 		}
 		
-		String[] sourceLines = parmSourceString.split("(\r\n|\r|\n|\n\r)");
+		String[] sourceLines = paramSourceString.split("(\r\n|\r|\n|\n\r)");
 		
 		StringBuilder targetStringBuilder = new StringBuilder();
 		
@@ -76,7 +76,7 @@ public class JavaStringConversionToolSvl extends AbstractServlet {
 		
 		targetStringBuilder.append("return stringBuilder.toString();");		
 		
-		req.setAttribute("sourceString", parmSourceString);
+		req.setAttribute("sourceString", paramSourceString);
 		req.setAttribute("targetString", targetStringBuilder.toString());
 		printJspPage(req, res, "/menu/testcode/JavaStringConversionTool02.jsp");
 	}

@@ -17,6 +17,7 @@
 <messageID>BoardDetailReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>게시판 상세 보기 요청 메시지</desc>
-<singleitem name="boardId" type="unsigned byte" />
+<singleitem name="boardID" type="unsigned byte" />
 <singleitem name="boardNo" type="unsigned integer" />
+<singleitem name="requestUserID" type="ub pascal string" />
 </message>

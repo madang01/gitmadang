@@ -21,21 +21,21 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardVoteReq message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardVoteReq extends AbstractMessage {
-	private long boardId;
+	private short boardID;
 	private long boardNo;
-	private String userId;
+	private String userID;
 	private String ip;
 
-	public long getBoardId() {
-		return boardId;
+	public short getBoardID() {
+		return boardID;
 	}
 
-	public void setBoardId(long boardId) {
-		this.boardId = boardId;
+	public void setBoardID(short boardID) {
+		this.boardID = boardID;
 	}
 	public long getBoardNo() {
 		return boardNo;
@@ -44,12 +44,12 @@ public class BoardVoteReq extends AbstractMessage {
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
 	}
-	public String getUserId() {
-		return userId;
+	public String getUserID() {
+		return userID;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserID(String userID) {
+		this.userID = userID;
 	}
 	public String getIp() {
 		return ip;
@@ -63,12 +63,12 @@ public class BoardVoteReq extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardVoteReq[");
-		builder.append("boardId=");
-		builder.append(boardId);
+		builder.append("boardID=");
+		builder.append(boardID);
 		builder.append(", boardNo=");
 		builder.append(boardNo);
-		builder.append(", userId=");
-		builder.append(userId);
+		builder.append(", userID=");
+		builder.append(userID);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append("]");

@@ -1,16 +1,11 @@
 package kr.pe.codda.weblib.jdf;
 
-import java.io.File;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
-import kr.pe.codda.common.config.CoddaConfiguration;
-import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 
 @SuppressWarnings("serial")
@@ -20,9 +15,9 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	/**
 	 * 어드민의 로그인 여부를 반환한다.
 	 * @param req HttpServletRequest 객체
-	 * @return 로그인 여부
+	 * @return 어드민 로그인 여부
 	 */		
-	public boolean isAdminLogin(HttpServletRequest req) {
+	public boolean isAdminLoginedIn(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		String userId = (String) httpSession
 				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID);
@@ -35,9 +30,9 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	/**
 	 * 어드민의 로그인 여부를 반환한다.
 	 * @param httpSession HttpSession 객체
-	 * @return 로그인 여부
+	 * @return 어드민 로그인 여부
 	 */		
-	public boolean isAdminLogin(HttpSession httpSession) {
+	public boolean isAdminLoginedIn(HttpSession httpSession) {
 		String userId = (String) httpSession
 				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID);
 		if (null == userId || userId.equals("")) {
@@ -50,11 +45,10 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	
 	
 	/**
-	 * 어드민의 로그인 아이디를 반환한다. 단 로그인을 안했을 경우 손님을 뜻하는 guest 아이디로 고정된다.
 	 * @param req HttpServletRequest 객체
-	 * @return 로그인 아이디
+	 * @return 어드민이 로그인했을 경우 '어드민 로그인 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
 	 */
-	public String getLoginedAdminID(HttpServletRequest req) {
+	public String getLoginedAdminIDFromHttpSession(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		
 		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID);
@@ -70,62 +64,38 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 		return loginUserID;
 	}
 	
-	public boolean isUserLogin(HttpServletRequest req) {
+	public boolean isUserLoginedIn(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
-		String userId = (String) httpSession
+		Object userIDFromHttpSession = httpSession
 				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
-		if (null == userId || userId.equals("")) {
+		if (null == userIDFromHttpSession) {
 			return false;
 		}
 		return true;
 	}
 	
-	public boolean isUserLogin(HttpSession httpSession) {
-		String userId = (String) httpSession
+	public boolean isUserLoginedIn(HttpSession httpSession) {
+		Object userIDFromHttpSession = httpSession
 				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
-		if (null == userId || userId.equals("")) {
+		if (null == userIDFromHttpSession) {
 			return false;
 		}
 		return true;
-	}
-	
-	public String getLoginedUserID(HttpServletRequest req) {
-		HttpSession httpSession = req.getSession();
-		
-		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
-		if (null == loginUserIDValue) {
-			return "guest";
-		}
-		
-		String loginUserID = (String) loginUserIDValue;
-		if (loginUserID.equals("")) {
-			loginUserID = "guest";
-		}
-		
-		return loginUserID;
 	}
 	
 	/**
-	 * 파일명이 겹치지 않기 위해서 DB 를 이용한 시퀀스 값인 업로드 파일 이름 순번을 받아 업로드 파일의 시스템 절대 경로 파일명을 반환한다.
-	 * @param uploadFileNameSeq 파일명이 겹치지 않기 위해서 DB 를 이용한 시퀀스 값인 업로드 파일 이름 순번
-	 * @return 업로드 파일의 시스템 절대 경로 파일명
+	 * @param req
+	 * @return 일반 유저가 로그인 했을때 '일반인 유저 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_USERID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
 	 */
-	public String getAttachSystemFullFileName(long uploadFileNameSeq) {
-		CoddaConfiguration runningProjectConfiguration = 
-				CoddaConfigurationManager.getInstance()
-				.getRunningProjectConfiguration();
+	public String getLoginedUserIDFromHttpSession(HttpServletRequest req) {
+		HttpSession httpSession = req.getSession();
 		
-		String mainProjectName = runningProjectConfiguration.getMainProjectName();
-		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
-		String webUploadPathString = WebRootBuildSystemPathSupporter.getWebUploadPathString(sinnoriInstalledPathString, mainProjectName);
+		Object userIDFromHttpSession = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
+		if (null == userIDFromHttpSession) {
+			return "guest";
+		}
 		
-		StringBuilder attachSystemFullFileNameBuilder = new StringBuilder(webUploadPathString);
-		attachSystemFullFileNameBuilder.append(File.separator);
-		attachSystemFullFileNameBuilder.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_PREFIX);
-		attachSystemFullFileNameBuilder.append("_");
-		attachSystemFullFileNameBuilder.append(uploadFileNameSeq);
-		attachSystemFullFileNameBuilder.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_SUFFIX);
-		
-		return attachSystemFullFileNameBuilder.toString();
+		String userID = (String) userIDFromHttpSession;
+		return userID;
 	}
 }

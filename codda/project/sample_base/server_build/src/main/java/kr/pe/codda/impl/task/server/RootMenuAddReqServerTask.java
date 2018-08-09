@@ -124,13 +124,13 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UByte newOrderSeq = create.select(
-					JooqSqlUtil.getFieldOfNewSiteMenuOrderSq(SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
+			short newOrderSeq = create.select(
+					JooqSqlUtil.getIfField(SB_SITEMENU_TB.ORDER_SQ.max(), 0, SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
 			.from(SB_SITEMENU_TB)
 			.where(SB_SITEMENU_TB.PARENT_NO.eq(UInteger.valueOf(0)))
-			.fetchOne(0, UByte.class);
+			.fetchOne(0, Short.class);
 
-			if (newOrderSeq.shortValue() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			if (newOrderSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -141,14 +141,13 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 						.append("루트 메뉴 갯수가 최대치에 도달하여 더 이상 추가할 수 없습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
-			}
-									
+			}									
 			
 			int rootMenuInsertCount = create.insertInto(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.MENU_NO, rootMenuNo)
 			.set(SB_SITEMENU_TB.PARENT_NO, UInteger.valueOf(0))
 			.set(SB_SITEMENU_TB.DEPTH, UByte.valueOf(0))
-			.set(SB_SITEMENU_TB.ORDER_SQ, newOrderSeq)
+			.set(SB_SITEMENU_TB.ORDER_SQ, UByte.valueOf(newOrderSeq))
 			.set(SB_SITEMENU_TB.MENU_NM, rootMenuAddReq.getMenuName())
 			.set(SB_SITEMENU_TB.LINK_URL, rootMenuAddReq.getLinkURL())
 			.execute();
@@ -179,7 +178,7 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 			
 			RootMenuAddRes rootMenuAddRes = new RootMenuAddRes();
 			rootMenuAddRes.setMenuNo(rootMenuNo.longValue());
-			rootMenuAddRes.setOrderSeq(newOrderSeq.shortValue());
+			rootMenuAddRes.setOrderSeq(newOrderSeq);
 						
 			return rootMenuAddRes;
 		} catch (ServerServiceException e) {

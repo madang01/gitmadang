@@ -42,7 +42,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardVoteTb extends TableImpl<SbBoardVoteTbRecord> {
 
-    private static final long serialVersionUID = 147303151;
+    private static final long serialVersionUID = 1987148695;
 
     /**
      * The reference instance of <code>sb_db.sb_board_vote_tb</code>
@@ -75,7 +75,7 @@ public class SbBoardVoteTb extends TableImpl<SbBoardVoteTbRecord> {
     /**
      * The column <code>sb_db.sb_board_vote_tb.ip</code>.
      */
-    public final TableField<SbBoardVoteTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(15), this, "");
+    public final TableField<SbBoardVoteTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(40), this, "");
 
     /**
      * The column <code>sb_db.sb_board_vote_tb.reg_dt</code>.

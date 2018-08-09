@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardDownloadFileRes message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardDownloadFileResDecoder extends AbstractMessageDecoder {
@@ -35,41 +35,33 @@ public final class BoardDownloadFileResDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardDownloadFileRes");
 
-		boardDownloadFileRes.setOwnerId((String)
+		boardDownloadFileRes.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "ownerId" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, "boardID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDownloadFileRes.setAttachId((Long)
+		boardDownloadFileRes.setBoardNo((Long)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "attachId" // itemName
+			, "boardNo" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDownloadFileRes.setAttachSeq((Long)
+		boardDownloadFileRes.setAttachedFileSeq((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "attachSeq" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, "attachedFileSeq" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDownloadFileRes.setAttachFiledName((String)
+		boardDownloadFileRes.setAttachedFileName((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "attachFiledName" // itemName
-			, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
-		boardDownloadFileRes.setSystemFileName((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "systemFileName" // itemName
+			, "attachedFileName" // itemName
 			, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

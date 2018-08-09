@@ -204,7 +204,7 @@ public class LoginReqServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidUserId(userID);
+			ValueChecker.checkValidUserID(userID);
 		} catch(IllegalArgumentException e) {						
 			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, loginReq);
 			return;*/

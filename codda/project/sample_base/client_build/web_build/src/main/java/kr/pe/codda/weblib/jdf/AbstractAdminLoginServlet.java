@@ -12,7 +12,7 @@ import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 public abstract class AbstractAdminLoginServlet extends AbstractSessionKeyServlet {	
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
-		if (! isAdminLogin(req)) {
+		if (! isAdminLoginedIn(req)) {
 			String requestURI = req.getRequestURI();
 						
 			ServerSessionkeyIF webServerSessionkey  = null;

@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardUploadFileReq message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardUploadFileReqEncoder extends AbstractMessageEncoder {
@@ -134,13 +134,6 @@ public final class BoardUploadFileReqEncoder extends AbstractMessageEncoder {
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileName"
 					, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
 					, newAttachedFile$2.getAttachedFileName() // itemValue
-					, -1 // itemSize
-					, null // nativeItemCharset
-					, newAttachedFile$2MiddleWritableObject);
-
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "systemFileName"
-					, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
-					, newAttachedFile$2.getSystemFileName() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, newAttachedFile$2MiddleWritableObject);

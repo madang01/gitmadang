@@ -21,24 +21,48 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardReplyReq message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardReplyReq extends AbstractMessage {
-	private short boardId;
+	private short boardID;
 	private long parentBoardNo;
 	private String subject;
 	private String content;
-	private long attachId;
-	private String userId;
+	private String writerID;
 	private String ip;
+	private short attachedFileCnt;
 
-	public short getBoardId() {
-		return boardId;
+	public static class AttachedFile {
+		private String attachedFileName;
+
+		public String getAttachedFileName() {
+			return attachedFileName;
+		}
+
+		public void setAttachedFileName(String attachedFileName) {
+			this.attachedFileName = attachedFileName;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("AttachedFile[");
+			builder.append("attachedFileName=");
+			builder.append(attachedFileName);
+			builder.append("]");
+			return builder.toString();
+		}
 	}
 
-	public void setBoardId(short boardId) {
-		this.boardId = boardId;
+	private java.util.List<AttachedFile> attachedFileList;
+
+	public short getBoardID() {
+		return boardID;
+	}
+
+	public void setBoardID(short boardID) {
+		this.boardID = boardID;
 	}
 	public long getParentBoardNo() {
 		return parentBoardNo;
@@ -61,19 +85,12 @@ public class BoardReplyReq extends AbstractMessage {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public long getAttachId() {
-		return attachId;
+	public String getWriterID() {
+		return writerID;
 	}
 
-	public void setAttachId(long attachId) {
-		this.attachId = attachId;
-	}
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setWriterID(String writerID) {
+		this.writerID = writerID;
 	}
 	public String getIp() {
 		return ip;
@@ -82,25 +99,63 @@ public class BoardReplyReq extends AbstractMessage {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
+	public short getAttachedFileCnt() {
+		return attachedFileCnt;
+	}
+
+	public void setAttachedFileCnt(short attachedFileCnt) {
+		this.attachedFileCnt = attachedFileCnt;
+	}
+	public java.util.List<AttachedFile> getAttachedFileList() {
+		return attachedFileList;
+	}
+
+	public void setAttachedFileList(java.util.List<AttachedFile> attachedFileList) {
+		this.attachedFileList = attachedFileList;
+	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardReplyReq[");
-		builder.append("boardId=");
-		builder.append(boardId);
+		builder.append("boardID=");
+		builder.append(boardID);
 		builder.append(", parentBoardNo=");
 		builder.append(parentBoardNo);
 		builder.append(", subject=");
 		builder.append(subject);
 		builder.append(", content=");
 		builder.append(content);
-		builder.append(", attachId=");
-		builder.append(attachId);
-		builder.append(", userId=");
-		builder.append(userId);
+		builder.append(", writerID=");
+		builder.append(writerID);
 		builder.append(", ip=");
 		builder.append(ip);
+		builder.append(", attachedFileCnt=");
+		builder.append(attachedFileCnt);
+
+		builder.append(", attachedFileList=");
+		if (null == attachedFileList) {
+			builder.append("null");
+		} else {
+			int attachedFileListSize = attachedFileList.size();
+			if (0 == attachedFileListSize) {
+				builder.append("empty");
+			} else {
+				builder.append("[");
+				for (int i=0; i < attachedFileListSize; i++) {
+					AttachedFile attachedFile = attachedFileList.get(i);
+					if (0 == i) {
+						builder.append("attachedFile[");
+					} else {
+						builder.append(", attachedFile[");
+					}
+					builder.append(i);
+					builder.append("]=");
+					builder.append(attachedFile.toString());
+				}
+				builder.append("]");
+			}
+		}
 		builder.append("]");
 		return builder.toString();
 	}

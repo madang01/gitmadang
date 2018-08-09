@@ -1,7 +1,7 @@
 package kr.pe.codda.weblib.common;
 
 public enum BoardType {
-	NOTICE((short)0, "notice"), FREE((short)1, "free board"), FAQ((short)2, "FAQ");
+	NOTICE((short)0, "공지"), FREE((short)1, "자유"), FAQ((short)2, "FAQ");
 	
 	private short boardID;
 	private String boardTypeName;
@@ -27,7 +27,7 @@ public enum BoardType {
 			}
 		}
 		
-		throw new IllegalArgumentException("the parameter boardTypeValue["+boardID+"] is a element of BoardType set");
+		throw new IllegalArgumentException("the parameter boardID["+boardID+"] is a element of BoardType set");
 	}
 	
 	public static String getSetString() {

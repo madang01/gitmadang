@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardVoteReq message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardVoteReqDecoder extends AbstractMessageDecoder {
@@ -35,10 +35,10 @@ public final class BoardVoteReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardVoteReq");
 
-		boardVoteReq.setBoardId((Long)
+		boardVoteReq.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "boardId" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, "boardID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
@@ -51,9 +51,9 @@ public final class BoardVoteReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardVoteReq.setUserId((String)
+		boardVoteReq.setUserID((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "userId" // itemName
+			, "userID" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

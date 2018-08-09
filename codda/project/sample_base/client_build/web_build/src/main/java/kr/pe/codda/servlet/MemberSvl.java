@@ -64,16 +64,16 @@ public class MemberSvl extends AbstractServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		
 		
-		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == parmRequestType) {		
+		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == paramRequestType) {		
 			firstPage(req, res);			
 			return;
 		}
 		
-		if (parmRequestType.equals("view")) {
+		if (paramRequestType.equals("view")) {
 			firstPage(req, res);
 			return;
-		} else if (parmRequestType.equals("proc")) {		
+		} else if (paramRequestType.equals("proc")) {		
 			processPage(req, res);
 			return;
 		} else {
@@ -82,7 +82,7 @@ public class MemberSvl extends AbstractServlet {
 					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
 					.append("\"")
 					.append("'s value[")
-					.append(parmRequestType)			
+					.append(paramRequestType)			
 					.append("] is not a elment of request type set[view, proc]").toString();
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -111,66 +111,66 @@ public class MemberSvl extends AbstractServlet {
 	}
 		
 	private void processPage(HttpServletRequest req, HttpServletResponse res) throws IllegalArgumentException, SymmetricException, IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
-		String parmSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
-		String parmIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+		String paramSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
+		String paramIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
 	
-		String parmId = req.getParameter("id");
-		String parmPwd = req.getParameter("pwd");
-		String parmNickname = req.getParameter("nickname");
-		String parmPwdHint = req.getParameter("pwdHint");
-		String parmPwdAnswer = req.getParameter("pwdAnswer");
-		String parmCaptchaAnswer = req.getParameter("answer");
+		String paramId = req.getParameter("id");
+		String paramPwd = req.getParameter("pwd");
+		String paramNickname = req.getParameter("nickname");
+		String paramPwdHint = req.getParameter("pwdHint");
+		String paramPwdAnswer = req.getParameter("pwdAnswer");
+		String paramCaptchaAnswer = req.getParameter("answer");
 		
-		log.info("parm sessionkeyBase64=[{}], parm ivBase64=[{}], " +
-				"parm id=[{}], parm pwd=[{}], parm nickname=[{}], " +
-				"parm pwdHint=[{}], parm pwdAnswer=[{}], parm answer=[{}]", 
-				parmSessionKeyBase64, parmIVBase64, 
-				parmId, parmPwd, parmNickname, 
-				parmPwdHint, parmPwdAnswer, parmCaptchaAnswer);
+		log.info("param sessionkeyBase64=[{}], param ivBase64=[{}], " +
+				"param id=[{}], param pwd=[{}], param nickname=[{}], " +
+				"param pwdHint=[{}], param pwdAnswer=[{}], param answer=[{}]", 
+				paramSessionKeyBase64, paramIVBase64, 
+				paramId, paramPwd, paramNickname, 
+				paramPwdHint, paramPwdAnswer, paramCaptchaAnswer);
 		
-		if (null == parmSessionKeyBase64) {
+		if (null == paramSessionKeyBase64) {
 			String errorMessage = "세션키 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
 		}
 		
-		if (null == parmIVBase64) {
+		if (null == paramIVBase64) {
 			String errorMessage = "IV 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
 		}
 		
-		if (null == parmId) {
+		if (null == paramId) {
 			String errorMessage = "아이디 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
 		}
 		
-		if (null == parmPwd) {
+		if (null == paramPwd) {
 			String errorMessage = "비밀번호 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
 		}
 		
-		if (null == parmNickname) {
+		if (null == paramNickname) {
 			String errorMessage = "별명 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
 		}
 		
-		if (null == parmPwdHint) {
+		if (null == paramPwdHint) {
 			String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
 		}
 		
-		if (null == parmPwdAnswer) {
+		if (null == paramPwdAnswer) {
 			String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
 		}
 		
-		if (null == parmCaptchaAnswer) {
+		if (null == paramCaptchaAnswer) {
 			String errorMessage = "Captcha 값을 입력해 주세요";
 			printErrorMessagePage(req, res, errorMessage, "");
 			return;
@@ -178,23 +178,23 @@ public class MemberSvl extends AbstractServlet {
 		
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmSessionKeyBase64);
+			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramSessionKeyBase64);
 		} catch(Exception e) {
-			log.warn("base64 encoding error for the parameter parmSessionKeyBase64[{}], errormessage=[{}]", parmSessionKeyBase64, e.getMessage());
+			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
 			String errorMessage = "세션키 파라미터가 잘못되었습니다";
-			String debugMessage = String.format("check whether the parameter parmSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", parmSessionKeyBase64, e.getMessage());
+			String debugMessage = String.format("check whether the parameter paramSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", paramSessionKeyBase64, e.getMessage());
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmIVBase64);
+			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramIVBase64);
 		} catch(Exception e) {
-			log.warn("base64 encoding error for the parameter parmIVBase64[{}], errormessage=[{}]", parmIVBase64, e.getMessage());
+			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
 			String errorMessage = "세션키 소금 파라미터가 잘못되었습니다";
-			String debugMessage = String.format("check whether the parameter parmIVBase64[%s] is a base64 encoding string, errormessage=[%s]", parmIVBase64, e.getMessage());
+			String debugMessage = String.format("check whether the parameter paramIVBase64[%s] is a base64 encoding string, errormessage=[%s]", paramIVBase64, e.getMessage());
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -244,12 +244,12 @@ public class MemberSvl extends AbstractServlet {
 			return;
 		}
 	
-		byte[] userIdBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmId));
-		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwd));
-		byte[] nicknameBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmNickname));
-		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwdHint));
-		byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwdAnswer));
-		byte[] answerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmCaptchaAnswer));
+		byte[] userIdBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramId));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwd));
+		byte[] nicknameBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramNickname));
+		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdHint));
+		byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdAnswer));
+		byte[] answerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramCaptchaAnswer));
 		
 		String answer = new String(answerBytes, CommonStaticFinalVars.CIPHER_CHARSET);
 		

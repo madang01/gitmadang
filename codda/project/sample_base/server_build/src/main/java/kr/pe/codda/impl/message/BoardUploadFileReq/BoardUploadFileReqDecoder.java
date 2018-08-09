@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardUploadFileReq message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardUploadFileReqDecoder extends AbstractMessageDecoder {
@@ -109,14 +109,6 @@ public final class BoardUploadFileReqDecoder extends AbstractMessageDecoder {
 			newAttachedFile$2.setAttachedFileName((String)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "attachedFileName" // itemName
-				, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
-				, -1 // itemSize
-				, null // nativeItemCharset
-				, newAttachedFile$2MiddleWritableObject));
-
-			newAttachedFile$2.setSystemFileName((String)
-			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-				, "systemFileName" // itemName
 				, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset

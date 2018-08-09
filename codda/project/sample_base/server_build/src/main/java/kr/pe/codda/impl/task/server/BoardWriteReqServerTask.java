@@ -1,5 +1,7 @@
 package kr.pe.codda.impl.task.server;
 
+import static kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
+import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
@@ -9,7 +11,6 @@ import java.sql.Timestamp;
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
-import org.jooq.InsertSetMoreStep;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -17,16 +18,18 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.impl.jooq.tables.records.SbBoardTbRecord;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
+import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
@@ -71,48 +74,50 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doService(BoardWriteReq boardWriteReq) throws Exception {
+	
+	
+	public BoardWriteRes doService(BoardWriteReq boardWriteReq) throws Exception {
 		// FIXME!
 		log.info(boardWriteReq.toString());	
 		
-		// boardWriteReq.getBoardId()
 		BoardType boardType = null;
+		SequenceType boardSequenceType = null;
+		
 		try {
-			boardType = BoardType.valueOf(boardWriteReq.getBoardId());
-		} catch(IllegalArgumentException e) {
-			/*log.warn(e.getMessage(), e);
-			sendErrorOutputMessage("잘못된 게시판 종류입니다", toLetterCarrier, boardWriteReq);
-			return;*/
+			boardType = BoardType.valueOf(boardWriteReq.getBoardID());
+		} catch(IllegalArgumentException e) {			
 			String errorMessage = "잘못된 게시판 식별자입니다";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (BoardType.NOTICE.equals(boardType)) {
+			boardSequenceType = SequenceType.NOTICE_BOARD;
+		} else if (BoardType.FREE.equals(boardType)) {
+			boardSequenceType = SequenceType.FREE_BOARD;
+		} else if (BoardType.FAQ.equals(boardType)) {
+			boardSequenceType = SequenceType.FAQ_BOARD;
+		} else {
+			String errorMessage = "알 수 없는 게시판 타입입니다";
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			ValueChecker.checkValidSubject(boardWriteReq.getSubject());
-		} catch(IllegalArgumentException e) {
-			/*log.warn(e.getMessage(), e);
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardWriteReq);
-			return;*/
+		} catch(IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			ValueChecker.checkValidContent(boardWriteReq.getContent());
-		} catch(IllegalArgumentException e) {
-			/*log.warn(e.getMessage(), e);
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardWriteReq);
-			return;*/
+		} catch(IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
-			ValueChecker.checkValidWriterId(boardWriteReq.getUserId());
-		} catch(IllegalArgumentException e) {
-			/*log.warn(e.getMessage(), e);
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardWriteReq);
-			return;*/
+			ValueChecker.checkValidWriterID(boardWriteReq.getWriterID());
+		} catch(IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
@@ -120,15 +125,23 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		
 		try {
 			ValueChecker.checkValidIP(boardWriteReq.getIp());
-		} catch(IllegalArgumentException e) {
-			/*log.warn(e.getMessage(), e);
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardWriteReq);
-			return;*/
+		} catch(IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}				
+		
+		if (boardWriteReq.getNewAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
+					.append(boardWriteReq.getNewAttachedFileCnt())
+					.append("]가 최대 첨부 파일 등록 갯수[")
+					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
+					.append("]를 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		final int sequenceID = boardType.getBoardID()+1;
+		UByte boardSequenceID =  UByte.valueOf(boardSequenceType.getSequenceID());
+		UByte boardID = UByte.valueOf(boardWriteReq.getBoardID());
+		
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
@@ -138,32 +151,36 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);			
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
 			
-			Record resultOfSeqManager = create.select(SB_SEQ_TB.SQ_VALUE)
+			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardWriteReq.getWriterID());	
+			
+			
+			Record boardSequenceRecord = create.select(SB_SEQ_TB.SQ_VALUE)
 			.from(SB_SEQ_TB)
-			.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(sequenceID)))
+			.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID))
 			.forUpdate().fetchOne();
 			
-			if (null == resultOfSeqManager) {
+			if (null == boardSequenceRecord) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("시퀀스 식별자[")
-						.append(sequenceID)
-						.append("]의 시퀀스를 가져오는데 실패하였습니다").toString();
-				/*sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardWriteReq);
-				return;*/
+				String errorMessage = new StringBuilder("게시판 번호로 사용할 게시판[")
+						.append(boardType.getName())
+						.append("] 시퀀스 식별자[")
+						.append(boardSequenceID)
+						.append("]의 시퀀스를 가져오는데 실패하였습니다").toString();				
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			UInteger boardNo = boardSequenceRecord.get(SB_SEQ_TB.SQ_VALUE);			
 			
 			int countOfUpdate = create.update(SB_SEQ_TB)
 					.set(SB_SEQ_TB.SQ_VALUE, SB_SEQ_TB.SQ_VALUE.add(1))
-					.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(sequenceID)))
+					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID))
 				.execute();
 			
 			if (0 == countOfUpdate) {
@@ -173,95 +190,91 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("시퀀스 식별자[")
-						.append(sequenceID)
+				String errorMessage = new StringBuilder("게시판 시퀀스 식별자[")
+						.append(boardSequenceID)
 						.append("]의 시퀀스 갱신이 실패하였습니다").toString();
-				/*sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardWriteReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			long seqValue = resultOfSeqManager.get(SB_SEQ_TB.SQ_VALUE).longValue();
-			
-			// conn.commit();
-			
-			
-			/*
-			INSERT INTO `SINNORIDB`.`SB_BOARD_TB`
-			(`board_no`, `group_no`, `group_sq`, `parent_no`, `depth`, `board_id`, `writer_id`,
-			`subject`, `content`, `attach_id`, `view_cnt`, `del_fl`, `ip`, `reg_dt`, `mod_dt`)
-			VALUES
-			(0, 0, 1, 0, 0, #{boardId}, #{userId}, #{subject}, #{content},
-			if (#{attachId} = 0, null, #{attachId}), 0, 'N', #{ip}, sysdate(), reg_dt);
-			
-			update SB_BOARD_TB set group_no=board_no where board_no=LAST_INSERT_ID()
-			*/			
-			
-			InsertSetMoreStep<SbBoardTbRecord> boardInsertSetStep = 
+			int boardInsertCount = 
 					create.insertInto(SB_BOARD_TB)
-			.set(SB_BOARD_TB.BOARD_NO, UInteger.valueOf(seqValue))
-			.set(SB_BOARD_TB.GROUP_NO,  UInteger.valueOf(seqValue))
-			.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(1))
+			.set(SB_BOARD_TB.BOARD_ID, boardID)
+			.set(SB_BOARD_TB.BOARD_NO, boardNo)
+			.set(SB_BOARD_TB.GROUP_NO,  boardNo)
+			.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0))
 			.set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
 			.set(SB_BOARD_TB.DEPTH, UByte.valueOf(0))
-			.set(SB_BOARD_TB.BOARD_ID, UByte.valueOf(boardWriteReq.getBoardId()))
-			.set(SB_BOARD_TB.WRITER_ID, boardWriteReq.getUserId())
-			.set(SB_BOARD_TB.SUBJECT, boardWriteReq.getSubject())
-			.set(SB_BOARD_TB.CONTENT, boardWriteReq.getContent())
 			.set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
-			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
-			.set(SB_BOARD_TB.IP, boardWriteReq.getIp())
-			.set(SB_BOARD_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-			.set(SB_BOARD_TB.MOD_DT, SB_BOARD_TB.REG_DT);
+			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue()).execute();
 			
-			int resultOfInsert;
-			
-			if (0 == boardWriteReq.getAttachId()) {
-				resultOfInsert = boardInsertSetStep.set(SB_BOARD_TB.ATTACH_ID, (UInteger)null).execute();
-			} else {
-				resultOfInsert = boardInsertSetStep.set(SB_BOARD_TB.ATTACH_ID, UInteger.valueOf(boardWriteReq.getAttachId())).execute();
-			}
-			
-			if (0 == resultOfInsert) {
+			if (0 == boardInsertCount) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
-				}			
-				/*sendErrorOutputMessageForRollback("1.게시판 최상의 글 등록이 실패하였습니다.", conn, toLetterCarrier, boardWriteReq);
-				return;*/
-				String errorMessage = "게시판 최상의 글 DB 등록이 실패하였습니다";
+				}
+				String errorMessage = "게시판 최상의 글 등록이 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			conn.commit();
-/*
-			int countOfUpdate = create.update(SB_BOARD_TB)
-				.set(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.BOARD_NO)
-			.where(SB_BOARD_TB.BOARD_NO.eq(DSL.field("LAST_INSERT_ID()", UInteger.class))).execute();
+			int boardHistoryInsertCount = create.insertInto(SB_BOARD_HISTORY_TB)
+			.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID)
+			.set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
+			.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, UByte.valueOf(0))
+			.set(SB_BOARD_HISTORY_TB.SUBJECT, boardWriteReq.getSubject())
+			.set(SB_BOARD_HISTORY_TB.CONTENT, boardWriteReq.getContent())
+			.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardWriteReq.getWriterID())
+			.set(SB_BOARD_HISTORY_TB.IP, boardWriteReq.getIp())
+			.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))			
+			.execute();			
 			
-			if (0 == countOfUpdate) {				
-				sendErrorOutputMessageForRollback("2.게시판 최상의 글 등록이 실패하였습니다.", conn, toLetterCarrier, boardWriteReq);
-				return;
-				
-				
+			if (0 == boardHistoryInsertCount) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				String errorMessage = "게시판 최상의 글 내용을 저장하는데 실패하였습니다";
+				throw new ServerServiceException(errorMessage);
 			}
-			*/
-			// log.info("입력 메시지[{}] 게시판 최상의 글 등록 성공여부[{}]", boardWriteReq.toString(), messageResultRes.getIsSuccess());
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(boardWriteReq.getMessageID());
-			messageResultRes.setIsSuccess(true);
-			messageResultRes.setResultMessage("게시판 최상의 글 등록이 성공하였습니다.");
-			/*sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
-			return;		*/
-			return messageResultRes;
+			int attachedFileListIndex = 0;
+			for (BoardWriteReq.NewAttachedFile attachedFileForRequest : boardWriteReq.getNewAttachedFileList()) {				
+				int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
+				.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID)
+				.set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
+				.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileListIndex))
+				.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, attachedFileForRequest.getAttachedFileName())
+				.execute();		
+				
+				if (0 == boardFileListInsertCount) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					String errorMessage = "게시판 첨부 파일을  저장하는데 실패하였습니다";
+					log.warn("게시판 첨부 파일 목록내 인덱스[{}]의 첨부 파일 이름을 저장하는데 실패하였습니다", 
+							attachedFileListIndex);
+					
+					throw new ServerServiceException(errorMessage);
+				}
+				
+				attachedFileListIndex++;
+			}
+			
+			conn.commit();
+
+			// log.info("게시판 최상의 글[boardID={}, boardNo={}, subject={}] 등록 성공", boardID, boardNo, boardWriteReq.getSubject());
+			
+			BoardWriteRes boardWriteRes = new BoardWriteRes();
+			boardWriteRes.setBoardID(boardID.shortValue());
+			boardWriteRes.setBoardNo(boardNo.longValue());			
+			
+			return boardWriteRes;
 		} catch (ServerServiceException e) {
 			throw e;
-		} catch (Exception e) {
-			/*log.warn("unknown error", e);
-			sendErrorOutputMessageForRollback("3.게시판 최상의 글 등록이 실패하였습니다.", conn, toLetterCarrier, boardWriteReq);
-			return;*/
+		} catch (Exception e) {			
 			if (null != conn) {
 				try {
 					conn.rollback();

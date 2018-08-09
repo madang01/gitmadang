@@ -59,15 +59,15 @@ public class AdminLoginSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == parmRequestType) {
-			parmRequestType= "input";
+		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == paramRequestType) {
+			paramRequestType= "input";
 		}
 
-		if (parmRequestType.equals("input")) {
+		if (paramRequestType.equals("input")) {
 			loginInputPage(req, res);
 			return;
-		} else if (parmRequestType.equals("proc")) {
+		} else if (paramRequestType.equals("proc")) {
 			loginResultPage(req, res);
 			return;
 		} else {
@@ -76,7 +76,7 @@ public class AdminLoginSvl extends AbstractServlet {
 					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
 					.append("\"")
 					.append("'s value[")
-					.append(parmRequestType)			
+					.append(paramRequestType)			
 					.append("] is not a elment of request type set[view, proc]").toString();
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -110,65 +110,65 @@ public class AdminLoginSvl extends AbstractServlet {
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException,
 			IllegalArgumentException, SymmetricException {
 
-		String parmSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
-		String parmIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+		String paramSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
+		String paramIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
 
-		String parmUserIDCipherBase64 = req.getParameter("userID");
-		String parmPwdCipherBase64 = req.getParameter("pwd");
+		String paramUserIDCipherBase64 = req.getParameter("userID");
+		String paramPwdCipherBase64 = req.getParameter("pwd");
 
 		// String successURL = req.getParameter("successURL");
 		
-		if (null == parmSessionKeyBase64) {
-			String errorMessage = "the request parameter parmSessionKeyBase64 is null";
+		if (null == paramSessionKeyBase64) {
+			String errorMessage = "the request parameter paramSessionKeyBase64 is null";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (! Base64.isBase64(parmSessionKeyBase64)) {
-			String errorMessage = "the request parameter parmSessionKeyBase64 is not a base64 string";
+		if (! Base64.isBase64(paramSessionKeyBase64)) {
+			String errorMessage = "the request parameter paramSessionKeyBase64 is not a base64 string";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (null == parmIVBase64) {
-			String errorMessage = "the request parameter parmIVBase64 is null";
+		if (null == paramIVBase64) {
+			String errorMessage = "the request parameter paramIVBase64 is null";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (! Base64.isBase64(parmIVBase64)) {
-			String errorMessage = "the request parameter parmIVBase64 is not a base64 string";
+		if (! Base64.isBase64(paramIVBase64)) {
+			String errorMessage = "the request parameter paramIVBase64 is not a base64 string";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (null == parmUserIDCipherBase64) {
+		if (null == paramUserIDCipherBase64) {
 			String errorMessage = "the request parameter userID is null";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (! Base64.isBase64(parmUserIDCipherBase64)) {
+		if (! Base64.isBase64(paramUserIDCipherBase64)) {
 			String errorMessage = "the request parameter userID is not a base64 cipher text";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (null == parmPwdCipherBase64) {
-			String errorMessage = "the request parameter parmPwdCipherBase64 is null";
+		if (null == paramPwdCipherBase64) {
+			String errorMessage = "the request parameter paramPwdCipherBase64 is null";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (! Base64.isBase64(parmPwdCipherBase64)) {
-			String errorMessage = "the request parameter parmPwdCipherBase64 is not a base64 cipher string";
+		if (! Base64.isBase64(paramPwdCipherBase64)) {
+			String errorMessage = "the request parameter paramPwdCipherBase64 is not a base64 cipher string";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -182,32 +182,32 @@ public class AdminLoginSvl extends AbstractServlet {
 			return;
 		}*/
 
-		log.info("parm sessionkeyBase64=[{}]", parmSessionKeyBase64);
-		log.info("parm ivBase64=[{}]", parmIVBase64);
-		log.info("parm userID=[{}]", parmUserIDCipherBase64);
-		log.info("parm pwd=[{}}]", parmPwdCipherBase64);
+		log.info("param sessionkeyBase64=[{}]", paramSessionKeyBase64);
+		log.info("param ivBase64=[{}]", paramIVBase64);
+		log.info("param userID=[{}]", paramUserIDCipherBase64);
+		log.info("param pwd=[{}}]", paramPwdCipherBase64);
 
 		// req.setAttribute("isSuccess", Boolean.FALSE);
 
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmSessionKeyBase64);
+			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramSessionKeyBase64);
 		} catch(Exception e) {
-			log.warn("base64 encoding error for the parameter parmSessionKeyBase64[{}], errormessage=[{}]", parmSessionKeyBase64, e.getMessage());
+			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
 			String errorMessage = "세션키 파라미터가 잘못되었습니다";
-			String debugMessage = String.format("check whether the parameter parmSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", parmSessionKeyBase64, e.getMessage());
+			String debugMessage = String.format("check whether the parameter paramSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", paramSessionKeyBase64, e.getMessage());
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmIVBase64);
+			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramIVBase64);
 		} catch(Exception e) {
-			log.warn("base64 encoding error for the parameter parmIVBase64[{}], errormessage=[{}]", parmIVBase64, e.getMessage());
+			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
 			String errorMessage = "세션키 소금 파라미터가 잘못되었습니다";
-			String debugMessage = String.format("check whether the parameter parmIVBase64[%s] is a base64 encoding string, errormessage=[%s]", parmIVBase64, e.getMessage());
+			String debugMessage = String.format("check whether the parameter paramIVBase64[%s] is a base64 encoding string, errormessage=[%s]", paramIVBase64, e.getMessage());
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -258,8 +258,8 @@ public class AdminLoginSvl extends AbstractServlet {
 		// FIXME!
 		log.info("한글 대칭키 암호문 base64={}", Base64.encodeBase64String(webServerSymmetricKey.encrypt("한글".getBytes("UTF8"))));
 
-		byte[] userIDBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmUserIDCipherBase64));
-		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwdCipherBase64));
+		byte[] userIDBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramUserIDCipherBase64));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdCipherBase64));
 
 		String userId = new String(userIDBytes, CommonStaticFinalVars.CIPHER_CHARSET);
 		// String password = new String(passwordBytes,

@@ -41,7 +41,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
 
-    private static final long serialVersionUID = 7525989;
+    private static final long serialVersionUID = 1919867321;
 
     /**
      * The reference instance of <code>sb_db.sb_board_filelist_tb</code>
@@ -67,19 +67,14 @@ public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
     public final TableField<SbBoardFilelistTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "");
 
     /**
-     * The column <code>sb_db.sb_board_filelist_tb.attach_sq</code>. 첨부 파일 순번
+     * The column <code>sb_db.sb_board_filelist_tb.attached_file_sq</code>. 첨부 파일 순번
      */
-    public final TableField<SbBoardFilelistTbRecord, UInteger> ATTACH_SQ = createField("attach_sq", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "첨부 파일 순번");
+    public final TableField<SbBoardFilelistTbRecord, UByte> ATTACHED_FILE_SQ = createField("attached_file_sq", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "첨부 파일 순번");
 
     /**
-     * The column <code>sb_db.sb_board_filelist_tb.attach_fname</code>. 첨부 파일 이름
+     * The column <code>sb_db.sb_board_filelist_tb.attached_fname</code>. 첨부 파일 이름
      */
-    public final TableField<SbBoardFilelistTbRecord, String> ATTACH_FNAME = createField("attach_fname", org.jooq.impl.SQLDataType.VARCHAR(255), this, "첨부 파일 이름");
-
-    /**
-     * The column <code>sb_db.sb_board_filelist_tb.sys_fname</code>. 첨부 파일의 시스템 절대 경로 파일명
-     */
-    public final TableField<SbBoardFilelistTbRecord, String> SYS_FNAME = createField("sys_fname", org.jooq.impl.SQLDataType.VARCHAR(600), this, "첨부 파일의 시스템 절대 경로 파일명");
+    public final TableField<SbBoardFilelistTbRecord, String> ATTACHED_FNAME = createField("attached_fname", org.jooq.impl.SQLDataType.VARCHAR(255), this, "첨부 파일 이름");
 
     /**
      * Create a <code>sb_db.sb_board_filelist_tb</code> table reference

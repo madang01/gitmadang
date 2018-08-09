@@ -52,16 +52,16 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 			throws Exception {
 		
 		
-		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == parmRequestType) {		
+		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == paramRequestType) {		
 			firstPage(req, res);			
 			return;
 		}
 		
-		if (parmRequestType.equals("view")) {
+		if (paramRequestType.equals("view")) {
 			firstPage(req, res);
 			return;
-		} else if (parmRequestType.equals("proc")) {		
+		} else if (paramRequestType.equals("proc")) {		
 			processPage(req, res);
 			return;
 		} else {
@@ -70,7 +70,7 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
 					.append("\"")
 					.append("'s value[")
-					.append(parmRequestType)			
+					.append(paramRequestType)			
 					.append("] is not a elment of request type set[view, proc]").toString();
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -83,17 +83,17 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 	}
 	
 	private void processPage(HttpServletRequest req, HttpServletResponse res) {
-		String parmAlgorithm = req.getParameter("algorithm");		
-		String parmPrivateKeyHex = req.getParameter("privateKey");
-		String parmIVHex = req.getParameter("iv");
-		String parmPlainText = req.getParameter("plainText");
-		String parmEncryptedBytesHex = req.getParameter("encryptedBytes");
+		String paramAlgorithm = req.getParameter("algorithm");		
+		String paramPrivateKeyHex = req.getParameter("privateKey");
+		String paramIVHex = req.getParameter("iv");
+		String paramPlainText = req.getParameter("plainText");
+		String paramEncryptedBytesHex = req.getParameter("encryptedBytes");
 		
-		log.info("parmAlgorithm=[{}]", parmAlgorithm);
-		log.info("parmPrivateKeyHex=[{}]", parmPrivateKeyHex);
-		log.info("parmIVHex=[{}]", parmIVHex);
-		log.info("parmPlainText=[{}]", parmPlainText);
-		log.info("parmEncryptedBytesHex=[{}]", parmEncryptedBytesHex);
+		log.info("paramAlgorithm=[{}]", paramAlgorithm);
+		log.info("paramPrivateKeyHex=[{}]", paramPrivateKeyHex);
+		log.info("paramIVHex=[{}]", paramIVHex);
+		log.info("paramPlainText=[{}]", paramPlainText);
+		log.info("paramEncryptedBytesHex=[{}]", paramEncryptedBytesHex);
 		
 		Hashtable<String,String> symmetricKeyTransformationHash = null;
 		symmetricKeyTransformationHash = new Hashtable<String,String>();
@@ -101,15 +101,15 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 		symmetricKeyTransformationHash.put("DES", "DES/CBC/PKCS5Padding");
 		symmetricKeyTransformationHash.put("DESede", "DESede/CBC/PKCS5Padding");
 		
-		String transformation = symmetricKeyTransformationHash.get(parmAlgorithm);
+		String transformation = symmetricKeyTransformationHash.get(paramAlgorithm);
 		
 		if (null == transformation) {
-			throw new RuntimeException(String.format("don't support the algorithm[%s]", parmAlgorithm));
+			throw new RuntimeException(String.format("don't support the algorithm[%s]", paramAlgorithm));
 		}
 		
-		byte[] privateKeyBytes = HexUtil.getByteArrayFromHexString(parmPrivateKeyHex);
-		byte[] ivBytes = HexUtil.getByteArrayFromHexString(parmIVHex);
-		byte[] encryptedBytes = HexUtil.getByteArrayFromHexString(parmEncryptedBytesHex);
+		byte[] privateKeyBytes = HexUtil.getByteArrayFromHexString(paramPrivateKeyHex);
+		byte[] ivBytes = HexUtil.getByteArrayFromHexString(paramIVHex);
+		byte[] encryptedBytes = HexUtil.getByteArrayFromHexString(paramEncryptedBytesHex);
 		
 		Cipher symmetricKeyCipher = null;		
 		try {
@@ -130,7 +130,7 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 			return;
 		}
 		
-		SecretKeySpec symmetricKey = new SecretKeySpec(privateKeyBytes, parmAlgorithm);
+		SecretKeySpec symmetricKey = new SecretKeySpec(privateKeyBytes, paramAlgorithm);
 		
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		try {
@@ -139,12 +139,12 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 			String errorMessage = "fail to initialize a Cipher class instance with a key and a set of algorithm parameters";
 			log.warn(errorMessage, e);			
 			
-			String debugMessage = new StringBuilder("parmAlgorithm=[")
-					.append(parmAlgorithm)
-					.append("], parmPrivateKeyHex=")
-					.append(parmPrivateKeyHex)
-					.append("], parmIVHex=[")
-					.append(parmIVHex)
+			String debugMessage = new StringBuilder("paramAlgorithm=[")
+					.append(paramAlgorithm)
+					.append("], paramPrivateKeyHex=")
+					.append(paramPrivateKeyHex)
+					.append("], paramIVHex=[")
+					.append(paramIVHex)
 					.append("], errmsg=").append(e.getMessage()).toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -152,12 +152,12 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 			String errorMessage = "fail to initialize a Cipher class instance with a key and a set of algorithm parameters";
 			log.warn(errorMessage, e);			
 			
-			String debugMessage = new StringBuilder("parmAlgorithm=[")
-					.append(parmAlgorithm)
-					.append("], parmPrivateKeyHex=")
-					.append(parmPrivateKeyHex)
-					.append("], parmIVHex=[")
-					.append(parmIVHex)
+			String debugMessage = new StringBuilder("paramAlgorithm=[")
+					.append(paramAlgorithm)
+					.append("], paramPrivateKeyHex=")
+					.append(paramPrivateKeyHex)
+					.append("], paramIVHex=[")
+					.append(paramIVHex)
 					.append("], errmsg=").append(e.getMessage()).toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -176,20 +176,20 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 			throw new RuntimeException("BadPaddingException");
 		}
 		
-		String plainTextHex = HexUtil.getHexStringFromByteArray(parmPlainText.getBytes());
+		String plainTextHex = HexUtil.getHexStringFromByteArray(paramPlainText.getBytes());
 		String decryptedBytesHex = HexUtil.getHexStringFromByteArray(decryptedBytes);
 		log.info("plainTextHex[{}], decryptedBytes[{}]", plainTextHex, decryptedBytesHex);
 		
 		
 		String decryptedPlainText = new String(decryptedBytes);
-		String isSame = String.valueOf(decryptedPlainText.equals(parmPlainText));			
+		String isSame = String.valueOf(decryptedPlainText.equals(paramPlainText));			
 		
 		
-		req.setAttribute("plainText", parmPlainText);
-		req.setAttribute("algorithm", parmAlgorithm);
-		req.setAttribute("privateKey", parmPrivateKeyHex);
-		req.setAttribute("iv", parmIVHex);
-		req.setAttribute("encryptedBytesHex", parmEncryptedBytesHex);
+		req.setAttribute("plainText", paramPlainText);
+		req.setAttribute("algorithm", paramAlgorithm);
+		req.setAttribute("privateKey", paramPrivateKeyHex);
+		req.setAttribute("iv", paramIVHex);
+		req.setAttribute("encryptedBytesHex", paramEncryptedBytesHex);
 		req.setAttribute("plainTextHex", plainTextHex);
 		req.setAttribute("decryptedBytesHex", decryptedBytesHex);
 		req.setAttribute("decryptedPlainText", decryptedPlainText);

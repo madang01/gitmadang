@@ -16,29 +16,28 @@
 <message>
 <messageID>BoardDetailRes</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
-<desc>게시판 상세 조회 응답 메시지, Mybatis DTO</desc>
+<desc>게시판 상세 조회 응답 메시지</desc>
+<singleitem name="boardID" type="unsigned byte" />
 <singleitem name="boardNo" type="unsigned integer" />
-<singleitem name="boardId" type="unsigned byte" />
 <singleitem name="groupNo" type="unsigned integer" />
 <singleitem name="groupSeq" type="unsigned short" />
 <singleitem name="parentNo" type="unsigned integer" />
 <singleitem name="depth" type="unsigned byte" />
+<singleitem name="viewCount" type="integer" />
+<singleitem name="boardSate" type="ub pascal string" />
+<singleitem name="nickname" type="ub pascal string" />
+<singleitem name="votes" type="integer" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="content" type="si pascal string" />
-<singleitem name="writerId" type="ub pascal string" />
-<singleitem name="nickname" type="ub pascal string" />
-<singleitem name="viewCount" type="integer" />
-<singleitem name="votes" type="integer" />
-<singleitem name="boardSate" type="ub pascal string" />
-<singleitem name="ip" type="ub pascal string" />
-<singleitem name="registerDate" type="java sql timestamp" />
-<singleitem name="modifiedDate" type="java sql timestamp" />
-<singleitem name="attachId" type="unsigned integer" />
-<singleitem name="attachFileCnt" type="integer" />
-<array name="attachFile" cnttype="reference" cntvalue="attachFileCnt">
-	<singleitem name="attachSeq" type="unsigned integer" />	
-	<singleitem name="attachFileName" type="us pascal string" />
+<singleitem name="writerID" type="ub pascal string" />
+<singleitem name="writerIP" type="ub pascal string" />
+<singleitem name="registeredDate" type="java sql timestamp" />
+<singleitem name="finalModifierIP" type="ub pascal string" />
+<singleitem name="finalModifierID" type="ub pascal string" />
+<singleitem name="finalModifiedDate" type="java sql timestamp" />
+<singleitem name="attachedFileCnt" type="integer" />
+<array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
+	<singleitem name="attachedFileSeq" type="unsigned byte" />	
+	<singleitem name="attachedFileName" type="us pascal string" />
 </array>
-<singleitem name="memberType" type="ub pascal string" />
-<singleitem name="memberState" type="us pascal string" />
 </message>

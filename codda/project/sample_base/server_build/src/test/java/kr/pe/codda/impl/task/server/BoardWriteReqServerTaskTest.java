@@ -3,7 +3,9 @@ package kr.pe.codda.impl.task.server;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.BeforeClass;
@@ -18,6 +20,7 @@ import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
+import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.lib.BoardType;
@@ -29,20 +32,20 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment();	
+		ServerDBUtil.initializeDBEnvoroment("testAdmin");	
 		
-		createTestID();
+		createTestID("test01", "단위테스터용아이디1");
 	}
 	
 	/**
 	 * 테스트 아이디 'test01' 을 생성한다.
 	 */
-	private static void createTestID() {
-		String userID = "test01";
+	private static void createTestID(String wantedUserID, String watntedNickname) {
+		String userID = wantedUserID;
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
-		String nickname = "단위테스터용아이디";
+		String nickname = watntedNickname;
 		String pwdHint = "힌트 그것이 알고싶다";
-		String pwdAnswer = "말이여 방구여";
+		String pwdAnswer = "힌트답변 말이여 방구여";
 		
 		
 		ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
@@ -116,6 +119,9 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 					.append(userID)
 					.append("] 입니다").toString();
 			String actualErrorMessag = e.getMessage();
+			
+			log.warn(actualErrorMessag, e);
+			
 			assertEquals(expectedErrorMessage, actualErrorMessag);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
@@ -125,19 +131,29 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoService_ok() {		
-		BoardWriteReq inObj = new BoardWriteReq();
-		inObj.setBoardId(BoardType.FREE.getBoardID());
-		inObj.setSubject("테스트 주제");
-		inObj.setContent("내용::그림2 하나를 그리다");
-		inObj.setAttachId(0);
-		inObj.setUserId("test01");
-		inObj.setIp("127.0.0.1");
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setSubject("테스트 주제");
+		boardWriteReq.setContent("내용::그림2 하나를 그리다");		
+		boardWriteReq.setWriterID("test01");
+		boardWriteReq.setIp("172.16.0.1");
+		
+		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
+		{
+			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
+			attachedFile.setAttachedFileName("임시첨부파일01.jpg");
+			
+			attachedFileList.add(attachedFile);
+		}
+		
+		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
+		boardWriteReq.setNewAttachedFileList(attachedFileList);
 		
 		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
 		
 		try {
-			MessageResultRes messageResultRes = boardWriteReqServerTask.doService(inObj);
-			log.info(messageResultRes.toString());
+			BoardWriteRes boardWriteRes = boardWriteReqServerTask.doService(boardWriteReq);
+			log.info(boardWriteRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);
 			fail("fail to execuate doTask");

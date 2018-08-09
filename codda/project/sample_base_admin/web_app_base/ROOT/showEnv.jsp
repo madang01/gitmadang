@@ -23,7 +23,7 @@
 
 </head>
 <body>
-<%=adminSiteMenuManger.getSiteNavbarString(isAdminLogin(request))%>
+<%=adminSiteMenuManger.getSiteNavbarString(isAdminLoginedIn(request))%>
 	
 	<div class="container-fluid">
 		<h3>Codda JAVA System Properties</h3>

@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardWriteReq message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardWriteReqDecoder extends AbstractMessageDecoder {
@@ -35,9 +35,9 @@ public final class BoardWriteReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardWriteReq");
 
-		boardWriteReq.setBoardId((Short)
+		boardWriteReq.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "boardId" // itemName
+			, "boardID" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
@@ -59,17 +59,9 @@ public final class BoardWriteReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardWriteReq.setAttachId((Long)
+		boardWriteReq.setWriterID((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "attachId" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
-		boardWriteReq.setUserId((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "userId" // itemName
+			, "writerID" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
@@ -82,6 +74,36 @@ public final class BoardWriteReqDecoder extends AbstractMessageDecoder {
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
+
+		boardWriteReq.setNewAttachedFileCnt((Short)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "newAttachedFileCnt" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		int newAttachedFile$2ListSize = boardWriteReq.getNewAttachedFileCnt();
+		Object newAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "newAttachedFile", newAttachedFile$2ListSize, middleReadableObject);
+		java.util.List<BoardWriteReq.NewAttachedFile> newAttachedFile$2List = new java.util.ArrayList<BoardWriteReq.NewAttachedFile>();
+		for (int i2=0; i2 < newAttachedFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachedFile").append("[").append(i2).append("]").toString());
+			Object newAttachedFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), newAttachedFile$2ArrayMiddleObject, i2);
+			BoardWriteReq.NewAttachedFile newAttachedFile$2 = new BoardWriteReq.NewAttachedFile();
+			newAttachedFile$2List.add(newAttachedFile$2);
+
+			newAttachedFile$2.setAttachedFileName((String)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachedFileName" // itemName
+				, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, newAttachedFile$2MiddleWritableObject));
+
+			pathStack.pop();
+		}
+
+		boardWriteReq.setNewAttachedFileList(newAttachedFile$2List);
 
 		pathStack.pop();
 

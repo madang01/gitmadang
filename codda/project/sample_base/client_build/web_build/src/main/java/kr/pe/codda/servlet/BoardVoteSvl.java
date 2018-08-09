@@ -18,102 +18,113 @@ import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
  */
 @SuppressWarnings("serial")
 public class BoardVoteSvl extends AbstractLoginServlet {
+	
+	private void printBoardErrorCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
+		final String goPage = "/jsp/community/BoardErrorCallBack.jsp";
+		req.setAttribute("errorMessage", errorMessage);
+		printJspPage(req, res, goPage);
+	}
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
 		
-		
-		String parmBoardId = req.getParameter("boardId");
-		if (null == parmBoardId) {
+		String paramBoardID = req.getParameter("boardID");
+		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요";
-			String debugMessage = "the web parameter 'boardId' is null";
-			printErrorMessagePage(req, res, errorMessage, debugMessage);	
+			String debugMessage = "the web parameter 'boardID' is null";
+			log.warn(debugMessage);
+			printBoardErrorCallBackPage(req, res, errorMessage);	
 			return;
 		}
 		
-		short boardId = 0;
+		short boardID = 0;
 		try {
-			boardId = Short.parseShort(parmBoardId);
+			boardID = Short.parseShort(paramBoardID);
 		}catch (NumberFormatException nfe) {
 			String errorMessage = "잘못된 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder("the web parameter 'boardId'[")
-					.append(parmBoardId).append("] is not a short").toString();
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			String debugMessage = new StringBuilder("the web parameter 'boardID'[")
+					.append(paramBoardID).append("] is not a short").toString();
+			log.warn(debugMessage);
+			printBoardErrorCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		try {
-			BoardType.valueOf(boardId);
+			BoardType.valueOf(boardID);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = "알 수 없는 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder("the web parameter 'boardId'[")
-					.append(parmBoardId).append("] is not a element of set[")
+			String debugMessage = new StringBuilder("the web parameter 'boardID'[")
+					.append(paramBoardID).append("] is not a element of set[")
 					.append(BoardType.getSetString())
 					.append("]").toString();
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			log.warn(debugMessage);
+			printBoardErrorCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
-		String parmBoardNo = req.getParameter("boardNo");
-		if (null == parmBoardNo) {
+		String paramBoardNo = req.getParameter("boardNo");
+		if (null == paramBoardNo) {
 			String errorMessage = "게시판 번호를 입력해 주세요";
 			String debugMessage = "the web parameter 'boardNo' is null";
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			log.warn(debugMessage);
+			printBoardErrorCallBackPage(req, res, errorMessage);
 			return;
 		}		
 		
 		long boardNo = 0L;
 		try {
-			boardNo = Long.parseLong(parmBoardNo);
+			boardNo = Long.parseLong(paramBoardNo);
 		}catch (NumberFormatException nfe) {
 			String errorMessage = "잘못된 게시판 번호입니다";
 			String debugMessage = new StringBuilder("the web parameter \"boardN\"'s value[")
-					.append(parmBoardNo)
+					.append(paramBoardNo)
 					.append("] is a Long").toString();
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			log.warn(debugMessage);
+			printBoardErrorCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		if (boardNo <= 0) {
 			String errorMessage = "게시판 번호 값은 0 보다 커야합니다.";
 			String debugMessage = new StringBuilder("the web parameter \"boardN\"'s value[")
-					.append(parmBoardNo)
+					.append(paramBoardNo)
 					.append("] is less than or equal to zero").toString();
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			log.warn(debugMessage);
+			printBoardErrorCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		BoardVoteReq inObj =  new BoardVoteReq();
-		inObj.setBoardId(boardId);
-		inObj.setBoardNo(boardNo);
-		inObj.setUserId(getLoginedUserID(req));
+		inObj.setBoardID(boardID);
+		inObj.setBoardNo(boardNo);		
+		inObj.setUserID(getLoginedUserIDFromHttpSession(req));
 		inObj.setIp(req.getRemoteAddr());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(inObj);
 		
-		if (outputMessage instanceof MessageResultRes) {
-			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+		if (!(outputMessage instanceof MessageResultRes)) {
 			
-			doVotePage(req, res, parmBoardId, parmBoardNo, messageResultRes);
-			return;
-		} else {
 			String errorMessage = "게시판 추천이 실패했습니다";
 			String debugMessage = String.format("입력 메시지[%s]에 대한 비 정상 출력 메시지[%s] 도착", inObj.getMessageID(), outputMessage.toString());
 			
 			log.error(debugMessage);
 
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			printBoardErrorCallBackPage(req, res, errorMessage);
+			return;			
+		}		
+		
+		MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+		
+		if (messageResultRes.getIsSuccess()) {			
+			printJspPage(req, res, "/menu/board/BoardVoteOKCallBack.jsp");
 			return;
-		}	
+		} else {
+			req.setAttribute("errorMessage", messageResultRes.getResultMessage());
+			printJspPage(req, res, "/menu/community/BoardErrorCallBack.jsp");
+			return;
+		}
 	}
 
-	private void doVotePage(HttpServletRequest req, HttpServletResponse res, String parmBoardId, String parmBoardNo,
-			MessageResultRes messageResultRes) {
-		req.setAttribute("parmBoardId", parmBoardId);
-		req.setAttribute("parmBoardNo", parmBoardNo);
-		req.setAttribute("messageResultRes", messageResultRes);
-		printJspPage(req, res, "/menu/board/BoardVote01.jsp");
-	}
 }

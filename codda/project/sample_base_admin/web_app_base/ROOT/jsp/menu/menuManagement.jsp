@@ -1,12 +1,10 @@
-<%@page import="java.util.ArrayList"%><%
-%><%@page import="java.util.List"%><%
-%><%@page import="com.google.gson.Gson"%><%
+<%@page import="com.google.gson.Gson"%><%
 %><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@page import="kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes" %><%
 %><%@page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-	ArraySiteMenuRes arraySiteMenuRes = (ArraySiteMenuRes)request.getAttribute("arraySiteMenuRes"); 
+%><jsp:useBean id="arraySiteMenuRes" class="kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes" scope="request" /><%
+	// ArraySiteMenuRes arraySiteMenuRes = (ArraySiteMenuRes)request.getAttribute("arraySiteMenuRes"); 
 	
-	if (null == arraySiteMenuRes) {
+	/* if (null == arraySiteMenuRes) {
 		arraySiteMenuRes = new ArraySiteMenuRes();
 		
 		List<ArraySiteMenuRes.Menu> menuList = new ArrayList<ArraySiteMenuRes.Menu>();
@@ -49,7 +47,7 @@
 		arraySiteMenuRes.setCnt(menuList.size());
 		arraySiteMenuRes.setMenuList(menuList);
 	}
-	
+	 */
 	String menuListResJsonString = new Gson().toJson(arraySiteMenuRes);
 	
 %><!DOCTYPE html>

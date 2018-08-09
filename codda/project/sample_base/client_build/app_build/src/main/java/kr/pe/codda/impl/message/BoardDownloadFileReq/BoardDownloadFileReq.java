@@ -21,36 +21,56 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardDownloadFileReq message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardDownloadFileReq extends AbstractMessage {
-	private long attachId;
-	private long attachSeq;
+	private short boardID;
+	private long boardNo;
+	private short attachedFileSeq;
+	private String requestUserID;
 
-	public long getAttachId() {
-		return attachId;
+	public short getBoardID() {
+		return boardID;
 	}
 
-	public void setAttachId(long attachId) {
-		this.attachId = attachId;
+	public void setBoardID(short boardID) {
+		this.boardID = boardID;
 	}
-	public long getAttachSeq() {
-		return attachSeq;
+	public long getBoardNo() {
+		return boardNo;
 	}
 
-	public void setAttachSeq(long attachSeq) {
-		this.attachSeq = attachSeq;
+	public void setBoardNo(long boardNo) {
+		this.boardNo = boardNo;
+	}
+	public short getAttachedFileSeq() {
+		return attachedFileSeq;
+	}
+
+	public void setAttachedFileSeq(short attachedFileSeq) {
+		this.attachedFileSeq = attachedFileSeq;
+	}
+	public String getRequestUserID() {
+		return requestUserID;
+	}
+
+	public void setRequestUserID(String requestUserID) {
+		this.requestUserID = requestUserID;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardDownloadFileReq[");
-		builder.append("attachId=");
-		builder.append(attachId);
-		builder.append(", attachSeq=");
-		builder.append(attachSeq);
+		builder.append("boardID=");
+		builder.append(boardID);
+		builder.append(", boardNo=");
+		builder.append(boardNo);
+		builder.append(", attachedFileSeq=");
+		builder.append(attachedFileSeq);
+		builder.append(", requestUserID=");
+		builder.append(requestUserID);
 		builder.append("]");
 		return builder.toString();
 	}

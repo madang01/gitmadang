@@ -44,7 +44,7 @@
 </script>
 </head>
 <body>
-<%= adminSiteMenuManger.getSiteNavbarString(isAdminLogin(request))%>	
+<%=adminSiteMenuManger.getSiteNavbarString(isAdminLoginedIn(request))%>	
 	<div class="container-fluid">
 		<h3>파라미터 보존 테스트::STEP3::loginSuccess.jsp 역활</h3>
 		<form name="frm" action="test03.jsp" onsubmit="return false;">

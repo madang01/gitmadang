@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardUploadFileReq message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardUploadFileReq extends AbstractMessage {
@@ -57,7 +57,6 @@ public class BoardUploadFileReq extends AbstractMessage {
 
 	public static class NewAttachedFile {
 		private String attachedFileName;
-		private String systemFileName;
 
 		public String getAttachedFileName() {
 			return attachedFileName;
@@ -66,13 +65,6 @@ public class BoardUploadFileReq extends AbstractMessage {
 		public void setAttachedFileName(String attachedFileName) {
 			this.attachedFileName = attachedFileName;
 		}
-		public String getSystemFileName() {
-			return systemFileName;
-		}
-
-		public void setSystemFileName(String systemFileName) {
-			this.systemFileName = systemFileName;
-		}
 
 		@Override
 		public String toString() {
@@ -80,8 +72,6 @@ public class BoardUploadFileReq extends AbstractMessage {
 			builder.append("NewAttachedFile[");
 			builder.append("attachedFileName=");
 			builder.append(attachedFileName);
-			builder.append(", systemFileName=");
-			builder.append(systemFileName);
 			builder.append("]");
 			return builder.toString();
 		}

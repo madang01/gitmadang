@@ -25,7 +25,7 @@
 </script>
 </head>
 <body>
-<%=adminSiteMenuManger.getSiteNavbarString(isAdminLogin(request))%>	
+<%=adminSiteMenuManger.getSiteNavbarString(isAdminLoginedIn(request))%>	
 	<div class="container-fluid">
 		<h3>파라미터 보존 테스트::STEP1::로그인요구서비스요청자</h3>
 		<form name="frm" action="test02.jsp" method="post">
