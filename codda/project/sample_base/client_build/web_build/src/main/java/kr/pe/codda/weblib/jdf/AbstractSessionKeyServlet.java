@@ -74,7 +74,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			req.setAttribute("requestURI", req.getRequestURI());
 			
 			req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, modulusHexString);
-			printJspPage(req, res, JDF_SESSION_KEY_PAGE);
+			printJspPage(req, res, JDF_SESSION_KEY_REDIRECT_PAGE);
 			return;
 		}
 		

@@ -1,7 +1,6 @@
 package kr.pe.codda.server.lib;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
-import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
 import java.sql.Connection;
@@ -49,11 +48,8 @@ public abstract class ServerDBUtil {
 			
 			insertAllSeqIDIfNotExist(create);	
 			
-			byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
-			createUser(adminID, "테스트어드민", passwordBytes, "비밀번호힌트::그것이 알고싶다", "비밀번호답변::");
 			
-			create.update(SB_MEMBER_TB).set(SB_MEMBER_TB.MEMBER_TYPE, MemberType.ADMIN.getValue())
-			.where(SB_MEMBER_TB.USER_ID.eq(adminID)).execute();
+			
 			
 		} catch (Exception e) {
 			try {
@@ -74,9 +70,14 @@ public abstract class ServerDBUtil {
 				}
 			}
 		}
+		
+		
+		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+		createAdmin(adminID, "테스트어드민", passwordBytes, "비밀번호힌트::그것이 알고싶다", "비밀번호답변::");
+		
 	}
 	
-	private static void createUser(String userID, String nickname, byte[] passwordBytes, String pwdHint, String pwdAnswer) throws Exception {
+	private static void createAdmin(String userID, String nickname, byte[] passwordBytes, String pwdHint, String pwdAnswer) throws Exception {
 		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
 		
 		
@@ -144,7 +145,7 @@ public abstract class ServerDBUtil {
 		try {
 			@SuppressWarnings("unused")
 			MessageResultRes messageResultRes = 
-					memberRegisterReqServerTask.doService(memberRegisterReq);
+					memberRegisterReqServerTask.doService(memberRegisterReq, MemberType.ADMIN);
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 					.append(userID)

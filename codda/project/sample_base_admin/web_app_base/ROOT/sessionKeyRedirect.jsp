@@ -74,7 +74,7 @@
 			continue;
 		}
 %>
-		<textarea style="visibility:hidden;" name="<%= StringEscapeUtils.escapeHtml4(parmKey) %>"><%= StringEscapeUtils.escapeHtml4(parmValue) %></textarea><%
+		<textarea style="display:none;visibility:hidden;" name="<%= StringEscapeUtils.escapeHtml4(parmKey) %>"><%= StringEscapeUtils.escapeHtml4(parmValue) %></textarea><%
 
 	}
 %>	

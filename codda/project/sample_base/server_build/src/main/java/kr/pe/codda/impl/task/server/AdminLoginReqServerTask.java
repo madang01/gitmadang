@@ -229,28 +229,6 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
 			
-			
-			
-			/*
-			select 
-			user_id as userId, 
-			nickname,
-			pwd_base64 as pwdBase64,
-			pwd_salt_base64 as pwdSaltBase64,
-			member_gb as memberGubun,
-			member_st as memberState,
-			pwd_hint as pwdHint,
-			pwd_answer as pwdAnswer,
-			pwd_fail_cnt as pwdFailCount,
-			reg_dt as registerDate,
-			mod_dt as modifiedDate
-			from SB_MEMBER_TB where user_id=#{userId} for update
-			*/
-			
-			/*
-			update SB_MEMBER_TB set pwd_fail_cnt=#{pwdFailCount}, mod_dt=sysdate() where user_id=#{userId} and member_gb=1 and member_st=0
-			*/
-			
 			Record resultOfMember = create.select(
 					SB_MEMBER_TB.MEMBER_TYPE,
 					SB_MEMBER_TB.MEMBER_ST,

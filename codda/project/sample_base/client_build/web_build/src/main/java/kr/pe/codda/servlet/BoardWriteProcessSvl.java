@@ -2,6 +2,8 @@ package kr.pe.codda.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +33,8 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
 	private static final long serialVersionUID = 6954552927880470265L;
 	
-	private void printBoardErrorCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
-		final String goPage = "/jsp/community/BoardErrorCallBack.jsp";
+	private void printBoardProcessFailureCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
+		final String goPage = "/jsp/community/BoardProcessFailureCallBack.jsp";
 		req.setAttribute("errorMessage", errorMessage);
 		printJspPage(req, res, goPage);
 	}
@@ -85,6 +87,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 					// FIXME!
 					log.info("form field's name={} and value={}", formFieldName, formFieldValue);
 
+					/**************** 파라미터 시작 *******************/
 					if (formFieldName.equals("boardID")) {
 						paramBoardID = formFieldValue;
 					} else if (formFieldName.equals("subject")) {
@@ -92,10 +95,11 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 					} else if (formFieldName.equals("content")) {
 						paramContent = formFieldValue;
 					}
+					/**************** 파라미터 종료 *******************/
 
 				} else {
 					if (newAttachedFileList.size() == WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
-						String errorMessage = new StringBuilder("업로드 파일은 최대[ ")
+						String errorMessage = new StringBuilder("첨부 파일은 최대[ ")
 								.append(WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT).append("] 까지만 허용됩니다")
 								.toString();
 
@@ -103,54 +107,120 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 								.append(getLoginedUserIDFromHttpSession(req)).toString();
 						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-						printBoardErrorCallBackPage(req, res, errorMessage);
+						printBoardProcessFailureCallBackPage(req, res, errorMessage);
 						return;
 					}
 
-					String fileName = fileItem.getName();
-					String fileContentType = fileItem.getContentType();
-					long fileSize = fileItem.getSize();
+					String newAttachedFileName = fileItem.getName();
+					String newAttachedFileContentType = fileItem.getContentType();
+					long newAtttachedFileSize = fileItem.getSize();
 
 					// FIXME!
-					log.info("fileName={}, fileContentType={}, fileSize={}", fileName, fileContentType, fileSize);
+					log.info("fileName={}, fileContentType={}, fileSize={}", newAttachedFileName, newAttachedFileContentType, newAtttachedFileSize);
 
-					if (fileSize == 0) {
-						// FIXME!, 파일 크기 0 인 경우 디버깅용으로 남김
-						log.info("file size is zero, fileItem={}, userId={}, ip={}", fileItem.toString(),
-								getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
-						continue;
+					for (char ch : newAttachedFileName.toCharArray()) {
+						for (char forbiddenChar : WebCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
+							if (ch == forbiddenChar) {
+								String errorMessage = new StringBuilder("첨부 파일명[")
+										.append(newAttachedFileName)
+										.append("]에 금지된 문자[")
+										.append(forbiddenChar)
+										.append("]가 존재합니다").toString();
+
+								String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+										.append(getLoginedUserIDFromHttpSession(req)).toString();
+								log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+
+								printBoardProcessFailureCallBackPage(req, res, errorMessage);
+								return;
+							}
+						}
 					}
 
-					String lowerCaseFileName = fileName.toLowerCase();
+					String lowerCaseFileName = newAttachedFileName.toLowerCase();
 
 					if (!lowerCaseFileName.endsWith(".jpg") && !lowerCaseFileName.endsWith(".gif")
 							&& !lowerCaseFileName.endsWith(".png")) {
 
-						String errorMessage = new StringBuilder("업로드 파일[").append(fileName)
+						String errorMessage = new StringBuilder("첨부 파일[").append(newAttachedFileName)
 								.append("]의 확장자는 jpg, gif, png 만 올 수 있습니다.").toString();
 
 						String debugMessage = new StringBuilder(errorMessage).append(", userID=")
 								.append(getLoginedUserIDFromHttpSession(req)).toString();
 						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-						printBoardErrorCallBackPage(req, res, errorMessage);
+						printBoardProcessFailureCallBackPage(req, res, errorMessage);
 						return;
 					}
+					
+					if (newAtttachedFileSize == 0) {
+						String errorMessage = "첨부 파일 크기가 0입니다";
 
-					if (!fileContentType.equals("image/jpeg") && !fileContentType.equals("image/png")
-							&& !fileContentType.equals("image/gif")) {
-						String errorMessage = new StringBuilder("업로드 파일[").append(fileName).append("][")
-								.append(fileContentType).append("]는 이미지 jpg, gif, png 만 올 수 있습니다.").toString();
 						String debugMessage = new StringBuilder(errorMessage).append(", userID=")
 								.append(getLoginedUserIDFromHttpSession(req)).toString();
 						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-						printBoardErrorCallBackPage(req, res, errorMessage);
+						printBoardProcessFailureCallBackPage(req, res, errorMessage);
 						return;
 					}
 
+					if (null == newAttachedFileContentType) {
+						String errorMessage = new StringBuilder("전달 받은 첨부 파일[").append(newAttachedFileName).append("] 종류가 없습니다").toString();
+						String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+								.append(getLoginedUserIDFromHttpSession(req)).toString();
+						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+
+						printBoardProcessFailureCallBackPage(req, res, errorMessage);
+						return;
+					}
+
+					if (! newAttachedFileContentType.equals("image/jpeg") && !newAttachedFileContentType.equals("image/png")
+							&& !newAttachedFileContentType.equals("image/gif")) {
+						String errorMessage = new StringBuilder("첨부 파일[").append(newAttachedFileName).append("][")
+								.append(newAttachedFileContentType).append("]은 이미지 jpg, gif, png 만 올 수 있습니다.").toString();
+						String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+								.append(getLoginedUserIDFromHttpSession(req)).toString();
+						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+
+						printBoardProcessFailureCallBackPage(req, res, errorMessage);
+						return;
+					}
+					
+					InputStream attachedFileInputStream = fileItem.getInputStream();					
+					try {
+						String guessedContentType = URLConnection.guessContentTypeFromStream(attachedFileInputStream);
+						if (null == guessedContentType) {
+							String errorMessage = new StringBuilder("첨부 파일[").append(newAttachedFileName).append("] 데이터 내용으로 파일 종류를 파악하는데 실패하였습니다").toString();
+							String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+									.append(getLoginedUserIDFromHttpSession(req)).toString();
+							log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+
+							printBoardProcessFailureCallBackPage(req, res, errorMessage);
+							return;
+						}
+						
+						
+						if (!guessedContentType.equals(newAttachedFileContentType)) {								
+							String errorMessage = new StringBuilder("전달 받은 첨부 파일[").append(newAttachedFileName).append("] 종류[")
+									.append(newAttachedFileContentType)
+									.append("]와 첨부 파일 데이터 내용으로 추정된 파일 종류[")
+									.append(guessedContentType).append("]가 다릅니다").toString();
+							String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+									.append(getLoginedUserIDFromHttpSession(req)).toString();
+							log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+
+							printBoardProcessFailureCallBackPage(req, res, errorMessage);
+							return;
+						}
+					} finally {
+						try {
+							attachedFileInputStream.close();
+						} catch(IOException e) {
+						}
+					}
+
 					BoardWriteReq.NewAttachedFile newAttachedFile = new BoardWriteReq.NewAttachedFile();
-					newAttachedFile.setAttachedFileName(fileName);
+					newAttachedFile.setAttachedFileName(newAttachedFileName);
 					newAttachedFileList.add(newAttachedFile);
 				}
 			}
@@ -161,7 +231,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				
 				log.warn(debugMessage);
 				
-				printBoardErrorCallBackPage(req, res, errorMessage);
+				printBoardProcessFailureCallBackPage(req, res, errorMessage);
 				return;
 			}
 
@@ -175,7 +245,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				
 				log.warn(debugMessage);
 				
-				printBoardErrorCallBackPage(req, res, errorMessage);
+				printBoardProcessFailureCallBackPage(req, res, errorMessage);
 				return;
 			}
 
@@ -188,7 +258,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				
 				log.warn(debugMessage);
 				
-				printBoardErrorCallBackPage(req, res, errorMessage);
+				printBoardProcessFailureCallBackPage(req, res, errorMessage);
 				return;
 			}
 
@@ -198,7 +268,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				
 				log.warn(debugMessage);
 				
-				printBoardErrorCallBackPage(req, res, errorMessage);
+				printBoardProcessFailureCallBackPage(req, res, errorMessage);
 				return;
 			}
 
@@ -208,7 +278,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				
 				log.warn(debugMessage);
 				
-				printBoardErrorCallBackPage(req, res, errorMessage);
+				printBoardProcessFailureCallBackPage(req, res, errorMessage);
 				return;
 			}
 
@@ -218,7 +288,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				
 				log.warn(debugMessage);
 				
-				printBoardErrorCallBackPage(req, res, errorMessage);
+				printBoardProcessFailureCallBackPage(req, res, errorMessage);
 				return;
 			}
 
@@ -243,7 +313,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 			if ((outputMessage instanceof MessageResultRes)) {
 				MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
 
-				printBoardErrorCallBackPage(req, res, messageResultRes.getResultMessage());
+				printBoardProcessFailureCallBackPage(req, res, messageResultRes.getResultMessage());
 				return;
 			} else if (!(outputMessage instanceof BoardWriteRes)) {
 				String errorMessage = "게시판 쓰기가 실패했습니다";
@@ -252,7 +322,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
 				log.error(debugMessage);
 
-				printBoardErrorCallBackPage(req, res, errorMessage);
+				printBoardProcessFailureCallBackPage(req, res, errorMessage);
 				return;
 			}
 
@@ -300,11 +370,11 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 			for (FileItem fileItem : fileItemList) {
 				if (!fileItem.isFormField()) {
 					// FIXME!
-					log.info("게시판 개별 업로드 파일[{}] 삭제", fileItem.toString());
+					log.info("게시판 개별 첨부 파일[{}] 삭제", fileItem.toString());
 					try {
 						fileItem.delete();
 					} catch (Exception e) {
-						log.warn("게시판 개별 업로드 파일[{}] 삭제 실패", fileItem.toString());
+						log.warn("게시판 개별 첨부 파일[{}] 삭제 실패", fileItem.toString());
 					}
 				}
 			}

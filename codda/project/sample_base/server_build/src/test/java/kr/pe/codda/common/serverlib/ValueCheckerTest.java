@@ -281,4 +281,38 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		
 		log.info("trimValue=[{}][len={}]", trimValue, trimValue.length());
 	}
+
+	
+	/*public void test() {
+		String str = "string";
+
+		String test1 = "";
+		String test2 = "";
+		String test3 = "";
+
+		long t1_start = System.currentTimeMillis();
+		for (int i = 0; i < 100000; i++) {
+		   test1 += str;
+		}
+		long t1_end = System.currentTimeMillis();
+
+		long t2_start = System.currentTimeMillis();
+		StringBuffer stringBuffer = new StringBuffer();
+		for (int i = 0; i < 100000; i++) {
+		   stringBuffer.append(str);
+		}
+		long t2_end = System.currentTimeMillis();
+
+		long t3_start = System.currentTimeMillis();
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 0; i < 100000; i++) {
+		   stringBuilder.append(str);
+		}
+		long t3_end = System.currentTimeMillis();
+
+
+		System.out.println("test case 1 = " + (t1_end - t1_start));
+		System.out.println("test case 2 = " + (t2_end - t2_start));
+		System.out.println("test case 3 = " + (t3_end - t3_start));
+	}*/
 }

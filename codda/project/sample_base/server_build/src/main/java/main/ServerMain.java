@@ -16,7 +16,8 @@ public class ServerMain {
 		Logger log = LoggerFactory.getLogger(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 		
 		try {
-			ServerDBUtil.initializeDBEnvoroment("testAdmin");
+			final String adminID = "admin";
+			ServerDBUtil.initializeDBEnvoroment(adminID);
 			
 			AnyProjectServer mainProjectServer = MainServerManager.getInstance().getMainProjectServer();
 			mainProjectServer.startServer();

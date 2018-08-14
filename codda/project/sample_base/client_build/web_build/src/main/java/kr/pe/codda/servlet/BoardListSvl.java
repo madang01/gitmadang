@@ -20,8 +20,11 @@ public class BoardListSvl extends AbstractSessionKeyServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
 		
-		short boardID = BoardType.FREE.getBoardID();
+		/**************** 파라미터 시작 *******************/
 		String paramBoardID = req.getParameter("boardID");
+		String paramPageNo = req.getParameter("pageNo");
+		/**************** 파라미터 종료 *******************/
+		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자를 입력하세요";
 			String debugMessage = new StringBuilder("the web parameter 'boardID'[")
@@ -30,6 +33,7 @@ public class BoardListSvl extends AbstractSessionKeyServlet {
 			return;
 		}
 		
+		short boardID = BoardType.FREE.getBoardID();
 		try {
 			boardID = Short.parseShort(paramBoardID);
 		}catch (NumberFormatException nfe) {
@@ -55,7 +59,7 @@ public class BoardListSvl extends AbstractSessionKeyServlet {
 		
 		int pageNo = 1;
 		
-		String paramPageNo = req.getParameter("pageNo");
+		
 		if (null == paramPageNo) {
 			paramPageNo = "1";
 		}

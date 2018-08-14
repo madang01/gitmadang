@@ -66,5 +66,6 @@ public abstract class WebCommonStaticFinalVars {
 	
 	public static final short UPLOAD_FILENAME_SEQ_TYPE_ID = 1;
 	
+	public static final char[] FILENAME_FORBIDDEN_CHARS = {'/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
 	
 }

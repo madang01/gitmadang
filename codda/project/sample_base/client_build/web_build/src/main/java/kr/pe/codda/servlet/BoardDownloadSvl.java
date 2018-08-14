@@ -31,7 +31,11 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {		
 		
+		/**************** 파라미터 시작 *******************/
 		String paramBoardID = req.getParameter("boardID");
+		String paramBoardNo = req.getParameter("boardNo");
+		String paramAttachedFileSeq = req.getParameter("attachedFileSeq");
+		/**************** 파라미터 종료 *******************/
 		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요.";
@@ -59,9 +63,7 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 					.append("] is not a element of set[").append(BoardType.getSetString()).append("]").toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}
-
-		String paramBoardNo = req.getParameter("boardNo");
+		}		
 
 		if (null == paramBoardNo) {
 			String errorMessage = "게시판 번호 값을 넣어 주세요";
@@ -89,44 +91,13 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
+				
 		
-		
-		String paramAttachId = req.getParameter("attachId");
-		if (null == paramAttachId) {
-			String errorMessage = "업로드 식별자를 넣어주세요.";
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
-			
-			doDownloadErrorAlertPage(req, res, errorMessage);
-			return;
-		}
-		
-		long attachId = 0L;
-		try {
-			attachId = Long.parseLong(paramAttachId);
-		}catch (NumberFormatException nfe) {
-			String errorMessage = new StringBuilder("자바 long 타입 변수인 업로드 식별자 값[")
-			.append(paramAttachId).append("]이 잘못되었습니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
-			
-			doDownloadErrorAlertPage(req, res, errorMessage);
-			return;
-		}
-		
-		if (attachId <= 0) {
-			String errorMessage = new StringBuilder("업로드 식별자 값[")
-			.append(paramAttachId).append("]은 0 보다 커야합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
-			
-			doDownloadErrorAlertPage(req, res, errorMessage);
-			return;
-		}
-		
-		String paramAttachedFileSeq = req.getParameter("attachedFileSeq");
 		if (null == paramAttachedFileSeq) {
 			String errorMessage = "첨부 파일 순번를 넣어주세요.";
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			doDownloadErrorAlertPage(req, res, errorMessage);
+			printBoardProcessFailureCallBackPage(req, res, errorMessage);
 			return;
 		}		
 		
@@ -138,7 +109,7 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 			.append(paramAttachedFileSeq).append("]이 잘못되었습니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			doDownloadErrorAlertPage(req, res, errorMessage);
+			printBoardProcessFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -147,7 +118,7 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 			.append(paramAttachedFileSeq).append("]은 0 보다 작거나 커야합니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			doDownloadErrorAlertPage(req, res, errorMessage);
+			printBoardProcessFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -158,7 +129,7 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 			.append(" 값 보다 작거나 같아야 합니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			doDownloadErrorAlertPage(req, res, errorMessage);
+			printBoardProcessFailureCallBackPage(req, res, errorMessage);
 			return;
 		}		
 		
@@ -236,7 +207,6 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 			res.setContentType("application/octet-stream;charset=UTF-8");
 			String attachedFileName = boardDownloadFileRes.getAttachedFileName();
 
-			System.out.println("");
 			// 브라우저별 한글 인코딩
 			if (getBrowser(req).equals("MSIE")) {
 				// URLEncode하고 +문자만 공백으로 바꾸는 경우
@@ -289,9 +259,9 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		}
 	}
 
-	private void doDownloadErrorAlertPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
+	private void printBoardProcessFailureCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
 		req.setAttribute("errorMessage", errorMessage);
-		printJspPage(req, res, "/menu/board/BoardDownload01.jsp");
+		printJspPage(req, res, "/jsp/community/BoardProcessFailureCallBack.jsp");
 	}
 
 	// HTTP/1.1 헤더로부터 브라우저를 가져온다.

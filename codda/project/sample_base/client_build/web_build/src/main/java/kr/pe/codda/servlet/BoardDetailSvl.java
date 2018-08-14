@@ -18,9 +18,12 @@ public class BoardDetailSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-				
 		
+		/**************** 파라미터 시작 *******************/
 		String paramBoardID = req.getParameter("boardID");
+		String paramBoardNo = req.getParameter("boardNo");
+		/**************** 파라미터 종료 *******************/
+		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자를 입력해 주세요";
 			String debugMessage = "the web parameter 'boardID' is null";
@@ -51,7 +54,7 @@ public class BoardDetailSvl extends AbstractServlet {
 			return;
 		}
 		
-		String paramBoardNo = req.getParameter("boardNo");
+		
 		if (null == paramBoardNo) {
 			String errorMessage = "게시판 번호를 입력해 주세요";
 			String debugMessage = "the web parameter 'boardNo' is null";
@@ -117,7 +120,7 @@ public class BoardDetailSvl extends AbstractServlet {
 		
 		BoardDetailRes boardDetailRes = (BoardDetailRes)outputMessage;
 		req.setAttribute("boardDetailRes", boardDetailRes);
-		printJspPage(req, res, "/menu/board/BoardDetail01.jsp");
+		printJspPage(req, res, "/jsp/community/BoardDetail.jsp");
 		return;
 		 	
 	}

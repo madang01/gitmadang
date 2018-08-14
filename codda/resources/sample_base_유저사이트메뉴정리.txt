@@ -1,10 +1,10 @@
-1. 사랑방
- 1.1 공지
- 1.2 자유 게시판
- 1.3 FAQ
+1. 사랑방(/jsp/community/body.jsp)
+ 1.1 공지(/servlet/BoardList?boardID=0)
+ 1.2 자유 게시판(/servlet/BoardList?boardID=1)
+ 1.3 FAQ(/servlet/BoardList?boardID=2)
 
-2.문서
- 2.1 코다 활용 howto
+2.문서(/jsp/doc/body.jsp)
+ 2.1 코다 활용 howto(/jsp/doc/CoddaHowTo.jsp)
     (1) 설치전 확인 사항
     (2) git download
 	(3) codda-helper.jar 이용 설치 디렉토리에 맞춘 환경 설정
@@ -13,24 +13,26 @@
  2.2 코다 코어 API
  2.3 코다 코어 분석
 
-3.실험과 검증
- 3.1 JDF-비 로그인 테스트
- 3.2 JDF-로그인 테스트
- 3.3 JDF-세션키 테스트
- 3.4 RSA 암/복호화 테스트
- 3.5 메세지 다이제스트(MD) 테스트
- 3.6 대칭키 테스트
- 3.7 에코 테스트
- 3.8 모든 데이터 타입 검증
- 3.9 Java GC
- 3.10 자바 문자열 변환 도구
+3.도구(/jsp/util/body.jsp)
+ 3.1 JDF-비 로그인 테스트(/servlet/JDFNotLoginTest)
+ 3.2 JDF-로그인 테스트(/servlet/JDFLoginTest)
+ 3.3 세션키 테스트(/servlet/JDFSessionKeyTest)
+ 3.4 RSA 테스트(/servlet/JSRSATest)
+ 3.5 메세지 다이제스트(MD) 테스트(/servlet/JSMessageDigestTest)
+ 3.6 대칭키 테스트(/servlet/JSSymmetricKeyTest)
+ 3.7 에코 테스트(/servlet/EchoTest)
+ 3.8 모든 데이터 타입 검증(/servlet/AllItemTypeTest)
+ 3.9 Java GC(/servlet/JavaGCCaller)
+ 3.10 자바 문자열 변환 도구(/servlet/JavaStringConverter)
  3.11 동적 클래스 호출 실패
 
-4. 회원
- 4.1 로그인
- 4.2 회원 가입 
+4. 회원(/jsp/member/body.jsp)
+ 4.1 로그인(/servlet/UserLogin)
+ 4.2 회원 가입(/servlet/MemberRegistration)
  4.3 개인 정보 관리
-     (1) 비빌번호
- 4.4 아이디/비밀번호 분실 신고
+     (1) 비빌번호 분실시 질문/답
+	 (2) 별명
+ 4.4 비밀번호 변경
+ 4.5 아이디/비밀번호 분실 신고
      (1) 아이디 찾기
 	 (2) 비빌번호 재 발급

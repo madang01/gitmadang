@@ -1,12 +1,10 @@
 package kr.pe.codda.client.connection;
 
-import java.io.IOException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 
 public final class ConnectionPoolSupporter extends Thread implements ConnectionPoolSupporterIF {
 
@@ -27,6 +25,8 @@ protected InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolS
 	}
 
 	public void run() {
+		log.info("연결 폴 후원자 시작");
+		
 		String reasonForWakingUp = null;
 		try {
 			while (! this.isInterrupted()) {
@@ -35,16 +35,16 @@ protected InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolS
 					log.info("연결 폴 후원자 작업을 일찍 실행하는 사유[{}] 발생", reasonForWakingUp);
 				}
 				
-				log.debug("start the work adding the all missing connection");
+				//log.debug("start the work adding the all missing connection");
+				log.info("reasonForWakingUp={}", reasonForWakingUp);
 				
 				try {
 					connectionPool.addAllLostConnection();
-				} catch(IOException | NoMoreDataPacketBufferException e) {
-					log.warn("통제된 에러에 의한 루프 종료", e);
-					break;
+				} catch(InterruptedException e) {
+					throw e;
 				} catch(Exception e) {
-					log.warn("알수 없는 에러에 의한 루프 종료", e);
-					break;
+					log.warn("연결 폴 후원자에서 통제된 에러 발생하여 루프 계속", e);
+					continue;
 				}
 				
 				log.debug("end the work adding the all missing connection");

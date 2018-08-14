@@ -148,35 +148,52 @@ public class ItemIDInfoManger {
 	
 	private void addAllCommonPartItemIDInfo()
 			throws IllegalArgumentException, CoddaConfigurationException {
-		
-
 		ItemIDInfo<?> itemIDInfo = null;
 		String itemID = null;
 		boolean isDefaultValueCheck = false;
 
 		/** Common start */
 		try {
-			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_ERROR_MESSAGE_PAGE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.JDF_USER_LOGIN_PAGE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT, itemID, "일반 유저용 로그인 입력 페이지",
+					"/jsp/member/userLoginInput.jsp", isDefaultValueCheck,
+					new GeneralConverterReturningNoTrimString());
+			addCommonPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.JDF_ADMIN_LOGIN_PAGE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT, itemID, "어드민용 로그인 입력 페이지",
+					"/jsp/member/adminLoginInput.jsp", isDefaultValueCheck,
+					new GeneralConverterReturningNoTrimString());
+			addCommonPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.JDF_SESSION_KEY_REDIRECT_PAGE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT, itemID,
+					"세션키 없이 세션키가 필요한 페이지를 요청했을 경우 이 페이지가 호출되며 세션키를 갖고 파라미터를 유지한체로 처음 요청한 페이지로 이동시켜주는 페이지", "/sessionKeyRedirect.jsp",
+					isDefaultValueCheck,
+					new GeneralConverterReturningNoTrimString());
+			addCommonPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.JDF_ERROR_MESSAGE_PAGE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.COMMON,
 					ItemIDInfo.ViewType.TEXT,
 					itemID,
-					"JDF framework 에서 에러 발생시 에러 내용을 보여주는 사용자 친화적인 화면을 전담할 jsp",
+					"JDF framework 에서 에러 발생시 에러 내용을 보여주는 페이지",
 					"/errorMessagePage.jsp", isDefaultValueCheck,
 					new GeneralConverterReturningNoTrimString());
-			addCommonPartItemIDInfo(itemIDInfo);
+			addCommonPartItemIDInfo(itemIDInfo);			
 
-			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_LOGIN_PAGE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<String>(
-					ItemIDInfo.ConfigurationPart.COMMON,
-					ItemIDInfo.ViewType.TEXT, itemID, "로그인 처리 jsp",
-					"/menu/member/login.jsp", isDefaultValueCheck,
-					new GeneralConverterReturningNoTrimString());
-			addCommonPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_SERVLET_TRACE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.JDF_SERVLET_TRACE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Boolean>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -186,15 +203,7 @@ public class ItemIDInfoManger {
 					new SetTypeConverterReturningBoolean());
 			addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_WEB_LAYOUT_CONTROL_PAGE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<String>(
-					ItemIDInfo.ConfigurationPart.COMMON,
-					ItemIDInfo.ViewType.TEXT, itemID,
-					"신놀이 웹 사이트의 레이아웃 컨트롤러 jsp", "/PageJump.jsp",
-					isDefaultValueCheck,
-					new GeneralConverterReturningNoTrimString());
-			addCommonPartItemIDInfo(itemIDInfo);
+			
 
 			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
 			isDefaultValueCheck = true;

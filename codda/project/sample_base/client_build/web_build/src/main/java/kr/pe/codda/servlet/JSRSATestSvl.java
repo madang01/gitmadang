@@ -31,7 +31,7 @@ import kr.pe.codda.weblib.jdf.AbstractServlet;
 
 
 @SuppressWarnings("serial")
-public class JSBNTestSvl extends AbstractServlet {
+public class JSRSATestSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -40,16 +40,12 @@ public class JSBNTestSvl extends AbstractServlet {
 		
 		
 		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == paramRequestType) {		
-			firstPage(req, res);			
-			return;
-		}
-		
-		if (paramRequestType.equals("view")) {
-			firstPage(req, res);
+				
+		if (null == paramRequestType || paramRequestType.equals("input")) {
+			inputPage(req, res);
 			return;
 		} else if (paramRequestType.equals("proc")) {		
-			processPage(req, res);
+			resultPage(req, res);
 			return;
 		} else {
 			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
@@ -65,7 +61,7 @@ public class JSBNTestSvl extends AbstractServlet {
 		}
 	}
 		
-	private void firstPage(HttpServletRequest req, HttpServletResponse res) {
+	private void inputPage(HttpServletRequest req, HttpServletResponse res) {
 		ServerSessionkeyIF webServerSessionkey = null;
 		try {
 			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
@@ -82,10 +78,10 @@ public class JSBNTestSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		
-		printJspPage(req, res, "/menu/testcode/JSBNTest01.jsp");
+		printJspPage(req, res, "/jsp/util/JSRSAInput.jsp");
 	}
 	
-	private void processPage(HttpServletRequest req, HttpServletResponse res) {
+	private void resultPage(HttpServletRequest req, HttpServletResponse res) {
 		
 		String paramEncryptedBytesWithPublicKeyHex = req.getParameter("encryptedBytesWithPublicKey");
 		String paramPlainText = req.getParameter("plainText");
@@ -152,7 +148,7 @@ public class JSBNTestSvl extends AbstractServlet {
 		req.setAttribute("orignalPlainText", paramPlainText);
 		req.setAttribute("decryptedPlainText", decryptedPlainText);
 		req.setAttribute("isSame", String.valueOf(isSame));		
-		printJspPage(req, res, "/menu/testcode/JSBNTest02.jsp");	
+		printJspPage(req, res, "/jsp/util/JSRSAResult.jsp");	
 	}
 	
 }

@@ -11,7 +11,7 @@ import kr.pe.codda.impl.message.JavaGarbageCollectionRes.JavaGarbageCollectionRe
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
 @SuppressWarnings("serial")
-public class JavaGarbageCollectionSvl extends AbstractServlet {
+public class JavaGCCallerSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -24,7 +24,7 @@ public class JavaGarbageCollectionSvl extends AbstractServlet {
 		
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(javaGarbageCollectionReq);
 		if (outputMessage instanceof JavaGarbageCollectionRes) {
-			printJspPage(req, res, "/menu/testcode/JavaGarbageCollection01.jsp");
+			printJspPage(req, res, "/jsp/util/JavaGCCaller.jsp");
 			return;
 		} else {
 			String errorMessage = "자바 가비지 컬렉터를 호출하는데 실패하였습니다";

@@ -58,17 +58,18 @@ import kr.pe.codda.weblib.jdf.AbstractServlet;
 public class AdminLoginSvl extends AbstractServlet {
 
 	@Override
-	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
+	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
 		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		
 		if (null == paramRequestType) {
 			paramRequestType= "input";
 		}
 
 		if (paramRequestType.equals("input")) {
-			loginInputPage(req, res);
+			inputPage(req, res);
 			return;
 		} else if (paramRequestType.equals("proc")) {
-			loginResultPage(req, res);
+			resultPage(req, res);
 			return;
 		} else {
 			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
@@ -84,7 +85,8 @@ public class AdminLoginSvl extends AbstractServlet {
 		}
 	}
 
-	private void loginInputPage(HttpServletRequest req, HttpServletResponse res)
+	
+	private void inputPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
 		ServerSessionkeyIF webServerSessionkey = null;
@@ -101,22 +103,28 @@ public class AdminLoginSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-
-		doLoginInputPage(req, res, webServerSessionkey.getModulusHexStrForWeb());
+		
+		req.setAttribute("requestURI", "/");
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
+				webServerSessionkey.getModulusHexStrForWeb());
+		
+		/** /jsp/member/adminLoginInput.jsp */
+		printJspPage(req, res, JDF_ADMIN_LOGIN_INPUT_PAGE);
 	}
 
-	private void loginResultPage(HttpServletRequest req, HttpServletResponse res)
+	private void resultPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException,
 			IllegalArgumentException, SymmetricException {
 
+		/**************** 파라미터 시작 *******************/
 		String paramSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
 		String paramIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
 
 		String paramUserIDCipherBase64 = req.getParameter("userID");
 		String paramPwdCipherBase64 = req.getParameter("pwd");
+		/**************** 파라미터 종료 *******************/
 
-		// String successURL = req.getParameter("successURL");
 		
 		if (null == paramSessionKeyBase64) {
 			String errorMessage = "the request parameter paramSessionKeyBase64 is null";
@@ -368,13 +376,5 @@ public class AdminLoginSvl extends AbstractServlet {
 	}
 	
 
-	private void doLoginInputPage(HttpServletRequest req, HttpServletResponse res, 
-			String modulusHexString) {		
-		
-		req.setAttribute("requestURI", "/");
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
-				modulusHexString);
-		printJspPage(req, res, JDF_ADMIN_LOGIN_INPUT_PAGE);
-	}
 
 }

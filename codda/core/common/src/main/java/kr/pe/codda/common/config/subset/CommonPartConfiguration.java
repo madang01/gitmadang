@@ -13,15 +13,12 @@ import kr.pe.codda.common.type.SessionKey;
  * @author Won Jonghoon
  *
  */
-public class CommonPartConfiguration {
-	// private Logger log = LoggerFactory.getLogger(CommonPartValueObject.class);
-	
-	
-	private String jdfErrorMessagePage = null;
-	private String jdfLoginPage = null;
-	private Boolean jdfServletTrace = null;		
-	private String webLayoutControlPage = null;
-	
+public class CommonPartConfiguration {	
+	private String jdfUserLoginPage = null;	
+	private String jdfAdminLoginPage = null;
+	private String jdfSessionKeyRedirectPage = null;
+	private String jdfErrorMessagePage = null;	
+	private Boolean jdfServletTrace = null;
 	
 	private SessionKey.RSAKeypairSourceType rsaKeypairSourceOfSessionKey = null;
 	private File rsaPublickeyFileOfSessionKey = null;
@@ -54,7 +51,44 @@ public class CommonPartConfiguration {
 		
 		String itemID = itemKey;		
 		
-		if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_ERROR_MESSAGE_PAGE_ITEMID)) {
+		if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.JDF_USER_LOGIN_PAGE_ITEMID)) {
+			if (null != nativeValue && !(nativeValue instanceof String)) {
+				String errorMessage = new StringBuilder("the generic type[")
+				.append(nativeValue.getClass().getName())
+				.append("] of the parameter itemIDInfo[")
+				.append(itemID).append("] is differnet from the mapped variable's type[")
+				.append(String.class.getName())
+				.append("]").toString();
+				throw new CoddaConfigurationException(errorMessage);
+			}
+			
+			this.jdfUserLoginPage = (String) nativeValue;
+		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.JDF_ADMIN_LOGIN_PAGE_ITEMID)) {
+			if (null != nativeValue && !(nativeValue instanceof String)) {
+				String errorMessage = new StringBuilder("the generic type[")
+				.append(nativeValue.getClass().getName())
+				.append("] of the parameter itemIDInfo[")
+				.append(itemID).append("] is differnet from the mapped variable's type[")
+				.append(String.class.getName())
+				.append("]").toString();
+				throw new CoddaConfigurationException(errorMessage);
+			}
+			
+			this.jdfAdminLoginPage = (String) nativeValue;
+		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.JDF_SESSION_KEY_REDIRECT_PAGE_ITEMID)) {
+			if (null != nativeValue && !(nativeValue instanceof String)) {
+				String errorMessage = new StringBuilder("the generic type[")
+				.append(nativeValue.getClass().getName())
+				.append("] of the parameter itemIDInfo[")
+				.append(itemID).append("] is differnet from the mapped variable's type[")
+				.append(String.class.getName())
+				.append("]").toString();
+				throw new CoddaConfigurationException(errorMessage);
+			}
+			
+			this.jdfSessionKeyRedirectPage = (String) nativeValue;
+		
+		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.JDF_ERROR_MESSAGE_PAGE_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof String)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -66,19 +100,8 @@ public class CommonPartConfiguration {
 			}
 			
 			this.jdfErrorMessagePage = (String) nativeValue;			
-		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_LOGIN_PAGE_ITEMID)) {
-			if (null != nativeValue && !(nativeValue instanceof String)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(String.class.getName())
-				.append("]").toString();
-				throw new CoddaConfigurationException(errorMessage);
-			}
-			
-			this.jdfLoginPage = (String) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_SERVLET_TRACE_ITEMID)) {
+		
+		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.JDF_SERVLET_TRACE_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof Boolean)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -89,19 +112,7 @@ public class CommonPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.jdfServletTrace = (Boolean) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_WEB_LAYOUT_CONTROL_PAGE_ITEMID)) {
-			if (null != nativeValue && !(nativeValue instanceof String)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(String.class.getName())
-				.append("]").toString();
-				throw new CoddaConfigurationException(errorMessage);
-			}
-			
-			this.webLayoutControlPage = (String) nativeValue;
+			this.jdfServletTrace = (Boolean) nativeValue;		
 		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID)) {			
 			if (null != nativeValue && !(nativeValue instanceof SessionKey.RSAKeypairSourceType)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -242,27 +253,26 @@ public class CommonPartConfiguration {
 		}
 	}
 	
-	/*
 
-	public long getMaxUpdateSeqInterva() {
-		return maxUpdateSeqInterva;
-	}*/
+	public String getJDFUserLoginPage() {
+		return jdfUserLoginPage;
+	}
+	
+	public String getJDFAdminLoginPage() {
+		return jdfAdminLoginPage;
+	}
 
-	public String getJdfErrorMessagePage() {
+	public String getJDFSessionKeyRedirectPage() {
+		return jdfSessionKeyRedirectPage;
+	}
+	
+	public String getJDFErrorMessagePage() {
 		return jdfErrorMessagePage;
 	}
-
-	public String getJdfLoginPage() {
-		return jdfLoginPage;
-	}
-
-	public Boolean getJdfServletTrace() {
+	
+	public Boolean getJDFServletTrace() {
 		return jdfServletTrace;
-	}
-
-	public String getWebLayoutControlPage() {
-		return webLayoutControlPage;
-	}
+	}		
 
 	public SessionKey.RSAKeypairSourceType getRsaKeypairSourceOfSessionKey() {
 		return rsaKeypairSourceOfSessionKey;
@@ -298,7 +308,6 @@ public class CommonPartConfiguration {
 		return symmetricIVSizeOfSessionKey;
 	}
 
-
 	public Integer getLocalSourceFileResourceCnt() {
 		return localSourceFileResourceCnt;
 	}
@@ -318,14 +327,16 @@ public class CommonPartConfiguration {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("CommonPartConfiguration [jdfErrorMessagePage=");
+		builder.append("CommonPartConfiguration [jdfUserLoginPage=");
+		builder.append(jdfUserLoginPage);
+		builder.append(", jdfAdminLoginPage=");
+		builder.append(jdfAdminLoginPage);
+		builder.append(", jdfSessionKeyRedirectPage=");
+		builder.append(jdfSessionKeyRedirectPage);
+		builder.append(", jdfErrorMessagePage=");
 		builder.append(jdfErrorMessagePage);
-		builder.append(", jdfLoginPage=");
-		builder.append(jdfLoginPage);
 		builder.append(", jdfServletTrace=");
-		builder.append(jdfServletTrace);
-		builder.append(", webLayoutControlPage=");
-		builder.append(webLayoutControlPage);
+		builder.append(jdfServletTrace);		
 		builder.append(", rsaKeypairSourceOfSessionKey=");
 		builder.append(rsaKeypairSourceOfSessionKey);
 		builder.append(", rsaPublickeyFileOfSessionKey=");

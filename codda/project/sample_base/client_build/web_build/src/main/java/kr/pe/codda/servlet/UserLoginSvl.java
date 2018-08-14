@@ -55,7 +55,7 @@ import kr.pe.codda.weblib.jdf.AbstractServlet;
  *
  */
 @SuppressWarnings("serial")
-public class LoginSvl extends AbstractServlet {
+public class UserLoginSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -63,15 +63,15 @@ public class LoginSvl extends AbstractServlet {
 
 		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
 		if (null == paramRequestType) {
-			firstPage(req, res);
+			inputPage(req, res);
 			return;
 		}
 
 		if (paramRequestType.equals("view")) {
-			firstPage(req, res);
+			inputPage(req, res);
 			return;
 		} else if (paramRequestType.equals("proc")) {
-			processPage(req, res);
+			resultPage(req, res);
 			return;
 		} else {
 			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
@@ -87,7 +87,7 @@ public class LoginSvl extends AbstractServlet {
 		}
 	}
 
-	private void firstPage(HttpServletRequest req, HttpServletResponse res)
+	private void inputPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
 		ServerSessionkeyIF webServerSessionkey = null;
@@ -104,11 +104,24 @@ public class LoginSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-
-		doFirstPage(req, res, webServerSessionkey);
+		
+		/*String successURL = req.getParameter("successURL");
+		
+		if (null == successURL) {
+			successURL = "/";
+		}
+		
+		req.setAttribute("successURL", successURL);*/
+		req.setAttribute("requestURI", "/");
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
+				webServerSessionkey.getModulusHexStrForWeb());
+		
+		
+		/** /jsp/member/userLoginInput.jsp */
+		printJspPage(req, res, JDF_USER_LOGIN_INPUT_PAGE);
 	}
 
-	private void processPage(HttpServletRequest req, HttpServletResponse res)
+	private void resultPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException,
 			IllegalArgumentException, SymmetricException {
@@ -267,19 +280,7 @@ public class LoginSvl extends AbstractServlet {
 		}
 	}
 
-	private void doFirstPage(HttpServletRequest req, HttpServletResponse res, 
-			ServerSessionkeyIF webServerSessionkey) {
-		String successURL = req.getParameter("successURL");
-		
-		if (null == successURL) {
-			successURL = "/";
-		}
-		
-		req.setAttribute("successURL", successURL);		
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
-				webServerSessionkey.getModulusHexStrForWeb());
-		printJspPage(req, res, "/menu/member/login.jsp");
-	}
+	
 
 	private void doProcessPage(HttpServletRequest req, HttpServletResponse res,
 			String successURL, ServerSymmetricKeyIF webServerSymmetricKey, ServerSessionkeyIF webServerSessionkey,

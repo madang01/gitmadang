@@ -58,7 +58,7 @@ import nl.captcha.Captcha;
  */
 
 @SuppressWarnings("serial")
-public class AdminMemberRegistrationSvl extends AbstractServlet {
+public class MemberRegistrationSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
@@ -101,10 +101,12 @@ public class AdminMemberRegistrationSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		
-		printJspPage(req, res, "/jsp/member/adminMemberRegistrationInput.jsp");
+		printJspPage(req, res, "/jsp/member/memberRegistrationInput.jsp");
 	}
 		
 	private void memberResultPage(HttpServletRequest req, HttpServletResponse res) throws IllegalArgumentException, SymmetricException, IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
+		
+		/**************** 파라미터 시작 *******************/
 		String paramSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
 		String paramIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
 	
@@ -114,6 +116,7 @@ public class AdminMemberRegistrationSvl extends AbstractServlet {
 		String paramPwdHint = req.getParameter("pwdHint");
 		String paramPwdAnswer = req.getParameter("pwdAnswer");
 		String paramCaptchaAnswer = req.getParameter("answer");
+		/**************** 파라미터 종료 *******************/
 		
 		log.info("param sessionkeyBase64=[{}], param ivBase64=[{}], " +
 				"param userID=[{}], param pwd=[{}], param nickname=[{}], " +
@@ -337,12 +340,12 @@ public class AdminMemberRegistrationSvl extends AbstractServlet {
 	}
 	
 	private void doMemberRegistrationSuccessPage(HttpServletRequest req, HttpServletResponse res) {		
-		printJspPage(req, res, "/jsp/member/adminMemberRegistrationOKCallBack.jsp");
+		printJspPage(req, res, "/jsp/member/memberRegistrationOKCallBack.jsp");
 	}
 	
 	private void doMemberRegistrationFailurePage(HttpServletRequest req, HttpServletResponse res,
 			String errorMessage) {
 		req.setAttribute("errorMessage", errorMessage);		
-		printJspPage(req, res, "/jsp/member/adminMemberRegistrationFailureCallBack.jsp");
+		printJspPage(req, res, "/jsp/member/memberRegistrationFailureCallBack.jsp");
 	}
 }

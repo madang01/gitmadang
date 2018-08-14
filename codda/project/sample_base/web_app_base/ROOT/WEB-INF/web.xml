@@ -20,6 +20,7 @@
 	Welcome to Codda
     </description>
 	
+	<!-- 사용자 로그인 -->
 	<servlet>
 		<servlet-name>UserLogin</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.UserLoginSvl</servlet-class>
@@ -33,32 +34,21 @@
 		<url-pattern>/servlet/UserLogin</url-pattern>
 	</servlet-mapping>
 
+	<!-- 회원 등록 -->
 	<servlet>
-		<servlet-name>UserMemberRegistration</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.UserMemberRegistrationSvl</servlet-class>
+		<servlet-name>MemberRegistration</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MemberRegistrationSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>UserMemberRegistration</servlet-name>
-		<url-pattern>/servlet/UserMemberRegistration</url-pattern>
+		<servlet-name>MemberRegistration</servlet-name>
+		<url-pattern>/servlet/MemberRegistration</url-pattern>
 	</servlet-mapping>	
 	
-	<servlet>
-		<servlet-name>SessionKeyTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.SessionKeyTestSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/SessionKeyTest</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>SessionKeyTest</servlet-name>
-		<url-pattern>/servlet/SessionKeyTest</url-pattern>
-	</servlet-mapping>	
-
+	<!-- JDF 비로그인 테스트 -->
 	<servlet>
 		<servlet-name>JDFNotLoginTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.JDFNotLoginTestSvl</servlet-class>
@@ -71,46 +61,79 @@
 		<servlet-name>JDFNotLoginTest</servlet-name>
 		<url-pattern>/servlet/JDFNotLoginTest</url-pattern>
 	</servlet-mapping>
-
+	
+	<!-- JDF 로그인 테스트 -->
 	<servlet>
-		<servlet-name>JSBNTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSBNTestSvl</servlet-class>
+		<servlet-name>JDFLoginTest</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JDFLoginTestSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JSBNTest</param-value>
+			<param-value>/servlet/JDFLoginTest</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JSBNTest</servlet-name>
-		<url-pattern>/servlet/JSBNTest</url-pattern>
+		<servlet-name>JDFLoginTest</servlet-name>
+		<url-pattern>/servlet/JDFLoginTest</url-pattern>
 	</servlet-mapping>
-
+	
+	
+	<!-- JDF 세션키 테스트 -->
 	<servlet>
-		<servlet-name>CryptoJSMDTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.CryptoJSMDTestSvl</servlet-class>
+		<servlet-name>JDFSessionKeyTest</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JDFSessionKeyTestSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/CryptoJSMDTest</param-value>
+			<param-value>/servlet/JDFSessionKeyTest</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>CryptoJSMDTest</servlet-name>
-		<url-pattern>/servlet/CryptoJSMDTest</url-pattern>
+		<servlet-name>JDFSessionKeyTest</servlet-name>
+		<url-pattern>/servlet/JDFSessionKeyTest</url-pattern>
 	</servlet-mapping>
 
+	<!-- RSA 암/복호화 테스트 -->
 	<servlet>
-		<servlet-name>CryptoJSSKTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.CryptoJSSKTestSvl</servlet-class>
+		<servlet-name>JSRSATest</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSRSATestSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/CryptoJSSKTest</param-value>
+			<param-value>/servlet/JSRSATest</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>CryptoJSSKTest</servlet-name>
-		<url-pattern>/servlet/CryptoJSSKTest</url-pattern>
+		<servlet-name>JSRSATest</servlet-name>
+		<url-pattern>/servlet/JSRSATest</url-pattern>
 	</servlet-mapping>
 
+	<!-- '메시지 다이제스트'(=해쉬) 테스트 -->
+	<servlet>
+		<servlet-name>JSMessageDigestTest</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSMessageDigestTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JSMessageDigestTest</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JSMessageDigestTest</servlet-name>
+		<url-pattern>/servlet/JSMessageDigestTest</url-pattern>
+	</servlet-mapping>
+
+	<!-- 대칭키 테스트 -->
+	<servlet>
+		<servlet-name>JSSymmetricKeyTest</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSSymmetricKeyTestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JSSymmetricKeyTest</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JSSymmetricKeyTest</servlet-name>
+		<url-pattern>/servlet/JSSymmetricKeyTest</url-pattern>
+	</servlet-mapping>
+
+	<!-- 에코 테스트 -->
 	<servlet>
 		<servlet-name>EchoTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.EchoTestSvl</servlet-class>
@@ -124,6 +147,7 @@
 		<url-pattern>/servlet/EchoTest</url-pattern>
 	</servlet-mapping>
 
+	<!-- 모든 데이터 타입 테스트 -->
 	<servlet>
 		<servlet-name>AllItemTypeTest</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.AllItemTypeTestSvl</servlet-class>
@@ -137,20 +161,8 @@
 		<url-pattern>/servlet/AllItemTypeTest</url-pattern>
 	</servlet-mapping>
 	
-
-	<servlet>
-		<servlet-name>JDFLoginTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JDFLoginTestSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JDFLoginTest</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>JDFLoginTest</servlet-name>
-		<url-pattern>/servlet/JDFLoginTest</url-pattern>
-	</servlet-mapping>
-
+	
+	<!-- 게시판 목록 -->
 	<servlet>
 		<servlet-name>BoardList</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardListSvl</servlet-class>
@@ -164,6 +176,7 @@
 		<url-pattern>/servlet/BoardList</url-pattern>
 	</servlet-mapping>
 
+	<!-- 게시글 추천 -->
 	<servlet>
 		<servlet-name>BoardVote</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardVoteSvl</servlet-class>
@@ -177,6 +190,7 @@
 		<url-pattern>/servlet/BoardVote</url-pattern>
 	</servlet-mapping>
 
+	<!-- 게시글 상세 -->
 	<servlet>
 		<servlet-name>BoardDetail</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardDetailSvl</servlet-class>
@@ -190,7 +204,7 @@
 		<url-pattern>/servlet/BoardDetail</url-pattern>
 	</servlet-mapping>
 
-
+	<!-- 최상위 글 입력 화면 -->
 	<servlet>
 		<servlet-name>BoardWriteInput</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardWriteInputSvl</servlet-class>
@@ -204,6 +218,7 @@
 		<url-pattern>/servlet/BoardWriteInput</url-pattern>
 	</servlet-mapping>	
 	
+	<!-- 최상위 글 입력 처리 -->
 	<servlet>
 		<servlet-name>BoardWriteProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardWriteProcessSvl</servlet-class>
@@ -217,45 +232,50 @@
 		<url-pattern>/servlet/BoardWriteProcess</url-pattern>
 	</servlet-mapping>
 
+	<!-- 댓글 입력 화면 -->
 	<servlet>
-		<servlet-name>BoardReply</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardReplySvl</servlet-class>
+		<servlet-name>BoardReplyInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.BoardReplyInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BoardReply</servlet-name>
-		<url-pattern>/servlet/BoardReply</url-pattern>
+		<servlet-name>BoardReplyInput</servlet-name>
+		<url-pattern>/servlet/BoardReplyInput</url-pattern>
 	</servlet-mapping>
-
+	
+	
+	<!-- 댓글 입력 처리 -->
 	<servlet>
-		<servlet-name>BoardModify</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardModifySvl</servlet-class>
+		<servlet-name>BoardReplyProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.BoardReplyProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BoardModify</servlet-name>
-		<url-pattern>/servlet/BoardModify</url-pattern>
+		<servlet-name>BoardReplyProcess</servlet-name>
+		<url-pattern>/servlet/BoardReplyProcess</url-pattern>
 	</servlet-mapping>
 
+	<!-- 게시글 수정 처리 -->
 	<servlet>
-		<servlet-name>BoardUpload</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardUploadSvl</servlet-class>
+		<servlet-name>BoardModifyProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.BoardModifyProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BoardUpload</servlet-name>
-		<url-pattern>/servlet/BoardUpload</url-pattern>
+		<servlet-name>BoardModifyProcess</servlet-name>
+		<url-pattern>/servlet/BoardModifyProcess</url-pattern>
 	</servlet-mapping>
 
+	<!-- 첨부 파일 내려받기 -->
 	<servlet>
 		<servlet-name>BoardDownload</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.BoardDownloadSvl</servlet-class>
@@ -269,31 +289,32 @@
 		<url-pattern>/servlet/BoardDownload</url-pattern>
 	</servlet-mapping>
 	
-	
+	<!-- JAVA GC caller -->
 	<servlet>
-		<servlet-name>JavaGarbageCollection</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JavaGarbageCollectionSvl</servlet-class>
+		<servlet-name>JavaGCCaller</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JavaGCCallerSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JavaGarbageCollection</param-value>
+			<param-value>/servlet/JavaGCCaller</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JavaGarbageCollection</servlet-name>
-		<url-pattern>/servlet/JavaGarbageCollection</url-pattern>
+		<servlet-name>JavaGCCaller</servlet-name>
+		<url-pattern>/servlet/JavaGCCaller</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 자바 문자열 변환 도구 -->
 	<servlet>
-		<servlet-name>JavaStringConversionTool</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JavaStringConversionToolSvl</servlet-class>
+		<servlet-name>JavaStringConverter</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JavaStringConverterSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JavaStringConversionTool</param-value>
+			<param-value>/servlet/JavaStringConverter</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JavaStringConversionTool</servlet-name>
-		<url-pattern>/servlet/JavaStringConversionTool</url-pattern>
+		<servlet-name>JavaStringConverter</servlet-name>
+		<url-pattern>/servlet/JavaStringConverter</url-pattern>
 	</servlet-mapping>
 	
 	<!-- Simple Captcha start -->

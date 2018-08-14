@@ -33,7 +33,11 @@ public class BoardReplyInputSvl extends AbstractLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
+		/**************** 파라미터 시작 *******************/		
 		String paramBoardID = req.getParameter("boardID");
+		String paramParentBoardNo = req.getParameter("parentBoardNo");
+		/**************** 파라미터 종료 *******************/
+		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요";
 			String debugMessage = "the web parameter 'boardID' is null";
@@ -64,7 +68,7 @@ public class BoardReplyInputSvl extends AbstractLoginServlet {
 			return;
 		}
 					
-		String paramParentBoardNo = req.getParameter("parentBoardNo");
+		
 		
 		if (null == paramParentBoardNo) {
 			String errorMessage = "부모 게시판 번호 값을 넣어 주세요";

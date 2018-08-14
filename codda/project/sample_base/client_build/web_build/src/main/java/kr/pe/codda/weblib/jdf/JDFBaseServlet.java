@@ -40,11 +40,11 @@ import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEME
  * </pre>
  */
 @SuppressWarnings("serial")
-public abstract class JDFBaseServlet extends AbstractBaseServlet {
-	protected String JDF_ADMIN_LOGIN_INPUT_PAGE = "/jsp/member/adminLoginInput.jsp";
+public abstract class JDFBaseServlet extends AbstractBaseServlet {	
 	protected String JDF_USER_LOGIN_INPUT_PAGE = null;
-	protected String JDF_ERROR_MESSAGE_PAGE = null;
-	protected String JDF_SESSION_KEY_PAGE = null;
+	protected String JDF_ADMIN_LOGIN_INPUT_PAGE = null;
+	protected String JDF_SESSION_KEY_REDIRECT_PAGE = null;
+	protected String JDF_ERROR_MESSAGE_PAGE = null;	
 	protected boolean JDF_SERVLET_TRACE = true;
 
 	/**
@@ -53,17 +53,18 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	public JDFBaseServlet() {
 		super();
 		
-		CoddaConfigurationManager sinnoriConfigurationManager = CoddaConfigurationManager.getInstance();
-		
+		CoddaConfigurationManager sinnoriConfigurationManager = CoddaConfigurationManager.getInstance();		
 		
 		CommonPartConfiguration commonPart = sinnoriConfigurationManager
 					.getRunningProjectConfiguration()
 					.getCommonPartConfiguration();
 		
-		JDF_USER_LOGIN_INPUT_PAGE = commonPart.getJdfLoginPage();
-		JDF_ERROR_MESSAGE_PAGE = commonPart.getJdfErrorMessagePage();
-		JDF_SERVLET_TRACE = commonPart.getJdfServletTrace();
-		JDF_SESSION_KEY_PAGE = "/sessionKeyRedirect.jsp";
+		JDF_USER_LOGIN_INPUT_PAGE = commonPart.getJDFUserLoginPage();
+		JDF_ADMIN_LOGIN_INPUT_PAGE = commonPart.getJDFAdminLoginPage();				
+		JDF_SESSION_KEY_REDIRECT_PAGE = commonPart.getJDFSessionKeyRedirectPage();
+		JDF_ERROR_MESSAGE_PAGE = commonPart.getJDFErrorMessagePage();
+		JDF_SERVLET_TRACE = commonPart.getJDFServletTrace();
+		
 	}
 
 	/**

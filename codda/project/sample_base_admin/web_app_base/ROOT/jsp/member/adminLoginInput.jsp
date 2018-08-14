@@ -32,7 +32,7 @@
 <!--
 	function init() {
 		var f = document.frm;
-		f.userID.value =  "test00";
+		f.userID.value =  "admin";
 		f.pwd.value =  "test1234$";
 		// f.pwd.value =  "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~$";
 	}

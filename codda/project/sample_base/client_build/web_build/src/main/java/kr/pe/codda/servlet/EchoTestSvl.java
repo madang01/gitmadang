@@ -50,24 +50,7 @@ public class EchoTestSvl extends AbstractServlet {
 		boolean isSame = false;		
 		long erraseTime=0;
 		
-		if (outputMessage instanceof Echo) {
-			Echo echoRes = (Echo)outputMessage;
-			
-			erraseTime = new java.util.Date().getTime() - echoReq.getStartTime();
-			
-			if ((echoRes.getRandomInt() == echoReq
-					.getRandomInt())
-					&& (echoRes.getStartTime() == echoReq.getStartTime())) {
-				isSame = true;
-				//log.info("성공::echo 메시지 입력/출력 동일함");
-			} else {
-				isSame = false;
-				// log.info("실패::echo 메시지 입력/출력 다름");
-			}
-			
-			doFirstPage(req, res, isSame, erraseTime, echoRes);
-			return;
-		} else {
+		if (!(outputMessage instanceof Echo)) {
 			String errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다";
 			
 			String debugMessage = new StringBuilder("입력 메시지[")
@@ -82,14 +65,24 @@ public class EchoTestSvl extends AbstractServlet {
 			return;
 		}
 		
-	}
-	private void doFirstPage(HttpServletRequest req, HttpServletResponse res,
-			boolean isSame,
-			long erraseTime,
-			Echo echoRes) {
+		Echo echoRes = (Echo)outputMessage;
+		
+		erraseTime = new java.util.Date().getTime() - echoReq.getStartTime();
+		
+		if ((echoRes.getRandomInt() == echoReq
+				.getRandomInt())
+				&& (echoRes.getStartTime() == echoReq.getStartTime())) {
+			isSame = true;
+			//log.info("성공::echo 메시지 입력/출력 동일함");
+		} else {
+			isSame = false;
+			// log.info("실패::echo 메시지 입력/출력 다름");
+		}
+		
 		req.setAttribute("isSame", String.valueOf(isSame));
 		req.setAttribute("erraseTime", String.valueOf(erraseTime));
 		req.setAttribute("echoRes", echoRes);
-		printJspPage(req, res, "/menu/testcode/EchoTest01.jsp");
+		printJspPage(req, res, "/jsp/util/EchoTest01.jsp");
+		return;
 	}
 }

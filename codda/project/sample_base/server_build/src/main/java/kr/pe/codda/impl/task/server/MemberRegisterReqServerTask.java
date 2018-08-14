@@ -37,33 +37,6 @@ import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class MemberRegisterReqServerTask extends AbstractServerTask {
-
-	/*private void sendErrorOutputtMessageForCommit(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}
-	
-	private void sendErrorOutputMessageForRollback(String errorMessage,
-			Connection conn,			
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {
-		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
-		if (null != conn) {
-			try {
-				conn.rollback();
-			} catch (Exception e) {
-				log.warn("fail to rollback");
-			}
-		}		
-		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
-	}*/
 	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
@@ -76,18 +49,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		messageResultRes.setResultMessage(errorMessage);
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
-	
-	/*private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
-			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
-		try {
-			conn.commit();
-		} catch (Exception e) {
-			log.warn("fail to commit");
-		}
 		
-		toLetterCarrier.addSyncOutputMessage(outputMessage);
-	}*/
-	
 	private String getDecryptedString(byte[] cipherBytes, ServerSymmetricKeyIF serverSymmetricKey)
 			throws InterruptedException, IllegalArgumentException, SymmetricException {		
 		byte[] valueBytes = serverSymmetricKey.decrypt(cipherBytes);
@@ -98,12 +60,8 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
-		// MemberRegisterReq inObj = (MemberRegisterReq) inputMessage;
-		
-		// doWork(projectName, personalLoginManager, toLetterCarrier, inObj);
-		
 		try {
-			AbstractMessage outputMessage = doService((MemberRegisterReq)inputMessage);
+			AbstractMessage outputMessage = doService((MemberRegisterReq)inputMessage, MemberType.USER);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -124,7 +82,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		}
 	}	
 	
-	public MessageResultRes doService(MemberRegisterReq memberRegisterReq) throws Exception {
+	public MessageResultRes doService(MemberRegisterReq memberRegisterReq, MemberType memberType) throws Exception {
 		// FIXME!
 		log.info(memberRegisterReq.toString());
 
@@ -508,6 +466,8 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		String pwdBase64 = Base64.encodeBase64String(passwordMDBytes);
 		String pwdSaltBase64 = Base64.encodeBase64String(pwdSaltBytes);
 		
+		
+		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
@@ -547,19 +507,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 					.from(SB_MEMBER_TB)
 					.where(SB_MEMBER_TB.NICKNAME.eq(nickname)));
 			
-			/*int countOfSameNicknameMember = create.selectCount()
-					.from(SB_MEMBER_TB)
-					.where(SB_MEMBER_TB.NICKNAME.eq(nickname))
-			.fetchOne(0, Integer.class);
-			
-			if (0 != countOfSameNicknameMember) {*/
 			if (isSameNicknameMember) {
-				/*String errorMessage = new StringBuilder("기존 회원과 중복되는 별명[")
-						.append(nickname)
-						.append("] 입니다").toString();
-				sendErrorOutputtMessageForCommit(errorMessage, conn, toLetterCarrier, memberRegisterReq);
-				return;*/
-				
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -572,38 +520,20 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-		/*	insert into SB_MEMBER_TB  
-			(`user_id`,
-			`nickname`,
-			`pwd_base64`,
-			`pwd_salt_base64`,
-			`member_gb`,
-			`member_st`,
-			`pwd_hint`,
-			`pwd_answer`,
-			`pwd_fail_cnt`,
-			`reg_dt`,
-			`mod_dt`) 
-			values(#{userId}, #{nickname}, #{pwdBase64}, #{pwdSaltBase64}, 1, 0, #{pwdHint}, #{pwdAnswer}, 0, sysdate(), reg_dt)*/
-			
 			int resultOfInsert = create.insertInto(SB_MEMBER_TB)
-			.set(SB_MEMBER_TB.USER_ID, userID)
-			.set(SB_MEMBER_TB.NICKNAME, nickname)
-			.set(SB_MEMBER_TB.PWD_BASE64, pwdBase64)
-			.set(SB_MEMBER_TB.PWD_SALT_BASE64, pwdSaltBase64)
-			.set(SB_MEMBER_TB.MEMBER_TYPE, MemberType.USER.getValue())
-			.set(SB_MEMBER_TB.MEMBER_ST, MemberStateType.OK.getValue())
-			.set(SB_MEMBER_TB.PWD_HINT, pwdHint)
-			.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer)
-			.set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
-			.set(SB_MEMBER_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-			.set(SB_MEMBER_TB.MOD_DT, SB_MEMBER_TB.REG_DT).execute();
+				.set(SB_MEMBER_TB.USER_ID, userID)
+				.set(SB_MEMBER_TB.NICKNAME, nickname)
+				.set(SB_MEMBER_TB.PWD_BASE64, pwdBase64)
+				.set(SB_MEMBER_TB.PWD_SALT_BASE64, pwdSaltBase64)
+				.set(SB_MEMBER_TB.MEMBER_TYPE, memberType.getValue())
+				.set(SB_MEMBER_TB.MEMBER_ST, MemberStateType.OK.getValue())
+				.set(SB_MEMBER_TB.PWD_HINT, pwdHint)
+				.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer)
+				.set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
+				.set(SB_MEMBER_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
+				.set(SB_MEMBER_TB.MOD_DT, SB_MEMBER_TB.REG_DT).execute();		
 			
-			if (0 == resultOfInsert) {
-				/*String errorMessage = "1.회원 가입 실패하였습니다";
-				sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, memberRegisterReq);
-				return;*/
-				
+			if (0 == resultOfInsert) {				
 				try {
 					conn.rollback();
 				} catch (Exception e) {

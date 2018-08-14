@@ -35,23 +35,19 @@ import kr.pe.codda.weblib.jdf.AbstractServlet;
  *
  */
 @SuppressWarnings("serial")
-public class CryptoJSMDTestSvl extends AbstractServlet {
+public class JSMessageDigestTestSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {		
 		
 		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == paramRequestType) {		
-			firstPage(req, res);			
-			return;
-		}
-		
-		if (paramRequestType.equals("view")) {
-			firstPage(req, res);
+				
+		if (null == paramRequestType || paramRequestType.equals("input")) {
+			inputPage(req, res);
 			return;
 		} else if (paramRequestType.equals("proc")) {		
-			processPage(req, res);
+			resultPage(req, res);
 			return;
 		} else {
 			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
@@ -67,14 +63,16 @@ public class CryptoJSMDTestSvl extends AbstractServlet {
 		}
 	}
 	
-	private void firstPage(HttpServletRequest req, HttpServletResponse res) {
-		printJspPage(req, res, "/menu/testcode/CryptoJSMDTest01.jsp");	
+	private void inputPage(HttpServletRequest req, HttpServletResponse res) {
+		printJspPage(req, res, "/menu/util/JSMessageDigestTestInput.jsp");	
 	}
 	
-	private void processPage(HttpServletRequest req, HttpServletResponse res) {
+	private void resultPage(HttpServletRequest req, HttpServletResponse res) {
+		/**************** 파라미터 시작 *******************/
 		String paramAlgorithm = req.getParameter("algorithm");		
 		String paramJavascriptMDHex = req.getParameter("javascriptMD");
 		String paramPlainText = req.getParameter("plainText");
+		/**************** 파라미터 종료 *******************/
 		
 		log.info("paramAlgorithm[{}]", paramAlgorithm);
 		log.info("paramJavascriptMDHex[{}]", paramJavascriptMDHex);
@@ -134,6 +132,6 @@ public class CryptoJSMDTestSvl extends AbstractServlet {
 		req.setAttribute("isSame", isSame);
 		
 		
-		printJspPage(req, res, "/menu/testcode/CryptoJSMDTest02.jsp");
+		printJspPage(req, res, "/menu/util/JSMessageDigestTestResult.jsp");
 	}
 }

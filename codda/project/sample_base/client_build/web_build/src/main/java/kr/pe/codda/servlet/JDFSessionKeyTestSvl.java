@@ -6,16 +6,13 @@ import kr.pe.codda.weblib.jdf.AbstractSessionKeyServlet;
 
 
 @SuppressWarnings("serial")
-public class SessionKeyTestSvl extends AbstractSessionKeyServlet {
+public class JDFSessionKeyTestSvl extends AbstractSessionKeyServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
 		
-		String goPage = "/menu/testcode/SessionKeyTest01.jsp";
-		
-		
+		String goPage = "/jsp/util/JDFSessionKeyTest.jsp";
 		printJspPage(req, res, goPage);	
 	}
-
 }

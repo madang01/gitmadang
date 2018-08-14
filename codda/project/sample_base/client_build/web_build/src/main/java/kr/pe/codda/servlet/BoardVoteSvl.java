@@ -29,7 +29,12 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
 		
+		/**************** 파라미터 시작 *******************/	
 		String paramBoardID = req.getParameter("boardID");
+		String paramBoardNo = req.getParameter("boardNo");
+		/**************** 파라미터 종료 *******************/	
+		
+		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요";
 			String debugMessage = "the web parameter 'boardID' is null";
@@ -63,7 +68,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 			return;
 		}
 		
-		String paramBoardNo = req.getParameter("boardNo");
+		
 		if (null == paramBoardNo) {
 			String errorMessage = "게시판 번호를 입력해 주세요";
 			String debugMessage = "the web parameter 'boardNo' is null";
@@ -95,19 +100,19 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 			return;
 		}
 		
-		BoardVoteReq inObj =  new BoardVoteReq();
-		inObj.setBoardID(boardID);
-		inObj.setBoardNo(boardNo);		
-		inObj.setUserID(getLoginedUserIDFromHttpSession(req));
-		inObj.setIp(req.getRemoteAddr());
+		BoardVoteReq boardVoteReq =  new BoardVoteReq();
+		boardVoteReq.setBoardID(boardID);
+		boardVoteReq.setBoardNo(boardNo);		
+		boardVoteReq.setUserID(getLoginedUserIDFromHttpSession(req));
+		boardVoteReq.setIp(req.getRemoteAddr());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(inObj);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardVoteReq);
 		
 		if (!(outputMessage instanceof MessageResultRes)) {
 			
 			String errorMessage = "게시판 추천이 실패했습니다";
-			String debugMessage = String.format("입력 메시지[%s]에 대한 비 정상 출력 메시지[%s] 도착", inObj.getMessageID(), outputMessage.toString());
+			String debugMessage = String.format("입력 메시지[%s]에 대한 비 정상 출력 메시지[%s] 도착", boardVoteReq.getMessageID(), outputMessage.toString());
 			
 			log.error(debugMessage);
 
@@ -118,11 +123,11 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
 		
 		if (messageResultRes.getIsSuccess()) {			
-			printJspPage(req, res, "/menu/board/BoardVoteOKCallBack.jsp");
+			printJspPage(req, res, "/jsp/community/BoardVoteOKCallBack.jsp");
 			return;
 		} else {
 			req.setAttribute("errorMessage", messageResultRes.getResultMessage());
-			printJspPage(req, res, "/menu/community/BoardErrorCallBack.jsp");
+			printJspPage(req, res, "/jsp/community/BoardProcessFailureCallBack.jsp");
 			return;
 		}
 	}

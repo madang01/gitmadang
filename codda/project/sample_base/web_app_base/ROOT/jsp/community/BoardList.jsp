@@ -7,10 +7,6 @@
 %><%@ page import="kr.pe.codda.impl.message.BoardListRes.BoardListRes" %><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%
-	// System.out.println(boardListRes.toString());
-	// final int pageListSize = 2;
-	// final int pageSize = 10;
-	
 	
 	String boardListResJsonString = new Gson().toJson(boardListRes);
 %><!DOCTYPE html>
@@ -113,15 +109,13 @@
 </head>
 <body>
 <%= getSiteNavbarString(request) %>
-<form name=goWriteForm method="post" action="/servlet/BoardWrite">
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="input" />
+<form name=goWriteForm method="post" action="/servlet/BoardWriteInput">
 <input type="hidden" name="boardID" value="<%= boardListRes.getBoardID() %>" />
 <input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 <input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 </form>
 
 <form name=goDetailForm method="post" action="/servlet/BoardDetail">
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="input" />
 <input type="hidden" name="boardID" value="<%= boardListRes.getBoardID() %>" />
 <input type="hidden" name="boardNo" />
 <input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />

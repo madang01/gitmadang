@@ -5,12 +5,13 @@ public abstract class ItemIDDefiner {
 		public static final String DBCP_CONFIGE_FILE_ITEMID = "dbcp_confige_file.value";
 	}	
 	public abstract class CommonPartItemIDDefiner {
-		public static final String SERVLET_JSP_JDF_ERROR_MESSAGE_PAGE_ITEMID = "servlet_jsp.jdf_error_message_page.value";
-		public static final String SERVLET_JSP_JDF_LOGIN_PAGE_ITEMID = "servlet_jsp.jdf_login_page.value";
-		public static final String SERVLET_JSP_JDF_SERVLET_TRACE_ITEMID = "servlet_jsp.jdf_servlet_trace.value";
-		public static final String SERVLET_JSP_WEB_LAYOUT_CONTROL_PAGE_ITEMID = "servlet_jsp.web_layout_control_page.value";		
-		public static final String SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID = "sessionkey.rsa.keypair_source.value";
+		public static final String JDF_USER_LOGIN_PAGE_ITEMID = "jdf.user_login_page.value";
+		public static final String JDF_ADMIN_LOGIN_PAGE_ITEMID = "jdf.admin_login_page.value";
+		public static final String JDF_SESSION_KEY_REDIRECT_PAGE_ITEMID = "jdf.session_key_redirect_page.value";
+		public static final String JDF_ERROR_MESSAGE_PAGE_ITEMID = "jdf.error_message_page.value";		
+		public static final String JDF_SERVLET_TRACE_ITEMID = "jdf.servlet_trace.value";		
 		
+		public static final String SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID = "sessionkey.rsa.keypair_source.value";		
 		public static final String SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID = "sessionkey.rsa.publickey.file.value";
 		public static final String SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID = "sessionkey.rsa.privatekey.file.value";		
 		public static final String SESSIONKEY_RSA_KEYSIZE_ITEMID = "sessionkey.rsa.keysize.value";

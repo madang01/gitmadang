@@ -35,29 +35,16 @@
 	
 	
 	<servlet>
-		<servlet-name>AdminMemberRegistration</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.AdminMemberRegistrationSvl</servlet-class>
+		<servlet-name>MemberRegistration</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MemberRegistrationSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>AdminMemberRegistration</servlet-name>
-		<url-pattern>/servlet/AdminMemberRegistration</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>UserMemberRegistration</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.UserMemberRegistrationSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>UserMemberRegistration</servlet-name>
-		<url-pattern>/servlet/UserMemberRegistration</url-pattern>
+		<servlet-name>MemberRegistration</servlet-name>
+		<url-pattern>/servlet/MemberRegistration</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>

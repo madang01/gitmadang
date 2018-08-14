@@ -42,27 +42,20 @@ import kr.pe.codda.weblib.jdf.AbstractServlet;
  *
  */
 @SuppressWarnings("serial")
-public class CryptoJSSKTestSvl extends AbstractServlet {
-	final String arryPageURL[] = {
-			"/menu/testcode/CryptoJSSKTest01.jsp", "/menu/testcode/CryptoJSSKTest02.jsp"
-	};
+public class JSSymmetricKeyTestSvl extends AbstractServlet {	
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
-			throws Exception {
-		
+			throws Exception {		
 		
 		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == paramRequestType) {		
-			firstPage(req, res);			
-			return;
-		}
 		
-		if (paramRequestType.equals("view")) {
-			firstPage(req, res);
+		
+		if (null == paramRequestType || paramRequestType.equals("view")) {
+			inputPage(req, res);
 			return;
 		} else if (paramRequestType.equals("proc")) {		
-			processPage(req, res);
+			resultPage(req, res);
 			return;
 		} else {
 			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
@@ -78,16 +71,18 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 		}
 	}
 	
-	private void firstPage(HttpServletRequest req, HttpServletResponse res) {
-		printJspPage(req, res, "/menu/testcode/CryptoJSSKTest01.jsp");	
+	private void inputPage(HttpServletRequest req, HttpServletResponse res) {
+		printJspPage(req, res, "/jsp/util/JSSymmetricKeyTestInput.jsp");	
 	}
 	
-	private void processPage(HttpServletRequest req, HttpServletResponse res) {
+	private void resultPage(HttpServletRequest req, HttpServletResponse res) {
+		/**************** 파라미터 시작 *******************/
 		String paramAlgorithm = req.getParameter("algorithm");		
 		String paramPrivateKeyHex = req.getParameter("privateKey");
 		String paramIVHex = req.getParameter("iv");
 		String paramPlainText = req.getParameter("plainText");
 		String paramEncryptedBytesHex = req.getParameter("encryptedBytes");
+		/**************** 파라미터 종료 *******************/
 		
 		log.info("paramAlgorithm=[{}]", paramAlgorithm);
 		log.info("paramPrivateKeyHex=[{}]", paramPrivateKeyHex);
@@ -194,6 +189,6 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 		req.setAttribute("decryptedBytesHex", decryptedBytesHex);
 		req.setAttribute("decryptedPlainText", decryptedPlainText);
 		req.setAttribute("isSame", isSame);
-		printJspPage(req, res, "/menu/testcode/CryptoJSSKTest02.jsp");
+		printJspPage(req, res, "/jsp/util/JSSymmetricKeyTestResult.jsp");
 	}
 }

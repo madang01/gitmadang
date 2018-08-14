@@ -23,7 +23,12 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 	
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
+		/**************** 파라미터 시작 *******************/	
 		String paramParentNo = req.getParameter("parentNo");
+		String paramMenuName = req.getParameter("menuName");
+		String paramLinkURL = req.getParameter("linkURL");
+		/**************** 파라미터 종료 *******************/	
+		
 		if (null == paramParentNo) {
 			String errorMessage = "파라미터 '부모메뉴번호'(=parentNo) 값을 넣어주세요";			
 			log.warn(errorMessage);
@@ -72,7 +77,7 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		String paramMenuName = req.getParameter("menuName");
+		
 		if (null == paramMenuName) {
 			String errorMessage = "파라미터 '메뉴이름'(=menuName) 값을 넣어주세요";
 			
@@ -83,7 +88,7 @@ public class ChildMenuAddSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		String paramLinkURL = req.getParameter("linkURL");
+		
 		
 		if (null == paramLinkURL) {
 			String errorMessage = "파라미터 '링크 URL'(=linkURL) 값을 넣어주세요";
