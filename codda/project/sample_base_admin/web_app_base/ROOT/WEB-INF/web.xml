@@ -41,6 +41,10 @@
 			<param-name>menuGroupURL</param-name>
 			<param-value>/</param-value>
 		</init-param>
+		<init-param>
+			<param-name>siteType</param-name>
+			<param-value>admin</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MemberRegistration</servlet-name>
@@ -74,81 +78,81 @@
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuModify</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuModifySvl</servlet-class>
+		<servlet-name>MenuModification</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuModificationSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuModify</servlet-name>
-		<url-pattern>/servlet/MenuModify</url-pattern>
+		<servlet-name>MenuModification</servlet-name>
+		<url-pattern>/servlet/MenuModification</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuDelete</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuDeleteSvl</servlet-class>
+		<servlet-name>MenuDeletion</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuDeletionSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuDelete</servlet-name>
-		<url-pattern>/servlet/MenuDelete</url-pattern>
+		<servlet-name>MenuDeletion</servlet-name>
+		<url-pattern>/servlet/MenuDeletion</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuUpMove</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuUpMoveSvl</servlet-class>
+		<servlet-name>MenuMoveUp</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuMoveUpSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuUpMove</servlet-name>
-		<url-pattern>/servlet/MenuUpMove</url-pattern>
+		<servlet-name>MenuMoveUp</servlet-name>
+		<url-pattern>/servlet/MenuMoveUp</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuDownMove</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuDownMoveSvl</servlet-class>
+		<servlet-name>MenuMoveDown</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuMoveDownSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuDownMove</servlet-name>
-		<url-pattern>/servlet/MenuDownMove</url-pattern>
+		<servlet-name>MenuMoveDown</servlet-name>
+		<url-pattern>/servlet/MenuMoveDown</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>ChildMenuAdd</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.ChildMenuAddSvl</servlet-class>
+		<servlet-name>ChildMenuAddition</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.ChildMenuAdditionSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>ChildMenuAdd</servlet-name>
-		<url-pattern>/servlet/ChildMenuAdd</url-pattern>
+		<servlet-name>ChildMenuAddition</servlet-name>
+		<url-pattern>/servlet/ChildMenuAddition</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>RootMenuAdd</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.RootMenuAddSvl</servlet-class>
+		<servlet-name>RootMenuAddition</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.RootMenuAdditionSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>RootMenuAdd</servlet-name>
-		<url-pattern>/servlet/RootMenuAdd</url-pattern>
+		<servlet-name>RootMenuAddition</servlet-name>
+		<url-pattern>/servlet/RootMenuAddition</url-pattern>
 	</servlet-mapping>
 	
 

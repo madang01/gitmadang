@@ -18,7 +18,7 @@ public class RootMenuAddReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("testAdmin");		
+		ServerDBUtil.initializeDBEnvoroment("admin");		
 	}
 	
 	

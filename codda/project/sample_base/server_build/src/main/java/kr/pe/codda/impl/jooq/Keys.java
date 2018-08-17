@@ -66,6 +66,7 @@ public class Keys {
     public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = UniqueKeys0.KEY_SB_MEMBER_TB_SB_MEMBER_IDX1;
     public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = UniqueKeys0.KEY_SB_SEQ_TB_PRIMARY;
     public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_PRIMARY = UniqueKeys0.KEY_SB_SITEMENU_TB_PRIMARY;
+    public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_ORDER_SQ_UNIQUE = UniqueKeys0.KEY_SB_SITEMENU_TB_ORDER_SQ_UNIQUE;
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
@@ -96,6 +97,7 @@ public class Keys {
         public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_sb_member_tb_sb_member_idx1", SbMemberTb.SB_MEMBER_TB.NICKNAME);
         public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = Internal.createUniqueKey(SbSeqTb.SB_SEQ_TB, "KEY_sb_seq_tb_PRIMARY", SbSeqTb.SB_SEQ_TB.SQ_ID);
         public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_PRIMARY = Internal.createUniqueKey(SbSitemenuTb.SB_SITEMENU_TB, "KEY_sb_sitemenu_tb_PRIMARY", SbSitemenuTb.SB_SITEMENU_TB.MENU_NO);
+        public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_ORDER_SQ_UNIQUE = Internal.createUniqueKey(SbSitemenuTb.SB_SITEMENU_TB, "KEY_sb_sitemenu_tb_order_sq_UNIQUE", SbSitemenuTb.SB_SITEMENU_TB.ORDER_SQ);
     }
 
     private static class ForeignKeys0 {

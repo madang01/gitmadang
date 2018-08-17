@@ -129,25 +129,48 @@
 		return textButton;
 	}
 	
+	function getPrevRowIndexHavingSameDepth(targetRowIndex) {
+		var targetDepth = menuListResJsonObj.menuList[targetRowIndex].depth;
+		
+		for (var i=targetRowIndex-1; i >= 0; i--) {
+			if (menuListResJsonObj.menuList[i].depth < targetDepth) {
+				return -1;
+			}
+			if (menuListResJsonObj.menuList[i].depth == targetDepth) {
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+	
+	function getNextRowIndexHavinSgameDepth(targetRowIndex) {
+		var targetDepth = menuListResJsonObj.menuList[targetRowIndex].depth;
+		
+		for (var i=targetRowIndex+1; i < menuListResJsonObj.cnt; i++) {
+			if (menuListResJsonObj.menuList[i].depth < targetDepth) {
+				return -1;
+			}
+			if (menuListResJsonObj.menuList[i].depth == targetDepth) {
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+	
 	function makeFuncColButtonList(rowIndex) {
 		var buttonList = [];
 		
 		<% /** 상단 이동이 가능하다면 상단 이동 버튼 추가 */ %>
-		if (0 != menuListResJsonObj.menuList[rowIndex].orderSeq) {			
+		if (-1 != getPrevRowIndexHavingSameDepth(rowIndex)) {			
 			buttonList.push(makeGlyphIconButton("btn btn-primary btn-sm", "moveMenuUp("+menuListResJsonObj.menuList[rowIndex].menuNo+","+rowIndex+");", "glyphicon-arrow-up", "Up"));
 		}
 		
-		try {
-			checkWhetherNextSameDepthMenuExist(rowIndex, menuListResJsonObj.menuList[rowIndex].depth);
-			<% /** 하단 이동이 가능하다면 상단 이동 버튼 추가 */ %>
+		<% /** 하단 이동이 가능하다면 상단 이동 버튼 추가 */ %>
+		if (-1 != getNextRowIndexHavingSameDepth(rowIndex)) {
 			buttonList.push(makeGlyphIconButton("btn btn-primary btn-sm", "moveMenuDown("+menuListResJsonObj.menuList[rowIndex].menuNo+","+rowIndex+");", "glyphicon-arrow-down", "Down"));
-		} catch(err) {		
-			<% // checkWhetherNextSameDepthMenuExist 함수는 하단으로 이동할 메뉴를 못찼았다면 "not found exception" 를 던지므로 이 경우는 무시하고 그외 경우 에러 추적을 위해서 로그 출력함 %> 	
-			if (err != "not found exception") {
-				console.log(err);
-			}
-		}		
-		
+		}
 		
 		buttonList.push(makeTextButton("btn btn-primary btn-sm", "modifyMenu("+menuListResJsonObj.menuList[rowIndex].menuNo+"," + rowIndex + ");", "Modify"));
 		
@@ -219,26 +242,7 @@
 		return formGroupDiv;
 	}
 	
-	function checkWhetherNextSameDepthMenuExist(sourceIndex, wantedDepth) {
-		if (sourceIndex < 0) {
-			throw "the parameter sourceIndex is less than zero";
-		}
-		
-		if (sourceIndex >= menuListResJsonObj.cnt) {
-			throw "the parameter sourceIndex is greater than or equal to menuList.size["+menuListResJsonObj.cnt+"]";
-		}
-		
-		for (var i=sourceIndex+1; i < menuListResJsonObj.cnt; i++) {
-			if (menuListResJsonObj.menuList[i].depth < wantedDepth) {
-				throw "not found exception";
-			}
-			if (menuListResJsonObj.menuList[i].depth == wantedDepth) {
-				return i;
-			}
-			
-		}
-		throw "not found exception";
-	}
+	
 	
 	function buildListView() {
 		var listView = document.getElementById("listView");
@@ -311,14 +315,8 @@
 		resultMessageView.innerHTML = "<strong>Success!</strong> 지정한  메뉴[메뉴번호:" + g.menuNo.value + ", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "]를 삭제 했습니다";			
 		
 		
-		for (var i=rowIndex+1; i < menuListResJsonObj.cnt; i++) {		
-			if (menuListResJsonObj.menuList[i].depth < menuListResJsonObj.menuList[rowIndex].depth) {
-				break;
-			}
-			
-			if (menuListResJsonObj.menuList[i].depth == menuListResJsonObj.menuList[rowIndex].depth) {
-				menuListResJsonObj.menuList[i].orderSeq--;
-			}
+		for (var i=rowIndex+1; i < menuListResJsonObj.cnt; i++) {
+			menuListResJsonObj.menuList[i].orderSeq--;
 		}	
 		
 		menuListResJsonObj.menuList.splice(rowIndex, 1);
@@ -345,52 +343,46 @@
 		var g = document.moveMenuUpFrm;
 		var resultMessageView = document.getElementById("resultMessageView");
 		
-		var rowIndex = __rowIndex;
+		var sourceRowIndex = __rowIndex;
 		
 		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> " + "지정한 메뉴[메뉴번호:" + g.menuNo.value + ", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "]의 상단 이동이 성공하였습니다";
+		resultMessageView.innerHTML = "<strong>Success!</strong> " + "지정한 메뉴[메뉴번호:" + g.menuNo.value + ", 메뉴명:" + menuListResJsonObj.menuList[sourceRowIndex].menuName + "]의 상단 이동이 성공하였습니다";
 		
-		var fromMenu = menuListResJsonObj.menuList[rowIndex];
+		var sourceMenu = menuListResJsonObj.menuList[sourceRowIndex];
 		
-		var fromMenuList = [];
-		fromMenuList.push(fromMenu);		
-		for (var i=rowIndex+1; i < menuListResJsonObj.cnt; i++) {				
-			if (fromMenu.depth >= menuListResJsonObj.menuList[i].depth) {
+		var targetRowIndex = getPrevRowIndexHavinSgameDepth(sourceRowIndex);
+		if (-1 == targetRowIndex) {
+			alert("메뉴 상단 이동시 교환에 필요한 한칸 높은 메뉴를 찾지 못했습니다");
+			return;
+		}
+		
+		var targetMenu = menuListResJsonObj.menuList[targetRowIndex];
+		
+		var sourceMenuGroupList = [];
+		sourceMenuGroupList.push(sourceMenu);		
+		for (var i=sourceRowIndex+1; i < menuListResJsonObj.cnt; i++) {				
+			if (sourceMenu.depth >= menuListResJsonObj.menuList[i].depth) {
 				break;
 			}
 			
-			fromMenuList.push(menuListResJsonObj.menuList[i]);
+			sourceMenuGroupList.push(menuListResJsonObj.menuList[i]);
 		}		
 		
-		var toMenu;
-		var rowIndexOfToMenu;
-		for (var i=rowIndex - 1; i >= 0; i--) {
-			if (fromMenu.depth == menuListResJsonObj.menuList[i].depth) {
-				rowIndexOfToMenu = i;
-				toMenu = menuListResJsonObj.menuList[i];
-				break;
-			}
+		var targetMenuGroupList = [];		
+		for (var i=targetRowIndex; i < sourceRowIndex; i++) {
+			targetMenuGroupList.push(menuListResJsonObj.menuList[i]);
 		}
 		
-		var toMenuList = [];
-		toMenuList.push(toMenu);
-		for (var i=rowIndexOfToMenu + 1; i < menuListResJsonObj.cnt; i++) {
-			if (fromMenu.depth >= menuListResJsonObj.menuList[i].depth) {
-				break;
-			}
-			toMenuList.push(menuListResJsonObj.menuList[i]);
+		var oldOrderSeq = sourceMenu.orderSeq; 
+		sourceMenu.orderSeq = targetMenu.orderSeq;
+		targetMenu.orderSeq = oldOrderSeq;		
+		
+		for (var i=0; i < sourceMenuGroupList.length; i++) {
+			menuListResJsonObj.menuList[targetRowIndex + i] = sourceMenuGroupList[i];
 		}
 		
-		var oldOrderSeq = fromMenu.orderSeq; 
-		fromMenu.orderSeq = toMenu.orderSeq;
-		toMenu.orderSeq = oldOrderSeq;		
-		
-		for (var i=0; i < fromMenuList.length; i++) {
-			menuListResJsonObj.menuList[rowIndexOfToMenu + i] = fromMenuList[i];
-		}
-		
-		for (var i=0; i < toMenuList.length; i++) {
-			menuListResJsonObj.menuList[rowIndexOfToMenu+fromMenuList.length + i] = toMenuList[i];
+		for (var i=0; i < targetMenuGroupList.length; i++) {
+			menuListResJsonObj.menuList[targetRowIndex+sourceMenuGroupList.length + i] = targetMenuGroupList[i];
 		}
 		
 		var listView = document.getElementById("listView");		
@@ -419,12 +411,12 @@
 		resultMessageView.setAttribute("class", "alert alert-success");
 		resultMessageView.innerHTML = "<strong>Success!</strong> " + "지정한 메뉴[메뉴번호:" + g.menuNo.value +", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "] 하단 이동이 성공하였습니다";
 		
-		var fromMenu = menuListResJsonObj.menuList[rowIndex];
+		var sourceMenu = menuListResJsonObj.menuList[rowIndex];
 		
 		var fromMenuList = [];
-		fromMenuList.push(fromMenu);		
+		fromMenuList.push(sourceMenu);		
 		for (var i=rowIndex+1; i < menuListResJsonObj.cnt; i++) {				
-			if (fromMenu.depth >= menuListResJsonObj.menuList[i].depth) {
+			if (sourceMenu.depth >= menuListResJsonObj.menuList[i].depth) {
 				break;
 			}
 			
@@ -435,14 +427,14 @@
 		var toMenuList = [];
 		toMenuList.push(toMenu);
 		for (var i=rowIndex + fromMenuList.length + 1; i < menuListResJsonObj.cnt; i++) {
-			if (fromMenu.depth >= menuListResJsonObj.menuList[i].depth) {
+			if (sourceMenu.depth >= menuListResJsonObj.menuList[i].depth) {
 				break;
 			}
 			toMenuList.push(menuListResJsonObj.menuList[i]);
 		}
 		
-		var oldOrderSeq = fromMenu.orderSeq; 
-		fromMenu.orderSeq = toMenu.orderSeq;
+		var oldOrderSeq = sourceMenu.orderSeq; 
+		sourceMenu.orderSeq = toMenu.orderSeq;
 		toMenu.orderSeq = oldOrderSeq;
 		
 		
@@ -467,9 +459,12 @@
 		__rowIndex = rowIndex;
 		
 		var g = document.addChildMenuFrm;
+		g.reset();
 		g.parentNo.value = parentNo;
 		$("#childMenuModal").modal();
 	}
+	
+	
 	
 	function addChildMenuOkCallBack(childMenuAddRes) {
 		var resultMessageView = document.getElementById("resultMessageView");
@@ -488,11 +483,13 @@
 		childMenu.menuName = g.menuName.value;
 		childMenu.linkURL = g.linkURL.value;
 		
-		if (menuListResJsonObj.cnt == rowIndex+1) {
+		var nextSameDepthRowIndex = getNextRowIndexHavinSgameDepth(rowIndex);
+		
+		if (-1 == nextSameDepthRowIndex) {
 			menuListResJsonObj.menuList.push(childMenu);
 		} else {
-			menuListResJsonObj.menuList.insert(rowIndex+1, childMenu);
-		}		
+			menuListResJsonObj.menuList.insert(nextSameDepthRowIndex, childMenu);
+		}	
 		
 		menuListResJsonObj.cnt++;
 		
@@ -503,6 +500,12 @@
 		buildListView();
 				
 		listView.display  = 'show';
+	}
+	
+	function addRootMenu() {
+		var g = document.addRootMenuFrm;
+		g.reset();
+		$('#rootMenuModal').modal();
 	}
 	
 	function addRootMenuOkCallBack(rootMenuAddRes) {
@@ -546,6 +549,18 @@
 		document.location.href = "/servlet/MenuManagement"; 
 	}
 	
+	function clickHiddenFrameButton(thisObj) {		
+		var hiddenFrame = document.getElementById("hiddenFrame");
+		
+		if (hiddenFrame.style.display == 'none') {
+			thisObj.innerText = "Hide Hidden Frame";
+			hiddenFrame.style.display = "block";			
+		} else {
+			thisObj.innerText = "Show Hidden Frame";
+			hiddenFrame.style.display = "none";
+		}
+	}
+	
 	function init() {
 		buildListView();
 	}
@@ -555,25 +570,26 @@
 </head>
 <body>
 <%= getSiteNavbarString(request) %>
-<form name="moveMenuUpFrm" method="post" action="/servlet/MenuUpMove" target="hiddenFrame">
+<form name="moveMenuUpFrm" method="post" action="/servlet/MenuMoveUp" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
-<form name="moveMenuDownFrm" method="post" action="/servlet/MenuDownMove" target="hiddenFrame">
+<form name="moveMenuDownFrm" method="post" action="/servlet/MenuMoveDown" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
-<form name="modifyMenuFrm" method="post" action="/servlet/MenuModify" target="hiddenFrame">
+<form name="modifyMenuFrm" method="post" action="/servlet/MenuModification" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 	<input type="hidden" name="menuName">
 	<input type="hidden" name="linkURL">
 </form>
-<form name="deleteMenuFrm" method="post" action="/servlet/MenuDelete" target="hiddenFrame">
+<form name="deleteMenuFrm" method="post" action="/servlet/MenuDeletion" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
 	<div class="container-fluid">
 		<h3>메뉴 관리</h3>		
 		<div class="btn-group">
-			<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#rootMenuModal">Add Root</button>
+			<button type="button" class="btn btn-primary btn-sm" onClick="addRootMenu()">Add Root</button>
 			<button type="button" class="btn btn-primary btn-sm" onClick="reload();">Reload</button>
+			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
 		</div>
 					 
 		<div id="resultMessageView"></div>
@@ -600,7 +616,7 @@
 						<h4 class="modal-title">자식 메뉴 추가 화면</h4>
 					</div>
 					<div class="modal-body">
-						<form name="addChildMenuFrm" method="post" class="form-inline" onSubmit="$('#childMenuModal').modal('toggle'); return true;" action="/servlet/ChildMenuAdd" target="hiddenFrame">
+						<form name="addChildMenuFrm" method="post" class="form-inline" onSubmit="$('#childMenuModal').modal('toggle'); return true;" action="/servlet/ChildMenuAddition" target="hiddenFrame">
 							<div class="form-group">
 							    <label class="sr-only" for="parentNoForChildMenu">부모 메뉴번호</label>
 							    <input type="hidden" id="parentNoForChildMenu" name="parentNo">
@@ -633,7 +649,7 @@
 						<h4 class="modal-title">루트 메뉴 추가 화면</h4>
 					</div>
 					<div class="modal-body">
-						<form name="addRootMenuFrm" method="post" class="form-inline" onSubmit="$('#rootMenuModal').modal('toggle'); return true;" action="/servlet/RootMenuAdd" target="hiddenFrame">							
+						<form name="addRootMenuFrm" method="post" class="form-inline" onSubmit="$('#rootMenuModal').modal('toggle'); return true;" action="/servlet/RootMenuAddition" target="hiddenFrame">							
 							 <div class="form-group">
 							    <label for="menuNameForRootMenu">메뉴명</label>
 							    <input type="text" id="menuNameForRootMenu" name="menuName">
@@ -651,7 +667,7 @@
 				</div>			
 			</div>
 		</div>
-		<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;visibility:hidden"></iframe>
+		<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
 	</div>
 </body>
 </html>

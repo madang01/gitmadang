@@ -30,7 +30,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSeqTbRecord extends UpdatableRecordImpl<SbSeqTbRecord> implements Record3<UByte, UInteger, String> {
 
-    private static final long serialVersionUID = -962573554;
+    private static final long serialVersionUID = 74767338;
 
     /**
      * Setter for <code>sb_db.sb_seq_tb.sq_id</code>. 시퀀스 식별자, 0:메뉴, 1:공지게시판 시퀀스, 2:자유게시판시퀀스, 3:FAQ시퀀스
@@ -47,14 +47,14 @@ public class SbSeqTbRecord extends UpdatableRecordImpl<SbSeqTbRecord> implements
     }
 
     /**
-     * Setter for <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값
+     * Setter for <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값, 1 부터 시작
      */
     public void setSqValue(UInteger value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값
+     * Getter for <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값, 1 부터 시작
      */
     public UInteger getSqValue() {
         return (UInteger) get(1);

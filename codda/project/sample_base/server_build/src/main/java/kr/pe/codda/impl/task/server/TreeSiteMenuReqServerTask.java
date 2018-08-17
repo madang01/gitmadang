@@ -4,6 +4,7 @@ import static kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.sql.DataSource;
 
@@ -28,7 +29,7 @@ import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class TreeSiteMenuReqServerTask extends AbstractServerTask {	
-	final UInteger rootParnetNo = UInteger.valueOf(0);
+	// final UInteger rootParnetNo = UInteger.valueOf(0);
 	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
@@ -77,11 +78,67 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);			
 			
+			java.util.List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();	
+			HashMap<UInteger, TreeSiteMenuRes.Menu> menuHash = new HashMap<UInteger, TreeSiteMenuRes.Menu>();
 			
-			java.util.List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();			
-			buildMenuListRes(rootMenuList, create, rootParnetNo);			
+			Result<Record6<UInteger, UInteger, UByte, UByte, String, String>> menuListResult = create.select(SB_SITEMENU_TB.MENU_NO, 
+					SB_SITEMENU_TB.PARENT_NO, 
+					SB_SITEMENU_TB.DEPTH, 
+					SB_SITEMENU_TB.ORDER_SQ,					
+					SB_SITEMENU_TB.MENU_NM,
+					SB_SITEMENU_TB.LINK_URL)
+			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx"))
+			.orderBy(SB_SITEMENU_TB.ORDER_SQ.asc())
+			.fetch();			
+			
+			for (Record menuListRecord : menuListResult) {
+				TreeSiteMenuRes.Menu menu = new TreeSiteMenuRes.Menu();
+				
+				UInteger menuNo = menuListRecord.getValue(SB_SITEMENU_TB.MENU_NO);
+				UInteger parentNo = menuListRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
+				
+				menu.setMenuNo(menuNo.longValue());
+				menu.setParentNo(parentNo.longValue());
+				menu.setDepth(menuListRecord.getValue(SB_SITEMENU_TB.DEPTH).shortValue());
+				menu.setOrderSeq(menuListRecord.getValue(SB_SITEMENU_TB.ORDER_SQ).shortValue());
+				menu.setMenuName(menuListRecord.getValue(SB_SITEMENU_TB.MENU_NM));
+				menu.setLinkURL(menuListRecord.getValue(SB_SITEMENU_TB.LINK_URL));
+				
+				java.util.List<TreeSiteMenuRes.Menu> childMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
+				menu.setChildMenuListSize(childMenuList.size());
+				menu.setChildMenuList(childMenuList);
+				
+				menuHash.put(menuNo, menu);
+				
+				if (menu.getDepth() == 0) {
+					rootMenuList.add(menu);
+				} else {
+					TreeSiteMenuRes.Menu parentMenu = menuHash.get(parentNo);
+					if (null == parentMenu) {
+						try {
+							conn.rollback();
+						} catch (Exception e1) {
+							log.warn("fail to rollback");
+						}
+						
+						String errorMessage = "정렬된 메뉴 목록이 잘못 되었습니다";
+						String debugMessage = new StringBuilder(errorMessage)
+								.append(", 정렬된 메뉴 목록에서 부모 [")
+								.append(parentNo)
+								.append("]가 있는 메뉴[")
+								.append(menuNo)
+								.append("]의 부모가 해쉬에 존재하지 않습니다").toString();
+						log.info(debugMessage);
+						
+						throw new ServerServiceException(errorMessage);
+					}
+					java.util.List<TreeSiteMenuRes.Menu> parentChildMenuList = parentMenu.getChildMenuList();
+					parentChildMenuList.add(menu);
+					parentMenu.setChildMenuListSize(parentChildMenuList.size());
+				}
+			}
 			
 			conn.commit();			
 			
@@ -89,7 +146,9 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 			treeSiteMenuRes.setRootMenuList(rootMenuList);
 			treeSiteMenuRes.setRootMenuListSize(rootMenuList.size());
 			
-			return treeSiteMenuRes;		
+			return treeSiteMenuRes;
+		} catch (ServerServiceException e) {
+			throw e;
 		} catch (Exception e) {
 			if (null != conn) {
 				try {
@@ -112,44 +171,4 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 			}
 		}
 	}
-	
-	private void buildMenuListRes(java.util.List<TreeSiteMenuRes.Menu> menuList, DSLContext create, UInteger parnetNo) {
-		Result<Record6<UInteger, UInteger, UByte, UByte, String, String>> menuListResult = create.select(SB_SITEMENU_TB.MENU_NO, 
-				SB_SITEMENU_TB.PARENT_NO, 
-				SB_SITEMENU_TB.DEPTH, 
-				SB_SITEMENU_TB.ORDER_SQ,					
-				SB_SITEMENU_TB.MENU_NM,
-				SB_SITEMENU_TB.LINK_URL)
-		.from(SB_SITEMENU_TB)
-		.where(SB_SITEMENU_TB.PARENT_NO.eq(parnetNo))
-		.orderBy(SB_SITEMENU_TB.ORDER_SQ)
-		.fetch();
-		
-		/*if (null == menuListResult) {
-			log.info("the var menuListResult is null");
-			return;
-		}*/
-		
-		for (Record menuListRecord : menuListResult) {
-			TreeSiteMenuRes.Menu menu = new TreeSiteMenuRes.Menu();
-			
-			UInteger menuNo = menuListRecord.getValue(SB_SITEMENU_TB.MENU_NO);
-			
-			menu.setMenuNo(menuNo.longValue());
-			menu.setParentNo(menuListRecord.getValue(SB_SITEMENU_TB.PARENT_NO).longValue());
-			menu.setDepth(menuListRecord.getValue(SB_SITEMENU_TB.DEPTH).shortValue());
-			menu.setOrderSeq(menuListRecord.getValue(SB_SITEMENU_TB.ORDER_SQ).shortValue());
-			menu.setMenuName(menuListRecord.getValue(SB_SITEMENU_TB.MENU_NM));
-			menu.setLinkURL(menuListRecord.getValue(SB_SITEMENU_TB.LINK_URL));
-			
-			java.util.List<TreeSiteMenuRes.Menu> childMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
-			buildMenuListRes(childMenuList, create, menuNo);
-			
-			menu.setChildMenuListSize(childMenuList.size());
-			menu.setChildMenuList(childMenuList);			
-			
-			menuList.add(menu);
-		}
-	}
-
 }

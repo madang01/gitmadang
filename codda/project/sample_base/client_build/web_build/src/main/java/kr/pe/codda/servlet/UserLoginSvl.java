@@ -27,7 +27,6 @@ import org.apache.commons.codec.binary.Base64;
 
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -43,8 +42,10 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.HexUtil;
 import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
-import kr.pe.codda.impl.message.LoginReq.LoginReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.impl.message.UserLoginReq.UserLoginReq;
+import kr.pe.codda.impl.message.UserLoginRes.UserLoginRes;
+import kr.pe.codda.weblib.common.MemberType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
@@ -58,16 +59,10 @@ import kr.pe.codda.weblib.jdf.AbstractServlet;
 public class UserLoginSvl extends AbstractServlet {
 
 	@Override
-	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		
-
+	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
 		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		if (null == paramRequestType) {
-			inputPage(req, res);
-			return;
-		}
 
-		if (paramRequestType.equals("view")) {
+		if (null == paramRequestType || paramRequestType.equals("input")) {
 			inputPage(req, res);
 			return;
 		} else if (paramRequestType.equals("proc")) {
@@ -87,6 +82,7 @@ public class UserLoginSvl extends AbstractServlet {
 		}
 	}
 
+	
 	private void inputPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
@@ -105,19 +101,11 @@ public class UserLoginSvl extends AbstractServlet {
 			return;
 		}
 		
-		/*String successURL = req.getParameter("successURL");
-		
-		if (null == successURL) {
-			successURL = "/";
-		}
-		
-		req.setAttribute("successURL", successURL);*/
 		req.setAttribute("requestURI", "/");
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		
-		
-		/** /jsp/member/userLoginInput.jsp */
+		/** /jsp/member/UserLoginInput.jsp */
 		printJspPage(req, res, JDF_USER_LOGIN_INPUT_PAGE);
 	}
 
@@ -126,19 +114,83 @@ public class UserLoginSvl extends AbstractServlet {
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException,
 			IllegalArgumentException, SymmetricException {
 
+		/**************** 파라미터 시작 *******************/
 		String paramSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
 		String paramIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
 
-		String paramId = req.getParameter("id");
-		String paramPwd = req.getParameter("pwd");
+		String paramUserIDCipherBase64 = req.getParameter("userID");
+		String paramPwdCipherBase64 = req.getParameter("pwd");
+		/**************** 파라미터 종료 *******************/
 
-		String successURL = req.getParameter("successURL");
+		
+		if (null == paramSessionKeyBase64) {
+			String errorMessage = "the request parameter paramSessionKeyBase64 is null";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (! Base64.isBase64(paramSessionKeyBase64)) {
+			String errorMessage = "the request parameter paramSessionKeyBase64 is not a base64 string";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == paramIVBase64) {
+			String errorMessage = "the request parameter paramIVBase64 is null";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (! Base64.isBase64(paramIVBase64)) {
+			String errorMessage = "the request parameter paramIVBase64 is not a base64 string";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == paramUserIDCipherBase64) {
+			String errorMessage = "the request parameter userID is null";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (! Base64.isBase64(paramUserIDCipherBase64)) {
+			String errorMessage = "the request parameter userID is not a base64 cipher text";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == paramPwdCipherBase64) {
+			String errorMessage = "the request parameter paramPwdCipherBase64 is null";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (! Base64.isBase64(paramPwdCipherBase64)) {
+			String errorMessage = "the request parameter paramPwdCipherBase64 is not a base64 cipher string";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		} 		
+		
+		
+		/*if (successURL.indexOf('/') != 0) {
+			String errorMessage = "the request parameter successURL doesn't begin a char '/'";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}*/
 
 		log.info("param sessionkeyBase64=[{}]", paramSessionKeyBase64);
 		log.info("param ivBase64=[{}]", paramIVBase64);
-		log.info("param id=[{}]", paramId);
-		log.info("param pwd=[{}}]", paramPwd);
-		log.info("param successURL=[{}}]", successURL);
+		log.info("param userID=[{}]", paramUserIDCipherBase64);
+		log.info("param pwd=[{}}]", paramPwdCipherBase64);
 
 		// req.setAttribute("isSuccess", Boolean.FALSE);
 
@@ -177,7 +229,7 @@ public class UserLoginSvl extends AbstractServlet {
 			String debugMessage = e.getMessage();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}
+		}		
 		
 		ServerSymmetricKeyIF webServerSymmetricKey = null;
 		try {
@@ -207,15 +259,21 @@ public class UserLoginSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
+		
+		// FIXME!
+		log.info("한글 대칭키 암호문 base64={}", Base64.encodeBase64String(webServerSymmetricKey.encrypt("한글".getBytes("UTF8"))));
 
-		byte[] idBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramId));
-		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwd));
+		byte[] userIDBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramUserIDCipherBase64));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdCipherBase64));
 
-		String userId = new String(idBytes, CommonStaticFinalVars.CIPHER_CHARSET);
+		// String userId = new String(userIDBytes, CommonStaticFinalVars.CIPHER_CHARSET);
 		// String password = new String(passwordBytes,
 		// CommonStaticFinalVars.SINNORI_CIPHER_CHARSET);
 
 		// log.info("id=[{}], password=[{}]", userId, password);
+		
+		// FIXME!
+		//log.info("userID=[{}]", new String(userIDBytes, "UTF8"));
 
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance()
 				.getMainProjectConnectionPool();
@@ -224,49 +282,9 @@ public class UserLoginSvl extends AbstractServlet {
 		binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
 
 		AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);
-		if (binaryPublicKeyOutputMessage instanceof BinaryPublicKey) {
-			BinaryPublicKey binaryPublicKeyRes = (BinaryPublicKey) binaryPublicKeyOutputMessage;
-			byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
-
-			ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance()
-					.getNewClientSessionKey(binaryPublicKeyBytes);
-
-			byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();
-			byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
-			ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
-			LoginReq loginReq = new LoginReq();
-
-			loginReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(idBytes)));
-			loginReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
-			loginReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
-			loginReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));
-
-			AbstractMessage loginOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(loginReq);
-			if (loginOutputMessage instanceof MessageResultRes) {
-				MessageResultRes messageResultRes = (MessageResultRes) loginOutputMessage;
-				if (messageResultRes.getIsSuccess()) {
-					HttpSession httpSession = req.getSession();
-					httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID, userId);
-				}
-
-				doProcessPage(req, res, successURL, webServerSymmetricKey, webServerSessionkey,
-						messageResultRes);
-				return;
-			} else {
-				String errorMessage = "로그인 실패했습니다";
-				String debugMessage = new StringBuilder("입력 메시지[")
-						.append(loginReq.getMessageID())
-						.append("]에 대한 비 정상 출력 메시지[")
-						.append(loginOutputMessage.toString())
-						.append("] 도착").toString();
-				
-				log.error(debugMessage);
-
-				printErrorMessagePage(req, res, errorMessage, debugMessage);
-				return;
-			}
-		} else {			
-			String errorMessage = "로그인 실패했습니다";
+		
+		if (!(binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
+			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
 			String debugMessage = new StringBuilder("입력 메시지[")
 					.append(binaryPublicKeyReq.getMessageID())
 					.append("]에 대한 비 정상 출력 메시지[")
@@ -275,24 +293,95 @@ public class UserLoginSvl extends AbstractServlet {
 			
 			log.error(debugMessage);
 
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			printUserLoginFailureCallBackPage(req, res, 
+					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
+					errorMessage);
+			return;
+		}		
+		
+		
+		BinaryPublicKey binaryPublicKeyRes = (BinaryPublicKey) binaryPublicKeyOutputMessage;
+		byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
+
+		ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance()
+				.getNewClientSessionKey(binaryPublicKeyBytes);
+
+		byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();
+		byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
+		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
+		UserLoginReq userLoginReq = new UserLoginReq();
+
+		userLoginReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(userIDBytes)));
+		userLoginReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
+		userLoginReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
+		userLoginReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));			
+
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(userLoginReq);
+		if (! (outputMessage instanceof UserLoginRes) && ! (outputMessage instanceof MessageResultRes)) {
+			String errorMessage = "일반 유저 로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
+			String debugMessage = new StringBuilder("입력 메시지[")
+					.append(userLoginReq.getMessageID())
+					.append("]에 대한 비 정상 출력 메시지[")
+					.append(outputMessage.toString())
+					.append("] 도착").toString();
+			
+			log.error(debugMessage);
+
+			printUserLoginFailureCallBackPage(req, res, 
+					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
+					errorMessage);
 			return;
 		}
+		
+		if ((outputMessage instanceof MessageResultRes)) {
+			MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
+			
+			printUserLoginFailureCallBackPage(req, res, 
+					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
+					messageResultRes.getResultMessage());
+			return;
+		}
+		
+		UserLoginRes userLoginRes = (UserLoginRes) outputMessage;
+		MemberType memberType = MemberType.USER;
+		
+		try {
+			memberType =  MemberType.valueOf(userLoginRes.getMemberType(), false);
+		} catch(IllegalArgumentException e) {
+			log.warn("사용자[{}]의 멤버 종류[{}] 가 잘못되어 멤버 종류를 '일반 유저'로 강제 변경합니다", userLoginRes.getUserID(), userLoginRes.getMemberType());
+		}
+		
+		HttpSession httpSession = req.getSession();
+		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID, userLoginRes.getUserID());
+		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_MEMBER_TYPE, memberType);
+		
+		printUserLoginOKCallBackPage(req, res, 
+				webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb());		
+		return;
+		
 	}
 
 	
 
-	private void doProcessPage(HttpServletRequest req, HttpServletResponse res,
-			String successURL, ServerSymmetricKeyIF webServerSymmetricKey, ServerSessionkeyIF webServerSessionkey,
-			MessageResultRes messageResultRes) {
-
-		req.setAttribute("successURL", successURL);
-		req.setAttribute("messageResultRes", messageResultRes);
-
+	private void printUserLoginFailureCallBackPage(HttpServletRequest req, HttpServletResponse res,
+			ServerSymmetricKeyIF webServerSymmetricKey,
+			String modulusHexString, 
+			String errorMessage) {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
-				webServerSessionkey.getModulusHexStrForWeb());
+				modulusHexString);
+		req.setAttribute("errorMessage", errorMessage);
+		
+		printJspPage(req, res, "/jsp/member/UserLoginFailureCallBack.jsp");
+	}
 
-		printJspPage(req, res, "/menu/member/loginResult.jsp");
+	private void printUserLoginOKCallBackPage(HttpServletRequest req, HttpServletResponse res,
+			ServerSymmetricKeyIF webServerSymmetricKey,
+			String modulusHexString) {		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
+				modulusHexString);
+
+		printJspPage(req, res, "/jsp/member/UserLoginOKCallBack.jsp");
 	}
 }

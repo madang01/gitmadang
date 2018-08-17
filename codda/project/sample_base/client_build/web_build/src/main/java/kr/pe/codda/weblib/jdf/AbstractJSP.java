@@ -108,7 +108,7 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 	}
 	
 	protected String getGroupRequestURL(HttpServletRequest req) {		
-		Object groupRequestURL = req.getAttribute(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL);
+		Object groupRequestURL = req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL);
 		
 		if (null == groupRequestURL) {
 			return "/";

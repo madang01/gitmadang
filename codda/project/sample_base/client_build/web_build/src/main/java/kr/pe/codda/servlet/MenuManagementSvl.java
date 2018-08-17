@@ -1,5 +1,7 @@
 package kr.pe.codda.servlet;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,21 +22,18 @@ public class MenuManagementSvl extends AbstractAdminLoginServlet {
 		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuListReq);
 		
-		if (outputMessage instanceof ArraySiteMenuRes) {
-			ArraySiteMenuRes menuListRes = (ArraySiteMenuRes)outputMessage;
-			
-			req.setAttribute("menuListRes", menuListRes);
-			printJspPage(req, res, "/jsp/menu/menuManagement.jsp");
-			return;
-		} else if (outputMessage instanceof MessageResultRes) {
-			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
-			String errorMessage = "메뉴 목록 조회가 실패하였습니다";
-			String debugMessage = messageResultRes.toString();
-			printErrorMessagePage(req, res, errorMessage, debugMessage);	
-			return;
-		} else {
+		long startTime = 0;
+		long endTime = 0;
+		startTime = System.nanoTime();
+		
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuListReq);
+		endTime = System.nanoTime();
+		
+		log.info("elapsed={}", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+		
+		
+		if (! (outputMessage instanceof ArraySiteMenuRes) && ! (outputMessage instanceof MessageResultRes)) {
 			String errorMessage = "메뉴 목록 조회가 실패했습니다";
 			String debugMessage = new StringBuilder("입력 메시지[")
 					.append(menuListReq.getMessageID())
@@ -46,8 +45,21 @@ public class MenuManagementSvl extends AbstractAdminLoginServlet {
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
+		} 
+		
+		if (outputMessage instanceof MessageResultRes) {
+			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+			String errorMessage = "메뉴 목록 조회가 실패하였습니다";
+			String debugMessage = messageResultRes.toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);	
+			return;
 		}
 		
+		ArraySiteMenuRes arraySiteMenuRes = (ArraySiteMenuRes)outputMessage;
+		
+		req.setAttribute("arraySiteMenuRes", arraySiteMenuRes);
+		printJspPage(req, res, "/jsp/menu/MenuManagement.jsp");
+		return;
 	}
 
 }

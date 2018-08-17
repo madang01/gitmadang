@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSeqTb extends TableImpl<SbSeqTbRecord> {
 
-    private static final long serialVersionUID = 1006871663;
+    private static final long serialVersionUID = 399402041;
 
     /**
      * The reference instance of <code>sb_db.sb_seq_tb</code>
@@ -61,9 +61,9 @@ public class SbSeqTb extends TableImpl<SbSeqTbRecord> {
     public final TableField<SbSeqTbRecord, UByte> SQ_ID = createField("sq_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "시퀀스 식별자, 0:메뉴, 1:공지게시판 시퀀스, 2:자유게시판시퀀스, 3:FAQ시퀀스");
 
     /**
-     * The column <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값
+     * The column <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값, 1 부터 시작
      */
-    public final TableField<SbSeqTbRecord, UInteger> SQ_VALUE = createField("sq_value", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "시퀀스 값");
+    public final TableField<SbSeqTbRecord, UInteger> SQ_VALUE = createField("sq_value", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "시퀀스 값, 1 부터 시작");
 
     /**
      * The column <code>sb_db.sb_seq_tb.sq_name</code>. 시퀀스 이름

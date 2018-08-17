@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
+import org.jooq.Record3;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
@@ -23,7 +24,6 @@ import kr.pe.codda.impl.message.ChildMenuAddRes.ChildMenuAddRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.task.AbstractServerTask;
@@ -74,6 +74,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 		log.info(childMenuAddReq.toString());
 		
 		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
+		UInteger parentMenuNo = UInteger.valueOf(childMenuAddReq.getParentNo());
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
@@ -123,9 +124,11 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			}
 			
 			UInteger childMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);			
-			UInteger parentMenuNo = UInteger.valueOf(childMenuAddReq.getParentNo());
 			
-			Record1<UByte> parentMenuRecord = create.select(SB_SITEMENU_TB.DEPTH)
+			
+			Record3<UInteger, UByte, UByte> parentMenuRecord = create.select(SB_SITEMENU_TB.PARENT_NO, 
+					SB_SITEMENU_TB.ORDER_SQ, 
+					SB_SITEMENU_TB.DEPTH)
 			.from(SB_SITEMENU_TB)
 			.where(SB_SITEMENU_TB.MENU_NO.eq(parentMenuNo))
 			.fetchOne();
@@ -139,15 +142,38 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				
 				String errorMessage = new StringBuilder()
 						.append("부모 메뉴[")
-						.append(childMenuAddReq.getParentNo())
+						.append(parentMenuNo)
 						.append("]가 존재하지 않습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			int childMenuDepth = parentMenuRecord.getValue(SB_SITEMENU_TB.DEPTH).shortValue() + 1;
+			UByte newDepth = UByte.valueOf(parentMenuRecord.getValue(SB_SITEMENU_TB.DEPTH).shortValue() + 1);
+			UByte newOrderSeq = null;
 			
-			if (childMenuDepth > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			UInteger parentParnetNo = parentMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
+			UByte parentOrderSeq = parentMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
+			UByte parentDepth = parentMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
+			
+			Record1<UByte> firstYoungerBrotherMenuReccordOfParentMenu = create.select(SB_SITEMENU_TB.ORDER_SQ.min().as(SB_SITEMENU_TB.ORDER_SQ)).from(SB_SITEMENU_TB)
+			.where(SB_SITEMENU_TB.PARENT_NO.eq(parentParnetNo))
+			.and(SB_SITEMENU_TB.DEPTH.eq(parentDepth))
+			.and(SB_SITEMENU_TB.ORDER_SQ.gt(parentOrderSeq))
+			.fetchOne();
+			
+			if (null == firstYoungerBrotherMenuReccordOfParentMenu || null == firstYoungerBrotherMenuReccordOfParentMenu.getValue(SB_SITEMENU_TB.ORDER_SQ)) {
+				Record1<UByte>  lastOrderSeqMenuRecord = create.select(
+						SB_SITEMENU_TB.ORDER_SQ.max().as(SB_SITEMENU_TB.ORDER_SQ))
+				.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx"))				
+				.fetchOne();
+				
+				newOrderSeq = UByte.valueOf(lastOrderSeqMenuRecord.value1().shortValue()+1);
+			} else {
+				newOrderSeq = firstYoungerBrotherMenuReccordOfParentMenu.getValue(SB_SITEMENU_TB.ORDER_SQ);
+			}
+			
+			
+			if (newDepth.shortValue() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -155,17 +181,13 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder()
-						.append("자식 메뉴 깊이가 최대치에 도달하여 더 이상 추가할 수 없습니다")
+						.append("자식 메뉴 깊이가 최대치(=255)에 도달하여 더 이상 추가할 수 없습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			short newOrderSeq = create.select(JooqSqlUtil.getIfField(SB_SITEMENU_TB.ORDER_SQ.max(), 0, SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
-			.from(SB_SITEMENU_TB)
-			.where(SB_SITEMENU_TB.PARENT_NO.eq(parentMenuNo))
-			.fetchOne(0, Short.class);
 			
-			if (newOrderSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			if (newOrderSeq.shortValue() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -173,16 +195,21 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder()
-						.append("자식 메뉴 갯수가 최대치에 도달하여 더 이상 추가할 수 없습니다")
+						.append("메뉴 갯수가 최대치(=255)에 도달하여 더 이상 추가할 수 없습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
-			}			
+			}
+			
+			create.update(SB_SITEMENU_TB)
+			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.add(1))
+			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(newOrderSeq));
+					
 			
 			int childMenuInsertCount = create.insertInto(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.MENU_NO, childMenuNo)
 			.set(SB_SITEMENU_TB.PARENT_NO, parentMenuNo)
-			.set(SB_SITEMENU_TB.DEPTH, UByte.valueOf(childMenuDepth))
-			.set(SB_SITEMENU_TB.ORDER_SQ, UByte.valueOf(newOrderSeq))
+			.set(SB_SITEMENU_TB.DEPTH, newDepth)
+			.set(SB_SITEMENU_TB.ORDER_SQ, newOrderSeq)
 			.set(SB_SITEMENU_TB.MENU_NM, childMenuAddReq.getMenuName())
 			.set(SB_SITEMENU_TB.LINK_URL, childMenuAddReq.getLinkURL())
 			.execute();
@@ -215,7 +242,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			
 			ChildMenuAddRes childMenuAddRes = new ChildMenuAddRes();
 			childMenuAddRes.setMenuNo(childMenuNo.longValue());
-			childMenuAddRes.setOrderSeq(newOrderSeq);
+			childMenuAddRes.setOrderSeq(newOrderSeq.shortValue());
 			
 			return childMenuAddRes;
 		} catch (ServerServiceException e) {

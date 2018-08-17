@@ -20,7 +20,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	public boolean isAdminLoginedIn(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		String userId = (String) httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID);
 		if (null == userId || userId.equals("")) {
 			return false;
 		}
@@ -34,7 +34,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	 */		
 	public boolean isAdminLoginedIn(HttpSession httpSession) {
 		String userId = (String) httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID);
 		if (null == userId || userId.equals("")) {
 			return false;
 		}
@@ -46,12 +46,12 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	
 	/**
 	 * @param req HttpServletRequest 객체
-	 * @return 어드민이 로그인했을 경우 '어드민 로그인 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
+	 * @return 어드민이 로그인했을 경우 '어드민 로그인 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
 	 */
 	public String getLoginedAdminIDFromHttpSession(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		
-		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID);
+		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID);
 		if (null == loginUserIDValue) {
 			return "guest";
 		}
@@ -67,7 +67,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	public boolean isUserLoginedIn(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		Object userIDFromHttpSession = httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
 		if (null == userIDFromHttpSession) {
 			return false;
 		}
@@ -76,7 +76,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	
 	public boolean isUserLoginedIn(HttpSession httpSession) {
 		Object userIDFromHttpSession = httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
 		if (null == userIDFromHttpSession) {
 			return false;
 		}
@@ -85,17 +85,31 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	
 	/**
 	 * @param req
-	 * @return 일반 유저가 로그인 했을때 '일반인 유저 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_USERID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
+	 * @return 일반 유저가 로그인 했을때 '일반인 유저 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
 	 */
 	public String getLoginedUserIDFromHttpSession(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		
-		Object userIDFromHttpSession = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USERID);
+		Object userIDFromHttpSession = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
 		if (null == userIDFromHttpSession) {
 			return "guest";
 		}
 		
 		String userID = (String) userIDFromHttpSession;
 		return userID;
+	}
+	
+	/**
+	 * <pre>
+	 * 서블릿 초기화 파라미터 메뉴그룹(=menuGroupURL) 존재 여부를 반환한다. 
+	 * 참고) 서블릿 초기화 파라미터 메뉴그룹(=menuGroupURL)은 @{@link JDFBaseServlet#performBasePreTask} 에서 
+	 *      request 의 속성에 메뉴그룹(=@{link {@link WebCommonStaticFinalVars#REQUEST_KEY_NAME_OF_MENU_GROUP_URL})으로 저장된다
+	 * </pre>
+	 * @param req
+	 * @return 서블릿 초기화 파라미터 메뉴그룹(=menuGroupURL) 존재 여부 
+	 */
+	public boolean isMenuGroupURL(HttpServletRequest req) {
+		Object menuGroupURL = req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL);
+		return (null != menuGroupURL);
 	}
 }

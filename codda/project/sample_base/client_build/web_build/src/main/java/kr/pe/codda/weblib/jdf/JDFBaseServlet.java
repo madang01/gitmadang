@@ -40,7 +40,21 @@ import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEME
  * </pre>
  */
 @SuppressWarnings("serial")
-public abstract class JDFBaseServlet extends AbstractBaseServlet {	
+public abstract class JDFBaseServlet extends AbstractBaseServlet {
+	/**
+	 * <pre>
+	 * WARNING! 설정파일에서 '어드민 사이트 로그인 입력 페이지'와 
+	 *	'유저 사이트 로그인 입력 페이지'를 
+	 *	로그인 입력 페이지 1개로 통합하지 말것.
+	 *	Tomcat 은 1개 JVM 에서  가상 호스트 서비스를 지원한다. 
+	 *	sample_base 프로젝트는 어드민 사이트와 유저 사이트를  
+	 *	Tomcat 가상 호스트로 운영한다.
+	 *	각 사이트는 코다 설정 파일에서 
+	 *	지정한 별도의 로그인 입력 페이지를 갖는다.
+	 *	하여 이를 통합하면 다른 한쪽은 사이트에 맞지 않는 
+	 *	로그인 입력 페이지가 보여지는 문제를 갖게된다.
+	 * </pre> 
+	 */
 	protected String JDF_USER_LOGIN_INPUT_PAGE = null;
 	protected String JDF_ADMIN_LOGIN_INPUT_PAGE = null;
 	protected String JDF_SESSION_KEY_REDIRECT_PAGE = null;
@@ -195,19 +209,25 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 		
 		performBasePreTask(req, res);
 	}
+	 
 
 	/**
+	 * <pre>
+	 * 아래와 같은 JDF 핵심 로직을 수행하는 메소드, WARNING! 선행 작업 재 정의는 이 메소드가 아닌 {@link #performPreTask} 를 이용할것.
+	 * 
+	 * (1) get, post 모드에 상관없이 하나로 처리 될 수 있도록 함 
+	 * (2) 로그 추적
+	 * (3) 에러 처리
+	 * (4) 사용자 정의용 선행 작업 호출
+	 * </pre>
 	 * 
 	 * @param req
-	 *            HttpServletRequest
 	 * @param res
-	 *            HttpServletResponse
+	 * @throws ServletException
+	 * @throws IOException
 	 */
 	protected void performBasePreTask(HttpServletRequest req,
 			HttpServletResponse res) throws ServletException, IOException {
-		// req.setCharacterEncoding(CommonStaticFinalVars.DEFUALT_CHARSET.name());
-		// res.setContentType("text/html;charset=UTF-8");
-		
 		String menuGroupURL = this.getInitParameter(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL);
 		if (null == menuGroupURL) {
 			log.warn("the servlet init parameter '{}' is null in requestURI[{}]", 
@@ -244,7 +264,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					.append(boardType.getBoardID()).toString();
 		}
 		
-		req.setAttribute(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL, menuGroupURL);
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL, menuGroupURL);
 		
 		String traceLogBaseMsg = null;
 		long start = 0, end = 0;
@@ -310,7 +330,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	}
 
 	/**
-	 * get, post 모드에 상관없이 하나로 보게 해주는 메소드.
+	 * 사용자 재 정의가 가능한 선행 작업 메소드
 	 * 
 	 * @param req
 	 *            HttpServletRequest
@@ -478,6 +498,20 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	 * @param debugMessage
 	 *            개발시점에서 개발자가 Debugging을 위해 보는 메세지, 통상 운영시는 보이지 않도록 함.
 	 */
-	protected abstract void printErrorMessagePage(HttpServletRequest req,
-			HttpServletResponse res, String userMessage, String debugMessage);	
+	protected void printErrorMessagePage (HttpServletRequest req, HttpServletResponse res, String userMessage, String debugMessage) {		
+		
+		if (null == userMessage) {
+			userMessage = "user messsage is null";
+		}
+		
+		
+		if (null == debugMessage) {
+			debugMessage = "debug messsage is null";
+		}
+		
+		req.setAttribute("debugMessage", debugMessage);
+		req.setAttribute("userMessage", userMessage);
+		
+		printJspPage(req, res, JDF_ERROR_MESSAGE_PAGE);
+	}
 }

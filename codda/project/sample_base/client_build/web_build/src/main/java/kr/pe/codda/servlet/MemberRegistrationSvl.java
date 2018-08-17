@@ -101,7 +101,16 @@ public class MemberRegistrationSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		
-		printJspPage(req, res, "/jsp/member/memberRegistrationInput.jsp");
+		String siteType = getServletConfig().getInitParameter("siteType");
+		
+		
+		if (siteType.equals("admin")) {
+			printJspPage(req, res, "/jsp/member/MemberRegistrationInputForAdminSite.jsp");
+		} else {
+			printJspPage(req, res, "/jsp/member/MemberRegistrationInputForUserSite.jsp");
+		}
+		
+		
 	}
 		
 	private void memberResultPage(HttpServletRequest req, HttpServletResponse res) throws IllegalArgumentException, SymmetricException, IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
@@ -127,49 +136,49 @@ public class MemberRegistrationSvl extends AbstractServlet {
 		
 		if (null == paramSessionKeyBase64) {
 			String errorMessage = "세션키 값을 입력해 주세요";
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		if (null == paramIVBase64) {
 			String errorMessage = "IV 값을 입력해 주세요";
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		if (null == paramUserID) {
 			String errorMessage = "아이디 값을 입력해 주세요";
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		if (null == paramPwd) {
 			String errorMessage = "비밀번호 값을 입력해 주세요";
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		if (null == paramNickname) {
 			String errorMessage = "별명 값을 입력해 주세요";
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		if (null == paramPwdHint) {
 			String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요";
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		if (null == paramPwdAnswer) {
 			String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요";
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
 		if (null == paramCaptchaAnswer) {
 			String errorMessage = "Captcha 값을 입력해 주세요";
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -183,7 +192,7 @@ public class MemberRegistrationSvl extends AbstractServlet {
 			// String debugMessage = String.format("check whether the parameter paramSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", paramSessionKeyBase64, e.getMessage());
 			
 			
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		byte[] ivBytes = null;
@@ -195,7 +204,7 @@ public class MemberRegistrationSvl extends AbstractServlet {
 			String errorMessage = "세션키 소금 파라미터가 잘못되었습니다";
 			// String debugMessage = String.format("check whether the parameter paramIVBase64[%s] is a base64 encoding string, errormessage=[%s]", paramIVBase64, e.getMessage());
 			
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}	
 		
@@ -210,7 +219,7 @@ public class MemberRegistrationSvl extends AbstractServlet {
 			log.warn(errorMessage, e);			
 			
 			// String debugMessage = e.getMessage();
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -230,7 +239,7 @@ public class MemberRegistrationSvl extends AbstractServlet {
 			
 			
 			
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		} catch(SymmetricException e) {
 			String errorMessage = "웹 세션키 인스턴스 생성 실패";
@@ -244,7 +253,7 @@ public class MemberRegistrationSvl extends AbstractServlet {
 			
 			
 			
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 		}
 	
@@ -264,7 +273,7 @@ public class MemberRegistrationSvl extends AbstractServlet {
 			String debugMessage = String.format("사용자가 입력한 Captcha 값[%s]과 내부 Captcha 값[%s]이 다릅니다.", answer, captcha.getAnswer());
 			log.warn(debugMessage);
 			
-			doMemberRegistrationFailurePage(req, res, "입력한 Captcha 값이 틀렸습니다.");
+			printMemberRegistrationFailureCallBackPage(req, res, "입력한 Captcha 값이 틀렸습니다.");
 			return;
 		}
 		
@@ -304,9 +313,9 @@ public class MemberRegistrationSvl extends AbstractServlet {
 				MessageResultRes messageResultRes = (MessageResultRes)memberRegisterOutputMessage;
 				
 				if (messageResultRes.getIsSuccess()) {
-					doMemberRegistrationSuccessPage(req, res);
+					printMemberRegistrationOKCallBackPage(req, res);
 				} else {
-					doMemberRegistrationFailurePage(req, res, messageResultRes.getResultMessage());
+					printMemberRegistrationFailureCallBackPage(req, res, messageResultRes.getResultMessage());
 				}
 				
 				return;
@@ -320,7 +329,7 @@ public class MemberRegistrationSvl extends AbstractServlet {
 				
 				log.error(debugMessage);
 
-				doMemberRegistrationFailurePage(req, res, errorMessage);
+				printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 				return;
 			}	
 		} else {
@@ -333,19 +342,19 @@ public class MemberRegistrationSvl extends AbstractServlet {
 			
 			log.error(debugMessage);
 
-			doMemberRegistrationFailurePage(req, res, errorMessage);
+			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
 			return;
 			
 		}	
 	}
 	
-	private void doMemberRegistrationSuccessPage(HttpServletRequest req, HttpServletResponse res) {		
-		printJspPage(req, res, "/jsp/member/memberRegistrationOKCallBack.jsp");
+	private void printMemberRegistrationOKCallBackPage(HttpServletRequest req, HttpServletResponse res) {		
+		printJspPage(req, res, "/jsp/member/MemberRegistrationOKCallBack.jsp");
 	}
 	
-	private void doMemberRegistrationFailurePage(HttpServletRequest req, HttpServletResponse res,
+	private void printMemberRegistrationFailureCallBackPage(HttpServletRequest req, HttpServletResponse res,
 			String errorMessage) {
 		req.setAttribute("errorMessage", errorMessage);		
-		printJspPage(req, res, "/jsp/member/memberRegistrationFailureCallBack.jsp");
+		printJspPage(req, res, "/jsp/member/MemberRegistrationFailureCallBack.jsp");
 	}
 }

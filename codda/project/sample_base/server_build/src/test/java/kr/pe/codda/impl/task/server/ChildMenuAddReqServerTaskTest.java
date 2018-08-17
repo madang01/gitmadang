@@ -22,7 +22,7 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("testAdmin");		
+		ServerDBUtil.initializeDBEnvoroment("admin");		
 	}
 
 	@Test
@@ -56,6 +56,11 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 			fail("fail to get a output message 'RootMenuAddRes'");
 		}
 		
+		
+		assertEquals("첫번째 자식 메뉴의 순서의 잘못되었습니다. 첫번째 자식 메뉴의 순서는 부모의 메뉴 순서에 1을 더한 값이여야 합니다", 
+				rootMenuAddRes.getOrderSeq() + 1, firstChildMenuAddRes.getOrderSeq());
+		
+		
 		ChildMenuAddReq secondChildMenuAddReq = new ChildMenuAddReq();
 		secondChildMenuAddReq.setParentNo(rootMenuAddRes.getMenuNo());
 		secondChildMenuAddReq.setMenuName("temp1_2");
@@ -69,12 +74,9 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 			fail("fail to get a output message 'RootMenuAddRes'");
 		}	
 		
-		if (secondChildMenuAddRes.getOrderSeq() != (firstChildMenuAddRes.getOrderSeq() + 1)) {
-			log.info("first::{}", firstChildMenuAddRes);
-			log.info("second::{}", secondChildMenuAddRes);
-			
-			fail("두번째 자식 메뉴의 순서의 잘못되었습니다. 두번째 자식 메뉴의 순서는 첫번째 자식 메뉴의 순서에 1을 더한 값이어야 합니다");
-		}
+		
+		assertEquals("두번째 자식 메뉴의 순서의 잘못되었습니다. 두번째 자식 메뉴의 순서는 첫번째 자식 메뉴의 순서에 1을 더한 값이어야 합니다", 
+				firstChildMenuAddRes.getOrderSeq() + 1, secondChildMenuAddRes.getOrderSeq());
 	}
 
 	

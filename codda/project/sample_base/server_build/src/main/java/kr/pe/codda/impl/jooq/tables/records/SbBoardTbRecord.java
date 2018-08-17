@@ -31,7 +31,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implements Record8<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String> {
 
-    private static final long serialVersionUID = 951135068;
+    private static final long serialVersionUID = 832432604;
 
     /**
      * Setter for <code>sb_db.sb_board_tb.board_id</code>. 게시판 종류 식별자, 어떤 게시판인지 설명하는 게시판 정보(board_info) 테이블을 바라본다.
@@ -48,14 +48,14 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_tb.board_no</code>. 글 번호
+     * Setter for <code>sb_db.sb_board_tb.board_no</code>. 글 번호, 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로1 부터 얻어옴
      */
     public void setBoardNo(UInteger value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_tb.board_no</code>. 글 번호
+     * Getter for <code>sb_db.sb_board_tb.board_no</code>. 글 번호, 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로1 부터 얻어옴
      */
     public UInteger getBoardNo() {
         return (UInteger) get(1);

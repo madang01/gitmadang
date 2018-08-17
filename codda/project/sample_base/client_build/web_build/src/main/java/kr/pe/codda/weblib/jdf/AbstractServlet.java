@@ -28,11 +28,10 @@ import javax.servlet.http.HttpServletResponse;
  * </pre>
  */
 @SuppressWarnings("serial")
-public abstract class AbstractServlet extends JDFBaseServlet {	
-
+public abstract class AbstractServlet extends JDFBaseServlet {
 	
 	@Override
-	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {	
+	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
 		performTask(req,res);	
 	}
 

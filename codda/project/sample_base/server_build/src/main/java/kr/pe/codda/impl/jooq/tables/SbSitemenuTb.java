@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
 
-    private static final long serialVersionUID = 128618057;
+    private static final long serialVersionUID = 2080860161;
 
     /**
      * The reference instance of <code>sb_db.sb_sitemenu_tb</code>
@@ -127,7 +127,7 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_SITEMENU_TB_PRIMARY, Indexes.SB_SITEMENU_TB_SB_SITEMENU_IDX1);
+        return Arrays.<Index>asList(Indexes.SB_SITEMENU_TB_ORDER_SQ_UNIQUE, Indexes.SB_SITEMENU_TB_PRIMARY, Indexes.SB_SITEMENU_TB_SB_SITEMENU_IDX1);
     }
 
     /**
@@ -143,7 +143,7 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
      */
     @Override
     public List<UniqueKey<SbSitemenuTbRecord>> getKeys() {
-        return Arrays.<UniqueKey<SbSitemenuTbRecord>>asList(Keys.KEY_SB_SITEMENU_TB_PRIMARY);
+        return Arrays.<UniqueKey<SbSitemenuTbRecord>>asList(Keys.KEY_SB_SITEMENU_TB_PRIMARY, Keys.KEY_SB_SITEMENU_TB_ORDER_SQ_UNIQUE);
     }
 
     /**

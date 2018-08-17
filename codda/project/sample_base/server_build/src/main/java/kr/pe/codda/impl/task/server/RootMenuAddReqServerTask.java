@@ -127,9 +127,9 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 			short newOrderSeq = create.select(
 					JooqSqlUtil.getIfField(SB_SITEMENU_TB.ORDER_SQ.max(), 0, SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
 			.from(SB_SITEMENU_TB)
-			.where(SB_SITEMENU_TB.PARENT_NO.eq(UInteger.valueOf(0)))
 			.fetchOne(0, Short.class);
 
+			
 			if (newOrderSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				try {
 					conn.rollback();
@@ -138,7 +138,7 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder()
-						.append("루트 메뉴 갯수가 최대치에 도달하여 더 이상 추가할 수 없습니다")
+						.append("메뉴 갯수가 최대치(=255)에 도달하여 더 이상 추가할 수 없습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
 			}									

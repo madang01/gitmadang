@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record2;
+import org.jooq.Record1;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
@@ -100,7 +100,7 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			Record2<UInteger, UByte> deleteMenuRecord =  create.select(SB_SITEMENU_TB.PARENT_NO, SB_SITEMENU_TB.ORDER_SQ)
+			Record1<UByte> deleteMenuRecord =  create.select(SB_SITEMENU_TB.ORDER_SQ)
 			.from(SB_SITEMENU_TB)
 			.where(SB_SITEMENU_TB.MENU_NO.eq(UInteger.valueOf(menuDeleteReq.getMenuNo()))).fetchOne();
 			
@@ -136,12 +136,6 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			/** 삭제할 메뉴 이후의 순서 보정 */
-			create.update(SB_SITEMENU_TB)
-			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.sub(1))
-			.where(SB_SITEMENU_TB.PARENT_NO.eq(deleteMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO)))
-			.and(SB_SITEMENU_TB.ORDER_SQ.gt(deleteMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ)))
-			.execute();
 			
 			int menuDeleteCount = create.delete(SB_SITEMENU_TB)
 			.where(SB_SITEMENU_TB.MENU_NO.eq(UInteger.valueOf(menuDeleteReq.getMenuNo())))
@@ -160,6 +154,12 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 						.append("] 삭제가 실패하였습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			/** 삭제할 메뉴 이후의 순서 보정 */
+			create.update(SB_SITEMENU_TB)
+			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.sub(1))
+			.where(SB_SITEMENU_TB.ORDER_SQ.gt(deleteMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ)))
+			.execute();
 			
 			try {
 				conn.commit();

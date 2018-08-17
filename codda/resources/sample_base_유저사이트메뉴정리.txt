@@ -22,7 +22,7 @@
  3.6 대칭키 테스트(/servlet/JSSymmetricKeyTest)
  3.7 에코 테스트(/servlet/EchoTest)
  3.8 모든 데이터 타입 검증(/servlet/AllItemTypeTest)
- 3.9 Java GC(/servlet/JavaGCCaller)
+ 3.9 Java GC 호출(/servlet/JavaGCCaller)
  3.10 자바 문자열 변환 도구(/servlet/JavaStringConverter)
  3.11 동적 클래스 호출 실패
 

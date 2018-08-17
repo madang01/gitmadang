@@ -60,12 +60,8 @@ public class AdminLoginSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
 		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
-		
-		if (null == paramRequestType) {
-			paramRequestType= "input";
-		}
 
-		if (paramRequestType.equals("input")) {
+		if (null == paramRequestType || paramRequestType.equals("input")) {
 			inputPage(req, res);
 			return;
 		} else if (paramRequestType.equals("proc")) {
@@ -108,7 +104,7 @@ public class AdminLoginSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		
-		/** /jsp/member/adminLoginInput.jsp */
+		/** /jsp/member/AdminLoginInput.jsp */
 		printJspPage(req, res, JDF_ADMIN_LOGIN_INPUT_PAGE);
 	}
 
@@ -296,7 +292,7 @@ public class AdminLoginSvl extends AbstractServlet {
 			
 			log.error(debugMessage);
 
-			doLoginFailurePage(req, res, 
+			printAdminLoginFailureCallBackPage(req, res, 
 					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
 					errorMessage);
 			return;
@@ -331,7 +327,7 @@ public class AdminLoginSvl extends AbstractServlet {
 			
 			log.error(debugMessage);
 
-			doLoginFailurePage(req, res, 
+			printAdminLoginFailureCallBackPage(req, res, 
 					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
 					errorMessage);
 			return;
@@ -340,20 +336,20 @@ public class AdminLoginSvl extends AbstractServlet {
 		MessageResultRes messageResultRes = (MessageResultRes) loginOutputMessage;
 		if (messageResultRes.getIsSuccess()) {
 			HttpSession httpSession = req.getSession();
-			httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMINID, userId);
+			httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID, userId);
 			
-			doLoginSuccessPage(req, res, 
+			printAdminLoginOKCallBackPage(req, res, 
 					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb());
 			return;
 		} else {
-			doLoginFailurePage(req, res, 
+			printAdminLoginFailureCallBackPage(req, res, 
 					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
 					messageResultRes.getResultMessage());
 			return;
 		}
 	}
 
-	private void doLoginFailurePage(HttpServletRequest req, HttpServletResponse res,
+	private void printAdminLoginFailureCallBackPage(HttpServletRequest req, HttpServletResponse res,
 			ServerSymmetricKeyIF webServerSymmetricKey,
 			String modulusHexString, 
 			String errorMessage) {
@@ -362,17 +358,17 @@ public class AdminLoginSvl extends AbstractServlet {
 				modulusHexString);
 		req.setAttribute("errorMessage", errorMessage);
 		
-		printJspPage(req, res, "/jsp/member/adminLoginFailureCallBack.jsp");
+		printJspPage(req, res, "/jsp/member/AdminLoginFailureCallBack.jsp");
 	}
 
-	private void doLoginSuccessPage(HttpServletRequest req, HttpServletResponse res,
+	private void printAdminLoginOKCallBackPage(HttpServletRequest req, HttpServletResponse res,
 			ServerSymmetricKeyIF webServerSymmetricKey,
 			String modulusHexString) {		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				modulusHexString);
 
-		printJspPage(req, res, "/jsp/member/adminLoginOKCallBack.jsp");
+		printJspPage(req, res, "/jsp/member/AdminLoginOKCallBack.jsp");
 	}
 	
 

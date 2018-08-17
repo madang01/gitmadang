@@ -42,6 +42,10 @@
 			<param-name>menuGroupURL</param-name>
 			<param-value>/</param-value>
 		</init-param>
+		<init-param>
+			<param-name>siteType</param-name>
+			<param-value>admin</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MemberRegistration</servlet-name>

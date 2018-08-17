@@ -28,7 +28,7 @@ import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class ArraySiteMenuReqServerTask extends AbstractServerTask {
-	final UInteger rootParnetNo = UInteger.valueOf(0);
+	// final UInteger rootParnetNo = UInteger.valueOf(0);
 	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
@@ -82,8 +82,31 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
 			
+			Result<Record6<UInteger, UInteger, UByte, UByte, String, String>> menuListResult = create.select(SB_SITEMENU_TB.MENU_NO, 
+					SB_SITEMENU_TB.PARENT_NO, 
+					SB_SITEMENU_TB.DEPTH, 
+					SB_SITEMENU_TB.ORDER_SQ,					
+					SB_SITEMENU_TB.MENU_NM,
+					SB_SITEMENU_TB.LINK_URL)
+			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx"))
+			.orderBy(SB_SITEMENU_TB.ORDER_SQ.asc())
+			.fetch();			
+			
 			java.util.List<ArraySiteMenuRes.Menu> menuList = new ArrayList<ArraySiteMenuRes.Menu>();			
-			buildMenuListRes(menuList, create, rootParnetNo);			
+			// buildMenuListRes(menuList, create, rootParnetNo);		
+			for (Record menuListRecord : menuListResult) {
+				ArraySiteMenuRes.Menu menu = new ArraySiteMenuRes.Menu();
+				
+				UInteger menuNo = menuListRecord.getValue(SB_SITEMENU_TB.MENU_NO);
+				
+				menu.setMenuNo(menuNo.longValue());
+				menu.setParentNo(menuListRecord.getValue(SB_SITEMENU_TB.PARENT_NO).longValue());
+				menu.setDepth(menuListRecord.getValue(SB_SITEMENU_TB.DEPTH).shortValue());
+				menu.setOrderSeq(menuListRecord.getValue(SB_SITEMENU_TB.ORDER_SQ).shortValue());
+				menu.setMenuName(menuListRecord.getValue(SB_SITEMENU_TB.MENU_NM));
+				menu.setLinkURL(menuListRecord.getValue(SB_SITEMENU_TB.LINK_URL));
+				menuList.add(menu);
+			}			
 			
 			conn.commit();			
 			
@@ -112,42 +135,6 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 					log.warn("fail to close the db connection", e);
 				}
 			}
-		}
-	}
-
-
-	private void buildMenuListRes(java.util.List<ArraySiteMenuRes.Menu> menuList, DSLContext create, UInteger parnetNo) {
-		Result<Record6<UInteger, UInteger, UByte, UByte, String, String>> menuListResult = create.select(SB_SITEMENU_TB.MENU_NO, 
-				SB_SITEMENU_TB.PARENT_NO, 
-				SB_SITEMENU_TB.DEPTH, 
-				SB_SITEMENU_TB.ORDER_SQ,					
-				SB_SITEMENU_TB.MENU_NM,
-				SB_SITEMENU_TB.LINK_URL)
-		.from(SB_SITEMENU_TB)
-		.where(SB_SITEMENU_TB.PARENT_NO.eq(parnetNo))
-		.orderBy(SB_SITEMENU_TB.ORDER_SQ)
-		.fetch();
-		
-		/*if (null == menuListResult) {
-			log.info("the var menuListResult is null");
-			return;
-		}*/
-		
-		for (Record menuListRecord : menuListResult) {
-			ArraySiteMenuRes.Menu menu = new ArraySiteMenuRes.Menu();
-			
-			UInteger menuNo = menuListRecord.getValue(SB_SITEMENU_TB.MENU_NO);
-			
-			menu.setMenuNo(menuNo.longValue());
-			menu.setParentNo(menuListRecord.getValue(SB_SITEMENU_TB.PARENT_NO).longValue());
-			menu.setDepth(menuListRecord.getValue(SB_SITEMENU_TB.DEPTH).shortValue());
-			menu.setOrderSeq(menuListRecord.getValue(SB_SITEMENU_TB.ORDER_SQ).shortValue());
-			menu.setMenuName(menuListRecord.getValue(SB_SITEMENU_TB.MENU_NM));
-			menu.setLinkURL(menuListRecord.getValue(SB_SITEMENU_TB.LINK_URL));
-			menuList.add(menu);
-			
-			
-			buildMenuListRes(menuList, create, menuNo);
 		}
 	}
 }
