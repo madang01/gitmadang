@@ -18,7 +18,7 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("testAdmin");
+		ServerDBUtil.initializeDBEnvoroment();
 	}
 	
 	@Test
@@ -34,7 +34,7 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
 		
 		try {
-			BoardListRes boardListRes = boardListReqServerTask.doService(boardListReq);
+			BoardListRes boardListRes = boardListReqServerTask.doWork(boardListReq);
 			log.info(boardListRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);

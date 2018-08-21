@@ -48,7 +48,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((ChildMenuAddReq)inputMessage);
+			AbstractMessage outputMessage = doWork((ChildMenuAddReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -69,7 +69,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 		}
 		
 	}
-	public ChildMenuAddRes doService(ChildMenuAddReq childMenuAddReq) throws Exception {		
+	public ChildMenuAddRes doWork(ChildMenuAddReq childMenuAddReq) throws Exception {		
 		// FIXME!
 		log.info(childMenuAddReq.toString());
 		
@@ -202,7 +202,8 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			
 			create.update(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.add(1))
-			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(newOrderSeq));
+			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(newOrderSeq))
+			.execute();
 					
 			
 			int childMenuInsertCount = create.insertInto(SB_SITEMENU_TB)

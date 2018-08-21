@@ -21,7 +21,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("admin");		
+		ServerDBUtil.initializeDBEnvoroment();		
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			
 			
 			try {
-				fromRootMenuAddRes  = rootMenuAddReqServerTask.doService(fromRootMenuAddReq);
+				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(fromRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -51,7 +51,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			toRootMenuAddReq.setLinkURL("/temp02");
 			
 			try {
-				toRootMenuAddRes  = rootMenuAddReqServerTask.doService(toRootMenuAddReq);
+				toRootMenuAddRes  = rootMenuAddReqServerTask.doWork(toRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -64,7 +64,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			otherRootMenuAddReq.setLinkURL("/temp03");
 			
 			try {
-				rootMenuAddReqServerTask.doService(otherRootMenuAddReq);
+				rootMenuAddReqServerTask.doWork(otherRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -75,7 +75,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
 		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
 		try {
-			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doService(menuDownMoveReq);
+			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(menuDownMoveReq);
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
 			}
@@ -100,7 +100,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			
 			
 			try {
-				fromRootMenuAddRes  = rootMenuAddReqServerTask.doService(fromRootMenuAddReq);
+				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(fromRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -113,7 +113,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(fromRootMenuAddRes.getMenuNo());		
 		
 		try {
-			MessageResultRes messageResultRes = menuDeleteReqServerTask.doService(menuDeleteReq);
+			MessageResultRes messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
 			
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
@@ -128,7 +128,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
 		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
 		try {
-			menuDownMoveReqServerTask.doService(menuDownMoveReq);
+			menuDownMoveReqServerTask.doWork(menuDownMoveReq);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
@@ -158,7 +158,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			fromRootMenuAddReq.setLinkURL("/temp01");			
 			
 			try {
-				fromRootMenuAddRes  = rootMenuAddReqServerTask.doService(fromRootMenuAddReq);
+				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(fromRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -169,7 +169,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
 		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
 		try {
-			menuDownMoveReqServerTask.doService(menuDownMoveReq);
+			menuDownMoveReqServerTask.doWork(menuDownMoveReq);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {

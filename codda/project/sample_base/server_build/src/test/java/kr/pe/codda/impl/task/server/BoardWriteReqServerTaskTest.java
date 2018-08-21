@@ -24,7 +24,6 @@ import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
 public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
@@ -33,7 +32,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("testAdmin");	
+		ServerDBUtil.initializeDBEnvoroment();	
 		
 		createTestID("test01", "단위테스터용아이디1");
 	}
@@ -114,7 +113,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		try {
 			@SuppressWarnings("unused")
 			MessageResultRes messageResultRes = 
-					memberRegisterReqServerTask.doService(memberRegisterReq, MemberType.USER);
+					memberRegisterReqServerTask.doWork(memberRegisterReq);
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 					.append(userID)
@@ -153,7 +152,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
 		
 		try {
-			BoardWriteRes boardWriteRes = boardWriteReqServerTask.doService(boardWriteReq);
+			BoardWriteRes boardWriteRes = boardWriteReqServerTask.doWork(boardWriteReq);
 			log.info(boardWriteRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);

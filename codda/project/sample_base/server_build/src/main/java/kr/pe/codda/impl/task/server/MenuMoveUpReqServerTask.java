@@ -47,7 +47,7 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((MenuMoveUpReq)inputMessage);
+			AbstractMessage outputMessage = doWork((MenuMoveUpReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -69,7 +69,7 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doService(MenuMoveUpReq menuMoveUpReq) throws Exception {
+	public MessageResultRes doWork(MenuMoveUpReq menuMoveUpReq) throws Exception {
 		// FIXME!
 		log.info(menuMoveUpReq.toString());
 		

@@ -55,7 +55,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			AbstractMessage inputMessage) throws Exception {
 
 		try {
-			AbstractMessage outputMessage = doService((BoardReplyReq) inputMessage);
+			AbstractMessage outputMessage = doWork((BoardReplyReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -74,7 +74,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public BoardReplyRes doService(BoardReplyReq boardReplyReq) throws Exception {
+	public BoardReplyRes doWork(BoardReplyReq boardReplyReq) throws Exception {
 		// FIXME!
 		log.info(boardReplyReq.toString());
 

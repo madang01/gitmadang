@@ -21,17 +21,17 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("testAdmin");		
+		ServerDBUtil.initializeDBEnvoroment();		
 	}
 	
 	@Test
 	public void testDoServie_ok() {
-		ArraySiteMenuReqServerTask menuListReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
 		
-		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
+		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		
 		try {
-			ArraySiteMenuRes ArraySiteMenuRes = menuListReqServerTask.doService(menuListReq);
+			ArraySiteMenuRes ArraySiteMenuRes = arraySiteMenuReqServerTask.doWork(arraySiteMenuReq);
 			
 			
 			for (ArraySiteMenuRes.Menu menu : ArraySiteMenuRes.getMenuList()) {
@@ -46,7 +46,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 			log.warn("error", e);
 			fail("fail to get a output message 'ArraySiteMenuRes'");
 		}
-	}
+	}	
 	
 	@Test
 	public void testDoServie_두번루트메뉴등록하여목록점검() {
@@ -55,7 +55,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		ArraySiteMenuRes beforeMenuListRes = null;
 		ArraySiteMenuRes afterMenuListRes = null;
 		try {
-			beforeMenuListRes = menuListReqServerTask.doService(menuListReq);
+			beforeMenuListRes = menuListReqServerTask.doWork(menuListReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'ArraySiteMenuRes'");
@@ -69,14 +69,14 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes firstRootMenuAddRes = null;
 		try {
-			firstRootMenuAddRes  = rootMenuAddReqServerTask.doService(firstRootMenuAddReq);
+			firstRootMenuAddRes  = rootMenuAddReqServerTask.doWork(firstRootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a first output message 'RootMenuAddRes'");
 		}		
 		
 		try {
-			afterMenuListRes = menuListReqServerTask.doService(menuListReq);
+			afterMenuListRes = menuListReqServerTask.doWork(menuListReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'ArraySiteMenuRes'");
@@ -125,7 +125,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes secondRootMenuAddRes = null;
 		try {
-			secondRootMenuAddRes  = rootMenuAddReqServerTask.doService(secondRootMenuAddReq);
+			secondRootMenuAddRes  = rootMenuAddReqServerTask.doWork(secondRootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a second output message 'RootMenuAddRes'");

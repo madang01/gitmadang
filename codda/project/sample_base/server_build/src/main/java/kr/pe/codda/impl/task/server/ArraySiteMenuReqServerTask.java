@@ -46,7 +46,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((ArraySiteMenuReq)inputMessage);
+			AbstractMessage outputMessage = doWork((ArraySiteMenuReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -67,7 +67,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public ArraySiteMenuRes doService(ArraySiteMenuReq arraySiteMenuReq) throws Exception {
+	public ArraySiteMenuRes doWork(ArraySiteMenuReq arraySiteMenuReq) throws Exception {
 		// FIXME!
 		log.info(arraySiteMenuReq.toString());
 		

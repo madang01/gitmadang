@@ -23,7 +23,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("admin");		
+		ServerDBUtil.initializeDBEnvoroment();		
 	}
 
 	@Test
@@ -39,7 +39,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 			toRootMenuAddReq.setLinkURL("/temp03");
 			
 			try {
-				toRootMenuAddRes  = rootMenuAddReqServerTask.doService(toRootMenuAddReq);
+				toRootMenuAddRes  = rootMenuAddReqServerTask.doWork(toRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -53,7 +53,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 			
 			
 			try {
-				fromRootMenuAddRes  = rootMenuAddReqServerTask.doService(fromRootMenuAddReq);
+				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(fromRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -68,7 +68,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 			otherRootMenuAddReq.setLinkURL("/temp03");
 			
 			try {
-				rootMenuAddReqServerTask.doService(otherRootMenuAddReq);
+				rootMenuAddReqServerTask.doWork(otherRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -79,7 +79,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 		menuUpMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
 		MenuMoveUpReqServerTask menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
 		try {
-			MessageResultRes messageResultRes = menuUpMoveReqServerTask.doService(menuUpMoveReq);
+			MessageResultRes messageResultRes = menuUpMoveReqServerTask.doWork(menuUpMoveReq);
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
 			}
@@ -104,7 +104,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 			
 			
 			try {
-				fromRootMenuAddRes  = rootMenuAddReqServerTask.doService(fromRootMenuAddReq);
+				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(fromRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -117,7 +117,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(fromRootMenuAddRes.getMenuNo());		
 		
 		try {
-			MessageResultRes messageResultRes = menuDeleteReqServerTask.doService(menuDeleteReq);
+			MessageResultRes messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
 			
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
@@ -132,7 +132,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 		menuUpMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
 		MenuMoveUpReqServerTask menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
 		try {
-			menuUpMoveReqServerTask.doService(menuUpMoveReq);			
+			menuUpMoveReqServerTask.doWork(menuUpMoveReq);			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage  = new StringBuilder()
@@ -162,7 +162,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 			
 			
 			try {
-				rootMenuAddRes  = rootMenuAddReqServerTask.doService(rootMenuAddReq);
+				rootMenuAddRes  = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -178,7 +178,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 		
 		ChildMenuAddRes firstChildMenuAddRes = null;
 		try {
-			firstChildMenuAddRes  = childMenuAddReqServerTask.doService(firstChildMenuAddReq);
+			firstChildMenuAddRes  = childMenuAddReqServerTask.doWork(firstChildMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -189,7 +189,7 @@ public class MenuMoveUpReqServerTaskTest extends AbstractJunitTest {
 		menuUpMoveReq.setMenuNo(firstChildMenuAddRes.getMenuNo());
 		MenuMoveUpReqServerTask menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
 		try {
-			menuUpMoveReqServerTask.doService(menuUpMoveReq);			
+			menuUpMoveReqServerTask.doWork(menuUpMoveReq);			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder()

@@ -26,7 +26,6 @@ import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
 public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
@@ -35,7 +34,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("testAdmin");	
+		ServerDBUtil.initializeDBEnvoroment();	
 		
 		createTestID("test01");
 	}
@@ -116,7 +115,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		try {
 			@SuppressWarnings("unused")
 			MessageResultRes messageResultRes = 
-					memberRegisterReqServerTask.doService(memberRegisterReq, MemberType.USER);
+					memberRegisterReqServerTask.doWork(memberRegisterReq);
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 					.append(userID)
@@ -161,7 +160,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
 		BoardWriteRes boardWriteRes = null;
 		try {
-			boardWriteRes = boardWriteReqServerTask.doService(boardWriteReq);
+			boardWriteRes = boardWriteReqServerTask.doWork(boardWriteReq);
 			log.info(boardWriteRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);
@@ -203,7 +202,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		BoardReplyReqServerTask boardReplyReqServerTask= new BoardReplyReqServerTask();
 		
 		try {
-			BoardReplyRes boardReplyRes = boardReplyReqServerTask.doService(boardReplyReq);
+			BoardReplyRes boardReplyRes = boardReplyReqServerTask.doWork(boardReplyReq);
 			log.info(boardReplyRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);

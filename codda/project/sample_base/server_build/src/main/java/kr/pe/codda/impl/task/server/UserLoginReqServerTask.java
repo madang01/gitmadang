@@ -3,11 +3,8 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.Timestamp;
-import java.util.Arrays;
 
 import javax.sql.DataSource;
 
@@ -33,7 +30,9 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.PasswordPairForMemberTable;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
@@ -66,7 +65,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((UserLoginReq)inputMessage);
+			AbstractMessage outputMessage = doWork((UserLoginReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -88,7 +87,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 	}
 	
 	
-	public UserLoginRes doService(UserLoginReq loginReq) throws Exception {
+	public UserLoginRes doWork(UserLoginReq loginReq) throws Exception {
 		// FIXME!
 		log.info(loginReq.toString());		
 		
@@ -414,28 +413,11 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			byte[] pwdSaltBytes = Base64.decodeBase64(pwdSaltBase64);
-			// byte[] passwordByteArray = password.getBytes(CommonStaticFinalVars.SINNORI_CIPHER_CHARSET);
+			byte[] pwdSaltBytes = Base64.decodeBase64(pwdSaltBase64);			
 			
-			ByteBuffer passwordByteBuffer = ByteBuffer.allocate(pwdSaltBytes.length+passwordBytes.length);
-			passwordByteBuffer.put(pwdSaltBytes);
-			passwordByteBuffer.put(passwordBytes);
-			MessageDigest md = MessageDigest.getInstance(CommonStaticFinalVars.PASSWORD_ALGORITHM_NAME);
+			PasswordPairForMemberTable passwordPairForMemberTable = ServerDBUtil.getPasswordPairForMemberTable(passwordBytes, pwdSaltBytes);
 			
-			md.update(passwordByteBuffer.array());
-			
-			// FIXME!
-			// log.info(HexUtil.getAllHexStringFromByteBuffer(passwordByteBuffer));
-			
-			byte pwdMDBytes[] =  md.digest();
-			
-			
-			/** 복호환 비밀번호 초기화 */
-			Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);
-			
-			String userPwdMDBase64 = Base64.encodeBase64String(pwdMDBytes);
-			
-			if (! pwdMDBase64.equals(userPwdMDBase64)) {
+			if (! pwdMDBase64.equals(passwordPairForMemberTable.getPasswordBase64())) {
 				/*
 				update SB_MEMBER_TB set pwd_fail_cnt=#{pwdFailCount}, mod_dt=sysdate() where user_id=#{userId} and member_gb=1 and member_st=0
 				*/				

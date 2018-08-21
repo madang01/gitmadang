@@ -16,7 +16,6 @@ import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.server.lib.MemberType;
 
 public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {	
 	
@@ -94,7 +93,7 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 		try {
 			@SuppressWarnings("unused")
 			MessageResultRes messageResultRes = 
-					memberRegisterReqServerTask.doService(memberRegisterReq, MemberType.USER);
+					memberRegisterReqServerTask.doWork(memberRegisterReq);
 		} catch (Exception e) {
 			log.warn("fail to execuate doTask", e);
 			fail("fail to execuate doTask");

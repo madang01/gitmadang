@@ -55,7 +55,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((BoardWriteReq) inputMessage);
+			AbstractMessage outputMessage = doWork((BoardWriteReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -76,7 +76,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 	
 	
 	
-	public BoardWriteRes doService(BoardWriteReq boardWriteReq) throws Exception {
+	public BoardWriteRes doWork(BoardWriteReq boardWriteReq) throws Exception {
 		// FIXME!
 		log.info(boardWriteReq.toString());	
 		

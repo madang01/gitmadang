@@ -18,13 +18,15 @@ public class RootMenuAddReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("admin");		
+		ServerDBUtil.initializeDBEnvoroment();		
 	}
+	
 	
 	
 	@Test
 	public void testDoServie_ok() {
 		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		
 		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
 		rootMenuAddReq.setMenuName("temp1");
@@ -32,7 +34,7 @@ public class RootMenuAddReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddRes = null;
 		try {
-			rootMenuAddRes  = rootMenuAddReqServerTask.doService(rootMenuAddReq);
+			rootMenuAddRes  = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -42,7 +44,7 @@ public class RootMenuAddReqServerTaskTest extends AbstractJunitTest {
 		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
 		ArraySiteMenuRes menuListRes = null;
 		try {
-			menuListRes = menuListReqServerTask.doService(menuListReq);
+			menuListRes = menuListReqServerTask.doWork(menuListReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'ArraySiteMenuRes'");

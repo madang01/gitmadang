@@ -1,10 +1,16 @@
 package kr.pe.codda.server.lib;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
+import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Random;
 
 import javax.sql.DataSource;
 
@@ -19,19 +25,12 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.ServerServiceException;
-import kr.pe.codda.common.exception.SymmetricException;
-import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
-import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
-import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
-import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
-import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
-import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
 public abstract class ServerDBUtil {
 
-	public static void initializeDBEnvoroment(String adminID) throws Exception {
+	public static void initializeDBEnvoroment() throws Exception {
 		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
 		
 		DataSource dataSource = DBCPManager.getInstance()
@@ -46,10 +45,7 @@ public abstract class ServerDBUtil {
 			
 			insertAllBoardIDIfNotExist(create);
 			
-			insertAllSeqIDIfNotExist(create);	
-			
-			
-			
+			insertAllSeqIDIfNotExist(create);
 			
 		} catch (Exception e) {
 			try {
@@ -72,94 +68,198 @@ public abstract class ServerDBUtil {
 		}
 		
 		
-		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
-		createAdmin(adminID, "테스트어드민", passwordBytes, "비밀번호힌트::그것이 알고싶다", "비밀번호답변::");
-		
-	}
-	
-	private static void createAdmin(String userID, String nickname, byte[] passwordBytes, String pwdHint, String pwdAnswer) throws Exception {
-		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
-		
-		
-		ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
-		
-		ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
-		ClientSessionKeyIF clientSessionKey = null;
-		try {
-			clientSessionKey = clientSessionKeyManager
-					.getNewClientSessionKey(serverSessionkeyManager.getMainProjectServerSessionkey().getDupPublicKeyBytes());
-		} catch (SymmetricException e) {
-			throw e;
-		}
-		
-		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
-		
-		byte[] idCipherTextBytes = null;
-		try {
-			idCipherTextBytes = clientSymmetricKey.encrypt(userID.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));
-		} catch (Exception e) {
-			throw e;
-		}
-		byte[] passwordCipherTextBytes = null;
+		/*String nickname = "테스트어드민";
+		String pwdHint = "비밀번호힌트::그것이 알고싶다";
+		String pwdAnswer = "비밀번호답변::";
+		// 비밀번호는 영문으로 시작해서 영문/숫자/특수문자가 최소 1자이상 조합되어야 한다 
+		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'}; 
 		
 		try {
-			passwordCipherTextBytes = clientSymmetricKey.encrypt(passwordBytes);
-		} catch (Exception e) {
-			throw e;
-		}
-		
-		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);
-		
-		byte[] nicknameCipherTextBytes = null;
-		try {
-			nicknameCipherTextBytes = clientSymmetricKey.encrypt(nickname.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));
-		} catch (Exception e) {
-			throw e;
-		}
-		
-		byte[] pwdHintCipherTextBytes = null;
-		try {
-			pwdHintCipherTextBytes = clientSymmetricKey.encrypt(pwdHint.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));
-		} catch (Exception e) {
-			throw e;
-		}
-		
-		byte[] pwdAnswerCipherTextBytes = null;
-		try {
-			pwdAnswerCipherTextBytes = clientSymmetricKey.encrypt(pwdAnswer.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));
-		} catch (Exception e) {
-			throw e;
-		}
-		
-		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
-		memberRegisterReq.setIdCipherBase64(Base64.encodeBase64String(idCipherTextBytes));
-		memberRegisterReq.setPwdCipherBase64(Base64.encodeBase64String(passwordCipherTextBytes));
-		memberRegisterReq.setNicknameCipherBase64(Base64.encodeBase64String(nicknameCipherTextBytes));
-		memberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(pwdHintCipherTextBytes));
-		memberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(pwdAnswerCipherTextBytes));
-		memberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes()));
-		memberRegisterReq.setIvBase64(Base64.encodeBase64String(clientSessionKey.getDupIVBytes()));
-	
-		MemberRegisterReqServerTask memberRegisterReqServerTask= new MemberRegisterReqServerTask();
-		
-		try {
-			@SuppressWarnings("unused")
-			MessageResultRes messageResultRes = 
-					memberRegisterReqServerTask.doService(memberRegisterReq, MemberType.ADMIN);
-		} catch (ServerServiceException e) {
-			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
-					.append(userID)
-					.append("] 입니다").toString();
-			String actualErrorMessag = e.getMessage();
-			
-			if (! expectedErrorMessage.equals(actualErrorMessag)) {
-				throw e;
-			}
-			
+			registerMember(MemberType.ADMIN, adminID, nickname, pwdHint, pwdAnswer, passwordBytes);		
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			throw e;
+		}*/
+		
+	}
+		
+	/**
+	 * 회원 종류에 따른 회원 등록을 수행한다.	어드민과 일반 회원 등록 관리를 일원화 시킬 목적으로 '회원 등록 서버 서버 타스크'(={@link MemberRegisterReqServerTask})가 아닌 이곳 서버 라이브러리에서 관리한다. 
+	 * 
+	 * @param memberType 회원 종류로 어드민과 일반 유저가 있다 
+	 * @param userID 등록을 원하는 아이디
+	 * @param nickname 별명
+	 * @param pwdHint 패스워드 힌트 질문
+	 * @param pwdAnswer 패스워드 답변
+	 * @param passwordBytes 패스워드
+	 * @throws Exception
+	 */
+	public static void registerMember(MemberType memberType, String userID, String nickname, String pwdHint, String pwdAnswer, byte[] passwordBytes) throws Exception {
+		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
+		
+		if (null == memberType) {
+			String errorMessage = "the parameter memberType is null";
+			throw new ServerServiceException(errorMessage);
+		}		
+		
+		try {
+			ValueChecker.checkValidUserID(userID);
+		} catch (IllegalArgumentException e) {
+			throw new ServerServiceException(e.getMessage());
 		}
+		
+		try {
+			ValueChecker.checkValidNickname(nickname);
+		} catch (IllegalArgumentException e) {
+			throw new ServerServiceException(e.getMessage());
+		}
+		
+		try {
+			ValueChecker.checkValidPwdHint(pwdHint);
+		} catch (RuntimeException e) {
+			throw new ServerServiceException(e.getMessage());
+		}		
+		
+		try {
+			ValueChecker.checkValidPwdAnswer(pwdAnswer);
+		} catch (RuntimeException e) {
+			throw new ServerServiceException(e.getMessage());
+		}
+		
+		try {
+			ValueChecker.checkValidPwd(passwordBytes);
+		} catch (IllegalArgumentException e) {
+			throw new ServerServiceException(e.getMessage());
+		}
+		
+		Random random = new Random();
+		byte[] pwdSaltBytes = new byte[8];
+		random.nextBytes(pwdSaltBytes);
+		
+		PasswordPairForMemberTable passwordPairForMemberDB = getPasswordPairForMemberTable(passwordBytes, pwdSaltBytes);
+
+		DataSource dataSource = DBCPManager.getInstance()
+				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			conn.setAutoCommit(false);
+
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+
+			boolean isSameIDMember = create
+					.fetchExists(create.select().from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(userID)));
+
+			if (isSameIDMember) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+
+			boolean isSameNicknameMember = create
+					.fetchExists(create.select().from(SB_MEMBER_TB).where(SB_MEMBER_TB.NICKNAME.eq(nickname)));
+
+			if (isSameNicknameMember) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = new StringBuilder("기존 회원과 중복되는 별명[").append(nickname).append("] 입니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+
+			int resultOfInsert = create.insertInto(SB_MEMBER_TB).set(SB_MEMBER_TB.USER_ID, userID)
+					.set(SB_MEMBER_TB.NICKNAME, nickname).set(SB_MEMBER_TB.PWD_BASE64, passwordPairForMemberDB.getPasswordBase64())
+					.set(SB_MEMBER_TB.PWD_SALT_BASE64, passwordPairForMemberDB.getPasswordSaltBase64())
+					.set(SB_MEMBER_TB.MEMBER_TYPE, memberType.getValue())
+					.set(SB_MEMBER_TB.MEMBER_ST, MemberStateType.OK.getValue()).set(SB_MEMBER_TB.PWD_HINT, pwdHint)
+					.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer).set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
+					.set(SB_MEMBER_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
+					.set(SB_MEMBER_TB.MOD_DT, SB_MEMBER_TB.REG_DT).execute();
+
+			if (0 == resultOfInsert) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = "회원 등록하는데 실패하였습니다";
+				throw new ServerServiceException(errorMessage);
+			}
+
+			try {
+				conn.commit();
+			} catch (Exception e) {
+				log.warn("fail to commit");
+			}
+
+			
+		} catch (ServerServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+
+			log.warn("unknown error", e);
+
+			throw e;
+		} finally {
+			if (null != conn) {
+				try {
+					conn.close();
+				} catch (Exception e) {
+					log.warn("fail to close the db connection", e);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * <pre>
+	 * 회원 테이블 '비밀번호' 필드와 '비밀번호 소금' 필드 값 묶음을 반환한다. 
+	 * 
+	 * 회원 테이블 '비밀번호' 필드 값은 base64로 인코딩한 비밀번호 해쉬 값이다.
+	 * 회원 테이블  '비밀번호 소금' 필드 값은 base64로 인코딩한 소금값으로 
+	 * 	비밀번호 역추적을 어렵게 하기 위해 목적을 갖는다. 
+	 * 
+	 * WARNING! 파라미터 유효성 검사를 수행하지 않기때문에 사용에 주의가 필요합니다. 보안상 매우 중요한 로직이지만 아직 보안에 대한 대비책이 없습니다.
+	 * FIXME! 보안상 비밀번호 만드는 방법은 노출되어서는 안되므로 git 에도 반영하지 않고 따로 관리할 필요가 있다.  
+	 * </pre>
+	 * 
+	 * @param passwordBytes 사용자가 입력한  비밀번호
+	 * @param pwdSaltBytes 비밀번호 해쉬에 사용할 소금
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static PasswordPairForMemberTable getPasswordPairForMemberTable(byte[] passwordBytes, byte[] pwdSaltBytes) throws NoSuchAlgorithmException {		
+		MessageDigest md = MessageDigest.getInstance(CommonStaticFinalVars.PASSWORD_ALGORITHM_NAME);
+		
+		ByteBuffer passwordByteBuffer = ByteBuffer.allocate(pwdSaltBytes.length + passwordBytes.length);
+		passwordByteBuffer.put(pwdSaltBytes);
+		passwordByteBuffer.put(passwordBytes);
+
+		md.update(passwordByteBuffer.array());
+
+		byte passwordMDBytes[] = md.digest();
+
+		/** 복호환 비밀번호 초기화 */
+		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);		
+		
+		return new PasswordPairForMemberTable(Base64.encodeBase64String(passwordMDBytes), Base64.encodeBase64String(pwdSaltBytes));
 	}
 
 	private static void insertAllSeqIDIfNotExist(DSLContext create) throws Exception {

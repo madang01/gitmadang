@@ -53,7 +53,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((BoardListReq) inputMessage);
+			AbstractMessage outputMessage = doWork((BoardListReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -72,7 +72,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public BoardListRes doService(BoardListReq boardListReq) throws Exception {
+	public BoardListRes doWork(BoardListReq boardListReq) throws Exception {
 		// FIXME!
 		log.info(boardListReq.toString());
 		

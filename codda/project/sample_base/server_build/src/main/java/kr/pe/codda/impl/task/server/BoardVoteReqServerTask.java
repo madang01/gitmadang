@@ -46,7 +46,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((BoardVoteReq)inputMessage);
+			AbstractMessage outputMessage = doWork((BoardVoteReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -67,7 +67,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doService(BoardVoteReq boardVoteReq) throws Exception {
+	public MessageResultRes doWork(BoardVoteReq boardVoteReq) throws Exception {
 		// FIXME!
 		log.info(boardVoteReq.toString());	
 		

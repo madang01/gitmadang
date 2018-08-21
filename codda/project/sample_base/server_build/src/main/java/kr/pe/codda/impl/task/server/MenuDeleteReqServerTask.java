@@ -43,7 +43,7 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((MenuDeleteReq)inputMessage);
+			AbstractMessage outputMessage = doWork((MenuDeleteReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -64,7 +64,7 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doService(MenuDeleteReq menuDeleteReq) throws Exception {
+	public MessageResultRes doWork(MenuDeleteReq menuDeleteReq) throws Exception {
 		// FIXME!
 		log.info(menuDeleteReq.toString());
 		

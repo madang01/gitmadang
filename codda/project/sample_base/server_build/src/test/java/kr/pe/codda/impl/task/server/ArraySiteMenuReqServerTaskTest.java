@@ -25,7 +25,7 @@ public class ArraySiteMenuReqServerTaskTest extends AbstractJunitTest {
 			long endTime = 0;
 			startTime = System.nanoTime();
 			
-			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doService(arraySiteMenuReq);
+			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(arraySiteMenuReq);
 			
 			endTime = System.nanoTime();
 			

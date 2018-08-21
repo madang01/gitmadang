@@ -22,7 +22,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("testAdmin");		
+		ServerDBUtil.initializeDBEnvoroment();		
 	}
 	
 	
@@ -36,7 +36,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddRes = null;
 		try {
-			rootMenuAddRes  = rootMenuAddReqServerTask.doService(rootMenuAddReq);
+			rootMenuAddRes  = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -49,7 +49,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		
 		MessageResultRes messageResultRes = null;
 		try {
-			messageResultRes =menuDeleteReqServerTask.doService(menuDeleteReq);
+			messageResultRes =menuDeleteReqServerTask.doWork(menuDeleteReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'MessageResultRes'");
@@ -70,7 +70,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddRes = null;
 		try {
-			rootMenuAddRes  = rootMenuAddReqServerTask.doService(rootMenuAddReq);
+			rootMenuAddRes  = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -83,7 +83,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		
 		MessageResultRes messageResultRes = null;
 		try {
-			messageResultRes =menuDeleteReqServerTask.doService(menuDeleteReq);
+			messageResultRes =menuDeleteReqServerTask.doWork(menuDeleteReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'MessageResultRes'");
@@ -94,7 +94,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		}	
 		
 		try {
-			menuDeleteReqServerTask.doService(menuDeleteReq);
+			menuDeleteReqServerTask.doWork(menuDeleteReq);
 			
 			fail("no ServerServiceException");
 		} catch(ServerServiceException e) {
@@ -121,7 +121,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddRes = null;
 		try {
-			rootMenuAddRes  = rootMenuAddReqServerTask.doService(rootMenuAddReq);
+			rootMenuAddRes  = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -135,7 +135,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		
 		ChildMenuAddRes childMenuAddRes = null;
 		try {
-			childMenuAddRes  = childMenuAddReqServerTask.doService(childMenuAddReq);
+			childMenuAddRes  = childMenuAddReqServerTask.doWork(childMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -148,7 +148,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		
 		MessageResultRes messageResultRes = null;
 		try {
-			messageResultRes = menuDeleteReqServerTask.doService(menuDeleteReq);
+			messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
 			
 			fail("no ServerServiceException");
 		} catch(ServerServiceException e) {
@@ -170,7 +170,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(childMenuAddRes.getMenuNo());
 		
 		try {
-			messageResultRes = menuDeleteReqServerTask.doService(menuDeleteReq);
+			messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
 			
 			if (! messageResultRes.getIsSuccess()) {
 				fail("테스트용 자식 메뉴 삭제 실패");
@@ -183,7 +183,7 @@ public class MenuDeleteReqServerTaskTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(rootMenuAddRes.getMenuNo());
 		
 		try {
-			messageResultRes = menuDeleteReqServerTask.doService(menuDeleteReq);
+			messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
 			
 			if (! messageResultRes.getIsSuccess()) {
 				fail("테스트용 루트 메뉴 삭제 실패");

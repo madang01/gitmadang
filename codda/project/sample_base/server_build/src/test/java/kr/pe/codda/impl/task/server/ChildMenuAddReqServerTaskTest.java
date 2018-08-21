@@ -22,7 +22,7 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment("admin");		
+		ServerDBUtil.initializeDBEnvoroment();		
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddRes = null;
 		try {
-			rootMenuAddRes  = rootMenuAddReqServerTask.doService(rootMenuAddReq);
+			rootMenuAddRes  = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -50,7 +50,7 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 		
 		ChildMenuAddRes firstChildMenuAddRes = null;
 		try {
-			firstChildMenuAddRes  = childMenuAddReqServerTask.doService(firstChildMenuAddReq);
+			firstChildMenuAddRes  = childMenuAddReqServerTask.doWork(firstChildMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -68,7 +68,7 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 		
 		ChildMenuAddRes secondChildMenuAddRes = null;
 		try {
-			secondChildMenuAddRes  = childMenuAddReqServerTask.doService(secondChildMenuAddReq);
+			secondChildMenuAddRes  = childMenuAddReqServerTask.doWork(secondChildMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -90,7 +90,7 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddRes = null;
 		try {
-			rootMenuAddRes  = rootMenuAddReqServerTask.doService(rootMenuAddReq);
+			rootMenuAddRes  = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -103,7 +103,7 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(rootMenuAddRes.getMenuNo());
 
 		try {
-			MessageResultRes messageResultRes = menuDeleteReqServerTask.doService(menuDeleteReq);
+			MessageResultRes messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
 		
 			if (! messageResultRes.getIsSuccess()) {
 				log.info(messageResultRes.getResultMessage());
@@ -123,7 +123,7 @@ public class ChildMenuAddReqServerTaskTest extends AbstractJunitTest {
 		childMenuAddReq.setLinkURL("/temp01_1");
 		
 		try {
-			childMenuAddReqServerTask.doService(childMenuAddReq);
+			childMenuAddReqServerTask.doWork(childMenuAddReq);
 			
 			fail("no ServerServiceException");
 		} catch(ServerServiceException e) {

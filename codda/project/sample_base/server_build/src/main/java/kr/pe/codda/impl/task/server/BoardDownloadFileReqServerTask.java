@@ -46,7 +46,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((BoardDownloadFileReq) inputMessage);
+			AbstractMessage outputMessage = doWork((BoardDownloadFileReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -65,7 +65,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public BoardDownloadFileRes doService(BoardDownloadFileReq boardDownloadFileReq) throws Exception {
+	public BoardDownloadFileRes doWork(BoardDownloadFileReq boardDownloadFileReq) throws Exception {
 		// FIXME!
 		log.info(boardDownloadFileReq.toString());
 

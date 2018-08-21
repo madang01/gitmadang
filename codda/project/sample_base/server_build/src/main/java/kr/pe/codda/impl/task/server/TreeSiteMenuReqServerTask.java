@@ -46,7 +46,7 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doService((TreeSiteMenuReq)inputMessage);
+			AbstractMessage outputMessage = doWork((TreeSiteMenuReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -67,7 +67,7 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public TreeSiteMenuRes doService(TreeSiteMenuReq treeSiteMenuReq) throws Exception {
+	public TreeSiteMenuRes doWork(TreeSiteMenuReq treeSiteMenuReq) throws Exception {
 		// FIXME!
 		log.info(treeSiteMenuReq.toString());
 		DataSource dataSource = DBCPManager.getInstance()

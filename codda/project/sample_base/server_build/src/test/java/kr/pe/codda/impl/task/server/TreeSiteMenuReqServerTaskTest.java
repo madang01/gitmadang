@@ -17,7 +17,7 @@ public class TreeSiteMenuReqServerTaskTest extends AbstractJunitTest {
 		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
 		
 		try {
-			TreeSiteMenuRes treeSiteMenuRes = treeSiteMenuReqServerTask.doService(treeSiteMenuReq);
+			TreeSiteMenuRes treeSiteMenuRes = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
 			
 			log.info(treeSiteMenuRes.toString());
 			
