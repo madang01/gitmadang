@@ -105,6 +105,21 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			UInteger childMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);	
+			
+			if (childMenuNo.longValue() == UInteger.MAX_VALUE) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("메뉴 시퀀스 식별자[")
+						.append(menuSequenceID)
+						.append("]의 시퀀스가 최대치에 도달하였습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
 			int seqUpdateCnt = create.update(SB_SEQ_TB)
 					.set(SB_SEQ_TB.SQ_VALUE, SB_SEQ_TB.SQ_VALUE.add(1))
 					.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID))
@@ -123,7 +138,18 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UInteger childMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);			
+			int numberOfMenu = create.selectCount().from(SB_SITEMENU_TB).fetchOne().value1();
+			
+			if (numberOfMenu >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "메뉴 갯수가 최대치(=255)에 도달하여 더 이상 추가할 수 없습니다";
+				throw new ServerServiceException(errorMessage);
+			}
 			
 			
 			Record3<UInteger, UByte, UByte> parentMenuRecord = create.select(SB_SITEMENU_TB.PARENT_NO, 
@@ -148,12 +174,11 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UByte newDepth = UByte.valueOf(parentMenuRecord.getValue(SB_SITEMENU_TB.DEPTH).shortValue() + 1);
-			UByte newOrderSeq = null;
-			
 			UInteger parentParnetNo = parentMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
 			UByte parentOrderSeq = parentMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
 			UByte parentDepth = parentMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
+			
+			UByte newOrderSeq = null;
 			
 			Record1<UByte> firstYoungerBrotherMenuReccordOfParentMenu = create.select(SB_SITEMENU_TB.ORDER_SQ.min().as(SB_SITEMENU_TB.ORDER_SQ)).from(SB_SITEMENU_TB)
 			.where(SB_SITEMENU_TB.PARENT_NO.eq(parentParnetNo))
@@ -173,7 +198,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			if (newDepth.shortValue() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			if (parentDepth.shortValue() >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -187,19 +212,6 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			if (newOrderSeq.shortValue() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder()
-						.append("메뉴 갯수가 최대치(=255)에 도달하여 더 이상 추가할 수 없습니다")
-						.toString();
-				throw new ServerServiceException(errorMessage);
-			}
-			
 			create.update(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.add(1))
 			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(newOrderSeq))
@@ -209,7 +221,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			int childMenuInsertCount = create.insertInto(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.MENU_NO, childMenuNo)
 			.set(SB_SITEMENU_TB.PARENT_NO, parentMenuNo)
-			.set(SB_SITEMENU_TB.DEPTH, newDepth)
+			.set(SB_SITEMENU_TB.DEPTH, UByte.valueOf(parentDepth.shortValue() + 1))
 			.set(SB_SITEMENU_TB.ORDER_SQ, newOrderSeq)
 			.set(SB_SITEMENU_TB.MENU_NM, childMenuAddReq.getMenuName())
 			.set(SB_SITEMENU_TB.LINK_URL, childMenuAddReq.getLinkURL())

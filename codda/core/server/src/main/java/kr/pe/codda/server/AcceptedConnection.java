@@ -417,4 +417,8 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 		return builder.toString();
 	}
 	
+	public boolean isConnected() {
+		return acceptedSocketChannel.isConnected();
+	}
+	
 }

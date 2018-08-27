@@ -143,8 +143,8 @@
 		
 		return -1;
 	}
-	
-	function getNextRowIndexHavinSgameDepth(targetRowIndex) {
+
+	function getNextRowIndexHavingSameDepth(targetRowIndex) {
 		var targetDepth = menuListResJsonObj.menuList[targetRowIndex].depth;
 		
 		for (var i=targetRowIndex+1; i < menuListResJsonObj.cnt; i++) {
@@ -350,7 +350,7 @@
 		
 		var sourceMenu = menuListResJsonObj.menuList[sourceRowIndex];
 		
-		var targetRowIndex = getPrevRowIndexHavinSgameDepth(sourceRowIndex);
+		var targetRowIndex = getPrevRowIndexHavingSameDepth(sourceRowIndex);
 		if (-1 == targetRowIndex) {
 			alert("메뉴 상단 이동시 교환에 필요한 한칸 높은 메뉴를 찾지 못했습니다");
 			return;
@@ -483,7 +483,7 @@
 		childMenu.menuName = g.menuName.value;
 		childMenu.linkURL = g.linkURL.value;
 		
-		var nextSameDepthRowIndex = getNextRowIndexHavinSgameDepth(rowIndex);
+		var nextSameDepthRowIndex = getNextRowIndexHavingSameDepth(rowIndex);
 		
 		if (-1 == nextSameDepthRowIndex) {
 			menuListResJsonObj.menuList.push(childMenu);

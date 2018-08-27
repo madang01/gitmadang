@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
 
-    private static final long serialVersionUID = 2080860161;
+    private static final long serialVersionUID = -1578364694;
 
     /**
      * The reference instance of <code>sb_db.sb_sitemenu_tb</code>
@@ -63,7 +63,7 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
     /**
      * The column <code>sb_db.sb_sitemenu_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
      */
-    public final TableField<SbSitemenuTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.");
+    public final TableField<SbSitemenuTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.");
 
     /**
      * The column <code>sb_db.sb_sitemenu_tb.depth</code>. 트리 깊이,  0 부터 시작하며 부모보다 + 1 이 크다
@@ -127,7 +127,7 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_SITEMENU_TB_ORDER_SQ_UNIQUE, Indexes.SB_SITEMENU_TB_PRIMARY, Indexes.SB_SITEMENU_TB_SB_SITEMENU_IDX1);
+        return Arrays.<Index>asList(Indexes.SB_SITEMENU_TB_PRIMARY, Indexes.SB_SITEMENU_TB_SB_SITEMENU_IDX1);
     }
 
     /**
@@ -143,7 +143,7 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
      */
     @Override
     public List<UniqueKey<SbSitemenuTbRecord>> getKeys() {
-        return Arrays.<UniqueKey<SbSitemenuTbRecord>>asList(Keys.KEY_SB_SITEMENU_TB_PRIMARY, Keys.KEY_SB_SITEMENU_TB_ORDER_SQ_UNIQUE);
+        return Arrays.<UniqueKey<SbSitemenuTbRecord>>asList(Keys.KEY_SB_SITEMENU_TB_PRIMARY);
     }
 
     /**

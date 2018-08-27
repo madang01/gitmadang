@@ -14,7 +14,7 @@ import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 public class ArraySiteMenuReqServerTaskTest extends AbstractJunitTest {
 
 	@Test
-	public void testDoService_ok() {
+	public void testDoService_메뉴레코드유효성검증() {
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		
 		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
