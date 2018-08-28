@@ -3,6 +3,7 @@ package kr.pe.codda.server;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -104,115 +105,128 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 
 				try {
 					for (SelectionKey selectedKey : selectedKeySet) {
-						if (selectedKey.isAcceptable()) {
-							ServerSocketChannel readyChannel = (ServerSocketChannel) selectedKey.channel();
+						try {
+							if (selectedKey.isAcceptable()) {
+								ServerSocketChannel readyChannel = (ServerSocketChannel) selectedKey.channel();
 
-							SocketChannel acceptableSocketChannel = readyChannel.accept();
+								SocketChannel acceptableSocketChannel = readyChannel.accept();
 
-							if (null == acceptableSocketChannel) {
-								log.warn("acceptableSocketChannel is null");
-								continue;
-							}							
+								if (null == acceptableSocketChannel) {
+									log.warn("acceptableSocketChannel is null");
+									continue;
+								}							
 
-							int numberOfAcceptedConnection = selectedKey2AcceptedConnectionHash.size();
-							
-							log.info("acceptable socket channel={}, numberOfAcceptedConnection={}", 
-									acceptableSocketChannel.hashCode(), numberOfAcceptedConnection);
-							
-							if (numberOfAcceptedConnection >= maxClients) {
-								try {
-									acceptableSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
-								} catch(Exception e) {
-									log.warn("fail to set the value of a acceptable channel[{}] option 'SO_LINGER'", acceptableSocketChannel.hashCode());
-								}
-								try {
-									acceptableSocketChannel.close();
-								} catch(Exception e) {
-									log.warn("fail to close the acceptable channel[{}]", acceptableSocketChannel.hashCode());
-								}
-								log.warn(
-										"close the acceptable socket channel[{}] because the maximum number[{}] of sockets has been reached",
-										acceptableSocketChannel.hashCode(), maxClients);
+								int numberOfAcceptedConnection = selectedKey2AcceptedConnectionHash.size();
 								
-								continue;
+								log.info("acceptable socket channel={}, numberOfAcceptedConnection={}", 
+										acceptableSocketChannel.hashCode(), numberOfAcceptedConnection);
+								
+								if (numberOfAcceptedConnection >= maxClients) {
+									try {
+										acceptableSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
+									} catch(Exception e) {
+										log.warn("fail to set the value of a acceptable channel[{}] option 'SO_LINGER'", acceptableSocketChannel.hashCode());
+									}
+									try {
+										acceptableSocketChannel.close();
+									} catch(Exception e) {
+										log.warn("fail to close the acceptable channel[{}]", acceptableSocketChannel.hashCode());
+									}
+									log.warn(
+											"close the acceptable socket channel[{}] because the maximum number[{}] of sockets has been reached",
+											acceptableSocketChannel.hashCode(), maxClients);
+									
+									continue;
+								}
+								
+								try {
+									if (acceptableSocketChannel.isConnectionPending()) {
+										acceptableSocketChannel.finishConnect();
+									}	
+								} catch(Exception e) {
+									log.warn("fail to finish connect the accepted channel[{}]", acceptableSocketChannel.hashCode());
+									continue;
+								}
+								
+								setupAcceptedSocketChannel(acceptableSocketChannel);
+
+								SelectionKey acceptedKey = null;
+
+								try {
+									acceptedKey = acceptableSocketChannel.register(ioEventSelector, SelectionKey.OP_READ);
+								} catch (ClosedChannelException e) {
+									log.warn(
+											"fail to register this channel[{}] with the given selector having a the interest set OP_READ",
+											acceptableSocketChannel.hashCode());
+
+									continue;
+								}
+
+								SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+
+								try {
+									socketOutputStreamOfAcceptedSC = socketOutputStreamFactory.createSocketOutputStream();
+								} catch (NoMoreDataPacketBufferException e) {
+									acceptableSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
+									acceptableSocketChannel.close();
+									acceptedKey.cancel();
+									log.warn(
+											"close the acceptable socket channel[{}] becase there is no more data packet buffer",
+											acceptableSocketChannel.hashCode());
+									continue;
+								}
+
+								AcceptedConnection acceptedConnection = new AcceptedConnection(acceptedKey,
+										acceptableSocketChannel, projectName, socketTimeOut,
+										serverOutputMessageQueueCapacity, socketOutputStreamOfAcceptedSC, this,
+										messageProtocol, dataPacketBufferPool, this, serverObjectCacheManager);
+
+								/** 소켓 자원 등록 작업 */
+								selectedKey2AcceptedConnectionHash.put(acceptedKey, acceptedConnection);
+								
+								log.info("successfully changed acceptedKey[{}]'s acceptable socket channel[{}] to accepted socket channel", 
+										acceptedKey.hashCode(), acceptableSocketChannel.hashCode());
 							}
+
+							if (selectedKey.isReadable() && isEnoughDataPacketBuffer(100)) {							
+								ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
+										.get(selectedKey);
+
+								if (null == accpetedConneciton) {
+									log.warn(
+											"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
+											selectedKey.hashCode(), selectedKey.channel().hashCode());
+									continue;
+								}
+
+								accpetedConneciton.onRead(selectedKey);
+							}
+
+							if (selectedKey.isWritable()) {
+								ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
+										.get(selectedKey);
+
+								if (null == accpetedConneciton) {
+									log.warn(
+											"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
+											selectedKey.hashCode(), selectedKey.channel().hashCode());
+									continue;
+								}
+
+								accpetedConneciton.onWrite(selectedKey);
+							}
+						} catch(CancelledKeyException e) {
+							log.warn("CancelledKeyException occured, selectedKey="+selectedKey.hashCode(), e);
 							
-							try {
-								if (acceptableSocketChannel.isConnectionPending()) {
-									acceptableSocketChannel.finishConnect();
-								}	
-							} catch(Exception e) {
-								log.warn("fail to finish connect the accepted channel[{}]", acceptableSocketChannel.hashCode());
-								continue;
-							}
-							
-							setupAcceptedSocketChannel(acceptableSocketChannel);
-
-							SelectionKey acceptedKey = null;
-
-							try {
-								acceptedKey = acceptableSocketChannel.register(ioEventSelector, SelectionKey.OP_READ);
-							} catch (ClosedChannelException e) {
-								log.warn(
-										"fail to register this channel[{}] with the given selector having a the interest set OP_READ",
-										acceptableSocketChannel.hashCode());
-
-								continue;
-							}
-
-							SocketOutputStream socketOutputStreamOfAcceptedSC = null;
-
-							try {
-								socketOutputStreamOfAcceptedSC = socketOutputStreamFactory.createSocketOutputStream();
-							} catch (NoMoreDataPacketBufferException e) {
-								acceptableSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
-								acceptableSocketChannel.close();
-								acceptedKey.cancel();
-								log.warn(
-										"close the acceptable socket channel[{}] becase there is no more data packet buffer",
-										acceptableSocketChannel.hashCode());
-								continue;
-							}
-
-							AcceptedConnection acceptedConnection = new AcceptedConnection(acceptedKey,
-									acceptableSocketChannel, projectName, socketTimeOut,
-									serverOutputMessageQueueCapacity, socketOutputStreamOfAcceptedSC, this,
-									messageProtocol, dataPacketBufferPool, this, serverObjectCacheManager);
-
-							/** 소켓 자원 등록 작업 */
-							selectedKey2AcceptedConnectionHash.put(acceptedKey, acceptedConnection);
-							
-							log.info("successfully changed acceptable socket channel[{}] to accepted socket channel", acceptableSocketChannel.hashCode());
-						}
-
-						if (selectedKey.isReadable() && isEnoughDataPacketBuffer(100)) {							
 							ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
 									.get(selectedKey);
 
-							if (null == accpetedConneciton) {
-								log.warn(
-										"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
-										selectedKey.hashCode(), selectedKey.channel().hashCode());
-								continue;
+							if (null != accpetedConneciton) {
+								log.warn("the cancelled key[{}] doesn't be deleted in selectedKey2AcceptedConnectionHash", selectedKey.hashCode());
 							}
-
-							accpetedConneciton.onRead(selectedKey);
+							continue;
 						}
-
-						if (selectedKey.isWritable()) {
-							ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
-									.get(selectedKey);
-
-							if (null == accpetedConneciton) {
-								log.warn(
-										"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
-										selectedKey.hashCode(), selectedKey.channel().hashCode());
-								continue;
-							}
-
-							accpetedConneciton.onWrite(selectedKey);
-						}
-					}
+					}	
 				} finally {
 					selectedKeySet.clear();
 				}

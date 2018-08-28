@@ -425,4 +425,9 @@ public class AsynThreadSafeSingleConnection
 	public boolean isConnected() {
 		return clientSC.isConnected();
 	}
+	
+	@Override 
+	protected void finalize() {
+		close();
+	}
 }

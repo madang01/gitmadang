@@ -52,5 +52,5 @@ public final class AsynShareConnection extends AsynThreadSafeSingleConnection {
 
 	public boolean isInQueue() {
 		return isQueueIn;
-	}
+	}	
 }

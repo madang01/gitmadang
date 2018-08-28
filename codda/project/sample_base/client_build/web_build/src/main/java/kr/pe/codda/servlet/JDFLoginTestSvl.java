@@ -13,7 +13,7 @@ public class JDFLoginTestSvl extends AbstractLoginServlet {
 			throws Exception {
 		
 		
-		String goPage="/menu/util/JDFLoginTest01.jsp";
+		String goPage="/jsp/util/JDFLoginTest.jsp";
 		
 		printJspPage(req, res, goPage);			
 	}

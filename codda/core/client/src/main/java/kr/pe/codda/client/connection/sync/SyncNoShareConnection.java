@@ -324,4 +324,9 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	public java.util.Date getFinalReadTime() {
 		return finalReadTime;
 	}
+	
+	@Override 
+	protected void finalize() {
+		close();
+	}
 }

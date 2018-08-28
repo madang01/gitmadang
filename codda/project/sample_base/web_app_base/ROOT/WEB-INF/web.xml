@@ -40,11 +40,11 @@
 		<servlet-class>kr.pe.codda.servlet.MemberRegistrationSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/</param-value>
+			<param-value>/servlet/MemberRegistration</param-value>
 		</init-param>
 		<init-param>
 			<param-name>siteType</param-name>
-			<param-value>admin</param-value>
+			<param-value>user</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
