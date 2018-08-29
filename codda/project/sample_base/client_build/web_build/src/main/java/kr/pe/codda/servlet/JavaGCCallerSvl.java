@@ -23,10 +23,8 @@ public class JavaGCCallerSvl extends AbstractServlet {
 
 		
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(javaGarbageCollectionReq);
-		if (outputMessage instanceof JavaGarbageCollectionRes) {
-			printJspPage(req, res, "/jsp/util/JavaGCCaller.jsp");
-			return;
-		} else {
+		
+		if (! (outputMessage instanceof JavaGarbageCollectionRes)) {
 			String errorMessage = "자바 가비지 컬렉터를 호출하는데 실패하였습니다";
 			
 			String debugMessage = new StringBuilder("입력 메시지[")
@@ -40,6 +38,8 @@ public class JavaGCCallerSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
+		
+		printJspPage(req, res, "/jsp/util/JavaGCCaller.jsp");
 	}
 
 }

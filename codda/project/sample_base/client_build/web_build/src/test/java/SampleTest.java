@@ -1,8 +1,12 @@
+import static org.junit.Assert.fail;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 
 import org.junit.Test;
+
+import kr.pe.codda.weblib.common.SiteType;
 
 public class SampleTest {
 
@@ -92,6 +96,22 @@ public class SampleTest {
 		
 		System.out.printf("t2=%f", t2.getFloat());
 		System.out.println("");*/
+		
+	}
+	
+	@Test
+	public void enumTest() {
+		SiteType siteType = null;
+		
+		try {
+			siteType = SiteType.valueOf("USER");
+			
+			System.out.printf("siteType=%s", siteType.toString());
+			System.out.println("");
+		} catch(IllegalArgumentException e) {
+			fail(e.getMessage());
+		}
+		
 		
 	}
 }

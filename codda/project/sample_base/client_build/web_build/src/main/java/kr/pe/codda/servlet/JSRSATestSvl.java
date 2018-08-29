@@ -78,20 +78,20 @@ public class JSRSATestSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		
-		printJspPage(req, res, "/jsp/util/JSRSAInput.jsp");
+		printJspPage(req, res, "/jsp/util/JSRSATestInput.jsp");
 	}
 	
 	private void resultPage(HttpServletRequest req, HttpServletResponse res) {
 		
-		String paramEncryptedBytesWithPublicKeyHex = req.getParameter("encryptedBytesWithPublicKey");
+		String paramEncryptedHexTextWithPublicKey = req.getParameter("encryptedHexTextWithPublicKey");
 		String paramPlainText = req.getParameter("plainText");
 		
-		log.info("paramEncryptedBytesWithPublicKeyHex[{}]", paramEncryptedBytesWithPublicKeyHex);
+		log.info("paramEncryptedHexTextWithPublicKey[{}]", paramEncryptedHexTextWithPublicKey);
 		log.info("paramPlainText[{}]", paramPlainText);
 		
-		if (null == paramEncryptedBytesWithPublicKeyHex) {
-			String errorMessage = "공개키로 암호화한 암호문을 입력해 주세요";
-			String debugMessage = "the web parameter 'encryptedBytesWithPublicKey' is null";
+		if (null == paramEncryptedHexTextWithPublicKey) {
+			String errorMessage = "헥사로 표현된 공개키로 암호화한 암호문을 입력해 주세요";
+			String debugMessage = "the web parameter 'encryptedHexTextWithPublicKey' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
@@ -116,39 +116,45 @@ public class JSRSATestSvl extends AbstractServlet {
 			return;
 		}
 		
-		
-		String plainTextHex = HexUtil
-				.getHexStringFromByteArray(paramPlainText.getBytes(CommonStaticFinalVars.CIPHER_CHARSET));		
+		/**
+		 * 자바 스크립에서 RSA 로 암호문을 만들면 \r\n 을 보존하지 않고 강제적으로 \n 으로 변경한다. 
+		 * 따라서 원문과 복혹문 정상적인 비교를 위해서 원문도 똑같이 \n 으로 변경해 주어야 한다. 
+		 */
+		String plainHexText = HexUtil
+				.getHexStringFromByteArray(paramPlainText.replaceAll("\r\n", "\n").getBytes(CommonStaticFinalVars.CIPHER_CHARSET));		
 		//log.info("plainText hex[%s]", plainTextHex);
 		// String sessionKeyHex =  new String(HexUtil.hexToByteArray(sessionKeyDoubleHex));
 		//log.info("sessionKeyHex=[%s]", sessionKeyHex);
-		byte encryptedBytesWithPublicKey[] = HexUtil.getByteArrayFromHexString(paramEncryptedBytesWithPublicKeyHex);
+		byte encryptedBytesWithPublicKey[] = HexUtil.getByteArrayFromHexString(paramEncryptedHexTextWithPublicKey);
 		
-		byte decryptUsingPrivateKey[] = null;
+		byte decryptedBytesUsingPrivateKey[] = null;
 		try {
-			decryptUsingPrivateKey = webServerSessionkey.decryptUsingPrivateKey(encryptedBytesWithPublicKey);
+			decryptedBytesUsingPrivateKey = webServerSessionkey.decryptUsingPrivateKey(encryptedBytesWithPublicKey);
 		} catch (SymmetricException e) {
 			String errorMessage = "fail to initialize a Cipher class instance with a key and a set of algorithm parameters";
 			log.warn(errorMessage, e);			
 			
-			String debugMessage = new StringBuilder("paramEncryptedBytesWithPublicKeyHex=[")
-					.append(paramEncryptedBytesWithPublicKeyHex)					
+			String debugMessage = new StringBuilder("paramEncryptedHexTextWithPublicKey=[")
+					.append(paramEncryptedHexTextWithPublicKey)					
 					.append("], errmsg=").append(e.getMessage()).toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 		}			
-		String decryptUsingPrivateKeyHex = HexUtil.getHexStringFromByteArray(decryptUsingPrivateKey);
+		String decryptedHexTextUsingPrivateKey = HexUtil.getHexStringFromByteArray(decryptedBytesUsingPrivateKey);
 		//log.info(String.format("decryptUsingPrivateKey=[%s]", decryptUsingPrivateKeyHex));
 		
-		boolean isSame = plainTextHex.equals(decryptUsingPrivateKeyHex);
+		log.info("plainHexText={}", plainHexText);
+		log.info("decryptedHexTextUsingPrivateKey={}", decryptedHexTextUsingPrivateKey);
+		
+		boolean isSame = plainHexText.equals(decryptedHexTextUsingPrivateKey);
 		//log.info(String.format("resultMessage=[%s]", resultMessage));
 		
 		
-		String decryptedPlainText = new String(decryptUsingPrivateKey);
+		String decryptedText = new String(decryptedBytesUsingPrivateKey);
 		
 		req.setAttribute("orignalPlainText", paramPlainText);
-		req.setAttribute("decryptedPlainText", decryptedPlainText);
+		req.setAttribute("decryptedText", decryptedText);
 		req.setAttribute("isSame", String.valueOf(isSame));		
-		printJspPage(req, res, "/jsp/util/JSRSAResult.jsp");	
+		printJspPage(req, res, "/jsp/util/JSRSATestResult.jsp");	
 	}
 	
 }

@@ -1,91 +1,80 @@
-<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+<%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+	
 %><!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<title><%=WebCommonStaticFinalVars.WEBSITE_TITLE%></title>
-<meta name="Author" content="SinnoriTeam - website / Design by Ian Smith - N-vent Design Services LLC - www.n-vent.com" />
-<meta name="distribution" content="global" />
-<meta name="rating" content="general" />
-<meta name="Keywords" content="" />
-<meta name="ICBM" content=""/> <!-- see geourl.org -->
-<meta name="DC.title" content="Your Company"/>
-<link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
-<link rel="stylesheet" type="text/css" href="/css/style.css" />
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= WebCommonStaticFinalVars.WEBSITE_TITLE %></title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
+<!-- jQuery library -->
+<script src="/jquery/3.3.1/jquery.min.js"></script>
+<!-- Latest compiled JavaScript -->
+<script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+
+<script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
+<script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
+<script type="text/javascript" src="/js/jsbn/prng4.js"></script>
+<script type="text/javascript" src="/js/jsbn/rng.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
-    function goURL(bodyurl) {
-		top.document.location.href = bodyurl;		
-    }
-    
-    function goForm(f) {
+<!--
+	function chkform(f) {
 		if ('' == f.sourceString.value) {
 			alsert("변환을 원하는 문자열을 넣어주세요");
+			return false;
 		}
 		
 		var g = document.gofrm;
 		g.sourceString.value = f.sourceString.value;
 		g.submit();
-
+	
 		return false;
 	}
+
+	function init() {	
+	}
+
+	window.onload = init;	
+//-->
 </script>
 </head>
 <body>
-<form name="directgofrm" method="post">
-<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>"/>
-</form>
-<!-- The ultra77 template is designed and released by Ian Smith - N-vent Design Services LLC - www.n-vent.com. Feel free to use this, but please don't sell it and kindly leave the credits intact. Muchas Gracias! -->
-<div id="wrapper">
-<a name="top"></a>
-<!-- header -->
-<div id="header">
-	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
-		if (! isAdminLoginedIn(request)) {
-	%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
-	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
-	}
-%>
+<%= getSiteNavbarString(request) %>
 	
-	</div>
-	<div id="branding"><p><span class="templogo"><!-- your logo here -->Sinnori Framework</span><br />of the developer, by the developer, for the developer</p></div>
+	<div class="container-fluid">
+		<h2>자바 문자열 변환 도구 - 입력</h2>
+ 
+<div class="row">
+	<div class="col-sm-12" style="background-color:lavender;"><h4>설명</h4></div>
+</div>
+<div class="row">
+	<div class="col-sm-12"> 이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
+일반 사용자용 사이트에서 JDF 기본 서블릿은 AbstractServlet 를 상속 받습니다.<br>
+일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
+이 페이지는 일반 사용자 사이트의 JDF 기본 페이지로써 JavaStringConverterSvl.java + JavaStringConverterInput.jsp 로 구성되어있습니다.</div>
 </div>
 
-<!-- top menu -->
-<div id="menu">
-	<ul><%= buildTopMenuPartString(request) %></ul>
-</div> <!-- end top menu -->
-<!-- bodywrap -->
-<div id="bodytop">&nbsp;</div>
-<div id="bodywrap">
-	<div id="contentbody">
-	자바 문자열 변환 도구 첫페이지
-<form method="post" name="gofrm" target="_top">
+<div class="well well-sm">&nbsp;</div>
+
+<form method="post" name="gofrm" action="/servlet/JavaStringConverter">
 	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
 	<input type="hidden" name="sourceString" />
 </form>
-<form name="frm" onsubmit="return goForm(this);">
-	<textarea name="sourceString" cols="75" rows="20"></textarea>
-	<input type="submit" value="OK" />
-</form>	
-	
+<form name="frm" onsubmit="return chkform(this);">
+	<div class="form-group">
+		<label for="sourceString">평문:</label>
+		<textarea name="sourceString" class="form-control" rows="5" id="sourceString"></textarea>
 	</div>
-</div> <!-- end bodywrap -->
-<div id="bodybottom">&nbsp;</div>
-
-
-<!-- footer -->
-<div id="footer">
-<p><jsp:include page="/footer.html"  flush="false" />. Design by <a href="http://www.n-vent.com" title="The ultra77 template is designed and released by N-vent Design Services LLC">N-vent</a></p>
-<ul>
-<li><a href="http://www.oswd.org" title="Open Source Web Design">Open Source Web Design</a></li>
-
-</ul>
-</div> <!-- end footer -->
-
-<!-- side menu  --><%= buildLeftMenuPartString(request) %><!-- end side menu -->
-
-</div> <!-- end wrapper -->
+	<button type="submit" class="btn btn-default">확인</button>
+</form>
+	</div>
 </body>
 </html>

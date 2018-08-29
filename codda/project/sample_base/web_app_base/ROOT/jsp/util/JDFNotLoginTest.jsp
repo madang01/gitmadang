@@ -42,12 +42,7 @@
   이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
 모든 서블릿은 JDF 기본 상속 서블릿 AbstractServlet 를 상속 받습니다.<br>	
 일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
-현재 페이지는 일반 사용자 사이트의 페이지로써 JDFNotLoginTestSvl.java + JDFNotLoginTest.jsp 로 구성되었습니다.
+이 페이지는 일반 사용자 사이트의 비 로그인 페이지로써 JDFNotLoginTestSvl.java + JDFNotLoginTest.jsp 로 구성되어있습니다.
 	</div>
 </body>
 </html>
-
-
-
-
-

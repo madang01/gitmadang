@@ -17,7 +17,6 @@
 package kr.pe.codda.weblib.jdf;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -144,12 +143,12 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 			throws ServletException, IOException {
 		
 		
-		Enumeration<String> keys = req.getParameterNames();
+		/*Enumeration<String> keys = req.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String paramKey = keys.nextElement();
 			
 			log.info("get::key:{},value={}", paramKey, req.getParameter(paramKey));
-		}
+		}*/
 		
 		performBasePreTask(req, res);
 	}
@@ -200,12 +199,12 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		Enumeration<String> keys = req.getParameterNames();
+		/*Enumeration<String> keys = req.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String paramKey = keys.nextElement();
 			
 			log.info("post::key:{},value={}", paramKey, req.getParameter(paramKey));
-		}
+		}*/
 		
 		performBasePreTask(req, res);
 	}

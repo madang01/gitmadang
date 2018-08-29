@@ -43,6 +43,10 @@ public class JavaStringConverterSvl extends AbstractServlet {
 	
 	private void resultPage(HttpServletRequest req, HttpServletResponse res) {
 		String paramSourceString = req.getParameter("sourceString");
+		
+		log.info("paramSourceString={}", paramSourceString);
+		
+		
 		if (null == paramSourceString) {
 			String errorMessage = "자바 문자열로 변환을 원하는 문자열을 넣어 주세요";
 			String debugMessage = "the web parameter 'sourceString' is null";

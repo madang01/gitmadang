@@ -206,7 +206,7 @@ public class UserSiteMenuManger {
 		} else {
 			siteNavbarStringBuilder.append(getTabStrings(tapStep+4))
 			.append("<li><a href=\"")
-			.append("/servlet/AdminLogin")
+			.append("/servlet/UserLogin")
 			.append("\"><span class=\"glyphicon glyphicon-log-in\"></span> login</a></li>")
 			.append(CommonStaticFinalVars.NEWLINE);
 		}

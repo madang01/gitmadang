@@ -1,129 +1,99 @@
-<%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%><%
+<%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="erraseTime" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="echoRes" class="kr.pe.codda.impl.message.Echo.Echo" scope="request" /><%
 	// kr.pe.codda.impl.message.Echo.Echo echoRes = (kr.pe.codda.impl.message.Echo.Echo)request.getAttribute("echoRes");
 		
-	String erraseTime = (String)request.getAttribute("erraseTime");
+	// String erraseTime = (String)request.getAttribute("erraseTime");
 
 %><!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<title><%=WebCommonStaticFinalVars.WEBSITE_TITLE%></title>
-<meta name="Author" content="SinnoriTeam - website / Design by Ian Smith - N-vent Design Services LLC - www.n-vent.com" />
-<meta name="distribution" content="global" />
-<meta name="rating" content="general" />
-<meta name="Keywords" content="" />
-<meta name="ICBM" content=""/> <!-- see geourl.org -->
-<meta name="DC.title" content="Your Company"/>
-<link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
-<link rel="stylesheet" type="text/css" href="/css/style.css" />
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= WebCommonStaticFinalVars.WEBSITE_TITLE %></title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
+<!-- jQuery library -->
+<script src="/jquery/3.3.1/jquery.min.js"></script>
+<!-- Latest compiled JavaScript -->
+<script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+
+<script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
+<script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
+<script type="text/javascript" src="/js/jsbn/prng4.js"></script>
+<script type="text/javascript" src="/js/jsbn/rng.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/md5.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/sha1.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/sha512.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
-    function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
-		top.document.location.href = bodyurl;		
-    }
+<!--
+	function init() {	
+	}
+
+	window.onload = init;	
+//-->
 </script>
 </head>
 <body>
-<form name="directgofrm" method="post">
-<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>"/>
-</form>
-<!-- The ultra77 template is designed and released by Ian Smith - N-vent Design Services LLC - www.n-vent.com. Feel free to use this, but please don't sell it and kindly leave the credits intact. Muchas Gracias! -->
-<div id="wrapper">
-<a name="top"></a>
-<!-- header -->
-<div id="header">
-	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
-		if (! isAdminLoginedIn(request)) {
-	%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
-	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
-	}
-%>
+<%= getSiteNavbarString(request) %>
 	
-	</div>
-	<div id="branding"><p><span class="templogo"><!-- your logo here -->Sinnori Framework</span><br />of the developer, by the developer, for the developer</p></div>
+	<div class="container-fluid">
+		<h2>에코 테스트</h2>
+ 
+<div class="row">
+	<div class="col-sm-12" style="background-color:lavender;"><h4>설명</h4></div>
+</div>
+<div class="row">
+	<div class="col-sm-12"> 이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
+일반 사용자용 사이트에서 JDF 기본 서블릿은 AbstractServlet 를 상속 받습니다.<br>
+일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
+이 페이지는 일반 사용자 사이트의 JDF 기본 페이지로써 EchoTestSvl.java + EchoTest.jsp 로 구성되어있습니다.</div>
 </div>
 
-<!-- top menu -->
-<div id="menu">
-	<ul><%= buildTopMenuPartString(request) %></ul>
-</div> <!-- end top menu -->
-<!-- bodywrap -->
-<div id="bodytop">&nbsp;</div>
-<div id="bodywrap">
-	<div id="contentbody">
-	
-		<table border="1">
-			<tr>
-				<td colspan=2 style="text-align:center">Echo 검사</td>
-			</tr>
-			<tr>
-				<td colspan=2 style="text-align:left">
-				클라이언트에서 생성한 랜덤수를 갖는 에코 입력 메세지를
+<div class="row">
+	<div class="col-sm-12">&nbsp;</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">클라이언트에서 생성한 랜덤수를 갖는 에코 입력 메세지를
 				그대로 출력 메세지로 받게 되는지를 검사한다.<br/>
 				서버에서는 에코 입력 메세지를 그대로 출력 메세지로 복사한다.<br/>
 				이 테스트를 얻게 되는 효과는 쓰레드 세이프 검증이다.<br/>
 				만약 서버에서 입력메세지 처리시 쓰레드 세이프하지 않다면
-				클라이언트로 보내는 값은 원래 보낸 데이터와 다르게 된다.
-				</td>
-			</tr>
-			<tr>
-				<td colspan=2 style="text-align:center">Echo 입력메세지</td>
-			</tr>
-			<tr>
-				<td style="text-align:center">항목</td>
-				<td style="text-align:center">값</td>
-			</tr>
-			<tr>
-				<td style="text-align:left">랜덤 32bit 부호화 정수</td>
-				<td style="text-align:right"><%= echoRes.getRandomInt() %></td>
-			</tr>
-			<tr>
-				<td style="text-align:left">the number of milliseconds since January 1, 1970, 00:00:00<br/>GMT represented</td>
-				<td style="text-align:right"><%= echoRes.getStartTime() %></td>
-			</tr>
-			<tr>
-				<td style="text-align:left">경과시간(milliseconds)</td>
-				<td style="text-align:right"><%=erraseTime%> ms</td>
-			</tr>
-			<tr>
-				<td style="text-align:left">출력 비교 결과</td>
-				<td style="text-align:right"><%= isSame %></td>
-			</tr>
-		</table>
-		
+				클라이언트로 보내는 값은 원래 보낸 데이터와 다르게 된다.</div>
+</div>
+<div class="row">
+	<div class="col-sm-12">&nbsp;</div>
+</div>
+<div class="row">
+	<div class="col-sm-2" style="background-color:lavender;">항목</div>
+	<div class="col-sm-1" style="background-color:lavender;">값</div>
+</div>
+<div class="row">
+	<div class="col-sm-2" style="background-color:lavenderblush;">랜덤 32bit 부호화 정수</div>
+	<div class="col-sm-1" style="background-color:lavenderblush;"><%= echoRes.getRandomInt() %></div>
+</div>
+<div class="row">
+	<div class="col-sm-2" style="background-color:lavender;">the number of milliseconds since January 1, 1970, 00:00:00<br/>GMT represented</div>
+	<div class="col-sm-1" style="background-color:lavender;"><%= echoRes.getStartTime() %></div>
+</div>
+<div class="row">
+	<div class="col-sm-2" style="background-color:lavenderblush;">경과시간(milliseconds)</div>
+	<div class="col-sm-1" style="background-color:lavenderblush;"><%= erraseTime %></div>
+</div>
+<div class="row">
+	<div class="col-sm-2" style="background-color:lavender;">출력 비교 결과</div>
+	<div class="col-sm-1" style="background-color:lavender;"><%= isSame %></div>
+</div>
 	</div>
-</div> <!-- end bodywrap -->
-<div id="bodybottom">&nbsp;</div>
-
-
-<!-- footer -->
-<div id="footer">
-<p><jsp:include page="/footer.html"  flush="false" />. Design by <a href="http://www.n-vent.com" title="The ultra77 template is designed and released by N-vent Design Services LLC">N-vent</a></p>
-<ul>
-<li><a href="http://www.oswd.org" title="Open Source Web Design">Open Source Web Design</a></li>
-
-</ul>
-</div> <!-- end footer -->
-
-<!-- side menu  --><%= buildLeftMenuPartString(request) %><!-- end side menu -->
-
-</div> <!-- end wrapper -->
 </body>
 </html>
-
-
-

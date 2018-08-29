@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * AllItemType message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class AllItemTypeEncoder extends AbstractMessageEncoder {
@@ -231,6 +231,20 @@ public final class AllItemTypeEncoder extends AbstractMessageEncoder {
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "sqltimestamp"
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
 			, allItemType.getSqltimestamp() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "isFalse"
+			, kr.pe.codda.common.type.SingleItemType.BOOLEAN // itemType
+			, allItemType.getIsFalse() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "isTrue"
+			, kr.pe.codda.common.type.SingleItemType.BOOLEAN // itemType
+			, allItemType.getIsTrue() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

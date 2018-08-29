@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * AllItemType message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class AllItemTypeDecoder extends AbstractMessageDecoder {
@@ -255,6 +255,22 @@ public final class AllItemTypeDecoder extends AbstractMessageDecoder {
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "sqltimestamp" // itemName
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		allItemType.setIsFalse((java.lang.Boolean)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "isFalse" // itemName
+			, kr.pe.codda.common.type.SingleItemType.BOOLEAN // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		allItemType.setIsTrue((java.lang.Boolean)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "isTrue" // itemName
+			, kr.pe.codda.common.type.SingleItemType.BOOLEAN // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

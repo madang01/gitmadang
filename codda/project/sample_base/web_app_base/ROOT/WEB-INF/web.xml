@@ -34,7 +34,7 @@
 		<url-pattern>/servlet/UserLogin</url-pattern>
 	</servlet-mapping>
 
-	<!-- 회원 등록 -->
+	<!-- 회원 등록, siteType : {admin, user} -->
 	<servlet>
 		<servlet-name>MemberRegistration</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.MemberRegistrationSvl</servlet-class>
@@ -44,7 +44,7 @@
 		</init-param>
 		<init-param>
 			<param-name>siteType</param-name>
-			<param-value>user</param-value>
+			<param-value>USER</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>

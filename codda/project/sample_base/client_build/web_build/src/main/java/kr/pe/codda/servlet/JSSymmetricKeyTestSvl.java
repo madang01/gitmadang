@@ -81,14 +81,14 @@ public class JSSymmetricKeyTestSvl extends AbstractServlet {
 		String paramPrivateKeyHex = req.getParameter("privateKey");
 		String paramIVHex = req.getParameter("iv");
 		String paramPlainText = req.getParameter("plainText");
-		String paramEncryptedBytesHex = req.getParameter("encryptedBytes");
+		String paramEncryptedHexText = req.getParameter("encryptedHexText");
 		/**************** 파라미터 종료 *******************/
 		
 		log.info("paramAlgorithm=[{}]", paramAlgorithm);
 		log.info("paramPrivateKeyHex=[{}]", paramPrivateKeyHex);
 		log.info("paramIVHex=[{}]", paramIVHex);
 		log.info("paramPlainText=[{}]", paramPlainText);
-		log.info("paramEncryptedBytesHex=[{}]", paramEncryptedBytesHex);
+		log.info("paramEncryptedHexText=[{}]", paramEncryptedHexText);
 		
 		Hashtable<String,String> symmetricKeyTransformationHash = null;
 		symmetricKeyTransformationHash = new Hashtable<String,String>();
@@ -104,7 +104,7 @@ public class JSSymmetricKeyTestSvl extends AbstractServlet {
 		
 		byte[] privateKeyBytes = HexUtil.getByteArrayFromHexString(paramPrivateKeyHex);
 		byte[] ivBytes = HexUtil.getByteArrayFromHexString(paramIVHex);
-		byte[] encryptedBytes = HexUtil.getByteArrayFromHexString(paramEncryptedBytesHex);
+		byte[] encryptedBytes = HexUtil.getByteArrayFromHexString(paramEncryptedHexText);
 		
 		Cipher symmetricKeyCipher = null;		
 		try {
@@ -171,22 +171,22 @@ public class JSSymmetricKeyTestSvl extends AbstractServlet {
 			throw new RuntimeException("BadPaddingException");
 		}
 		
-		String plainTextHex = HexUtil.getHexStringFromByteArray(paramPlainText.getBytes());
-		String decryptedBytesHex = HexUtil.getHexStringFromByteArray(decryptedBytes);
-		log.info("plainTextHex[{}], decryptedBytes[{}]", plainTextHex, decryptedBytesHex);
+		String plainHexText = HexUtil.getHexStringFromByteArray(paramPlainText.getBytes());
+		String decryptedHexText = HexUtil.getHexStringFromByteArray(decryptedBytes);
+		log.info("plainHexText[{}], decryptedBytes[{}]", plainHexText, decryptedHexText);
 		
 		
 		String decryptedPlainText = new String(decryptedBytes);
-		String isSame = String.valueOf(decryptedPlainText.equals(paramPlainText));			
+		String isSame = String.valueOf(decryptedPlainText.equals(paramPlainText.replaceAll("\r\n", "\n")));			
 		
 		
 		req.setAttribute("plainText", paramPlainText);
 		req.setAttribute("algorithm", paramAlgorithm);
 		req.setAttribute("privateKey", paramPrivateKeyHex);
 		req.setAttribute("iv", paramIVHex);
-		req.setAttribute("encryptedBytesHex", paramEncryptedBytesHex);
-		req.setAttribute("plainTextHex", plainTextHex);
-		req.setAttribute("decryptedBytesHex", decryptedBytesHex);
+		req.setAttribute("encryptedHexText", paramEncryptedHexText);
+		req.setAttribute("plainHexText", plainHexText);
+		req.setAttribute("decryptedHexText", decryptedHexText);
 		req.setAttribute("decryptedPlainText", decryptedPlainText);
 		req.setAttribute("isSame", isSame);
 		printJspPage(req, res, "/jsp/util/JSSymmetricKeyTestResult.jsp");

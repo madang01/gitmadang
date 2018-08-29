@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * AllItemType message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class AllItemType extends AbstractMessage {
@@ -53,6 +53,8 @@ public class AllItemType extends AbstractMessage {
 	private byte[] bytesVar2;
 	private java.sql.Date sqldate;
 	private java.sql.Timestamp sqltimestamp;
+	private boolean isFalse;
+	private boolean isTrue;
 	private int cnt;
 
 	public static class Member {
@@ -446,6 +448,20 @@ public class AllItemType extends AbstractMessage {
 	public void setSqltimestamp(java.sql.Timestamp sqltimestamp) {
 		this.sqltimestamp = sqltimestamp;
 	}
+	public boolean getIsFalse() {
+		return isFalse;
+	}
+
+	public void setIsFalse(boolean isFalse) {
+		this.isFalse = isFalse;
+	}
+	public boolean getIsTrue() {
+		return isTrue;
+	}
+
+	public void setIsTrue(boolean isTrue) {
+		this.isTrue = isTrue;
+	}
 	public int getCnt() {
 		return cnt;
 	}
@@ -528,6 +544,10 @@ public class AllItemType extends AbstractMessage {
 		builder.append(sqldate);
 		builder.append(", sqltimestamp=");
 		builder.append(sqltimestamp);
+		builder.append(", isFalse=");
+		builder.append(isFalse);
+		builder.append(", isTrue=");
+		builder.append(isTrue);
 		builder.append(", cnt=");
 		builder.append(cnt);
 

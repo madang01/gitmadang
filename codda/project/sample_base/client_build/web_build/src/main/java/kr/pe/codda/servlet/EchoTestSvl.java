@@ -82,7 +82,7 @@ public class EchoTestSvl extends AbstractServlet {
 		req.setAttribute("isSame", String.valueOf(isSame));
 		req.setAttribute("erraseTime", String.valueOf(erraseTime));
 		req.setAttribute("echoRes", echoRes);
-		printJspPage(req, res, "/jsp/util/EchoTest01.jsp");
+		printJspPage(req, res, "/jsp/util/EchoTest.jsp");
 		return;
 	}
 }

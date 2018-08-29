@@ -70,6 +70,8 @@ public class AllItemTypeTestSvl extends AbstractServlet {
 		allDataTypeReq.setBytesVar2(ByteBuffer.allocate(30000).array());
 		allDataTypeReq.setSqldate(new java.sql.Date(new java.util.Date().getTime()));
 		allDataTypeReq.setSqltimestamp(new java.sql.Timestamp(new java.util.Date().getTime()));
+		allDataTypeReq.setIsFalse(false);
+		allDataTypeReq.setIsTrue(true);
 		
 		allDataTypeReq.setCnt(2);
 		
@@ -200,30 +202,7 @@ public class AllItemTypeTestSvl extends AbstractServlet {
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(allDataTypeReq);		
 		
 		boolean isSame = false;
-		if (outputMessage instanceof AllItemType) {
-			AllItemType allItemTypeRes = (AllItemType)outputMessage;
-			
-			String allDataTypeInObjStr = allDataTypeReq.toString();
-			
-			
-			java.util.List<AllItemType.Member> receviedMemberList = allItemTypeRes.getMemberList();
-			
-			for (AllItemType.Member member : receviedMemberList) {
-				member.setMemberID(member.getMemberID().trim());
-				member.setMemberName(member.getMemberName().trim());
-				
-				java.util.List<AllItemType.Member.Item> receviedItemList = member.getItemList();
-				for (AllItemType.Member.Item item : receviedItemList) {
-					item.setItemID(item.getItemID().trim());
-					item.setItemName(item.getItemName().trim());
-				}
-			}
-			
-			String allDataTypeOutObjStr = allItemTypeRes.toString();			
-			isSame = allDataTypeInObjStr.equals(allDataTypeOutObjStr);
-			
-			doFirstPage(req, res, allDataTypeReq, isSame, allItemTypeRes);
-		} else {
+		if (!(outputMessage instanceof AllItemType)) {
 			String errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다.";
 			String debugMessage = new StringBuilder("입력 메시지[")
 					.append(allDataTypeReq.getMessageID())
@@ -235,18 +214,34 @@ public class AllItemTypeTestSvl extends AbstractServlet {
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}		
+		}
 		
 		
+		AllItemType allItemTypeRes = (AllItemType)outputMessage;
+		
+		String allDataTypeInObjStr = allDataTypeReq.toString();
+		
+		
+		java.util.List<AllItemType.Member> receviedMemberList = allItemTypeRes.getMemberList();
+		
+		for (AllItemType.Member member : receviedMemberList) {
+			member.setMemberID(member.getMemberID().trim());
+			member.setMemberName(member.getMemberName().trim());
+			
+			java.util.List<AllItemType.Member.Item> receviedItemList = member.getItemList();
+			for (AllItemType.Member.Item item : receviedItemList) {
+				item.setItemID(item.getItemID().trim());
+				item.setItemName(item.getItemName().trim());
+			}
+		}
+		
+		String allDataTypeOutObjStr = allItemTypeRes.toString();			
+		isSame = allDataTypeInObjStr.equals(allDataTypeOutObjStr);
+		
+		req.setAttribute("allDataTypeReq", allDataTypeReq);
+		req.setAttribute("allItemTypeRes", allItemTypeRes);
+		req.setAttribute("isSame", String.valueOf(isSame));
+		printJspPage(req, res, "/jsp/util/AllItemTypeTest.jsp");
 	}	
 	
-	private void doFirstPage(HttpServletRequest req, HttpServletResponse res,
-			AllItemType allDataTypeReq,
-			boolean isSame,
-			AllItemType allItemTypeRes) {
-		req.setAttribute("allDataTypeReq", allDataTypeReq);
-		req.setAttribute("isSame", isSame);		
-		req.setAttribute("allItemTypeRes", allItemTypeRes);
-		printJspPage(req, res, "/menu/util/AllItemType01.jsp");
-	}
 }

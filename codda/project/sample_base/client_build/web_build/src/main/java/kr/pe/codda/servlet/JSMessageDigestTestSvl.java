@@ -63,11 +63,11 @@ public class JSMessageDigestTestSvl extends AbstractServlet {
 		}
 	}
 	
-	private void inputPage(HttpServletRequest req, HttpServletResponse res) {
-		printJspPage(req, res, "/menu/util/JSMessageDigestTestInput.jsp");	
+	private void inputPage(HttpServletRequest req, HttpServletResponse res) {		
+		printJspPage(req, res, "/jsp/util/JSMessageDigestTestInput.jsp");
 	}
 	
-	private void resultPage(HttpServletRequest req, HttpServletResponse res) {
+	private void resultPage(HttpServletRequest req, HttpServletResponse res) {		
 		/**************** 파라미터 시작 *******************/
 		String paramAlgorithm = req.getParameter("algorithm");		
 		String paramJavascriptMDHex = req.getParameter("javascriptMD");
@@ -100,6 +100,8 @@ public class JSMessageDigestTestSvl extends AbstractServlet {
 		}
 		
 		
+		
+		
 		byte[] javascriptMD = HexUtil.getByteArrayFromHexString(paramJavascriptMDHex);
 		
 		
@@ -127,11 +129,12 @@ public class JSMessageDigestTestSvl extends AbstractServlet {
 		String isSame = String.valueOf(Arrays.equals(javascriptMD, serverMD));
 		
 		req.setAttribute("plainText", paramPlainText);
+		req.setAttribute("algorithm", paramAlgorithm);
 		req.setAttribute("javascriptMDHex", paramJavascriptMDHex);
 		req.setAttribute("serverMDHex", HexUtil.getHexStringFromByteArray(serverMD));
 		req.setAttribute("isSame", isSame);
 		
 		
-		printJspPage(req, res, "/menu/util/JSMessageDigestTestResult.jsp");
+		printJspPage(req, res, "/jsp/util/JSMessageDigestTestResult.jsp");
 	}
 }

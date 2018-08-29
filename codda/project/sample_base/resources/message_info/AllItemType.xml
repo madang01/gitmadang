@@ -45,6 +45,8 @@
 <singleitem name="bytesVar2" type="si variable length byte[]" />
 <singleitem name="sqldate" type="java sql date" />
 <singleitem name="sqltimestamp" type="java sql timestamp" />
+<singleitem name="isFalse" type="boolean" />
+<singleitem name="isTrue" type="boolean" />
 <singleitem name="cnt" type="integer" />
 <array name="member" cnttype="reference" cntvalue="cnt">
 	<singleitem name="memberID" type="fixed length string" size="30" defaultValue="king" />
