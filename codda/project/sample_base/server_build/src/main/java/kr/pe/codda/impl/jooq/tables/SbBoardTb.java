@@ -42,7 +42,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = 1240863428;
+    private static final long serialVersionUID = 67658306;
 
     /**
      * The reference instance of <code>sb_db.sb_board_tb</code>
@@ -63,9 +63,9 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     public final TableField<SbBoardTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시판 종류 식별자, 어떤 게시판인지 설명하는 게시판 정보(board_info) 테이블을 바라본다.");
 
     /**
-     * The column <code>sb_db.sb_board_tb.board_no</code>. 글 번호, 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로1 부터 얻어옴
+     * The column <code>sb_db.sb_board_tb.board_no</code>. 게시판 번호,  1부터 시작한다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로 게시판 번호를 얻어옴
      */
-    public final TableField<SbBoardTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "글 번호, 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로1 부터 얻어옴");
+    public final TableField<SbBoardTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "게시판 번호,  1부터 시작한다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로 게시판 번호를 얻어옴");
 
     /**
      * The column <code>sb_db.sb_board_tb.group_no</code>. 그룹 번호
@@ -78,9 +78,9 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     public final TableField<SbBoardTbRecord, UShort> GROUP_SQ = createField("group_sq", org.jooq.impl.SQLDataType.SMALLINTUNSIGNED.nullable(false), this, "그룹 즉 동일한 그룹 번호(=group_no)  에서 0 부터 시작되는 순번");
 
     /**
-     * The column <code>sb_db.sb_board_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
+     * The column <code>sb_db.sb_board_tb.parent_no</code>. 부모 게시판 번호,  게시판 번호는 1부터 시작하며 부모가 없는 경우 부모 게시판 번호는 0 값을 갖는다.
      */
-    public final TableField<SbBoardTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.");
+    public final TableField<SbBoardTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "부모 게시판 번호,  게시판 번호는 1부터 시작하며 부모가 없는 경우 부모 게시판 번호는 0 값을 갖는다.");
 
     /**
      * The column <code>sb_db.sb_board_tb.depth</code>. 트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.

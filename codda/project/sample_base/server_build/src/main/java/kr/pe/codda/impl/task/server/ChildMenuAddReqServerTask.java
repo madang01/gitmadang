@@ -26,6 +26,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -48,7 +49,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((ChildMenuAddReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (ChildMenuAddReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -69,7 +70,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 		}
 		
 	}
-	public ChildMenuAddRes doWork(ChildMenuAddReq childMenuAddReq) throws Exception {		
+	public ChildMenuAddRes doWork(String dbcpName, ChildMenuAddReq childMenuAddReq) throws Exception {		
 		// FIXME!
 		log.info(childMenuAddReq.toString());
 		
@@ -77,14 +78,14 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 		UInteger parentMenuNo = UInteger.valueOf(childMenuAddReq.getParentNo());
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			/** 자식 메뉴 추가에 따른 '메뉴 순서' 보장을 위한 lock */
 			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE)

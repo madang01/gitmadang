@@ -2,6 +2,7 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
+import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
@@ -12,6 +13,7 @@ import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
@@ -33,6 +35,7 @@ import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
@@ -55,7 +58,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			AbstractMessage inputMessage) throws Exception {
 
 		try {
-			AbstractMessage outputMessage = doWork((BoardReplyReq) inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (BoardReplyReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -74,7 +77,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public BoardReplyRes doWork(BoardReplyReq boardReplyReq) throws Exception {
+	public BoardReplyRes doWork(String dbcpName, BoardReplyReq boardReplyReq) throws Exception {
 		// FIXME!
 		log.info(boardReplyReq.toString());
 
@@ -148,48 +151,15 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		UInteger parentBoardNo = UInteger.valueOf(boardReplyReq.getParentBoardNo());
 
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardReplyReq.getWriterID());	
-
-			Record2<UInteger, UShort> parentBoardRecord = create.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ)
-					.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(parentBoardNo)).fetchOne();
-
-			if (null == parentBoardRecord) {
-				String errorMessage = new StringBuilder().append("부모글이 존재하지 않습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
-
-			UInteger groupNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_NO);
-			UShort groupSeqOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
-
-			Result<Record> rootBoardResult = create.select().from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(groupNoOfParentBoard)).fetch();
-
-			if (null == rootBoardResult) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = new StringBuilder().append("그룹 최상위 글[").append(groupNoOfParentBoard.longValue())
-						.append("] 이 존재하지 않습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
-
-			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
-					.and(SB_BOARD_TB.GROUP_SQ.gt(groupSeqOfParentBoard)).execute();
-
 			Record boardSequenceRecord = create.select(SB_SEQ_TB.SQ_VALUE).from(SB_SEQ_TB)
 					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID)).forUpdate().fetchOne();
 
@@ -221,6 +191,46 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 						.append("]의 시퀀스 갱신이 실패하였습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			conn.commit();
+			
+			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardReplyReq.getWriterID());	
+
+			Record2<UInteger, UShort> parentBoardRecord = create.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ)
+					.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+					.and(SB_BOARD_TB.BOARD_NO.eq(parentBoardNo)).fetchOne();
+
+			if (null == parentBoardRecord) {
+				String errorMessage = new StringBuilder().append("부모글이 존재하지 않습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+
+			UInteger groupNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_NO);
+			UShort groupSeqOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+			
+
+			/** 댓글은 부모가 속한 그룹의 순서를 조정하므로 그룹 전체에 대해서 동기화가 필요하기때문에 부모가 속한 그룹 최상위 글에 대해서 락을 건다 */
+			Result<Record1<UInteger>> rootBoardResult = create.select(SB_BOARD_TB.BOARD_NO)
+					.from(SB_BOARD_TB)
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+					.and(SB_BOARD_TB.BOARD_NO.eq(groupNoOfParentBoard)).forUpdate().fetch();
+
+			if (null == rootBoardResult) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = new StringBuilder().append("그룹 최상위 글[").append(groupNoOfParentBoard.longValue())
+						.append("] 이 존재하지 않습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+
+			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
+					.and(SB_BOARD_TB.GROUP_SQ.gt(groupSeqOfParentBoard)).execute();			
 
 			int boardInsertCount = create
 					.insertInto(SB_BOARD_TB, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO,
@@ -289,6 +299,11 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 
 				attachedFileListIndex++;
 			}
+			
+			create.update(SB_BOARD_INFO_TB)
+			.set(SB_BOARD_INFO_TB.ADMIN_TOTAL, SB_BOARD_INFO_TB.ADMIN_TOTAL.add(1))
+			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.add(1))
+			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
 
 			conn.commit();
 

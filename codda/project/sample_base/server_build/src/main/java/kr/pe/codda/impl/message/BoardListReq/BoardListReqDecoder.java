@@ -35,6 +35,14 @@ public final class BoardListReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardListReq");
 
+		boardListReq.setRequestUserID((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "requestUserID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardListReq.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardID" // itemName
@@ -43,17 +51,17 @@ public final class BoardListReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardListReq.setPageOffset((Integer)
+		boardListReq.setPageNo((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "pageOffset" // itemName
+			, "pageNo" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardListReq.setPageLength((Integer)
+		boardListReq.setPageSize((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "pageLength" // itemName
+			, "pageSize" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

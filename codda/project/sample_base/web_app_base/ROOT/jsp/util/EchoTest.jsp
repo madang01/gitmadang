@@ -27,10 +27,6 @@
 <script type="text/javascript" src="/js/jsbn/rng.js"></script>
 <script type="text/javascript" src="/js/jsbn/rsa.js"></script>
 <script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/md5.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/sha1.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/sha512.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>

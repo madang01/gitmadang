@@ -39,6 +39,13 @@ public final class BoardListReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardListReq");
 
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardListReq.getRequestUserID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, boardListReq.getBoardID() // itemValue
@@ -46,16 +53,16 @@ public final class BoardListReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageOffset"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageNo"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
-			, boardListReq.getPageOffset() // itemValue
+			, boardListReq.getPageNo() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageLength"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageSize"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
-			, boardListReq.getPageLength() // itemValue
+			, boardListReq.getPageSize() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

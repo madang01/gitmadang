@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
 
-    private static final long serialVersionUID = -1578364694;
+    private static final long serialVersionUID = -1677904043;
 
     /**
      * The reference instance of <code>sb_db.sb_sitemenu_tb</code>
@@ -56,14 +56,14 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
     }
 
     /**
-     * The column <code>sb_db.sb_sitemenu_tb.menu_no</code>.
+     * The column <code>sb_db.sb_sitemenu_tb.menu_no</code>. 메뉴 번호,  1부터 시작된다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 메뉴 번호를 얻어옴.
      */
-    public final TableField<SbSitemenuTbRecord, UInteger> MENU_NO = createField("menu_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "");
+    public final TableField<SbSitemenuTbRecord, UInteger> MENU_NO = createField("menu_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "메뉴 번호,  1부터 시작된다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 메뉴 번호를 얻어옴.");
 
     /**
-     * The column <code>sb_db.sb_sitemenu_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
+     * The column <code>sb_db.sb_sitemenu_tb.parent_no</code>. 부모 메뉴 번호,  메뉴 번호는 1부터 시작되며 부모가 없는 경우 부모 메뉴 번호 값은  0 값을 갖는다.
      */
-    public final TableField<SbSitemenuTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.");
+    public final TableField<SbSitemenuTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "부모 메뉴 번호,  메뉴 번호는 1부터 시작되며 부모가 없는 경우 부모 메뉴 번호 값은  0 값을 갖는다.");
 
     /**
      * The column <code>sb_db.sb_sitemenu_tb.depth</code>. 트리 깊이,  0 부터 시작하며 부모보다 + 1 이 크다

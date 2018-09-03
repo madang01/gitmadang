@@ -63,7 +63,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((AdminLoginReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (AdminLoginReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -85,7 +85,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 	}
 	
 	
-	public MessageResultRes doWork(AdminLoginReq adminLoginReq) throws Exception {
+	public MessageResultRes doWork(String dbcpName, AdminLoginReq adminLoginReq) throws Exception {
 		// FIXME!
 		log.info(adminLoginReq.toString());
 		
@@ -219,14 +219,14 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 		
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			Record resultOfMember = create.select(
 					SB_MEMBER_TB.MEMBER_TYPE,
@@ -261,9 +261,9 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);	
 			
 			
-			MemberType membershipLevel = null;
+			MemberType memberType = null;
 			try {
-				membershipLevel = MemberType.valueOf(nativeMemberType, false);
+				memberType = MemberType.valueOf(nativeMemberType, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -284,7 +284,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			if (! membershipLevel.equals(MemberType.ADMIN)) {
+			if (! memberType.equals(MemberType.ADMIN)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {

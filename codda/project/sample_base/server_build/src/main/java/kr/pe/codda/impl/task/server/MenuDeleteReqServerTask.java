@@ -23,6 +23,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -43,7 +44,7 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((MenuDeleteReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (MenuDeleteReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -64,21 +65,21 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doWork(MenuDeleteReq menuDeleteReq) throws Exception {
+	public MessageResultRes doWork(String dbcpName, MenuDeleteReq menuDeleteReq) throws Exception {
 		// FIXME!
 		log.info(menuDeleteReq.toString());
 		
 		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			/** 삭제에 따른 '메뉴 순서' 조정을  위한 lock */
 			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE)

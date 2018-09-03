@@ -31,7 +31,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implements Record8<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String> {
 
-    private static final long serialVersionUID = 832432604;
+    private static final long serialVersionUID = 904831454;
 
     /**
      * Setter for <code>sb_db.sb_board_tb.board_id</code>. 게시판 종류 식별자, 어떤 게시판인지 설명하는 게시판 정보(board_info) 테이블을 바라본다.
@@ -48,14 +48,14 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_tb.board_no</code>. 글 번호, 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로1 부터 얻어옴
+     * Setter for <code>sb_db.sb_board_tb.board_no</code>. 게시판 번호,  1부터 시작한다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로 게시판 번호를 얻어옴
      */
     public void setBoardNo(UInteger value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_tb.board_no</code>. 글 번호, 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로1 부터 얻어옴
+     * Getter for <code>sb_db.sb_board_tb.board_no</code>. 게시판 번호,  1부터 시작한다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 게시판 타입별로 게시판 번호를 얻어옴
      */
     public UInteger getBoardNo() {
         return (UInteger) get(1);
@@ -90,14 +90,14 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
+     * Setter for <code>sb_db.sb_board_tb.parent_no</code>. 부모 게시판 번호,  게시판 번호는 1부터 시작하며 부모가 없는 경우 부모 게시판 번호는 0 값을 갖는다.
      */
     public void setParentNo(UInteger value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
+     * Getter for <code>sb_db.sb_board_tb.parent_no</code>. 부모 게시판 번호,  게시판 번호는 1부터 시작하며 부모가 없는 경우 부모 게시판 번호는 0 값을 갖는다.
      */
     public UInteger getParentNo() {
         return (UInteger) get(4);

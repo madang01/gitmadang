@@ -19,6 +19,7 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -40,7 +41,7 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((MenuModifyReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (MenuModifyReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -61,19 +62,19 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 		}
 	}
 		
-	public MessageResultRes doWork(MenuModifyReq menuModifyReq) throws Exception {
+	public MessageResultRes doWork(String dbcpName, MenuModifyReq menuModifyReq) throws Exception {
 		// FIXME!
 		log.info(menuModifyReq.toString());
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			Record2<String, String> menuRecord = create.select(SB_SITEMENU_TB.MENU_NM, SB_SITEMENU_TB.LINK_URL)
 			.from(SB_SITEMENU_TB)

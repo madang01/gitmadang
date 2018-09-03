@@ -52,13 +52,14 @@ import kr.pe.codda.server.lib.ServerDBUtil;
  *
  */
 public class SiteMenuIntegrationTest extends AbstractJunitTest {
+	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
 	private static UInteger backupMenuNo = null;
 	private static ArraySiteMenuRes backupArraySiteMenuRes = null;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();
-		ServerDBUtil.initializeDBEnvoroment();		
+		ServerDBUtil.initializeDBEnvoroment(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);		
 	}
 	
 	@Before
@@ -71,7 +72,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 
 		try {
 
-			backupArraySiteMenuRes = arraySiteMenuReqServerTask.doWork(arraySiteMenuReq);
+			backupArraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
@@ -81,7 +82,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		DataSource dataSource = null;
 		try {
 			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+					.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
 		} catch (DBCPDataSourceNotFoundException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
@@ -152,7 +153,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		DataSource dataSource = null;
 		try {
 			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+					.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
 		} catch (DBCPDataSourceNotFoundException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
@@ -970,7 +971,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			childMenuAddReq.setLinkURL(expectedChildMenu.getLinkURL());
 
 			try {
-				ChildMenuAddRes childMenuAddRes = childMenuAddReqServerTask.doWork(childMenuAddReq);
+				ChildMenuAddRes childMenuAddRes = childMenuAddReqServerTask.doWork(TEST_DBCP_NAME, childMenuAddReq);
 				expectedChildMenu.setMenuNo(childMenuAddRes.getMenuNo());
 				expectedChildMenu.setParentNo(parnetMenu.getMenuNo());
 
@@ -995,7 +996,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		try {
-			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(arraySiteMenuReq);
+			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 			
 			if (arraySiteMenuRes.getCnt() != 0) {
 				log.warn("초기 상태에서는 배열 크기가 0이 아닙니다, arraySiteMenuRes={}", arraySiteMenuRes.toString());
@@ -1013,7 +1014,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
 		try {
-			TreeSiteMenuRes treeSiteMenuRes = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			TreeSiteMenuRes treeSiteMenuRes = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 			
 			if (treeSiteMenuRes.getRootMenuListSize() != 0) {
 				log.warn("초기 상태에서는 배열 크기가 0이 아닙니다, treeSiteMenuRes={}", treeSiteMenuRes.toString());
@@ -1047,7 +1048,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			rootMenuAddReq.setLinkURL(expectedRootMenu.getLinkURL());
 
 			try {
-				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
+				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
 
 				expectedRootMenu.setMenuNo(rootMenuAddRes.getMenuNo());
 				
@@ -1065,7 +1066,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
 		TreeSiteMenuRes acutalTreeSiteMenuRes = null;
 		try {
-			acutalTreeSiteMenuRes = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			acutalTreeSiteMenuRes = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 		} catch (Exception e) {
 			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
 
@@ -1090,7 +1091,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		try {
-			ArraySiteMenuRes  arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(arraySiteMenuReq);
+			ArraySiteMenuRes  arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 			
 			List<ArraySiteMenuRes.Menu> menuList = arraySiteMenuRes.getMenuList();
 			for (int i=0; i < arraySiteMenuRes.getCnt(); i++) {
@@ -1148,7 +1149,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			rootMenuAddReq.setLinkURL(expectedRootMenu.getLinkURL());
 
 			try {
-				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
+				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
 
 				expectedRootMenu.setMenuNo(rootMenuAddRes.getMenuNo());
 			} catch (Exception e) {
@@ -1168,7 +1169,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
 		TreeSiteMenuRes acutalTreeSiteMenuRes = null;
 		try {
-			acutalTreeSiteMenuRes = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			acutalTreeSiteMenuRes = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 		} catch (Exception e) {
 			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
 
@@ -1193,7 +1194,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		try {
-			ArraySiteMenuRes  arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(arraySiteMenuReq);
+			ArraySiteMenuRes  arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 			
 			List<ArraySiteMenuRes.Menu> menuList = arraySiteMenuRes.getMenuList();
 			for (int i=0; i < arraySiteMenuRes.getCnt(); i++) {
@@ -1247,7 +1248,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			rootMenuAddReq.setLinkURL(expectedRootMenu.getLinkURL());
 
 			try {
-				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
+				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
 
 				expectedRootMenu.setMenuNo(rootMenuAddRes.getMenuNo());
 				
@@ -1265,7 +1266,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
 		TreeSiteMenuRes acutalTreeSiteMenuResBeforeMoveUp = null;
 		try {
-			acutalTreeSiteMenuResBeforeMoveUp = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			acutalTreeSiteMenuResBeforeMoveUp = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 		} catch (Exception e) {
 			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
 
@@ -1292,7 +1293,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		menuUpMoveReq.setMenuNo(menuNoForMoveUpDownTest);
 		
 		try {
-			MessageResultRes messageResultRes = menuUpMoveReqServerTask.doWork(menuUpMoveReq);
+			MessageResultRes messageResultRes = menuUpMoveReqServerTask.doWork(TEST_DBCP_NAME, menuUpMoveReq);
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
 			}
@@ -1303,7 +1304,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		TreeSiteMenuRes acutalTreeSiteMenuResAfterMoveUp = null;
 		try {
-			acutalTreeSiteMenuResAfterMoveUp = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			acutalTreeSiteMenuResAfterMoveUp = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 		} catch (Exception e) {
 			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
 
@@ -1327,7 +1328,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		menuDownMoveReq.setMenuNo(menuNoForMoveUpDownTest);
 		
 		try {
-			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(menuDownMoveReq);
+			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
 			}
@@ -1338,7 +1339,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		TreeSiteMenuRes acutalTreeSiteMenuResAfterMoveDown = null;
 		try {
-			acutalTreeSiteMenuResAfterMoveDown = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			acutalTreeSiteMenuResAfterMoveDown = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 		} catch (Exception e) {
 			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
 
@@ -1376,7 +1377,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			rootMenuAddReq.setLinkURL(expectedRootMenu.getLinkURL());
 
 			try {
-				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
+				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
 
 				expectedRootMenu.setMenuNo(rootMenuAddRes.getMenuNo());
 				
@@ -1394,7 +1395,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
 		TreeSiteMenuRes acutalTreeSiteMenuResBeforeMoveDown = null;
 		try {
-			acutalTreeSiteMenuResBeforeMoveDown = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			acutalTreeSiteMenuResBeforeMoveDown = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 		} catch (Exception e) {
 			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
 
@@ -1409,7 +1410,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		menuDownMoveReq.setMenuNo(menuNoForMoveUpDownTest);
 		
 		try {
-			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(menuDownMoveReq);
+			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
 			}
@@ -1420,7 +1421,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		TreeSiteMenuRes acutalTreeSiteMenuResAfterMoveDown = null;
 		try {
-			acutalTreeSiteMenuResAfterMoveDown = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			acutalTreeSiteMenuResAfterMoveDown = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 		} catch (Exception e) {
 			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
 
@@ -1445,7 +1446,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		menuUpMoveReq.setMenuNo(menuNoForMoveUpDownTest);
 		
 		try {
-			MessageResultRes messageResultRes = menuUpMoveReqServerTask.doWork(menuUpMoveReq);
+			MessageResultRes messageResultRes = menuUpMoveReqServerTask.doWork(TEST_DBCP_NAME, menuUpMoveReq);
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
 			}
@@ -1456,7 +1457,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		TreeSiteMenuRes acutalTreeSiteMenuResAfterMoveUp = null;
 		try {
-			acutalTreeSiteMenuResAfterMoveUp = treeSiteMenuReqServerTask.doWork(treeSiteMenuReq);
+			acutalTreeSiteMenuResAfterMoveUp = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 		} catch (Exception e) {
 			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
 
@@ -1486,7 +1487,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			rootMenuAddReq.setMenuName("temp"+i);
 			rootMenuAddReq.setLinkURL("/temp"+i);
 			try {
-				rootMenuAddReqServerTask.doWork(rootMenuAddReq);
+				rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
 			} catch (Exception e) {
 				String errorMessage = new StringBuilder()
 						.append("fail to add ")
@@ -1504,7 +1505,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		rootMenuAddReq.setMenuName("temp255");
 		rootMenuAddReq.setLinkURL("/temp255");
 		try {
-			rootMenuAddReqServerTask.doWork(rootMenuAddReq);
+			rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
@@ -1536,7 +1537,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			rootMenuAddReq.setMenuName("temp"+i);
 			rootMenuAddReq.setLinkURL("/temp"+i);
 			try {
-				rootMenuAddReqServerTask.doWork(rootMenuAddReq);
+				rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
 			} catch (Exception e) {
 				String errorMessage = new StringBuilder()
 						.append("fail to add ")
@@ -1555,7 +1556,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddRes = new RootMenuAddRes();
 		try {
-			rootMenuAddRes = rootMenuAddReqServerTask.doWork(rootMenuAddReq);			
+			rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);			
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
 					.append("fail to add ")
@@ -1573,7 +1574,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		firstChildMenuAddReq.setLinkURL("/temp254_1");
 		
 		try {
-			childMenuAddReqServerTask.doWork(firstChildMenuAddReq);
+			childMenuAddReqServerTask.doWork(TEST_DBCP_NAME, firstChildMenuAddReq);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
@@ -1602,7 +1603,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		firstChildMenuAddReq.setLinkURL("/tempNoParent_1");
 		
 		try {
-			childMenuAddReqServerTask.doWork(firstChildMenuAddReq);
+			childMenuAddReqServerTask.doWork(TEST_DBCP_NAME, firstChildMenuAddReq);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
@@ -1630,7 +1631,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddResForDelete = null;
 		try {
-			rootMenuAddResForDelete  = rootMenuAddReqServerTask.doWork(rootMenuAddReqForDelete);
+			rootMenuAddResForDelete  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReqForDelete);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -1643,7 +1644,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddResForSpace = null;
 		try {
-			rootMenuAddResForSpace  = rootMenuAddReqServerTask.doWork(rootMenuAddReqForSpace);
+			rootMenuAddResForSpace  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReqForSpace);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -1656,7 +1657,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		MessageResultRes messageResultRes = null;
 		try {
-			messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
+			messageResultRes = menuDeleteReqServerTask.doWork(TEST_DBCP_NAME, menuDeleteReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'MessageResultRes'");
@@ -1669,7 +1670,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		try {
-			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(arraySiteMenuReq);
+			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 			
 			if (arraySiteMenuRes.getCnt() != 1) {
 				fail("메뉴 삭제 실패하였습니다");
@@ -1700,7 +1701,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(10);
 		
 		try {
-			menuDeleteReqServerTask.doWork(menuDeleteReq);
+			menuDeleteReqServerTask.doWork(TEST_DBCP_NAME, menuDeleteReq);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
@@ -1726,7 +1727,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		RootMenuAddRes rootMenuAddRes = null;
 		try {
-			rootMenuAddRes  = rootMenuAddReqServerTask.doWork(rootMenuAddReq);
+			rootMenuAddRes  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -1740,7 +1741,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		ChildMenuAddRes childMenuAddRes = null;
 		try {
-			childMenuAddRes  = childMenuAddReqServerTask.doWork(childMenuAddReq);
+			childMenuAddRes  = childMenuAddReqServerTask.doWork(TEST_DBCP_NAME, childMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'RootMenuAddRes'");
@@ -1753,7 +1754,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		MessageResultRes messageResultRes = null;
 		try {
-			messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
+			messageResultRes = menuDeleteReqServerTask.doWork(TEST_DBCP_NAME, menuDeleteReq);
 			
 			fail("no ServerServiceException");
 		} catch(ServerServiceException e) {
@@ -1775,7 +1776,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(childMenuAddRes.getMenuNo());
 		
 		try {
-			messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
+			messageResultRes = menuDeleteReqServerTask.doWork(TEST_DBCP_NAME, menuDeleteReq);
 			
 			if (! messageResultRes.getIsSuccess()) {
 				fail("테스트용 자식 메뉴 삭제 실패");
@@ -1788,7 +1789,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(rootMenuAddRes.getMenuNo());
 		
 		try {
-			messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
+			messageResultRes = menuDeleteReqServerTask.doWork(TEST_DBCP_NAME, menuDeleteReq);
 			
 			if (! messageResultRes.getIsSuccess()) {
 				fail("테스트용 루트 메뉴 삭제 실패");

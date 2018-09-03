@@ -39,7 +39,7 @@ public final class DBCPManager {
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
-	private static final class SinnoriDBManagerHolder {
+	private static final class DBCPManagerHolder {
 		static final DBCPManager singleton = new DBCPManager();
 	}
 
@@ -49,28 +49,27 @@ public final class DBCPManager {
 	 * @return 싱글턴 객체
 	 */
 	public static DBCPManager getInstance() {
-		return SinnoriDBManagerHolder.singleton;
+		return DBCPManagerHolder.singleton;
 	}
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
 	private DBCPManager() {
-		CoddaConfiguration sinnoriRunningProjectConfiguration = 
-				CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		
-		AllDBCPPartConfiguration allDBCPPart =  sinnoriRunningProjectConfiguration.getAllDBCPPartConfiguration();
-		
+
+		AllDBCPPartConfiguration allDBCPPart = runningProjectConfiguration.getAllDBCPPartConfiguration();
+
 		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();
 
-		for (String dbcpName : dbcpNameList) {			
+		for (String dbcpName : dbcpNameList) {
 			DBCPParConfiguration dbcpPart = allDBCPPart.getDBCPPartConfiguration(dbcpName);
 			if (null == dbcpPart) {
 				log.warn("the dbcp name[{}] is bad, check dbcp part of config file", dbcpName);
 				continue;
 			}
-			File dbcpConfigFile = dbcpPart.getDBCPConfigFile();			
+			File dbcpConfigFile = dbcpPart.getDBCPConfigFile();
 
 			Properties dbcpConnectionPoolConfig = new Properties();
 			FileInputStream fis = null;
@@ -78,75 +77,74 @@ public final class DBCPManager {
 			try {
 				fis = new FileInputStream(dbcpConfigFile);
 				isr = new InputStreamReader(fis, "UTF-8");
-				dbcpConnectionPoolConfig.load(isr);				
+				dbcpConnectionPoolConfig.load(isr);
 			} catch (Exception e) {
-				log.warn(
-						"when dbcp connection pool[{}]'s config file[{}] io error, errormessage=",
-						dbcpName, dbcpConfigFile.getAbsolutePath(), e.getMessage());
+				log.warn("when dbcp connection pool[{}]'s config file[{}] io error, errormessage=", dbcpName,
+						dbcpConfigFile.getAbsolutePath(), e.getMessage());
 				continue;
 			} finally {
 				if (null != isr) {
 					try {
 						isr.close();
 					} catch (Exception e) {
-						log.warn(String.format("fail to close the dbcp[%s] properties file's input stream reader", dbcpName), e);
+						log.warn(String.format("fail to close the dbcp[%s] properties file's input stream reader",
+								dbcpName), e);
 					}
 				}
-				
+
 				if (null != fis) {
 					try {
 						fis.close();
 					} catch (Exception e) {
-						log.warn(String.format("fail to close the dbcp[%s] properties file's file input stream", dbcpName), e);
+						log.warn(String.format("fail to close the dbcp[%s] properties file's file input stream",
+								dbcpName), e);
 					}
 				}
-			}			
-			
+			}
 
 			String driverClassName = dbcpConnectionPoolConfig.getProperty("driver");
-			if(null == driverClassName) {
-				log.warn(
-						"dbcp connection pool[{}]'s JDBC Driver name is null, dbcpConnectionPoolConfig={}",
-						dbcpName, dbcpConnectionPoolConfig.toString());
+			if (null == driverClassName) {
+				log.warn("dbcp connection pool[{}]'s JDBC Driver name is null, dbcpConnectionPoolConfig={}", dbcpName,
+						dbcpConnectionPoolConfig.toString());
 				continue;
 			}
-			
+
 			try {
 				Class.forName(driverClassName);
 			} catch (ClassNotFoundException e) {
-				log.warn(
-						"dbcp connection pool[{}]'s JDBC Driver[{}] not exist, dbcpConnectionPoolConfig={}",
-						dbcpName, driverClassName, dbcpConnectionPoolConfig.toString());
+				log.warn("dbcp connection pool[{}]'s JDBC Driver[{}] not exist, dbcpConnectionPoolConfig={}", dbcpName,
+						driverClassName, dbcpConnectionPoolConfig.toString());
 				continue;
 			}
-			
+
 			BasicDataSource basicDataSource = null;
 			try {
 				basicDataSource = BasicDataSourceFactory.createDataSource(dbcpConnectionPoolConfig);
 			} catch (Exception e) {
-				log.warn(
-						"dbcp connection pool[{}] fail to create data source, dbcpConnectionPoolConfig={}",
-						dbcpName, dbcpConnectionPoolConfig.toString());
+				log.warn("dbcp connection pool[{}] fail to create data source, dbcpConnectionPoolConfig={}", dbcpName,
+						dbcpConnectionPoolConfig.toString());
 				continue;
-			}
-			
+			}		
+
 			dbcpName2BasicDataSourceHash.put(dbcpName, basicDataSource);
 			basicDataSource2dbcpConnectionPoolNameHash.put(basicDataSource, dbcpName);
-			
-			log.info("successfully dbcp[{}] was registed", dbcpName);			
+
+			log.info("successfully dbcp[{}] was registed", dbcpName);
 		}
 	}
-	
+
 	public String getDBCPConnectionPoolName(DataSource dataSource) {
 		if (!(dataSource instanceof BasicDataSource)) {
 			String classNameOfTheParamterDataSource = dataSource.getClass().getName();
-			log.warn("the parameter dataSouce[{}] is not a BasicDataSource class instance", classNameOfTheParamterDataSource);
-			throw new IllegalArgumentException(String.format("the paramter dataSource[%s] is not a BasicDataSource class instance", 
-					classNameOfTheParamterDataSource));
+			log.warn("the parameter dataSouce[{}] is not a BasicDataSource class instance",
+					classNameOfTheParamterDataSource);
+			throw new IllegalArgumentException(
+					String.format("the paramter dataSource[%s] is not a BasicDataSource class instance",
+							classNameOfTheParamterDataSource));
 		}
-		
+
 		return basicDataSource2dbcpConnectionPoolNameHash.get(dataSource);
-	}	
+	}
 
 	/**
 	 * JDBC 연결 자원 반환한다.
@@ -156,23 +154,18 @@ public final class DBCPManager {
 	 * @throws DBCPDataSourceNotFoundException
 	 *             DB 사용 준비가 안되었을 경우 던지는 예외
 	 */
-	public BasicDataSource getBasicDataSource(String dbcpName)
-			throws DBCPDataSourceNotFoundException {
-		BasicDataSource basicDataSource = dbcpName2BasicDataSourceHash
-				.get(dbcpName);
+	public BasicDataSource getBasicDataSource(String dbcpName) throws DBCPDataSourceNotFoundException {
+		BasicDataSource basicDataSource = dbcpName2BasicDataSourceHash.get(dbcpName);
 		if (null == basicDataSource) {
-			throw new DBCPDataSourceNotFoundException(new StringBuilder(
-					"dbcp connection pool[").append(dbcpName)
-					.append("] not ready").toString());
+			throw new DBCPDataSourceNotFoundException(
+					new StringBuilder("dbcp connection pool[").append(dbcpName).append("] not ready").toString());
 		}
-		
+
 		return basicDataSource;
 	}
 
-	
 	public void closeAllDataSource() {
-		Enumeration<BasicDataSource> basicDataSourceEnum = dbcpName2BasicDataSourceHash
-				.elements();
+		Enumeration<BasicDataSource> basicDataSourceEnum = dbcpName2BasicDataSourceHash.elements();
 		while (basicDataSourceEnum.hasMoreElements()) {
 			BasicDataSource basicDataSource = basicDataSourceEnum.nextElement();
 			try {
@@ -184,7 +177,7 @@ public final class DBCPManager {
 			}
 		}
 	}
-	
+
 	protected void finalize() throws Throwable {
 		closeAllDataSource();
 	}

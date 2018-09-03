@@ -105,7 +105,7 @@
 <form method="post" name="frm" onsubmit="return chkform();">
 	<div class="form-group">
 		<label for="algorithm">대칭키 알고리즘:</label>
-		<select name="algorithm" id="algorithm">
+		<select class="form-control" name="algorithm" id="algorithm">
 			<option value="AES">AES</option>
 			<option value="DES">DES</option>
 			<option value="DESede">DESede(=Triple DES)</option>

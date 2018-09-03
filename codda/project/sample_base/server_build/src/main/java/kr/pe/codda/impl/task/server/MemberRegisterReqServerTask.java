@@ -13,6 +13,7 @@ import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
@@ -41,7 +42,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((MemberRegisterReq) inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (MemberRegisterReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -60,7 +61,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public MessageResultRes doWork(MemberRegisterReq memberRegisterReq) throws Exception {
+	public MessageResultRes doWork(String dbcpName, MemberRegisterReq memberRegisterReq) throws Exception {
 		// FIXME!
 		log.info(memberRegisterReq.toString());
 
@@ -293,7 +294,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		ServerDBUtil.registerMember(MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes);
+		ServerDBUtil.registerMember(dbcpName, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes);
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(memberRegisterReq.getMessageID());

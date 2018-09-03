@@ -35,6 +35,14 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardListRes");
 
+		boardListRes.setRequestUserID((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "requestUserID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardListRes.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardID" // itemName
@@ -43,17 +51,17 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardListRes.setPageOffset((Long)
+		boardListRes.setPageNo((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "pageOffset" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, "pageNo" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardListRes.setPageLength((Integer)
+		boardListRes.setPageSize((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "pageLength" // itemName
+			, "pageSize" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

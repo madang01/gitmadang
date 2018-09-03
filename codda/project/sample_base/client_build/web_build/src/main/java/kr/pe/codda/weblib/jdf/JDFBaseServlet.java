@@ -236,31 +236,31 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 		}
 		
 		if (menuGroupURL.equals("/servlet/BoardList")) {
-			String paramBoardId = req.getParameter("boardId");
-			short boardId = BoardType.FREE.getBoardID();
+			String paramBoardID = req.getParameter("boardID");
+			short boardID = BoardType.FREE.getBoardID();
 			BoardType boardType = BoardType.FREE;
 			
-			if (null != paramBoardId) {
+			if (null != paramBoardID) {
 				try {
-					boardId = Short.parseShort(paramBoardId);
+					boardID = Short.parseShort(paramBoardID);
 					
 					try {
-						boardType = BoardType.valueOf(boardId);
+						boardType = BoardType.valueOf(boardID);
 					} catch(IllegalArgumentException e) {
-						log.error("the parameter 'boardId'[{}] is not a BoardType in the request URI[{}]", paramBoardId, req.getRequestURI());
-						System.exit(1);
+						log.warn("the parameter 'boardID'[{}] is not a BoardType in the request URI[{}]", paramBoardID, req.getRequestURI());
+						// System.exit(1);
 					}
 				} catch (NumberFormatException nfe) {
-					log.error("the parameter 'boardId'[{}] is not a short type in the request URI[{}]", paramBoardId, req.getRequestURI());
-					System.exit(1);
+					log.warn("the parameter 'boardID'[{}] is not a short type in the request URI[{}]", paramBoardID, req.getRequestURI());
+					// System.exit(1);
 				}
 			} else {
-				log.error("the parameter 'boardId' doesn't exist in the request URI[{}]", req.getRequestURI());
-				System.exit(1);
+				log.warn("the parameter 'boardID' doesn't exist in the request URI[{}]", req.getRequestURI());
+				//System.exit(1);
 			}		
 			
-			menuGroupURL = new StringBuilder(menuGroupURL).append("?boardId=")
-					.append(boardType.getBoardID()).toString();
+			menuGroupURL = new StringBuilder(menuGroupURL).append("?boardID=")
+					.append(boardType.getBoardID()).toString();			
 		}
 		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL, menuGroupURL);

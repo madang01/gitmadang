@@ -23,6 +23,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
@@ -46,7 +47,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((BoardVoteReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (BoardVoteReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -67,7 +68,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doWork(BoardVoteReq boardVoteReq) throws Exception {
+	public MessageResultRes doWork(String dbcpName, BoardVoteReq boardVoteReq) throws Exception {
 		// FIXME!
 		log.info(boardVoteReq.toString());	
 		
@@ -90,14 +91,14 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		UInteger boardNo = UInteger.valueOf(boardVoteReq.getBoardNo());
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardVoteReq.getUserID());	
 			

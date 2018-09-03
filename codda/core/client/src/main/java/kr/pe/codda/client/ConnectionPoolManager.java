@@ -66,11 +66,11 @@ public final class ConnectionPoolManager {
 	 * @throws NoMoreDataPacketBufferException
 	 */
 	private ConnectionPoolManager() {
-		CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
-		ProjectPartConfiguration mainProjectPartConfiguration = sinnoriRunningProjectConfiguration
+		ProjectPartConfiguration mainProjectPartConfiguration = runningProjectConfiguration
 				.getMainProjectPartConfiguration();
-		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration
+		AllSubProjectPartConfiguration allSubProjectPart = runningProjectConfiguration
 				.getAllSubProjectPartConfiguration();
 
 		mainProjectName = mainProjectPartConfiguration.getProjectName();
@@ -129,9 +129,9 @@ public final class ConnectionPoolManager {
 	public AnyProjectConnectionPoolIF getMainProjectConnectionPool() throws IllegalStateException {
 		if (null == mainProjectConnectionPool) {
 			try {
-				CoddaConfiguration sinnoriRunningProjectConfiguration = CoddaConfigurationManager.getInstance()
+				CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 						.getRunningProjectConfiguration();
-				ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration
+				ProjectPartConfiguration mainProjectPart = runningProjectConfiguration
 						.getMainProjectPartConfiguration();
 				mainProjectConnectionPool = new AnyProjectConnectionPool(mainProjectPart);
 			} catch (Exception e) {

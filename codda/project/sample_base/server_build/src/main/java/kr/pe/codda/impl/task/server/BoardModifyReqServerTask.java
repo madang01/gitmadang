@@ -32,6 +32,7 @@ import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
@@ -56,7 +57,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			AbstractMessage inputMessage) throws Exception {
 		
 		try {
-			AbstractMessage outputMessage = doWork((BoardModifyReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (BoardModifyReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -77,7 +78,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doWork(BoardModifyReq boardModifyReq) throws Exception {
+	public MessageResultRes doWork(String dbcpName, BoardModifyReq boardModifyReq) throws Exception {
 		// FIXME!
 		log.info(boardModifyReq.toString());
 		
@@ -142,14 +143,14 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 		
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);			
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));			
 			
 			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardModifyReq.getModifierID());
 			MemberType  modifierIDMemberType = null;
@@ -167,6 +168,42 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 						.append(nativeRequestUserIDMemberType)
 						.append("]이 잘못되어있습니다").toString();
 				throw new ServerServiceException(errorMessage);
+			}
+			
+			if (! MemberType.ADMIN.equals(modifierIDMemberType)) {
+				Record1<String> 
+				firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
+				.from(SB_BOARD_HISTORY_TB)
+				.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
+				.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
+				.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0)))
+				.fetchOne();
+				
+				if (null == firstWriterBoardRecord) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					
+					String errorMessage = new StringBuilder("해당 게시글의 최초 작성자 정보가 존재 하지 않습니다").toString();
+					throw new ServerServiceException(errorMessage);
+				}
+				
+				String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+				
+				if (! boardModifyReq.getModifierID().equals(firstWriterID)) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					
+					String errorMessage = new StringBuilder("타인[")
+							.append(firstWriterID)							
+							.append("] 게시글은 수정 할 수 없습니다").toString();
+					throw new ServerServiceException(errorMessage);
+				}
 			}
 			
 			Record1<String> boardRecord = create.select(SB_BOARD_TB.BOARD_ST)
@@ -224,46 +261,6 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder("해당 게시글은 관리자에 의해 블락된 글입니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
-			
-			
-			
-			
-			if (! MemberType.ADMIN.equals(modifierIDMemberType)) {
-				Record1<String> 
-				firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
-				.from(SB_BOARD_HISTORY_TB)
-				.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
-				.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
-				.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0)))
-				.fetchOne();
-				
-				if (null == firstWriterBoardRecord) {
-					try {
-						conn.rollback();
-					} catch (Exception e) {
-						log.warn("fail to rollback");
-					}
-					
-					String errorMessage = new StringBuilder("해당 게시글의 최초 작성자 정보가 존재 하지 않습니다").toString();
-					throw new ServerServiceException(errorMessage);
-				}
-				
-				String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
-				
-				if (! boardModifyReq.getModifierID().equals(firstWriterID)) {
-					try {
-						conn.rollback();
-					} catch (Exception e) {
-						log.warn("fail to rollback");
-					}
-					
-					String errorMessage = new StringBuilder("타인[")
-							.append(firstWriterID)							
-							.append("] 게시글은 수정 할 수 없습니다").toString();
-					throw new ServerServiceException(errorMessage);
-				}
-			}
-			
 			
 			Result<Record> attachFileListRecord = create.select().from(SB_BOARD_FILELIST_TB)
 					.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))

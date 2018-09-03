@@ -69,13 +69,13 @@ public final class MainServerManager {
 	 */
 	private MainServerManager() {
 		// try {
-			CoddaConfiguration sinnoriRunningProjectConfiguration = 
+			CoddaConfiguration runningProjectConfiguration = 
 					CoddaConfigurationManager.getInstance()
 					.getRunningProjectConfiguration();
-			ProjectPartConfiguration mainProjectPartConfiguration = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
-			AllSubProjectPartConfiguration allSubProjectPartConfiguration = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
+			ProjectPartConfiguration mainProjectPartConfiguration = runningProjectConfiguration.getMainProjectPartConfiguration();
+			AllSubProjectPartConfiguration allSubProjectPartConfiguration = runningProjectConfiguration.getAllSubProjectPartConfiguration();
 			
-			installedPathString = sinnoriRunningProjectConfiguration.getInstalledPathString();
+			installedPathString = runningProjectConfiguration.getInstalledPathString();
 			mainProjectName = mainProjectPartConfiguration.getProjectName();
 			
 			String serverAPPINFClassPathString = ServerBuildSytemPathSupporter

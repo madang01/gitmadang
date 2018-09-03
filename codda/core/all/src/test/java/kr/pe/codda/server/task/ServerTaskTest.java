@@ -319,11 +319,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		int dataPacketBufferMaxCntPerMessage = 10;		
 		long socketTimeOut = 5000;
 		int serverOutputMessageQueueCapacity = 5; 
-		/*
-		 * ClassLoader currentClassLoader = this.getClass().getClassLoader(); final
-		 * String ClassLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.";
-		 */
-		
+				
 		// MailboxIF inputMessageMailbox = new SimpleMailbox(readableMiddleObjectWrapperQueue);
 
 		SocketChannel fromSC = null;

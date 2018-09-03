@@ -17,6 +17,9 @@ import javax.sql.DataSource;
 import org.apache.commons.codec.binary.Base64;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.conf.MappedSchema;
+import org.jooq.conf.RenderMapping;
+import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
@@ -29,19 +32,38 @@ import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
 public abstract class ServerDBUtil {
+	
+	private static Settings DEFAULT_DBCP_SETTINGS = new Settings()
+		    .withRenderMapping(new RenderMapping()
+		    .withSchemata(
+		        new MappedSchema().withInput(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME.toLowerCase())
+		                          .withOutput(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME.toLowerCase())));
+	
+	private static Settings GENERAL_TEST_DBCP_SETTINGS = new Settings()
+		    .withRenderMapping(new RenderMapping()
+		    .withSchemata(
+		        new MappedSchema().withInput(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME.toLowerCase())
+		                          .withOutput(ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME.toLowerCase())));
+	
+	private static Settings LOAD_TEST_DBCP_SETTINGS = new Settings()
+		    .withRenderMapping(new RenderMapping()
+		    .withSchemata(
+		        new MappedSchema().withInput(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME.toLowerCase())
+		                          .withOutput(ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME.toLowerCase())));
+	
 
-	public static void initializeDBEnvoroment() throws Exception {
+	public static void initializeDBEnvoroment(String dbcpName) throws Exception {
 		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(true);
 
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			insertAllBoardIDIfNotExist(create);
 			
@@ -94,7 +116,7 @@ public abstract class ServerDBUtil {
 	 * @param passwordBytes 패스워드
 	 * @throws Exception
 	 */
-	public static void registerMember(MemberType memberType, String userID, String nickname, String pwdHint, String pwdAnswer, byte[] passwordBytes) throws Exception {
+	public static void registerMember(String dbcpName, MemberType memberType, String userID, String nickname, String pwdHint, String pwdAnswer, byte[] passwordBytes) throws Exception {
 		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
 		
 		if (null == memberType) {
@@ -139,14 +161,14 @@ public abstract class ServerDBUtil {
 		PasswordPairForMemberTable passwordPairForMemberDB = getPasswordPairForMemberTable(passwordBytes, pwdSaltBytes);
 
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
-
+				.getBasicDataSource(dbcpName);		
+		
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
 			boolean isSameIDMember = create
 					.fetchExists(create.select().from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(userID)));
@@ -306,6 +328,8 @@ public abstract class ServerDBUtil {
 				.set(SB_BOARD_INFO_TB.BOARD_ID, boardTypeID)
 				.set(SB_BOARD_INFO_TB.BOARD_NAME, boardType.getName())
 				.set(SB_BOARD_INFO_TB.BOARD_INFO, boardInfo)
+				.set(SB_BOARD_INFO_TB.ADMIN_TOTAL, 0)
+				.set(SB_BOARD_INFO_TB.USER_TOTAL, 0)
 				.execute();
 				
 				if (0 == countOfInsert) {
@@ -315,5 +339,15 @@ public abstract class ServerDBUtil {
 				}				
 			}
 		}
+	}
+	
+	public static Settings getDBCPSettings(String dbcpName) {
+		if (dbcpName.equals(ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME)) {
+			return GENERAL_TEST_DBCP_SETTINGS;
+		} else if (dbcpName.equals(ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME)) {
+			return LOAD_TEST_DBCP_SETTINGS;
+		}
+		
+		return DEFAULT_DBCP_SETTINGS;
 	}
 }

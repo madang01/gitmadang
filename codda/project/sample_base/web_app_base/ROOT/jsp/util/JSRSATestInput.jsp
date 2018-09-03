@@ -24,7 +24,6 @@ String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보�
 <script type="text/javascript" src="/js/jsbn/rng.js"></script>
 <script type="text/javascript" src="/js/jsbn/rsa.js"></script>
 <script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>

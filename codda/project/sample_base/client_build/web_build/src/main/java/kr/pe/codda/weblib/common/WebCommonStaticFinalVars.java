@@ -40,7 +40,7 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME = "AES";
 	public static final String WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME = "AES";
 	
-	/** 게시판 페이지당 목록 갯수 */
+	/** 게시판 페이지당 목록 갯수, WARNING! unsigned short type 으로 최대값이 65535 이다 */
 	public static final int WEBSITE_BOARD_LIST_SIZE_PER_PAGE = 20;
 	
 	/** 게시판 쪽수 목록의 크기 */

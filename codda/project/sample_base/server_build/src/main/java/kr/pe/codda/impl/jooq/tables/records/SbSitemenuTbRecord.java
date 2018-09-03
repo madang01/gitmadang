@@ -30,31 +30,31 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSitemenuTbRecord extends UpdatableRecordImpl<SbSitemenuTbRecord> implements Record6<UInteger, UInteger, UByte, UByte, String, String> {
 
-    private static final long serialVersionUID = -2019239259;
+    private static final long serialVersionUID = -655244855;
 
     /**
-     * Setter for <code>sb_db.sb_sitemenu_tb.menu_no</code>.
+     * Setter for <code>sb_db.sb_sitemenu_tb.menu_no</code>. 메뉴 번호,  1부터 시작된다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 메뉴 번호를 얻어옴.
      */
     public void setMenuNo(UInteger value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_sitemenu_tb.menu_no</code>.
+     * Getter for <code>sb_db.sb_sitemenu_tb.menu_no</code>. 메뉴 번호,  1부터 시작된다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 메뉴 번호를 얻어옴.
      */
     public UInteger getMenuNo() {
         return (UInteger) get(0);
     }
 
     /**
-     * Setter for <code>sb_db.sb_sitemenu_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
+     * Setter for <code>sb_db.sb_sitemenu_tb.parent_no</code>. 부모 메뉴 번호,  메뉴 번호는 1부터 시작되며 부모가 없는 경우 부모 메뉴 번호 값은  0 값을 갖는다.
      */
     public void setParentNo(UInteger value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_sitemenu_tb.parent_no</code>. 부모 글 번호,  부모가 없는 경우  다른 말로 댓글 깊이가 0 인 글은 0 값을 갖는다.
+     * Getter for <code>sb_db.sb_sitemenu_tb.parent_no</code>. 부모 메뉴 번호,  메뉴 번호는 1부터 시작되며 부모가 없는 경우 부모 메뉴 번호 값은  0 값을 갖는다.
      */
     public UInteger getParentNo() {
         return (UInteger) get(1);

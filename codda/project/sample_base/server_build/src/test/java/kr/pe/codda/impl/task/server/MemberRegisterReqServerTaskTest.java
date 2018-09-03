@@ -16,8 +16,10 @@ import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 
 public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {	
+	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
 	
 	@Test
 	public void testDoService_ok() {		
@@ -93,7 +95,7 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 		try {
 			@SuppressWarnings("unused")
 			MessageResultRes messageResultRes = 
-					memberRegisterReqServerTask.doWork(memberRegisterReq);
+					memberRegisterReqServerTask.doWork(TEST_DBCP_NAME, memberRegisterReq);
 		} catch (Exception e) {
 			log.warn("fail to execuate doTask", e);
 			fail("fail to execuate doTask");

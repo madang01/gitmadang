@@ -524,13 +524,13 @@ public class ValueChecker {
 
 	/**
 	 * 게시판 식별자 검사
-	 * @param boardId 게시판 식별자
+	 * @param boardID 게시판 식별자
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
-	public static void checkValidBoardId(long boardId) throws IllegalArgumentException {		
-		if (boardId <= 0) {
+	public static void checkValidBoardID(long boardID) throws IllegalArgumentException {		
+		if (boardID < 0) {
 			String errorMessage = new StringBuilder("게시판 식별자 번호 값[")
-			.append(boardId).append("]은 0 보다 커야합니다").toString();
+			.append(boardID).append("]은 0 보다 크거나 같아야 합니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}	
 	}	
@@ -705,14 +705,14 @@ public class ValueChecker {
 	/**
 	 * <pre>
 	 * 지정한 아이디가 정상인지 아래와 같은 검사를 수행하여 
-	 * 비정상시 예외를 던지고 최종 멤버 타입을 반환한다
+	 * 비정상시 예외를 던지고 최종 멤버 타입을 반환한다.
 	 * 
 	 * (1) 회원 테이블에 존재 여부
 	 * (2) 회원 테이블에 들어간 회원 상태 값이 옳바른지 여부 
 	 * (3) 블락 여부
 	 * (4) 탈퇴 여부
 	 * 
-	 * WARNING! 파라미터 null 검사를 수행하지 않습니다
+	 * WARNING! 파라미터 null 검사를 수행하지 않습니다 또한 아이디 'guest' 는 시스템에 예약된 가상 아이디로써 회원 테이블에 존재 하지 않지만 손님을 뜻하는 아이디이다.  
 	 * </pre>
 	 * 
 	 * @param conn
@@ -723,6 +723,10 @@ public class ValueChecker {
 	 * @return  멤버 타입
 	 */
 	public static String checkValidMemberStateForUserID(Connection conn, DSLContext create, InternalLogger log, String userID) throws ServerServiceException {
+		if (userID.equals("guest")) {
+			return MemberType.USER.getValue();
+		}
+		
 		Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.MEMBER_ST, SB_MEMBER_TB.MEMBER_TYPE)
 				.from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.fetchOne();

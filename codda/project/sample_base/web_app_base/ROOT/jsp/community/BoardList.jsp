@@ -1,4 +1,3 @@
-<%@page import="com.google.gson.Gson"%>
 <%@page import="java.util.List"%><%
 %><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
 %><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%><%
@@ -8,7 +7,7 @@
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%
 	
-	String boardListResJsonString = new Gson().toJson(boardListRes);
+	//String boardListResJsonString = new Gson().toJson(boardListRes);
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -34,7 +33,7 @@
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type='text/javascript'>
-	var boardListResJsonString = <%= boardListResJsonString %>;
+	
 
 	function getSessionkeyBase64() {
 		var privateKey;
@@ -136,12 +135,12 @@
 		<div id="resultMessageView"></div>
 		<div class="row">
 			<div class="col-sm-1">번호</div>
-			<div class="col-sm-5">제목</div>
+			<div class="col-sm-3">제목</div>
 			<div class="col-sm-2">작성자</div>
 			<div class="col-sm-1">조회수</div>
 			<div class="col-sm-1">추천수</div>
-			<div class="col-sm-1">최초 작성일</div>
-			<div class="col-sm-1">마지막 수정일</div>
+			<div class="col-sm-2">최초 작성일</div>
+			<div class="col-sm-2">마지막 수정일</div>
 		</div><%
 	List<BoardListRes.Board> boardList = boardListRes.getBoardList();
 	if (null != boardList) {
@@ -150,7 +149,7 @@
 %>
 		<div class="row">
 			<div class="col-sm-1"><%= board.getBoardNo() %></div>
-			<div class="col-sm-5"><%
+			<div class="col-sm-3"><%
 			if (depth > 0) {
 				for (int i=0; i < depth; i++) {
 					out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -161,47 +160,58 @@
 			<div class="col-sm-2"><%= StringReplacementActorUtil.replace(board.getNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></div>
 			<div class="col-sm-1"><%= board.getViewCount() %></div>
 			<div class="col-sm-1"><%= board.getVotes() %></div>
-			<div class="col-sm-1"><%= board.getRegisteredDate() %></div>
-			<div class="col-sm-1"><%= board.getFinalModifiedDate() %></div>
+			<div class="col-sm-2"><%= board.getRegisteredDate() %></div>
+			<div class="col-sm-2"><%= board.getFinalModifiedDate() %></div>
 		</div><%
 		}
 	}
 
 	if (boardListRes.getTotal() > 1) {
-		long pageNo = boardListRes.getPageOffset() / boardListRes.getPageLength() + 1;
+		final int pageNo = boardListRes.getPageNo();
+		final int pageSize = boardListRes.getPageSize();
+		
+		// long pageNo = boardListRes.getPageOffset() / boardListRes.getPageLength() + 1;
 		
 		long startPageNo = 1 + WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE*(long)((pageNo - 1) / WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE);
 		long endPageNo = Math.min(startPageNo + WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE, 
-				(boardListRes.getTotal() + boardListRes.getPageLength() - 1) / boardListRes.getPageLength());
+				(boardListRes.getTotal() + pageSize - 1) / pageSize);
+
+%>
+		<ul class="pagination pagination-sm"><%
 
 		if (startPageNo > 1) {
 %>
-		<ul class="pager"><li><a href="#" onClick="goListPage('<%= startPageNo-1 %>')">Previous</a></li></ul><%
-		}
+			<li class="previous"><a href="#" onClick="goListPage('<%= startPageNo-1 %>')">이전</a></li><%
+		} else {
 %>
-		<ul class="pagination"><%
+			<li class="disabled previous"><a href="#">이전</a></li><%			
+		}
+
 		for (int i=0; i < WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE; i++) {
 			long workingPageNo = startPageNo + i;
 			if (workingPageNo > endPageNo) break;
 
 			if (workingPageNo == pageNo) {
 %>
-			<li><%= workingPageNo %></li><%
+			<li class="active"><a href="#"><%= workingPageNo %></a></li><%
 			} else {
-%><li><a href="#" onClick="goListPage('<%= workingPageNo %>')"><%= workingPageNo %></a></li><%
-			}
-							
-		}
 %>
-		</ul><%
+			<li><a href="#" onClick="goListPage('<%= workingPageNo %>')"><%= workingPageNo %></a></li><%
+			}				
+		}
+		
 		if (startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE <= endPageNo) {
 %>
-		<ul class="pager"><li><a href="#" onClick="goListPage('<%=startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE%>')">Next</a></li></ul><%
+			<li class="next"><a href="#" onClick="goListPage('<%=startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE%>')">다음</a></li><%
+		} else {
+%>
+			<li class="disabled next"><a href="#">다음</a></li><%
 		}
+%>
+		</ul><%		
 	}
 %>	
-		<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;visibility:hidden"></iframe>
-	</div>
+	</div>	
 </body>
 </html>
 

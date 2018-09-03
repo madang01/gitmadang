@@ -13,15 +13,17 @@ import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
 import kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes;
+import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
-public class MenuListReqServerTaskTest extends AbstractJunitTest {	
+public class MenuListReqServerTaskTest extends AbstractJunitTest {
+	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment();		
+		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);		
 	}
 	
 	@Test
@@ -31,7 +33,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		
 		try {
-			ArraySiteMenuRes ArraySiteMenuRes = arraySiteMenuReqServerTask.doWork(arraySiteMenuReq);
+			ArraySiteMenuRes ArraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 			
 			
 			for (ArraySiteMenuRes.Menu menu : ArraySiteMenuRes.getMenuList()) {
@@ -55,7 +57,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		ArraySiteMenuRes beforeMenuListRes = null;
 		ArraySiteMenuRes afterMenuListRes = null;
 		try {
-			beforeMenuListRes = menuListReqServerTask.doWork(menuListReq);
+			beforeMenuListRes = menuListReqServerTask.doWork(TEST_DBCP_NAME, menuListReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'ArraySiteMenuRes'");
@@ -69,14 +71,14 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes firstRootMenuAddRes = null;
 		try {
-			firstRootMenuAddRes  = rootMenuAddReqServerTask.doWork(firstRootMenuAddReq);
+			firstRootMenuAddRes  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, firstRootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a first output message 'RootMenuAddRes'");
 		}		
 		
 		try {
-			afterMenuListRes = menuListReqServerTask.doWork(menuListReq);
+			afterMenuListRes = menuListReqServerTask.doWork(TEST_DBCP_NAME, menuListReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a output message 'ArraySiteMenuRes'");
@@ -125,7 +127,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		
 		RootMenuAddRes secondRootMenuAddRes = null;
 		try {
-			secondRootMenuAddRes  = rootMenuAddReqServerTask.doWork(secondRootMenuAddReq);
+			secondRootMenuAddRes  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, secondRootMenuAddReq);
 		} catch (Exception e) {
 			log.warn("error", e);
 			fail("fail to get a second output message 'RootMenuAddRes'");

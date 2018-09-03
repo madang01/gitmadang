@@ -29,6 +29,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -47,7 +48,7 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((MenuMoveUpReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (MenuMoveUpReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -69,21 +70,21 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doWork(MenuMoveUpReq menuMoveUpReq) throws Exception {
+	public MessageResultRes doWork(String dbcpName, MenuMoveUpReq menuMoveUpReq) throws Exception {
 		// FIXME!
 		log.info(menuMoveUpReq.toString());
 		
 		UInteger sourceMenuNo = UInteger.valueOf(menuMoveUpReq.getMenuNo());
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			/** '메뉴 순서' 를 위한 lock */
 			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE)

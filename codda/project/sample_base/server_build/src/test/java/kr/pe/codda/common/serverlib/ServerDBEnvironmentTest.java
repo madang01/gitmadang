@@ -19,7 +19,7 @@ public class ServerDBEnvironmentTest {
 		DataSource dataSource = null;;
 		try {
 			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+					.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
 		} catch (DBCPDataSourceNotFoundException e1) {
 			log.error("fail to get dataSource");
 			System.exit(1);

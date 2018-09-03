@@ -94,7 +94,7 @@
 <form method="post" name="frm" onsubmit="return chkform();">
 	<div class="form-group">
 		<label for="algorithm">해시 알고리즘(=메세지 다이제스트) 알고리즘:</label>
-		<select name="algorithm" id="algorithm">
+		<select class="form-control" name="algorithm" id="algorithm">
 			<option value="MD5">MD5</option>
 			<option value="SHA1">SHA1</option>
 			<option value="SHA-256">SHA256</option>

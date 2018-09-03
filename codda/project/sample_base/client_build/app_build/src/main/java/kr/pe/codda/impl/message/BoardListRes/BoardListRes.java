@@ -25,9 +25,10 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardListRes extends AbstractMessage {
+	private String requestUserID;
 	private short boardID;
-	private long pageOffset;
-	private int pageLength;
+	private int pageNo;
+	private int pageSize;
 	private long total;
 	private int cnt;
 
@@ -175,6 +176,13 @@ public class BoardListRes extends AbstractMessage {
 
 	private java.util.List<Board> boardList;
 
+	public String getRequestUserID() {
+		return requestUserID;
+	}
+
+	public void setRequestUserID(String requestUserID) {
+		this.requestUserID = requestUserID;
+	}
 	public short getBoardID() {
 		return boardID;
 	}
@@ -182,19 +190,19 @@ public class BoardListRes extends AbstractMessage {
 	public void setBoardID(short boardID) {
 		this.boardID = boardID;
 	}
-	public long getPageOffset() {
-		return pageOffset;
+	public int getPageNo() {
+		return pageNo;
 	}
 
-	public void setPageOffset(long pageOffset) {
-		this.pageOffset = pageOffset;
+	public void setPageNo(int pageNo) {
+		this.pageNo = pageNo;
 	}
-	public int getPageLength() {
-		return pageLength;
+	public int getPageSize() {
+		return pageSize;
 	}
 
-	public void setPageLength(int pageLength) {
-		this.pageLength = pageLength;
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 	}
 	public long getTotal() {
 		return total;
@@ -222,12 +230,14 @@ public class BoardListRes extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardListRes[");
-		builder.append("boardID=");
+		builder.append("requestUserID=");
+		builder.append(requestUserID);
+		builder.append(", boardID=");
 		builder.append(boardID);
-		builder.append(", pageOffset=");
-		builder.append(pageOffset);
-		builder.append(", pageLength=");
-		builder.append(pageLength);
+		builder.append(", pageNo=");
+		builder.append(pageNo);
+		builder.append(", pageSize=");
+		builder.append(pageSize);
 		builder.append(", total=");
 		builder.append(total);
 		builder.append(", cnt=");

@@ -25,6 +25,7 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
@@ -46,7 +47,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((BoardDownloadFileReq) inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (BoardDownloadFileReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -65,7 +66,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public BoardDownloadFileRes doWork(BoardDownloadFileReq boardDownloadFileReq) throws Exception {
+	public BoardDownloadFileRes doWork(String dbcpName, BoardDownloadFileReq boardDownloadFileReq) throws Exception {
 		// FIXME!
 		log.info(boardDownloadFileReq.toString());
 
@@ -74,14 +75,14 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 		UByte attachedFileSeq = UByte.valueOf(boardDownloadFileReq.getAttachedFileSeq());
 
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
 			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log,
 					boardDownloadFileReq.getRequestUserID());

@@ -25,6 +25,7 @@
            can be the owner, user, database name) to be generated -->
       <inputSchema>sb_db</inputSchema>
 
+
       <!-- All elements that are generated from your schema
            (A Java regular expression. Use the pipe to separate several expressions)
            Watch out for case-sensitivity. Depending on your database, this might be important! -->

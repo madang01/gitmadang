@@ -8,7 +8,12 @@ public abstract class ServerCommonStaticFinalVars {
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_IS_DROP_ALL_TABLE = "is.dropAllTable";
 	
 	
-	public static final String SB_CONNECTION_POOL_NAME = "sample_base_db";
+	/** sample_base 프로젝트의 DB 스키마, SB_DB ===> sample_base_database */
+	public static final String DEFAULT_DBCP_NAME = "SB_DB";
+	/** 일반적인 테스트용 sample_base 프로젝트의 dbcp 이름, general_test_sample_base_database  */
+	public static final String GENERAL_TEST_DBCP_NAME = "GT_SB_DB";
+	/** 부하 테스트용 sample_base 프로젝트의 dbcp 이름, load_test_sample_base_database */
+	public static final String LOAD_TEST_DBCP_NAME = "LT_SB_DB";
 	
 	/** 패스워드 최소 문자수 */
 	public static final int MIN_NUMBER_OF_PASSWRORD_CHARRACTERS = 8;

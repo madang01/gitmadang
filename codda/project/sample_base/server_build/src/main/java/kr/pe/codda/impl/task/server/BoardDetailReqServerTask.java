@@ -38,6 +38,7 @@ import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
@@ -58,7 +59,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((BoardDetailReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (BoardDetailReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -79,7 +80,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public BoardDetailRes doWork(BoardDetailReq boardDetailReq)
+	public BoardDetailRes doWork(String dbcpName, BoardDetailReq boardDetailReq)
 			throws Exception {
 
 		try {
@@ -98,14 +99,14 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 		UInteger boardNo = UInteger.valueOf(boardDetailReq.getBoardNo());
 
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
 
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardDetailReq.getRequestUserID());	
 			MemberType  requestUserIDMemberType = null;

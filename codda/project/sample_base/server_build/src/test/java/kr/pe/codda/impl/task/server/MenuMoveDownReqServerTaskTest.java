@@ -13,15 +13,17 @@ import kr.pe.codda.impl.message.MenuMoveDownReq.MenuMoveDownReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
 import kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes;
+import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
 public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {	
+	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment();		
+		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);		
 	}
 
 	@Test
@@ -38,7 +40,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			
 			
 			try {
-				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(fromRootMenuAddReq);
+				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, fromRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -51,7 +53,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			toRootMenuAddReq.setLinkURL("/temp02");
 			
 			try {
-				toRootMenuAddRes  = rootMenuAddReqServerTask.doWork(toRootMenuAddReq);
+				toRootMenuAddRes  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, toRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -75,7 +77,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
 		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
 		try {
-			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(menuDownMoveReq);
+			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
 			}
@@ -100,7 +102,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			
 			
 			try {
-				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(fromRootMenuAddReq);
+				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, fromRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -113,7 +115,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		menuDeleteReq.setMenuNo(fromRootMenuAddRes.getMenuNo());		
 		
 		try {
-			MessageResultRes messageResultRes = menuDeleteReqServerTask.doWork(menuDeleteReq);
+			MessageResultRes messageResultRes = menuDeleteReqServerTask.doWork(TEST_DBCP_NAME, menuDeleteReq);
 			
 			if (! messageResultRes.getIsSuccess()) {
 				fail(messageResultRes.getResultMessage());
@@ -128,7 +130,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
 		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
 		try {
-			menuDownMoveReqServerTask.doWork(menuDownMoveReq);
+			menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
@@ -158,7 +160,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			fromRootMenuAddReq.setLinkURL("/temp01");			
 			
 			try {
-				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(fromRootMenuAddReq);
+				fromRootMenuAddRes  = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, fromRootMenuAddReq);
 			} catch (Exception e) {
 				log.warn("error", e);
 				fail("fail to get a output message 'RootMenuAddRes'");
@@ -169,7 +171,7 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
 		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
 		try {
-			menuDownMoveReqServerTask.doWork(menuDownMoveReq);
+			menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {

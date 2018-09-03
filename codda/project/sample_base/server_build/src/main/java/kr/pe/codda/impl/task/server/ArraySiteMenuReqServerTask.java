@@ -46,7 +46,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork((ArraySiteMenuReq)inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (ArraySiteMenuReq)inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -67,12 +67,12 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 		}
 	}
 
-	public ArraySiteMenuRes doWork(ArraySiteMenuReq arraySiteMenuReq) throws Exception {
+	public ArraySiteMenuRes doWork(String dbcpName, ArraySiteMenuReq arraySiteMenuReq) throws Exception {
 		// FIXME!
 		log.info(arraySiteMenuReq.toString());
 		
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getBasicDataSource(dbcpName);
 
 		
 		Connection conn = null;
