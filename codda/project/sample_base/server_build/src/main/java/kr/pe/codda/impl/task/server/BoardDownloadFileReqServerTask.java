@@ -116,11 +116,11 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(boardState, false);
+				boardStateType = BoardStateType.valueOf(nativeBoardStateType, false);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -128,7 +128,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시글의 상태 값[").append(boardState).append("]이 잘못되었습니다")
+				String errorMessage = new StringBuilder("게시글의 상태 값[").append(nativeBoardStateType).append("]이 잘못되었습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
 			}

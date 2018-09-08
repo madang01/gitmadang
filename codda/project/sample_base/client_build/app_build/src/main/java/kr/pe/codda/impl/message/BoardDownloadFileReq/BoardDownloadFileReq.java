@@ -25,11 +25,18 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardDownloadFileReq extends AbstractMessage {
+	private String requestUserID;
 	private short boardID;
 	private long boardNo;
 	private short attachedFileSeq;
-	private String requestUserID;
 
+	public String getRequestUserID() {
+		return requestUserID;
+	}
+
+	public void setRequestUserID(String requestUserID) {
+		this.requestUserID = requestUserID;
+	}
 	public short getBoardID() {
 		return boardID;
 	}
@@ -51,26 +58,19 @@ public class BoardDownloadFileReq extends AbstractMessage {
 	public void setAttachedFileSeq(short attachedFileSeq) {
 		this.attachedFileSeq = attachedFileSeq;
 	}
-	public String getRequestUserID() {
-		return requestUserID;
-	}
-
-	public void setRequestUserID(String requestUserID) {
-		this.requestUserID = requestUserID;
-	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardDownloadFileReq[");
-		builder.append("boardID=");
+		builder.append("requestUserID=");
+		builder.append(requestUserID);
+		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", boardNo=");
 		builder.append(boardNo);
 		builder.append(", attachedFileSeq=");
 		builder.append(attachedFileSeq);
-		builder.append(", requestUserID=");
-		builder.append(requestUserID);
 		builder.append("]");
 		return builder.toString();
 	}

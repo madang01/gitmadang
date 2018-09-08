@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * ArraySiteMenuReq message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class ArraySiteMenuReq extends AbstractMessage {

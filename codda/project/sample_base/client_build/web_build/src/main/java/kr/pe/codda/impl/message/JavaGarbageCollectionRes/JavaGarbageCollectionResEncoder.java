@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * JavaGarbageCollectionRes message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class JavaGarbageCollectionResEncoder extends AbstractMessageEncoder {

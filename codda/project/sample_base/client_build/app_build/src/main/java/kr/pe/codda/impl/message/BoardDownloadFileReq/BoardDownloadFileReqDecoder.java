@@ -35,6 +35,14 @@ public final class BoardDownloadFileReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardDownloadFileReq");
 
+		boardDownloadFileReq.setRequestUserID((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "requestUserID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardDownloadFileReq.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardID" // itemName
@@ -55,14 +63,6 @@ public final class BoardDownloadFileReqDecoder extends AbstractMessageDecoder {
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "attachedFileSeq" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
-		boardDownloadFileReq.setRequestUserID((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "requestUserID" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

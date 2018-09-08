@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * MenuDeleteReq message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class MenuDeleteReq extends AbstractMessage {

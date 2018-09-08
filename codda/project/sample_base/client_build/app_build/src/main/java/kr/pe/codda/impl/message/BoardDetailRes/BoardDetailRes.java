@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardDetailRes message
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public class BoardDetailRes extends AbstractMessage {
@@ -40,9 +40,10 @@ public class BoardDetailRes extends AbstractMessage {
 	private String writerID;
 	private String writerIP;
 	private java.sql.Timestamp registeredDate;
-	private String finalModifierIP;
-	private String finalModifierID;
-	private java.sql.Timestamp finalModifiedDate;
+	private String lastModifierIP;
+	private String lastModifierID;
+	private String lastModifierNickName;
+	private java.sql.Timestamp lastModifiedDate;
 	private int attachedFileCnt;
 
 	public static class AttachedFile {
@@ -184,26 +185,33 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setRegisteredDate(java.sql.Timestamp registeredDate) {
 		this.registeredDate = registeredDate;
 	}
-	public String getFinalModifierIP() {
-		return finalModifierIP;
+	public String getLastModifierIP() {
+		return lastModifierIP;
 	}
 
-	public void setFinalModifierIP(String finalModifierIP) {
-		this.finalModifierIP = finalModifierIP;
+	public void setLastModifierIP(String lastModifierIP) {
+		this.lastModifierIP = lastModifierIP;
 	}
-	public String getFinalModifierID() {
-		return finalModifierID;
-	}
-
-	public void setFinalModifierID(String finalModifierID) {
-		this.finalModifierID = finalModifierID;
-	}
-	public java.sql.Timestamp getFinalModifiedDate() {
-		return finalModifiedDate;
+	public String getLastModifierID() {
+		return lastModifierID;
 	}
 
-	public void setFinalModifiedDate(java.sql.Timestamp finalModifiedDate) {
-		this.finalModifiedDate = finalModifiedDate;
+	public void setLastModifierID(String lastModifierID) {
+		this.lastModifierID = lastModifierID;
+	}
+	public String getLastModifierNickName() {
+		return lastModifierNickName;
+	}
+
+	public void setLastModifierNickName(String lastModifierNickName) {
+		this.lastModifierNickName = lastModifierNickName;
+	}
+	public java.sql.Timestamp getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(java.sql.Timestamp lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
 	}
 	public int getAttachedFileCnt() {
 		return attachedFileCnt;
@@ -254,12 +262,14 @@ public class BoardDetailRes extends AbstractMessage {
 		builder.append(writerIP);
 		builder.append(", registeredDate=");
 		builder.append(registeredDate);
-		builder.append(", finalModifierIP=");
-		builder.append(finalModifierIP);
-		builder.append(", finalModifierID=");
-		builder.append(finalModifierID);
-		builder.append(", finalModifiedDate=");
-		builder.append(finalModifiedDate);
+		builder.append(", lastModifierIP=");
+		builder.append(lastModifierIP);
+		builder.append(", lastModifierID=");
+		builder.append(lastModifierID);
+		builder.append(", lastModifierNickName=");
+		builder.append(lastModifierNickName);
+		builder.append(", lastModifiedDate=");
+		builder.append(lastModifiedDate);
 		builder.append(", attachedFileCnt=");
 		builder.append(attachedFileCnt);
 

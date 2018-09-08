@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * JavaGarbageCollectionRes message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class JavaGarbageCollectionRes extends AbstractMessage {

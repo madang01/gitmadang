@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardUploadFileRes message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardUploadFileResDecoder extends AbstractMessageDecoder {

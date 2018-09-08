@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardListRes message
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public class BoardListRes extends AbstractMessage {
@@ -45,7 +45,7 @@ public class BoardListRes extends AbstractMessage {
 		private String nickname;
 		private int votes;
 		private String subject;
-		private java.sql.Timestamp finalModifiedDate;
+		private java.sql.Timestamp lastModifiedDate;
 
 		public long getBoardNo() {
 			return boardNo;
@@ -131,12 +131,12 @@ public class BoardListRes extends AbstractMessage {
 		public void setSubject(String subject) {
 			this.subject = subject;
 		}
-		public java.sql.Timestamp getFinalModifiedDate() {
-			return finalModifiedDate;
+		public java.sql.Timestamp getLastModifiedDate() {
+			return lastModifiedDate;
 		}
 
-		public void setFinalModifiedDate(java.sql.Timestamp finalModifiedDate) {
-			this.finalModifiedDate = finalModifiedDate;
+		public void setLastModifiedDate(java.sql.Timestamp lastModifiedDate) {
+			this.lastModifiedDate = lastModifiedDate;
 		}
 
 		@Override
@@ -167,8 +167,8 @@ public class BoardListRes extends AbstractMessage {
 			builder.append(votes);
 			builder.append(", subject=");
 			builder.append(subject);
-			builder.append(", finalModifiedDate=");
-			builder.append(finalModifiedDate);
+			builder.append(", lastModifiedDate=");
+			builder.append(lastModifiedDate);
 			builder.append("]");
 			return builder.toString();
 		}

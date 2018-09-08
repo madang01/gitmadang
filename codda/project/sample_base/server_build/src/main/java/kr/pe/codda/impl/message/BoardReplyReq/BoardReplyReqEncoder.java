@@ -39,6 +39,13 @@ public final class BoardReplyReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardReplyReq");
 
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardReplyReq.getRequestUserID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, boardReplyReq.getBoardID() // itemValue
@@ -63,13 +70,6 @@ public final class BoardReplyReqEncoder extends AbstractMessageEncoder {
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "content"
 			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
 			, boardReplyReq.getContent() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "writerID"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardReplyReq.getWriterID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

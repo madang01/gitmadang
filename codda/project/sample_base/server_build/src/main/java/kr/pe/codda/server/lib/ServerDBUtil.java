@@ -108,6 +108,7 @@ public abstract class ServerDBUtil {
 	/**
 	 * 회원 종류에 따른 회원 등록을 수행한다.	어드민과 일반 회원 등록 관리를 일원화 시킬 목적으로 '회원 등록 서버 서버 타스크'(={@link MemberRegisterReqServerTask})가 아닌 이곳 서버 라이브러리에서 관리한다. 
 	 * 
+	 * @param dbcpName dbcp 이름(=db schema)
 	 * @param memberType 회원 종류로 어드민과 일반 유저가 있다 
 	 * @param userID 등록을 원하는 아이디
 	 * @param nickname 별명

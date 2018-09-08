@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardDetailRes message decoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class BoardDetailResDecoder extends AbstractMessageDecoder {
@@ -155,25 +155,33 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDetailRes.setFinalModifierIP((String)
+		boardDetailRes.setLastModifierIP((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "finalModifierIP" // itemName
+			, "lastModifierIP" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDetailRes.setFinalModifierID((String)
+		boardDetailRes.setLastModifierID((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "finalModifierID" // itemName
+			, "lastModifierID" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDetailRes.setFinalModifiedDate((java.sql.Timestamp)
+		boardDetailRes.setLastModifierNickName((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "finalModifiedDate" // itemName
+			, "lastModifierNickName" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		boardDetailRes.setLastModifiedDate((java.sql.Timestamp)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "lastModifiedDate" // itemName
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

@@ -101,9 +101,9 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		}
 		
 		BoardVoteReq boardVoteReq =  new BoardVoteReq();
+		boardVoteReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
 		boardVoteReq.setBoardID(boardID);
-		boardVoteReq.setBoardNo(boardNo);		
-		boardVoteReq.setUserID(getLoginedUserIDFromHttpSession(req));
+		boardVoteReq.setBoardNo(boardNo);
 		boardVoteReq.setIp(req.getRemoteAddr());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

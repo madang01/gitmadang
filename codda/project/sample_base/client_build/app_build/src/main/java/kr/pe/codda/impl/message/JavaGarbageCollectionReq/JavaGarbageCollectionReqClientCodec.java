@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
  * JavaGarbageCollectionReq client codec
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class JavaGarbageCollectionReqClientCodec implements MessageCodecIF {

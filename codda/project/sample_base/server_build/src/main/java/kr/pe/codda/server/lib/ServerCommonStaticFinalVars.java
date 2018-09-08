@@ -3,11 +3,7 @@ package kr.pe.codda.server.lib;
 public abstract class ServerCommonStaticFinalVars {
 	/** 업로드 되는 파일의 최대 갯수, unsinged byte 이내의 값이어야 한다. */
 	public static int WEBSITE_FILEUPLOAD_MAX_COUNT = 2;
-	
-	/** 서버 테이블 존재시 테이블 전체 삭제여부, 미 지정시 false,  */	
-	public static final String JAVA_SYSTEM_PROPERTIES_KEY_IS_DROP_ALL_TABLE = "is.dropAllTable";
-	
-	
+		
 	/** sample_base 프로젝트의 DB 스키마, SB_DB ===> sample_base_database */
 	public static final String DEFAULT_DBCP_NAME = "SB_DB";
 	/** 일반적인 테스트용 sample_base 프로젝트의 dbcp 이름, general_test_sample_base_database  */
@@ -53,4 +49,6 @@ public abstract class ServerCommonStaticFinalVars {
 	public static final int MIN_NUMBER_OF_UPLOAD_FILENAME_CHARRACTERS = 1;
 	/** 업로드 파일명 최대 문자수 */
 	public static final int MAX_NUMBER_OF_UPLOAD_FILENAME_CHARRACTERS = 80;
+	
+	public static final char[] FILENAME_FORBIDDEN_CHARS = {'/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
 }

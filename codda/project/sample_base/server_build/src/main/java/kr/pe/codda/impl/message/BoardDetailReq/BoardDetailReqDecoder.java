@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardDetailReq message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardDetailReqDecoder extends AbstractMessageDecoder {
@@ -34,6 +34,14 @@ public final class BoardDetailReqDecoder extends AbstractMessageDecoder {
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardDetailReq");
+
+		boardDetailReq.setRequestUserID((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "requestUserID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardDetailReq.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
@@ -47,14 +55,6 @@ public final class BoardDetailReqDecoder extends AbstractMessageDecoder {
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardNo" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
-		boardDetailReq.setRequestUserID((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "requestUserID" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

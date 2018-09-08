@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * RootMenuAddReq message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class RootMenuAddReqDecoder extends AbstractMessageDecoder {

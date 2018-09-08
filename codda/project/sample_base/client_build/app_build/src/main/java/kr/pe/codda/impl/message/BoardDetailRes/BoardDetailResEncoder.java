@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardDetailRes message encoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class BoardDetailResEncoder extends AbstractMessageEncoder {
@@ -144,23 +144,30 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "finalModifierIP"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastModifierIP"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getFinalModifierIP() // itemValue
+			, boardDetailRes.getLastModifierIP() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "finalModifierID"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastModifierID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getFinalModifierID() // itemValue
+			, boardDetailRes.getLastModifierID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "finalModifiedDate"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastModifierNickName"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardDetailRes.getLastModifierNickName() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastModifiedDate"
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
-			, boardDetailRes.getFinalModifiedDate() // itemValue
+			, boardDetailRes.getLastModifiedDate() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

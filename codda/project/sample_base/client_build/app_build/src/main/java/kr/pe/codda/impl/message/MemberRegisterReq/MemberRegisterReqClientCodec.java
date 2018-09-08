@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
  * MemberRegisterReq client codec
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class MemberRegisterReqClientCodec implements MessageCodecIF {

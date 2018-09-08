@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardListRes message encoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class BoardListResEncoder extends AbstractMessageEncoder {
@@ -188,9 +188,9 @@ public final class BoardListResEncoder extends AbstractMessageEncoder {
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "finalModifiedDate"
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastModifiedDate"
 					, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
-					, board$2.getFinalModifiedDate() // itemValue
+					, board$2.getLastModifiedDate() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);

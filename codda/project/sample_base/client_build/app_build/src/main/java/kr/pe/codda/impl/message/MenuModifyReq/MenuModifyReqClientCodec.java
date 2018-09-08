@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
  * MenuModifyReq client codec
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class MenuModifyReqClientCodec implements MessageCodecIF {

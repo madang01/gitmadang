@@ -9,7 +9,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<title><%=WebCommonStaticFinalVars.WEBSITE_TITLE%></title>
+<title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
 <meta name="Author" content="SinnoriTeam - website / Design by Ian Smith - N-vent Design Services LLC - www.n-vent.com" />
 <meta name="distribution" content="global" />
 <meta name="rating" content="general" />

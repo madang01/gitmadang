@@ -29,4 +29,18 @@ public enum BoardType {
 		
 		throw new IllegalArgumentException("the parameter boardTypeValue["+boardTypeValue+"] is a element of BoardType set");
 	}
+	
+	public SequenceType toSequenceType() {
+		SequenceType boardSequenceType = null;
+		
+		if (BoardType.NOTICE.equals(this)) {
+			boardSequenceType = SequenceType.NOTICE_BOARD;
+		} else if (BoardType.FAQ.equals(this)) {
+			boardSequenceType = SequenceType.FAQ_BOARD;
+		} else {
+			boardSequenceType = SequenceType.FREE_BOARD;
+		}
+		
+		return boardSequenceType;
+	}
 }

@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * Echo message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class Echo extends AbstractMessage {

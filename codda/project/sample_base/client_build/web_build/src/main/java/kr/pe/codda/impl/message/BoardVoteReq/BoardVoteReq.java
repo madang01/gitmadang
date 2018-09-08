@@ -25,11 +25,18 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardVoteReq extends AbstractMessage {
+	private String requestUserID;
 	private short boardID;
 	private long boardNo;
-	private String userID;
 	private String ip;
 
+	public String getRequestUserID() {
+		return requestUserID;
+	}
+
+	public void setRequestUserID(String requestUserID) {
+		this.requestUserID = requestUserID;
+	}
 	public short getBoardID() {
 		return boardID;
 	}
@@ -44,13 +51,6 @@ public class BoardVoteReq extends AbstractMessage {
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
 	}
-	public String getUserID() {
-		return userID;
-	}
-
-	public void setUserID(String userID) {
-		this.userID = userID;
-	}
 	public String getIp() {
 		return ip;
 	}
@@ -63,12 +63,12 @@ public class BoardVoteReq extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardVoteReq[");
-		builder.append("boardID=");
+		builder.append("requestUserID=");
+		builder.append(requestUserID);
+		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", boardNo=");
 		builder.append(boardNo);
-		builder.append(", userID=");
-		builder.append(userID);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append("]");

@@ -2,12 +2,13 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
+import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -75,10 +76,10 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 
 	public BoardWriteRes doWork(String dbcpName, BoardWriteReq boardWriteReq) throws Exception {
 		// FIXME!
-		log.info(boardWriteReq.toString());
+		// log.info(boardWriteReq.toString());
 
 		BoardType boardType = null;
-		SequenceType boardSequenceType = null;
+		
 
 		try {
 			boardType = BoardType.valueOf(boardWriteReq.getBoardID());
@@ -87,17 +88,8 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		if (BoardType.NOTICE.equals(boardType)) {
-			boardSequenceType = SequenceType.NOTICE_BOARD;
-		} else if (BoardType.FREE.equals(boardType)) {
-			boardSequenceType = SequenceType.FREE_BOARD;
-		} else if (BoardType.FAQ.equals(boardType)) {
-			boardSequenceType = SequenceType.FAQ_BOARD;
-		} else {
-			String errorMessage = "알 수 없는 게시판 타입입니다";
-			throw new ServerServiceException(errorMessage);
-		}
-
+		SequenceType boardSequenceType = boardType.toSequenceType();
+		
 		try {
 			ValueChecker.checkValidSubject(boardWriteReq.getSubject());
 		} catch (IllegalArgumentException e) {
@@ -113,7 +105,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		}
 
 		try {
-			ValueChecker.checkValidWriterID(boardWriteReq.getWriterID());
+			ValueChecker.checkValidWriterID(boardWriteReq.getRequestUserID());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -132,6 +124,25 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX).append("]를 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		if (boardWriteReq.getNewAttachedFileCnt() > 0) {			
+			int newAttachedFileCnt = boardWriteReq.getNewAttachedFileCnt();
+			List<BoardWriteReq.NewAttachedFile> newAttachedFileList = boardWriteReq.getNewAttachedFileList();
+			
+			for (int i=0; i < newAttachedFileCnt; i++) {
+				BoardWriteReq.NewAttachedFile attachedFileForRequest = newAttachedFileList.get(i);
+				try {
+					ValueChecker.checkValidFileName(attachedFileForRequest.getAttachedFileName());
+				} catch (IllegalArgumentException e) {
+					String errorMessage = new StringBuilder()
+							.append(i)
+							.append("번째 파일 이름 유효성 검사 에러 메시지::")
+							.append(e.getMessage()).toString();
+					throw new ServerServiceException(errorMessage);
+				}			
+			}
+		}
+		
 
 		UByte boardSequenceID = UByte.valueOf(boardSequenceType.getSequenceID());
 		UByte boardID = UByte.valueOf(boardWriteReq.getBoardID());
@@ -145,6 +156,8 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			
+			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardWriteReq.getRequestUserID());
 
 			Record boardSequenceRecord = create.select(SB_SEQ_TB.SQ_VALUE).from(SB_SEQ_TB)
 					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID)).forUpdate().fetchOne();
@@ -178,9 +191,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			conn.commit();
-
-			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardWriteReq.getWriterID());
+			conn.commit();			
 
 			int boardInsertCount = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
 					.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
@@ -203,7 +214,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, UByte.valueOf(0))
 					.set(SB_BOARD_HISTORY_TB.SUBJECT, boardWriteReq.getSubject())
 					.set(SB_BOARD_HISTORY_TB.CONTENT, boardWriteReq.getContent())
-					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardWriteReq.getWriterID())
+					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardWriteReq.getRequestUserID())
 					.set(SB_BOARD_HISTORY_TB.IP, boardWriteReq.getIp())
 					.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
 
@@ -217,27 +228,31 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			int attachedFileListIndex = 0;
-			for (BoardWriteReq.NewAttachedFile attachedFileForRequest : boardWriteReq.getNewAttachedFileList()) {
-				int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
-						.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID).set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
-						.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileListIndex))
-						.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, attachedFileForRequest.getAttachedFileName())
-						.execute();
+			
+			if (boardWriteReq.getNewAttachedFileCnt() > 0) {
+				int attachedFileListIndex = 0;
+				
+				for (BoardWriteReq.NewAttachedFile attachedFileForRequest : boardWriteReq.getNewAttachedFileList()) {
+					int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
+							.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID).set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
+							.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileListIndex))
+							.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, attachedFileForRequest.getAttachedFileName())
+							.execute();
 
-				if (0 == boardFileListInsertCount) {
-					try {
-						conn.rollback();
-					} catch (Exception e) {
-						log.warn("fail to rollback");
+					if (0 == boardFileListInsertCount) {
+						try {
+							conn.rollback();
+						} catch (Exception e) {
+							log.warn("fail to rollback");
+						}
+						String errorMessage = "게시판 첨부 파일을  저장하는데 실패하였습니다";
+						log.warn("게시판 첨부 파일 목록내 인덱스[{}]의 첨부 파일 이름을 저장하는데 실패하였습니다", attachedFileListIndex);
+
+						throw new ServerServiceException(errorMessage);
 					}
-					String errorMessage = "게시판 첨부 파일을  저장하는데 실패하였습니다";
-					log.warn("게시판 첨부 파일 목록내 인덱스[{}]의 첨부 파일 이름을 저장하는데 실패하였습니다", attachedFileListIndex);
 
-					throw new ServerServiceException(errorMessage);
+					attachedFileListIndex++;
 				}
-
-				attachedFileListIndex++;
 			}
 			
 			create.update(SB_BOARD_INFO_TB)

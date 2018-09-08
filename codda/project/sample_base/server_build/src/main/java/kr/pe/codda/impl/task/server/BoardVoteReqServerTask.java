@@ -73,7 +73,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		log.info(boardVoteReq.toString());	
 		
 		try {
-			ValueChecker.checkValidUserID(boardVoteReq.getUserID());
+			ValueChecker.checkValidUserID(boardVoteReq.getRequestUserID());
 		} catch(RuntimeException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -100,7 +100,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardVoteReq.getUserID());	
+			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardVoteReq.getRequestUserID());	
 			
 			Record1<String> 
 			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
@@ -123,7 +123,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			
 			String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
 			
-			if (firstWriterID.equals(boardVoteReq.getUserID())) {
+			if (firstWriterID.equals(boardVoteReq.getRequestUserID())) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -140,7 +140,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 					.from(SB_BOARD_VOTE_TB)
 					.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(boardNo))
-					.and(SB_BOARD_VOTE_TB.USER_ID.eq(boardVoteReq.getUserID())));
+					.and(SB_BOARD_VOTE_TB.USER_ID.eq(boardVoteReq.getRequestUserID())));
 			
 			if (isVoted) {
 				try {
@@ -155,7 +155,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			
 			int countOfInsert = create.insertInto(SB_BOARD_VOTE_TB)
 			.set(SB_BOARD_VOTE_TB.BOARD_NO, UInteger.valueOf(boardVoteReq.getBoardNo()))
-			.set(SB_BOARD_VOTE_TB.USER_ID, boardVoteReq.getUserID())
+			.set(SB_BOARD_VOTE_TB.USER_ID, boardVoteReq.getRequestUserID())
 			.set(SB_BOARD_VOTE_TB.IP, boardVoteReq.getIp())
 			.set(SB_BOARD_VOTE_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
 			.execute();

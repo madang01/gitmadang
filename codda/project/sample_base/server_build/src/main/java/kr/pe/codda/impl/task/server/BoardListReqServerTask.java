@@ -14,7 +14,6 @@ import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Record3;
 import org.jooq.Record8;
@@ -96,8 +95,6 @@ public class BoardListReqServerTask extends AbstractServerTask {
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
-		
-		
 
 		Connection conn = null;
 		try {
@@ -163,15 +160,22 @@ public class BoardListReqServerTask extends AbstractServerTask {
 
 			for (Record boardRecord : boardListResult) {
 				UInteger boardNo = boardRecord.getValue(SB_BOARD_TB.BOARD_NO);
+				UInteger groupNo = boardRecord.getValue(SB_BOARD_TB.GROUP_NO);
+				UShort groupSequence = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+				UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
+				UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
+				int viewCount = boardRecord.getValue(SB_BOARD_TB.VIEW_CNT);
+				String  nativeBoardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+				int votes = boardRecord.getValue("votes", Integer.class);
 
-				Record3<String, Timestamp, String> firstWriterBoardRecord = create
+				Record3<String, Timestamp, String> firstBoardHistoryRecord = create
 						.select(SB_BOARD_HISTORY_TB.MODIFIER_ID, SB_BOARD_HISTORY_TB.REG_DT, SB_MEMBER_TB.NICKNAME)
 						.from(SB_BOARD_HISTORY_TB).join(SB_MEMBER_TB)
 						.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.MODIFIER_ID))
 						.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
 						.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0))).fetchOne();
 
-				if (null == firstWriterBoardRecord) {
+				if (null == firstBoardHistoryRecord) {
 					String debugErrorMessage = new StringBuilder("해당 게시판의 글[boardID=").append(boardID)
 							.append(", boardNo=").append(boardNo).append("]의 최초 작성자 정보가 존재 하지 않아 목록에서 제외하였습니다")
 							.toString();
@@ -181,42 +185,36 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					continue;
 
 				}
+				
+				String firstWriterID = firstBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+				Timestamp  firstRegisteredDate = firstBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
+				String firstWriterNickName = firstBoardHistoryRecord.getValue(SB_MEMBER_TB.NICKNAME);
+				
 
-				Record1<UByte> boardHistoryMaxSequenceRecord = create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max())
-						.from(SB_BOARD_HISTORY_TB).where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
-						.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)).fetchOne();
-
-				if (null == boardHistoryMaxSequenceRecord) {
-					String debugErrorMessage = new StringBuilder().append("해당 게시판의 글[boardID=").append(boardID)
-							.append(", boardNo=").append(boardNo)
-							.append("]은  제목과 내용이 저장된 테이블(SB_BOARD_HISTORY_TB)에 미 존재하여 목록에서 제외하였습니다").toString();
-					log.warn(debugErrorMessage);
-
-					total--;
-					continue;
-				}
-
-				UByte boardHistoryMaxSequence = boardHistoryMaxSequenceRecord.value1();
-
-				Record2<String, Timestamp> finalModifiedBoardHistoryRecord = create
+				Record2<String, Timestamp> lastBoardHistoryRecord = create
 						.select(SB_BOARD_HISTORY_TB.SUBJECT, SB_BOARD_HISTORY_TB.REG_DT).from(SB_BOARD_HISTORY_TB)
 						.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
-						.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(boardHistoryMaxSequence)).fetchOne();
+						.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max())
+								.from(SB_BOARD_HISTORY_TB).where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
+								.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)))).fetchOne();
+				
+				String lastModifiedSubject = lastBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT);
+				Timestamp lastModifiedDate = lastBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
 
 				BoardListRes.Board board = new BoardListRes.Board();
 				board.setBoardNo(boardNo.longValue());
-				board.setGroupNo(boardRecord.getValue(SB_BOARD_TB.GROUP_NO).longValue());
-				board.setGroupSeq(boardRecord.getValue(SB_BOARD_TB.GROUP_SQ).intValue());
-				board.setParentNo(boardRecord.getValue(SB_BOARD_TB.PARENT_NO).longValue());
-				board.setDepth(boardRecord.getValue(SB_BOARD_TB.DEPTH).shortValue());
-				board.setWriterID(firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID));
-				board.setViewCount(boardRecord.getValue(SB_BOARD_TB.VIEW_CNT));
-				board.setBoardSate(boardRecord.getValue(SB_BOARD_TB.BOARD_ST));
-				board.setRegisteredDate(firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT));
-				board.setNickname(firstWriterBoardRecord.getValue(SB_MEMBER_TB.NICKNAME));
-				board.setVotes(boardRecord.getValue("votes", Integer.class));
-				board.setSubject(finalModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT));
-				board.setFinalModifiedDate(finalModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT));
+				board.setGroupNo(groupNo.longValue());
+				board.setGroupSeq(groupSequence.intValue());
+				board.setParentNo(parentNo.longValue());
+				board.setDepth(depth.shortValue());
+				board.setWriterID(firstWriterID);
+				board.setViewCount(viewCount);
+				board.setBoardSate(nativeBoardState);
+				board.setRegisteredDate(firstRegisteredDate);
+				board.setNickname(firstWriterNickName);
+				board.setVotes(votes);
+				board.setSubject(lastModifiedSubject);
+				board.setLastModifiedDate(lastModifiedDate);
 
 				// log.info(board.toString());
 				boardList.add(board);

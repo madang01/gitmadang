@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * Echo message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class EchoEncoder extends AbstractMessageEncoder {

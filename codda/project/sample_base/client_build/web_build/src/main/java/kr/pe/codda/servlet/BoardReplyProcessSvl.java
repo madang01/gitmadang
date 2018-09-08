@@ -123,20 +123,33 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 					log.info("fileName={}, fileContentType={}, fileSize={}", newAttachedFileName, newAttachedFileContentType, newAtttachedFileSize);
 
 					for (char ch : newAttachedFileName.toCharArray()) {
-						for (char forbiddenChar : WebCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
-							if (ch == forbiddenChar) {
-								String errorMessage = new StringBuilder("첨부 파일명[")
-										.append(newAttachedFileName)
-										.append("]에 금지된 문자[")
-										.append(forbiddenChar)
-										.append("]가 존재합니다").toString();
+						if (Character.isWhitespace(ch)) {
+							String errorMessage = new StringBuilder("첨부 파일명[")
+									.append(newAttachedFileName)
+									.append("]에 공백 문자가 존재합니다").toString();
 
-								String debugMessage = new StringBuilder(errorMessage).append(", userID=")
-										.append(getLoginedUserIDFromHttpSession(req)).toString();
-								log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+							String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+									.append(getLoginedUserIDFromHttpSession(req)).toString();
+							log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-								printBoardProcessFailureCallBackPage(req, res, errorMessage);
-								return;
+							printBoardProcessFailureCallBackPage(req, res, errorMessage);
+							return;
+						} else {
+							for (char forbiddenChar : WebCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
+								if (ch == forbiddenChar) {
+									String errorMessage = new StringBuilder("첨부 파일명[")
+											.append(newAttachedFileName)
+											.append("]에 금지된 문자[")
+											.append(forbiddenChar)
+											.append("]가 존재합니다").toString();
+
+									String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+											.append(getLoginedUserIDFromHttpSession(req)).toString();
+									log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+
+									printBoardProcessFailureCallBackPage(req, res, errorMessage);
+									return;
+								}
 							}
 						}
 					}
@@ -333,11 +346,11 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		}		
 
 		BoardReplyReq boardReplyReq = new BoardReplyReq();
+		boardReplyReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
 		boardReplyReq.setBoardID(boardID);
 		boardReplyReq.setParentBoardNo(parentBoardNo);
 		boardReplyReq.setSubject(paramSubject);
 		boardReplyReq.setContent(paramContent);
-		boardReplyReq.setWriterID(getLoginedUserIDFromHttpSession(req));
 		boardReplyReq.setIp(req.getRemoteAddr());
 
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance()

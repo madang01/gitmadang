@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BinaryPublicKey message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BinaryPublicKeyEncoder extends AbstractMessageEncoder {

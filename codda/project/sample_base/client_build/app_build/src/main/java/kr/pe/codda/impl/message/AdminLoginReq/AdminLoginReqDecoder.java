@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * AdminLoginReq message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class AdminLoginReqDecoder extends AbstractMessageDecoder {

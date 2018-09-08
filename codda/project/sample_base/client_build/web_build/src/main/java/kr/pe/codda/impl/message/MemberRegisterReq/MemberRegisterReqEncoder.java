@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * MemberRegisterReq message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class MemberRegisterReqEncoder extends AbstractMessageEncoder {

@@ -460,7 +460,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					out = res.getWriter();
 					out.print("<!DOCTYPE html><html lang=\"ko\"><head><meta charset=\"UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
 					out.print("<title>");
-					out.print(WebCommonStaticFinalVars.WEBSITE_TITLE);
+					out.print(WebCommonStaticFinalVars.USER_WEBSITE_TITLE);
 					out.print("</title>");
 					out.println("</head><body bgcolor=white>");
 					out.println(StringReplacementActorUtil.replace(debugMessage, 

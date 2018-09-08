@@ -14,7 +14,7 @@ public abstract class JooqSqlUtil {
 	}
 	
 	public static Field<Timestamp> getFieldOfSysDate(Class<Timestamp> type) {
-		return DSL.field("SYSDATE()", type);
+		return DSL.field("NOW()", type);
 	}
 	
 	public static Field<String> getFieldOfMemberTypeName(Field<String> memberTypeField) {

@@ -158,20 +158,33 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					log.info("fileName={}, fileContentType={}, fileSize={}", newAttachedFileName, newAttachedFileContentType, newAtttachedFileSize);
 					
 					for (char ch : newAttachedFileName.toCharArray()) {
-						for (char forbiddenChar : WebCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
-							if (ch == forbiddenChar) {
-								String errorMessage = new StringBuilder("첨부 파일명[")
-										.append(newAttachedFileName)
-										.append("]에 금지된 문자[")
-										.append(forbiddenChar)
-										.append("]가 존재합니다").toString();
+						if (Character.isWhitespace(ch)) {
+							String errorMessage = new StringBuilder("첨부 파일명[")
+									.append(newAttachedFileName)
+									.append("]에 공백 문자가 존재합니다").toString();
 
-								String debugMessage = new StringBuilder(errorMessage).append(", userID=")
-										.append(getLoginedUserIDFromHttpSession(req)).toString();
-								log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+							String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+									.append(getLoginedUserIDFromHttpSession(req)).toString();
+							log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-								printBoardProcessFailureCallBackPage(req, res, errorMessage);
-								return;
+							printBoardProcessFailureCallBackPage(req, res, errorMessage);
+							return;
+						} else {
+							for (char forbiddenChar : WebCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
+								if (ch == forbiddenChar) {
+									String errorMessage = new StringBuilder("첨부 파일명[")
+											.append(newAttachedFileName)
+											.append("]에 금지된 문자[")
+											.append(forbiddenChar)
+											.append("]가 존재합니다").toString();
+
+									String debugMessage = new StringBuilder(errorMessage).append(", userID=")
+											.append(getLoginedUserIDFromHttpSession(req)).toString();
+									log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
+
+									printBoardProcessFailureCallBackPage(req, res, errorMessage);
+									return;
+								}
 							}
 						}
 					}
@@ -345,11 +358,11 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			}
 
 			BoardModifyReq boardModifyReq = new BoardModifyReq();
+			boardModifyReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
 			boardModifyReq.setBoardID(boardID);
 			boardModifyReq.setBoardNo(boardNo);
 			boardModifyReq.setSubject(paramSubject);
-			boardModifyReq.setContent(paramContent);
-			boardModifyReq.setModifierID(getLoginedUserIDFromHttpSession(req));
+			boardModifyReq.setContent(paramContent);			
 			boardModifyReq.setIp(req.getRemoteAddr());
 			boardModifyReq.setOldAttachedFileSeqCnt(oldAttachedFileSeqList.size());
 			boardModifyReq.setOldAttachedFileSeqList(oldAttachedFileSeqList);

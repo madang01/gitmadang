@@ -52,14 +52,14 @@ import kr.pe.codda.server.lib.ServerDBUtil;
  *
  */
 public class SiteMenuIntegrationTest extends AbstractJunitTest {
-	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
+	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
 	private static UInteger backupMenuNo = null;
 	private static ArraySiteMenuRes backupArraySiteMenuRes = null;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();
-		ServerDBUtil.initializeDBEnvoroment(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);		
+		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);		
 	}
 	
 	@Before
@@ -82,7 +82,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		DataSource dataSource = null;
 		try {
 			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
+					.getBasicDataSource(TEST_DBCP_NAME);
 		} catch (DBCPDataSourceNotFoundException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
@@ -94,7 +94,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 
 			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE).from(SB_SEQ_TB)
 					.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID)).forUpdate().fetchOne();
@@ -153,7 +153,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		DataSource dataSource = null;
 		try {
 			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
+					.getBasicDataSource(TEST_DBCP_NAME);
 		} catch (DBCPDataSourceNotFoundException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
@@ -164,7 +164,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 
 			int menuSequenceUpdateCount = create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, backupMenuNo)
 					.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID)).execute();

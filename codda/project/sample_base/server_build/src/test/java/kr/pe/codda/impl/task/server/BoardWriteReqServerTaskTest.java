@@ -19,7 +19,7 @@ import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
 public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
-	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
+	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -56,7 +56,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContent("내용::그림2 하나를 그리다");		
-		boardWriteReq.setWriterID("test01");
+		boardWriteReq.setRequestUserID("test01");
 		boardWriteReq.setIp("172.16.0.1");
 		
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -92,21 +92,21 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContent("내용::그림2 하나를 그리다");		
-		boardWriteReq.setWriterID("test01");
+		boardWriteReq.setRequestUserID("test01");
 		boardWriteReq.setIp("172.16.0.1");
 		
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
 		{
-			/*BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
+			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
 			attachedFile.setAttachedFileName("임시첨부파일01.jpg");
 			
-			attachedFileList.add(attachedFile);*/
+			attachedFileList.add(attachedFile);
 		}
 		
 		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
 		boardWriteReq.setNewAttachedFileList(attachedFileList);
 		
-		for (int i=0; i < 10000000; i++) {
+		for (int i=37478; i < 10000000; i++) {
 			String str = new StringBuilder().append(BoardType.FREE.getName())
 					.append(i).toString();
 			boardWriteReq.setSubject(str);

@@ -17,7 +17,7 @@ public abstract class AbstractDependencyValidator {
 
 	protected ItemIDInfo<?> dependentSourceItemIDInfo = null;
 	protected ItemIDInfo<?> dependentTargetItemIDInfo = null;
-
+	
 	/**
 	 * 생성자
 	 * 

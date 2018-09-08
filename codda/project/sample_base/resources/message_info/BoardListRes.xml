@@ -36,6 +36,6 @@
 	<singleitem name="nickname" type="ub pascal string" />
 	<singleitem name="votes" type="integer" />
 	<singleitem name="subject" type="ub pascal string" />	
-	<singleitem name="finalModifiedDate" type="java sql timestamp" />	
+	<singleitem name="lastModifiedDate" type="java sql timestamp" />	
 </array>
 </message>

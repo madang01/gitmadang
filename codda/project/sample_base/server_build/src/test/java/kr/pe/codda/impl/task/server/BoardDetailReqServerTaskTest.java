@@ -62,7 +62,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제1234");
 		boardWriteReq.setContent("내용::그림 하나를 그리다, 하하호호");		
-		boardWriteReq.setWriterID(userID);
+		boardWriteReq.setRequestUserID(userID);
 		boardWriteReq.setIp("172.16.0.1");
 		
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -102,7 +102,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 			
 			assertEquals(boardWriteReq.getSubject(), boardDetailRes.getSubject());
 			assertEquals(boardWriteReq.getContent(), boardDetailRes.getContent());
-			assertEquals(boardWriteReq.getWriterID(), boardDetailRes.getWriterID());
+			assertEquals(boardWriteReq.getRequestUserID(), boardDetailRes.getWriterID());
 			assertEquals(boardWriteReq.getIp(), boardDetailRes.getWriterIP());
 			
 			

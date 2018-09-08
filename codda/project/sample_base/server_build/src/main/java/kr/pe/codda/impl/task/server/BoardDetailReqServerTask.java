@@ -15,9 +15,8 @@ import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record1;
 import org.jooq.Record4;
-import org.jooq.Record5;
+import org.jooq.Record6;
 import org.jooq.Record7;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
@@ -151,10 +150,17 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			UInteger groupNo = boardRecord.get(SB_BOARD_TB.GROUP_NO);
+			UShort groupSeqence = boardRecord.get(SB_BOARD_TB.GROUP_SQ);
+			UInteger parentNo = boardRecord.get(SB_BOARD_TB.PARENT_NO);
+			UByte depth = boardRecord.get(SB_BOARD_TB.DEPTH);
+			int viewCount = boardRecord.get(SB_BOARD_TB.VIEW_CNT);
+			int votes = boardRecord.get("votes", Integer.class);			
+			
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(boardState, false);
+				boardStateType = BoardStateType.valueOf(nativeBoardStateType, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -163,7 +169,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("게시글의 상태 값[")
-						.append(boardState)
+						.append(nativeBoardStateType)
 						.append("]이 잘못되었습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
@@ -188,75 +194,59 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("해당 게시글의 최초 작성자 정보가 존재 하지 않습니다").toString();
+				String errorMessage = "해당 게시글의 최초 작성자 정보가 존재 하지 않습니다";
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+			String firstWriterIP = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.IP);
+			Timestamp firstRegisteredDate = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
+			String firstWriterNickname = firstWriterBoardRecord.getValue(SB_MEMBER_TB.NICKNAME);			
 			
 			if (! MemberType.ADMIN.equals(requestUserIDMemberType)) {
 				if (BoardStateType.DELETE.equals(boardStateType)) {
 					try {
 						conn.rollback();
-					} catch (Exception e1) {
+					} catch (Exception e) {
 						log.warn("fail to rollback");
 					}
 					
-					String errorMessage = new StringBuilder("해당 게시글은 삭제된 글입니다").toString();
+					String errorMessage = "해당 게시글은 삭제된 글입니다";
 					throw new ServerServiceException(errorMessage);
 				} else if (BoardStateType.BLOCK.equals(boardStateType)) {
 					try {
 						conn.rollback();
-					} catch (Exception e1) {
+					} catch (Exception e) {
 						log.warn("fail to rollback");
 					}
 					
-					String errorMessage = new StringBuilder("해당 게시글은 관리자에 의해 블락된 글입니다").toString();
+					String errorMessage = "해당 게시글은 관리자에 의해 블락된 글입니다";
 					throw new ServerServiceException(errorMessage);
 				}
 			}			
-			
-			Record1<UByte> boardHistoryMaxSequenceRecord = create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max())
-					.from(SB_BOARD_HISTORY_TB)
-					.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)).fetchOne();
-			
-			if (null == boardHistoryMaxSequenceRecord) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
 				
-				String errorMessage = new StringBuilder().append("해당 게시판의 글은  제목과 내용이 저장된 테이블(SB_BOARD_HISTORY_TB)에 미 존재합니다").toString();				
-				throw new ServerServiceException(errorMessage);
-			}
-				
-			UByte  boardHistoryMaxSequence = boardHistoryMaxSequenceRecord.value1();
-				
-			Record5<String, String, String, Timestamp, String> finalModifiedBoardHistoryRecord = create.select(SB_BOARD_HISTORY_TB.SUBJECT, 
+			Record6<String, String, String, String, Timestamp, String> lastlModifiedBoardHistoryRecord = create.select(SB_BOARD_HISTORY_TB.SUBJECT, 
 					SB_BOARD_HISTORY_TB.CONTENT,
 					SB_BOARD_HISTORY_TB.MODIFIER_ID,
+					SB_MEMBER_TB.NICKNAME,
 					SB_BOARD_HISTORY_TB.REG_DT,					
 					SB_BOARD_HISTORY_TB.IP)
 			.from(SB_BOARD_HISTORY_TB)
+			.join(SB_MEMBER_TB)
+			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.MODIFIER_ID))
 			.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
-			.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(boardHistoryMaxSequence)).fetchOne();			
+			.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max())
+					.from(SB_BOARD_HISTORY_TB)
+					.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
+					.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)))).fetchOne();	
 			
-			int countOfViewCountUpdate = create.update(SB_BOARD_TB)
-					.set(SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.VIEW_CNT.add(1))
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).execute();
-
-			if (0 == countOfViewCountUpdate) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("해당 게시글 읽은 횟수 갱신이 실패하였습니다").toString();				
-				throw new ServerServiceException(errorMessage);
-			}
+			String lastlModifiedSubject = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT);
+			String lastModifiedContent = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.CONTENT);
+			String lastModifierID =  lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+			String lastModifierNickName = lastlModifiedBoardHistoryRecord.getValue(SB_MEMBER_TB.NICKNAME);
+			String lastModifierIP = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.IP);
+			Timestamp lastModifedDate = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
 			
 			List<BoardDetailRes.AttachedFile> attachedFileList = new ArrayList<BoardDetailRes.AttachedFile>();
 			
@@ -274,30 +264,48 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				}
 			}
 			
+			int countOfViewCountUpdate = create.update(SB_BOARD_TB)
+					.set(SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.VIEW_CNT.add(1))
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).execute();
+
+			if (0 == countOfViewCountUpdate) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("해당 게시글 읽은 횟수 갱신이 실패하였습니다").toString();				
+				throw new ServerServiceException(errorMessage);
+			}
+			viewCount++;
+			
 			conn.commit();			
 
 			BoardDetailRes boardDetailRes = new BoardDetailRes();
 			boardDetailRes.setBoardID(boardDetailReq.getBoardID());
 			boardDetailRes.setBoardNo(boardDetailReq.getBoardNo());			
-			boardDetailRes.setGroupNo(boardRecord.get(SB_BOARD_TB.GROUP_NO).longValue());
-			boardDetailRes.setGroupSeq(boardRecord.get(SB_BOARD_TB.GROUP_SQ).intValue());
-			boardDetailRes.setParentNo(boardRecord.get(SB_BOARD_TB.PARENT_NO).longValue());
-			boardDetailRes.setDepth(boardRecord.get(SB_BOARD_TB.DEPTH).shortValue());
-			boardDetailRes.setViewCount(boardRecord.get(SB_BOARD_TB.VIEW_CNT));
-			boardDetailRes.setBoardSate(boardState);
+			boardDetailRes.setGroupNo(groupNo.longValue());
+			boardDetailRes.setGroupSeq(groupSeqence.intValue());
+			boardDetailRes.setParentNo(parentNo.longValue());
+			boardDetailRes.setDepth(depth.shortValue());
+			boardDetailRes.setViewCount(viewCount);
+			boardDetailRes.setBoardSate(nativeBoardStateType);
 			
-			boardDetailRes.setVotes(boardRecord.get("votes", Integer.class));			
+			boardDetailRes.setVotes(votes);			
 			
-			boardDetailRes.setWriterID(firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID));
-			boardDetailRes.setWriterIP(firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.IP));
-			boardDetailRes.setRegisteredDate(firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT));
-			boardDetailRes.setNickname(firstWriterBoardRecord.getValue(SB_MEMBER_TB.NICKNAME));
+			boardDetailRes.setWriterID(firstWriterID );
+			boardDetailRes.setWriterIP(firstWriterIP);
+			boardDetailRes.setRegisteredDate(firstRegisteredDate);
+			boardDetailRes.setNickname(firstWriterNickname);
 			
-			boardDetailRes.setSubject(finalModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT));
-			boardDetailRes.setContent(finalModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.CONTENT));
-			boardDetailRes.setFinalModifierID(finalModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID));
-			boardDetailRes.setFinalModifierIP(finalModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.IP));
-			boardDetailRes.setFinalModifiedDate(finalModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT));						
+			boardDetailRes.setSubject(lastlModifiedSubject);
+			boardDetailRes.setContent(lastModifiedContent);
+			boardDetailRes.setLastModifierID(lastModifierID);
+			boardDetailRes.setLastModifierNickName(lastModifierNickName);
+			boardDetailRes.setLastModifierIP(lastModifierIP);
+			boardDetailRes.setLastModifiedDate(lastModifedDate);						
 			
 			boardDetailRes.setAttachedFileCnt(attachedFileList.size());
 			boardDetailRes.setAttachedFileList(attachedFileList);

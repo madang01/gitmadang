@@ -12,7 +12,7 @@ String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보�
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%= WebCommonStaticFinalVars.WEBSITE_TITLE %></title>
+<title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
 <!-- jQuery library -->

@@ -32,9 +32,10 @@
 <singleitem name="writerID" type="ub pascal string" />
 <singleitem name="writerIP" type="ub pascal string" />
 <singleitem name="registeredDate" type="java sql timestamp" />
-<singleitem name="finalModifierIP" type="ub pascal string" />
-<singleitem name="finalModifierID" type="ub pascal string" />
-<singleitem name="finalModifiedDate" type="java sql timestamp" />
+<singleitem name="lastModifierIP" type="ub pascal string" />
+<singleitem name="lastModifierID" type="ub pascal string" />
+<singleitem name="lastModifierNickName" type="ub pascal string" />
+<singleitem name="lastModifiedDate" type="java sql timestamp" />
 <singleitem name="attachedFileCnt" type="integer" />
 <array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
 	<singleitem name="attachedFileSeq" type="unsigned byte" />	

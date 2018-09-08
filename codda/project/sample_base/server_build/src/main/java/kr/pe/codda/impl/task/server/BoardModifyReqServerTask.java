@@ -7,6 +7,7 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -104,7 +105,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidWriterID(boardModifyReq.getModifierID());
+			ValueChecker.checkValidWriterID(boardModifyReq.getRequestUserID());
 		} catch(RuntimeException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -127,6 +128,24 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
 					.append("]를 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (boardModifyReq.getNewAttachedFileCnt() > 0) {			
+			int newAttachedFileCnt = boardModifyReq.getNewAttachedFileCnt();
+			List<BoardModifyReq.NewAttachedFile> newAttachedFileList = boardModifyReq.getNewAttachedFileList();
+
+			for (int i=0; i < newAttachedFileCnt; i++) {
+				BoardModifyReq.NewAttachedFile attachedFileForRequest = newAttachedFileList.get(i);
+				try {
+					ValueChecker.checkValidFileName(attachedFileForRequest.getAttachedFileName());
+				} catch (IllegalArgumentException e) {
+					String errorMessage = new StringBuilder()
+							.append(i)
+							.append("번째 파일 이름 유효성 검사 에러 메시지::")
+							.append(e.getMessage()).toString();
+					throw new ServerServiceException(errorMessage);
+				}			
+			}
 		}
 		
 		UByte boardID = UByte.valueOf(boardModifyReq.getBoardID());
@@ -152,7 +171,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));			
 			
-			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardModifyReq.getModifierID());
+			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardModifyReq.getRequestUserID());
 			MemberType  modifierIDMemberType = null;
 			try {
 				modifierIDMemberType = MemberType.valueOf(nativeRequestUserIDMemberType, false);
@@ -163,7 +182,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("해당 게시글 수정 요청자[").append(boardModifyReq.getModifierID())
+				String errorMessage = new StringBuilder("해당 게시글 수정 요청자[").append(boardModifyReq.getRequestUserID())
 						.append("]의 멤버 타입[")
 						.append(nativeRequestUserIDMemberType)
 						.append("]이 잘못되어있습니다").toString();
@@ -192,7 +211,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				
 				String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
 				
-				if (! boardModifyReq.getModifierID().equals(firstWriterID)) {
+				if (! boardModifyReq.getRequestUserID().equals(firstWriterID)) {
 					try {
 						conn.rollback();
 					} catch (Exception e) {
@@ -224,11 +243,11 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);			
+			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);			
 			
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(boardState, false);
+				boardStateType = BoardStateType.valueOf(nativeBoardStateType, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -237,7 +256,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("게시글의 상태 값[")
-						.append(boardState)
+						.append(nativeBoardStateType)
 						.append("]이 잘못되었습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}				
@@ -348,7 +367,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, boardHistorySequence)
 					.set(SB_BOARD_HISTORY_TB.SUBJECT, boardModifyReq.getSubject())
 					.set(SB_BOARD_HISTORY_TB.CONTENT, boardModifyReq.getContent())
-					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardModifyReq.getModifierID())
+					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardModifyReq.getRequestUserID())
 					.set(SB_BOARD_HISTORY_TB.IP, boardModifyReq.getIp())
 					.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))			
 					.execute();			
@@ -362,45 +381,47 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				String errorMessage = "게시판 최상의 글 내용을 저장하는데 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
 			}		
+			
+			if (boardModifyReq.getNewAttachedFileCnt() > 0) {
+				int newAttachedFileListIndex = 0;
+				for (BoardModifyReq.NewAttachedFile newAttachedFileForRequest : boardModifyReq.getNewAttachedFileList()) {
+					
+					if (attachedFileMaxSeq == CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+						try {
+							conn.rollback();
+						} catch (Exception e) {
+							log.warn("fail to rollback");
+						}
 						
-			int newAttachedFileListIndex = 0;
-			for (BoardModifyReq.NewAttachedFile newAttachedFileForRequest : boardModifyReq.getNewAttachedFileList()) {
-				
-				if (attachedFileMaxSeq == CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-					try {
-						conn.rollback();
-					} catch (Exception e) {
-						log.warn("fail to rollback");
+						String errorMessage = "게시글당 첨부 파일 최대 등록 횟수(=256)를 초가하였습니다";
+						throw new ServerServiceException(errorMessage);
 					}
 					
-					String errorMessage = "게시글당 첨부 파일 최대 등록 횟수(=256)를 초가하였습니다";
-					throw new ServerServiceException(errorMessage);
-				}
-				
-				int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
-				.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID)
-				.set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
-				.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileMaxSeq+1))
-				.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, newAttachedFileForRequest.getAttachedFileName())
-				.execute();		
-				
-				attachedFileMaxSeq++;
-				
-				if (0 == boardFileListInsertCount) {
-					try {
-						conn.rollback();
-					} catch (Exception e) {
-						log.warn("fail to rollback");
-					}
-					String errorMessage = "게시판 첨부 파일을  저장하는데 실패하였습니다";
-					log.warn("게시판 첨부 파일 목록내 인덱스[{}]의 첨부 파일 이름을 저장하는데 실패하였습니다", 
-							newAttachedFileListIndex);
+					int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
+					.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID)
+					.set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
+					.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileMaxSeq+1))
+					.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, newAttachedFileForRequest.getAttachedFileName())
+					.execute();		
 					
-					throw new ServerServiceException(errorMessage);
+					attachedFileMaxSeq++;
+					
+					if (0 == boardFileListInsertCount) {
+						try {
+							conn.rollback();
+						} catch (Exception e) {
+							log.warn("fail to rollback");
+						}
+						String errorMessage = "게시판 첨부 파일을  저장하는데 실패하였습니다";
+						log.warn("게시판 첨부 파일 목록내 인덱스[{}]의 첨부 파일 이름을 저장하는데 실패하였습니다", 
+								newAttachedFileListIndex);
+						
+						throw new ServerServiceException(errorMessage);
+					}
+					
+					newAttachedFileListIndex++;
 				}
-				
-				newAttachedFileListIndex++;
-			}													
+			}										
 			
 			conn.commit();			
 			

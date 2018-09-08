@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * ChildMenuAddRes message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class ChildMenuAddRes extends AbstractMessage {

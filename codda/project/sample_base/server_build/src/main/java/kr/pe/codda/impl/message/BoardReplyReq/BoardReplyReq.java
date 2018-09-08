@@ -25,11 +25,11 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardReplyReq extends AbstractMessage {
+	private String requestUserID;
 	private short boardID;
 	private long parentBoardNo;
 	private String subject;
 	private String content;
-	private String writerID;
 	private String ip;
 	private short attachedFileCnt;
 
@@ -57,6 +57,13 @@ public class BoardReplyReq extends AbstractMessage {
 
 	private java.util.List<AttachedFile> attachedFileList;
 
+	public String getRequestUserID() {
+		return requestUserID;
+	}
+
+	public void setRequestUserID(String requestUserID) {
+		this.requestUserID = requestUserID;
+	}
 	public short getBoardID() {
 		return boardID;
 	}
@@ -85,13 +92,6 @@ public class BoardReplyReq extends AbstractMessage {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public String getWriterID() {
-		return writerID;
-	}
-
-	public void setWriterID(String writerID) {
-		this.writerID = writerID;
-	}
 	public String getIp() {
 		return ip;
 	}
@@ -118,7 +118,9 @@ public class BoardReplyReq extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardReplyReq[");
-		builder.append("boardID=");
+		builder.append("requestUserID=");
+		builder.append(requestUserID);
+		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", parentBoardNo=");
 		builder.append(parentBoardNo);
@@ -126,8 +128,6 @@ public class BoardReplyReq extends AbstractMessage {
 		builder.append(subject);
 		builder.append(", content=");
 		builder.append(content);
-		builder.append(", writerID=");
-		builder.append(writerID);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append(", attachedFileCnt=");

@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * MemberRegisterReq message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class MemberRegisterReqDecoder extends AbstractMessageDecoder {

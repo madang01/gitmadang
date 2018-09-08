@@ -90,7 +90,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("수정 테스트를 위한 최상위 본문글");
 		boardWriteReq.setContent("내용::수정 테스트를 위한 최상위 본문글");		
-		boardWriteReq.setWriterID("test01");
+		boardWriteReq.setRequestUserID("test01");
 		boardWriteReq.setIp("172.16.0.3");
 		
 		List<BoardWriteReq.NewAttachedFile> newAttachedFileListForBoardWriteReq = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -123,7 +123,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("수정 테스트를 위한 최상위 본문글#1");
 		boardModifyReq.setContent("내용::수정 테스트를 위한 최상위 본문글#1");	
-		boardModifyReq.setModifierID(boardWriteReq.getWriterID());
+		boardModifyReq.setRequestUserID(boardWriteReq.getRequestUserID());
 		boardModifyReq.setIp("172.16.0.4");
 		
 		List<BoardModifyReq.OldAttachedFileSeq> oldAttachedFileSeqList = new ArrayList<BoardModifyReq.OldAttachedFileSeq>();		
@@ -162,7 +162,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
 		boardDetailReq.setBoardID(boardWriteRes.getBoardID());
 		boardDetailReq.setBoardNo(boardWriteRes.getBoardNo());
-		boardDetailReq.setRequestUserID(boardWriteReq.getWriterID());
+		boardDetailReq.setRequestUserID(boardWriteReq.getRequestUserID());
 		
 		
 		BoardDetailReqServerTask boardDetailReqServerTask = new BoardDetailReqServerTask();
@@ -171,8 +171,8 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			
 			assertEquals(boardModifyReq.getSubject(), boardDetailRes.getSubject());
 			assertEquals(boardModifyReq.getContent(), boardDetailRes.getContent());
-			assertEquals(boardWriteReq.getWriterID(), boardDetailRes.getWriterID());
-			assertEquals(boardModifyReq.getIp(), boardDetailRes.getFinalModifierIP());			
+			assertEquals(boardWriteReq.getRequestUserID(), boardDetailRes.getWriterID());
+			assertEquals(boardModifyReq.getIp(), boardDetailRes.getLastModifierIP());			
 			
 			
 			assertEquals(boardWriteReq.getNewAttachedFileList().get(0).getAttachedFileName(), 
@@ -191,7 +191,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트를 위한 최상위 본문글");
 		boardWriteReq.setContent("테스트를 위한 최상위 본문글");		
-		boardWriteReq.setWriterID("test01");
+		boardWriteReq.setRequestUserID("test01");
 		boardWriteReq.setIp("172.16.0.5");
 		
 		{
@@ -228,7 +228,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardReplyReq.setParentBoardNo(boardWriteRes.getBoardNo());
 		boardReplyReq.setSubject("테스트 주제05-1");
 		boardReplyReq.setContent("내용::그림5-1하나를 그리다");		
-		boardReplyReq.setWriterID("test02");
+		boardReplyReq.setRequestUserID("test02");
 		boardReplyReq.setIp("172.16.0.6");		
 		
 					
@@ -272,7 +272,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardModifyReq.setBoardNo(boardReplyRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
 		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");	
-		boardModifyReq.setModifierID(boardReplyReq.getWriterID());
+		boardModifyReq.setRequestUserID(boardReplyReq.getRequestUserID());
 		boardModifyReq.setIp("172.16.0.7");
 		
 		List<BoardModifyReq.OldAttachedFileSeq> oldAttachedFileSeqList = new ArrayList<BoardModifyReq.OldAttachedFileSeq>();		
@@ -311,7 +311,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
 		boardDetailReq.setBoardID(boardReplyRes.getBoardID());
 		boardDetailReq.setBoardNo(boardReplyRes.getBoardNo());
-		boardDetailReq.setRequestUserID(boardReplyReq.getWriterID());
+		boardDetailReq.setRequestUserID(boardReplyReq.getRequestUserID());
 		
 		
 		BoardDetailReqServerTask boardDetailReqServerTask = new BoardDetailReqServerTask();
@@ -320,8 +320,8 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			
 			assertEquals(boardModifyReq.getSubject(), boardDetailRes.getSubject());
 			assertEquals(boardModifyReq.getContent(), boardDetailRes.getContent());
-			assertEquals(boardReplyReq.getWriterID(), boardDetailRes.getWriterID());
-			assertEquals(boardModifyReq.getIp(), boardDetailRes.getFinalModifierIP());			
+			assertEquals(boardReplyReq.getRequestUserID(), boardDetailRes.getWriterID());
+			assertEquals(boardModifyReq.getIp(), boardDetailRes.getLastModifierIP());			
 			
 			
 			assertEquals(boardReplyReq.getAttachedFileList().get(0).getAttachedFileName(), 

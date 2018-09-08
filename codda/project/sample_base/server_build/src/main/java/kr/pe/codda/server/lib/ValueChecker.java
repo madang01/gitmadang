@@ -657,14 +657,28 @@ public class ValueChecker {
 		
 		char[] fileNameChars = fileName.toCharArray();
 		
-		if (fileNameChars.length > 0 && (Character.isWhitespace(fileNameChars[0]) || Character.isWhitespace(fileNameChars[fileNameChars.length-1]))) {
+		/*if (fileNameChars.length > 0 && (Character.isWhitespace(fileNameChars[0]) || Character.isWhitespace(fileNameChars[fileNameChars.length-1]))) {
 			String errorMessage = new StringBuilder().append("this string is a string with leading and trailing whitespace").toString();
 			throw new IllegalArgumentException(errorMessage);
-		}	
+		}	*/
 		
-		for (char c : fileNameChars) {
-			if (CommonStaticUtil.isLineSeparator(c)) {
-				throw new IllegalArgumentException("파일 이름에 개행 문자가 포함되었습니다");
+		for (char ch : fileNameChars) {
+			if (Character.isWhitespace(ch)) {
+				String errorMessage = new StringBuilder("첨부 파일명[")
+						.append(fileName)
+						.append("]에 공백 문자가 존재합니다").toString();
+				throw new IllegalArgumentException(errorMessage);
+			} else {
+				for (char forbiddenChar : ServerCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
+					if (ch == forbiddenChar) {
+						String errorMessage = new StringBuilder("첨부 파일명[")
+								.append(fileName)
+								.append("]에 금지된 문자[")
+								.append(forbiddenChar)
+								.append("]가 존재합니다").toString();
+						throw new IllegalArgumentException(errorMessage);
+					}		
+				}
 			}
 		}	
 	}

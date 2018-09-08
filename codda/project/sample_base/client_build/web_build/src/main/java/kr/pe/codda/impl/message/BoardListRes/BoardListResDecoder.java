@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardListRes message decoder
- * @author Won Jonghoon
+ * @author Won Jonghooon
  *
  */
 public final class BoardListResDecoder extends AbstractMessageDecoder {
@@ -188,9 +188,9 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, board$2MiddleWritableObject));
 
-			board$2.setFinalModifiedDate((java.sql.Timestamp)
+			board$2.setLastModifiedDate((java.sql.Timestamp)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-				, "finalModifiedDate" // itemName
+				, "lastModifiedDate" // itemName
 				, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset

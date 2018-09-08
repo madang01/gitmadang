@@ -39,9 +39,9 @@ public final class BoardUploadFileReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardUploadFileReq");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "userId"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardUploadFileReq.getUserId() // itemValue
+			, boardUploadFileReq.getRequestUserID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
