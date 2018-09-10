@@ -91,6 +91,14 @@ public final class MemberRegisterReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		memberRegisterReq.setIp((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ip" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		pathStack.pop();
 
 		return memberRegisterReq;

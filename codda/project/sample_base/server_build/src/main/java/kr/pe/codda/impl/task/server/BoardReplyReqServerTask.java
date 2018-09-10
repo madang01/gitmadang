@@ -243,7 +243,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
-					.and(SB_BOARD_TB.GROUP_SQ.gt(groupSeqOfParentBoard)).execute();			
+					.and(SB_BOARD_TB.GROUP_SQ.le(groupSeqOfParentBoard)).execute();			
 
 			int boardInsertCount = create
 					.insertInto(SB_BOARD_TB, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO,
@@ -251,7 +251,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 							SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST)
 					.select(create
 							.select(SB_BOARD_TB.BOARD_ID, DSL.val(boardNo).as(SB_BOARD_TB.BOARD_NO),
-									SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ.add(1).as(SB_BOARD_TB.GROUP_SQ),
+									SB_BOARD_TB.GROUP_NO, DSL.val(groupSeqOfParentBoard).as(SB_BOARD_TB.GROUP_SQ),
 									DSL.inline(UInteger.valueOf(boardReplyReq.getParentBoardNo()))
 											.as(SB_BOARD_TB.PARENT_NO),
 									SB_BOARD_TB.DEPTH.add(1).as(SB_BOARD_TB.DEPTH),									

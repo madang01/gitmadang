@@ -22,4 +22,5 @@
 <singleitem name="answerCipherBase64" type="si pascal string"/>
 <singleitem name="sessionKeyBase64" type="si pascal string"/>
 <singleitem name="ivBase64" type="si pascal string"/>
+<singleitem name="ip" type="ub pascal string"/>
 </message>

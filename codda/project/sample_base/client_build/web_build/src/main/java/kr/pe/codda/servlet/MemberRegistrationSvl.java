@@ -327,7 +327,8 @@ public class MemberRegistrationSvl extends AbstractServlet {
 			memberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdHintBytes)));
 			memberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdAnswerBytes)));
 			memberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
-			memberRegisterReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));				
+			memberRegisterReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));
+			memberRegisterReq.setIp(req.getRemoteAddr());
 	
 			AbstractMessage memberRegisterOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(memberRegisterReq);					
 			if (memberRegisterOutputMessage instanceof MessageResultRes) {

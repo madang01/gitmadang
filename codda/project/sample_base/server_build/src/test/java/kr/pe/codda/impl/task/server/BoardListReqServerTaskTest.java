@@ -25,7 +25,7 @@ import kr.pe.codda.server.lib.ServerDBUtil;
 public class BoardListReqServerTaskTest extends AbstractJunitTest {	
 	// final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;;
 	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;;
-	//final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME;;
+	// final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME;;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -38,9 +38,10 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 		String nickname = "단위테스터용아이디1";
 		String pwdHint = "힌트 그것이 알고싶다";
 		String pwdAnswer = "힌트답변 말이여 방구여";
+		String ip = "127.0.0.1";
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 					.append(userID)

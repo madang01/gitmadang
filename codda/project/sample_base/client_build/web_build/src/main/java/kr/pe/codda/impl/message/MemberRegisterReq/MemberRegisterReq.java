@@ -32,6 +32,7 @@ public class MemberRegisterReq extends AbstractMessage {
 	private String answerCipherBase64;
 	private String sessionKeyBase64;
 	private String ivBase64;
+	private String ip;
 
 	public String getIdCipherBase64() {
 		return idCipherBase64;
@@ -82,6 +83,13 @@ public class MemberRegisterReq extends AbstractMessage {
 	public void setIvBase64(String ivBase64) {
 		this.ivBase64 = ivBase64;
 	}
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 
 	@Override
 	public String toString() {
@@ -101,6 +109,8 @@ public class MemberRegisterReq extends AbstractMessage {
 		builder.append(sessionKeyBase64);
 		builder.append(", ivBase64=");
 		builder.append(ivBase64);
+		builder.append(", ip=");
+		builder.append(ip);
 		builder.append("]");
 		return builder.toString();
 	}

@@ -1,0 +1,2 @@
+user_id,nickname,pwd_base64,pwd_salt_base64,member_type,member_st,pwd_hint,pwd_answer,pwd_fail_cnt,reg_dt,mod_dt,ip
+test01,단위테스터용아이디1,lhydbJ+En820RfYVEja/KFmZDX4cJbAps0yeU1fL0bVbniWv3fnm2AnrHAmfUTosSwOYU8t9ToX/Gy66KH3UuQ==,pey3xptdmGI=,M,Y,"힌트 그것이 알고싶다","힌트답변 말이여 방구여",0,"2018-09-07 13:58:14","2018-09-07 13:58:14",NULL

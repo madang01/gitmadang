@@ -15,6 +15,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -72,6 +73,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		String answerCipherBase64 = memberRegisterReq.getAnswerCipherBase64();
 		String sessionKeyBase64 = memberRegisterReq.getSessionKeyBase64();
 		String ivBase64 = memberRegisterReq.getIvBase64();
+		String ip = memberRegisterReq.getIp();
 
 		if (null == idCipherBase64) {
 			String errorMessage = "아이디를 입력해 주세요";
@@ -105,6 +107,18 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 
 		if (null == ivBase64) {
 			String errorMessage = "세션키 소금값을 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (null == ip) {
+			String errorMessage = "IP 주소를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidIP(ip);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 
@@ -192,6 +206,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		String nickname = null;
 		String pwdHint = null;
 		String pwdAnswer = null;
+		 
 
 		try {
 			userID = getDecryptedString(idCipherBytes, serverSymmetricKey);
@@ -294,7 +309,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		ServerDBUtil.registerMember(dbcpName, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes);
+		ServerDBUtil.registerMember(dbcpName, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(memberRegisterReq.getMessageID());

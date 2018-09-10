@@ -1,0 +1,4 @@
+board_id,board_name,board_info,admin_total,user_total
+0,공지,"공지 게시판",0,0
+1,자유,"자유 게시판",0,0
+2,FAQ,"FAQ 게시판",0,0

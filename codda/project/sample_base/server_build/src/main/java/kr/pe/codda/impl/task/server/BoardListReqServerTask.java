@@ -19,6 +19,7 @@ import org.jooq.Record3;
 import org.jooq.Record8;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
+import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
@@ -26,6 +27,7 @@ import org.jooq.types.UShort;
 
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
 import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -125,37 +127,56 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			java.util.List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
 			Result<Record8<UInteger, UInteger, UShort, UInteger, UByte, Integer, String, Object>> boardListResult = null;
 
+			
+			Table<Record3<UByte, UInteger, UShort>>  fullIndexScanTableForBoardList = create.select(SB_BOARD_TB.BOARD_ID, 
+					SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ)
+			.from(SB_BOARD_TB.forceIndexForOrderBy("sb_board_idx1"))
+			.orderBy(SB_BOARD_TB.BOARD_ID.desc(), SB_BOARD_TB.GROUP_NO.desc(), SB_BOARD_TB.GROUP_SQ.desc())
+			.offset(offset).limit(pageSize)
+			.asTable("a");
+			
+			SbBoardTb joinTableForBoardList = SB_BOARD_TB.as("b");
+			
+			
 			if (meberType.equals(MemberType.ADMIN)) {
 				total = create.select(SB_BOARD_INFO_TB.ADMIN_TOTAL).from(SB_BOARD_INFO_TB)
 						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
 
 				boardListResult = create
-						.select(SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO,
-								SB_BOARD_TB.DEPTH, SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST,
+						.select(joinTableForBoardList.BOARD_NO, joinTableForBoardList.GROUP_NO, joinTableForBoardList.GROUP_SQ, joinTableForBoardList.PARENT_NO,
+								joinTableForBoardList.DEPTH, joinTableForBoardList.VIEW_CNT, joinTableForBoardList.BOARD_ST,
 								create.selectCount().from(SB_BOARD_VOTE_TB)
-										.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(SB_BOARD_TB.BOARD_ID))
-										.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(SB_BOARD_TB.BOARD_NO)).asField("votes"))
-						.from(SB_BOARD_TB)
-						.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-						.orderBy(SB_BOARD_TB.field(SB_BOARD_TB.GROUP_NO).desc(),
-								SB_BOARD_TB.field(SB_BOARD_TB.GROUP_SQ).asc())
-						.offset(offset).limit(pageSize).fetch();
+										.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(joinTableForBoardList.BOARD_ID))
+										.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(joinTableForBoardList.BOARD_NO)).asField("votes"))
+						.from(fullIndexScanTableForBoardList)
+						.innerJoin(joinTableForBoardList)
+						.on(joinTableForBoardList.BOARD_ID.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.BOARD_ID)))
+						.and(joinTableForBoardList.GROUP_NO.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_NO)))
+						.and(joinTableForBoardList.GROUP_SQ.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_SQ)))
+						.where(joinTableForBoardList.BOARD_ID.eq(boardID))
+						.orderBy(joinTableForBoardList.field(SB_BOARD_TB.GROUP_NO).desc(),
+								joinTableForBoardList.field(SB_BOARD_TB.GROUP_SQ).desc())
+						.fetch();
 			} else {
 				total = create.select(SB_BOARD_INFO_TB.USER_TOTAL).from(SB_BOARD_INFO_TB)
 						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
-
+				
 				boardListResult = create
-						.select(SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO,
-								SB_BOARD_TB.DEPTH, SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST,
+						.select(joinTableForBoardList.BOARD_NO, joinTableForBoardList.GROUP_NO, joinTableForBoardList.GROUP_SQ, joinTableForBoardList.PARENT_NO,
+								joinTableForBoardList.DEPTH, joinTableForBoardList.VIEW_CNT, joinTableForBoardList.BOARD_ST,
 								create.selectCount().from(SB_BOARD_VOTE_TB)
-										.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(SB_BOARD_TB.BOARD_ID))
-										.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(SB_BOARD_TB.BOARD_NO)).asField("votes"))
-						.from(SB_BOARD_TB)
-						.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-						.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue()))
-						.orderBy(SB_BOARD_TB.field(SB_BOARD_TB.GROUP_NO).desc(),
-								SB_BOARD_TB.field(SB_BOARD_TB.GROUP_SQ).asc())
-						.offset(offset).limit(pageSize).fetch();
+										.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(joinTableForBoardList.BOARD_ID))
+										.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(joinTableForBoardList.BOARD_NO)).asField("votes"))
+						.from(fullIndexScanTableForBoardList)
+						.innerJoin(joinTableForBoardList)
+						.on(joinTableForBoardList.BOARD_ID.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.BOARD_ID)))
+						.and(joinTableForBoardList.GROUP_NO.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_NO)))
+						.and(joinTableForBoardList.GROUP_SQ.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_SQ)))
+						.where(joinTableForBoardList.BOARD_ID.eq(boardID))
+						.and(joinTableForBoardList.BOARD_ST.eq(BoardStateType.OK.getValue()))
+						.orderBy(joinTableForBoardList.field(SB_BOARD_TB.GROUP_NO).desc(),
+								joinTableForBoardList.field(SB_BOARD_TB.GROUP_SQ).desc())
+						.fetch();
 			}
 
 			for (Record boardRecord : boardListResult) {

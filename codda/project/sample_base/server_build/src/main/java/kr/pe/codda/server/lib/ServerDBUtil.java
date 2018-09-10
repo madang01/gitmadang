@@ -117,7 +117,8 @@ public abstract class ServerDBUtil {
 	 * @param passwordBytes 패스워드
 	 * @throws Exception
 	 */
-	public static void registerMember(String dbcpName, MemberType memberType, String userID, String nickname, String pwdHint, String pwdAnswer, byte[] passwordBytes) throws Exception {
+	public static void registerMember(String dbcpName, MemberType memberType, String userID, String nickname, 
+			String pwdHint, String pwdAnswer, byte[] passwordBytes, String ip) throws Exception {
 		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
 		
 		if (null == memberType) {
@@ -206,7 +207,9 @@ public abstract class ServerDBUtil {
 					.set(SB_MEMBER_TB.MEMBER_ST, MemberStateType.OK.getValue()).set(SB_MEMBER_TB.PWD_HINT, pwdHint)
 					.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer).set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
 					.set(SB_MEMBER_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-					.set(SB_MEMBER_TB.MOD_DT, SB_MEMBER_TB.REG_DT).execute();
+					.set(SB_MEMBER_TB.MOD_DT, SB_MEMBER_TB.REG_DT)
+					.set(SB_MEMBER_TB.IP, ip)
+					.execute();
 
 			if (0 == resultOfInsert) {
 				try {

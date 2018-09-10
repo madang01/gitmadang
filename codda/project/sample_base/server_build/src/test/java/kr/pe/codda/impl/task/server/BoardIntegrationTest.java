@@ -21,6 +21,7 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -68,9 +69,10 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			String nickname = "단위테스터용어드민";
 			String pwdHint = "힌트 그것이 알고싶다";
 			String pwdAnswer = "힌트답변 말이여 방구여";
+			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -92,9 +94,10 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			String nickname = "단위테스터용아이디1";
 			String pwdHint = "힌트 그것이 알고싶다";
 			String pwdAnswer = "힌트답변 말이여 방구여";
+			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -116,9 +119,10 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			String nickname = "단위테스터용아이디2";
 			String pwdHint = "힌트 그것이 알고싶다";
 			String pwdAnswer = "힌트답변 말이여 방구여";
+			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -1247,6 +1251,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			}
 		}
 		
+		UShort parentOrderSeq = UShort.valueOf(0);
+		
 		BoardReplyReq boardReplyReq = new BoardReplyReq();
 		boardReplyReq.setBoardID(boardWriteRes.getBoardID());
 		boardReplyReq.setParentBoardNo(boardWriteRes.getBoardNo());
@@ -1310,7 +1316,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			assertEquals("댓글 조회갯수 비교", 1, boardDetailRes.getViewCount());
 			
 			assertEquals("댓글 그룹 최상위 번호 비교", boardWriteRes.getBoardNo(), boardDetailRes.getGroupNo());
-			assertEquals("댓글 그룹 시퀀스번호 비교", 1, boardDetailRes.getGroupSeq());
+			assertEquals("댓글 그룹 시퀀스번호 비교", parentOrderSeq.intValue(), boardDetailRes.getGroupSeq());
 			assertEquals("댓글 그룹 부모 번호 비교", boardWriteRes.getBoardNo(), boardDetailRes.getParentNo());
 			assertEquals("댓글 깊이 비교", 1, boardDetailRes.getDepth());
 			
