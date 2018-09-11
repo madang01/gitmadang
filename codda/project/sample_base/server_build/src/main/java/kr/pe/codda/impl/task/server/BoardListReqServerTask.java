@@ -58,7 +58,8 @@ public class BoardListReqServerTask extends AbstractServerTask {
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
 		try {
-			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (BoardListReq) inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME,
+					(BoardListReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -95,8 +96,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 		final int pageSize = boardListReq.getPageSize();
 		final int offset = (pageNo - 1) * pageSize;
 
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
+		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
@@ -125,59 +125,50 @@ public class BoardListReqServerTask extends AbstractServerTask {
 
 			int total = 0;
 			java.util.List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
-			Result<Record8<UInteger, UInteger, UShort, UInteger, UByte, Integer, String, Object>> boardListResult = null;
 
-			
-			Table<Record3<UByte, UInteger, UShort>>  fullIndexScanTableForBoardList = create.select(SB_BOARD_TB.BOARD_ID, 
-					SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ)
-			.from(SB_BOARD_TB.forceIndexForOrderBy("sb_board_idx1"))
-			.orderBy(SB_BOARD_TB.BOARD_ID.desc(), SB_BOARD_TB.GROUP_NO.desc(), SB_BOARD_TB.GROUP_SQ.desc())
-			.offset(offset).limit(pageSize)
-			.asTable("a");
-			
 			SbBoardTb joinTableForBoardList = SB_BOARD_TB.as("b");
-			
-			
+			Table<Record3<UByte, UInteger, UShort>> fullIndexScanTableForBoardList = null;
+
 			if (meberType.equals(MemberType.ADMIN)) {
 				total = create.select(SB_BOARD_INFO_TB.ADMIN_TOTAL).from(SB_BOARD_INFO_TB)
 						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
 
-				boardListResult = create
-						.select(joinTableForBoardList.BOARD_NO, joinTableForBoardList.GROUP_NO, joinTableForBoardList.GROUP_SQ, joinTableForBoardList.PARENT_NO,
-								joinTableForBoardList.DEPTH, joinTableForBoardList.VIEW_CNT, joinTableForBoardList.BOARD_ST,
-								create.selectCount().from(SB_BOARD_VOTE_TB)
-										.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(joinTableForBoardList.BOARD_ID))
-										.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(joinTableForBoardList.BOARD_NO)).asField("votes"))
-						.from(fullIndexScanTableForBoardList)
-						.innerJoin(joinTableForBoardList)
-						.on(joinTableForBoardList.BOARD_ID.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.BOARD_ID)))
-						.and(joinTableForBoardList.GROUP_NO.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_NO)))
-						.and(joinTableForBoardList.GROUP_SQ.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_SQ)))
-						.where(joinTableForBoardList.BOARD_ID.eq(boardID))
-						.orderBy(joinTableForBoardList.field(SB_BOARD_TB.GROUP_NO).desc(),
-								joinTableForBoardList.field(SB_BOARD_TB.GROUP_SQ).desc())
-						.fetch();
+				fullIndexScanTableForBoardList = create
+						.select(SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ)
+						.from(SB_BOARD_TB.forceIndex("sb_board_idx1")).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+						.and(SB_BOARD_TB.GROUP_NO.ge(UInteger.valueOf(0)))
+						.and(SB_BOARD_TB.GROUP_SQ.ge(UShort.valueOf(0)))
+						.orderBy(SB_BOARD_TB.GROUP_NO.desc(), SB_BOARD_TB.GROUP_SQ.desc()).offset(offset)
+						.limit(pageSize).asTable("a");
+
 			} else {
 				total = create.select(SB_BOARD_INFO_TB.USER_TOTAL).from(SB_BOARD_INFO_TB)
 						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
-				
-				boardListResult = create
-						.select(joinTableForBoardList.BOARD_NO, joinTableForBoardList.GROUP_NO, joinTableForBoardList.GROUP_SQ, joinTableForBoardList.PARENT_NO,
-								joinTableForBoardList.DEPTH, joinTableForBoardList.VIEW_CNT, joinTableForBoardList.BOARD_ST,
-								create.selectCount().from(SB_BOARD_VOTE_TB)
-										.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(joinTableForBoardList.BOARD_ID))
-										.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(joinTableForBoardList.BOARD_NO)).asField("votes"))
-						.from(fullIndexScanTableForBoardList)
-						.innerJoin(joinTableForBoardList)
-						.on(joinTableForBoardList.BOARD_ID.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.BOARD_ID)))
-						.and(joinTableForBoardList.GROUP_NO.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_NO)))
-						.and(joinTableForBoardList.GROUP_SQ.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_SQ)))
-						.where(joinTableForBoardList.BOARD_ID.eq(boardID))
-						.and(joinTableForBoardList.BOARD_ST.eq(BoardStateType.OK.getValue()))
-						.orderBy(joinTableForBoardList.field(SB_BOARD_TB.GROUP_NO).desc(),
-								joinTableForBoardList.field(SB_BOARD_TB.GROUP_SQ).desc())
-						.fetch();
+
+				fullIndexScanTableForBoardList = create
+						.select(SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ)
+						.from(SB_BOARD_TB.forceIndex("sb_board_idx1")).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+						.and(SB_BOARD_TB.GROUP_NO.ge(UInteger.valueOf(0)))
+						.and(SB_BOARD_TB.GROUP_SQ.ge(UShort.valueOf(0)))
+						.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue()))
+						.orderBy(SB_BOARD_TB.GROUP_NO.desc(), SB_BOARD_TB.GROUP_SQ.desc()).offset(offset)
+						.limit(pageSize).asTable("a");
 			}
+
+			Result<Record8<UInteger, UInteger, UShort, UInteger, UByte, Integer, String, Object>> boardListResult = create
+					.select(joinTableForBoardList.BOARD_NO, joinTableForBoardList.GROUP_NO,
+							joinTableForBoardList.GROUP_SQ, joinTableForBoardList.PARENT_NO,
+							joinTableForBoardList.DEPTH, joinTableForBoardList.VIEW_CNT, joinTableForBoardList.BOARD_ST,
+							create.selectCount().from(SB_BOARD_VOTE_TB)
+									.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(joinTableForBoardList.BOARD_ID))
+									.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(joinTableForBoardList.BOARD_NO)).asField("votes"))
+					.from(fullIndexScanTableForBoardList).innerJoin(joinTableForBoardList)
+					.on(joinTableForBoardList.BOARD_ID.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.BOARD_ID)))
+					.and(joinTableForBoardList.GROUP_NO.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_NO)))
+					.and(joinTableForBoardList.GROUP_SQ.eq(fullIndexScanTableForBoardList.field(SB_BOARD_TB.GROUP_SQ)))
+					.orderBy(joinTableForBoardList.field(SB_BOARD_TB.GROUP_NO).desc(),
+							joinTableForBoardList.field(SB_BOARD_TB.GROUP_SQ).desc())
+					.fetch();
 
 			for (Record boardRecord : boardListResult) {
 				UInteger boardNo = boardRecord.getValue(SB_BOARD_TB.BOARD_NO);
@@ -186,7 +177,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 				UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
 				UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
 				int viewCount = boardRecord.getValue(SB_BOARD_TB.VIEW_CNT);
-				String  nativeBoardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+				String nativeBoardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 				int votes = boardRecord.getValue("votes", Integer.class);
 
 				Record3<String, Timestamp, String> firstBoardHistoryRecord = create
@@ -206,19 +197,19 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					continue;
 
 				}
-				
+
 				String firstWriterID = firstBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
-				Timestamp  firstRegisteredDate = firstBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
+				Timestamp firstRegisteredDate = firstBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
 				String firstWriterNickName = firstBoardHistoryRecord.getValue(SB_MEMBER_TB.NICKNAME);
-				
 
 				Record2<String, Timestamp> lastBoardHistoryRecord = create
 						.select(SB_BOARD_HISTORY_TB.SUBJECT, SB_BOARD_HISTORY_TB.REG_DT).from(SB_BOARD_HISTORY_TB)
 						.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
 						.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max())
 								.from(SB_BOARD_HISTORY_TB).where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
-								.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)))).fetchOne();
-				
+								.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))))
+						.fetchOne();
+
 				String lastModifiedSubject = lastBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT);
 				Timestamp lastModifiedDate = lastBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
 
