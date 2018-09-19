@@ -1,20 +1,9 @@
 package kr.pe.codda.common.buildsystem;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.common.buildsystem.pathsupporter.WebClientBuildSystemPathSupporter;
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
 
 public class WebClientAntBuildXMLFileContenetsBuilderTest extends AbstractJunitTest {
-	@Test
+	/*@Test
 	public void testBuild_isEqualToSampleBaseWebClientAntBuildXMLFile() {
 		final String mainProjectName = "sample_base";
 		String expectedAppClientAntBuildXMLFileContents = WebClientAntBuildXMLFileContenetsBuilder.build(mainProjectName);
@@ -37,5 +26,5 @@ public class WebClientAntBuildXMLFileContenetsBuilderTest extends AbstractJunitT
 		}
 		
 		assertEquals(expectedAppClientAntBuildXMLFileContents, acutalAppClientAntBuildXMLFileContents);		
-	}
+	}*/
 }

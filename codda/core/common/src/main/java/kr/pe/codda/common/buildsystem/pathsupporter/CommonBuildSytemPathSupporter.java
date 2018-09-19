@@ -4,7 +4,7 @@ import java.io.File;
 
 public abstract class CommonBuildSytemPathSupporter {
 	
-	/** [installed path]/temp */
+	/** [installed path]/temp, SelfExnRes 외 메시지 정보 파일로 부터 메시지 정보 파일을 저장할 임시 디렉토리 */
 	public static String getCommonTempPathString(
 			String installedPathString) {
 		if (null == installedPathString) {

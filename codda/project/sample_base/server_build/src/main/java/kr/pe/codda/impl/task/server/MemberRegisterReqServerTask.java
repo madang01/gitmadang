@@ -1,7 +1,5 @@
 package kr.pe.codda.impl.task.server;
 
-import org.apache.commons.codec.binary.Base64;
-
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.exception.SymmetricException;
@@ -18,6 +16,8 @@ import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
+
+import org.apache.commons.codec.binary.Base64;
 
 public class MemberRegisterReqServerTask extends AbstractServerTask {
 

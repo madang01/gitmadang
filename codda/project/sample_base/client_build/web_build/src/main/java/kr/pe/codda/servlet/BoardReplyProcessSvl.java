@@ -52,7 +52,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 				.getRunningProjectConfiguration();
 		String mainProjectName = runningProjectConfiguration.getMainProjectName();
 		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
-		String webTempPathString = WebRootBuildSystemPathSupporter.getWebTempPathString(sinnoriInstalledPathString,
+		String webTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(sinnoriInstalledPathString,
 				mainProjectName);
 
 		diskFileItemFactory.setRepository(new File(webTempPathString));
@@ -379,7 +379,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		for (FileItem fileItem : fileItemList) {
 
 			String newAttachedFileFullName = new StringBuilder(
-					WebRootBuildSystemPathSupporter.getWebUploadPathString(sinnoriInstalledPathString, mainProjectName))
+					WebRootBuildSystemPathSupporter.getUserWebUploadPathString(sinnoriInstalledPathString, mainProjectName))
 							.append(File.separator).append(WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_PREFIX)
 							.append("_BoardID").append(boardReplyRes.getBoardID()).append("_BoardNo")
 							.append(boardReplyRes.getBoardNo()).append("Seq").append(fileSequence)

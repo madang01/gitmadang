@@ -7,13 +7,6 @@ import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.codec.binary.Base64;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.exception.SymmetricException;
@@ -34,6 +27,13 @@ import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
+
+import org.apache.commons.codec.binary.Base64;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
 
 public class AdminLoginReqServerTask extends AbstractServerTask {	
 	private void sendErrorOutputMessage(String errorMessage,			

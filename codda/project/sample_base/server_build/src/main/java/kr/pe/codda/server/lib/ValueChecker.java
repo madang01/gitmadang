@@ -17,15 +17,15 @@
 package kr.pe.codda.server.lib;
 
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+import io.netty.util.internal.logging.InternalLogger;
 
 import java.sql.Connection;
 
-import org.jooq.DSLContext;
-import org.jooq.Record2;
-
-import io.netty.util.internal.logging.InternalLogger;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.util.CommonStaticUtil;
+
+import org.jooq.DSLContext;
+import org.jooq.Record2;
 
 /**
  * 항목 검사기, 예를 들면 아이디, 비밀번호 같은 공통 항목에 대한 입력값 검사기

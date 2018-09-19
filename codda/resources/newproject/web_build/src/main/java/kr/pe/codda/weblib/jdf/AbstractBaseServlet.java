@@ -1,32 +1,26 @@
 package kr.pe.codda.weblib.jdf;
 
-import java.io.File;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.codda.common.config.CoddaConfiguration;
-import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.codda.weblib.sitemenu.SiteTopMenuType;
 
 @SuppressWarnings("serial")
 public abstract class AbstractBaseServlet extends HttpServlet {
 	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractBaseServlet.class);
 
 	/**
-	 * 로그인 여부를 반환한다.
+	 * 어드민의 로그인 여부를 반환한다.
 	 * @param req HttpServletRequest 객체
-	 * @return 로그인 여부
+	 * @return 어드민 로그인 여부
 	 */		
-	public boolean isLogin(HttpServletRequest req) {
+	public boolean isAdminLoginedIn(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		String userId = (String) httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID);
 		if (null == userId || userId.equals("")) {
 			return false;
 		}
@@ -34,28 +28,30 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	}
 	
 	/**
-	 * 로그인 여부를 반환한다.
+	 * 어드민의 로그인 여부를 반환한다.
 	 * @param httpSession HttpSession 객체
-	 * @return 로그인 여부
+	 * @return 어드민 로그인 여부
 	 */		
-	public boolean isLogin(HttpSession httpSession) {
+	public boolean isAdminLoginedIn(HttpSession httpSession) {
 		String userId = (String) httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID);
 		if (null == userId || userId.equals("")) {
 			return false;
 		}
 		return true;
 	}
 	
+	
+	
+	
 	/**
-	 * 로그인 아이디를 반환한다. 단 로그인을 안했을 경우 손님을 뜻하는 guest 아이디로 고정된다.
 	 * @param req HttpServletRequest 객체
-	 * @return 로그인 아이디
+	 * @return 어드민이 로그인했을 경우 '어드민 로그인 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
 	 */
-	public String getLoginUserIDFromHttpSession(HttpServletRequest req) {
+	public String getLoginedAdminIDFromHttpSession(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		
-		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);
+		Object loginUserIDValue = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID);
 		if (null == loginUserIDValue) {
 			return "guest";
 		}
@@ -68,103 +64,52 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 		return loginUserID;
 	}
 	
+	public boolean isUserLoginedIn(HttpServletRequest req) {
+		HttpSession httpSession = req.getSession();
+		Object userIDFromHttpSession = httpSession
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
+		if (null == userIDFromHttpSession) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean isUserLoginedIn(HttpSession httpSession) {
+		Object userIDFromHttpSession = httpSession
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
+		if (null == userIDFromHttpSession) {
+			return false;
+		}
+		return true;
+	}
+	
 	/**
-	 * 파일명이 겹치지 않기 위해서 DB 를 이용한 시퀀스 값인 업로드 파일 이름 순번을 받아 업로드 파일의 시스템 절대 경로 파일명을 반환한다.
-	 * @param uploadFileNameSeq 파일명이 겹치지 않기 위해서 DB 를 이용한 시퀀스 값인 업로드 파일 이름 순번
-	 * @return 업로드 파일의 시스템 절대 경로 파일명
+	 * @param req
+	 * @return 일반 유저가 로그인 했을때 '일반인 유저 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
 	 */
-	public String getAttachSystemFullFileName(long uploadFileNameSeq) {
-		CoddaConfiguration runningProjectConfiguration = 
-				CoddaConfigurationManager.getInstance()
-				.getRunningProjectConfiguration();
+	public String getLoginedUserIDFromHttpSession(HttpServletRequest req) {
+		HttpSession httpSession = req.getSession();
 		
-		String mainProjectName = runningProjectConfiguration.getMainProjectName();
-		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
-		String webUploadPathString = BuildSystemPathSupporter.getWebUploadPathString(sinnoriInstalledPathString, mainProjectName);
+		Object userIDFromHttpSession = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
+		if (null == userIDFromHttpSession) {
+			return "guest";
+		}
 		
-		StringBuilder attachSystemFullFileNameBuilder = new StringBuilder(webUploadPathString);
-		attachSystemFullFileNameBuilder.append(File.separator);
-		attachSystemFullFileNameBuilder.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_PREFIX);
-		attachSystemFullFileNameBuilder.append("_");
-		attachSystemFullFileNameBuilder.append(uploadFileNameSeq);
-		attachSystemFullFileNameBuilder.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_SUFFIX);
-		
-		return attachSystemFullFileNameBuilder.toString();
+		String userID = (String) userIDFromHttpSession;
+		return userID;
 	}
 	
-	/*public SiteTopMenuType setSiteTopMenuRequestAtrributeMatchingTopMenuParameter(HttpServletRequest req, SiteTopMenuType defaultSiteTopMenuType) {
-		if (null == req) {
-			throw new IllegalArgumentException("the parameter req is null");
-		}
-		if (null == defaultSiteTopMenuType) {
-			throw new IllegalArgumentException("the parameter defaultSiteTopMenuType is null");
-		}
-		String parmTopmenu = req.getParameter("topmenu");
-		if (null == parmTopmenu) {
-			parmTopmenu = String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
-		}
-		parmTopmenu = parmTopmenu.trim();	
-		if (parmTopmenu.equals("")) parmTopmenu=String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
-		
-		int nTopMenu = 0;
-		
-		try {
-			nTopMenu = Integer.parseInt(parmTopmenu);
-		} catch (NumberFormatException num_e) {
-			// num_e.prin
-		}
-		
-		SiteTopMenuType targetSiteTopMenuType = SiteTopMenuType.match(nTopMenu);
-		
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, targetSiteTopMenuType);
-		return targetSiteTopMenuType;
-	}*/
-	
-	
-	public SiteTopMenuType getSiteTopMenuTypeFromParameter(HttpServletRequest req, SiteTopMenuType defaultSiteTopMenuType) {
-		if (null == req) {
-			throw new IllegalArgumentException("the parameter req is null");
-		}
-		if (null == defaultSiteTopMenuType) {
-			throw new IllegalArgumentException("the parameter defaultSiteTopMenuType is null");
-		}
-		String parmTopmenu = req.getParameter(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU);
-		if (null == parmTopmenu) {
-			parmTopmenu = String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
-		}
-		parmTopmenu = parmTopmenu.trim();	
-		if (parmTopmenu.equals("")) parmTopmenu=String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
-		
-		
-		SiteTopMenuType targetSiteTopMenuType = defaultSiteTopMenuType;
-		
-		try {
-			int siteTopMenuTypeValue = Integer.parseInt(parmTopmenu);			
-			targetSiteTopMenuType = SiteTopMenuType.match(siteTopMenuTypeValue);
-		} catch (NumberFormatException num_e) {
-		}
-		
-		
-		return targetSiteTopMenuType;
-	}
-
-	protected void setSiteTopMenu(HttpServletRequest req, SiteTopMenuType targetSiteTopMenuType) {
-		if (null == req) {
-			throw new IllegalArgumentException("the parameter req is null");
-		}
-		if (null == targetSiteTopMenuType) {
-			throw new IllegalArgumentException("the parameter targetSiteTopMenuType is null");
-		}
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, targetSiteTopMenuType);
-	}
-	
-	protected void setSiteLeftMenu(HttpServletRequest req, String leftmenuURL) {
-		if (null == req) {
-			throw new IllegalArgumentException("the parameter req is null");
-		}
-		if (null == leftmenuURL) {
-			throw new IllegalArgumentException("the parameter leftmenuURL is null");
-		}
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_LEFTMENU, leftmenuURL);
+	/**
+	 * <pre>
+	 * 서블릿 초기화 파라미터 메뉴그룹(=menuGroupURL) 존재 여부를 반환한다. 
+	 * 참고) 서블릿 초기화 파라미터 메뉴그룹(=menuGroupURL)은 @{@link JDFBaseServlet#performBasePreTask} 에서 
+	 *      request 의 속성에 메뉴그룹(=@{link {@link WebCommonStaticFinalVars#REQUEST_KEY_NAME_OF_MENU_GROUP_URL})으로 저장된다
+	 * </pre>
+	 * @param req
+	 * @return 서블릿 초기화 파라미터 메뉴그룹(=menuGroupURL) 존재 여부 
+	 */
+	public boolean isMenuGroupURL(HttpServletRequest req) {
+		Object menuGroupURL = req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL);
+		return (null != menuGroupURL);
 	}
 }

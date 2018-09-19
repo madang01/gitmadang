@@ -189,6 +189,7 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 		return retClass;
 	}
 	
+	@SuppressWarnings("resource")
 	public InputStream getResourceAsStream(String name) {
 		InputStream is = null;
 

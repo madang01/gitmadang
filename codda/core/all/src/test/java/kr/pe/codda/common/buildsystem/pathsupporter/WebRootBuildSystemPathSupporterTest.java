@@ -16,7 +16,7 @@ public class WebRootBuildSystemPathSupporterTest extends AbstractJunitTest {
 		String installedPathString = installedPath.getAbsolutePath();
 		String expectedValue = new StringBuilder(ProjectBuildSytemPathSupporter
 				.getProjectPathString(installedPathString, mainProjectName))
-				.append(File.separator).append("web_app_base").toString();
+				.append(File.separator).append("user_web_app_base").toString();
 		
 		log.info("expectedValue={}", expectedValue);
 		
@@ -25,7 +25,7 @@ public class WebRootBuildSystemPathSupporterTest extends AbstractJunitTest {
 		}	
 		
 		String returnedValue = WebRootBuildSystemPathSupporter
-				.getWebRootBasePathString(installedPathString, mainProjectName);
+				.getUserWebRootBasePathString(installedPathString, mainProjectName);
 		
 		assertEquals("the expected value comparison", expectedValue, returnedValue);
 	}
@@ -35,7 +35,7 @@ public class WebRootBuildSystemPathSupporterTest extends AbstractJunitTest {
 		String mainProjectName = "sample_base";
 		String installedPathString = installedPath.getAbsolutePath();
 		String expectedValue = new StringBuilder(WebRootBuildSystemPathSupporter
-				.getWebRootBasePathString(installedPathString, mainProjectName))
+				.getUserWebRootBasePathString(installedPathString, mainProjectName))
 				.append(File.separator).append("upload").toString();
 		
 		log.info("expectedValue={}", expectedValue);
@@ -45,7 +45,7 @@ public class WebRootBuildSystemPathSupporterTest extends AbstractJunitTest {
 		}	
 		
 		String returnedValue = WebRootBuildSystemPathSupporter
-				.getWebUploadPathString(installedPathString, mainProjectName);
+				.getUserWebUploadPathString(installedPathString, mainProjectName);
 		
 		assertEquals("the expected value comparison", expectedValue, returnedValue);
 	}
@@ -55,7 +55,7 @@ public class WebRootBuildSystemPathSupporterTest extends AbstractJunitTest {
 		String mainProjectName = "sample_base";
 		String installedPathString = installedPath.getAbsolutePath();
 		String expectedValue = new StringBuilder(WebRootBuildSystemPathSupporter
-				.getWebRootBasePathString(installedPathString, mainProjectName))
+				.getUserWebRootBasePathString(installedPathString, mainProjectName))
 				.append(File.separator).append("temp").toString();
 		
 		log.info("expectedValue={}", expectedValue);
@@ -65,7 +65,7 @@ public class WebRootBuildSystemPathSupporterTest extends AbstractJunitTest {
 		}	*/
 		
 		String returnedValue = WebRootBuildSystemPathSupporter
-				.getWebTempPathString(installedPathString, mainProjectName);
+				.getUserWebTempPathString(installedPathString, mainProjectName);
 		
 		assertEquals("the expected value comparison", expectedValue, returnedValue);
 	}

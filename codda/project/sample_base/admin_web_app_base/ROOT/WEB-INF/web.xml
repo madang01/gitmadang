@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0" metadata-complete="true">
+
+	<display-name>Welcome to Codda Admin</display-name>
+	<description>
+	Welcome to Codda Admin
+    </description>
+	
+	<servlet>
+		<servlet-name>Sample</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.SampleSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Sample</servlet-name>
+		<url-pattern>/servlet/Sample</url-pattern>
+	</servlet-mapping>
+	
+	
+	<servlet>
+		<servlet-name>MemberRegistration</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MemberRegistrationSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/</param-value>
+		</init-param>
+		<init-param>
+			<param-name>siteType</param-name>
+			<param-value>ADMIN</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberRegistration</servlet-name>
+		<url-pattern>/servlet/MemberRegistration</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>AdminLogin</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.AdminLoginSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AdminLogin</servlet-name>
+		<url-pattern>/servlet/AdminLogin</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuManagement</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuManagementSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuManagement</servlet-name>
+		<url-pattern>/servlet/MenuManagement</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuModification</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuModificationSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuModification</servlet-name>
+		<url-pattern>/servlet/MenuModification</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuDeletion</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuDeletionSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuDeletion</servlet-name>
+		<url-pattern>/servlet/MenuDeletion</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuMoveUp</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuMoveUpSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuMoveUp</servlet-name>
+		<url-pattern>/servlet/MenuMoveUp</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuMoveDown</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuMoveDownSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuMoveDown</servlet-name>
+		<url-pattern>/servlet/MenuMoveDown</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>ChildMenuAddition</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.ChildMenuAdditionSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ChildMenuAddition</servlet-name>
+		<url-pattern>/servlet/ChildMenuAddition</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>RootMenuAddition</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.RootMenuAdditionSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RootMenuAddition</servlet-name>
+		<url-pattern>/servlet/RootMenuAddition</url-pattern>
+	</servlet-mapping>
+	
+
+	<!-- Simple Captcha start -->
+	<servlet>
+        <servlet-name>StickyCaptcha</servlet-name>
+        <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
+        <!-- The width and height params are optional; 
+        if unspecified they default to 200 and 50 respectively. -->
+        <init-param>
+            <param-name>width</param-name>
+            <param-value>250</param-value>
+        </init-param>
+        <init-param>
+            <param-name>height</param-name>
+            <param-value>75</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>StickyCaptcha</servlet-name>
+        <url-pattern>/servlet/stickyImg</url-pattern>
+    </servlet-mapping>
+	<!-- Simple Captcha end -->
+</web-app>

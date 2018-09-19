@@ -14,6 +14,11 @@ import java.util.Random;
 
 import javax.sql.DataSource;
 
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
+import kr.pe.codda.server.dbcp.DBCPManager;
+
 import org.apache.commons.codec.binary.Base64;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -25,11 +30,6 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.ServerServiceException;
-import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
-import kr.pe.codda.server.dbcp.DBCPManager;
 
 public abstract class ServerDBUtil {
 	
@@ -55,8 +55,7 @@ public abstract class ServerDBUtil {
 	public static void initializeDBEnvoroment(String dbcpName) throws Exception {
 		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
 		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
+		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {

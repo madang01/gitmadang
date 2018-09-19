@@ -50,7 +50,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 				.getRunningProjectConfiguration();
 		String mainProjectName = runningProjectConfiguration.getMainProjectName();
 		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
-		String webTempPathString = WebRootBuildSystemPathSupporter.getWebTempPathString(sinnoriInstalledPathString,
+		String webTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(sinnoriInstalledPathString,
 				mainProjectName);
 
 		diskFileItemFactory.setRepository(new File(webTempPathString));

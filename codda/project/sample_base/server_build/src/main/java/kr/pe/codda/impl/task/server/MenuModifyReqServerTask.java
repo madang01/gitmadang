@@ -6,12 +6,6 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import org.jooq.DSLContext;
-import org.jooq.Record2;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UInteger;
-
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MenuModifyReq.MenuModifyReq;
@@ -22,6 +16,12 @@ import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
+
+import org.jooq.DSLContext;
+import org.jooq.Record2;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UInteger;
 
 public class MenuModifyReqServerTask extends AbstractServerTask {	
 	

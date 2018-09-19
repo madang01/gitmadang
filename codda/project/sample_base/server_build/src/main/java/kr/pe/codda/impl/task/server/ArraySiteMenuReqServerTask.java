@@ -7,15 +7,6 @@ import java.util.ArrayList;
 
 import javax.sql.DataSource;
 
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Record6;
-import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
@@ -26,6 +17,15 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
+
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Record6;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
 
 public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 	// final UInteger rootParnetNo = UInteger.valueOf(0);

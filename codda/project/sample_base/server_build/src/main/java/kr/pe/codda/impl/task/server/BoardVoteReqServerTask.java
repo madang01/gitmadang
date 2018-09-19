@@ -8,13 +8,6 @@ import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
-import org.jooq.DSLContext;
-import org.jooq.Record1;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
@@ -27,6 +20,13 @@ import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
+
+import org.jooq.DSLContext;
+import org.jooq.Record1;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
 
 public class BoardVoteReqServerTask extends AbstractServerTask {
 	private void sendErrorOutputMessage(String errorMessage, ToLetterCarrier toLetterCarrier,

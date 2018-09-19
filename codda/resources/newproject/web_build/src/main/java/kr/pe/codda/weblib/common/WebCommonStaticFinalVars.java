@@ -1,27 +1,27 @@
 package kr.pe.codda.weblib.common;
 
 public abstract class WebCommonStaticFinalVars {
-	/** 사이트 최상위 메뉴는 2가지 용도로 사용된다. 첫번째  REQUEST 속성 키 이름, 마지막 두번째  파라미터 키 이름 */
-	public static final String REQUEST_KEY_NAME_OF_SITE_TOPMENU = "topmenu";
-	/** request attribute key and parameter key name */
-	public static final String REQUEST_KEY_NAME_OF_SITE_LEFTMENU = "leftmenu";
-	
-	public static final String REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY = "webServerSymmetricKey";
-	public static final String REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING = "modulusHexString";
-	
+	public static final String USER_WEBSITE_TITLE = "Codda Home";
+	public static final String ADMIN_WEBSITE_TITLE = "Codda Admin Home";
 	
 	public static final String PARAMETER_KEY_NAME_OF_REQUEST_TYPE = "requestType";
-	public static final String PARAMETER_KEY_NAME_OF_BODYURL_FOR_PAGEWRAPPER = "bodyurl";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY = "sessionkeyBase64";
-	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY_IV = "ivBase64";
+	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY_IV = "ivBase64";	
 	
+	public static final String SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL = "menuGroupURL";
 	
-	public static final String WEBSITE_TITLE = "Sinnori Home";
+	public static final String REQUEST_KEY_NAME_OF_MENU_GROUP_URL = "menuGroupURL";
+	public static final String REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY = "webServerSymmetricKey";
+	public static final String REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING = "modulusHexString";
+		
 	
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID = "userID";
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_MEMBER_TYPE = "memberType";
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID = "adminID";
 	
-	public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_USERID = "userID";
-	public static final String SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY = "kr.pe.sinnori.sessionkey";
-	public static final String SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY = "kr.pe.sinnori.privatekey";
+	//public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION = "loginRequestPageInformation";
+	
+	public static final String SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY = "kr.pe.codda.privatekey";
 	
 	/**
 	 * <pre>
@@ -41,29 +41,35 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME = "AES";
 	public static final String WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME = "AES";
 	
-	/** 게시판 목록 갯수 */
-	public static final int WEBSITE_BOARD_PAGESIZE = 20;
+	/** 게시판 페이지당 목록 갯수, WARNING! unsigned short type 으로 최대값이 65535 이다 */
+	public static final int WEBSITE_BOARD_LIST_SIZE_PER_PAGE = 20;
+	
+	/** 게시판 쪽수 목록의 크기 */
+	public static final int WEBSITE_BOARD_PAGE_LIST_SIZE = 5;
+	
+	
+	
+	
 	
 	/** 아파치 파일 업로드에서 메모리에서 직접 처리할 수 있는 최대 파일 크기, 단위 byte */
 	public static int APACHE_FILEUPLOAD_MAX_MEMORY_SIZE = 1024*1024;
 	
 	/** 업로드 파일의 최대 크기 */
-	public static long WEBSITE_FILEUPLOAD_MAX_SIZE = 10*1024*1024;
+	public static long ATTACHED_FILE_MAX_SIZE = 10*1024*1024;
 	
 	
 	/** 업로드 되는 파일의 시스템 파일명의 접두어 */
-	public static String WEBSITE_FILEUPLOAD_PREFIX = "attach";
+	public static String WEBSITE_ATTACHED_FILE_PREFIX = "AttachedFile";
 	
 	/** 업로드 되는 파일의 시스템 파일명의 접미어 */
-	public static String WEBSITE_FILEUPLOAD_SUFFIX = ".dat";
+	public static String WEBSITE_ATTACHED_FILE_SUFFIX = ".dat";
 	
 	/** 업로드 되는 파일의 최대 갯수, unsinged byte 이내의 값이어야 한다. */
-	public static int WEBSITE_FILEUPLOAD_MAX_COUNT = 2;
+	public static int WEBSITE_ATTACHED_FILE_MAX_COUNT = 2;
 	
 	
-	public static final Long GENERAL_BOARD_TYPE_ID = 2L;
-	public static final Long NOTICE_BOARD_TYPE_ID = 1L;
 	public static final short UPLOAD_FILENAME_SEQ_TYPE_ID = 1;
 	
+	public static final char[] FILENAME_FORBIDDEN_CHARS = {'/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
 	
 }

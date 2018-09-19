@@ -1,22 +1,12 @@
 package kr.pe.codda.common.buildsystem;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
-
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecuteResultHandler;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.Executor;
-import org.apache.commons.exec.OS;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.buildsystem.pathsupporter.AppClientBuildSystemPathSupporter;
@@ -30,6 +20,17 @@ import kr.pe.codda.common.exception.BuildSystemException;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.util.SequencedProperties;
 import kr.pe.codda.common.util.SequencedPropertiesUtil;
+
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecuteResultHandler;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.OS;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ProjectBuilderTest extends AbstractJunitTest {
 	final int EXIT_SUCCESS = 0;
@@ -131,13 +132,13 @@ public class ProjectBuilderTest extends AbstractJunitTest {
 		
 		String installedPathStringForTest = new StringBuilder(installedPathString)
 				.append(File.separator)
-				.append("testking2").toString();
+				.append("testking3").toString();
 		
 		String mainProjectName = "sample_test";
 		
 		File installedPathForTest = new File(installedPathStringForTest);
 		boolean resultCreatingInstalledPathForTest = installedPathForTest.mkdir();
-		if (!resultCreatingInstalledPathForTest) {
+		if (! resultCreatingInstalledPathForTest) {
 			fail("fail to create installed path For Test");
 		}
 		installedPathForTest.deleteOnExit();
@@ -328,7 +329,7 @@ public class ProjectBuilderTest extends AbstractJunitTest {
 
 		Executor antExecutor = new DefaultExecutor();
 		DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-		ExecuteWatchdog watchdog = new ExecuteWatchdog(60 * 1000);
+		ExecuteWatchdog watchdog = new ExecuteWatchdog(2 * 60 * 1000);
 
 		antExecutor.setExitValue(EXIT_SUCCESS);
 		antExecutor.setWatchdog(watchdog);
@@ -357,9 +358,8 @@ public class ProjectBuilderTest extends AbstractJunitTest {
 
 		int exitCode = resultHandler.getExitValue();
 
-		if (EXIT_SUCCESS != exitCode) {
-			fail("ant exist code[" + exitCode + "] is not a expected exit code 1");
-		}
+		
+		assertEquals("ant 수행 결과 코드", EXIT_SUCCESS, exitCode);
 
 		log.info("success server ant build");
 	}
@@ -378,7 +378,7 @@ public class ProjectBuilderTest extends AbstractJunitTest {
 
 		Executor antExecutor = new DefaultExecutor();
 		DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-		ExecuteWatchdog watchdog = new ExecuteWatchdog(60 * 1000);
+		ExecuteWatchdog watchdog = new ExecuteWatchdog(2 * 60 * 1000);
 
 		antExecutor.setExitValue(EXIT_SUCCESS);
 		antExecutor.setWatchdog(watchdog);
@@ -407,9 +407,7 @@ public class ProjectBuilderTest extends AbstractJunitTest {
 
 		int exitCode = resultHandler.getExitValue();
 
-		if (EXIT_SUCCESS != exitCode) {
-			fail("ant exist code[" + exitCode + "] is not a expected exit code 1");
-		}
+		assertEquals("ant 수행 결과 코드", EXIT_SUCCESS, exitCode);
 
 		log.info("success app-client ant build");
 	}
@@ -428,7 +426,7 @@ public class ProjectBuilderTest extends AbstractJunitTest {
 
 		Executor antExecutor = new DefaultExecutor();
 		DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-		ExecuteWatchdog watchdog = new ExecuteWatchdog(60 * 1000);
+		ExecuteWatchdog watchdog = new ExecuteWatchdog(2 * 60 * 1000);
 
 		antExecutor.setExitValue(EXIT_SUCCESS);
 		antExecutor.setWatchdog(watchdog);
@@ -457,9 +455,7 @@ public class ProjectBuilderTest extends AbstractJunitTest {
 
 		int exitCode = resultHandler.getExitValue();
 
-		if (EXIT_SUCCESS != exitCode) {
-			fail("ant exist code[" + exitCode + "] is not a expected exit code 1");
-		}
+		assertEquals("ant 수행 결과 코드", EXIT_SUCCESS, exitCode);
 
 		log.info("success web-client ant build");
 	}

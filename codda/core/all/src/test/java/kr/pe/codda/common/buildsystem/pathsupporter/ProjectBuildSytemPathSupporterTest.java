@@ -133,12 +133,16 @@ public class ProjectBuildSytemPathSupporterTest extends AbstractJunitTest {
 	
 	@Test
 	public void testGetProjectDBCPConfigFilePathString() {
-		String mainProjectName = "sample_base";
-		String installedPathString = installedPath.getAbsolutePath();
+		final String mainProjectName = "sample_base";
+		final String installedPathString = installedPath.getAbsolutePath();
+		final String dbcpName = "SB_DB";
 		String expectedValue = new StringBuilder(ProjectBuildSytemPathSupporter
 				.getProjectResourcesDirectoryPathString(installedPathString, mainProjectName))
 				.append(File.separator).append("dbcp")
-				.append(File.separator).append("dbcp.sample_base_db.properties")
+				.append(File.separator)
+				.append("dbcp.")
+				.append(dbcpName)
+				.append(".properties")
 				.toString();
 		
 		log.info("expectedValue={}", expectedValue);
@@ -149,7 +153,7 @@ public class ProjectBuildSytemPathSupporterTest extends AbstractJunitTest {
 		
 		
 		String returnedValue = ProjectBuildSytemPathSupporter
-				.getProjectDBCPConfigFilePathString(installedPathString, mainProjectName, "sample_base_db");
+				.getProjectDBCPConfigFilePathString(installedPathString, mainProjectName, dbcpName);
 		
 		assertEquals("the expected value comparison", expectedValue, returnedValue);
 	}

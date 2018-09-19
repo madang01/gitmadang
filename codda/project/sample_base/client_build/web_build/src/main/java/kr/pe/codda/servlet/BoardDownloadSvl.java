@@ -184,7 +184,7 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		String mainProjectName = runningProjectConfiguration.getMainProjectName();
 		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
 		String attachedFileFullName = new StringBuilder(WebRootBuildSystemPathSupporter
-				.getWebUploadPathString(sinnoriInstalledPathString, mainProjectName)).append(File.separator)
+				.getUserWebUploadPathString(sinnoriInstalledPathString, mainProjectName)).append(File.separator)
 						.append(WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_PREFIX).append("_BoardID")
 						.append(boardID).append("_BoardNo")
 						.append(boardNo).append("Seq").append(attachedFileSeq)

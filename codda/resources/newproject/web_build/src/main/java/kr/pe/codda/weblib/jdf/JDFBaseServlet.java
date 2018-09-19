@@ -24,12 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.codda.common.config.CoddaConfigurationManager;
-import kr.pe.codda.common.config.itemvalue.CommonPartConfiguration;
+import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.codda.weblib.htmlstring.HtmlStringUtil;
-import kr.pe.codda.weblib.sitemenu.CommunityLeftMenuInfo;
+import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil;
+import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE;
 
 /**
  * <pre>
@@ -40,9 +40,24 @@ import kr.pe.codda.weblib.sitemenu.CommunityLeftMenuInfo;
  */
 @SuppressWarnings("serial")
 public abstract class JDFBaseServlet extends AbstractBaseServlet {
-	// protected String WEB_LAYOUT_CONTROL_PAGE = null;
-	protected String JDF_LOGIN_PAGE = null;
-	protected String JDF_ERROR_MESSAGE_PAGE = null;
+	/**
+	 * <pre>
+	 * WARNING! 설정파일에서 '어드민 사이트 로그인 입력 페이지'와 
+	 *	'유저 사이트 로그인 입력 페이지'를 
+	 *	로그인 입력 페이지 1개로 통합하지 말것.
+	 *	Tomcat 은 1개 JVM 에서  가상 호스트 서비스를 지원한다. 
+	 *	sample_base 프로젝트는 어드민 사이트와 유저 사이트를  
+	 *	Tomcat 가상 호스트로 운영한다.
+	 *	각 사이트는 코다 설정 파일에서 
+	 *	지정한 별도의 로그인 입력 페이지를 갖는다.
+	 *	하여 이를 통합하면 다른 한쪽은 사이트에 맞지 않는 
+	 *	로그인 입력 페이지가 보여지는 문제를 갖게된다.
+	 * </pre> 
+	 */
+	protected String JDF_USER_LOGIN_INPUT_PAGE = null;
+	protected String JDF_ADMIN_LOGIN_INPUT_PAGE = null;
+	protected String JDF_SESSION_KEY_REDIRECT_PAGE = null;
+	protected String JDF_ERROR_MESSAGE_PAGE = null;	
 	protected boolean JDF_SERVLET_TRACE = true;
 
 	/**
@@ -51,17 +66,18 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	public JDFBaseServlet() {
 		super();
 		
-		CoddaConfigurationManager sinnoriConfigurationManager = CoddaConfigurationManager.getInstance();
-		
+		CoddaConfigurationManager sinnoriConfigurationManager = CoddaConfigurationManager.getInstance();		
 		
 		CommonPartConfiguration commonPart = sinnoriConfigurationManager
 					.getRunningProjectConfiguration()
 					.getCommonPartConfiguration();
 		
-		// WEB_LAYOUT_CONTROL_PAGE = commonPart.getWebLayoutControlPage();
-		JDF_LOGIN_PAGE = commonPart.getJdfLoginPage();
-		JDF_ERROR_MESSAGE_PAGE = commonPart.getJdfErrorMessagePage();
-		JDF_SERVLET_TRACE = commonPart.getJdfServletTrace();
+		JDF_USER_LOGIN_INPUT_PAGE = commonPart.getJDFUserLoginPage();
+		JDF_ADMIN_LOGIN_INPUT_PAGE = commonPart.getJDFAdminLoginPage();				
+		JDF_SESSION_KEY_REDIRECT_PAGE = commonPart.getJDFSessionKeyRedirectPage();
+		JDF_ERROR_MESSAGE_PAGE = commonPart.getJDFErrorMessagePage();
+		JDF_SERVLET_TRACE = commonPart.getJDFServletTrace();
+		
 	}
 
 	/**
@@ -125,6 +141,15 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
+		
+		
+		/*Enumeration<String> keys = req.getParameterNames();
+		while (keys.hasMoreElements()) {
+			String paramKey = keys.nextElement();
+			
+			log.info("get::key:{},value={}", paramKey, req.getParameter(paramKey));
+		}*/
+		
 		performBasePreTask(req, res);
 	}
 
@@ -174,20 +199,71 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
+		/*Enumeration<String> keys = req.getParameterNames();
+		while (keys.hasMoreElements()) {
+			String paramKey = keys.nextElement();
+			
+			log.info("post::key:{},value={}", paramKey, req.getParameter(paramKey));
+		}*/
+		
 		performBasePreTask(req, res);
 	}
+	 
 
 	/**
+	 * <pre>
+	 * 아래와 같은 JDF 핵심 로직을 수행하는 메소드, WARNING! 선행 작업 재 정의는 이 메소드가 아닌 {@link #performPreTask} 를 이용할것.
+	 * 
+	 * (1) get, post 모드에 상관없이 하나로 처리 될 수 있도록 함 
+	 * (2) 로그 추적
+	 * (3) 에러 처리
+	 * (4) 사용자 정의용 선행 작업 호출
+	 * </pre>
 	 * 
 	 * @param req
-	 *            HttpServletRequest
 	 * @param res
-	 *            HttpServletResponse
+	 * @throws ServletException
+	 * @throws IOException
 	 */
 	protected void performBasePreTask(HttpServletRequest req,
 			HttpServletResponse res) throws ServletException, IOException {
-
-		req.setCharacterEncoding(CommonStaticFinalVars.SOURCE_FILE_CHARSET.name());
+		String menuGroupURL = this.getInitParameter(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL);
+		if (null == menuGroupURL) {
+			log.warn("the servlet init parameter '{}' is null in requestURI[{}]", 
+					WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL,
+					req.getRequestURI());
+			menuGroupURL = "/";
+		}
+		
+		if (menuGroupURL.equals("/servlet/BoardList")) {
+			String paramBoardID = req.getParameter("boardID");
+			short boardID = BoardType.FREE.getBoardID();
+			BoardType boardType = BoardType.FREE;
+			
+			if (null != paramBoardID) {
+				try {
+					boardID = Short.parseShort(paramBoardID);
+					
+					try {
+						boardType = BoardType.valueOf(boardID);
+					} catch(IllegalArgumentException e) {
+						log.warn("the parameter 'boardID'[{}] is not a BoardType in the request URI[{}]", paramBoardID, req.getRequestURI());
+						// System.exit(1);
+					}
+				} catch (NumberFormatException nfe) {
+					log.warn("the parameter 'boardID'[{}] is not a short type in the request URI[{}]", paramBoardID, req.getRequestURI());
+					// System.exit(1);
+				}
+			} else {
+				log.warn("the parameter 'boardID' doesn't exist in the request URI[{}]", req.getRequestURI());
+				//System.exit(1);
+			}		
+			
+			menuGroupURL = new StringBuilder(menuGroupURL).append("?boardID=")
+					.append(boardType.getBoardID()).toString();			
+		}
+		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL, menuGroupURL);
 		
 		String traceLogBaseMsg = null;
 		long start = 0, end = 0;
@@ -210,40 +286,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 			start = System.currentTimeMillis();
 			log.info("{}:calling", traceLogBaseMsg);
 		}
-		
-		
-		String siteLeftMenuURL = req.getRequestURI();
-		
-		for (String boardBaseURL : CommunityLeftMenuInfo.BOARD_LEFTMENU_BASE_URL_LIST) {
-			if (siteLeftMenuURL.equals(boardBaseURL)) {
-				short boardID;
-				String parmBoardId = req.getParameter("boardId");
-				if (null == parmBoardId) {
-					break;
-				}
-				try {
-					boardID = Short.parseShort(parmBoardId);
-				}catch (NumberFormatException nfe) {
-					break;
-				}
 				
-				try {
-					BoardType.valueOf(boardID);
-				} catch(IllegalArgumentException e) {
-					break;
-				}
-				siteLeftMenuURL = new StringBuilder(siteLeftMenuURL)
-						.append("?boardId=")
-						.append(parmBoardId).toString();
-			}
-		}
-			
-		setSiteLeftMenu(req, siteLeftMenuURL);
-			
-			
-		
-		
-		
 		try {
 			performPreTask(req, res);
 		} catch (Exception | java.lang.Error e) {
@@ -286,7 +329,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	}
 
 	/**
-	 * get, post 모드에 상관없이 하나로 보게 해주는 메소드.
+	 * 사용자 재 정의가 가능한 선행 작업 메소드
 	 * 
 	 * @param req
 	 *            HttpServletRequest
@@ -325,6 +368,64 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					debugMessageBuilder.toString());
 		}
 	}
+	
+	private String buildDebugMessage(HttpServletRequest req,
+			HttpServletResponse res, Throwable e) {
+		
+		StringBuilder debugMessageStringBuilder = new StringBuilder();
+		debugMessageStringBuilder.append("JSP Call Error: ");
+		debugMessageStringBuilder.append(this.getClass().getName());
+		debugMessageStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		debugMessageStringBuilder.append("Request URI: ");
+		debugMessageStringBuilder.append(req.getRequestURI());
+		debugMessageStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		String user = req.getRemoteUser();
+		if (user != null) {
+			debugMessageStringBuilder.append("User : ");
+			debugMessageStringBuilder.append(user);
+			debugMessageStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+
+		}
+		
+		debugMessageStringBuilder.append("User Location  : ");
+		debugMessageStringBuilder.append(req.getRemoteHost());
+		debugMessageStringBuilder.append("(");
+		debugMessageStringBuilder.append(req.getRemoteAddr());
+		debugMessageStringBuilder.append(")");
+		debugMessageStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		java.io.ByteArrayOutputStream bos = null;
+		java.io.PrintWriter writer = null;
+		
+		try {
+			bos = new java.io.ByteArrayOutputStream();
+			writer = new java.io.PrintWriter(bos);
+			
+			e.printStackTrace(writer);
+			writer.flush();
+			
+			debugMessageStringBuilder.append(bos.toString());
+		} catch(Exception e1) {
+			log.warn("error", e1);		
+		} finally {
+			if (null != writer) {
+				try {
+					writer.close();
+				} catch (Exception e1) {
+				}
+			}
+			if (null != bos) {
+				try {
+					bos.close();
+				} catch (Exception e1) {
+					
+				}
+			}
+		}
+		
+		return debugMessageStringBuilder.toString();
+	}
 
 	/**
 	 * Sends a temporary redirect response to the client using the specified
@@ -350,48 +451,21 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 			log.warn("fail to call method forward", e);
 
 			try {
-				java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-				java.io.PrintWriter writer = new java.io.PrintWriter(bos);
-				writer.print("JSP Call Error: ");
-				writer.println(this.getClass().getName());
-
-				writer.print("Request URI: ");
-				writer.println(req.getRequestURI());
-
-				String user = req.getRemoteUser();
-				if (user != null) {
-					writer.print("User : ");
-					writer.println(user);
-
-				}
-				writer.print("User Location  : ");
-				writer.print(req.getRemoteHost());
-				writer.print("(");
-				writer.print(req.getRemoteAddr());
-				writer.println(")");
-
-				e.printStackTrace(writer);
-				writer.flush();
-
-				String debugMessage = bos.toString();
 				
-				
-				try {
-					writer.close();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+				String debugMessage = buildDebugMessage(req, res, e);
 				
 				res.setContentType("text/html;charset=UTF-8");
 				java.io.PrintWriter out = null;
 				try {
 					out = res.getWriter();
-					out.print("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
+					out.print("<!DOCTYPE html><html lang=\"ko\"><head><meta charset=\"UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
 					out.print("<title>");
-					out.print(WebCommonStaticFinalVars.WEBSITE_TITLE);
+					out.print(WebCommonStaticFinalVars.USER_WEBSITE_TITLE);
 					out.print("</title>");
 					out.println("</head><body bgcolor=white>");
-					out.println(HtmlStringUtil.toHtml4BRString(debugMessage));
+					out.println(StringReplacementActorUtil.replace(debugMessage, 
+							STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+							STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR));
 					out.println("</body></html>");				
 				} finally {
 					try {
@@ -405,83 +479,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 			}
 		}
 	}
-	
-	/**
-	 * 웹사이트 레이아웃을 가지며 지정한 본문 jsp 파일을 출력한다.
-	 * 
-	 * @param req javax.servlet.http.HttpServletRequest
-	 * @param res javax.servlet.http.HttpServletResponse
-	 * @param bodyJspfile
-	 *//*
-	protected void printWebLayoutControlJspPage(HttpServletRequest req,
-			HttpServletResponse res, String bodyJspfile) {
-		try {
-
-			req.setAttribute("bodyurl", bodyJspfile);
-
-			RequestDispatcher dispatcher = getServletContext()
-					.getRequestDispatcher(WEB_LAYOUT_CONTROL_PAGE);
-
-			dispatcher.forward(req, res);
-		} catch (Exception |  Error e) {
-			log.warn("서블릿 동적 페이지 이동 에러", e);
-
-			try {
-				java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-				java.io.PrintWriter writer = new java.io.PrintWriter(bos);
-				writer.print("JSP Call Error: ");
-				writer.println(this.getClass().getName());
-
-				writer.print("Request URI: ");
-				writer.println(req.getRequestURI());
-
-				String user = req.getRemoteUser();
-				if (user != null) {
-					writer.print("User : ");
-					writer.println(user);
-
-				}
-				writer.print("User Location  : ");
-				writer.print(req.getRemoteHost());
-				writer.print("(");
-				writer.print(req.getRemoteAddr());
-				writer.println(")");
-
-				e.printStackTrace(writer);
-				writer.flush();
-
-				String debugMessage = bos.toString();
-				
-				
-				try {
-					writer.close();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-				
-				res.setContentType("text/html;charset=UTF-8");
-				java.io.PrintWriter out = null;
-				try {
-					out = res.getWriter();
-					out.print("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
-					out.print("<title>");
-					out.print(WebCommonStaticFinalVars.WEBSITE_TITLE);
-					out.print("</title>");
-					out.println("</head><body bgcolor=white>");
-					out.println(HtmlStringUtil.toHtml4BRString(debugMessage));
-					out.println("</body></html>");				
-				} finally {
-					try {
-						if (null != out) out.close();
-					} catch(Exception e1) {
-						log.warn("서블릿 동적 페이지 이동 PrintWriter 닫기 실패", e1);
-					}
-				}
-			} catch (Exception ex) {
-				log.warn("서블릿 동적 페이지 이동 에러 처리 실패", ex);
-			}
-		}
-	}*/
+		
 
 	/**
 	 * <pre>
@@ -499,6 +497,20 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	 * @param debugMessage
 	 *            개발시점에서 개발자가 Debugging을 위해 보는 메세지, 통상 운영시는 보이지 않도록 함.
 	 */
-	protected abstract void printErrorMessagePage(HttpServletRequest req,
-			HttpServletResponse res, String userMessage, String debugMessage);	
+	protected void printErrorMessagePage (HttpServletRequest req, HttpServletResponse res, String userMessage, String debugMessage) {		
+		
+		if (null == userMessage) {
+			userMessage = "user messsage is null";
+		}
+		
+		
+		if (null == debugMessage) {
+			debugMessage = "debug messsage is null";
+		}
+		
+		req.setAttribute("debugMessage", debugMessage);
+		req.setAttribute("userMessage", userMessage);
+		
+		printJspPage(req, res, JDF_ERROR_MESSAGE_PAGE);
+	}
 }

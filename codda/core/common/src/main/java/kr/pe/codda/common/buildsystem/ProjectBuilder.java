@@ -130,7 +130,7 @@ public class ProjectBuilder {
 	}
 	
 	public boolean whetherOnlyWebRootPathExists() {
-		String webRootPathString = WebRootBuildSystemPathSupporter.getWebRootPathString(installedPathString, mainProjectName);
+		String webRootPathString = WebRootBuildSystemPathSupporter.getUserWebRootPathString(installedPathString, mainProjectName);
 		File webRootPath = new File(webRootPathString);
 		return webRootPath.exists();
 	}
@@ -183,7 +183,7 @@ public class ProjectBuilder {
 	}
 
 	public boolean isValidWebRootXMLFile() {
-		String webRootXMLFilePathString = WebRootBuildSystemPathSupporter.getWebRootXMLFilePathString(installedPathString, mainProjectName);
+		String webRootXMLFilePathString = WebRootBuildSystemPathSupporter.getUserWebRootXMLFilePathString(installedPathString, mainProjectName);
 		File webRootXMLFile = new File(webRootXMLFilePathString);
 		
 		if (webRootXMLFile.exists() && webRootXMLFile.isFile()) {
@@ -229,7 +229,7 @@ public class ProjectBuilder {
 		
 		if (isWebClient) {
 			if (!isValidWebRootXMLFile()) {
-				String webXMLFilePathString = WebRootBuildSystemPathSupporter.getWebRootXMLFilePathString(installedPathString, mainProjectName);
+				String webXMLFilePathString = WebRootBuildSystemPathSupporter.getUserWebRootXMLFilePathString(installedPathString, mainProjectName);
 				
 				String errorMessage = String.format(
 						"the project's WEB-INF/web.xml[%s] file doesn't exist",
@@ -547,7 +547,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s web root path deletion task start", mainProjectName);
 		
 		String webRootPathString = WebRootBuildSystemPathSupporter
-				.getWebRootPathString(installedPathString, mainProjectName);
+				.getUserWebRootPathString(installedPathString, mainProjectName);
 		File webRootPath = new File(webRootPathString);
 		
 		try {
@@ -570,7 +570,7 @@ public class ProjectBuilder {
 
 		String commonResourcePathString = CommonBuildSytemPathSupporter
 				.getCommonResourcesPathString(installedPathString);
-		String targetWebRootPathString = WebRootBuildSystemPathSupporter.getWebRootPathString(installedPathString, mainProjectName);
+		String targetWebRootPathString = WebRootBuildSystemPathSupporter.getUserWebRootPathString(installedPathString, mainProjectName);
 
 		String sourceWebRootPathString = new StringBuilder(commonResourcePathString).append(File.separator)
 				.append("newproject").append(File.separator).append("web_root").toString();
@@ -1728,7 +1728,7 @@ public class ProjectBuilder {
 				}		
 			}
 			{
-				String webRootPathString = WebRootBuildSystemPathSupporter.getWebRootPathString(installedPathString, mainProjectName);
+				String webRootPathString = WebRootBuildSystemPathSupporter.getUserWebRootPathString(installedPathString, mainProjectName);
 				File webRootPath = new File(webRootPathString);
 				if (!webRootPath.exists()) {
 					createWebRootChildDirectories();
@@ -1750,7 +1750,7 @@ public class ProjectBuilder {
 			if (isValidWebRootXMLFile()) {
 				deleteWebRoot();
 			} else {
-				String webRootXMLFilePathString = WebRootBuildSystemPathSupporter.getWebRootXMLFilePathString(installedPathString, mainProjectName);
+				String webRootXMLFilePathString = WebRootBuildSystemPathSupporter.getUserWebRootXMLFilePathString(installedPathString, mainProjectName);
 				log.warn("the web.xml file[{}] located at web root direcotry is bad beacse it doesn't exist or is not a file, so skip deletion of web root system", 
 						webRootXMLFilePathString);
 			}

@@ -14,18 +14,18 @@ public class CommonBuildSytemPathSupporterTest extends AbstractJunitTest {
 	public void testGetCommonTempPathString() {
 		String installedPathString = installedPath.getAbsolutePath();
 		
-		String expectedValue = new StringBuilder(installedPathString)
+		String expectedCommonTempPathString = new StringBuilder(installedPathString)
 				.append(File.separator).append("temp").toString();
 		
-		log.info("expectedValue={}", expectedValue);
+		log.info("expectedCommonTempPathString={}", expectedCommonTempPathString);
 		
-		if (!(new File(expectedValue)).exists()) {
+		if (!(new File(expectedCommonTempPathString)).exists()) {
 			fail("the file(=the variable expectedValue) doesn't exist");
 		}
 		
-		String actualValue = CommonBuildSytemPathSupporter.getCommonTempPathString(installedPathString);
+		String actualCommonTempPathString = CommonBuildSytemPathSupporter.getCommonTempPathString(installedPathString);
 		
-		assertEquals("the expected value comparison", expectedValue, actualValue);
+		assertEquals("Codda temp directory path validation", expectedCommonTempPathString, actualCommonTempPathString);
 	}
 	
 	@Test

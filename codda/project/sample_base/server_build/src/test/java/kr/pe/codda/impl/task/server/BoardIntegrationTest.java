@@ -15,18 +15,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.jooq.DSLContext;
-import org.jooq.Record2;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-import org.jooq.types.UShort;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.ServerServiceException;
@@ -49,6 +37,18 @@ import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+
+import org.jooq.DSLContext;
+import org.jooq.Record2;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class BoardIntegrationTest extends AbstractJunitTest {
 	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
@@ -570,6 +570,245 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			if (acutalBoardListRes.getCnt() != 3) {
 				fail("DB 초기 상태에에서 총 갯수가 3이 아닙니다");
 			}
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	private void addRootMenuToList(List<BoardListRes.Board> sourceBoardList,
+			long boardNo, BoardStateType boardStateType, short groupSeq, String writerID) {
+		long groupNo = boardNo;
+		long parentNo = 0L;
+		short depth = 0;
+		String subject = new StringBuilder().append("제목::boardNo=")
+				.append(boardNo)
+				.append("parnetNo=")
+				.append(parentNo).toString();
+		
+		BoardListRes.Board board = new BoardListRes.Board();
+		board.setBoardNo(boardNo);
+		board.setBoardSate(boardStateType.getValue());
+		board.setGroupNo(groupNo);
+		board.setGroupSeq(groupSeq);
+		board.setParentNo(parentNo);
+		board.setDepth(depth);
+		board.setWriterID(writerID);
+		board.setSubject(subject);
+		
+		sourceBoardList.add(board);
+	}
+	
+	private void addChildMenuToList(List<BoardListRes.Board> sourceBoardList, 
+			long boardNo, BoardStateType boardStateType, long groupNo, short groupSeq, long parentNo, short depth, String writerID) {
+		
+		String subject = new StringBuilder().append("제목::boardNo=")
+				.append(boardNo)
+				.append("parnetNo=")
+				.append(parentNo).toString();
+		
+		BoardListRes.Board board = new BoardListRes.Board();
+		board.setBoardNo(boardNo);
+		board.setBoardSate(boardStateType.getValue());
+		board.setGroupNo(groupNo);
+		board.setGroupSeq(groupSeq);
+		board.setParentNo(parentNo);
+		board.setDepth(depth);
+		board.setWriterID(writerID);
+		board.setSubject(subject);
+		
+		
+		sourceBoardList.add(board);
+	}
+	
+	@Test
+	public void 게시판목록_트리관련항목유효성검사() {
+		String requestUserID = "guest";
+		//String writerID = "test01";
+		int pageNo = 1;
+		int pageSize = 20;
+		long total = 9;
+		short boardID = BoardType.FREE.getBoardID();		
+		
+		BoardListRes expectedBoardListRes = new BoardListRes();
+		expectedBoardListRes.setRequestUserID(requestUserID);
+		expectedBoardListRes.setBoardID(boardID);
+		expectedBoardListRes.setPageNo(pageNo);
+		expectedBoardListRes.setPageSize(pageSize);
+		expectedBoardListRes.setTotal(total);
+		
+		List<BoardListRes.Board> sourceBoardList = new ArrayList<BoardListRes.Board>();
+		
+		{
+			long boardNo = 1L;
+			short groupSeq = 3;
+			addRootMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupSeq, "test01");
+			
+			boardNo = 2;
+			long groupNo = 1;
+			groupSeq = 2;
+			long parentNo = 1;
+			short depth = 1;
+			
+			addChildMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupNo, groupSeq, parentNo, depth, "test02");
+			
+			
+			boardNo = 3;
+			groupNo = 1;
+			groupSeq = 1;
+			parentNo = 2;
+			depth = 2;
+			addChildMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupNo, groupSeq, parentNo, depth, "test01");
+			
+			
+			boardNo = 4;
+			groupNo = 1;
+			groupSeq = 0;
+			parentNo = 1;
+			depth = 1;
+			addChildMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupNo, groupSeq, parentNo, depth, "test02");
+			
+		}
+		
+		{
+			long boardNo = 5L;
+			short groupSeq = 4;
+			addRootMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupSeq, "test01");
+			
+			
+			boardNo = 6;
+			long groupNo = 5;
+			groupSeq = 3;
+			long parentNo = 5;
+			short depth = 1;
+			
+			addChildMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupNo, groupSeq, parentNo, depth, "test02");
+			
+			boardNo = 7;
+			groupNo = 2;
+			groupSeq = 1;
+			parentNo = 5;
+			depth = 1;
+			addChildMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupNo, groupSeq, parentNo, depth, "test02");
+			
+			boardNo = 8;
+			groupNo = 1;
+			groupSeq = 1;
+			parentNo = 7;
+			depth = 2;
+			addChildMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupNo, groupSeq, parentNo, depth, "test01");
+			
+			boardNo = 9;
+			groupNo = 0;
+			groupSeq = 1;
+			parentNo = 6;
+			depth = 2;
+			addChildMenuToList(sourceBoardList, boardNo, BoardStateType.OK, groupNo, groupSeq, parentNo, depth, "test01");
+		}
+		expectedBoardListRes.setCnt(sourceBoardList.size());
+		expectedBoardListRes.setBoardList(sourceBoardList);
+		
+		BoardListRes.Board[] sortedBoardList = new BoardListRes.Board[sourceBoardList.size()];
+		
+		for (BoardListRes.Board board : sourceBoardList) {
+			sortedBoardList[(int)board.getBoardNo()- 1] = board;
+		}
+		
+		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		BoardReplyReqServerTask boardReplyReqServerTask= new BoardReplyReqServerTask();
+		
+		for (BoardListRes.Board board : sortedBoardList) {
+			if (0L == board.getParentNo()) {
+				
+				{
+					BoardWriteReq boardWriteReq = new BoardWriteReq();
+					boardWriteReq.setRequestUserID(board.getWriterID());
+					boardWriteReq.setBoardID(boardID);
+					boardWriteReq.setSubject(board.getSubject());
+					boardWriteReq.setContent(board.getSubject());
+					boardWriteReq.setIp("172.16.0.1");
+					
+					List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();					
+					
+					boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
+					boardWriteReq.setNewAttachedFileList(attachedFileList);
+					
+					
+					try {
+						boardWriteReqServerTask.doWork(TEST_DBCP_NAME, boardWriteReq);
+					} catch(ServerServiceException e) {
+						log.warn(e.getMessage(), e);
+						fail("fail to execuate doTask");
+					} catch (Exception e) {
+						log.warn("unknown error", e);
+						fail("fail to execuate doTask");
+					}
+				}
+			} else {				
+				BoardReplyReq boardReplyReq = new BoardReplyReq();
+				boardReplyReq.setRequestUserID(board.getWriterID());
+				boardReplyReq.setBoardID(boardID);
+				boardReplyReq.setParentBoardNo(board.getParentNo());
+				boardReplyReq.setSubject(board.getSubject());
+				boardReplyReq.setContent(board.getSubject());		
+				
+				boardReplyReq.setIp("127.0.0.1");		
+				
+				{			
+					List<BoardReplyReq.AttachedFile> attachedFileList = new ArrayList<BoardReplyReq.AttachedFile>();					
+					boardReplyReq.setAttachedFileCnt((short)attachedFileList.size());
+					boardReplyReq.setAttachedFileList(attachedFileList);
+				}
+
+				try {
+					boardReplyReqServerTask.doWork(TEST_DBCP_NAME, boardReplyReq);
+				} catch(ServerServiceException e) {
+					log.warn(e.getMessage(), e);
+					fail("fail to execuate doTask");
+				} catch (Exception e) {
+					log.warn("unknown error", e);
+					fail("fail to execuate doTask");
+				}
+			}
+		}
+		
+		// FIXME!
+		
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setRequestUserID(requestUserID);
+		boardListReq.setBoardID(boardID);
+		boardListReq.setPageNo(pageNo);
+		boardListReq.setPageSize(pageSize);
+		
+		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
+		
+		try {
+			BoardListRes acutalBoardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME, boardListReq);
+			log.info(acutalBoardListRes.toString());
+			
+			assertEquals("전체 갯수 비교",  expectedBoardListRes.getTotal(), acutalBoardListRes.getTotal());
+			assertEquals("목록 갯수 비교",  expectedBoardListRes.getCnt(), acutalBoardListRes.getCnt());
+			
+			
+			int expectedBoardListSize = expectedBoardListRes.getCnt();
+			List<BoardListRes.Board> expectedBoardList = expectedBoardListRes.getBoardList();
+			List<BoardListRes.Board> acutalBoardList = acutalBoardListRes.getBoardList();
+			
+			for (int i=0; i < expectedBoardListSize; i++) {
+				 BoardListRes.Board expectedBoard = expectedBoardList.get(i);
+				 BoardListRes.Board actualBoard = acutalBoardList.get(i);
+				 
+				 assertEquals("그룹번호 비교",  expectedBoard.getGroupNo(), actualBoard.getGroupNo());
+				 assertEquals("그룹 순서 비교",  expectedBoard.getGroupSeq(), actualBoard.getGroupSeq());
+				 assertEquals("부모 번호 비교",  expectedBoard.getParentNo(), actualBoard.getParentNo());
+				 assertEquals("깊이 비교",  expectedBoard.getDepth(), actualBoard.getDepth());
+				 assertEquals("제목 비교",  expectedBoard.getSubject(), actualBoard.getSubject());
+				 assertEquals("작성자 아이디 비교",  expectedBoard.getWriterID(), actualBoard.getWriterID());
+			}
+			
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);
 			fail("fail to execuate doTask");
