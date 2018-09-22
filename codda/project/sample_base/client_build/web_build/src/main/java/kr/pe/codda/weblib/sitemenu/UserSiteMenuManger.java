@@ -85,6 +85,10 @@ public class UserSiteMenuManger {
 				siteNavbarStringBuilder.append(getTabStrings(tapStep+1));
 				siteNavbarStringBuilder.append("</ul>");
 				siteNavbarStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				
+				siteNavbarStringBuilder.append(getTabStrings(tapStep));
+				siteNavbarStringBuilder.append("</li>");
+				siteNavbarStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			}
 		}
 		return siteNavbarStringBuilder.toString();
@@ -111,17 +115,209 @@ public class UserSiteMenuManger {
 		
 		if (null == treeSiteMenuRes) {
 			/** 1차원 배열 구조를 갖는 사이트 메뉴 응답얻는데 실패하여 디폴트 값으로 설정 */
-			treeSiteMenuRes = new TreeSiteMenuRes();			
-			
-			java.util.List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
-			
-			treeSiteMenuRes.setRootMenuListSize(rootMenuList.size());
-			
-			treeSiteMenuRes.setRootMenuList(rootMenuList);
-			
+			treeSiteMenuRes = getTreeSiteMenuResForTestScenarioNo1();			
 		}
 		
 		return treeSiteMenuRes;
+	}
+	
+	/**
+	 * @return  2018년 8월 21일 기준 sample_base 프로젝트의 일반 유저 사이트 메뉴 구성과 같은 {@link TreeSiteMenuRes} 를 반환한다. 메뉴 깊이는 0부터 시작되는데 sample_base 프로젝트의 일반 유저 사이트 메뉴 최대 깊이는 1이다.
+	 */
+	private TreeSiteMenuRes getTreeSiteMenuResForTestScenarioNo1() {
+		TreeSiteMenuRes treeSiteMenuResForTestScenarioNo1 = new TreeSiteMenuRes();
+		
+		List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
+
+		{
+			TreeSiteMenuRes.Menu rootMenu = new TreeSiteMenuRes.Menu();
+
+			rootMenu.setParentNo(0L);
+			rootMenu.setMenuName("사랑방");
+			rootMenu.setLinkURL("/jsp/community/body.jsp");
+
+			List<TreeSiteMenuRes.Menu> childMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
+			{
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("공지");
+					childMenu.setLinkURL("/servlet/BoardList?boardID=0");
+					childMenuList.add(childMenu);
+				}
+
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("자유게시판");
+					childMenu.setLinkURL("/servlet/BoardList?boardID=1");
+					childMenuList.add(childMenu);
+				}
+
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("FAQ");
+					childMenu.setLinkURL("/servlet/BoardList?boardID=2");
+					childMenuList.add(childMenu);
+				}
+			}
+
+			rootMenu.setChildMenuListSize(childMenuList.size());
+			rootMenu.setChildMenuList(childMenuList);
+
+			rootMenuList.add(rootMenu);
+		}
+
+		
+		{
+			TreeSiteMenuRes.Menu rootMenu = new TreeSiteMenuRes.Menu();
+
+			rootMenu.setParentNo(0L);
+			rootMenu.setMenuName("문서");
+			rootMenu.setLinkURL("/jsp/doc/body.jsp");
+
+			List<TreeSiteMenuRes.Menu> childMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
+			{
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("코다 활용 howto");
+					childMenu.setLinkURL("/jsp/doc/CoddaHowTo.jsp");
+					childMenuList.add(childMenu);
+				}				
+			}
+
+			rootMenu.setChildMenuListSize(childMenuList.size());
+			rootMenu.setChildMenuList(childMenuList);
+
+			rootMenuList.add(rootMenu);
+		}
+		
+		{
+			TreeSiteMenuRes.Menu rootMenu = new TreeSiteMenuRes.Menu();
+
+			rootMenu.setParentNo(0L);
+			rootMenu.setMenuName("도구");
+			rootMenu.setLinkURL("/jsp/doc/body.jsp");
+
+			List<TreeSiteMenuRes.Menu> childMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
+			{
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("JDF-비 로그인 테스트");
+					childMenu.setLinkURL("/servlet/JDFNotLoginTest");
+					childMenuList.add(childMenu);
+				}
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("JDF-로그인 테스트");
+					childMenu.setLinkURL("/servlet/JDFLoginTest");
+					childMenuList.add(childMenu);
+				}
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("세션키 테스트");
+					childMenu.setLinkURL("/servlet/JDFSessionKeyTest");
+					childMenuList.add(childMenu);
+				}
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("RSA 테스트");
+					childMenu.setLinkURL("/servlet/JSRSATest");
+					childMenuList.add(childMenu);
+				}
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("메세지 다이제스트(MD) 테스트");
+					childMenu.setLinkURL("/servlet/JSMessageDigestTest");
+					childMenuList.add(childMenu);
+				}
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("대칭키 테스트");
+					childMenu.setLinkURL("/servlet/JSSymmetricKeyTest");
+					childMenuList.add(childMenu);
+				}
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("에코 테스트");
+					childMenu.setLinkURL("/servlet/EchoTest");
+					childMenuList.add(childMenu);
+				}
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("모든 데이터 타입 검증");
+					childMenu.setLinkURL("/servlet/AllItemTypeTest");
+					childMenuList.add(childMenu);
+				}
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("자바 문자열 변환 도구");
+					childMenu.setLinkURL("/servlet/JavaStringConverter");
+					childMenuList.add(childMenu);
+				}
+			}
+
+			rootMenu.setChildMenuListSize(childMenuList.size());
+			rootMenu.setChildMenuList(childMenuList);
+
+			rootMenuList.add(rootMenu);
+		}
+		
+		{
+			TreeSiteMenuRes.Menu rootMenu = new TreeSiteMenuRes.Menu();
+
+			rootMenu.setParentNo(0L);
+			rootMenu.setMenuName("회원");
+			rootMenu.setLinkURL("/jsp/member/body.jsp");
+
+			List<TreeSiteMenuRes.Menu> childMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
+			{
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("로그인");
+					childMenu.setLinkURL("/servlet/UserLogin");
+					childMenuList.add(childMenu);
+				}	
+				
+				{
+					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
+
+					childMenu.setMenuName("회원 가입");
+					childMenu.setLinkURL("/servlet/MemberRegistration");
+					childMenuList.add(childMenu);
+				}
+			}
+
+			rootMenu.setChildMenuListSize(childMenuList.size());
+			rootMenu.setChildMenuList(childMenuList);
+
+			rootMenuList.add(rootMenu);
+		}
+		
+		treeSiteMenuResForTestScenarioNo1.setRootMenuListSize(rootMenuList.size());
+		treeSiteMenuResForTestScenarioNo1.setRootMenuList(rootMenuList);
+		
+		return treeSiteMenuResForTestScenarioNo1;
 	}
 	
 	
