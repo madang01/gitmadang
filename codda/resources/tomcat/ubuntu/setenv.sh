@@ -20,6 +20,6 @@ echo $CLASSPATH
 export JAVA_OPTS="$JAVA_OPTS \
 -Dfile.encoding=UTF-8 \
 -Dlogback.configurationFile=$CODDA_HOME/project/$PROJECT_NAME/config/logback.xml \
--Dcodda.logPath=$CODDA_HOME/project/$PROJECT_NAME/log/servlet \
+-Dcodda.logPath=$CODDA_HOME/project/$PROJECT_NAME/log/tomcat \
 -Dcodda.installedPath=$CODDA_HOME \
 -Dcodda.projectName=$PROJECT_NAME"

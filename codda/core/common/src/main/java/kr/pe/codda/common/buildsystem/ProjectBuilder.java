@@ -306,11 +306,11 @@ public class ProjectBuilder {
 		childRelativeDirectoryList.add("resources/dbcp");
 		childRelativeDirectoryList.add("resources/message_info");
 		childRelativeDirectoryList.add("resources/rsa_keypair");
-		childRelativeDirectoryList.add("log/apache");
-		childRelativeDirectoryList.add("log/client");
-		childRelativeDirectoryList.add("log/server");
-		childRelativeDirectoryList.add("log/servlet");
 		
+		for (LogType logType : LogType.values()) {
+			childRelativeDirectoryList.add(new StringBuilder("log/").append(logType.toString().toLowerCase()).toString());
+		}
+				
 		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
 
 		log.info("main project[{}]'s common child direcotry creation task end", mainProjectName);

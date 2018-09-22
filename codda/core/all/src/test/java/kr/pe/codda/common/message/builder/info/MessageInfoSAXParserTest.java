@@ -40,7 +40,9 @@ public class MessageInfoSAXParserTest extends AbstractJunitTest {
 	private String getFilePathStringForJunitTestFile(String shortFileName) {
 		String testDataXmlFilePathString = new StringBuilder(installedPath.getAbsolutePath())
 				.append(File.separator)
-				.append("core_build")
+				.append("core")
+				.append(File.separator)
+				.append("all")
 				.append(File.separator)
 				.append("src")
 				.append(File.separator)

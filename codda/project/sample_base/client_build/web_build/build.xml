@@ -14,10 +14,10 @@
 	<property name="dir.core.server.build" location="../../../../core/server" />
 	<property name="core.all.jar.name" value="codda-core-all.jar" />
 	<property name="weblib.jar.name" value="CoddaWebLib.jar" />
-	<property name="dir.user.webinf.class" location="../../web_app_base/ROOT/WEB-INF/classes" />
-	<property name="dir.user.webinf.lib" location="../../web_app_base/ROOT/WEB-INF/lib" />
-	<property name="dir.admin.webinf.class" location="../../../sample_base_admin/web_app_base/ROOT/WEB-INF/classes" />
-	<property name="dir.admin.webinf.lib" location="../../../sample_base_admin/web_app_base/ROOT/WEB-INF/lib" />
+	<property name="dir.user.webinf.class" location="../../user_web_app_base/ROOT/WEB-INF/classes" />
+	<property name="dir.user.webinf.lib" location="../../user_web_app_base/ROOT/WEB-INF/lib" />
+	<property name="dir.admin.webinf.class" location="../../admin_web_app_base/ROOT/WEB-INF/classes" />
+	<property name="dir.admin.webinf.lib" location="../../admin_web_app_base/ROOT/WEB-INF/lib" />
 	<property file="webAnt.properties" />
 	<property name="java.complile.option.debug" value="on" />
 
