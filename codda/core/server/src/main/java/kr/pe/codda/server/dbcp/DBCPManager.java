@@ -1,9 +1,11 @@
 package kr.pe.codda.server.dbcp;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -11,16 +13,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.dbcp2.BasicDataSourceFactory;
-
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.AllDBCPPartConfiguration;
 import kr.pe.codda.common.config.subset.DBCPParConfiguration;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
+
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSourceFactory;
 
 /**
  * <pre>
@@ -36,6 +36,7 @@ public final class DBCPManager {
 	private ConcurrentHashMap<String, BasicDataSource> dbcpName2BasicDataSourceHash = new ConcurrentHashMap<String, BasicDataSource>();
 	private ConcurrentHashMap<BasicDataSource, String> basicDataSource2dbcpConnectionPoolNameHash = new ConcurrentHashMap<BasicDataSource, String>();
 
+	private List<String> dbcpNameList = null;
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
@@ -61,7 +62,7 @@ public final class DBCPManager {
 
 		AllDBCPPartConfiguration allDBCPPart = runningProjectConfiguration.getAllDBCPPartConfiguration();
 
-		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();
+		dbcpNameList = allDBCPPart.getDBCPNameList();
 
 		for (String dbcpName : dbcpNameList) {
 			DBCPParConfiguration dbcpPart = allDBCPPart.getDBCPPartConfiguration(dbcpName);
@@ -104,6 +105,8 @@ public final class DBCPManager {
 
 			String driverClassName = dbcpConnectionPoolConfig.getProperty("driver");
 			if (null == driverClassName) {
+				dbcpConnectionPoolConfig.setProperty("password", "");
+				
 				log.warn("dbcp connection pool[{}]'s JDBC Driver name is null, dbcpConnectionPoolConfig={}", dbcpName,
 						dbcpConnectionPoolConfig.toString());
 				continue;
@@ -112,6 +115,8 @@ public final class DBCPManager {
 			try {
 				Class.forName(driverClassName);
 			} catch (ClassNotFoundException e) {
+				dbcpConnectionPoolConfig.setProperty("password", "");
+				
 				log.warn("dbcp connection pool[{}]'s JDBC Driver[{}] not exist, dbcpConnectionPoolConfig={}", dbcpName,
 						driverClassName, dbcpConnectionPoolConfig.toString());
 				continue;
@@ -121,6 +126,8 @@ public final class DBCPManager {
 			try {
 				basicDataSource = BasicDataSourceFactory.createDataSource(dbcpConnectionPoolConfig);
 			} catch (Exception e) {
+				dbcpConnectionPoolConfig.setProperty("password", "");
+				
 				log.warn("dbcp connection pool[{}] fail to create data source, dbcpConnectionPoolConfig={}", dbcpName,
 						dbcpConnectionPoolConfig.toString());
 				continue;
@@ -146,19 +153,35 @@ public final class DBCPManager {
 		return basicDataSource2dbcpConnectionPoolNameHash.get(dataSource);
 	}
 
+	
 	/**
-	 * JDBC 연결 자원 반환한다.
-	 * 
-	 * @return JDBC 연결 자원
-	 * @throws SQLException
-	 * @throws DBCPDataSourceNotFoundException
-	 *             DB 사용 준비가 안되었을 경우 던지는 예외
+	 * 파라미터 dbcpName 로 지정한 이름을 갖는 dbcp 를 반환한다.
+	 * @param dbcpName dbcp 이름
+	 * @return dbcp(=data base connection pool)
+	 * @throws IllegalArgumentException the parameter dbcpName is null or the parameter dbcpName is not a element of the dbcp name list of config file
+	 * @throws DBCPDataSourceNotFoundException the dbcp name list of config file is empty or it failed to create a dbcp connection pool having the dbcp name that is the parameter dbcpName
 	 */
-	public BasicDataSource getBasicDataSource(String dbcpName) throws DBCPDataSourceNotFoundException {
+	public BasicDataSource getBasicDataSource(String dbcpName) throws IllegalArgumentException, DBCPDataSourceNotFoundException {
+		if (null == dbcpName) {
+			throw new IllegalArgumentException("the parameter dbcpName is null");
+		}
+		
+		if (dbcpNameList.isEmpty()) {
+			throw new DBCPDataSourceNotFoundException("the dbcp name list of config file is empty");
+		}
+		
+		if (! dbcpNameList.contains(dbcpName)) {
+			throw new IllegalArgumentException(new StringBuilder("the parameter dbcpName[")
+			.append(dbcpName)
+			.append("] is bad, it is a element of the dbcp name list of config file").toString());
+		}		
+				
 		BasicDataSource basicDataSource = dbcpName2BasicDataSourceHash.get(dbcpName);
+		
 		if (null == basicDataSource) {
 			throw new DBCPDataSourceNotFoundException(
-					new StringBuilder("dbcp connection pool[").append(dbcpName).append("] not ready").toString());
+					new StringBuilder("it failed to create a dbcp connection pool having dbcp name[")
+					.append(dbcpName).append("]").toString());
 		}
 
 		return basicDataSource;

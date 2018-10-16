@@ -1,8 +1,10 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%>
 <%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%>
 <%@ page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+	
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
+	
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -32,9 +34,9 @@
 	<body>
 	<div class="container-fluid">
 		<h1>어드민 로그인 실패 콜백</h1>
-		<div id="errorMsssage"><%= StringReplacementActorUtil.replace(errorMessage, 
+		<div id="errorMsssage"><%=StringEscapeActorUtil.replace(errorMessage, 
 					STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-					STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+					STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 	</div>
 	<body>
 </html>

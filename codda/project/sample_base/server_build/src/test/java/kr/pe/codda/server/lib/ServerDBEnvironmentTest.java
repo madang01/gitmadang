@@ -1,4 +1,4 @@
-package kr.pe.codda.common.serverlib;
+package kr.pe.codda.server.lib;
 
 import java.sql.Connection;
 

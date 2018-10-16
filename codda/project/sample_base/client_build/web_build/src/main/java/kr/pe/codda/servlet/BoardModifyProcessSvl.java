@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
 
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
@@ -22,9 +23,11 @@ import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
+import kr.pe.codda.impl.message.BoardModifyRes.BoardModifyRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.codda.weblib.common.WebCommonStaticUtil;
 import kr.pe.codda.weblib.jdf.AbstractMultipartServlet;
 
 public class BoardModifyProcessSvl extends AbstractMultipartServlet {
@@ -49,8 +52,8 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
 		String mainProjectName = runningProjectConfiguration.getMainProjectName();
-		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
-		String webTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(sinnoriInstalledPathString,
+		String installedPathString = runningProjectConfiguration.getInstalledPathString();
+		String webTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(installedPathString,
 				mainProjectName);
 
 		diskFileItemFactory.setRepository(new File(webTempPathString));
@@ -270,7 +273,6 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 						} catch(IOException e) {
 						}
 					}
-					
 
 					BoardModifyReq.NewAttachedFile newAttachedFile = new BoardModifyReq.NewAttachedFile();
 					newAttachedFile.setAttachedFileName(newAttachedFileName);
@@ -375,32 +377,40 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance()
 					.getMainProjectConnectionPool();
 			AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardModifyReq);
-			if (! (outputMessage instanceof MessageResultRes)) {				
-				String errorMessage = "게시판 수정이 실패했습니다";
-				String debugMessage = new StringBuilder("입력 메시지[").append(boardModifyReq.getMessageID())
-						.append("]에 대한 비 정상 출력 메시지[").append(outputMessage.toString()).append("] 도착").toString();
+			if (! (outputMessage instanceof BoardModifyRes)) {
+				if (! (outputMessage instanceof MessageResultRes)) {
+					String errorMessage = "게시판 수정이 실패했습니다";
+					String debugMessage = new StringBuilder("입력 메시지[").append(boardModifyReq.getMessageID())
+							.append("]에 대한 비 정상 출력 메시지[").append(outputMessage.toString()).append("] 도착").toString();
 
-				log.error(debugMessage);
+					log.error(debugMessage);
 
+					printBoardProcessFailureCallBackPage(req, res, errorMessage);
+					return;
+				}
+				
+				MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
+				String errorMessage = messageResultRes.getResultMessage();
 				printBoardProcessFailureCallBackPage(req, res, errorMessage);
 				return;
 			}
 			
-			MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
-
-			if (messageResultRes.getIsSuccess()) {
-				final String goPage = "/jsp/community/ BoardModifyOKCallBack.jsp";				
-				printJspPage(req, res, goPage);
-				return;
-			} else {
-				String errorMessage = messageResultRes.getResultMessage();
-				printBoardProcessFailureCallBackPage(req, res, errorMessage);
-				return;				
-			}
+			BoardModifyRes boardModifyRes = (BoardModifyRes) outputMessage;
+			
+			// FIXME! 게시글 수정 처리 성공시 기존 첨부 파일들과 신규 첨부 파일 조정 필요
+			saveNewAttachedFiles(installedPathString, mainProjectName,
+					boardID, boardNo, boardModifyRes.getFirstNewAttachedFileSeq(),
+					fileItemList);
+			
+			// fileItem.write(arg0);
+			
+			final String goPage = "/jsp/community/ BoardModifyOKCallBack.jsp";				
+			printJspPage(req, res, goPage);
+			return;			
 			
 		} finally {
 			for (FileItem fileItem : fileItemList) {
-				if (!fileItem.isFormField()) {
+				if (! fileItem.isFormField()) {
 					// FIXME!
 					log.info("게시판 개별 첨부 파일[{}] 삭제", fileItem.toString());
 					try {
@@ -413,4 +423,45 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		}
 	}
 
+	private void saveNewAttachedFiles(String installedPathString, String mainProjectName,
+			short boardID, long boardNo, 
+			short firstNewAttachedFileSeq,
+			List<FileItem> fileItemList) {
+		short indexOfNewAttachedFileList = 0;
+		
+		for (FileItem fileItem : fileItemList) {
+			if (! fileItem.isFormField()) {
+				String newAttachedFileFullPathName = WebCommonStaticUtil.getUserAttachedFilePathString(installedPathString, mainProjectName, boardID, 
+						boardNo, (short)(firstNewAttachedFileSeq+indexOfNewAttachedFileList));
+				
+				File newAttachedFile = new File(newAttachedFileFullPathName);
+
+				if (newAttachedFile.exists()) {
+					/** 만약 첨부 파일 정식 이름을 갖는 파일이 존재하면 삭제 */
+					try {
+						FileUtils.forceDelete(newAttachedFile);
+
+						log.info(
+								"the attached file[index={}, fileName={}, size={}]'s target file[{}] exists and it was deleted",
+								indexOfNewAttachedFileList, fileItem.getName(), fileItem.getSize(), newAttachedFileFullPathName);
+					} catch (IOException e) {
+						log.warn("fail to delete the file[{}] with the same path as the new attached file[index={}, fileName={}, size={}]",
+								newAttachedFileFullPathName, indexOfNewAttachedFileList, fileItem.getName(), fileItem.getSize());
+						return;
+					}
+				}
+
+				try {
+					fileItem.write(newAttachedFile);
+				} catch (Exception e) {
+					log.warn("fail to copy the new attached file[index={}, fileName={}, size={}] to the target file[{}]",
+							indexOfNewAttachedFileList, fileItem.getName(), fileItem.getSize(), newAttachedFileFullPathName);
+					
+					return;
+				}
+
+				indexOfNewAttachedFileList++;
+			}			
+		}
+	}
 }

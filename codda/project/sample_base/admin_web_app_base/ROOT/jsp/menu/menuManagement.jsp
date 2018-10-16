@@ -619,15 +619,15 @@
 						<form name="addChildMenuFrm" method="post" class="form-inline" onSubmit="$('#childMenuModal').modal('toggle'); return true;" action="/servlet/ChildMenuAddition" target="hiddenFrame">
 							<div class="form-group">
 							    <label class="sr-only" for="parentNoForChildMenu">부모 메뉴번호</label>
-							    <input type="hidden" id="parentNoForChildMenu" name="parentNo">
+							    <input type="hidden" id="parentNoForChildMenu" name="parentNo" />
 							 </div>
 							 <div class="form-group">
 							    <label for="menuNameForChildMenu">자식 메뉴명</label>
-							    <input type="text" id="menuNameForChildMenu" name="menuName">
+							    <input type="text" id="menuNameForChildMenu" name="menuName" />
 							 </div>
 							 <div class="form-group">
 							    <label for="linkURLForChildMenu">URL</label>
-							    <input type="text" id="linkURLForChildMenu" name="linkURL">
+							    <input type="text" id="linkURLForChildMenu" name="linkURL" />
 							 </div>
 							<button type="submit" class="btn btn-default">추가</button>
 						</form>
@@ -652,11 +652,11 @@
 						<form name="addRootMenuFrm" method="post" class="form-inline" onSubmit="$('#rootMenuModal').modal('toggle'); return true;" action="/servlet/RootMenuAddition" target="hiddenFrame">							
 							 <div class="form-group">
 							    <label for="menuNameForRootMenu">메뉴명</label>
-							    <input type="text" id="menuNameForRootMenu" name="menuName">
+							    <input type="text" id="menuNameForRootMenu" name="menuName" />
 							 </div>
 							 <div class="form-group">
 							    <label for="linkURLForRootMenu">URL</label>
-							    <input type="text" id="linkURLForRootMenu" name="linkURL">
+							    <input type="text" id="linkURLForRootMenu" name="linkURL" />
 							 </div>
 							<button type="submit" class="btn btn-default">추가</button>
 						</form>

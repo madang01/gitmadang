@@ -1,11 +1,4 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%><%
-%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><jsp:useBean id="orignalPlainText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="decryptedText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
-%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%%><jsp:useBean id="orignalPlainText" class="java.lang.String" scope="request" /><%%><jsp:useBean id="decryptedText" class="java.lang.String" scope="request" /><%%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -39,7 +32,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getSiteNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h3>RSA 암/복호화 테스트 - 결과</h3>
@@ -59,15 +52,15 @@
 
 <div class="row">
 	<div class="col-sm-6" style="background-color:lavender;">원문</div>
-	<div class="col-sm-6" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(orignalPlainText, 
+	<div class="col-sm-6" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(orignalPlainText, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-6" style="background-color:lavenderblush;">복호문</div>
-	<div class="col-sm-6" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(decryptedText, 
+	<div class="col-sm-6" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(decryptedText, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-6" style="background-color:lavender;">비교결과</div>

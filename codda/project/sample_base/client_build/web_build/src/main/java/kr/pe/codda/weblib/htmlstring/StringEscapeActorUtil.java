@@ -1,7 +1,7 @@
 package kr.pe.codda.weblib.htmlstring;
 
 
-public class StringReplacementActorUtil {
+public class StringEscapeActorUtil {
 	public enum STRING_REPLACEMENT_ACTOR_TYPE {
 		LINE2BR(0), ESCAPEHTML4(1), ESCAPEECMASCRIPT(2);
 		

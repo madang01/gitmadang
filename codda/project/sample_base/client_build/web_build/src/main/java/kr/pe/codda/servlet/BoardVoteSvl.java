@@ -20,7 +20,7 @@ import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
 public class BoardVoteSvl extends AbstractLoginServlet {
 	
 	private void printBoardErrorCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
-		final String goPage = "/jsp/community/BoardErrorCallBack.jsp";
+		final String goPage = "/jsp/community/BoardProcessFailureCallBack.jsp";
 		req.setAttribute("errorMessage", errorMessage);
 		printJspPage(req, res, goPage);
 	}
@@ -122,14 +122,14 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		
 		MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
 		
-		if (messageResultRes.getIsSuccess()) {			
-			printJspPage(req, res, "/jsp/community/BoardVoteOKCallBack.jsp");
-			return;
-		} else {
-			req.setAttribute("errorMessage", messageResultRes.getResultMessage());
-			printJspPage(req, res, "/jsp/community/BoardProcessFailureCallBack.jsp");
+		if (! messageResultRes.getIsSuccess()) {
+			String errorMessage = messageResultRes.getResultMessage();			
+			printBoardErrorCallBackPage(req, res, errorMessage);
 			return;
 		}
+		
+		printJspPage(req, res, "/jsp/community/BoardVoteOKCallBack.jsp");
+		return;
 	}
 
 }

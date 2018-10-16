@@ -1,9 +1,8 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%><%
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
 %><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
-	
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -20,7 +19,7 @@
 <script type='text/javascript'>
 	function init() {
 		if (parent != null && parent.adminMemberRegistrationFailureCallBack != null) {
-			parent.processFailureCallBack("<%= StringReplacementActorUtil.replace(errorMessage, STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEECMASCRIPT) %>");
+			parent.processFailureCallBack("<%=StringEscapeActorUtil.replace(errorMessage, STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEECMASCRIPT)%>");
 		} else {
 			alert("parent.processFailureCallBack 이 존재하지 않습니다");
 		}

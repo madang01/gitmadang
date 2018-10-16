@@ -56,8 +56,9 @@ public class BoardWriteInputSvl extends AbstractLoginServlet {
 			return;
 		}
 		
+		BoardType boardType = null;
 		try {
-			BoardType.valueOf(boardID);
+			boardType = BoardType.valueOf(boardID);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = "알 수 없는 게시판 식별자 입니다";
 			String debugMessage = new StringBuilder("the web parameter 'boardID'[")
@@ -68,8 +69,10 @@ public class BoardWriteInputSvl extends AbstractLoginServlet {
 			return;
 		}
 		
-		final String goPage = "/jsp/community/BoardWriteInput.jsp";		
-		req.setAttribute("paramBoardID", paramBoardID);
+		final String goPage = "/jsp/community/BoardWriteInput.jsp";	
+		
+		req.setAttribute("boardType", boardType);
+		// req.setAttribute("paramBoardID", paramBoardID);
 		printJspPage(req, res, goPage);
 		
 	}

@@ -1,6 +1,7 @@
 package kr.pe.codda.server.lib;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
+import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
@@ -15,12 +16,15 @@ import java.util.Random;
 import javax.sql.DataSource;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jooq.DSLContext;
+import org.jooq.Record2;
+import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.conf.MappedSchema;
 import org.jooq.conf.RenderMapping;
@@ -28,6 +32,7 @@ import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +60,18 @@ public abstract class ServerDBUtil {
 	public static void initializeDBEnvoroment(String dbcpName) throws Exception {
 		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
 		
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
+		DataSource dataSource = null;
+		
+		try {
+			dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);		
+		} catch(IllegalArgumentException | DBCPDataSourceNotFoundException e) {
+			String errorMessage = e.getMessage();
+			
+			log.warn(errorMessage, e);		
+			
+			/** 지정한 이름의 dbcp 를 받지 못할 경우 아무 처리도 하지 않는다 */
+			return;
+		}
 
 		Connection conn = null;
 		try {
@@ -69,13 +85,15 @@ public abstract class ServerDBUtil {
 			insertAllSeqIDIfNotExist(create);
 			
 		} catch (Exception e) {
-			try {
-				conn.rollback();
-			} catch (Exception e1) {
-				log.warn("fail to rollback");
-			}
-			
 			log.warn("error", e);
+			
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
 			
 			throw e;
 		} finally {
@@ -159,7 +177,7 @@ public abstract class ServerDBUtil {
 		byte[] pwdSaltBytes = new byte[8];
 		random.nextBytes(pwdSaltBytes);
 		
-		PasswordPairForMemberTable passwordPairForMemberDB = getPasswordPairForMemberTable(passwordBytes, pwdSaltBytes);
+		PasswordPairOfMemberTable passwordPairOfMemberTable = toPasswordPairOfMemberTable(passwordBytes, pwdSaltBytes);
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);		
@@ -200,8 +218,8 @@ public abstract class ServerDBUtil {
 			}
 
 			int resultOfInsert = create.insertInto(SB_MEMBER_TB).set(SB_MEMBER_TB.USER_ID, userID)
-					.set(SB_MEMBER_TB.NICKNAME, nickname).set(SB_MEMBER_TB.PWD_BASE64, passwordPairForMemberDB.getPasswordBase64())
-					.set(SB_MEMBER_TB.PWD_SALT_BASE64, passwordPairForMemberDB.getPasswordSaltBase64())
+					.set(SB_MEMBER_TB.NICKNAME, nickname).set(SB_MEMBER_TB.PWD_BASE64, passwordPairOfMemberTable.getPasswordBase64())
+					.set(SB_MEMBER_TB.PWD_SALT_BASE64, passwordPairOfMemberTable.getPasswordSaltBase64())
 					.set(SB_MEMBER_TB.MEMBER_TYPE, memberType.getValue())
 					.set(SB_MEMBER_TB.MEMBER_ST, MemberStateType.OK.getValue()).set(SB_MEMBER_TB.PWD_HINT, pwdHint)
 					.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer).set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
@@ -270,7 +288,7 @@ public abstract class ServerDBUtil {
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */
-	public static PasswordPairForMemberTable getPasswordPairForMemberTable(byte[] passwordBytes, byte[] pwdSaltBytes) throws NoSuchAlgorithmException {		
+	public static PasswordPairOfMemberTable toPasswordPairOfMemberTable(byte[] passwordBytes, byte[] pwdSaltBytes) throws NoSuchAlgorithmException {		
 		MessageDigest md = MessageDigest.getInstance(CommonStaticFinalVars.PASSWORD_ALGORITHM_NAME);
 		
 		ByteBuffer passwordByteBuffer = ByteBuffer.allocate(pwdSaltBytes.length + passwordBytes.length);
@@ -284,7 +302,7 @@ public abstract class ServerDBUtil {
 		/** 복호환 비밀번호 초기화 */
 		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);		
 		
-		return new PasswordPairForMemberTable(Base64.encodeBase64String(passwordMDBytes), Base64.encodeBase64String(pwdSaltBytes));
+		return new PasswordPairOfMemberTable(Base64.encodeBase64String(passwordMDBytes), Base64.encodeBase64String(pwdSaltBytes));
 	}
 
 	private static void insertAllSeqIDIfNotExist(DSLContext create) throws Exception {
@@ -352,5 +370,32 @@ public abstract class ServerDBUtil {
 		}
 		
 		return DEFAULT_DBCP_SETTINGS;
+	}
+	
+	public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, UByte boardID, 
+			UInteger groupNo, UShort groupSeq, UByte depth) {
+		Result<Record2<UShort, UByte>> 
+		childBoardResult = create.select(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.DEPTH)
+		.from(SB_BOARD_TB)
+		.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
+		.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
+		.and(SB_BOARD_TB.GROUP_SQ.lt(groupSeq))
+		.orderBy(SB_BOARD_TB.GROUP_SQ.desc())
+		.fetch();
+		
+		UShort toGroupSeq = groupSeq;
+		
+		for (Record2<UShort, UByte> childBoardRecord : childBoardResult) {
+			UShort childGroupSeq  = childBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+			UByte childDepth = childBoardRecord.getValue(SB_BOARD_TB.DEPTH);
+			
+			if (childDepth.shortValue() <= depth.shortValue()) {
+				break;
+			}
+			
+			toGroupSeq = childGroupSeq;			
+		}
+		
+		return toGroupSeq;
 	}
 }

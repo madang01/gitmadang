@@ -2,7 +2,7 @@ package kr.pe.codda.weblib.htmlstring;
 
 import kr.pe.codda.common.type.LineSeparatorType;
 import kr.pe.codda.common.util.CommonStaticUtil;
-import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE;
+import kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE;
 
 public class HtmlStringUtil {
 	
@@ -12,7 +12,7 @@ public class HtmlStringUtil {
 	 * @return Step1 EscapeHtml4
 	 */
 	public static String toHtml4String(String sourceString) {
-		return StringReplacementActorUtil.replace(sourceString, 
+		return StringEscapeActorUtil.replace(sourceString, 
 				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4);
 	}
 	
@@ -23,7 +23,7 @@ public class HtmlStringUtil {
 	 * @return Step1 EscapeHtml4 -> Step2 Line2BR
 	 */
 	public static String toHtml4BRString(String sourceString) {
-		return StringReplacementActorUtil.replace(sourceString, 
+		return StringEscapeActorUtil.replace(sourceString, 
 				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
 				STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR);
 	}
@@ -38,7 +38,7 @@ public class HtmlStringUtil {
 		sourceString = CommonStaticUtil.splitString(sourceString, 
 				LineSeparatorType.NEWLINE, wantedColumnSize);
 		
-		return StringReplacementActorUtil.replace(sourceString, 
+		return StringEscapeActorUtil.replace(sourceString, 
 				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
 				STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR);
 	}
@@ -49,7 +49,7 @@ public class HtmlStringUtil {
 	 * @return Step1 EscapeScript
 	 */
 	public static String toScriptString(String sourceString) {
-		return StringReplacementActorUtil.replace(sourceString, 
+		return StringEscapeActorUtil.replace(sourceString, 
 				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEECMASCRIPT);
 	}
 

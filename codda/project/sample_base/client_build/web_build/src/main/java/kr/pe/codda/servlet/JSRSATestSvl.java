@@ -35,8 +35,7 @@ public class JSRSATestSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
-			throws Exception {
-		
+			throws Exception {		
 		
 		
 		String paramRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
@@ -81,13 +80,13 @@ public class JSRSATestSvl extends AbstractServlet {
 		printJspPage(req, res, "/jsp/util/JSRSATestInput.jsp");
 	}
 	
-	private void resultPage(HttpServletRequest req, HttpServletResponse res) {
-		
+	private void resultPage(HttpServletRequest req, HttpServletResponse res) {		
 		String paramEncryptedHexTextWithPublicKey = req.getParameter("encryptedHexTextWithPublicKey");
 		String paramPlainText = req.getParameter("plainText");
 		
 		log.info("paramEncryptedHexTextWithPublicKey[{}]", paramEncryptedHexTextWithPublicKey);
 		log.info("paramPlainText[{}]", paramPlainText);
+		
 		
 		if (null == paramEncryptedHexTextWithPublicKey) {
 			String errorMessage = "헥사로 표현된 공개키로 암호화한 암호문을 입력해 주세요";

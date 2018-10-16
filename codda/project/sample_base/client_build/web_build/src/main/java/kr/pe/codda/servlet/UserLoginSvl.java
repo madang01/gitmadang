@@ -23,10 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.codec.binary.Base64;
-
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -49,6 +48,8 @@ import kr.pe.codda.weblib.common.MemberType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
+import org.apache.commons.codec.binary.Base64;
+
 /**
  * 로그인
  * 
@@ -66,7 +67,13 @@ public class UserLoginSvl extends AbstractServlet {
 			inputPage(req, res);
 			return;
 		} else if (paramRequestType.equals("proc")) {
-			resultPage(req, res);
+			/**
+			 * FIXME! DB 없는 경우 정상 '로그인 처리 로직'(resultPage(req, res))이 아닌
+			 * 테스트를 위해 임시로 '무조건 성공하는 로그인 로직'(resultPageForFreePass(req, res))으로 변경함.
+			 * 테스트 끝나고 원복 필요함.
+			 */
+			// resultPage(req, res);
+			resultPageForFreePass(req, res);
 			return;
 		} else {
 			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
@@ -108,7 +115,175 @@ public class UserLoginSvl extends AbstractServlet {
 		/** /jsp/member/UserLoginInput.jsp */
 		printJspPage(req, res, JDF_USER_LOGIN_INPUT_PAGE);
 	}
+	
+	private void resultPageForFreePass(HttpServletRequest req, HttpServletResponse res)
+			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
+			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException,
+			IllegalArgumentException, SymmetricException {
 
+		/**************** 파라미터 시작 *******************/
+		String paramSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
+		String paramIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+
+		String paramUserIDCipherBase64 = req.getParameter("userID");
+		String paramPwdCipherBase64 = req.getParameter("pwd");
+		/**************** 파라미터 종료 *******************/
+
+		
+		if (null == paramSessionKeyBase64) {
+			String errorMessage = "the request parameter paramSessionKeyBase64 is null";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (! Base64.isBase64(paramSessionKeyBase64)) {
+			String errorMessage = "the request parameter paramSessionKeyBase64 is not a base64 string";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == paramIVBase64) {
+			String errorMessage = "the request parameter paramIVBase64 is null";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (! Base64.isBase64(paramIVBase64)) {
+			String errorMessage = "the request parameter paramIVBase64 is not a base64 string";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == paramUserIDCipherBase64) {
+			String errorMessage = "the request parameter userID is null";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (! Base64.isBase64(paramUserIDCipherBase64)) {
+			String errorMessage = "the request parameter userID is not a base64 cipher text";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == paramPwdCipherBase64) {
+			String errorMessage = "the request parameter paramPwdCipherBase64 is null";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (! Base64.isBase64(paramPwdCipherBase64)) {
+			String errorMessage = "the request parameter paramPwdCipherBase64 is not a base64 cipher string";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		} 		
+		
+		
+		/*if (successURL.indexOf('/') != 0) {
+			String errorMessage = "the request parameter successURL doesn't begin a char '/'";
+			String debugMessage = errorMessage;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}*/
+
+		log.info("param sessionkeyBase64=[{}]", paramSessionKeyBase64);
+		log.info("param ivBase64=[{}]", paramIVBase64);
+		log.info("param userID=[{}]", paramUserIDCipherBase64);
+		log.info("param pwd=[{}}]", paramPwdCipherBase64);
+
+		// req.setAttribute("isSuccess", Boolean.FALSE);
+
+		byte[] sessionkeyBytes = null;
+		try {
+			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramSessionKeyBase64);
+		} catch(Exception e) {
+			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
+			
+			String errorMessage = "세션키 파라미터가 잘못되었습니다";
+			String debugMessage = String.format("check whether the parameter paramSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", paramSessionKeyBase64, e.getMessage());
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		byte[] ivBytes = null;
+		try {
+			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramIVBase64);
+		} catch(Exception e) {
+			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
+			
+			String errorMessage = "세션키 소금 파라미터가 잘못되었습니다";
+			String debugMessage = String.format("check whether the parameter paramIVBase64[%s] is a base64 encoding string, errormessage=[%s]", paramIVBase64, e.getMessage());
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+
+		ServerSessionkeyIF webServerSessionkey = null;
+		try {
+			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+		} catch (SymmetricException e) {
+			String errorMessage = "fail to get a ServerSessionkeyManger class instance";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = e.getMessage();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}		
+		
+		ServerSymmetricKeyIF webServerSymmetricKey = null;
+		try {
+			webServerSymmetricKey = webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = "웹 세션키 인스턴스 생성 실패";
+			log.warn(errorMessage, e);
+			
+			String debugMessage = new StringBuilder("sessionkeyBytes=[")
+					.append(HexUtil.getHexStringFromByteArray(sessionkeyBytes))
+					.append("], ivBytes=[")
+					.append(HexUtil.getHexStringFromByteArray(ivBytes))
+					.append("]").toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		} catch(SymmetricException e) {
+			String errorMessage = "웹 세션키 인스턴스 생성 실패";
+			log.warn(errorMessage, e);
+			
+			String debugMessage = new StringBuilder("sessionkeyBytes=[")
+					.append(HexUtil.getHexStringFromByteArray(sessionkeyBytes))
+					.append("], ivBytes=[")
+					.append(HexUtil.getHexStringFromByteArray(ivBytes))
+					.append("]").toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+				
+		byte[] userIDBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramUserIDCipherBase64));
+		// byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdCipherBase64));
+
+		String userID = new String(userIDBytes, CommonStaticFinalVars.CIPHER_CHARSET);
+		
+		MemberType memberType = MemberType.USER;
+		
+		HttpSession httpSession = req.getSession();
+		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID, userID);
+		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_MEMBER_TYPE, memberType);
+		
+		printUserLoginOKCallBackPage(req, res, 
+				webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb());		
+		return;		
+	}
+
+	@SuppressWarnings("unused")
 	private void resultPage(HttpServletRequest req, HttpServletResponse res)
 			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException,
@@ -259,10 +434,7 @@ public class UserLoginSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-		
-		// FIXME!
-		log.info("한글 대칭키 암호문 base64={}", Base64.encodeBase64String(webServerSymmetricKey.encrypt("한글".getBytes("UTF8"))));
-
+				
 		byte[] userIDBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramUserIDCipherBase64));
 		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdCipherBase64));
 
@@ -274,37 +446,49 @@ public class UserLoginSvl extends AbstractServlet {
 		
 		// FIXME!
 		//log.info("userID=[{}]", new String(userIDBytes, "UTF8"));
-
+		
+		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance()
 				.getMainProjectConnectionPool();
-
-		BinaryPublicKey binaryPublicKeyReq = new BinaryPublicKey();
-		binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
-
-		AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);
 		
-		if (!(binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
-			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
-			String debugMessage = new StringBuilder("입력 메시지[")
-					.append(binaryPublicKeyReq.getMessageID())
-					.append("]에 대한 비 정상 출력 메시지[")
-					.append(binaryPublicKeyOutputMessage.toString())
-					.append("] 도착").toString();
+		ClientSessionKeyIF clientSessionKey = null;
+		
+		synchronized (req) {
+			clientSessionKey = (ClientSessionKeyIF)req.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY);
 			
-			log.error(debugMessage);
+			if (null == clientSessionKey) {
+				BinaryPublicKey binaryPublicKeyReq = new BinaryPublicKey();
+				binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
 
-			printUserLoginFailureCallBackPage(req, res, 
-					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
-					errorMessage);
-			return;
+				AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);
+				
+				if (!(binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
+					String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
+					String debugMessage = new StringBuilder("입력 메시지[")
+							.append(binaryPublicKeyReq.getMessageID())
+							.append("]에 대한 비 정상 출력 메시지[")
+							.append(binaryPublicKeyOutputMessage.toString())
+							.append("] 도착").toString();
+					
+					log.error(debugMessage);
+
+					printUserLoginFailureCallBackPage(req, res, 
+							webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
+							errorMessage);
+					return;
+				}		
+				
+				
+				BinaryPublicKey binaryPublicKeyRes = (BinaryPublicKey) binaryPublicKeyOutputMessage;
+				byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
+
+				clientSessionKey = ClientSessionKeyManager.getInstance()
+						.getNewClientSessionKey(binaryPublicKeyBytes);
+				
+				req.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY, clientSessionKey);			
+			}
 		}		
 		
-		
-		BinaryPublicKey binaryPublicKeyRes = (BinaryPublicKey) binaryPublicKeyOutputMessage;
-		byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
-
-		ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance()
-				.getNewClientSessionKey(binaryPublicKeyBytes);
 
 		byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();
 		byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
@@ -357,10 +541,8 @@ public class UserLoginSvl extends AbstractServlet {
 		
 		printUserLoginOKCallBackPage(req, res, 
 				webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb());		
-		return;
-		
+		return;		
 	}
-
 	
 
 	private void printUserLoginFailureCallBackPage(HttpServletRequest req, HttpServletResponse res,

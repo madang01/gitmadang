@@ -1,9 +1,9 @@
-package kr.pe.codda;
+package kr.pe.codda.server.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-public class JooqDBConectionTest {
+public class DBConectionTest {
 	public static void main(String[] args) {
 		String userName = "madangsoe01";
 	    String password = "test1234";

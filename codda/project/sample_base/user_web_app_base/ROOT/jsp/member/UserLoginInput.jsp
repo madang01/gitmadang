@@ -209,13 +209,13 @@
 			<textarea style="visibility:hidden;" name="<%= StringEscapeUtils.escapeHtml4(parmKey) %>"><%= StringEscapeUtils.escapeHtml4(parmValue) %></textarea><%
 			}
 		%>
-		</form>
+		</form><br>
 		<form method="post" name="frm" onsubmit="submitGoFormIfValid(); return false;">
-			<div class="form-group">
+			<div class="form-group">				
 				<label for="userID">아이디:</label>
 				<input type="text" class="form-control" id="userID" placeholder="Enter admin's id" name="userID">
-			</div>
-			<div class="form-group">
+				<br>
+			
 				<label for="pwd">비빌번호:</label>
 				<input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
 			</div>

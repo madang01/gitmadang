@@ -1,14 +1,17 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%>
 <%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+	
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+	
 %><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
+	
 %><jsp:useBean id="allDataTypeReq" class="kr.pe.codda.impl.message.AllItemType.AllItemType" scope="request" /><%
+	
 %><jsp:useBean id="allItemTypeRes" class="kr.pe.codda.impl.message.AllItemType.AllItemType" scope="request" /><%
 	// kr.pe.codda.impl.message.Echo.Echo echoRes = (kr.pe.codda.impl.message.Echo.Echo)request.getAttribute("echoRes");
 		
 	// String erraseTime = (String)request.getAttribute("erraseTime");
-
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -42,7 +45,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getSiteNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h2>모든 데이터 타입 검사</h2>
@@ -70,15 +73,15 @@
 </div>
 <div class="row">
 	<div class="col-sm-2" style="background-color:lavender;">AllDataType 입력메세지</div>
-	<div class="col-sm-10" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(allDataTypeReq.toString(), 
+	<div class="col-sm-10" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(allDataTypeReq.toString(), 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-2" style="background-color:lavenderblush;">AllDataType 출력메세지</div>
-	<div class="col-sm-10" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(allItemTypeRes.toString(), 
+	<div class="col-sm-10" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(allItemTypeRes.toString(), 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-2" style="background-color:lavender;">출력 비교 결과</div>

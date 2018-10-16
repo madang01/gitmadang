@@ -1,13 +1,4 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%><%
-%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><jsp:useBean id="plainText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="algorithm" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="javascriptMDHex" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="serverMDHex" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
-%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%%><jsp:useBean id="plainText" class="java.lang.String" scope="request" /><%%><jsp:useBean id="algorithm" class="java.lang.String" scope="request" /><%%><jsp:useBean id="javascriptMDHex" class="java.lang.String" scope="request" /><%%><jsp:useBean id="serverMDHex" class="java.lang.String" scope="request" /><%%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -41,7 +32,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getSiteNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h3>CryptoJS 해시 알고리즘(=메세지 다이제스트) 테스트 - 결과</h3>
@@ -61,26 +52,26 @@
 
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavender;">원문</div>
-	<div class="col-sm-9" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(plainText, 
+	<div class="col-sm-9" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(plainText, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavenderblush;">해시 알고리즘(=메세지 다이제스트) 알고리즘</div>
-	<div class="col-sm-9" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(algorithm, 
-			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></div>
+	<div class="col-sm-9" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(algorithm, 
+			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavender;">javascript Diagst Message</div>
-	<div class="col-sm-9" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(javascriptMDHex, 
+	<div class="col-sm-9" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(javascriptMDHex, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavenderblush;">server Diagst Message</div>
-	<div class="col-sm-9" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(serverMDHex, 
+	<div class="col-sm-9" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(serverMDHex, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavender;">비교결과</div>

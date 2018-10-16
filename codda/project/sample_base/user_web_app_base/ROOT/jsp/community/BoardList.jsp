@@ -1,13 +1,61 @@
-<%@page import="java.util.List"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%><%
-%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.codda.weblib.common.BoardType"%><%
-%><%@ page import="kr.pe.codda.impl.message.BoardListRes.BoardListRes" %><%
-%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%
+<%@page import="java.sql.Timestamp"%>
+<%@page import="kr.pe.codda.weblib.common.BoardStateType"%>
+<%@page import="java.util.ArrayList"%><%
 	
+%><%@page import="java.util.List"%><%
+	
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
+	
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
+	
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+	
+%><%@ page import="kr.pe.codda.weblib.common.BoardType"%><%
+	
+%><%@ page import="kr.pe.codda.impl.message.BoardListRes.BoardListRes" %><%
+	
+%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+	
+%><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%
 	//String boardListResJsonString = new Gson().toJson(boardListRes);
+
+	{
+	String requestUserID = "guest";
+	boardListRes.setRequestUserID(requestUserID);
+	boardListRes.setBoardID(BoardType.FREE.getBoardID());
+	boardListRes.setPageNo(1);
+	boardListRes.setPageSize(20);
+	
+	boardListRes.setTotal(5);
+	
+	List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
+	{		
+		for (long boardNo=5; boardNo >= 1; boardNo--) {
+	BoardListRes.Board board = new BoardListRes.Board();
+	board.setBoardNo(boardNo);
+	board.setGroupNo(boardNo);
+	board.setGroupSeq(0);
+	board.setParentNo(0);
+	board.setDepth((short)0);
+	board.setWriterID("test01");
+	board.setViewCount(0);
+	board.setBoardSate(BoardStateType.OK.getValue());
+	// yyyy-mm-dd hh:mm:ss
+	board.setRegisteredDate(Timestamp.valueOf("2018-09-22 13:00:01"));
+	board.setNickname("테스트아이디01");
+	board.setVotes(0);
+	board.setSubject("게시글"+boardNo);
+	board.setLastModifiedDate(board.getRegisteredDate());
+	
+	boardList.add(board);
+		}
+		
+	}
+	
+	
+	boardListRes.setCnt(boardList.size());
+	boardListRes.setBoardList(boardList);
+	}
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -37,19 +85,19 @@
 
 	function getSessionkeyBase64() {
 		var privateKey;
-		var privateKeyBase64 = sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>');
+		var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
 		
 		if (typeof(privateKeyBase64) == 'undefined') {
-			privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);
+			privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
 			privateKeyBase64 = CryptoJS.enc.Base64.stringify(privateKey);
 			
-			sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', privateKeyBase64);
+			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', privateKeyBase64);
 		} else {
 			privateKey = CryptoJS.enc.Base64.parse(privateKeyBase64);
 		}
 		
 		var rsa = new RSAKey();
-		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+		rsa.setPublic("<%=getModulusHexString(request)%>", "10001");
 		
 		var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
 		sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));		
@@ -65,7 +113,7 @@
 	
 		var g = document.goWriteForm;
 		g.sessionkeyBase64.value = getSessionkeyBase64();
-		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
 	}
@@ -80,7 +128,7 @@
 		var g = document.goDetailForm;
 		g.boardNo.value = boardNo;
 		g.sessionkeyBase64.value = getSessionkeyBase64();
-		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
 	}
@@ -95,7 +143,7 @@
 		var g = document.gofrm;
 		g.pageNo.value = pageNo;
 		g.sessionkeyBase64.value = getSessionkeyBase64();
-		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
 		g.submit();
 	}
@@ -107,61 +155,62 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getSiteNavbarString(request)%>
 <form name=goWriteForm method="post" action="/servlet/BoardWriteInput">
-<input type="hidden" name="boardID" value="<%= boardListRes.getBoardID() %>" />
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
+<input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />
+<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
 </form>
 
 <form name=goDetailForm method="post" action="/servlet/BoardDetail">
-<input type="hidden" name="boardID" value="<%= boardListRes.getBoardID() %>" />
+<input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />
 <input type="hidden" name="boardNo" />
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
+<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
 </form>
 
 <form name=gofrm method="post" action="/servlet/BoardList">
-<input type="hidden" name="boardID" value="<%= boardListRes.getBoardID() %>" />
+<input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />
 <input type="hidden" name="pageNo" />
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
+<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
 </form>
 	<div class="container-fluid">
-		<h3><%= BoardType.valueOf(boardListRes.getBoardID()).getName() %>게시판</h3>		
+		<h3><%=BoardType.valueOf(boardListRes.getBoardID()).getName()%>게시판</h3>		
 		<div class="btn-group">
 			<button type="button" class="btn btn-primary btn-sm" onClick="goWritePage();">글 작성하기</button>
 		</div>			 
 		<div id="resultMessageView"></div>
+		<br>
 		<div class="row">
-			<div class="col-sm-1">번호</div>
-			<div class="col-sm-3">제목</div>
-			<div class="col-sm-2">작성자</div>
-			<div class="col-sm-1">조회수</div>
-			<div class="col-sm-1">추천수</div>
-			<div class="col-sm-2">최초 작성일</div>
-			<div class="col-sm-2">마지막 수정일</div>
+			<div class="col-sm-1" style="background-color:lavender;">번호</div>
+			<div class="col-sm-3" style="background-color:lavender;">제목</div>
+			<div class="col-sm-2" style="background-color:lavender;">작성자</div>
+			<div class="col-sm-1" style="background-color:lavender;">조회수</div>
+			<div class="col-sm-1" style="background-color:lavender;">추천수</div>
+			<div class="col-sm-2" style="background-color:lavender;">최초 작성일</div>
+			<div class="col-sm-2" style="background-color:lavender;">마지막 수정일</div>
 		</div><%
-	List<BoardListRes.Board> boardList = boardListRes.getBoardList();
-	if (null != boardList) {
-		for (BoardListRes.Board board : boardList) {
+			List<BoardListRes.Board> boardList = boardListRes.getBoardList();
+			if (null != boardList) {
+				for (BoardListRes.Board board : boardList) {
 			int depth = board.getDepth();
-%>
+		%>
 		<div class="row">
-			<div class="col-sm-1"><%= board.getBoardNo() %></div>
+			<div class="col-sm-1"><%=board.getBoardNo()%></div>
 			<div class="col-sm-3"><%
-			if (depth > 0) {
-				for (int i=0; i < depth; i++) {
-					out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
+				if (depth > 0) {
+					for (int i=0; i < depth; i++) {
+						out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
+					}
+					out.print("ㄴ");
 				}
-				out.print("ㄴ");
-			}			
-%><a href="#" onClick="goDetailPage('<%= board.getBoardNo() %>')"><%= StringReplacementActorUtil.replace(board.getSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></a></div>
-			<div class="col-sm-2"><%= StringReplacementActorUtil.replace(board.getNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></div>
+			%><a href="#" onClick="goDetailPage('<%=board.getBoardNo()%>')"><%=StringEscapeActorUtil.replace(board.getSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></a></div>
+			<div class="col-sm-2"><%=StringEscapeActorUtil.replace(board.getNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
 			<div class="col-sm-1"><%= board.getViewCount() %></div>
 			<div class="col-sm-1"><%= board.getVotes() %></div>
 			<div class="col-sm-2"><%= board.getRegisteredDate() %></div>
-			<div class="col-sm-2"><%= board.getFinalModifiedDate() %></div>
+			<div class="col-sm-2"><%= board.getLastModifiedDate() %></div>
 		</div><%
 		}
 	}

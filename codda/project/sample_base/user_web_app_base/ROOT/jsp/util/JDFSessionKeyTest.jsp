@@ -1,10 +1,11 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%><%
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
+	
 %><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+	
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보시이면 " 
+	String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보시이면 " 
 + "AbstractSessionKeyServlet 모듈 테스트 통과 안보이면 실패\n<script type=\"text/javascript\">alert(\"hello\");</script> 또한 스크립트는 코드 인젝션 방어 즉 실행되지 않고 단순 문자로 출력되면 통과";
-
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -32,14 +33,14 @@ String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보�
 <script type="text/javascript">
 <!--
 	function init() {
-		var pageIV = CryptoJS.enc.Base64.parse("<%= getParameterIVBase64Value(request) %>");	
+		var pageIV = CryptoJS.enc.Base64.parse("<%=getParameterIVBase64Value(request)%>");	
 		
-		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>'));
+		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>'));
 		
-		var messageTxt = CryptoJS.AES.decrypt("<%= getCipheredBase64String(request, 
-				StringReplacementActorUtil.replace(orignalMessage, 
+		var messageTxt = CryptoJS.AES.decrypt("<%=getCipheredBase64String(request, 
+				StringEscapeActorUtil.replace(orignalMessage, 
 				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-				STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+				STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR))%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 			
 		document.getElementById('idTxtResultMessage').innerHTML = messageTxt.toString(CryptoJS.enc.Utf8);
 	}
@@ -49,7 +50,7 @@ String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보�
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getSiteNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h2>JDF 테스트 - 세션키</h2>
@@ -77,9 +78,9 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 	<div class="col-sm-6" style="background-color:lavenderblush;"><h4>복호문</h4></div>
 </div>
 <div class="row">
-	<div class="col-sm-6" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(orignalMessage, 
+	<div class="col-sm-6" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(orignalMessage, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 	<div class="col-sm-6" style="background-color:lavenderblush;" id="idTxtResultMessage"></div>
 </div>
 

@@ -23,8 +23,8 @@ import kr.pe.codda.server.task.ToLetterCarrier;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
+import org.jooq.Record2;
 import org.jooq.Record3;
-import org.jooq.Record4;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.SelectHavingStep;
@@ -136,7 +136,7 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 			UByte sourceOrderSeq = sourceMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
 			
 						
-			Record4<UInteger, UInteger, UByte, UByte>  targetMenuRecord = null;
+			Record3<UInteger, UByte, UByte>  targetMenuRecord = null;
 			try {
 				SelectHavingStep<Record1<UByte>> firstYoungerBrowereQuery = create.select(
 						SB_SITEMENU_TB.ORDER_SQ.min().as(SB_SITEMENU_TB.ORDER_SQ))
@@ -146,7 +146,7 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 				.and(SB_SITEMENU_TB.ORDER_SQ.gt(sourceOrderSeq));
 				
 				targetMenuRecord = create.select(
-						SB_SITEMENU_TB.MENU_NO, SB_SITEMENU_TB.PARENT_NO, SB_SITEMENU_TB.DEPTH, SB_SITEMENU_TB.ORDER_SQ)
+						SB_SITEMENU_TB.MENU_NO, SB_SITEMENU_TB.DEPTH, SB_SITEMENU_TB.ORDER_SQ)
 				.from(SB_SITEMENU_TB)
 				.where(SB_SITEMENU_TB.ORDER_SQ.eq(firstYoungerBrowereQuery))
 				.fetchOne();
@@ -181,69 +181,34 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 			}
 			
 			UInteger targetMenuNo = targetMenuRecord.getValue(SB_SITEMENU_TB.MENU_NO);
-			UInteger targetParetNo = targetMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
+			// UInteger targetParetNo = targetMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
 			UByte targetDepth = targetMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
 			UByte targetOrderSeq = targetMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
 						
 			
 			int sourceGroupListSize = targetOrderSeq.shortValue() - sourceOrderSeq.shortValue();
-			int targetGroupListSize;
+			int targetGroupListSize = 1;
+			HashSet<UInteger> targetGroupMenuNoSet = new HashSet<UInteger>();
+			targetGroupMenuNoSet.add(targetMenuNo);
 			
-			Record1<UByte>  firstYoungerBrotherOrderSeqReccordOfTargetMenu = create.select(
-					SB_SITEMENU_TB.ORDER_SQ.min().as(SB_SITEMENU_TB.ORDER_SQ))
+			Result<Record2<UInteger, UByte>> targetGroupSiteMenuResult = create.select(SB_SITEMENU_TB.MENU_NO, SB_SITEMENU_TB.DEPTH)
 			.from(SB_SITEMENU_TB)
-			.where(SB_SITEMENU_TB.PARENT_NO.eq(targetParetNo))
-			.and(SB_SITEMENU_TB.DEPTH.eq(targetDepth))
-			.and(SB_SITEMENU_TB.ORDER_SQ.gt(targetOrderSeq))
-			.fetchOne();
-			
-			if (null == firstYoungerBrotherOrderSeqReccordOfTargetMenu || null == firstYoungerBrotherOrderSeqReccordOfTargetMenu.getValue(SB_SITEMENU_TB.ORDER_SQ)) {
-				Record1<UByte>  lastOrderSeqMenuRecord = create.select(
-						SB_SITEMENU_TB.ORDER_SQ.max().as(SB_SITEMENU_TB.ORDER_SQ))
-				.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx"))				
-				.fetchOne();
-				
-				targetGroupListSize = lastOrderSeqMenuRecord.value1().shortValue() - targetOrderSeq.shortValue() + 1;
-			} else {
-				targetGroupListSize = firstYoungerBrotherOrderSeqReccordOfTargetMenu.getValue(SB_SITEMENU_TB.ORDER_SQ).shortValue() - targetOrderSeq.shortValue();
-			}
-			
-			
-			Result<Record1<UInteger>> sourceGroupResult = create.select(SB_SITEMENU_TB.MENU_NO)
-			.from(SB_SITEMENU_TB)
-			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(sourceOrderSeq))
-			.and(SB_SITEMENU_TB.ORDER_SQ.lt(UByte.valueOf(sourceOrderSeq.shortValue()+sourceGroupListSize)))
+			.where(SB_SITEMENU_TB.ORDER_SQ.gt(targetOrderSeq))
+			.orderBy(SB_SITEMENU_TB.ORDER_SQ.asc())
 			.fetch();
 			
-			HashSet<UInteger> sourceGroupMenuNoSet = new HashSet<UInteger>();
-			for (Record1<UInteger> sourceGroupRecord : sourceGroupResult) {
-				sourceGroupMenuNoSet.add(sourceGroupRecord.getValue(SB_SITEMENU_TB.MENU_NO));
-			}
-			
-			/**
-			 * 하단 이동 요청한 메뉴 그룹을 하단 이동 요청한 메뉴 위치로 전부 이동
-			 */
-			int sourceMenuUpdateCount = create.update(SB_SITEMENU_TB)
-			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.add(targetGroupListSize))
-			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(sourceOrderSeq))
-			.and(SB_SITEMENU_TB.ORDER_SQ.lt(UByte.valueOf(sourceOrderSeq.shortValue()+sourceGroupListSize)))
-			.execute();
-			
-			if (0 == sourceMenuUpdateCount) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
+			for (Record2<UInteger, UByte> targetGroupSiteMenuRecord : targetGroupSiteMenuResult) {
+				UInteger targetGroupSiteMenuNo = targetGroupSiteMenuRecord.getValue(SB_SITEMENU_TB.MENU_NO);
+				UByte targetGroupSiteMenuDepth = targetGroupSiteMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
+				
+				if (targetGroupSiteMenuDepth.shortValue()  <= targetDepth.shortValue()) {
+					break;
 				}
 				
-				String errorMessage = new StringBuilder()
-						.append("메뉴[")
-						.append(menuMoveDownReq.getMenuNo())
-						.append("] 순서를 한칸 위로 조정하는데  실패하였습니다").toString();
-				
-				
-				throw new ServerServiceException(errorMessage);
+				targetGroupMenuNoSet.add(targetGroupSiteMenuNo);
+				targetGroupListSize++;
 			}
+			
 			
 			/**
 			 * 하단 이동 요청한 메뉴보다 한칸 낮은 메뉴 그룹을 하단 이동 요청한 메뉴 위치로 전부 이동
@@ -252,7 +217,6 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.sub(sourceGroupListSize))
 			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(targetOrderSeq))
 			.and(SB_SITEMENU_TB.ORDER_SQ.lt(UByte.valueOf(targetOrderSeq.shortValue()+targetGroupListSize)))
-			.and(SB_SITEMENU_TB.MENU_NO.notIn(sourceGroupMenuNoSet))
 			.execute();
 					
 			if (0 == targetMenuUpdateCount) {
@@ -271,8 +235,33 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 				
 				
 				throw new ServerServiceException(errorMessage);
-			}			
+			}
 			
+			/**
+			 * 하단 이동 요청한 메뉴 그룹을 하단 이동 요청한 메뉴 위치로 전부 이동
+			 */
+			int sourceMenuUpdateCount = create.update(SB_SITEMENU_TB)
+			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.add(targetGroupListSize))
+			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(sourceOrderSeq))
+			.and(SB_SITEMENU_TB.ORDER_SQ.lt(UByte.valueOf(sourceOrderSeq.shortValue()+sourceGroupListSize)))
+			.and(SB_SITEMENU_TB.MENU_NO.notIn(targetGroupMenuNoSet))
+			.execute();
+			
+			if (0 == sourceMenuUpdateCount) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder()
+						.append("메뉴[")
+						.append(menuMoveDownReq.getMenuNo())
+						.append("] 순서를 한칸 위로 조정하는데  실패하였습니다").toString();
+				
+				
+				throw new ServerServiceException(errorMessage);
+			}
 			
 			try {
 				conn.commit();

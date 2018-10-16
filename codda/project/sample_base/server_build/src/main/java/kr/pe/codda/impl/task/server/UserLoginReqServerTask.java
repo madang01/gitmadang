@@ -23,7 +23,7 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.MemberType;
-import kr.pe.codda.server.lib.PasswordPairForMemberTable;
+import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -415,9 +415,9 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			
 			byte[] pwdSaltBytes = Base64.decodeBase64(pwdSaltBase64);			
 			
-			PasswordPairForMemberTable passwordPairForMemberTable = ServerDBUtil.getPasswordPairForMemberTable(passwordBytes, pwdSaltBytes);
+			PasswordPairOfMemberTable passwordPairOfMemberTable = ServerDBUtil.toPasswordPairOfMemberTable(passwordBytes, pwdSaltBytes);
 			
-			if (! pwdMDBase64.equals(passwordPairForMemberTable.getPasswordBase64())) {
+			if (! pwdMDBase64.equals(passwordPairOfMemberTable.getPasswordBase64())) {
 				/*
 				update SB_MEMBER_TB set pwd_fail_cnt=#{pwdFailCount}, mod_dt=sysdate() where user_id=#{userId} and member_gb=1 and member_st=0
 				*/				

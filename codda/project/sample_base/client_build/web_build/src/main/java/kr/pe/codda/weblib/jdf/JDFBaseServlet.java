@@ -28,8 +28,8 @@ import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil;
-import kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE;
+import kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil;
+import kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE;
 
 /**
  * <pre>
@@ -463,7 +463,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					out.print(WebCommonStaticFinalVars.USER_WEBSITE_TITLE);
 					out.print("</title>");
 					out.println("</head><body bgcolor=white>");
-					out.println(StringReplacementActorUtil.replace(debugMessage, 
+					out.println(StringEscapeActorUtil.replace(debugMessage, 
 							STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
 							STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR));
 					out.println("</body></html>");				

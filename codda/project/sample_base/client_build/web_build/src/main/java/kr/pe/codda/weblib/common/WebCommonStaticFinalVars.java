@@ -18,6 +18,7 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID = "userID";
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_MEMBER_TYPE = "memberType";
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID = "adminID";
+	public static final String HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY = "clientSessionKey";
 	
 	//public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION = "loginRequestPageInformation";
 	

@@ -272,39 +272,48 @@ public class AdminLoginSvl extends AbstractServlet {
 		// log.info("id=[{}], password=[{}]", userId, password);
 		
 		// FIXME!
-		log.info("userID=[{}]", new String(userIDBytes, "UTF8"));
+		// log.info("userID=[{}]", new String(userIDBytes, "UTF8"));
 
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance()
 				.getMainProjectConnectionPool();
-
-		BinaryPublicKey binaryPublicKeyReq = new BinaryPublicKey();
-		binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
-
-		AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);
 		
-		if (!(binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
-			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
-			String debugMessage = new StringBuilder("입력 메시지[")
-					.append(binaryPublicKeyReq.getMessageID())
-					.append("]에 대한 비 정상 출력 메시지[")
-					.append(binaryPublicKeyOutputMessage.toString())
-					.append("] 도착").toString();
+		ClientSessionKeyIF clientSessionKey = null;
+		
+		synchronized (req) {
+			clientSessionKey = (ClientSessionKeyIF)req.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY);
 			
-			log.error(debugMessage);
+			if (null == clientSessionKey) {
+				BinaryPublicKey binaryPublicKeyReq = new BinaryPublicKey();
+				binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
 
-			printAdminLoginFailureCallBackPage(req, res, 
-					webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
-					errorMessage);
-			return;
+				AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);
+				
+				if (!(binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
+					String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
+					String debugMessage = new StringBuilder("입력 메시지[")
+							.append(binaryPublicKeyReq.getMessageID())
+							.append("]에 대한 비 정상 출력 메시지[")
+							.append(binaryPublicKeyOutputMessage.toString())
+							.append("] 도착").toString();
+					
+					log.error(debugMessage);
+
+					printAdminLoginFailureCallBackPage(req, res, 
+							webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb(), 
+							errorMessage);
+					return;
+				}		
+				
+				
+				BinaryPublicKey binaryPublicKeyRes = (BinaryPublicKey) binaryPublicKeyOutputMessage;
+				byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
+
+				clientSessionKey = ClientSessionKeyManager.getInstance()
+						.getNewClientSessionKey(binaryPublicKeyBytes);
+				
+				req.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY, clientSessionKey);			
+			}
 		}
-		
-		
-		
-		BinaryPublicKey binaryPublicKeyRes = (BinaryPublicKey) binaryPublicKeyOutputMessage;
-		byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
-
-		ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance()
-				.getNewClientSessionKey(binaryPublicKeyBytes);
 
 		byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();
 		byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
@@ -370,7 +379,4 @@ public class AdminLoginSvl extends AbstractServlet {
 
 		printJspPage(req, res, "/jsp/member/AdminLoginOKCallBack.jsp");
 	}
-	
-
-
 }

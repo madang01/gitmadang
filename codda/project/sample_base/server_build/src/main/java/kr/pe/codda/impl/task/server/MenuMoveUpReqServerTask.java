@@ -189,41 +189,30 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 			UInteger targetMenuNo = targetMenuRecord.getValue(SB_SITEMENU_TB.MENU_NO);
 			UByte targetOrderSeq = targetMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);			
 			
-			
 			int targetGroupListSize = sourceOrderSeq.shortValue() - targetOrderSeq.shortValue();
-			int sourceGroupListSize;
-			
-			Record1<UByte>  firstYoungerBrotherOrderSeqReccordOfSourceMenu = create.select(
-						SB_SITEMENU_TB.ORDER_SQ.min().as(SB_SITEMENU_TB.ORDER_SQ))
-				.from(SB_SITEMENU_TB)
-				.where(SB_SITEMENU_TB.PARENT_NO.eq(sourceParetNo))
-				.and(SB_SITEMENU_TB.DEPTH.eq(sourceDepth))
-				.and(SB_SITEMENU_TB.ORDER_SQ.gt(sourceOrderSeq))
-				.fetchOne();
-			
-			
-			if (null == firstYoungerBrotherOrderSeqReccordOfSourceMenu || null == firstYoungerBrotherOrderSeqReccordOfSourceMenu.getValue(SB_SITEMENU_TB.ORDER_SQ)) {
-				Record1<UByte>  lastOrderSeqMenuRecord = create.select(
-						SB_SITEMENU_TB.ORDER_SQ.max().as(SB_SITEMENU_TB.ORDER_SQ))
-				.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx"))				
-				.fetchOne();
-				
-				sourceGroupListSize = lastOrderSeqMenuRecord.value1().shortValue() - sourceOrderSeq.shortValue() + 1;
-			} else {
-				sourceGroupListSize = firstYoungerBrotherOrderSeqReccordOfSourceMenu.getValue(SB_SITEMENU_TB.ORDER_SQ).shortValue() - sourceOrderSeq.shortValue();
-			}
-			
-			
-			Result<Record1<UInteger>> sourceGroupResult = create.select(SB_SITEMENU_TB.MENU_NO)
-			.from(SB_SITEMENU_TB)
-			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(sourceOrderSeq))
-			.and(SB_SITEMENU_TB.ORDER_SQ.lt(UByte.valueOf(sourceOrderSeq.shortValue()+sourceGroupListSize)))
-			.fetch();
-			
+			int sourceGroupListSize = 1;
 			HashSet<UInteger> sourceGroupMenuNoSet = new HashSet<UInteger>();
-			for (Record1<UInteger> sourceGroupRecord : sourceGroupResult) {
-				sourceGroupMenuNoSet.add(sourceGroupRecord.getValue(SB_SITEMENU_TB.MENU_NO));
+			sourceGroupMenuNoSet.add(sourceMenuNo);
+			
+			Result<Record2<UInteger, UByte>> sourceGroupSiteMenuResult = create.select(
+					SB_SITEMENU_TB.MENU_NO, SB_SITEMENU_TB.DEPTH)
+					.from(SB_SITEMENU_TB)
+					.where(SB_SITEMENU_TB.ORDER_SQ.gt(sourceOrderSeq))
+					.orderBy(SB_SITEMENU_TB.ORDER_SQ.asc())
+					.fetch();
+					
+			for (Record2<UInteger, UByte> sourceGroupSiteMenuRecord : sourceGroupSiteMenuResult) {
+				UInteger sourceGroupSiteMenuNo = sourceGroupSiteMenuRecord.getValue(SB_SITEMENU_TB.MENU_NO);
+				UByte sourceGroupSiteMenuDepth = sourceGroupSiteMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
+				
+				if (sourceGroupSiteMenuDepth.shortValue()  <= sourceDepth.shortValue()) {
+					break;
+				}
+				
+				sourceGroupMenuNoSet.add(sourceGroupSiteMenuNo);
+				sourceGroupListSize++;
 			}
+			
 			
 			/**
 			 * 상단 이동 요청한 메뉴 그룹을 상단 이동 요청한 메뉴 위치로 전부 이동

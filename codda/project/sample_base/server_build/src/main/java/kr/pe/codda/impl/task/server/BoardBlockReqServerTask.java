@@ -4,15 +4,9 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
 import java.sql.Connection;
+import java.util.HashSet;
 
 import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.Record1;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.ServerServiceException;
@@ -29,6 +23,17 @@ import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
+
+import org.jooq.DSLContext;
+import org.jooq.Record1;
+import org.jooq.Record3;
+import org.jooq.Record4;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
 
 public class BoardBlockReqServerTask extends AbstractServerTask {
 	private void sendErrorOutputMessage(String errorMessage, ToLetterCarrier toLetterCarrier,
@@ -69,7 +74,6 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 
 	public MessageResultRes doWork(String dbcpName, BoardBlockReq boardBlockReq)
 			throws Exception {
-
 		try {
 			BoardType.valueOf(boardBlockReq.getBoardID());
 		} catch (IllegalArgumentException e) {			
@@ -130,11 +134,14 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			Record1<String> 
-			boardRecord = create.select(SB_BOARD_TB.BOARD_ST)
+			Record4<UInteger, UShort, UByte, String> 
+			boardRecord = create.select(SB_BOARD_TB.GROUP_NO, 
+					SB_BOARD_TB.GROUP_SQ, 
+					SB_BOARD_TB.DEPTH,
+					SB_BOARD_TB.BOARD_ST)
 					.from(SB_BOARD_TB)					
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).forUpdate()
+					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
 					.fetchOne();
 
 			if (null == boardRecord) {
@@ -148,10 +155,14 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			UInteger groupNo = boardRecord.getValue(SB_BOARD_TB.GROUP_NO);
+			UShort groupSeq = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+			UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
+			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);			
+			
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(nativeBoardStateType, false);
+				boardStateType = BoardStateType.valueOf(boardState, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -160,7 +171,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("게시글의 상태 값[")
-						.append(nativeBoardStateType)
+						.append(boardState)
 						.append("]이 잘못되었습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
@@ -185,14 +196,66 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			create.update(SB_BOARD_TB)
+			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
+			.from(SB_BOARD_TB)
+			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+			.and(SB_BOARD_TB.BOARD_NO.eq(groupNo))
+			.forUpdate().fetchOne();
+			
+			if (null == rootBoardRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=")
+						.append(boardID.longValue())
+						.append(", boardNo=").append(groupNo.longValue())
+						.append("] 이 존재하지 않습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			HashSet<Long> childBoardNoSet = new HashSet<Long>();
+						
+			Result<Record3<UInteger, UByte, String>> 
+			childBoardResult = create.select(SB_BOARD_TB.BOARD_NO, 
+					SB_BOARD_TB.DEPTH, SB_BOARD_TB.BOARD_ST)
+			.from(SB_BOARD_TB)
+			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
+			.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
+			.and(SB_BOARD_TB.GROUP_SQ.lt(groupSeq))
+			.orderBy(SB_BOARD_TB.GROUP_SQ.desc())
+			.fetch();
+			
+			for (Record3<UInteger, UByte, String> childBoardRecord : childBoardResult) {
+				UInteger childBoardNo  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_NO);
+				UByte childDepth = childBoardRecord.getValue(SB_BOARD_TB.DEPTH);
+				String childBoardState  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+				
+				if (childDepth.shortValue() <= depth.shortValue()) {
+					break;
+				}
+				
+				if (BoardStateType.OK.getValue().equals(childBoardState)) {
+					childBoardNoSet.add(childBoardNo.longValue());
+				}
+			}		
+			
+			int updateCount = create.update(SB_BOARD_TB)
 			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.BLOCK.getValue())
 			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
 			.execute();
 			
+			updateCount += create.update(SB_BOARD_TB)
+					.set(SB_BOARD_TB.BOARD_ST, BoardStateType.TREEBLOCK.getValue())
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
+					.and(SB_BOARD_TB.BOARD_NO.in(childBoardNoSet))
+					.execute();			
+						
 			create.update(SB_BOARD_INFO_TB)
-			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.sub(1))
+			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.sub(updateCount))
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 			.execute();
 			

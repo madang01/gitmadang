@@ -1,10 +1,13 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%>
 <%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+	
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+	
 %><jsp:useBean id="sourceString" class="java.lang.String" scope="request" /><%
+	
 %><jsp:useBean id="targetString" class="java.lang.String" scope="request" /><%
-
+	
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -38,7 +41,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getSiteNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h2>자바 문자열 변환 도구 - 결과</h2>
@@ -57,15 +60,15 @@
 
 <div class="row">
 	<div class="col-sm-1" style="background-color:lavenderblush;">원본</div>
-	<div class="col-sm-11" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(sourceString, 
+	<div class="col-sm-11" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(sourceString, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-1" style="background-color:lavenderblush;">결과</div>
-	<div class="col-sm-11" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(targetString, 
+	<div class="col-sm-11" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(targetString, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 
 	</div>

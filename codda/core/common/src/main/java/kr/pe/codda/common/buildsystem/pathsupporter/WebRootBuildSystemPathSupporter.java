@@ -17,7 +17,8 @@ public class WebRootBuildSystemPathSupporter {
 		strBuilder.append(File.separator);
 		strBuilder.append("upload");
 		return strBuilder.toString();
-	}	
+	}
+		
 	
 	/** [project path]/user_web_app_base/temp */
 	public static String getUserWebTempPathString(String installedPathString, String mainProjectName) {

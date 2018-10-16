@@ -34,7 +34,6 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Record2;
-import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
@@ -223,19 +222,21 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			
 
 			/** 댓글은 부모가 속한 그룹의 순서를 조정하므로 그룹 전체에 대해서 동기화가 필요하기때문에 부모가 속한 그룹 최상위 글에 대해서 락을 건다 */
-			Result<Record1<UInteger>> rootBoardResult = create.select(SB_BOARD_TB.BOARD_NO)
+			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
 					.from(SB_BOARD_TB)
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(groupNoOfParentBoard)).forUpdate().fetch();
+					.and(SB_BOARD_TB.BOARD_NO.eq(groupNoOfParentBoard)).forUpdate().fetchOne();
 
-			if (null == rootBoardResult) {
+			if (null == rootBoardRecord) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder().append("그룹 최상위 글[").append(groupNoOfParentBoard.longValue())
+				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=")
+						.append(boardID.longValue())
+						.append(", boardNo=").append(groupNoOfParentBoard.longValue())
 						.append("] 이 존재하지 않습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}

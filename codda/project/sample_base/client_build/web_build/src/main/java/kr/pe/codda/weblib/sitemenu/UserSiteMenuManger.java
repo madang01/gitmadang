@@ -10,6 +10,7 @@ import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.TreeSiteMenuReq.TreeSiteMenuReq;
 import kr.pe.codda.impl.message.TreeSiteMenuRes.TreeSiteMenuRes;
 
@@ -105,17 +106,22 @@ public class UserSiteMenuManger {
 			
 			if ((outputMessage instanceof TreeSiteMenuRes)) {
 				treeSiteMenuRes = (TreeSiteMenuRes)outputMessage;
+			} else if ((outputMessage instanceof MessageResultRes)) {
+				MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+				
+				log.warn("입력 메시지 TreeSiteMenuReq 에 대한 에러 메시지를 받았습니다. receieved errmsg={}", messageResultRes.getResultMessage());
+				
 			} else {
-				log.warn("1차원 배열 구조를 갖는 사이트 메뉴 응답을 얻는데 에러 결과 메시지 혹은 잘못된 출력 메시지를 받았습니다. outputmessage={}", outputMessage.toString());
+				log.warn("입력 메시지 TreeSiteMenuReq 에 대하여 알 수 없는 출력 메시지를 받았습니다. outputmessage={}", outputMessage.toString());
 			}
 		} catch(Exception e) {
-			log.warn("1차원 배열 구조를 갖는 사이트 메뉴 응답을 얻는데 실패하였습니다. errmsg={}", e.getMessage());
+			log.warn("입력 메시지 TreeSiteMenuReq 에 대한 출력 메시지 TreeSiteMenuRes 를 얻는데 실패하였습니다", e);
 			
 		}
 		
 		if (null == treeSiteMenuRes) {
-			/** 1차원 배열 구조를 갖는 사이트 메뉴 응답얻는데 실패하여 디폴트 값으로 설정 */
-			treeSiteMenuRes = getTreeSiteMenuResForTestScenarioNo1();			
+			/** 응답얻는데 실패하여 디폴트 값으로 설정 */
+			treeSiteMenuRes = getDefaultTreeSiteMenuRes();			
 		}
 		
 		return treeSiteMenuRes;
@@ -124,7 +130,7 @@ public class UserSiteMenuManger {
 	/**
 	 * @return  2018년 8월 21일 기준 sample_base 프로젝트의 일반 유저 사이트 메뉴 구성과 같은 {@link TreeSiteMenuRes} 를 반환한다. 메뉴 깊이는 0부터 시작되는데 sample_base 프로젝트의 일반 유저 사이트 메뉴 최대 깊이는 1이다.
 	 */
-	private TreeSiteMenuRes getTreeSiteMenuResForTestScenarioNo1() {
+	private TreeSiteMenuRes getDefaultTreeSiteMenuRes() {
 		TreeSiteMenuRes treeSiteMenuResForTestScenarioNo1 = new TreeSiteMenuRes();
 		
 		List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();

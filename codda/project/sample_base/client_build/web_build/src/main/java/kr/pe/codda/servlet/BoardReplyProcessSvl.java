@@ -27,6 +27,7 @@ import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.codda.weblib.common.WebCommonStaticUtil;
 import kr.pe.codda.weblib.jdf.AbstractMultipartServlet;
 
 public class BoardReplyProcessSvl extends AbstractMultipartServlet {
@@ -51,8 +52,8 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
 		String mainProjectName = runningProjectConfiguration.getMainProjectName();
-		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
-		String webTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(sinnoriInstalledPathString,
+		String installedPathString = runningProjectConfiguration.getInstalledPathString();
+		String webTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(installedPathString,
 				mainProjectName);
 
 		diskFileItemFactory.setRepository(new File(webTempPathString));
@@ -375,17 +376,12 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 
 		BoardReplyRes boardReplyRes = (BoardReplyRes) outputMessage;
 
-		int fileSequence = 0;
+		short attachedFileSeq = 0;
 		for (FileItem fileItem : fileItemList) {
-
-			String newAttachedFileFullName = new StringBuilder(
-					WebRootBuildSystemPathSupporter.getUserWebUploadPathString(sinnoriInstalledPathString, mainProjectName))
-							.append(File.separator).append(WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_PREFIX)
-							.append("_BoardID").append(boardReplyRes.getBoardID()).append("_BoardNo")
-							.append(boardReplyRes.getBoardNo()).append("Seq").append(fileSequence)
-							.append(WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_SUFFIX).toString();
-
-			File newAttachedFile = new File(newAttachedFileFullName);
+			String newAttachedFileFullPathName = WebCommonStaticUtil.getUserAttachedFilePathString(installedPathString, mainProjectName, boardID, 
+					boardReplyRes.getBoardNo(), attachedFileSeq);
+			
+			File newAttachedFile = new File(newAttachedFileFullPathName);
 
 			if (newAttachedFile.exists()) {
 				/** 만약 첨부 파일 정식 이름을 갖는 파일이 존재하면 삭제 */
@@ -394,10 +390,10 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 
 					log.info(
 							"the attached file[seq={}, fileName={}, size={}]'s target file[{}] exists and it was deleted",
-							fileSequence, fileItem.getName(), fileItem.getSize(), newAttachedFileFullName);
+							attachedFileSeq, fileItem.getName(), fileItem.getSize(), newAttachedFileFullPathName);
 				} catch (IOException e) {
 					log.warn("fail to delete the attached file[seq={}, fileName={}, size={}]'s old target file[{}]",
-							fileSequence, fileItem.getName(), fileItem.getSize(), newAttachedFileFullName);
+							attachedFileSeq, fileItem.getName(), fileItem.getSize(), newAttachedFileFullPathName);
 				}
 			}
 
@@ -405,10 +401,10 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 				fileItem.write(newAttachedFile);
 			} catch (Exception e) {
 				log.warn("fail to copy the attached file[seq={}, fileName={}, size={}] to the target file[{}]",
-						fileSequence, fileItem.getName(), fileItem.getSize(), newAttachedFileFullName);
+						attachedFileSeq, fileItem.getName(), fileItem.getSize(), newAttachedFileFullPathName);
 			}
 
-			fileSequence++;
+			attachedFileSeq++;
 		}
 
 		final String goPage = "/jsp/community/BoardReplyOKCallBack.jsp";

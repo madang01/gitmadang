@@ -16,6 +16,7 @@ import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
+import kr.pe.codda.impl.message.BoardModifyRes.BoardModifyRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
@@ -32,6 +33,7 @@ import kr.pe.codda.server.task.ToLetterCarrier;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
+import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -79,7 +81,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 	}
 	
-	public MessageResultRes doWork(String dbcpName, BoardModifyReq boardModifyReq) throws Exception {
+	public BoardModifyRes doWork(String dbcpName, BoardModifyReq boardModifyReq) throws Exception {
 		// FIXME!
 		log.info(boardModifyReq.toString());
 		
@@ -281,12 +283,13 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			Result<Record> attachFileListRecord = create.select().from(SB_BOARD_FILELIST_TB)
+			Result<Record2<UByte, String>> attachFileListRecord = create.select(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, SB_BOARD_FILELIST_TB.ATTACHED_FNAME)
+					.from(SB_BOARD_FILELIST_TB)
 					.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_FILELIST_TB.BOARD_NO.eq(boardNo))
 					.fetch();			
 			
-			short attachedFileMaxSeq = -1;
+			short firstNewAttachedFileSeq = -1;
 			
 			if (null == attachFileListRecord) {
 				/**
@@ -306,16 +309,23 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				HashSet<Short> actualOldAttachedFileSequeceSet = new HashSet<Short>();
 				
 				for (Record attachFileRecord : attachFileListRecord) {
-					BoardDetailRes.AttachedFile attachedFile = new BoardDetailRes.AttachedFile();
-					attachedFile.setAttachedFileSeq(attachFileRecord.get(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ).shortValue());
-					attachedFile.setAttachedFileName(attachFileRecord.get(SB_BOARD_FILELIST_TB.ATTACHED_FNAME));
-					short attachedFileSeq = attachFileRecord.get(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ).shortValue();
+					UByte nativeAttachedFileSeq = attachFileRecord.get(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ);
+					short attachedFileSeq = nativeAttachedFileSeq.shortValue();
+					String attachedFileName = attachFileRecord.get(SB_BOARD_FILELIST_TB.ATTACHED_FNAME);
 					
-					if (attachedFileMaxSeq < attachedFileSeq) {
-						attachedFileMaxSeq = attachedFileSeq;
+					BoardDetailRes.AttachedFile attachedFile = new BoardDetailRes.AttachedFile();
+					attachedFile.setAttachedFileSeq(attachedFileSeq);
+					attachedFile.setAttachedFileName(attachedFileName);
+					
+					
+					if (attachedFileSeq > firstNewAttachedFileSeq) {
+						firstNewAttachedFileSeq = attachedFileSeq;
 					}
 					actualOldAttachedFileSequeceSet.add(attachedFileSeq);
 				}
+				
+				firstNewAttachedFileSeq += 1;				
+				
 				
 				if (! actualOldAttachedFileSequeceSet.containsAll(remainingOldAttachedFileSequeceSet)) {
 					try {
@@ -384,9 +394,9 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			
 			if (boardModifyReq.getNewAttachedFileCnt() > 0) {
 				int newAttachedFileListIndex = 0;
-				for (BoardModifyReq.NewAttachedFile newAttachedFileForRequest : boardModifyReq.getNewAttachedFileList()) {
-					
-					if (attachedFileMaxSeq == CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+				for (BoardModifyReq.NewAttachedFile newAttachedFileForRequest : boardModifyReq.getNewAttachedFileList()) {					
+					int newAttachedFileSeq = firstNewAttachedFileSeq + newAttachedFileListIndex;
+					if (newAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 						try {
 							conn.rollback();
 						} catch (Exception e) {
@@ -395,16 +405,14 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 						
 						String errorMessage = "게시글당 첨부 파일 최대 등록 횟수(=256)를 초가하였습니다";
 						throw new ServerServiceException(errorMessage);
-					}
+					}					
 					
 					int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
 					.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID)
 					.set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
-					.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileMaxSeq+1))
+					.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(newAttachedFileSeq))
 					.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, newAttachedFileForRequest.getAttachedFileName())
-					.execute();		
-					
-					attachedFileMaxSeq++;
+					.execute();
 					
 					if (0 == boardFileListInsertCount) {
 						try {
@@ -425,11 +433,13 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			
 			conn.commit();			
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(boardModifyReq.getMessageID());
-			messageResultRes.setIsSuccess(true);		
-			messageResultRes.setResultMessage("게시글 수정이 성공하였습니다");			
-			return messageResultRes;
+			BoardModifyRes boardModifyRes = new BoardModifyRes();
+			
+			boardModifyRes.setBoardID(boardID.shortValue());
+			boardModifyRes.setBoardNo(boardNo.longValue());
+			boardModifyRes.setFirstNewAttachedFileSeq(firstNewAttachedFileSeq);
+					
+			return boardModifyRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {

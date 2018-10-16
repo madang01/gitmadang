@@ -1,10 +1,4 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%><%
-%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><jsp:useBean id="userMessage" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="debugMessage" class="java.lang.String" scope="request" /><%
-%><!DOCTYPE html>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%%><jsp:useBean id="userMessage" class="java.lang.String" scope="request" /><%%><jsp:useBean id="debugMessage" class="java.lang.String" scope="request" /><%%><!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -80,21 +74,21 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getSiteNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h2>에러 메시지</h2>
 <div class="alert alert-warning">
-<strong>에러내용:</strong> <% 
-	if (null != userMessage && userMessage.trim().length() != 0) {
-		out.print(StringReplacementActorUtil.replace(userMessage, STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
-	}
-%>
+<strong>에러내용:</strong> <%
+ 	if (null != userMessage && userMessage.trim().length() != 0) {
+ 		out.print(StringEscapeActorUtil.replace(userMessage, STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
+ 	}
+ %>
 </div><%
 	if (null != debugMessage && debugMessage.trim().length() != 0) {
 %>
 <div class="alert alert-warning">
-<strong>디버깅:</strong> <%= StringReplacementActorUtil.replace(debugMessage, STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %>
+<strong>디버깅:</strong> <%=StringEscapeActorUtil.replace(debugMessage, STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%>
 </div><%
 	}
 %>

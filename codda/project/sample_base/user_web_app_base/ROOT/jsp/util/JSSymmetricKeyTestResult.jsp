@@ -1,17 +1,4 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringReplacementActorUtil"%><%
-%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><jsp:useBean id="plainText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="algorithm" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="privateKey" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="iv" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="encryptedHexText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="plainHexText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="decryptedHexText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="decryptedPlainText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
-%>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%%><jsp:useBean id="plainText" class="java.lang.String" scope="request" /><%%><jsp:useBean id="algorithm" class="java.lang.String" scope="request" /><%%><jsp:useBean id="privateKey" class="java.lang.String" scope="request" /><%%><jsp:useBean id="iv" class="java.lang.String" scope="request" /><%%><jsp:useBean id="encryptedHexText" class="java.lang.String" scope="request" /><%%><jsp:useBean id="plainHexText" class="java.lang.String" scope="request" /><%%><jsp:useBean id="decryptedHexText" class="java.lang.String" scope="request" /><%%><jsp:useBean id="decryptedPlainText" class="java.lang.String" scope="request" /><%%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -45,7 +32,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getSiteNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h3>CryptoJS 대칭키 테스트 - 결과</h3>
@@ -65,50 +52,50 @@
 
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavender;">원문</div>
-	<div class="col-sm-9" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(plainText, 
+	<div class="col-sm-9" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(plainText, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavenderblush;">대칭키 알고리즘</div>
-	<div class="col-sm-9" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(algorithm, 
-			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></div>
+	<div class="col-sm-9" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(algorithm, 
+			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavender;">개인키</div>
-	<div class="col-sm-9" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(privateKey, 
+	<div class="col-sm-9" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(privateKey, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavenderblush;">iv</div>
-	<div class="col-sm-9" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(iv, 
+	<div class="col-sm-9" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(iv, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavender;">javascirpt 암호문</div>
-	<div class="col-sm-9" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(encryptedHexText, 
+	<div class="col-sm-9" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(encryptedHexText, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavenderblush;">원문 Hex</div>
-	<div class="col-sm-9" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(plainHexText, 
+	<div class="col-sm-9" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(plainHexText, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavender;">server 복호문 Hex</div>
-	<div class="col-sm-9" style="background-color:lavender;"><%= StringReplacementActorUtil.replace(decryptedHexText, 
+	<div class="col-sm-9" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(decryptedHexText, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavenderblush;">server 복호문</div>
-	<div class="col-sm-9" style="background-color:lavenderblush;"><%= StringReplacementActorUtil.replace(decryptedPlainText, 
+	<div class="col-sm-9" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(decryptedPlainText, 
 			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
+			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 </div>
 <div class="row">
 	<div class="col-sm-3" style="background-color:lavender;">비교결과</div>

@@ -6,23 +6,23 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
+import kr.pe.codda.impl.message.BoardModifyRes.BoardModifyRes;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
-import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
@@ -151,8 +151,8 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		BoardModifyReqServerTask boardModifyReqServerTask = new BoardModifyReqServerTask();
 		
 		try {
-			MessageResultRes messageResultRes = boardModifyReqServerTask.doWork(TEST_DBCP_NAME, boardModifyReq);
-			log.info(messageResultRes.toString());
+			BoardModifyRes boardModifyRes = boardModifyReqServerTask.doWork(TEST_DBCP_NAME, boardModifyReq);
+			log.info(boardModifyRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);
 			fail("fail to execuate doTask");
@@ -300,8 +300,8 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		BoardModifyReqServerTask boardModifyReqServerTask = new BoardModifyReqServerTask();
 		
 		try {
-			MessageResultRes messageResultRes = boardModifyReqServerTask.doWork(TEST_DBCP_NAME, boardModifyReq);
-			log.info(messageResultRes.toString());
+			BoardModifyRes boardModifyRes = boardModifyReqServerTask.doWork(TEST_DBCP_NAME, boardModifyReq);
+			log.info(boardModifyRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);
 			fail("fail to execuate doTask");

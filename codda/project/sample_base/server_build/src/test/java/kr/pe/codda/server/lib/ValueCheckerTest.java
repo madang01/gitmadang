@@ -1,4 +1,4 @@
-package kr.pe.codda.common.serverlib;
+package kr.pe.codda.server.lib;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
