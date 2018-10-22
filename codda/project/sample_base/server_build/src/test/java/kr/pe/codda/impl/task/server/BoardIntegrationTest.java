@@ -31,6 +31,7 @@ import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
 import kr.pe.codda.impl.message.BoardModifyRes.BoardModifyRes;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
+import kr.pe.codda.impl.message.BoardUnBlockReq.BoardUnBlockReq;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -1103,7 +1104,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			
 			String expectedErrorMessage = "게시글 차단은 관리자 전용 서비스입니다";
 			
-			assertEquals("일반 유저가 글 차단할때 경고 메시지인지 검사", expectedErrorMessage, errorMessage);
+			assertEquals("게시글 차단 기능 호출자 관리자 여부 검사", expectedErrorMessage, errorMessage);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
@@ -1516,9 +1517,125 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 					boardTreeNode.getSubject(), board.getSubject());
 		}
 		
-		
 		// FIXME! 목표 게시글 블락
+		BoardTreeNode block1BoardTreeNode = boardTree.find("루트1_자식2_자식1_자식3");
+		
+		BoardBlockReq blcok1BoardBlockReq = new BoardBlockReq();
+		blcok1BoardBlockReq.setRequestUserID("admin");
+		blcok1BoardBlockReq.setBoardID(block1BoardTreeNode.getBoardID());
+		blcok1BoardBlockReq.setBoardNo(block1BoardTreeNode.getBoardNo());
+		
+		
+		
 		fail("목표 게시글 블락");
+	}
+	
+	@Test
+	public void 게시판해제_일반유저() {
+		String writerID = "test01";
+		
+		BoardUnBlockReqServerTask boardUnBlockReqServerTask = new BoardUnBlockReqServerTask();
+		BoardUnBlockReq boardUnBlockReq = new BoardUnBlockReq();
+		boardUnBlockReq.setRequestUserID(writerID);
+		boardUnBlockReq.setBoardID(BoardType.FREE.getBoardID());
+		boardUnBlockReq.setBoardNo(1);
+		
+		try {
+			boardUnBlockReqServerTask.doWork(TEST_DBCP_NAME, boardUnBlockReq);			
+			
+			fail("no ServerServiceException");
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			
+			String expectedErrorMessage = "게시글 해제는 관리자 전용 서비스입니다";
+			
+			assertEquals("게시글 해제 기능 호출자 관리자 여부 검사", expectedErrorMessage, errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}	
+	}
+	
+	@Test
+	public void 게시판해제_대상글없음() {
+		String adminID = "admin";
+		
+		BoardUnBlockReqServerTask boardUnBlockReqServerTask = new BoardUnBlockReqServerTask();
+		BoardUnBlockReq boardUnBlockReq = new BoardUnBlockReq();
+		boardUnBlockReq.setRequestUserID(adminID);
+		boardUnBlockReq.setBoardID(BoardType.FREE.getBoardID());
+		boardUnBlockReq.setBoardNo(1);
+		
+		try {
+			boardUnBlockReqServerTask.doWork(TEST_DBCP_NAME, boardUnBlockReq);			
+			
+			fail("no ServerServiceException");
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			
+			String expectedErrorMessage = "해당 게시글이 존재 하지 않습니다";
+			
+			assertEquals("해제 대상 글이 없을때  경고 메시지인지 검사", expectedErrorMessage, errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}	
+	}
+	
+	
+	@Test
+	public void 게시판해제_블락이아닌글_정상삭제혹은트리블락() {
+		String writerID = "test01";
+		String adminID = "admin";
+		
+		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setRequestUserID(writerID);
+		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setSubject("제목1");
+		boardWriteReq.setContent("내용1");
+		boardWriteReq.setIp("172.16.0.1");
+		
+		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
+		
+		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
+		boardWriteReq.setNewAttachedFileList(attachedFileList);
+		
+		BoardWriteRes boardWriteRes = null;
+		try {
+			boardWriteRes = boardWriteReqServerTask.doWork(TEST_DBCP_NAME, boardWriteReq);
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		BoardUnBlockReqServerTask boardUnBlockReqServerTask = new BoardUnBlockReqServerTask();
+		BoardUnBlockReq boardUnBlockReq = new BoardUnBlockReq();
+		boardUnBlockReq.setRequestUserID(adminID);
+		boardUnBlockReq.setBoardID(boardWriteRes.getBoardID());
+		boardUnBlockReq.setBoardNo(boardWriteRes.getBoardNo());
+		
+		try {
+			boardUnBlockReqServerTask.doWork(TEST_DBCP_NAME, boardUnBlockReq);			
+			
+			fail("no ServerServiceException");
+		} catch(ServerServiceException e) {
+			String errorMessage = e.getMessage();
+			
+			String expectedErrorMessage = new StringBuilder()
+			.append("차단된 글[")
+			.append(BoardStateType.OK.getName())
+			.append("]이 아닙니다").toString();
+			
+			assertEquals("해제 대상 글이 없을때  경고 메시지인지 검사", expectedErrorMessage, errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}	
 	}
 	
 	@Test

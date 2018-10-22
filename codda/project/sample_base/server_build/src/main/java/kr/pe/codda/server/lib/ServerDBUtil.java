@@ -23,8 +23,7 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jooq.DSLContext;
-import org.jooq.Record2;
-import org.jooq.Result;
+import org.jooq.Record1;
 import org.jooq.SQLDialect;
 import org.jooq.conf.MappedSchema;
 import org.jooq.conf.RenderMapping;
@@ -372,7 +371,8 @@ public abstract class ServerDBUtil {
 		return DEFAULT_DBCP_SETTINGS;
 	}
 	
-	public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, UByte boardID, 
+	/*public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, 
+			UByte boardID, 
 			UInteger groupNo, UShort groupSeq, UByte depth) {
 		Result<Record2<UShort, UByte>> 
 		childBoardResult = create.select(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.DEPTH)
@@ -395,6 +395,55 @@ public abstract class ServerDBUtil {
 			
 			toGroupSeq = childGroupSeq;			
 		}
+		
+		return toGroupSeq;
+	}*/
+	
+	public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, 
+			UByte boardID, 
+			UInteger groupNo, 
+			UShort groupSq, 
+			UInteger parentNo) throws ServerServiceException {
+		
+		if (0 == parentNo.longValue()) {
+			return UShort.valueOf(0);
+		}
+		
+		Record1<UShort> 
+		firstBrotherBoardRecord = create.select(SB_BOARD_TB.GROUP_SQ.max().as(SB_BOARD_TB.GROUP_SQ))
+		.from(SB_BOARD_TB)
+		.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
+		.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
+		.and(SB_BOARD_TB.GROUP_SQ.lt(groupSq))
+		.and(SB_BOARD_TB.PARENT_NO.eq(parentNo))
+		.fetchOne();
+		
+		if (null == firstBrotherBoardRecord || null == firstBrotherBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ)) {
+			Record1<UInteger> parnetBoardRecord = create.select(SB_BOARD_TB.PARENT_NO)
+			.from(SB_BOARD_TB)
+			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+			.and(SB_BOARD_TB.BOARD_NO.eq(parentNo))
+			.fetchOne();
+			
+			if (null == parnetBoardRecord) {
+				String errorMessage = new StringBuilder()
+				.append("직계 조상 게시글[boardID=")
+				.append(boardID)
+				.append(", boardNo=")
+				.append(parentNo)
+				.append("]이 없습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			UInteger parentNoOfParents = parnetBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
+			
+			return getToGroupSeqOfRelativeRootBoard(create, boardID, groupNo, groupSq, parentNoOfParents);
+		}
+		
+		UShort firstBrotherGroupSeq = firstBrotherBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+		
+		UShort toGroupSeq = UShort.valueOf(firstBrotherGroupSeq.intValue() + 1);
+		
 		
 		return toGroupSeq;
 	}

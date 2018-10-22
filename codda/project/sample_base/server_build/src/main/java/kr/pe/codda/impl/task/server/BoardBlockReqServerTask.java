@@ -4,7 +4,6 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
 import java.sql.Connection;
-import java.util.HashSet;
 
 import javax.sql.DataSource;
 
@@ -26,9 +25,7 @@ import kr.pe.codda.server.task.ToLetterCarrier;
 
 import org.jooq.DSLContext;
 import org.jooq.Record1;
-import org.jooq.Record3;
 import org.jooq.Record4;
-import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
@@ -72,6 +69,9 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 		}
 	}
 
+	private boolean isChildNode(UShort fromGroupSeq, UShort toGroupSeq){
+		return (fromGroupSeq.intValue() == toGroupSeq.intValue());
+	}
 	public MessageResultRes doWork(String dbcpName, BoardBlockReq boardBlockReq)
 			throws Exception {
 		try {
@@ -134,10 +134,10 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			Record4<UInteger, UShort, UByte, String> 
+			Record4<UInteger, UShort, UInteger, String> 
 			boardRecord = create.select(SB_BOARD_TB.GROUP_NO, 
 					SB_BOARD_TB.GROUP_SQ, 
-					SB_BOARD_TB.DEPTH,
+					SB_BOARD_TB.PARENT_NO,
 					SB_BOARD_TB.BOARD_ST)
 					.from(SB_BOARD_TB)					
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
@@ -157,7 +157,8 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			
 			UInteger groupNo = boardRecord.getValue(SB_BOARD_TB.GROUP_NO);
 			UShort groupSeq = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
-			UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
+			UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
+			// UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
 			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);			
 			
 			BoardStateType boardStateType = null;
@@ -216,6 +217,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			/*
 			HashSet<Long> childBoardNoSet = new HashSet<Long>();
 						
 			Result<Record3<UInteger, UByte, String>> 
@@ -240,7 +242,9 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				if (BoardStateType.OK.getValue().equals(childBoardState)) {
 					childBoardNoSet.add(childBoardNo.longValue());
 				}
-			}		
+			}		*/
+			UShort fromGroupSeq = groupSeq;
+			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNo, groupSeq, parentNo);
 			
 			int updateCount = create.update(SB_BOARD_TB)
 			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.BLOCK.getValue())
@@ -248,11 +252,16 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
 			.execute();
 			
-			updateCount += create.update(SB_BOARD_TB)
-					.set(SB_BOARD_TB.BOARD_ST, BoardStateType.TREEBLOCK.getValue())
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
-					.and(SB_BOARD_TB.BOARD_NO.in(childBoardNoSet))
-					.execute();			
+			if (isChildNode(fromGroupSeq, toGroupSeq)) {
+				updateCount += create.update(SB_BOARD_TB)
+						.set(SB_BOARD_TB.BOARD_ST, BoardStateType.TREEBLOCK.getValue())
+						.where(SB_BOARD_TB.BOARD_ID.eq(boardID))					
+						.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))					
+						.and(SB_BOARD_TB.GROUP_SQ.lt(fromGroupSeq))
+						.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq))
+						.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue()))
+						.execute();	
+			}					
 						
 			create.update(SB_BOARD_INFO_TB)
 			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.sub(updateCount))

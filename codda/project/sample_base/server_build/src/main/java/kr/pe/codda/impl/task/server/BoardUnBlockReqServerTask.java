@@ -133,7 +133,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "게시글 차단은 관리자 전용 서비스입니다";
+				String errorMessage = "게시글 해제는 관리자 전용 서비스입니다";
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -189,7 +189,10 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "차단된 글이 아닙니다";
+				String errorMessage = new StringBuilder()
+				.append("차단된 글[")
+				.append(boardStateType.getName())
+				.append("]이 아닙니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -253,7 +256,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 						log.warn("fail to rollback");
 					}
 					
-					String errorMessage = new StringBuilder("직계 부모 게시글[boardID=")
+					String errorMessage = new StringBuilder("직계 조상 게시글[boardID=")
 						.append(boardID.shortValue())
 						.append(", boardNo=")
 						.append(directParentNo.longValue())
@@ -271,7 +274,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					}
 					
 					String errorMessage = new StringBuilder()
-					.append("직계 부모 게시글[boardID=")
+					.append("직계 조상 게시글[boardID=")
 					.append(boardID.shortValue())
 					.append(", boardNo=")
 					.append(directParentNo.longValue())
@@ -284,9 +287,9 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				}
 			}			
 			
-			HashSet<Long> boardNoSet = new HashSet<Long>();
+			HashSet<Long> unBlockBoardNoSet = new HashSet<Long>();
 			
-			boardNoSet.add(boardNo.longValue());
+			unBlockBoardNoSet.add(boardNo.longValue());
 			
 			// int fromGroupSeq = groupSeq.intValue() - 1;			
 			
@@ -347,7 +350,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 						String errorMessage = "게시판 트리 점검 필요";
 							throw new ServerServiceException(errorMessage);
 					}  else {
-						boardNoSet.add(childBoardNo.longValue());
+						unBlockBoardNoSet.add(childBoardNo.longValue());
 					}				
 					
 				// }
@@ -356,11 +359,11 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			create.update(SB_BOARD_TB)
 			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
 			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-			.and(SB_BOARD_TB.BOARD_NO.in(boardNoSet))
+			.and(SB_BOARD_TB.BOARD_NO.in(unBlockBoardNoSet))
 			.execute();
 						
 			create.update(SB_BOARD_INFO_TB)
-			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.add(boardNoSet.size()))
+			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.add(unBlockBoardNoSet.size()))
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 			.execute();
 			

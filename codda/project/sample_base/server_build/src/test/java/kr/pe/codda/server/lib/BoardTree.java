@@ -25,6 +25,28 @@ public class BoardTree {
 		
 		return total;
 	}
+	
+	public BoardTreeNode find(String subject) {
+		if (null == subject) {
+			throw new IllegalArgumentException("the parameter subject is null");
+		}
+		
+		if (null == rootBoardTreeNodeList) {
+			return null;
+		}
+		
+		for (BoardTreeNode rootBoardTreeNode : rootBoardTreeNodeList) {
+			BoardTreeNode findedBoardTreeNode = rootBoardTreeNode.find(subject);
+			
+			if (null != findedBoardTreeNode) {
+				return findedBoardTreeNode;
+			}
+		}
+		
+		return null;
+	}
+	
+	
 
 	@Override
 	public String toString() {

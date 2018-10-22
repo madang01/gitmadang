@@ -90,6 +90,29 @@ public class BoardTreeNode {
 		return total;
 	}
 	
+	public BoardTreeNode find(String subject) {
+		if (null == subject) {
+			throw new IllegalArgumentException("the parameter subject is null");
+		}
+		
+		if (subject.equals(this.subject)) {
+			return this;
+		}
+		
+		if (null == childBoardTreeNodeList) {
+			return null;
+		}
+		
+		for (BoardTreeNode childBoardTreeNode : childBoardTreeNodeList) {
+			BoardTreeNode findedBoardTreeNode = childBoardTreeNode.find(subject);
+			if (null != findedBoardTreeNode) {
+				return findedBoardTreeNode;
+			}
+		}
+		
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
