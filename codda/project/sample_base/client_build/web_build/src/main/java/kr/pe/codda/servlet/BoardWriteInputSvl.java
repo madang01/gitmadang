@@ -35,8 +35,7 @@ public class BoardWriteInputSvl extends AbstractLoginServlet {
 			throws Exception {
 		/**************** 파라미터 시작 *******************/
 		String paramBoardID = req.getParameter("boardID");
-		/**************** 파라미터 종료 *******************/
-		
+		/**************** 파라미터 종료 *******************/		
 		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요";

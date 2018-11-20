@@ -85,8 +85,7 @@
 <div class="row">
 	<div class="col-sm-12">&nbsp;</div>
 </div>
-<form method="post" name="gofrm" action="/servlet/JSMessageDigestTest">
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
+<form method="post" name="gofrm" action="/servlet/JSMessageDigestProcess">
 	<input type="hidden" name="algorithm" />
 	<input type="hidden" name="javascriptMD" />
 	<input type="hidden" name="plainText" />

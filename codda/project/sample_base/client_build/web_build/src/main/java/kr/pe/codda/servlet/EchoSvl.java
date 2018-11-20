@@ -27,13 +27,13 @@ import kr.pe.codda.impl.message.Echo.Echo;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
 /**
- * Echo 메시지 교환 테스트
+ * Echo 메시지 교환 서블릿
  * @author Won Jonghoon
  *
  */
 
-@SuppressWarnings("serial")
-public class EchoTestSvl extends AbstractServlet {
+public class EchoSvl extends AbstractServlet {
+	private static final long serialVersionUID = -5119694446177670731L;
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -82,7 +82,7 @@ public class EchoTestSvl extends AbstractServlet {
 		req.setAttribute("isSame", String.valueOf(isSame));
 		req.setAttribute("erraseTime", String.valueOf(erraseTime));
 		req.setAttribute("echoRes", echoRes);
-		printJspPage(req, res, "/jsp/util/EchoTest.jsp");
+		printJspPage(req, res, "/jsp/util/Echo.jsp");
 		return;
 	}
 }

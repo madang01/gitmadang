@@ -403,48 +403,50 @@ public abstract class ServerDBUtil {
 			UByte boardID, 
 			UInteger groupNo, 
 			UShort groupSq, 
-			UInteger parentNo) throws ServerServiceException {
+			UInteger directParentNo) throws ServerServiceException {
 		
-		if (0 == parentNo.longValue()) {
-			return UShort.valueOf(0);
-		}
-		
-		Record1<UShort> 
-		firstBrotherBoardRecord = create.select(SB_BOARD_TB.GROUP_SQ.max().as(SB_BOARD_TB.GROUP_SQ))
-		.from(SB_BOARD_TB)
-		.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
-		.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
-		.and(SB_BOARD_TB.GROUP_SQ.lt(groupSq))
-		.and(SB_BOARD_TB.PARENT_NO.eq(parentNo))
-		.fetchOne();
-		
-		if (null == firstBrotherBoardRecord || null == firstBrotherBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ)) {
-			Record1<UInteger> parnetBoardRecord = create.select(SB_BOARD_TB.PARENT_NO)
-			.from(SB_BOARD_TB)
-			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-			.and(SB_BOARD_TB.BOARD_NO.eq(parentNo))
-			.fetchOne();
-			
-			if (null == parnetBoardRecord) {
-				String errorMessage = new StringBuilder()
-				.append("직계 조상 게시글[boardID=")
-				.append(boardID)
-				.append(", boardNo=")
-				.append(parentNo)
-				.append("]이 없습니다").toString();
-				throw new ServerServiceException(errorMessage);
+		while(true) {
+			if (0 == directParentNo.longValue()) {
+				return UShort.valueOf(0);
 			}
 			
-			UInteger parentNoOfParents = parnetBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
+			Record1<UShort> 
+			nearestGroupSeqBoardRecord = create.select(SB_BOARD_TB.GROUP_SQ.max().as(SB_BOARD_TB.GROUP_SQ))
+			.from(SB_BOARD_TB)
+			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
+			.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
+			.and(SB_BOARD_TB.GROUP_SQ.lt(groupSq))
+			.and(SB_BOARD_TB.PARENT_NO.eq(directParentNo))
+			.fetchOne();
 			
-			return getToGroupSeqOfRelativeRootBoard(create, boardID, groupNo, groupSq, parentNoOfParents);
+			if (null == nearestGroupSeqBoardRecord || null == nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ)) {
+				Record1<UInteger> parnetBoardRecord = create.select(SB_BOARD_TB.PARENT_NO)
+				.from(SB_BOARD_TB)
+				.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+				.and(SB_BOARD_TB.BOARD_NO.eq(directParentNo))
+				.fetchOne();
+				
+				if (null == parnetBoardRecord) {
+					String errorMessage = new StringBuilder()
+					.append("직계 조상 게시글[boardID=")
+					.append(boardID)
+					.append(", boardNo=")
+					.append(directParentNo)
+					.append("]이 없습니다").toString();
+					throw new ServerServiceException(errorMessage);
+				}
+				
+				directParentNo = parnetBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
+				
+				continue;
+			}
+			
+			UShort nearestGroupSeq = nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+			
+			UShort toGroupSeq = UShort.valueOf(nearestGroupSeq.intValue() + 1);			
+			
+			return toGroupSeq;
 		}
 		
-		UShort firstBrotherGroupSeq = firstBrotherBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
-		
-		UShort toGroupSeq = UShort.valueOf(firstBrotherGroupSeq.intValue() + 1);
-		
-		
-		return toGroupSeq;
 	}
 }

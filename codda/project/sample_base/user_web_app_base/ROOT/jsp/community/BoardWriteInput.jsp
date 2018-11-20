@@ -13,7 +13,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
+<title><%= WebCommonStaticFinalVars.USER_WEBSITE_TITLE %></title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
 <!-- jQuery library -->
@@ -32,10 +32,6 @@
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
 <!--
-	function goURL(bodyurl) {
-		top.document.location.href = bodyurl;		
-	}
-
 	function getSessionkey() {
 		var privateKeyBase64 = sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>');
 		
@@ -71,34 +67,29 @@
 		}
 		
 		
-		var newFileListDiv = document.getElementById('newFileListDiv');	
+		var g = document.gofrm;		
+		var sourceNewFileListDivNode = document.getElementById('sourceNewFileListDiv');	
 			
-		for (var i=0; i < newFileListDiv.childNodes.length; i++) {				
-			var fileInput = newFileListDiv.childNodes[i].childNodes[0].childNodes[0];
+		for (var i=0; i < sourceNewFileListDivNode.childNodes.length; i++) {				
+			var fileInput = sourceNewFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
 			
-			if (1 == newFileListDiv.childNodes.length) {
-				if (f.newAttachFile.value == '') {
+			if (1 == sourceNewFileListDivNode.childNodes.length) {
+				if (g.newAttachFile.value == '') {
 					alert("첨부 파일을 선택하세요");
 					return;
 				}
 			} else {
-				if (f.newAttachFile[i].value == '') {
+				if (g.newAttachFile[i].value == '') {
 					alert(fileInput.getAttribute("title")+"을 선택하세요");
 					return;
 				}
 			}			
 		}
 		
-		var g = document.gofrm;		
-		g.subject.value = f.subject.value;
-		g.content.value = f.content.value;	
 		
-		var gofrmNode = document.getElementById('gofrm');
-		for (var i=0; i < newFileListDiv.childNodes.length; i++) {
-			var fileInput = newFileListDiv.childNodes[i].childNodes[0].childNodes[0];
-			var fileInputCloneNode = fileInput.cloneNode(true);			
-			gofrmNode.appendChild(fileInputCloneNode);
-		}		
+		g.subject.value = f.subject.value;
+		g.content.value = f.content.value;		
+		
 		
 		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
 			= getSessionkey();
@@ -107,12 +98,22 @@
 		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
 		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value 
 			= CryptoJS.enc.Base64.stringify(iv);
+				
+		g.submit()
+	}
+	
+	function callBackForBoardWriteProcess(boardWriteResObj) {
+		alert("게시글 작성이 완료되었습니다");
 		
-		g.submit();
+		goDetailPage(boardWriteResObj.boardNo);
 	}
 
-	function goList() {
-		var g = document.listForm;
+	function goDetailPage(boardNo) {
+		var g = document.goDetailForm;
+		g.boardNo.value = boardNo;
+		g.sessionkeyBase64.value = getSessionkeyBase64();
+		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
 	}
 
@@ -122,10 +123,10 @@
 		var maxIndex = -1;		
 		var uploadFileCnt = 0;
 
-		var newFileListDiv = document.getElementById('newFileListDiv');		
+		var sourceNewFileListDiv = document.getElementById('sourceNewFileListDiv');		
 		
-		for (var i=0;i < newFileListDiv.childNodes.length; i++) {
-			var childNode = newFileListDiv.childNodes[i];
+		for (var i=0;i < sourceNewFileListDiv.childNodes.length; i++) {
+			var childNode = sourceNewFileListDiv.childNodes[i];
 			
 			if (childNode.id.indexOf(prefixOfNewChildDiv) == 0) {
 				uploadFileCnt++;
@@ -151,7 +152,7 @@
 		var attachedFileRowDiv = makeAttachedFileRowDiv(prefixOfNewChildDiv+inx);
 		
 		
-		newFileListDiv.appendChild(attachedFileRowDiv);
+		sourceNewFileListDiv.appendChild(attachedFileRowDiv);
 	}
 	
 	function makeAttachedFileRowDiv(attachedFileRowDivID) {
@@ -189,7 +190,7 @@
 	}
 		
 	function removeNewAttachFile(divIdName) {
-		var d = document.getElementById('newFileListDiv');		
+		var d = document.getElementById('sourceNewFileListDiv');		
 		var olddiv = document.getElementById(divIdName);
 		d.removeChild(olddiv);
 	}
@@ -204,22 +205,20 @@
 </head>
 <body>
 <%= getSiteNavbarString(request) %>
-	<form name=gofrm id="gofrm" method="post" action="/servlet/BoardWriteProcess" enctype="multipart/form-data">
-		<input type="hidden" name="boardID" value="<%= boardType.getBoardID() %>" />
-		<input type="hidden" name="subject" />
-		<input type="hidden" name="content" />
-		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />	
-	</form>
+	
 		
-	<form name=listForm method="post" action="/servlet/BoardList">
-		<input type="hidden" name="boardID" value="<%= boardType.getBoardID() %>" />
+	<form name=goDetailForm method="post" action="/servlet/BoardDetail">
+	<input type="hidden" name="boardID" value="<%= boardType.getBoardID() %>" />
+	<input type="hidden" name="boardNo" />
+	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />	
 	</form>
+
 	<div class="container-fluid">
 		<h3><%= boardType.getName() %> 게시판 - 새글 작성하기</h3>
 		<br>
-		<form name=frm onSubmit="return false" enctype="multipart/form-data">
-			<div class="form-group">			
+		<form name="frm" enctype="multipart/form-data" method="post" action="/servlet/BoardWriteProcess" onsubmit="return false;">
+			<div class="form-group">	
 				<label for="subject">제목</label>
 				<input type="text" name="subject" id="subject" class="form-control" placeholder="Enter subject" />
 				<br>
@@ -232,11 +231,21 @@
 					<input type="button" class="btn btn-default" onClick="addNewAttachFile()" value="첨부 파일 추가" />			
 				</div>
 				<br>
-				<br>
-				<!-- 주의점 myDiv 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
-				<div id="newFileListDiv"></div>			
+				<br>							
+			</div>
+		</form>
+		<form name="gofrm" id="gofrm" enctype="multipart/form-data" method="post" target="hiddenFrame" action="/servlet/BoardWriteProcess">
+			<div class="form-group">
+				<input type="hidden" name="boardID" value="<%= boardType.getBoardID() %>" />
+				<input type="hidden" name="subject" />
+				<input type="hidden" name="content" />
+				<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+				<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />	
+				<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
+				<div id="sourceNewFileListDiv"></div>
 			</div>
 		</form>
 	</div>
+	<iframe name="hiddenFrame" style="display:none;"></iframe>
 </body>
 </html>

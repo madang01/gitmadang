@@ -4,7 +4,7 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String USER_WEBSITE_TITLE = "Codda Home";
 	public static final String ADMIN_WEBSITE_TITLE = "Codda Admin Home";
 	
-	public static final String PARAMETER_KEY_NAME_OF_REQUEST_TYPE = "requestType";
+	//public static final String PARAMETER_KEY_NAME_OF_REQUEST_TYPE = "requestType";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY = "sessionkeyBase64";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY_IV = "ivBase64";	
 	

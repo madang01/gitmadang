@@ -64,8 +64,7 @@
 
 <div class="well well-sm">&nbsp;</div>
 
-<form method="post" name="gofrm" action="/servlet/JavaStringConverter">
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
+<form method="post" name="gofrm" action="/servlet/JavaStringConverterProcess">
 	<input type="hidden" name="sourceString" />
 </form>
 <form name="frm" onsubmit="return chkform(this);">

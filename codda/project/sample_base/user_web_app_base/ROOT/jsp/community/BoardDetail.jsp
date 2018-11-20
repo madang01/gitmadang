@@ -1,5 +1,16 @@
 <%@page import="com.google.gson.Gson"%><%
-%><%@page import="java.util.List"%><%%><%@page import="java.util.ArrayList"%><%%><%@page import="java.sql.Timestamp"%><%%><%@page import="kr.pe.codda.weblib.common.BoardStateType"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@page import="kr.pe.codda.weblib.common.BoardType"%><%%><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%%><%@ page import="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" %><%%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%%><jsp:useBean id="boardDetailRes" class="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" scope="request" /><%// FIXME!
+%><%@page import="java.util.List"%><%
+%><%@page import="java.util.ArrayList"%><%
+%><%@page import="java.sql.Timestamp"%><%
+%><%@page import="kr.pe.codda.weblib.common.BoardStateType"%><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
+%><%@page import="kr.pe.codda.weblib.common.BoardType"%><%
+%><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%
+%><%@ page import="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" %><%
+%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><jsp:useBean id="boardDetailRes" class="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" scope="request" /><%
+	// FIXME!
 	boardDetailRes.setBoardID(BoardType.FREE.getBoardID());
 	boardDetailRes.setBoardNo(1);
 	boardDetailRes.setViewCount(11);
@@ -240,7 +251,7 @@
 			return false;
 		}
 		
-		var newFileListDivNode = document.getElementById('newFileListDivForModifyInputFrm');		
+		var sourceNewFileListDivNode = document.getElementById('newFileListDivForModifyInputFrm');		
 		var oldFileListDivNode = document.getElementById('oldFileListDivForModifyInputFrm');
 		
 		var uploadFileCnt = oldFileListDivNode.childNodes.length + newFileListDivNode.childNodes.length;
@@ -251,35 +262,28 @@
 			return false;
 		}
 			
+		var g = document.modofyProcessFrm;
 		
 		for (var i=0; i < newFileListDivNode.childNodes.length; i++) {				
 			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
 			
 			if (1 == newFileListDivNode.childNodes.length) {
-				if (f.newAttachFile.value == '') {
+				if (g.newAttachFile.value == '') {
 					alert("첨부 파일을 선택하세요");
 					return false;
 				}
 			} else {
-				if (f.newAttachFile[i].value == '') {
+				if (g.newAttachFile[i].value == '') {
 					alert(fileInput.getAttribute("title")+"을 선택하세요");
 					return false;
 				}
 			}			
 		}
 		
-		$('#modifyInputModal').modal('toggle');
+		$('#modifyInputModal').modal('toggle');		
 		
-		var g = document.modofyProcessFrm;
 		g.subject.value = f.subject.value;
-		g.content.value = f.content.value;
-		
-		var modifyInputFrmNode = document.getElementById('modifyInputFrm');
-		for (var i=0; i < newFileListDivNode.childNodes.length; i++) {
-			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
-			var fileInputCloneNode = fileInput.cloneNode(true);			
-			modifyInputFrmNode.appendChild(fileInputCloneNode);
-		}
+		g.content.value = f.content.value;		
 		
 		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
 		= getSessionkey();
@@ -289,6 +293,11 @@
 		g.submit();		
 		
 		return false;	
+	}
+	
+	function callBackForBoardModifyProcess() {
+		alert("게시글 수정이 완료되었습니다");
+		document.location.reload();
 	}
 		
 	function showReplyInputModal() {
@@ -376,7 +385,7 @@
 			return false;
 		}
 				
-		var newFileListDivNode = document.getElementById('newFileListDivForReplyInputFrm');		
+		var sourceNewFileListDivNode = document.getElementById('newFileListDivForReplyInputFrm');		
 		var uploadFileCnt = oldFileListDivNode.childNodes.length;	
 			
 		if (uploadFileCnt > uploadFileMaxCnt) {
@@ -384,30 +393,22 @@
 			return false;
 		}
 		
-		for (var i=0; i < newFileListDivNode.childNodes.length; i++) {				
-			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
+		var g = document.replyProcessFrm;
+		
+		for (var i=0; i < sourceNewFileListDivNode.childNodes.length; i++) {				
+			var fileInput = sourceNewFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
 			
-			if (1 == newFileListDivNode.childNodes.length) {
-				if (f.newAttachFile.value == '') {
+			if (1 == sourceNewFileListDivNode.childNodes.length) {
+				if (g.newAttachFile.value == '') {
 					alert("첨부 파일을 선택하세요");
 					return false;
 				}
 			} else {
-				if (f.newAttachFile[i].value == '') {
+				if (g.newAttachFile[i].value == '') {
 					alert(fileInput.getAttribute("title")+"을 선택하세요");
 					return false;
 				}
 			}			
-		}
-		
-		
-		var g = document.replayProcessFrm;
-		
-		var replyInputFrmNode = document.getElementById('replyInputFrm');
-		for (var i=0; i < newFileListDivNode.childNodes.length; i++) {
-			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
-			var fileInputCloneNode = fileInput.cloneNode(true);			
-			replyInputFrmNode.appendChild(fileInputCloneNode);
 		}
 		
 		g.<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>.value 
@@ -415,6 +416,11 @@
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
 		g.submit();
+	}
+	
+	function callBackForBoardReplyProcess() {
+		alert("댓글 등록이 완료되었습니다");
+		goList();
 	}
 	
 	function goVote() {	
@@ -426,6 +432,10 @@
 		g.submit();
 	}
 	
+	function callBackForBoardVote() {
+		alert("게시글 추천이 완료되었습니다");
+		document.location.reload();
+	}	
 	
 	function goList() {	
 		var g = document.goListFrm;		
@@ -486,25 +496,8 @@
 </script>
 </head>
 <body>
-<%=getSiteNavbarString(request)%>
-	<form name=modofyProcessFrm id="modofyProcessFrm" target=hiddenFrame method="post" action="/servlet/BoardModifyProcess" enctype="multipart/form-data">
-		<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
-		<input type="hidden" name="boardNo" value="<%=boardDetailRes.getBoardNo()%>" />
-		<input type="hidden" name="subject" />
-		<input type="hidden" name="content" />
-		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
-		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
-	</form>
-	
-	<form name=replayProcessFrm target=hiddenFrame method="post" action="/servlet/BoardReplyProcess">
-		<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
-		<input type="hidden" name="parentBoardNo" value="<%=boardDetailRes.getBoardNo()%>" />
-		<input type="hidden" name="subject" />
-		<input type="hidden" name="content" />
-		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" /> 
-		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
-	</form>
-	
+<%= getSiteNavbarString(request) %>
+
 	<form name=voteFrm target=hiddenFrame method="post" action="/servlet/BoardVote">
 		<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
 		<input type="hidden" name="boardNo" value="<%=boardDetailRes.getBoardNo()%>" />
@@ -513,7 +506,7 @@
 	</form>
 	
 	<form name=goListFrm method="post" action="/servlet/BoardList">
-		<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
+		<input type="hidden" name="boardID" value="<%= boardDetailRes.getBoardID() %>" />
 	</form>
 	
 	<form name=goDownloadFrm target="hiddenFrame" method="post" action="/servlet/BoardDownload">
@@ -523,7 +516,7 @@
 	</form>
 
 	<div class="container-fluid">
-		<h3><%=boardType.getName()%> 게시판 - 상세보기</h3>
+		<h3><%= boardType.getName() %> 게시판 - 상세보기</h3>
 		<br>
 		<div class="btn-group">
 			<button type="button" class="btn btn-primary btn-sm" onClick="showReplyInputModal()">댓글</button>
@@ -583,7 +576,7 @@
 					<h4 class="modal-title">게시글 수정 화면</h4>
 				</div>
 				<div class="modal-body" style="overflow-y:auto">
-					<form name="modifyInputFrm" id="modifyInputFrm" method="post" onSubmit="return modify();" enctype="multipart/form-data">							
+					<form name="modifyInputFrm" method="post" onSubmit="return modify();" enctype="multipart/form-data">							
 						 <div class="form-group">
 						    <label for="subjectForModifyInputFrm">제목</label>
 						    <input type="text" id="subjectForModifyInputFrm" name="subject" class="form-control" placeholder="Enter subject" />
@@ -596,10 +589,18 @@
 							<input type="button" class="btn btn-default" onClick="restoreOldAttachedFileList()" value="기존 첨부 파일 목록 복구" />	
 							<input type="button" class="btn btn-default" onClick="addNewAttachFileForModifyInputFrm()" value="신규 첨부 파일 추가" />									
 						</div>
+					</form>	
+					<form name=modofyProcessFrm target=hiddenFrame method="post" action="/servlet/BoardModifyProcess" enctype="multipart/form-data">
+						<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
+						<input type="hidden" name="boardNo" value="<%=boardDetailRes.getBoardNo()%>" />
+						<input type="hidden" name="subject" />
+						<input type="hidden" name="content" />
+						<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+						<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
+						<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
 						<div id="oldFileListDivForModifyInputFrm"></div>
-						<!-- 주의점 myDiv 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
 						<div id="newFileListDivForModifyInputFrm"></div>
-					</form>					
+					</form>				
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -617,7 +618,7 @@
 					<h4 class="modal-title">게시글 댓글 화면</h4>
 				</div>
 				<div class="modal-body">
-					<form name="replyInputFrm"  id="replyInputFrm" method="post" onSubmit="return reply();" enctype="multipart/form-data">							
+					<form name="replyInputFrm" method="post" onSubmit="return reply();" enctype="multipart/form-data">							
 						 <div class="form-group">
 						    <label for="subjectForReplyInputFrm">제목</label>
 						    <input type="text" id="subjectForReplyInputFrm" name="subject" class="form-control" placeholder="Enter subject" />
@@ -629,9 +630,18 @@
 						<div class="btn-group">
 							<input type="button" class="btn btn-default" onClick="addNewAttachFileForReplyInputFrm()" value="첨부 파일 추가" />			
 						</div>
-						<!-- 주의점 myDiv 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
+						
+					</form>	
+					<form name=replyProcessFrm target=hiddenFrame method="post" action="/servlet/BoardReplyProcess">
+						<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
+						<input type="hidden" name="parentBoardNo" value="<%=boardDetailRes.getBoardNo()%>" />
+						<input type="hidden" name="subject" />
+						<input type="hidden" name="content" />
+						<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" /> 
+						<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
+						<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
 						<div id="newFileListDivForReplyInputFrm"></div>
-					</form>					
+					</form>				
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

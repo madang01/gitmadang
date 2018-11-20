@@ -20,149 +20,231 @@
 	Welcome to Codda
     </description>
 	
-	<!-- 사용자 로그인 -->
+	<!-- 사용자 로그인 입력 화면 -->
 	<servlet>
-		<servlet-name>UserLogin</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.UserLoginSvl</servlet-class>
+		<servlet-name>UserLoginInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.UserLoginInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/UserLogin</param-value>
+			<param-value>/servlet/UserLoginInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>UserLogin</servlet-name>
-		<url-pattern>/servlet/UserLogin</url-pattern>
+		<servlet-name>UserLoginInput</servlet-name>
+		<url-pattern>/servlet/UserLoginInput</url-pattern>
 	</servlet-mapping>
-
-	<!-- 회원 등록, siteType : {admin, user} -->
+	
+	<!-- DB 사용자 로그인 처리 -->
 	<servlet>
-		<servlet-name>MemberRegistration</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MemberRegistrationSvl</servlet-class>
+		<servlet-name>UserLoginProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.UserLoginProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/MemberRegistration</param-value>
-		</init-param>
-		<init-param>
-			<param-name>siteType</param-name>
-			<param-value>USER</param-value>
+			<param-value>/servlet/UserLoginProcess</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MemberRegistration</servlet-name>
-		<url-pattern>/servlet/MemberRegistration</url-pattern>
+		<servlet-name>UserLoginProcess</servlet-name>
+		<url-pattern>/servlet/UserLoginProcess</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 하드코딩된 사용자 정보를 마탕으로 하는 사용자 로그인 처리 -->
+	<servlet>
+		<servlet-name>UserHardCodingLoginProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.UserHardCodingLoginProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/UserLoginProcess</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserHardCodingLoginProcess</servlet-name>
+		<url-pattern>/servlet/UserHardCodingLoginProcess</url-pattern>
+	</servlet-mapping>
+		
+	<!-- 사용자 사이트의 회원 등록 화면 -->
+	<servlet>
+		<servlet-name>UserSiteMembershipInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.UserSiteMembershipInputSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/UserSiteMembershipInput</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserSiteMembershipInput</servlet-name>
+		<url-pattern>/servlet/UserSiteMembershipInput</url-pattern>
 	</servlet-mapping>	
 	
-	<!-- JDF 비로그인 테스트 -->
+	<!-- 회원 등록 처리 -->
 	<servlet>
-		<servlet-name>JDFNotLoginTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JDFNotLoginTestSvl</servlet-class>
+		<servlet-name>MembershipProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MembershipProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JDFNotLoginTest</param-value>
+			<param-value>/servlet/UserSiteMembershipInput</param-value>
+		</init-param>		
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MembershipProcess</servlet-name>
+		<url-pattern>/servlet/MembershipProcess</url-pattern>
+	</servlet-mapping>	
+	
+	<!-- JDF 비로그 -->
+	<servlet>
+		<servlet-name>JDFNotLogin</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JDFNotLoginSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JDFNotLogin</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JDFNotLoginTest</servlet-name>
-		<url-pattern>/servlet/JDFNotLoginTest</url-pattern>
+		<servlet-name>JDFNotLogin</servlet-name>
+		<url-pattern>/servlet/JDFNotLogin</url-pattern>
 	</servlet-mapping>
 	
-	<!-- JDF 로그인 테스트 -->
+	<!-- JDF 로그인 -->
 	<servlet>
-		<servlet-name>JDFLoginTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JDFLoginTestSvl</servlet-class>
+		<servlet-name>JDFLogin</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JDFLoginSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JDFLoginTest</param-value>
+			<param-value>/servlet/JDFLogin</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JDFLoginTest</servlet-name>
-		<url-pattern>/servlet/JDFLoginTest</url-pattern>
+		<servlet-name>JDFLogin</servlet-name>
+		<url-pattern>/servlet/JDFLogin</url-pattern>
 	</servlet-mapping>
 	
 	
-	<!-- JDF 세션키 테스트 -->
+	<!-- JDF 세션키  -->
 	<servlet>
-		<servlet-name>JDFSessionKeyTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JDFSessionKeyTestSvl</servlet-class>
+		<servlet-name>JDFSessionKey</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JDFSessionKeySvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JDFSessionKeyTest</param-value>
+			<param-value>/servlet/JDFSessionKey</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JDFSessionKeyTest</servlet-name>
-		<url-pattern>/servlet/JDFSessionKeyTest</url-pattern>
+		<servlet-name>JDFSessionKey</servlet-name>
+		<url-pattern>/servlet/JDFSessionKey</url-pattern>
 	</servlet-mapping>
 
-	<!-- RSA 암/복호화 테스트 -->
+	<!-- RSA 암/복호화 입력 화면 -->
 	<servlet>
-		<servlet-name>JSRSATest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSRSATestSvl</servlet-class>
+		<servlet-name>JSRSAInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSRSAInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JSRSATest</param-value>
+			<param-value>/servlet/JSRSAInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JSRSATest</servlet-name>
-		<url-pattern>/servlet/JSRSATest</url-pattern>
+		<servlet-name>JSRSAInput</servlet-name>
+		<url-pattern>/servlet/JSRSAInput</url-pattern>
+	</servlet-mapping>
+	
+	<!-- RSA 암/복호화 처리 -->
+	<servlet>
+		<servlet-name>JSRSAProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSRSAProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JSRSAInput</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JSRSAProcess</servlet-name>
+		<url-pattern>/servlet/JSRSAProcess</url-pattern>
+	</servlet-mapping>
+	
+	
+
+	<!-- 자바 스크립트 CryptoJS 라이브러리의 '메시지 다이제스트'(=해쉬) 입력 화면 -->
+	<servlet>
+		<servlet-name>JSMessageDigestInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSMessageDigestInputSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JSMessageDigestInput</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JSMessageDigestInput</servlet-name>
+		<url-pattern>/servlet/JSMessageDigestInput</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 자바 스크립트 CryptoJS 라이브러리의 '메시지 다이제스트'(=해쉬) 처리 -->
+	<servlet>
+		<servlet-name>JSMessageDigestProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSMessageDigestProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JSMessageDigestInput</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JSMessageDigestProcess</servlet-name>
+		<url-pattern>/servlet/JSMessageDigestProcess</url-pattern>
 	</servlet-mapping>
 
-	<!-- '메시지 다이제스트'(=해쉬) 테스트 -->
+	<!-- 자바 스크립트 CryptoJS 라이브러리의 대칭키 입력 화면 -->
 	<servlet>
-		<servlet-name>JSMessageDigestTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSMessageDigestTestSvl</servlet-class>
+		<servlet-name>JSSymmetricKeyInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSSymmetricKeyInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JSMessageDigestTest</param-value>
+			<param-value>/servlet/JSSymmetricKeyInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JSMessageDigestTest</servlet-name>
-		<url-pattern>/servlet/JSMessageDigestTest</url-pattern>
+		<servlet-name>JSSymmetricKeyInput</servlet-name>
+		<url-pattern>/servlet/JSSymmetricKeyInput</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 자바 스크립트 CryptoJS 라이브러리의 대칭키 처리 -->
+	<servlet>
+		<servlet-name>JSSymmetricKeyProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JSSymmetricKeyProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JSSymmetricKeyInput</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JSSymmetricKeyProcess</servlet-name>
+		<url-pattern>/servlet/JSSymmetricKeyProcess</url-pattern>
 	</servlet-mapping>
 
-	<!-- 대칭키 테스트 -->
+	<!-- 에코 메시지 교환 -->
 	<servlet>
-		<servlet-name>JSSymmetricKeyTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSSymmetricKeyTestSvl</servlet-class>
+		<servlet-name>Echo</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.EchoSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JSSymmetricKeyTest</param-value>
+			<param-value>/servlet/Echo</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JSSymmetricKeyTest</servlet-name>
-		<url-pattern>/servlet/JSSymmetricKeyTest</url-pattern>
+		<servlet-name>Echo</servlet-name>
+		<url-pattern>/servlet/Echo</url-pattern>
 	</servlet-mapping>
 
-	<!-- 에코 테스트 -->
+	<!-- 모든 데이터 타입 메시지 교환 -->
 	<servlet>
-		<servlet-name>EchoTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.EchoTestSvl</servlet-class>
+		<servlet-name>AllItemType</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.AllItemTypeSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/EchoTest</param-value>
+			<param-value>/servlet/AllItemType</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>EchoTest</servlet-name>
-		<url-pattern>/servlet/EchoTest</url-pattern>
-	</servlet-mapping>
-
-	<!-- 모든 데이터 타입 테스트 -->
-	<servlet>
-		<servlet-name>AllItemTypeTest</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.AllItemTypeTestSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/AllItemTypeTest</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>AllItemTypeTest</servlet-name>
-		<url-pattern>/servlet/AllItemTypeTest</url-pattern>
+		<servlet-name>AllItemType</servlet-name>
+		<url-pattern>/servlet/AllItemType</url-pattern>
 	</servlet-mapping>
 	
 	
@@ -307,19 +389,34 @@
 		<url-pattern>/servlet/JavaGCCaller</url-pattern>
 	</servlet-mapping>
 	
-	<!-- 자바 문자열 변환 도구 -->
+	<!-- 자바 문자열 변환 도구 입력 화면 -->
 	<servlet>
-		<servlet-name>JavaStringConverter</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JavaStringConverterSvl</servlet-class>
+		<servlet-name>JavaStringConverterInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JavaStringConverterInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/JavaStringConverter</param-value>
+			<param-value>/servlet/JavaStringConverterInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JavaStringConverter</servlet-name>
-		<url-pattern>/servlet/JavaStringConverter</url-pattern>
+		<servlet-name>JavaStringConverterInput</servlet-name>
+		<url-pattern>/servlet/JavaStringConverterInput</url-pattern>
 	</servlet-mapping>
+	
+	<!-- 자바 문자열 변환 도구 처리 -->
+	<servlet>
+		<servlet-name>JavaStringConverterProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.JavaStringConverterProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/JavaStringConverterInput</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JavaStringConverterProcess</servlet-name>
+		<url-pattern>/servlet/JavaStringConverterProcess</url-pattern>
+	</servlet-mapping>
+	
 	
 	<!-- Simple Captcha start -->
 	<servlet>

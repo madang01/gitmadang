@@ -19,11 +19,7 @@ import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
 @SuppressWarnings("serial")
 public class BoardVoteSvl extends AbstractLoginServlet {
 	
-	private void printBoardErrorCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
-		final String goPage = "/jsp/community/BoardProcessFailureCallBack.jsp";
-		req.setAttribute("errorMessage", errorMessage);
-		printJspPage(req, res, goPage);
-	}
+	
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -39,7 +35,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요";
 			String debugMessage = "the web parameter 'boardID' is null";
 			log.warn(debugMessage);
-			printBoardErrorCallBackPage(req, res, errorMessage);	
+			printErrorMessagePage(req, res, errorMessage, debugMessage);	
 			return;
 		}
 		
@@ -51,7 +47,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 			String debugMessage = new StringBuilder("the web parameter 'boardID'[")
 					.append(paramBoardID).append("] is not a short").toString();
 			log.warn(debugMessage);
-			printBoardErrorCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -64,7 +60,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 					.append(BoardType.getSetString())
 					.append("]").toString();
 			log.warn(debugMessage);
-			printBoardErrorCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -73,7 +69,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 			String errorMessage = "게시판 번호를 입력해 주세요";
 			String debugMessage = "the web parameter 'boardNo' is null";
 			log.warn(debugMessage);
-			printBoardErrorCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}		
 		
@@ -86,7 +82,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 					.append(paramBoardNo)
 					.append("] is a Long").toString();
 			log.warn(debugMessage);
-			printBoardErrorCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -96,7 +92,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 					.append(paramBoardNo)
 					.append("] is less than or equal to zero").toString();
 			log.warn(debugMessage);
-			printBoardErrorCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -116,7 +112,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 			
 			log.error(debugMessage);
 
-			printBoardErrorCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;			
 		}		
 		
@@ -124,11 +120,11 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		
 		if (! messageResultRes.getIsSuccess()) {
 			String errorMessage = messageResultRes.getResultMessage();			
-			printBoardErrorCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, null);
 			return;
 		}
 		
-		printJspPage(req, res, "/jsp/community/BoardVoteOKCallBack.jsp");
+		printJspPage(req, res, "/jsp/community/BoardVote.jsp");
 		return;
 	}
 

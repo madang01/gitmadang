@@ -1,97 +1,58 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%%><jsp:useBean id="userMessage" class="java.lang.String" scope="request" /><%%><jsp:useBean id="debugMessage" class="java.lang.String" scope="request" /><%%><!DOCTYPE html>
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
+%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+%><jsp:useBean id="userMessage" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="debugMessage" class="java.lang.String" scope="request" /><%
+%><!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
+<title><%= WebCommonStaticFinalVars.USER_WEBSITE_TITLE %></title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
 <!-- jQuery library -->
 <script src="/jquery/3.3.1/jquery.min.js"></script>
 <!-- Latest compiled JavaScript -->
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
-
-<script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
-<script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
-<script type="text/javascript" src="/js/jsbn/prng4.js"></script>
-<script type="text/javascript" src="/js/jsbn/rng.js"></script>
-<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
-<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/tripledes.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
 <!--
-	function chkform() {		
-		var f = document.frm;
-		var g = document.gofrm;		
-		var encryptedBytes;
-			 
-		switch(f.algorithm.selectedIndex) {
-			case 0:
-				var privateKey = CryptoJS.lib.WordArray.random(16);		
-				g.privateKey.value = CryptoJS.enc.Hex.stringify(privateKey);
-				var iv = CryptoJS.lib.WordArray.random(16);
-				g.iv.value = CryptoJS.enc.Hex.stringify(iv);
-				encryptedBytes = CryptoJS.AES.encrypt(f.plainText.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-				break;
-			case 1:
-				var privateKey = CryptoJS.lib.WordArray.random(8);		
-				g.privateKey.value = CryptoJS.enc.Hex.stringify(privateKey);
-				var iv = CryptoJS.lib.WordArray.random(8);
-				g.iv.value = CryptoJS.enc.Hex.stringify(iv);
-				encryptedBytes = CryptoJS.DES.encrypt(f.plainText.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-				break;
-			case 2:
-				var privateKey = CryptoJS.lib.WordArray.random(24);		
-				g.privateKey.value = CryptoJS.enc.Hex.stringify(privateKey);
-				var iv = CryptoJS.lib.WordArray.random(8);
-				g.iv.value = CryptoJS.enc.Hex.stringify(iv);
-				encryptedBytes = CryptoJS.TripleDES.encrypt(f.plainText.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });			  
-				break;  
-			default:
-			 alert("unkown digest message algothm");
-			 return false;
-		}
-			
-		// g.encryptedBytes.value = encryptedBytes.ciphertext;
-		g.encryptedHexText.value = CryptoJS.enc.Hex.stringify(encryptedBytes);
-		g.algorithm.value = f.algorithm.options[f.algorithm.selectedIndex].value;
-		g.plainText.value = f.plainText.value;
-		g.submit();
+function init() {
+	if (parent != null && parent.hiddenFrame != null) {
+		var userMessage = document.getElementById("userMessage");
+		// var debugMessage = document.getElementById("debugMessage");
 		
-		return false;
+		alert(userMessage.innerText);
 	}
-	
+}
 
-	function init() {	
-	}
-
-	window.onload = init;	
+window.onload = init;
 //-->
 </script>
 </head>
 <body>
-<%=getSiteNavbarString(request)%>
+<%= getSiteNavbarString(request) %>
 	
 	<div class="container-fluid">
-		<h2>에러 메시지</h2>
-<div class="alert alert-warning">
-<strong>에러내용:</strong> <%
- 	if (null != userMessage && userMessage.trim().length() != 0) {
- 		out.print(StringEscapeActorUtil.replace(userMessage, STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
- 	}
- %>
-</div><%
-	if (null != debugMessage && debugMessage.trim().length() != 0) {
-%>
-<div class="alert alert-warning">
-<strong>디버깅:</strong> <%=StringEscapeActorUtil.replace(debugMessage, STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%>
-</div><%
-	}
-%>
-	</div>	
+		<h3>에러 내용</h3>
+		<div class="row">
+			<div class="col-sm-1">종류</div>
+			<div class="col-sm-11">내용</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-1">일반</div>
+			<div class="col-sm-11" id="userMessage"><%=StringEscapeActorUtil.replace(userMessage, 
+					STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+					STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
+		</div>
+		<div class="row">
+			<div class="col-sm-1">디버깅</div>
+			<div class="col-sm-11" id="debugMessage"><%=StringEscapeActorUtil.replace(debugMessage, 
+					STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+					STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
+		</div>		
+	</div>
 </body>
 </html>

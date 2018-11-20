@@ -13,7 +13,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
+<title><%= WebCommonStaticFinalVars.USER_WEBSITE_TITLE %></title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
 <!-- jQuery library -->
@@ -33,14 +33,14 @@
 <script type="text/javascript">
 <!--
 	function init() {
-		var pageIV = CryptoJS.enc.Base64.parse("<%=getParameterIVBase64Value(request)%>");	
+		var pageIV = CryptoJS.enc.Base64.parse("<%= getParameterIVBase64Value(request) %>");	
 		
-		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>'));
+		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>'));
 		
-		var messageTxt = CryptoJS.AES.decrypt("<%=getCipheredBase64String(request, 
+		var messageTxt = CryptoJS.AES.decrypt("<%= getCipheredBase64String(request, 
 				StringEscapeActorUtil.replace(orignalMessage, 
 				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-				STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR))%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+				STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 			
 		document.getElementById('idTxtResultMessage').innerHTML = messageTxt.toString(CryptoJS.enc.Utf8);
 	}
@@ -50,7 +50,7 @@
 </script>
 </head>
 <body>
-<%=getSiteNavbarString(request)%>
+<%= getSiteNavbarString(request) %>
 	
 	<div class="container-fluid">
 		<h2>JDF 테스트 - 세션키</h2>
@@ -83,7 +83,6 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 	<div class="col-sm-6" style="background-color:lavenderblush;" id="idTxtResultMessage"></div>
 </div>
-
 	</div>
 </body>
 </html>

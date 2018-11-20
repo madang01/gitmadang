@@ -213,7 +213,7 @@ public class AdminSiteMenuManger {
 				.append(CommonStaticFinalVars.NEWLINE)
 				.append(getTabStrings(tapStep+4))
 				.append("<li><a href=\"")
-				.append("/servlet/MemberRegistration")
+				.append("/servlet/AdminSiteMembershipInput")
 				.append("\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up</a></li>")
 				.append(CommonStaticFinalVars.NEWLINE);				
 		
@@ -226,7 +226,7 @@ public class AdminSiteMenuManger {
 		} else {
 			siteNavbarStringBuilder.append(getTabStrings(tapStep+4))
 			.append("<li><a href=\"")
-			.append("/servlet/AdminLogin")
+			.append("/servlet/AdminLoginInput")
 			.append("\"><span class=\"glyphicon glyphicon-log-in\"></span> login</a></li>")
 			.append(CommonStaticFinalVars.NEWLINE);
 		}

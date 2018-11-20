@@ -247,7 +247,7 @@
 	function buildListView() {
 		var listView = document.getElementById("listView");
 		
-		while (listView.firstChild) {
+		while (listView.hasChildNodes()) {
 			listView.removeChild(listView.firstChild);
 		}		
 		

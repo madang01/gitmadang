@@ -20,7 +20,10 @@ import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
+import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
+import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
@@ -34,11 +37,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 
 	private static final long serialVersionUID = 6956101754008552227L;
 	
-	private void printBoardProcessFailureCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
-		final String goPage = "/jsp/community/BoardProcessFailureCallBack.jsp";
-		req.setAttribute("errorMessage", errorMessage);
-		printJspPage(req, res, goPage);
-	}
+	
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -69,6 +68,8 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		// Set overall request size constraint
 		upload.setSizeMax(WebCommonStaticFinalVars.ATTACHED_FILE_MAX_SIZE);
 
+		String parmSessionKeyBase64 = null;
+		String parmIVBase64 = null;
 		String paramBoardID = null;
 		String paramParentBoardNo = null;
 		String paramSubject = null;
@@ -91,7 +92,11 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 					log.info("form field's name={} and value={}", formFieldName, formFieldValue);
 
 					/**************** 파라미터 시작 *******************/	
-					if (formFieldName.equals("boardID")) {
+					if (formFieldName.equals(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY)) {
+						parmSessionKeyBase64 = formFieldValue;
+					} else if (formFieldName.equals(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)) {
+						parmIVBase64 = formFieldValue;
+					} else if (formFieldName.equals("boardID")) {
 						paramBoardID = formFieldValue;
 					} else if (formFieldName.equals("parentBoardNo")) {
 						paramParentBoardNo = formFieldValue;
@@ -112,7 +117,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 								.append(getLoginedUserIDFromHttpSession(req)).toString();
 						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-						printBoardProcessFailureCallBackPage(req, res, errorMessage);
+						printErrorMessagePage(req, res, errorMessage, debugMessage);
 						return;
 					}
 
@@ -133,7 +138,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 									.append(getLoginedUserIDFromHttpSession(req)).toString();
 							log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-							printBoardProcessFailureCallBackPage(req, res, errorMessage);
+							printErrorMessagePage(req, res, errorMessage, debugMessage);
 							return;
 						} else {
 							for (char forbiddenChar : WebCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
@@ -148,7 +153,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 											.append(getLoginedUserIDFromHttpSession(req)).toString();
 									log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-									printBoardProcessFailureCallBackPage(req, res, errorMessage);
+									printErrorMessagePage(req, res, errorMessage, debugMessage);
 									return;
 								}
 							}
@@ -167,7 +172,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 								.append(getLoginedUserIDFromHttpSession(req)).toString();
 						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-						printBoardProcessFailureCallBackPage(req, res, errorMessage);
+						printErrorMessagePage(req, res, errorMessage, debugMessage);
 						return;
 					}
 					
@@ -178,7 +183,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 								.append(getLoginedUserIDFromHttpSession(req)).toString();
 						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-						printBoardProcessFailureCallBackPage(req, res, errorMessage);
+						printErrorMessagePage(req, res, errorMessage, debugMessage);
 						return;
 					}
 
@@ -188,7 +193,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 								.append(getLoginedUserIDFromHttpSession(req)).toString();
 						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-						printBoardProcessFailureCallBackPage(req, res, errorMessage);
+						printErrorMessagePage(req, res, errorMessage, debugMessage);
 						return;
 					}
 
@@ -200,7 +205,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 								.append(getLoginedUserIDFromHttpSession(req)).toString();
 						log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-						printBoardProcessFailureCallBackPage(req, res, errorMessage);
+						printErrorMessagePage(req, res, errorMessage, debugMessage);
 						return;
 					}
 					
@@ -213,7 +218,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 									.append(getLoginedUserIDFromHttpSession(req)).toString();
 							log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-							printBoardProcessFailureCallBackPage(req, res, errorMessage);
+							printErrorMessagePage(req, res, errorMessage, debugMessage);
 							return;
 						}
 						
@@ -227,7 +232,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 									.append(getLoginedUserIDFromHttpSession(req)).toString();
 							log.warn("{}, ip=", debugMessage, req.getRemoteAddr());
 
-							printBoardProcessFailureCallBackPage(req, res, errorMessage);
+							printErrorMessagePage(req, res, errorMessage, debugMessage);
 							return;
 						}
 					} finally {
@@ -256,11 +261,80 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			}
 		}
 	
+		if (null == parmSessionKeyBase64) {
+			String errorMessage = "세션키를 넣어 주세요";
+			String debugMessage = new StringBuilder("the web parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY)
+			.append("' is null").toString();
+			
+			log.warn(debugMessage);
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == parmIVBase64) {
+			String errorMessage = "iv 값을 넣어 주세요";
+			String debugMessage = new StringBuilder("the web parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)
+			.append("' is null").toString();
+			
+			log.warn(debugMessage);
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		ServerSessionkeyIF webServerSessionkey  = null;
+		try {
+			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();			
+		} catch (SymmetricException e) {
+			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
+			
+			String errorMessage = "ServerSessionkeyManger instance init error";
+			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}	
+		
+		byte[] sessionkeyBytes = null;
+		try {
+			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmSessionKeyBase64);
+		} catch(Exception e) {
+			log.warn("parmSessionKeyBase64[{}] base64 decode error, errormessage=[{}]", parmSessionKeyBase64, e.getMessage());
+			
+			String errorMessage = "the parameter parmSessionKeyBase64 is not a base64 string";
+			String debugMessage = String.format("parmSessionKeyBase64[%s] base64 decode error, errormessage=[%s]", parmSessionKeyBase64, e.getMessage());
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		byte[] ivBytes = null;
+		try {
+			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmIVBase64);
+		} catch(Exception e) {
+			log.warn("parmIVBase64[{}] base64 decode error, errormessage=[{}]", parmIVBase64, e.getMessage());
+			
+			String errorMessage = "the parameter parmIVBase64 is not a base64 string";
+			String debugMessage = String.format("parmIVBase64[%s] base64 decode error, errormessage=[%s]", parmIVBase64, e.getMessage());
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}		
+		
+		//log.info("sessionkeyBytes=[{}]", HexUtil.getHexStringFromByteArray(sessionkeyBytes));
+		//log.info("ivBytes=[{}]", HexUtil.getHexStringFromByteArray(ivBytes));
+		
+		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, 
+				webServerSessionkey.getModulusHexStrForWeb());		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes));
+		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요";
 			String debugMessage = "the web parameter 'boardID' is null";
 			log.warn(debugMessage);
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
@@ -273,7 +347,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 					.append("] is not a short").toString();
 			log.warn(debugMessage);
 			
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
@@ -285,7 +359,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 					.append("] is not a element of set[").append(BoardType.getSetString()).append("]").toString();
 			log.warn(debugMessage);
 			
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
@@ -294,7 +368,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			String debugMessage = "the web parameter 'parentBoardNo' is null";
 			log.warn(debugMessage);
 			
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
@@ -309,7 +383,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			
 			log.warn(debugMessage);
 			
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
@@ -320,7 +394,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			
 			log.warn(debugMessage);
 			
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
@@ -331,7 +405,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			
 			log.warn(debugMessage);
 			
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
@@ -342,7 +416,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			
 			log.warn(debugMessage);
 			
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}		
 
@@ -361,7 +435,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		if ((outputMessage instanceof MessageResultRes)) {
 			MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
 
-			printBoardProcessFailureCallBackPage(req, res, messageResultRes.getResultMessage());
+			printErrorMessagePage(req, res, messageResultRes.getResultMessage(), null);
 			return;
 		} else if (!(outputMessage instanceof BoardReplyRes)) {
 			String errorMessage = "게시판 쓰기가 실패했습니다";
@@ -370,7 +444,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 
 			log.error(debugMessage);
 
-			printBoardProcessFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
@@ -407,7 +481,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			attachedFileSeq++;
 		}
 
-		final String goPage = "/jsp/community/BoardReplyOKCallBack.jsp";
+		final String goPage = "/jsp/community/BoardReplyProcess.jsp";
 		printJspPage(req, res, goPage);
 		return;
 	}

@@ -26,7 +26,6 @@ import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
 import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
-import kr.pe.codda.impl.message.BoardListRes.BoardListRes.Board;
 import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
 import kr.pe.codda.impl.message.BoardModifyRes.BoardModifyRes;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
@@ -1427,6 +1426,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 	}	
 	
+	
 	@Test
 	public void 게시글차단_루트정상() {
 		HashMap<Long, BoardTreeNode> boardNoToBoardTreeNodeHash =
@@ -1707,7 +1707,6 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			log.warn("fail to execuate doTask", e);
 			fail("fail to execuate doTask");
 		}
-		
 		
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
 		boardModifyReq.setRequestUserID(boardWriteReq.getRequestUserID());

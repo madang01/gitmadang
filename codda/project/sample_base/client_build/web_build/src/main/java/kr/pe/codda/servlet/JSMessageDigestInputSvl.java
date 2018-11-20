@@ -17,38 +17,25 @@ package kr.pe.codda.servlet;
  */
 
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
-
 /**
- * 로그인 하지 않는 경우 테스트
+ * 자바 스크립트 CryptoJS 라이브러리에서 제공하는 해쉬(=메시지 다이제스트) 함수와 자바 결과 일치 테스트<br/>
+ * 해쉬 함수 목록 (1) MD5 (2) SHA1 (3) SHA-256 (4) SHA-512 가 있다.
  * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
-public class JDFNotLoginTestSvl extends AbstractServlet {
+public class JSMessageDigestInputSvl extends AbstractServlet {
+
 	@Override
-	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-				
-		// String title = "Not Login Test:MVC2 model ok";
+	protected void performTask(HttpServletRequest req, HttpServletResponse res)
+			throws Exception {		
 		
-		Enumeration<String> headerNames = req.getHeaderNames();
-		
-		Hashtable<String, String> headerInformationHash = new  Hashtable<String, String>();
-		
-		while (headerNames.hasMoreElements()) {
-		    String key = (String)headerNames.nextElement();
-		    String value = req.getHeader(key);
-		    headerInformationHash.put(key, value);
-        }
-	
-		req.setAttribute("headerInformationHash", headerInformationHash);		
-		printJspPage(req, res, "/jsp/util/JDFNotLoginTest.jsp");
+		printJspPage(req, res, "/jsp/util/JSMessageDigestInput.jsp");
 	}
+	
 }

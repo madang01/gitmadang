@@ -217,7 +217,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			}
 			
 			UInteger directParentNo = parentNo;
-			while (true) {
+			while (! directParentNo.equals(groupNo)) {
 				Record2<UInteger, String> 
 				directParentBoardRecord = create.select(
 						SB_BOARD_TB.PARENT_NO,
@@ -243,7 +243,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					throw new ServerServiceException(errorMessage);
 				}
 				
-				directParentNo = directParentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);			
+				UInteger parentNoOfDirectParentNo = directParentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);			
 				String directParentBoardState = directParentBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 				
 				BoardStateType directParentBoardStateType = null;
@@ -253,7 +253,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					try {
 						conn.rollback();
 					} catch (Exception e1) {
-						log.warn("fail to rollback");
+						log.warn("fail to rollback", e1);
 					}
 					
 					String errorMessage = new StringBuilder("직계 조상 게시글[boardID=")
@@ -266,7 +266,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					throw new ServerServiceException(errorMessage);
 				}
 				
-				if (BoardStateType.BLOCK.equals(directParentBoardStateType)) {
+				if (! BoardStateType.OK.equals(directParentBoardStateType)) {
 					try {
 						conn.rollback();
 					} catch (Exception e) {
@@ -278,13 +278,13 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					.append(boardID.shortValue())
 					.append(", boardNo=")
 					.append(directParentNo.longValue())
-					.append("]이 차단된 게시글은 차단 해제 할 수 없습니다").toString();
+					.append("]이 정상[")
+					.append(directParentBoardStateType.getName())
+					.append("]이 아닌 게시글은 차단 해제 할 수 없습니다").toString();
 					throw new ServerServiceException(errorMessage);
 				}
 				
-				if (directParentNo.equals(groupNo)) {
-					break;
-				}
+				directParentNo = parentNoOfDirectParentNo;
 			}			
 			
 			HashSet<Long> unBlockBoardNoSet = new HashSet<Long>();

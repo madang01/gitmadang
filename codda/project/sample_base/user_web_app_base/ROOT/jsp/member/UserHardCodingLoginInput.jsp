@@ -10,7 +10,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
+<title><%= WebCommonStaticFinalVars.USER_WEBSITE_TITLE %></title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
 <!-- jQuery library -->
@@ -31,7 +31,7 @@
 <!--
 	function init() {
 		var f = document.frm;
-		f.userID.value =  "test00";
+		f.userID.value =  "test01";
 		f.pwd.value =  "test1234$";
 		// f.pwd.value =  "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~$";
 	}
@@ -186,7 +186,7 @@
 	<div class="container-fluid">
 		<h3>사용자 로그인</h3>
 		<div id="resultMessageView"></div>
-		<form method="post" name="gofrm" target="hiddenFrame" action="/servlet/UserLoginProcess">
+		<form method="post" name="gofrm" target="hiddenFrame" action="/servlet/UserHardCodingLoginProcess">
 			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 			<input type="hidden" name="userID" />

@@ -119,10 +119,10 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(nativeBoardStateType, false);
+				boardStateType = BoardStateType.valueOf(boardState, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -131,7 +131,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("게시글의 상태 값[")
-						.append(nativeBoardStateType)
+						.append(boardState)
 						.append("]이 잘못되었습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
@@ -153,6 +153,15 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = "해당 게시글은 관리자에 의해 차단된 글입니다";
+				throw new ServerServiceException(errorMessage);
+			} else if (BoardStateType.TREEBLOCK.equals(boardStateType)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "해당 게시글 트리는 관리자에 의해 차된되었습니다";
 				throw new ServerServiceException(errorMessage);
 			}			
 			
@@ -196,7 +205,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
 			.execute();
-			
+
 			create.update(SB_BOARD_INFO_TB)
 			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.sub(1))
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))

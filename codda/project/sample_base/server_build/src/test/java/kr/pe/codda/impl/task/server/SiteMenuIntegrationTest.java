@@ -386,7 +386,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("JDF-비 로그인 테스트");
-					childMenu.setLinkURL("/servlet/JDFNotLoginTest");
+					childMenu.setLinkURL("/servlet/JDFNotLogin");
 					childMenuList.add(childMenu);
 				}
 				
@@ -394,7 +394,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("JDF-로그인 테스트");
-					childMenu.setLinkURL("/servlet/JDFLoginTest");
+					childMenu.setLinkURL("/servlet/JDFLogin");
 					childMenuList.add(childMenu);
 				}
 				
@@ -402,7 +402,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("세션키 테스트");
-					childMenu.setLinkURL("/servlet/JDFSessionKeyTest");
+					childMenu.setLinkURL("/servlet/JDFSessionKey");
 					childMenuList.add(childMenu);
 				}
 				
@@ -589,7 +589,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("JDF-비 로그인 테스트");
-					childMenu.setLinkURL("/servlet/JDFNotLoginTest");
+					childMenu.setLinkURL("/servlet/JDFNotLogin");
 					childMenuList.add(childMenu);
 				}
 				
@@ -597,7 +597,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("JDF-로그인 테스트");
-					childMenu.setLinkURL("/servlet/JDFLoginTest");
+					childMenu.setLinkURL("/servlet/JDFLogin");
 					childMenuList.add(childMenu);
 				}
 				
@@ -605,7 +605,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("세션키 테스트");
-					childMenu.setLinkURL("/servlet/JDFSessionKeyTest");
+					childMenu.setLinkURL("/servlet/JDFSessionKey");
 					
 					List<TreeSiteMenuRes.Menu> twoDepthChildMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
 					{
@@ -846,7 +846,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("JDF-비 로그인 테스트");
-					childMenu.setLinkURL("/servlet/JDFNotLoginTest");
+					childMenu.setLinkURL("/servlet/JDFNotLogin");
 					childMenuList.add(childMenu);
 				}
 				
@@ -854,7 +854,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("JDF-로그인 테스트");
-					childMenu.setLinkURL("/servlet/JDFLoginTest");
+					childMenu.setLinkURL("/servlet/JDFLogin");
 					childMenuList.add(childMenu);
 				}
 				
@@ -862,7 +862,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("세션키 테스트");
-					childMenu.setLinkURL("/servlet/JDFSessionKeyTest");
+					childMenu.setLinkURL("/servlet/JDFSessionKey");
 					
 					List<TreeSiteMenuRes.Menu> twoDepthChildMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
 					{

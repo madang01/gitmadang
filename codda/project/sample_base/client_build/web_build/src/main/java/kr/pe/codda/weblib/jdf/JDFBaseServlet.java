@@ -497,7 +497,8 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	 * @param debugMessage
 	 *            개발시점에서 개발자가 Debugging을 위해 보는 메세지, 통상 운영시는 보이지 않도록 함.
 	 */
-	protected void printErrorMessagePage (HttpServletRequest req, HttpServletResponse res, String userMessage, String debugMessage) {		
+	protected void printErrorMessagePage (HttpServletRequest req, HttpServletResponse res, 
+			String userMessage, String debugMessage) {		
 		
 		if (null == userMessage) {
 			userMessage = "user messsage is null";

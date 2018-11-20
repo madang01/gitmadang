@@ -20,10 +20,10 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type='text/javascript'>
 	function init() {
-		var errorMsssage = document.getElementById("errorMsssage");
+		var errorMsssageNode = document.getElementById("errorMsssage");
 		
 		if (parent != null && parent.errorMessageCallBack != null) {
-			parent.errorMessageCallBack(errorMsssage.innerHTML);
+			parent.errorMessageCallBack(errorMsssageNode.innerText);
 		} else {
 			alert(errorMsssage.innerText);
 		}
@@ -34,9 +34,9 @@
 	<body>
 	<div class="container-fluid">
 		<h1>메뉴에서 숨겨준 프레임에서 동작하는 에러 메시지 콜백</h1>
-		<div id="errorMsssage"><%=StringEscapeActorUtil.replace(errorMessage, 
+		<div id="errorMsssage"><%= StringEscapeActorUtil.replace(errorMessage, 
 					STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-					STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
+					STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></div>
 	</div>
 	<body>
 </html>

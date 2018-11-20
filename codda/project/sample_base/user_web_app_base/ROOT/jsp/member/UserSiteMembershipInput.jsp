@@ -200,8 +200,7 @@
 </head>
 <body>
 <%= getSiteNavbarString(request) %>
-<form method="post" name="gofrm" action="/servlet/MemberRegistration" target="hiddenFrame">
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
+<form method="post" name="gofrm" action="/servlet/MembershipProcess" target="hiddenFrame">
 	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 	<input type="hidden" name="userID" />

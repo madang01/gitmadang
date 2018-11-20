@@ -29,12 +29,12 @@ import kr.pe.codda.impl.message.AllItemType.AllItemType;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
 /**
- * 모든 데이터 타입을 갖는 AllItemType 메시지 교환 테스트
+ * 모든 데이터 타입을 갖는 AllItemType 메시지 교환 서블릿
  * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
-public class AllItemTypeTestSvl extends AbstractServlet {
+public class AllItemTypeSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {	
@@ -241,7 +241,7 @@ public class AllItemTypeTestSvl extends AbstractServlet {
 		req.setAttribute("allDataTypeReq", allDataTypeReq);
 		req.setAttribute("allItemTypeRes", allItemTypeRes);
 		req.setAttribute("isSame", String.valueOf(isSame));
-		printJspPage(req, res, "/jsp/util/AllItemTypeTest.jsp");
+		printJspPage(req, res, "/jsp/util/AllItemType.jsp");
 	}	
 	
 }
