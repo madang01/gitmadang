@@ -48,56 +48,56 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		
 		if (null == paramSessionKeyBase64) {
 			String errorMessage = "the request parameter paramSessionKeyBase64 is null";
-			String debugMessage = errorMessage;
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (! Base64.isBase64(paramSessionKeyBase64)) {
 			String errorMessage = "the request parameter paramSessionKeyBase64 is not a base64 string";
-			String debugMessage = errorMessage;
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramIVBase64) {
 			String errorMessage = "the request parameter paramIVBase64 is null";
-			String debugMessage = errorMessage;
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (! Base64.isBase64(paramIVBase64)) {
 			String errorMessage = "the request parameter paramIVBase64 is not a base64 string";
-			String debugMessage = errorMessage;
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramUserIDCipherBase64) {
 			String errorMessage = "the request parameter userID is null";
-			String debugMessage = errorMessage;
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (! Base64.isBase64(paramUserIDCipherBase64)) {
 			String errorMessage = "the request parameter userID is not a base64 cipher text";
-			String debugMessage = errorMessage;
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramPwdCipherBase64) {
 			String errorMessage = "the request parameter paramPwdCipherBase64 is null";
-			String debugMessage = errorMessage;
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (! Base64.isBase64(paramPwdCipherBase64)) {
 			String errorMessage = "the request parameter paramPwdCipherBase64 is not a base64 cipher string";
-			String debugMessage = errorMessage;
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		} 		
@@ -124,7 +124,13 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
 			String errorMessage = "세션키 파라미터가 잘못되었습니다";
-			String debugMessage = String.format("check whether the parameter paramSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", paramSessionKeyBase64, e.getMessage());
+			String debugMessage = new StringBuilder()
+			.append("the parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY)
+			.append("'[")
+			.append(paramSessionKeyBase64)
+			.append("] is not a base64 encoding string, errmsg=")
+			.append(e.getMessage()).toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
@@ -135,7 +141,13 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
 			String errorMessage = "세션키 소금 파라미터가 잘못되었습니다";
-			String debugMessage = String.format("check whether the parameter paramIVBase64[%s] is a base64 encoding string, errormessage=[%s]", paramIVBase64, e.getMessage());
+			String debugMessage = new StringBuilder()
+			.append("the parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)
+			.append("'[")
+			.append(paramIVBase64)
+			.append("] is not a base64 encoding string, errmsg=")
+			.append(e.getMessage()).toString();
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -264,7 +276,8 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		
 		MessageResultRes messageResultRes = (MessageResultRes) loginOutputMessage;
 		if (! messageResultRes.getIsSuccess()) {
-			printErrorMessagePage(req, res, messageResultRes.getResultMessage(), null);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, messageResultRes.getResultMessage(), debugMessage);
 			return;
 		}
 		
@@ -276,7 +289,7 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 
-		printJspPage(req, res, "/jsp/member/AdminLoginOKCallBack.jsp");
+		printJspPage(req, res, "/jsp/member/AdminLoginProcess.jsp");
 		return;		
 	}
 }

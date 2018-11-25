@@ -17,11 +17,11 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type='text/javascript'>
 	function init() {		
-		if (parent != null && parent.addChildMenuOkCallBack != null) {
+		if (parent != null && parent.callBackForChildMenuAdditionProcess != null) {
 			var childMenuAddRes = <%= new Gson().toJson(childMenuAddRes) %>;
-			parent.addChildMenuOkCallBack(childMenuAddRes);
+			parent.callBackForChildMenuAdditionProcess(childMenuAddRes);
 		} else {
-			alert("parent.addChildMenuOkCallBack 이 존재하지 않습니다");
+			alert("parent.callBackForChildMenuAdditionProcess 이 존재하지 않습니다");
 		}
 	}
 	window.onload = init;

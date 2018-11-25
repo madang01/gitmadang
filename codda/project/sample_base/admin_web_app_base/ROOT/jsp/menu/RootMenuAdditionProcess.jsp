@@ -1,5 +1,7 @@
-<%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%
+<%@page import="com.google.gson.Gson"%><%
+%><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%
 %><%@page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+%><jsp:useBean id="rootMenuAddRes" class="kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes" scope="request" /><%
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -15,10 +17,11 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type='text/javascript'>
 	function init() {		
-		if (parent != null && parent.moveMenuUpOkCallBack != null) {
-			parent.moveMenuUpOkCallBack();
+		if (parent != null && parent.callBackForRootMenuAdditionProcess != null) {
+			var rootMenuAddRes = <%= new Gson().toJson(rootMenuAddRes) %>;
+			parent.callBackForRootMenuAdditionProcess(rootMenuAddRes);
 		} else {
-			alert("parent.moveMenuUpOkCallBack 이 존재하지 않습니다");
+			alert("parent.callBackForRootMenuAdditionProcess 이 존재하지 않습니다");
 		}
 	}
 	window.onload = init;
@@ -26,7 +29,7 @@
 </head>
 	<body>
 		<div class="container-fluid">
-			<h1>메시지 상단 이동 성공 콜백</h1>		
+			<h1>루트 메뉴 추가 성공 콜백 호출</h1>
 		</div>
 	<body>
 </html>

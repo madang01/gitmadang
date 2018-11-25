@@ -7,26 +7,26 @@ import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.impl.message.MenuModifyReq.MenuModifyReq;
+import kr.pe.codda.impl.message.MenuMoveUpReq.MenuMoveUpReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
-public class MenuModificationSvl extends AbstractAdminLoginServlet {
-	
-	private static final long serialVersionUID = -8652788264007358139L;
+public class MenuMoveUpProcessSvl extends AbstractAdminLoginServlet {
 
-	private void printErrorMessageCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
-		req.setAttribute("errorMessage", errorMessage);
-		printJspPage(req, res, "/jsp/menu/MenuProcessFailureCallback.jsp");
-	}	
+	private static final long serialVersionUID = -2827334751125714227L;
+	
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
+		/**************** 파라미터 시작 *******************/
 		String paramMenuNo = req.getParameter("menuNo");
+		/**************** 파라미터 종료 *******************/
+				
 		if (null == paramMenuNo) {
 			String errorMessage = "파라미터 '메뉴번호'(=menuNo) 값을 넣어주세요";			
 			log.warn(errorMessage);
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -42,7 +42,8 @@ public class MenuModificationSvl extends AbstractAdminLoginServlet {
 			
 			log.warn(errorMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -54,7 +55,8 @@ public class MenuModificationSvl extends AbstractAdminLoginServlet {
 			
 			log.warn(errorMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -67,70 +69,41 @@ public class MenuModificationSvl extends AbstractAdminLoginServlet {
 					.append("] 보다 큽니다").toString();
 			
 			log.warn(errorMessage);
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		String paramMenuName = req.getParameter("menuName");
-		log.info("the paramter 'menuName'=[{}]", paramMenuName);
-		
-		if (null == paramMenuName) {
-			String errorMessage = "파라미터 '메뉴이름'(=menuName) 값을 넣어주세요";
-			
-			
-			log.warn(errorMessage);
-
-			printErrorMessageCallBackPage(req, res, errorMessage);
-			return;
-		}
-		
-		
-		
-		
-		String paramLinkURL = req.getParameter("linkURL");
-		
-		if (null == paramLinkURL) {
-			String errorMessage = "파라미터 '링크 URL'(=linkURL) 값을 넣어주세요";
-			
-			log.warn(errorMessage);
-
-			printErrorMessageCallBackPage(req, res, errorMessage);
-			return;
-		}
-		
-		
-		MenuModifyReq menuModifyReq = new MenuModifyReq();
-		menuModifyReq.setMenuNo(nativeMenuNo);
-		menuModifyReq.setMenuName(paramMenuName);
-		menuModifyReq.setLinkURL(paramLinkURL);
+		MenuMoveUpReq menuMoveUpReq = new MenuMoveUpReq();
+		menuMoveUpReq.setMenuNo(nativeMenuNo);
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuModifyReq);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuMoveUpReq);
 		
 		if (outputMessage instanceof MessageResultRes) {
 			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
 			if (! messageResultRes.getIsSuccess()) {
-				printErrorMessageCallBackPage(req, res, messageResultRes.getResultMessage());
+				String debugMessage = null;
+				printErrorMessagePage(req, res, messageResultRes.getResultMessage(), debugMessage);
 				return;
 			}
 			
-			printJspPage(req, res, "/jsp/menu/MenuModificationOkCallBack.jsp");
+			printJspPage(req, res, "/jsp/menu/MenuMoveUpProcess.jsp");
 			return;
 		} else {
-			String errorMessage = new StringBuilder().append("메뉴[")
-					.append(menuModifyReq.getMenuNo())
-					.append("] 수정이 실패했습니다").toString();
+			String errorMessage = "메뉴 상단 이동이 실패하였습니다";
 			String debugMessage = new StringBuilder("입력 메시지[")
-					.append(menuModifyReq.getMessageID())
+					.append(menuMoveUpReq.getMessageID())
 					.append("]에 대한 비 정상 출력 메시지[")
 					.append(outputMessage.toString())
 					.append("] 도착").toString();
 			
 			log.warn(debugMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 	}
+
 }

@@ -12,14 +12,10 @@ import kr.pe.codda.impl.message.ChildMenuAddRes.ChildMenuAddRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
-public class ChildMenuAdditionSvl extends AbstractAdminLoginServlet {
+public class ChildMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
 
 	private static final long serialVersionUID = -4564816006231510832L;
 
-	private void printErrorMessageCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
-		req.setAttribute("errorMessage", errorMessage);
-		printJspPage(req, res, "/jsp/menu/MenuProcessFailureCallback.jsp");
-	}
 	
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -32,7 +28,9 @@ public class ChildMenuAdditionSvl extends AbstractAdminLoginServlet {
 		if (null == paramParentNo) {
 			String errorMessage = "파라미터 '부모메뉴번호'(=parentNo) 값을 넣어주세요";			
 			log.warn(errorMessage);
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -48,7 +46,8 @@ public class ChildMenuAdditionSvl extends AbstractAdminLoginServlet {
 			
 			log.warn(errorMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -59,8 +58,9 @@ public class ChildMenuAdditionSvl extends AbstractAdminLoginServlet {
 					.append("])의 값이 음수입니다").toString();
 			
 			log.warn(errorMessage);
-
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -73,7 +73,9 @@ public class ChildMenuAdditionSvl extends AbstractAdminLoginServlet {
 					.append("] 보다 큽니다").toString();
 			
 			log.warn(errorMessage);
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -84,7 +86,8 @@ public class ChildMenuAdditionSvl extends AbstractAdminLoginServlet {
 			
 			log.warn(errorMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -95,7 +98,8 @@ public class ChildMenuAdditionSvl extends AbstractAdminLoginServlet {
 			
 			log.warn(errorMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -107,27 +111,29 @@ public class ChildMenuAdditionSvl extends AbstractAdminLoginServlet {
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(childMenuAddReq);
 		
-		if (outputMessage instanceof ChildMenuAddRes) {
-			req.setAttribute("childMenuAddRes", outputMessage);
-			printJspPage(req, res, "/jsp/menu/ChildMenuAdditionOkCallBack.jsp");
-		} else if (outputMessage instanceof MessageResultRes) {
-			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;			
-			printErrorMessageCallBackPage(req, res, messageResultRes.getResultMessage());	
-			return;
-		} else {
-			String errorMessage = "자식 메뉴 추가하는데 실패하였습니다";
-			String debugMessage = new StringBuilder("입력 메시지[")
-					.append(childMenuAddReq.getMessageID())
-					.append("]에 대한 비 정상 출력 메시지[")
-					.append(outputMessage.toString())
-					.append("] 도착").toString();
-			
-			log.warn(debugMessage);
+		if (! (outputMessage instanceof ChildMenuAddRes)) {
+			if (outputMessage instanceof MessageResultRes) {
+				MessageResultRes messageResultRes = (MessageResultRes)outputMessage;	
+				
+				String debugMessage = null;
+				printErrorMessagePage(req, res, messageResultRes.getResultMessage(), debugMessage);
+				return;
+			} else {
+				String errorMessage = "자식 메뉴 추가하는데 실패하였습니다";
+				String debugMessage = new StringBuilder("입력 메시지[")
+						.append(childMenuAddReq.getMessageID())
+						.append("]에 대한 비 정상 출력 메시지[")
+						.append(outputMessage.toString())
+						.append("] 도착").toString();
+				
+				log.warn(debugMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
-			return;
+				printErrorMessagePage(req, res, errorMessage, debugMessage);
+				return;
+			}
 		}
-		
-	}
 
+		req.setAttribute("childMenuAddRes", outputMessage);
+		printJspPage(req, res, "/jsp/menu/ChildMenuAdditionProcess.jsp");
+	}
 }

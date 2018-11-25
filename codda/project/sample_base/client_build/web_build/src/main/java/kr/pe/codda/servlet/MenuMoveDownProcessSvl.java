@@ -7,26 +7,23 @@ import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.impl.message.MenuMoveUpReq.MenuMoveUpReq;
+import kr.pe.codda.impl.message.MenuMoveDownReq.MenuMoveDownReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
-public class MenuMoveUpSvl extends AbstractAdminLoginServlet {
-
-	private static final long serialVersionUID = -2827334751125714227L;
+public class MenuMoveDownProcessSvl extends AbstractAdminLoginServlet {
 	
-	private void printErrorMessageCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
-		req.setAttribute("errorMessage", errorMessage);
-		printJspPage(req, res, "/jsp/menu/MenuProcessFailureCallback.jsp");
-	}
+	private static final long serialVersionUID = -1955352172747013425L;
 
+	
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		String paramMenuNo = req.getParameter("menuNo");
 		if (null == paramMenuNo) {
 			String errorMessage = "파라미터 '메뉴번호'(=menuNo) 값을 넣어주세요";			
 			log.warn(errorMessage);
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -41,8 +38,8 @@ public class MenuMoveUpSvl extends AbstractAdminLoginServlet {
 					.append("])의 값이 long 타입 정수가 아닙니다").toString();
 			
 			log.warn(errorMessage);
-
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -53,8 +50,8 @@ public class MenuMoveUpSvl extends AbstractAdminLoginServlet {
 					.append("])의 값이 음수입니다").toString();
 			
 			log.warn(errorMessage);
-
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -67,39 +64,39 @@ public class MenuMoveUpSvl extends AbstractAdminLoginServlet {
 					.append("] 보다 큽니다").toString();
 			
 			log.warn(errorMessage);
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		MenuMoveUpReq menuMoveUpReq = new MenuMoveUpReq();
-		menuMoveUpReq.setMenuNo(nativeMenuNo);
+		MenuMoveDownReq menuMoveDownReq = new MenuMoveDownReq();
+		menuMoveDownReq.setMenuNo(nativeMenuNo);
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuMoveUpReq);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuMoveDownReq);
 		
-		if (outputMessage instanceof MessageResultRes) {
-			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
-			if (! messageResultRes.getIsSuccess()) {
-				printErrorMessageCallBackPage(req, res, messageResultRes.getResultMessage());
-				return;
-			}
-			
-			printJspPage(req, res, "/jsp/menu/MenuMoveUpOkCallBack.jsp");
-			return;
-		} else {
-			String errorMessage = "메뉴 상단 이동이 실패하였습니다";
+		if (!(outputMessage instanceof MessageResultRes)) {
+			String errorMessage = "메뉴 하단 이동이 실패하였습니다";
 			String debugMessage = new StringBuilder("입력 메시지[")
-					.append(menuMoveUpReq.getMessageID())
+					.append(menuMoveDownReq.getMessageID())
 					.append("]에 대한 비 정상 출력 메시지[")
 					.append(outputMessage.toString())
 					.append("] 도착").toString();
 			
 			log.warn(debugMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+			
+		MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+		if (! messageResultRes.getIsSuccess()) {
+			String debugMessage = null;
+			printErrorMessagePage(req, res, messageResultRes.getResultMessage(), debugMessage);
 			return;
 		}
 		
+		printJspPage(req, res, "/jsp/menu/MenuMoveDownProcess.jsp");
+		return;		
 	}
-
 }

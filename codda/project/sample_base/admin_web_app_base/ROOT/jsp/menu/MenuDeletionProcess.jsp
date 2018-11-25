@@ -15,10 +15,10 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type='text/javascript'>
 	function init() {		
-		if (parent != null && parent.moveMenuDownOkCallBack != null) {
-			parent.moveMenuDownOkCallBack();
+		if (parent != null && parent.callBackForMenuDeletionProcess != null) {
+			parent.callBackForMenuDeletionProcess();
 		} else {
-			alert("parent.moveMenuDownOkCallBack 이 존재하지 않습니다");
+			alert("parent.callBackForMenuDeletionProcess 이 존재하지 않습니다");
 		}
 	}
 	window.onload = init;
@@ -26,7 +26,7 @@
 </head>
 	<body>
 		<div class="container-fluid">
-			<h1>메시지 하단 이동 성공 콜백</h1>		
+			<h1>메시지 삭제 성공 콜백</h1>		
 		</div>
 	<body>
 </html>

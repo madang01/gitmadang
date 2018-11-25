@@ -1,10 +1,13 @@
 package kr.pe.codda.server.lib;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class BoardTree {
 	private List<BoardTreeNode> rootBoardTreeNodeList = new ArrayList<BoardTreeNode>();
+	private HashMap<Long, BoardTreeNode> boardNoToBoardTreeNodeHash =
+			new HashMap<Long, BoardTreeNode>();
 
 	public List<BoardTreeNode> getRootBoardTreeNodeList() {
 		return rootBoardTreeNodeList;
@@ -24,6 +27,10 @@ public class BoardTree {
 		}
 		
 		return total;
+	}
+	
+	public int getHashSize() {
+		return boardNoToBoardTreeNodeHash.size();
 	}
 	
 	public BoardTreeNode find(String subject) {
@@ -46,6 +53,13 @@ public class BoardTree {
 		return null;
 	}
 	
+	public void put(Long key, BoardTreeNode value) {
+		boardNoToBoardTreeNodeHash.put(key, value);
+	}
+	
+	public BoardTreeNode  get(Long key) {
+		return boardNoToBoardTreeNodeHash.get(key);
+	}
 	
 
 	@Override

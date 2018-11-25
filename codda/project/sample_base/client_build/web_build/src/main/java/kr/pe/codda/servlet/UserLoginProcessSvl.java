@@ -42,15 +42,6 @@ public class UserLoginProcessSvl extends AbstractServlet {
 		printJspPage(req, res, "/jsp/member/UserLoginFailureCallBack.jsp");
 	}*/
 
-	private void printUserLoginOKCallBackPage(HttpServletRequest req, HttpServletResponse res,
-			ServerSymmetricKeyIF webServerSymmetricKey,
-			String modulusHexString) {		
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
-				modulusHexString);
-
-		printJspPage(req, res, "/jsp/member/UserLoginOKCallBack.jsp");
-	}
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -142,7 +133,14 @@ public class UserLoginProcessSvl extends AbstractServlet {
 			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
 			String errorMessage = "세션키 파라미터가 잘못되었습니다";
-			String debugMessage = String.format("check whether the parameter paramSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", paramSessionKeyBase64, e.getMessage());
+			String debugMessage = new StringBuilder()
+			.append("the parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY)
+			.append("'[")
+			.append(paramSessionKeyBase64)
+			.append("] is not a base64 encoding string, errmsg=")
+			.append(e.getMessage()).toString();
+			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
@@ -153,8 +151,14 @@ public class UserLoginProcessSvl extends AbstractServlet {
 			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
 			String errorMessage = "세션키 소금 파라미터가 잘못되었습니다";
-			String debugMessage = String.format("check whether the parameter paramIVBase64[%s] is a base64 encoding string, errormessage=[%s]", paramIVBase64, e.getMessage());
-			
+			String debugMessage = new StringBuilder()
+			.append("the parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)
+			.append("'[")
+			.append(paramIVBase64)
+			.append("] is not a base64 encoding string, errmsg=")
+			.append(e.getMessage()).toString();
+
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
@@ -307,8 +311,10 @@ public class UserLoginProcessSvl extends AbstractServlet {
 		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID, userLoginRes.getUserID());
 		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_MEMBER_TYPE, memberType);
 		
-		printUserLoginOKCallBackPage(req, res, 
-				webServerSymmetricKey, webServerSessionkey.getModulusHexStrForWeb());		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
+				webServerSessionkey.getModulusHexStrForWeb());
+		printJspPage(req, res, "/jsp/member/UserLoginProcess.jsp");
 		return;
 		
 	}

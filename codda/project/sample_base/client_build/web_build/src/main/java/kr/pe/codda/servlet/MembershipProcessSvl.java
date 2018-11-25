@@ -30,15 +30,7 @@ public class MembershipProcessSvl extends AbstractServlet {
 
 	private static final long serialVersionUID = 2742729909269799873L;
 	
-	private void printMemberRegistrationOKCallBackPage(HttpServletRequest req, HttpServletResponse res) {		
-		printJspPage(req, res, "/jsp/member/MembershipProcessOKCallBack.jsp");
-	}
 	
-	private void printMemberRegistrationFailureCallBackPage(HttpServletRequest req, HttpServletResponse res,
-			String errorMessage) {
-		req.setAttribute("errorMessage", errorMessage);		
-		printJspPage(req, res, "/jsp/member/MembershipProcessFailureCallBack.jsp");
-	}
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -64,49 +56,57 @@ public class MembershipProcessSvl extends AbstractServlet {
 		
 		if (null == paramSessionKeyBase64) {
 			String errorMessage = "세션키 값을 입력해 주세요";
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramIVBase64) {
 			String errorMessage = "IV 값을 입력해 주세요";
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramUserID) {
 			String errorMessage = "아이디 값을 입력해 주세요";
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramPwd) {
 			String errorMessage = "비밀번호 값을 입력해 주세요";
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramNickname) {
 			String errorMessage = "별명 값을 입력해 주세요";
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramPwdHint) {
 			String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요";
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramPwdAnswer) {
 			String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요";
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (null == paramCaptchaAnswer) {
 			String errorMessage = "Captcha 값을 입력해 주세요";
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -117,10 +117,15 @@ public class MembershipProcessSvl extends AbstractServlet {
 			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
 			String errorMessage = "세션키 파라미터가 잘못되었습니다";
-			// String debugMessage = String.format("check whether the parameter paramSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", paramSessionKeyBase64, e.getMessage());
+			String debugMessage = new StringBuilder()
+			.append("the parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY)
+			.append("'[")
+			.append(paramSessionKeyBase64)
+			.append("] is not a base64 encoding string, errmsg=")
+			.append(e.getMessage()).toString();
 			
-			
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		byte[] ivBytes = null;
@@ -130,9 +135,16 @@ public class MembershipProcessSvl extends AbstractServlet {
 			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
 			String errorMessage = "세션키 소금 파라미터가 잘못되었습니다";
-			// String debugMessage = String.format("check whether the parameter paramIVBase64[%s] is a base64 encoding string, errormessage=[%s]", paramIVBase64, e.getMessage());
 			
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = new StringBuilder()
+			.append("the parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)
+			.append("'[")
+			.append(paramIVBase64)
+			.append("] is not a base64 encoding string, errmsg=")
+			.append(e.getMessage()).toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}	
 		
@@ -146,8 +158,8 @@ public class MembershipProcessSvl extends AbstractServlet {
 			String errorMessage = "fail to get a ServerSessionkeyManger class instance";
 			log.warn(errorMessage, e);			
 			
-			// String debugMessage = e.getMessage();
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			String debugMessage = e.getMessage();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -163,11 +175,9 @@ public class MembershipProcessSvl extends AbstractServlet {
 					.append(HexUtil.getHexStringFromByteArray(ivBytes))
 					.append("]").toString();
 			
-			log.warn(debugMessage, e);
+			log.warn(debugMessage, e);			
 			
-			
-			
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		} catch(SymmetricException e) {
 			String errorMessage = "웹 세션키 인스턴스 생성 실패";
@@ -177,11 +187,9 @@ public class MembershipProcessSvl extends AbstractServlet {
 					.append(HexUtil.getHexStringFromByteArray(ivBytes))
 					.append("]").toString();
 			
-			log.warn(debugMessage, e);
+			log.warn(debugMessage, e);		
 			
-			
-			
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 	
@@ -201,7 +209,8 @@ public class MembershipProcessSvl extends AbstractServlet {
 			String debugMessage = String.format("사용자가 입력한 Captcha 값[%s]과 내부 Captcha 값[%s]이 다릅니다.", answer, captcha.getAnswer());
 			log.warn(debugMessage);
 			
-			printMemberRegistrationFailureCallBackPage(req, res, "입력한 Captcha 값이 틀렸습니다.");
+			String errorMessage = "입력한 Captcha 값이 틀렸습니다.";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -226,7 +235,7 @@ public class MembershipProcessSvl extends AbstractServlet {
 			
 			log.error(debugMessage);
 
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -261,18 +270,18 @@ public class MembershipProcessSvl extends AbstractServlet {
 			
 			log.error(debugMessage);
 
-			printMemberRegistrationFailureCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		MessageResultRes messageResultRes = (MessageResultRes)memberRegisterOutputMessage;
 		
-		if (messageResultRes.getIsSuccess()) {
-			printMemberRegistrationOKCallBackPage(req, res);
-		} else {
-			printMemberRegistrationFailureCallBackPage(req, res, messageResultRes.getResultMessage());
+		if (! messageResultRes.getIsSuccess()) {
+			printErrorMessagePage(req, res, messageResultRes.getResultMessage(), null);
+			return;
 		}
 		
+		printJspPage(req, res, "/jsp/member/MembershipProcess.jsp");
 		return;
 	}
 

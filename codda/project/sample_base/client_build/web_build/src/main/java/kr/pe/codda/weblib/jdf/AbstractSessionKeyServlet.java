@@ -38,13 +38,13 @@ import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 public abstract class AbstractSessionKeyServlet extends AbstractServlet {	
 	
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {		
-		String parmSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
-		String parmIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+		String paramSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
+		String paramIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
 		
-		//log.info("parmSessionKeyBase64=[{}]", parmSessionKeyBase64);
-		//log.info("parmIVBase64=[{}]", parmIVBase64);
-		//System.out.println("parmSessionKeyBase64="+parmSessionKeyBase64);
-		// System.out.println("parmIVBase64="+parmIVBase64);
+		//log.info("paramSessionKeyBase64=[{}]", paramSessionKeyBase64);
+		//log.info("paramIVBase64=[{}]", paramIVBase64);
+		//System.out.println("paramSessionKeyBase64="+paramSessionKeyBase64);
+		// System.out.println("paramIVBase64="+paramIVBase64);
 		
 		// log.info("req.getRequestURI=[{}]", req.getRequestURI());
 		
@@ -52,7 +52,9 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		ServerSessionkeyIF webServerSessionkey  = null;
 		try {
 			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
-			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();			
+			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+			
+			req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, webServerSessionkey.getModulusHexStrForWeb());
 		} catch (SymmetricException e) {
 			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
 			
@@ -60,45 +62,46 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}		
-		
-		
-		if (null == parmSessionKeyBase64 || null == parmIVBase64) {
-			String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
-			
-			/*java.io.PrintWriter out = res.getWriter();
-			out.write(getRedirectPageStringGettingSessionkey(req, modulusHexString));
-			out.flush();
-			out.close();*/
-			log.info("req.getRequestURI=[{}]", req.getRequestURI());			
-			req.setAttribute("requestURI", req.getRequestURI());
-			
-			req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, modulusHexString);
-			printJspPage(req, res, JDF_SESSION_KEY_REDIRECT_PAGE);
-			return;
 		}
 		
-		//log.info("modulusHexString=[{}]", modulusHexString);
+		if (null == paramSessionKeyBase64 || null == paramIVBase64) {			
+			log.info("req.getRequestURI=[{}]", req.getRequestURI());			
+			req.setAttribute("requestURI", req.getRequestURI());
+			printJspPage(req, res, JDF_SESSION_KEY_REDIRECT_PAGE);
+			return;
+		}		
 		
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmSessionKeyBase64);
+			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramSessionKeyBase64);
 		} catch(Exception e) {
-			log.warn("parmSessionKeyBase64[{}] base64 decode error, errormessage=[{}]", parmSessionKeyBase64, e.getMessage());
+			log.warn("paramSessionKeyBase64[{}] base64 decode error, errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
-			String errorMessage = "the parameter parmSessionKeyBase64 is not a base64 string";
-			String debugMessage = String.format("parmSessionKeyBase64[%s] base64 decode error, errormessage=[%s]", parmSessionKeyBase64, e.getMessage());
+			String errorMessage = "the parameter paramSessionKeyBase64 is not a base64 string";
+			String debugMessage = new StringBuilder()
+			.append("the parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY)
+			.append("'[")
+			.append(paramSessionKeyBase64)
+			.append("] is not a base64 encoding string, errmsg=")
+			.append(e.getMessage()).toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmIVBase64);
+			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramIVBase64);
 		} catch(Exception e) {
-			log.warn("parmIVBase64[{}] base64 decode error, errormessage=[{}]", parmIVBase64, e.getMessage());
+			log.warn("paramIVBase64[{}] base64 decode error, errormessage=[{}]", paramIVBase64, e.getMessage());
 			
-			String errorMessage = "the parameter parmIVBase64 is not a base64 string";
-			String debugMessage = String.format("parmIVBase64[%s] base64 decode error, errormessage=[%s]", parmIVBase64, e.getMessage());
+			String errorMessage = "the parameter paramIVBase64 is not a base64 string";
+			String debugMessage = new StringBuilder()
+			.append("the parameter '")
+			.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)
+			.append("'[")
+			.append(paramIVBase64)
+			.append("] is not a base64 encoding string, errmsg=")
+			.append(e.getMessage()).toString();
 			
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -107,9 +110,6 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		//log.info("sessionkeyBytes=[{}]", HexUtil.getHexStringFromByteArray(sessionkeyBytes));
 		//log.info("ivBytes=[{}]", HexUtil.getHexStringFromByteArray(ivBytes));
 		
-		
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, 
-				webServerSessionkey.getModulusHexStrForWeb());		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes));
 		performTask(req,res);
 	}

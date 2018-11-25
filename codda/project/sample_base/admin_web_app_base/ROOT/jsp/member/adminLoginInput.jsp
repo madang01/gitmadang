@@ -145,7 +145,7 @@
 		return;
 	}
 	
-	function adminLoginFailureCallBack(errorMessage) {
+	function errorMessageCallBack(errorMessage) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		resultMessageView.setAttribute("class", "alert alert-warning");

@@ -11,14 +11,10 @@ import kr.pe.codda.impl.message.MenuDeleteReq.MenuDeleteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
-public class MenuDeletionSvl extends AbstractAdminLoginServlet {
+public class MenuDeletionProcessSvl extends AbstractAdminLoginServlet {
 	
 	private static final long serialVersionUID = -8652788264007358139L;
 
-	private void printErrorMessageCallBackPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
-		req.setAttribute("errorMessage", errorMessage);
-		printJspPage(req, res, "/jsp/menu/MenuProcessFailureCallback.jsp");
-	}
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -26,7 +22,8 @@ public class MenuDeletionSvl extends AbstractAdminLoginServlet {
 		if (null == paramMenuNo) {
 			String errorMessage = "파라미터 '메뉴번호'(=menuNo) 값을 넣어주세요";			
 			log.warn(errorMessage);
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -42,7 +39,8 @@ public class MenuDeletionSvl extends AbstractAdminLoginServlet {
 			
 			log.warn(errorMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -54,7 +52,8 @@ public class MenuDeletionSvl extends AbstractAdminLoginServlet {
 			
 			log.warn(errorMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -67,7 +66,8 @@ public class MenuDeletionSvl extends AbstractAdminLoginServlet {
 					.append("] 보다 큽니다").toString();
 			
 			log.warn(errorMessage);
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			String debugMessage = null;
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
@@ -78,16 +78,7 @@ public class MenuDeletionSvl extends AbstractAdminLoginServlet {
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuDeleteReq);
 		
-		if (outputMessage instanceof MessageResultRes) {
-			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
-			if (! messageResultRes.getIsSuccess()) {
-				printErrorMessageCallBackPage(req, res, messageResultRes.getResultMessage());
-				return;
-			}
-			
-			printJspPage(req, res, "/jsp/menu/MenuDeleteOKCallBack.jsp");
-			return;
-		} else {
+		if (!(outputMessage instanceof MessageResultRes)) {
 			String errorMessage = new StringBuilder().append("메뉴[")
 					.append(menuDeleteReq.getMenuNo())
 					.append("] 삭제가 실패했습니다").toString();
@@ -99,9 +90,18 @@ public class MenuDeletionSvl extends AbstractAdminLoginServlet {
 			
 			log.warn(debugMessage);
 
-			printErrorMessageCallBackPage(req, res, errorMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
+		MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
+		if (! messageResultRes.getIsSuccess()) {
+			String debugMessage = null;
+			printErrorMessagePage(req, res, messageResultRes.getResultMessage(), debugMessage);
+			return;
+		}
+		
+		printJspPage(req, res, "/jsp/menu/MenuDeletionProcess.jsp");
+		return;
 	}
 }

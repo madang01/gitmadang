@@ -166,14 +166,14 @@
 		return;
 	}
 	
-	function adminMemberRegistrationFailureCallBack(errorMessage) {
+	function errorMessageCallBack(errorMessage) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		resultMessageView.setAttribute("class", "alert alert-warning");
 		resultMessageView.innerHTML = "<strong>Warning!</strong> " + errorMessage;
 	}
 	
-	function adminMemberRegistrationOKCallBack() {
+	function membershipProcessOKCallBack() {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		resultMessageView.setAttribute("class", "alert alert-success");

@@ -1,4 +1,4 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
+<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE" %><%
 %><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
 %><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
@@ -20,11 +20,17 @@
 <script type="text/javascript">
 <!--
 function init() {
-	if (parent != null && parent.hiddenFrame != null) {
-		var userMessage = document.getElementById("userMessage");
-		// var debugMessage = document.getElementById("debugMessage");
+	function init() {
 		
-		alert(userMessage.innerText);
+		if (parent != null) {
+			var userMessageNode = document.getElementById("userMessage");
+			
+			if (&& parent.errorMessageCallBack != null) {
+				parent.errorMessageCallBack(userMessageNode.innerText);
+			} else {
+				alert(userMessageNode.innerText);
+			}
+		}
 	}
 }
 

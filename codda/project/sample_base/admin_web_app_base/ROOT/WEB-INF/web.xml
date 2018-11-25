@@ -106,81 +106,81 @@
 	</servlet-mapping>	
 	
 	<servlet>
-		<servlet-name>MenuModification</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuModificationSvl</servlet-class>
+		<servlet-name>MenuModificationProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuModificationProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuModification</servlet-name>
-		<url-pattern>/servlet/MenuModification</url-pattern>
+		<servlet-name>MenuModificationProcess</servlet-name>
+		<url-pattern>/servlet/MenuModificationProcess</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuDeletion</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuDeletionSvl</servlet-class>
+		<servlet-name>MenuDeletionProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuDeletionProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuDeletion</servlet-name>
-		<url-pattern>/servlet/MenuDeletion</url-pattern>
+		<servlet-name>MenuDeletionProcess</servlet-name>
+		<url-pattern>/servlet/MenuDeletionProcess</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuMoveUp</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuMoveUpSvl</servlet-class>
+		<servlet-name>MenuMoveUpProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuMoveUpProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuMoveUp</servlet-name>
-		<url-pattern>/servlet/MenuMoveUp</url-pattern>
+		<servlet-name>MenuMoveUpProcess</servlet-name>
+		<url-pattern>/servlet/MenuMoveUpProcess</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>MenuMoveDown</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuMoveDownSvl</servlet-class>
+		<servlet-name>MenuMoveDownProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuMoveDownProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MenuMoveDown</servlet-name>
-		<url-pattern>/servlet/MenuMoveDown</url-pattern>
+		<servlet-name>MenuMoveDownProcess</servlet-name>
+		<url-pattern>/servlet/MenuMoveDownProcess</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>ChildMenuAddition</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.ChildMenuAdditionSvl</servlet-class>
+		<servlet-name>ChildMenuAdditionProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.ChildMenuAdditionProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>ChildMenuAddition</servlet-name>
-		<url-pattern>/servlet/ChildMenuAddition</url-pattern>
+		<servlet-name>ChildMenuAdditionProcess</servlet-name>
+		<url-pattern>/servlet/ChildMenuAdditionProcess</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>RootMenuAddition</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.RootMenuAdditionSvl</servlet-class>
+		<servlet-name>RootMenuAdditionProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.RootMenuAdditionProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>RootMenuAddition</servlet-name>
-		<url-pattern>/servlet/RootMenuAddition</url-pattern>
+		<servlet-name>RootMenuAdditionProcess</servlet-name>
+		<url-pattern>/servlet/RootMenuAdditionProcess</url-pattern>
 	</servlet-mapping>
 	
 

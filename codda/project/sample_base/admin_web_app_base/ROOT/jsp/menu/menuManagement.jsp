@@ -269,7 +269,7 @@
 		g.submit();
 	}
 	
-	function modifyMenuOkCallBack() {
+	function callBackForMenuModificationProcess() {
 		var resultMessageView = document.getElementById("resultMessageView");
 		var rowIndex = __rowIndex;			
 		var g = document.modifyMenuFrm;
@@ -306,7 +306,7 @@
 		}
 	}
 	
-	function deleteMenuOkCallBack() {
+	function callBackForMenuDeletionProcess() {
 		var resultMessageView = document.getElementById("resultMessageView");
 		var rowIndex = __rowIndex;			
 		var g = document.deleteMenuFrm;
@@ -339,7 +339,7 @@
 		g.submit();
 	}
 	
-	function moveMenuUpOkCallBack() {
+	function callBackForMenuMoveUpProcess() {
 		var g = document.moveMenuUpFrm;
 		var resultMessageView = document.getElementById("resultMessageView");
 		
@@ -402,7 +402,7 @@
 		g.submit();
 	}
 	
-	function moveMenuDownOkCallBack() {
+	function callBackForMenuMoveDownProcess() {
 		var g = document.moveMenuDownFrm;
 		var resultMessageView = document.getElementById("resultMessageView");
 		
@@ -466,7 +466,7 @@
 	
 	
 	
-	function addChildMenuOkCallBack(childMenuAddRes) {
+	function callBackForChildMenuAdditionProcess(childMenuAddRes) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		var rowIndex = __rowIndex;
 		var parentMenu = menuListResJsonObj.menuList[rowIndex];
@@ -508,7 +508,7 @@
 		$('#rootMenuModal').modal();
 	}
 	
-	function addRootMenuOkCallBack(rootMenuAddRes) {
+	function callBackForRootMenuAdditionProcess(rootMenuAddRes) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		var rowIndex = __rowIndex;
 		var parentMenu = menuListResJsonObj.menuList[rowIndex];
@@ -537,7 +537,7 @@
 		listView.display  = 'show';
 	}
 	
-	function adminLoginErrorCallBack(errorMessage) {
+	function errorMessageCallBack(errorMessage) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		// resultMessageView.setAttribute("class", "alert alert-warning fade in");
@@ -570,18 +570,18 @@
 </head>
 <body>
 <%= getSiteNavbarString(request) %>
-<form name="moveMenuUpFrm" method="post" action="/servlet/MenuMoveUp" target="hiddenFrame">
+<form name="moveMenuUpFrm" method="post" action="/servlet/MenuMoveUpProcess" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
-<form name="moveMenuDownFrm" method="post" action="/servlet/MenuMoveDown" target="hiddenFrame">
+<form name="moveMenuDownFrm" method="post" action="/servlet/MenuMoveDownProcess" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
-<form name="modifyMenuFrm" method="post" action="/servlet/MenuModification" target="hiddenFrame">
+<form name="modifyMenuFrm" method="post" action="/servlet/MenuModificationProcess" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 	<input type="hidden" name="menuName">
 	<input type="hidden" name="linkURL">
 </form>
-<form name="deleteMenuFrm" method="post" action="/servlet/MenuDeletion" target="hiddenFrame">
+<form name="deleteMenuFrm" method="post" action="/servlet/MenuDeletionProcess" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
 	<div class="container-fluid">
@@ -616,7 +616,7 @@
 						<h4 class="modal-title">자식 메뉴 추가 화면</h4>
 					</div>
 					<div class="modal-body">
-						<form name="addChildMenuFrm" method="post" class="form-inline" onSubmit="$('#childMenuModal').modal('toggle'); return true;" action="/servlet/ChildMenuAddition" target="hiddenFrame">
+						<form name="addChildMenuFrm" method="post" class="form-inline" onSubmit="$('#childMenuModal').modal('toggle'); return true;" action="/servlet/ChildMenuAdditionProcess" target="hiddenFrame">
 							<div class="form-group">
 							    <label class="sr-only" for="parentNoForChildMenu">부모 메뉴번호</label>
 							    <input type="hidden" id="parentNoForChildMenu" name="parentNo" />
@@ -649,7 +649,7 @@
 						<h4 class="modal-title">루트 메뉴 추가 화면</h4>
 					</div>
 					<div class="modal-body">
-						<form name="addRootMenuFrm" method="post" class="form-inline" onSubmit="$('#rootMenuModal').modal('toggle'); return true;" action="/servlet/RootMenuAddition" target="hiddenFrame">							
+						<form name="addRootMenuFrm" method="post" class="form-inline" onSubmit="$('#rootMenuModal').modal('toggle'); return true;" action="/servlet/RootMenuAdditionProcess" target="hiddenFrame">							
 							 <div class="form-group">
 							    <label for="menuNameForRootMenu">메뉴명</label>
 							    <input type="text" id="menuNameForRootMenu" name="menuName" />

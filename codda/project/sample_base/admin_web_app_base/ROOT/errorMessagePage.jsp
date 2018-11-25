@@ -12,7 +12,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
+<title><%= WebCommonStaticFinalVars.USER_WEBSITE_TITLE %></title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
 <!-- jQuery library -->
@@ -21,11 +21,14 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type='text/javascript'>
 	function init() {
-		if (parent != null && parent.hiddenFrame != null) {
-			var userMessage = document.getElementById("userMessage");
-			// var debugMessage = document.getElementById("debugMessage");
+		if (parent != null) {
+			var userMessageNode = document.getElementById("userMessage");
 			
-			alert(userMessage.innerText);
+			if (&& parent.errorMessageCallBack != null) {
+				parent.errorMessageCallBack(userMessageNode.innerText);
+			} else {
+				alert(userMessageNode.innerText);
+			}
 		}
 	}
 

@@ -166,14 +166,14 @@
 		return;
 	}
 	
-	function adminMemberRegistrationFailureCallBack(errorMessage) {
+	function errorMessageCallBack(errorMessage) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		resultMessageView.setAttribute("class", "alert alert-warning");
 		resultMessageView.innerHTML = "<strong>Warning!</strong> " + errorMessage;
 	}
 	
-	function adminMemberRegistrationOKCallBack() {
+	function membershipProcessOKCallBack() {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		resultMessageView.setAttribute("class", "alert alert-success");
@@ -201,7 +201,6 @@
 <body>
 <%= getSiteNavbarString(request) %>
 <form method="post" name="gofrm" action="/servlet/MemberRegistration" target="hiddenFrame">
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
 	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 	<input type="hidden" name="userID" />
