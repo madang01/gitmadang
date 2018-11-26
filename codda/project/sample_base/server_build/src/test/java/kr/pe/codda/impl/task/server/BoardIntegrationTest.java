@@ -63,7 +63,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();
-		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);		
+		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);
 	}
 	
 	@Before
@@ -1241,7 +1241,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 	}
 	
-	private BoardTreeNode makeBoardTreeNodeWithoutTreeInfomation(short boardID, short depth, 
+	/*private BoardTreeNode makeBoardTreeNodeWithoutTreeInfomation(short boardID, short depth, 
 			String writerID, String subject, String content) {
 		BoardTreeNode boardTreeNode = new BoardTreeNode();
 		boardTreeNode.setBoardID(boardID);
@@ -1251,7 +1251,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardTreeNode.setContent(content);
 		
 		return boardTreeNode;
-	}
+	}*/
 	
 	@Test
 	public void 계획된_게시판_테스트_데이터_실사화_검증() {
@@ -1266,45 +1266,44 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 				
 				BoardTree boardTree = new BoardTree();
 				
-				List<BoardTreeNode> rootBoardTreeNodeList = new ArrayList<BoardTreeNode>();
 				
 				final short boardID = boardType.getBoardID();
 				{
-					BoardTreeNode root1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
 					
 					List<BoardTreeNode> root1ChildBoardTreeNodeList = new ArrayList<BoardTreeNode>();
 					{
-						BoardTreeNode root1Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
 						root1ChildBoardTreeNodeList.add(root1Child1BoardTreeNode);
 					}
 					
 					{
-						BoardTreeNode root1Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
 						List<BoardTreeNode> root1Child2BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 						{
-							BoardTreeNode root1Child2Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
 							root1Child2BoardTreeNodeList.add(root1Child2Child1BoardTreeNode);
 						}
 						{
-							BoardTreeNode root1Child2Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
+							BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
 							root1Child2BoardTreeNodeList.add(root1Child2Child2BoardTreeNode);
 						}
 						{
-							BoardTreeNode root1Child2Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
+							BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
 							List<BoardTreeNode> root1Child2Child3BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 							{
-								BoardTreeNode root1Child2Child3Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
+								BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
 								List<BoardTreeNode> root1Child2Child3Child1BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 								{
-									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
+									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child1BoardTreeNode);
 								}
 								{
-									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
+									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child2BoardTreeNode);
 								}
 								{
-									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
+									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child3BoardTreeNode);
 								}
 								root1Child2Child3Child1BoardTreeNode.setChildBoardTreeNodeList(root1Child2Child3Child1BoardTreeNodeList);
@@ -1322,18 +1321,51 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 					
 					
 					{
-						BoardTreeNode root1Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
 						root1ChildBoardTreeNodeList.add(root1Child3BoardTreeNode);
 					}
 					root1BoardTreeNode.setChildBoardTreeNodeList(root1ChildBoardTreeNodeList);
 					
-					rootBoardTreeNodeList.add(root1BoardTreeNode);
+					boardTree.add(root1BoardTreeNode);
 				}
 				
-				boardTree.setRootBoardTreeNodeList(rootBoardTreeNodeList);
 				return boardTree;
 			}			
 		}
+		
+		/*class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+
+			@Override
+			public BoardTree build(final BoardType boardType) {
+				String writerID = "test01";
+				String otherID = "test02";
+				
+				BoardTree boardTree = new BoardTree();
+				
+				
+				final short boardID = boardType.getBoardID();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
+					
+					List<BoardTreeNode> root1ChildBoardTreeNodeList = new ArrayList<BoardTreeNode>();
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
+						root1ChildBoardTreeNodeList.add(root1Child1BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
+						root1ChildBoardTreeNodeList.add(root1Child2BoardTreeNode);
+					}
+					
+					root1BoardTreeNode.setChildBoardTreeNodeList(root1ChildBoardTreeNodeList);
+					
+					boardTree.add(root1BoardTreeNode);
+				}
+				
+				return boardTree;
+			}			
+		}*/
 		
 		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
 		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
@@ -1381,6 +1413,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 				fail(errorMessage);
 			}
 			
+			// log.info();
+			
 			assertEquals("게시판 트리 노드의 그룹 번호와 게시판 레코드의 그룹 번호 비교", 
 					boardTreeNode.getGroupNo(), board.getGroupNo());
 			
@@ -1411,45 +1445,44 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 				
 				BoardTree boardTree = new BoardTree();
 				
-				List<BoardTreeNode> rootBoardTreeNodeList = new ArrayList<BoardTreeNode>();
 				
 				final short boardID = boardType.getBoardID();
 				{
-					BoardTreeNode root1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
 					
 					List<BoardTreeNode> root1ChildBoardTreeNodeList = new ArrayList<BoardTreeNode>();
 					{
-						BoardTreeNode root1Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
 						root1ChildBoardTreeNodeList.add(root1Child1BoardTreeNode);
 					}
 					
 					{
-						BoardTreeNode root1Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
 						List<BoardTreeNode> root1Child2BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 						{
-							BoardTreeNode root1Child2Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
 							root1Child2BoardTreeNodeList.add(root1Child2Child1BoardTreeNode);
 						}
 						{
-							BoardTreeNode root1Child2Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
+							BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
 							root1Child2BoardTreeNodeList.add(root1Child2Child2BoardTreeNode);
 						}
 						{
-							BoardTreeNode root1Child2Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
+							BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
 							List<BoardTreeNode> root1Child2Child3BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 							{
-								BoardTreeNode root1Child2Child3Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
+								BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
 								List<BoardTreeNode> root1Child2Child3Child1BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 								{
-									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
+									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child1BoardTreeNode);
 								}
 								{
-									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
+									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child2BoardTreeNode);
 								}
 								{
-									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
+									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child3BoardTreeNode);
 								}
 								root1Child2Child3Child1BoardTreeNode.setChildBoardTreeNodeList(root1Child2Child3Child1BoardTreeNodeList);
@@ -1467,15 +1500,14 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 					
 					
 					{
-						BoardTreeNode root1Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
 						root1ChildBoardTreeNodeList.add(root1Child3BoardTreeNode);
 					}
 					root1BoardTreeNode.setChildBoardTreeNodeList(root1ChildBoardTreeNodeList);
 					
-					rootBoardTreeNodeList.add(root1BoardTreeNode);
+					boardTree.add(root1BoardTreeNode);
 				}
 				
-				boardTree.setRootBoardTreeNodeList(rootBoardTreeNodeList);
 				return boardTree;
 			}			
 		}
@@ -1698,45 +1730,44 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 				
 				BoardTree boardTree = new BoardTree();
 				
-				List<BoardTreeNode> rootBoardTreeNodeList = new ArrayList<BoardTreeNode>();
 				
 				final short boardID = boardType.getBoardID();
 				{
-					BoardTreeNode root1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
 					
 					List<BoardTreeNode> root1ChildBoardTreeNodeList = new ArrayList<BoardTreeNode>();
 					{
-						BoardTreeNode root1Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
 						root1ChildBoardTreeNodeList.add(root1Child1BoardTreeNode);
 					}
 					
 					{
-						BoardTreeNode root1Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
 						List<BoardTreeNode> root1Child2BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 						{
-							BoardTreeNode root1Child2Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
 							root1Child2BoardTreeNodeList.add(root1Child2Child1BoardTreeNode);
 						}
 						{
-							BoardTreeNode root1Child2Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
+							BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
 							root1Child2BoardTreeNodeList.add(root1Child2Child2BoardTreeNode);
 						}
 						{
-							BoardTreeNode root1Child2Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
+							BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
 							List<BoardTreeNode> root1Child2Child3BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 							{
-								BoardTreeNode root1Child2Child3Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
+								BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
 								List<BoardTreeNode> root1Child2Child3Child1BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 								{
-									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
+									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child1BoardTreeNode);
 								}
 								{
-									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
+									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child2BoardTreeNode);
 								}
 								{
-									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
+									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child3BoardTreeNode);
 								}
 								root1Child2Child3Child1BoardTreeNode.setChildBoardTreeNodeList(root1Child2Child3Child1BoardTreeNodeList);
@@ -1754,15 +1785,14 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 					
 					
 					{
-						BoardTreeNode root1Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
 						root1ChildBoardTreeNodeList.add(root1Child3BoardTreeNode);
 					}
 					root1BoardTreeNode.setChildBoardTreeNodeList(root1ChildBoardTreeNodeList);
 					
-					rootBoardTreeNodeList.add(root1BoardTreeNode);
+					boardTree.add(root1BoardTreeNode);
 				}
 				
-				boardTree.setRootBoardTreeNodeList(rootBoardTreeNodeList);
 				return boardTree;
 			}			
 		}
@@ -2238,53 +2268,50 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		final BoardType boardType = BoardType.FREE;
 		
 		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
-
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
 				String otherID = "test02";
 				
-				BoardTree boardTree = new BoardTree();
-				
-				List<BoardTreeNode> rootBoardTreeNodeList = new ArrayList<BoardTreeNode>();
+				BoardTree boardTree = new BoardTree();				
 				
 				final short boardID = boardType.getBoardID();
 				{
-					BoardTreeNode root1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
 					
 					List<BoardTreeNode> root1ChildBoardTreeNodeList = new ArrayList<BoardTreeNode>();
 					{
-						BoardTreeNode root1Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
 						root1ChildBoardTreeNodeList.add(root1Child1BoardTreeNode);
 					}
 					
 					{
-						BoardTreeNode root1Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
 						List<BoardTreeNode> root1Child2BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 						{
-							BoardTreeNode root1Child2Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
 							root1Child2BoardTreeNodeList.add(root1Child2Child1BoardTreeNode);
 						}
 						{
-							BoardTreeNode root1Child2Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
+							BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
 							root1Child2BoardTreeNodeList.add(root1Child2Child2BoardTreeNode);
 						}
 						{
-							BoardTreeNode root1Child2Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
+							BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
 							List<BoardTreeNode> root1Child2Child3BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 							{
-								BoardTreeNode root1Child2Child3Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
+								BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
 								List<BoardTreeNode> root1Child2Child3Child1BoardTreeNodeList = new ArrayList<BoardTreeNode>();
 								{
-									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
+									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child1BoardTreeNode);
 								}
 								{
-									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
+									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child2BoardTreeNode);
 								}
 								{
-									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
+									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
 									root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child3BoardTreeNode);
 								}
 								root1Child2Child3Child1BoardTreeNode.setChildBoardTreeNodeList(root1Child2Child3Child1BoardTreeNodeList);
@@ -2302,15 +2329,14 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 					
 					
 					{
-						BoardTreeNode root1Child3BoardTreeNode = makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
 						root1ChildBoardTreeNodeList.add(root1Child3BoardTreeNode);
 					}
 					root1BoardTreeNode.setChildBoardTreeNodeList(root1ChildBoardTreeNodeList);
 					
-					rootBoardTreeNodeList.add(root1BoardTreeNode);
+					boardTree.add(root1BoardTreeNode);
 				}
 				
-				boardTree.setRootBoardTreeNodeList(rootBoardTreeNodeList);
 				return boardTree;
 			}			
 		}

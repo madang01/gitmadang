@@ -243,6 +243,9 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			
 			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNoOfParentBoard, groupSeqOfParentBoard, parentBoardNo);
 
+			log.info("subject={}, toGroupSeq={}, groupNoOfParentBoard={}, groupSeqOfParentBoard={}", 
+					boardReplyReq.getSubject(), toGroupSeq, groupNoOfParentBoard, groupSeqOfParentBoard);
+			
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))

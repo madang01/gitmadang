@@ -82,21 +82,31 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 		}
 		
 		rootBoardTreeNode.setBoardNo(boardWriteRes.getBoardNo());
+		rootBoardTreeNode.setGroupNo(boardWriteRes.getBoardNo());
 		// rootBoardTreeNode.setGroupSeq(rootBoardTreeNode.getTotalNodes()-1);
 		
 		
 		List<BoardTreeNode> childBoardTreeNodeList = rootBoardTreeNode.getChildBoardTreeNodeList();
-		int childBoardTreeNodeListSize = childBoardTreeNodeList.size();
+		/*int childBoardTreeNodeListSize = childBoardTreeNodeList.size();
 		for (int i=childBoardTreeNodeListSize - 1; i >= 0 ; i--) {
 			BoardTreeNode childBoardTreeNode = childBoardTreeNodeList.get(i);
 			makeChildBoardTreeRecordUsingChildBoardTreeNode(
-					boardReplyReqServerTask, rootBoardTreeNode.getBoardNo(), 
+					boardReplyReqServerTask, rootBoardTreeNode.getGroupNo(), 
+					rootBoardTreeNode.getBoardNo(), 
+					childBoardTreeNode);
+		}*/
+		
+		for (BoardTreeNode childBoardTreeNode : childBoardTreeNodeList) {
+			makeChildBoardTreeRecordUsingChildBoardTreeNode(
+					boardReplyReqServerTask, rootBoardTreeNode.getGroupNo(), 
+					rootBoardTreeNode.getBoardNo(), 
 					childBoardTreeNode);
 		}
 	}
 	
 	private void makeChildBoardTreeRecordUsingChildBoardTreeNode(
 			BoardReplyReqServerTask boardReplyReqServerTask,
+			long groupNo,
 			long parentNo,
 			BoardTreeNode childBoardTreeNode) {
 		
@@ -126,16 +136,24 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 			fail("fail to execuate doTask");
 		}		
 		
-		childBoardTreeNode.setBoardNo(boardReplyRes.getBoardNo());
+		childBoardTreeNode.setGroupNo(groupNo);
+		childBoardTreeNode.setParentNo(parentNo);
+		childBoardTreeNode.setBoardNo(boardReplyRes.getBoardNo());		
 		
 		List<BoardTreeNode> childChildBoardTreeNodeList = childBoardTreeNode.getChildBoardTreeNodeList();
-		int childChildBoardTreeNodeListSize = childChildBoardTreeNodeList.size();
+		/*int childChildBoardTreeNodeListSize = childChildBoardTreeNodeList.size();
 		for (int i=childChildBoardTreeNodeListSize - 1; i >= 0 ; i--) {
 			BoardTreeNode childChildBoardTreeNode = childChildBoardTreeNodeList.get(i);
 			makeChildBoardTreeRecordUsingChildBoardTreeNode(
-					boardReplyReqServerTask, childBoardTreeNode.getBoardNo(), 
+					boardReplyReqServerTask, groupNo, childBoardTreeNode.getBoardNo(), 
 					childChildBoardTreeNode);
-		}	
+		}	*/
+		
+		for (BoardTreeNode childChildBoardTreeNode : childChildBoardTreeNodeList) {
+			makeChildBoardTreeRecordUsingChildBoardTreeNode(
+					boardReplyReqServerTask, groupNo, childBoardTreeNode.getBoardNo(), 
+					childChildBoardTreeNode);
+		}
 	}
 	
 	private void preOrder(Stack<BoardTreeNode> boardTreeNodeStack,

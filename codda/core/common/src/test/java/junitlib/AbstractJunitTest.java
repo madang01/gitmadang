@@ -45,8 +45,8 @@ public abstract class AbstractJunitTest {
 			fail("the installed path isn't a directory");
 		}
 		
-		// wasLibPath = new File("D:\\apache-tomcat-8.5.32\\lib");
-		wasLibPath = new File("D:\\apache-tomcat-7.0.57\\lib");
+		wasLibPath = new File("D:\\apache-tomcat-8.5.32\\lib");
+		// wasLibPath = new File("D:\\apache-tomcat-7.0.57\\lib");
 		if (! wasLibPath.exists()) {
 			fail("the was libaray path doesn't exist");
 		}
@@ -60,7 +60,6 @@ public abstract class AbstractJunitTest {
 		} catch(IllegalArgumentException | IllegalStateException e) {
 			fail(e.getMessage());
 		}
-
 		
 				
 		System
