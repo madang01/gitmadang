@@ -20,9 +20,15 @@ public class BoardTreeNode {
 	public List<BoardTreeNode> getChildBoardTreeNodeList() {
 		return childBoardTreeNodeList;
 	}
+	
+	/*
 	public void setChildBoardTreeNodeList(List<BoardTreeNode> childBoardTreeNodeList) {
 		this.childBoardTreeNodeList = childBoardTreeNodeList;
+	}*/
+	public void addChildNode(BoardTreeNode childBoardTreeNode) {
+		childBoardTreeNodeList.add(childBoardTreeNode);
 	}
+	
 	public short getBoardID() {
 		return boardID;
 	}

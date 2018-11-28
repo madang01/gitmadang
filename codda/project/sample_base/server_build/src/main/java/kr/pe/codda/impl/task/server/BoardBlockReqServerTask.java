@@ -70,7 +70,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 	}
 
 	private boolean isChildNode(UShort fromGroupSeq, UShort toGroupSeq){
-		return (fromGroupSeq.intValue() == toGroupSeq.intValue());
+		return (fromGroupSeq.intValue() != toGroupSeq.intValue());
 	}
 	public MessageResultRes doWork(String dbcpName, BoardBlockReq boardBlockReq)
 			throws Exception {
@@ -97,7 +97,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 		
 
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {

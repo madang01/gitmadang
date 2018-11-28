@@ -411,7 +411,7 @@ public abstract class ServerDBUtil {
 			}
 			
 			Record1<UShort> 
-			nearestGroupSeqBoardRecord = create.select(SB_BOARD_TB.GROUP_SQ.min().as(SB_BOARD_TB.GROUP_SQ))
+			nearestGroupSeqBoardRecord = create.select(SB_BOARD_TB.GROUP_SQ.max().as(SB_BOARD_TB.GROUP_SQ))
 			.from(SB_BOARD_TB)
 			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
 			.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
@@ -441,11 +441,11 @@ public abstract class ServerDBUtil {
 				continue;
 			}
 			
-			/*UShort nearestGroupSeq = nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+			UShort nearestGroupSeq = nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			
-			UShort toGroupSeq = UShort.valueOf(nearestGroupSeq.intValue() + 1);	*/		
+			UShort toGroupSeq = UShort.valueOf(nearestGroupSeq.intValue() + 1);			
 			
-			UShort toGroupSeq = nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+			// UShort toGroupSeq = nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			
 			return toGroupSeq;
 		}

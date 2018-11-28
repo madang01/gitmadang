@@ -100,7 +100,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 		
 
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
@@ -339,7 +339,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 						/*fromGroupSeq = ServerDBUtil
 								.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNo, 
 										childGroupSeq, childDepth).intValue() - 1;*/
-					} else if (BoardStateType.TREEBLOCK.getValue().equals(childBoardState)) {
+					} else if (BoardStateType.OK.getValue().equals(childBoardState)) {
 						log.error("게시판 트리 점검 필요, {}", boardUnBlockReq.toString());
 						
 						try {

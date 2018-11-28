@@ -33,7 +33,7 @@ import kr.pe.codda.server.task.ToLetterCarrier;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
-import org.jooq.Record2;
+import org.jooq.Record3;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
@@ -206,7 +206,9 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			
 				
 
-			Record2<UInteger, UShort> parentBoardRecord = create.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ)
+			Record3<UInteger, UShort, UInteger> parentBoardRecord = create.select(SB_BOARD_TB.GROUP_NO, 
+					SB_BOARD_TB.GROUP_SQ,
+					SB_BOARD_TB.PARENT_NO)
 					.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_TB.BOARD_NO.eq(parentBoardNo)).fetchOne();
 
@@ -219,6 +221,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 
 			UInteger groupNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_NO);
 			UShort groupSeqOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+			UInteger parentNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
 			
 
 			/** 댓글은 부모가 속한 그룹의 순서를 조정하므로 그룹 전체에 대해서 동기화가 필요하기때문에 부모가 속한 그룹 최상위 글에 대해서 락을 건다 */
@@ -241,10 +244,11 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNoOfParentBoard, groupSeqOfParentBoard, parentBoardNo);
+			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNoOfParentBoard, groupSeqOfParentBoard, parentNoOfParentBoard);
 
-			log.info("subject={}, toGroupSeq={}, groupNoOfParentBoard={}, groupSeqOfParentBoard={}", 
-					boardReplyReq.getSubject(), toGroupSeq, groupNoOfParentBoard, groupSeqOfParentBoard);
+			log.info("subject={}, toGroupSeq={}, parentBoardNo={}, groupNoOfParentBoard={}, groupSeqOfParentBoard={}, parentNoOfParentBoard={}", 
+					boardReplyReq.getSubject(), toGroupSeq, 
+					parentBoardNo, groupNoOfParentBoard, groupSeqOfParentBoard, parentNoOfParentBoard);
 			
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))

@@ -6,24 +6,16 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 import javax.sql.DataSource;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.ServerServiceException;
-import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
-import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
-import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
-import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
-import kr.pe.codda.impl.task.server.BoardReplyReqServerTask;
-import kr.pe.codda.impl.task.server.BoardWriteReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
 import org.jooq.DSLContext;
@@ -264,208 +256,88 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		return boardTreeNode;
 	}*/
 	
-	private BoardTree makeBoardTreeWithoutTreeInfomation(BoardType boardType) {
-		String writerID = "test01";
-		String otherID = "test02";
-		
-		BoardTree boardTree = new BoardTree();
-		
-		
-		final short boardID = boardType.getBoardID();
-		{
-			BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)0, writerID, "루트1", "루트1");
-			
-			List<BoardTreeNode> root1ChildBoardTreeNodeList = new ArrayList<BoardTreeNode>();
-			{
-				BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식1", "루트1_자식1");				
-				root1ChildBoardTreeNodeList.add(root1Child1BoardTreeNode);
-			}
-			
-			{
-				BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, writerID, "루트1_자식2", "루트1_자식2");
-				List<BoardTreeNode> root1Child2BoardTreeNodeList = new ArrayList<BoardTreeNode>();
-				{
-					BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
-					root1Child2BoardTreeNodeList.add(root1Child2Child1BoardTreeNode);
-				}
-				{
-					BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
-					root1Child2BoardTreeNodeList.add(root1Child2Child2BoardTreeNode);
-				}
-				{
-					BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)2, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
-					List<BoardTreeNode> root1Child2Child3BoardTreeNodeList = new ArrayList<BoardTreeNode>();
-					{
-						BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)3, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
-						List<BoardTreeNode> root1Child2Child3Child1BoardTreeNodeList = new ArrayList<BoardTreeNode>();
-						{
-							BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
-							root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child1BoardTreeNode);
-						}
-						{
-							BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
-							root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child2BoardTreeNode);
-						}
-						{
-							BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)4, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
-							root1Child2Child3Child1BoardTreeNodeList.add(root1Child2Child3Child1Child3BoardTreeNode);
-						}
-						root1Child2Child3Child1BoardTreeNode.setChildBoardTreeNodeList(root1Child2Child3Child1BoardTreeNodeList);
-						
-						root1Child2Child3BoardTreeNodeList.add(root1Child2Child3Child1BoardTreeNode);
-					}
-					root1Child2Child3BoardTreeNode.setChildBoardTreeNodeList(root1Child2Child3BoardTreeNodeList);
-					root1Child2BoardTreeNodeList.add(root1Child2Child3BoardTreeNode);
-				}
-				root1Child2BoardTreeNode.setChildBoardTreeNodeList(root1Child2BoardTreeNodeList);
-				
-				
-				root1ChildBoardTreeNodeList.add(root1Child2BoardTreeNode);
-			}
-			
-			
-			{
-				BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, (short)1, otherID, "루트1_자식3", "루트1_자식3");				
-				root1ChildBoardTreeNodeList.add(root1Child3BoardTreeNode);
-			}
-			root1BoardTreeNode.setChildBoardTreeNodeList(root1ChildBoardTreeNodeList);
-			
-			boardTree.add(root1BoardTreeNode);
-		}
-		
-		return boardTree;
-	}
-	
-	private void makeChildBoardTreeRecordUsingChildBoardTreeNode(
-			BoardReplyReqServerTask boardReplyReqServerTask,
-			long parentNo,
-			BoardTreeNode childBoardTreeNode) {
-		
-		// UShort parentOrderSeq = UShort.valueOf(0);
-		
-		BoardReplyReq boardReplyReq = new BoardReplyReq();
-		boardReplyReq.setBoardID(childBoardTreeNode.getBoardID());
-		boardReplyReq.setParentBoardNo(parentNo);
-		boardReplyReq.setSubject(childBoardTreeNode.getSubject());
-		boardReplyReq.setContent(childBoardTreeNode.getContent());		
-		boardReplyReq.setRequestUserID(childBoardTreeNode.getWriterID());
-		boardReplyReq.setIp("127.0.0.1");		
-		
-		List<BoardReplyReq.AttachedFile> attachedFileList = new ArrayList<BoardReplyReq.AttachedFile>();
-		boardReplyReq.setAttachedFileCnt((short)attachedFileList.size());
-		boardReplyReq.setAttachedFileList(attachedFileList);
-		
-		BoardReplyRes boardReplyRes = null;
-		try {
-			boardReplyRes = boardReplyReqServerTask.doWork(TEST_DBCP_NAME, boardReplyReq);
-			log.info(boardReplyRes.toString());
-		} catch(ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}		
-		
-		childBoardTreeNode.setBoardNo(boardReplyRes.getBoardNo());
-		
-		List<BoardTreeNode> childChildBoardTreeNodeList = childBoardTreeNode.getChildBoardTreeNodeList();
-		int childChildBoardTreeNodeListSize = childChildBoardTreeNodeList.size();
-		for (int i=childChildBoardTreeNodeListSize - 1; i >= 0 ; i--) {
-			BoardTreeNode childChildBoardTreeNode = childChildBoardTreeNodeList.get(i);
-			makeChildBoardTreeRecordUsingChildBoardTreeNode(
-					boardReplyReqServerTask, childBoardTreeNode.getBoardNo(), 
-					childChildBoardTreeNode);
-		}	
-	}
-	
-	private void makeRootBoardTreeRecordUsingRootBoardTreeNode(
-			BoardWriteReqServerTask boardWriteReqServerTask,
-			BoardReplyReqServerTask boardReplyReqServerTask,
-			BoardTreeNode rootBoardTreeNode) {
-		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestUserID(rootBoardTreeNode.getWriterID());
-		boardWriteReq.setBoardID(rootBoardTreeNode.getBoardID());
-		boardWriteReq.setSubject(rootBoardTreeNode.getSubject());
-		boardWriteReq.setContent(rootBoardTreeNode.getContent());
-		boardWriteReq.setIp("172.16.0.1");
-		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
-		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
-		boardWriteReq.setNewAttachedFileList(attachedFileList);
-		BoardWriteRes boardWriteRes = null;
-		try {
-			boardWriteRes = boardWriteReqServerTask.doWork(TEST_DBCP_NAME, boardWriteReq);
-		} catch(ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-		
-		rootBoardTreeNode.setBoardNo(boardWriteRes.getBoardNo());
-		// rootBoardTreeNode.setGroupSeq(rootBoardTreeNode.getTotalNodes()-1);
-		
-		
-		List<BoardTreeNode> childBoardTreeNodeList = rootBoardTreeNode.getChildBoardTreeNodeList();
-		int childBoardTreeNodeListSize = childBoardTreeNodeList.size();
-		for (int i=childBoardTreeNodeListSize - 1; i >= 0 ; i--) {
-			BoardTreeNode childBoardTreeNode = childBoardTreeNodeList.get(i);
-			makeChildBoardTreeRecordUsingChildBoardTreeNode(
-					boardReplyReqServerTask, rootBoardTreeNode.getBoardNo(), 
-					childBoardTreeNode);
-		}
-	}
-	
-	/**
-	 * <pre>
-	 * 지정한 루트 노드를 루트로한 를 전위 순환하며 방문한 루트를 지정한 스택에 넣는다.
-	 * 이렇게 저장된 게시판 트리 노드 스택은 게시판 트리 노드가 그룹 시퀀스 역순으로 쌓인 스택이다.
-	 * </pre>
-	 * 
-	 * @param boardTreeNodeStack
-	 * @param relativeRootBoardTreeNode
-	 */
-	private void preOrder(Stack<BoardTreeNode> boardTreeNodeStack,
-			BoardTreeNode relativeRootBoardTreeNode) {
-		boardTreeNodeStack.push(relativeRootBoardTreeNode);
-		
-		List<BoardTreeNode> childBoardTreeNodeList = relativeRootBoardTreeNode.getChildBoardTreeNodeList();
-		for (BoardTreeNode childBoardTreeNode : childBoardTreeNodeList) {
-			preOrder(boardTreeNodeStack, childBoardTreeNode);
-		}
-	}	
 
 	@Test
 	public void testGetToGroupSeqOfRelativeRootBoard() {
-		final Stack<BoardTreeNode> boardTreeNodeStack =
-				new Stack<BoardTreeNode>();
-		final BoardWriteReqServerTask boardWriteReqServerTask = new BoardWriteReqServerTask();
-		final BoardReplyReqServerTask boardReplyReqServerTask = new BoardReplyReqServerTask();
 		final BoardType boardType = BoardType.FREE;
 		
-		BoardTree boardTree = makeBoardTreeWithoutTreeInfomation(boardType);		
-		List<BoardTreeNode> rootBoardTreeNodeList = boardTree.getRootBoardTreeNodeList();
-		
-		for (BoardTreeNode rootBoardTreeNode : rootBoardTreeNodeList) {
-			makeRootBoardTreeRecordUsingRootBoardTreeNode(
-					boardWriteReqServerTask, 
-					boardReplyReqServerTask, rootBoardTreeNode);
-			
-			boardTreeNodeStack.clear();
-			
-			preOrder(boardTreeNodeStack, rootBoardTreeNode);
-			
-			int groupSeq = 0;
-			while (! boardTreeNodeStack.isEmpty()) {
-				BoardTreeNode boardTreeNode = boardTreeNodeStack.pop();
-				boardTreeNode.setGroupSeq(groupSeq);
-				groupSeq++;
+		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+			@Override
+			public BoardTree build(final BoardType boardType) {
+				String writerID = "test01";
+				String otherID = "test02";
 				
-				// boardNoToBoardTreeNodeHash.put(boardTreeNode.getBoardNo(), boardTreeNode);
-			}
+				BoardTree boardTree = new BoardTree();				
+				
+				final short boardID = boardType.getBoardID();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1", "루트1");
+					
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1", "루트1_자식1");
+						{
+							BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1_자식1");
+								root1Child1Child1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+							}
+							root1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1BoardTreeNode);
+						}		
+						
+						root1BoardTreeNode.addChildNode(root1Child1BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2", "루트1_자식2");
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						{
+							BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child2BoardTreeNode);
+						}
+						
+						{
+							BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
+							{
+								BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
+								{
+									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
+									root1Child2Child3Child1BoardTreeNode.addChildNode(root1Child2Child3Child1Child1BoardTreeNode);									
+								}
+								{
+									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
+									root1Child2Child3Child1BoardTreeNode.addChildNode(root1Child2Child3Child1Child2BoardTreeNode);
+								}
+								{
+									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
+									root1Child2Child3Child1BoardTreeNode.addChildNode(root1Child2Child3Child1Child3BoardTreeNode);
+								}
+								root1Child2Child3BoardTreeNode.addChildNode(root1Child2Child3Child1BoardTreeNode);
+							}
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child3BoardTreeNode);
+						}
+						root1BoardTreeNode.addChildNode(root1Child2BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식3", "루트1_자식3");
+						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
+					}					
+					
+					boardTree.addRootNode(root1BoardTreeNode);
+				}
+				
+				return boardTree;
+			}			
 		}
-				
+		
+		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
+		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
+				new VirutalBoardTreeBuilder(), boardType);
+						
 		DataSource dataSource = null;
 		
 		try {

@@ -17,15 +17,15 @@ public class BoardTree {
 		this.rootBoardTreeNodeList = rootBoardTreeNodeList;
 	}*/
 	
-	public void add(BoardTreeNode rootBoardTreeNode) {
+	public void addRootNode(BoardTreeNode rootBoardTreeNode) {
 		rootBoardTreeNodeList.add(rootBoardTreeNode);
 	}
 	
-	public static BoardTreeNode makeBoardTreeNodeWithoutTreeInfomation(short boardID, short depth, 
+	public static BoardTreeNode makeBoardTreeNodeWithoutTreeInfomation(short boardID,  
 			String writerID, String subject, String content) {
 		BoardTreeNode boardTreeNode = new BoardTreeNode();
 		boardTreeNode.setBoardID(boardID);
-		boardTreeNode.setDepth(depth);
+		
 		boardTreeNode.setWriterID(writerID);
 		boardTreeNode.setSubject(subject);
 		boardTreeNode.setContent(content);

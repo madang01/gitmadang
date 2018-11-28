@@ -83,6 +83,7 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 		
 		rootBoardTreeNode.setBoardNo(boardWriteRes.getBoardNo());
 		rootBoardTreeNode.setGroupNo(boardWriteRes.getBoardNo());
+		rootBoardTreeNode.setDepth((short)0);
 		// rootBoardTreeNode.setGroupSeq(rootBoardTreeNode.getTotalNodes()-1);
 		
 		
@@ -100,6 +101,7 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 			makeChildBoardTreeRecordUsingChildBoardTreeNode(
 					boardReplyReqServerTask, rootBoardTreeNode.getGroupNo(), 
 					rootBoardTreeNode.getBoardNo(), 
+					(short)1,
 					childBoardTreeNode);
 		}
 	}
@@ -108,6 +110,7 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 			BoardReplyReqServerTask boardReplyReqServerTask,
 			long groupNo,
 			long parentNo,
+			short depth,
 			BoardTreeNode childBoardTreeNode) {
 		
 		// UShort parentOrderSeq = UShort.valueOf(0);
@@ -138,7 +141,8 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 		
 		childBoardTreeNode.setGroupNo(groupNo);
 		childBoardTreeNode.setParentNo(parentNo);
-		childBoardTreeNode.setBoardNo(boardReplyRes.getBoardNo());		
+		childBoardTreeNode.setBoardNo(boardReplyRes.getBoardNo());
+		childBoardTreeNode.setDepth(depth);
 		
 		List<BoardTreeNode> childChildBoardTreeNodeList = childBoardTreeNode.getChildBoardTreeNodeList();
 		/*int childChildBoardTreeNodeListSize = childChildBoardTreeNodeList.size();
@@ -152,6 +156,7 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 		for (BoardTreeNode childChildBoardTreeNode : childChildBoardTreeNodeList) {
 			makeChildBoardTreeRecordUsingChildBoardTreeNode(
 					boardReplyReqServerTask, groupNo, childBoardTreeNode.getBoardNo(), 
+					(short)(depth + 1),
 					childChildBoardTreeNode);
 		}
 	}

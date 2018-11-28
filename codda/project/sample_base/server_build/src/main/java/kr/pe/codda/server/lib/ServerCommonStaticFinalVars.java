@@ -6,9 +6,9 @@ public abstract class ServerCommonStaticFinalVars {
 		
 	/** sample_base 프로젝트의 DB 스키마, SB_DB ===> sample_base_database */
 	public static final String DEFAULT_DBCP_NAME = "SB_DB";
-	/** 일반적인 테스트용 sample_base 프로젝트의 dbcp 이름, general_test_sample_base_database  */
+	/** 일반적인 테스트용 sample_base 프로젝트의 DB 스키마, general_test_sample_base_database  */
 	public static final String GENERAL_TEST_DBCP_NAME = "GT_SB_DB";
-	/** 부하 테스트용 sample_base 프로젝트의 dbcp 이름, load_test_sample_base_database */
+	/** 부하 테스트용 sample_base 프로젝트의 DB 스키마, load_test_sample_base_database */
 	public static final String LOAD_TEST_DBCP_NAME = "LT_SB_DB";
 	
 	/** 패스워드 최소 문자수 */

@@ -92,7 +92,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 		UInteger boardNo = UInteger.valueOf(boardDeleteReq.getBoardNo());
 
 		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
+				.getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
