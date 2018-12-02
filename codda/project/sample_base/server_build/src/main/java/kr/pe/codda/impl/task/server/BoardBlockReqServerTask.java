@@ -244,7 +244,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				}
 			}		*/
 			UShort fromGroupSeq = groupSeq;
-			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNo, groupSeq, parentNo);
+			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupSeq, parentNo);
 			
 			int updateCount = create.update(SB_BOARD_TB)
 			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.BLOCK.getValue())

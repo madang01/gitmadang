@@ -376,8 +376,12 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardDeleteReq.setBoardNo(deleteSateBoardWriteRes.getBoardNo());
 		
 		try {
-			MessageResultRes messageResultRes = boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);			
-			log.info(messageResultRes.toString());
+			MessageResultRes messageResultRes = boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);
+			
+			if (! messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+			
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);
 			fail("fail to execuate doTask");
@@ -587,7 +591,155 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 게시판목록_트리관련항목유효성검사() {
-		계획된_게시판_테스트_데이터_실사화_검증();
+		final BoardType boardType = BoardType.FREE;
+		
+		
+		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+			@Override
+			public BoardTree build(final BoardType boardType) {
+				String writerID = "test01";
+				String otherID = "test02";
+				
+				BoardTree boardTree = new BoardTree();				
+				
+				final short boardID = boardType.getBoardID();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1", "루트1");
+					
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1", "루트1_자식1");
+						{
+							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1", "루트1_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1");
+								{
+									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1_자식1");
+									root1Child1Child1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+								}
+								
+								root1Child1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1BoardTreeNode);
+							}
+							
+							root1Child1BoardTreeNode.addChildNode(root1Child1Child1BoardTreeNode);
+						}		
+						
+						root1BoardTreeNode.addChildNode(root1Child1BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2", "루트1_자식2");
+						
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							{
+								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식1", "루트1_자식2_자식1_자식1");
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child1BoardTreeNode);
+							}
+							
+							{
+								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식2", "루트1_자식2_자식1_자식2");
+								{
+									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1_자식2_자식1", "루트1_자식2_자식3_자식2_자식1");
+									root1Child2Child1Child2BoardTreeNode.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);									
+								}
+								
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child2BoardTreeNode);
+							}
+							
+							{
+								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식3", "루트1_자식2_자식1_자식3");
+								{
+									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1_자식3_자식1", "루트1_자식2_자식3_자식3_자식1");
+									root1Child2Child1Child3BoardTreeNode.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);									
+								}
+								
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child3BoardTreeNode);
+							}
+							
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						root1BoardTreeNode.addChildNode(root1Child2BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식3", "루트1_자식3");
+						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
+					}					
+					
+					boardTree.addRootNode(root1BoardTreeNode);
+				}
+				
+				return boardTree;
+			}			
+		}
+		
+		
+		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
+		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
+				new VirutalBoardTreeBuilder(), boardType);
+		
+		int pageNo = 1;
+		int pageSize = boardTree.getHashSize();
+		
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setRequestUserID("guest");
+		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setPageNo(pageNo);
+		boardListReq.setPageSize(pageSize);
+		
+		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
+		BoardListRes firstBoardListRes = null;
+		
+		try {
+			firstBoardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME, boardListReq);
+			
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		assertEquals("게시판 트리 노드 총 갯수와 게시판 레코드 총 갯수 비교", 
+				boardTree.getTotal(), firstBoardListRes.getTotal());
+		
+		assertEquals("게시판 트리 노드 총 갯수와 게시판 레코드 목록 갯수 비교", 
+				boardTree.getTotal(), firstBoardListRes.getCnt());
+		
+		java.util.List<BoardListRes.Board> firstBoardList = firstBoardListRes.getBoardList();
+		
+		for (BoardListRes.Board board : firstBoardList) {
+			BoardTreeNode boardTreeNode = boardTree.get(board.getBoardNo());
+			if (null == boardTreeNode) {
+				String errorMessage = new StringBuilder()
+				.append("this 'boardNoToBoardTreeNodeHash' map contains no mapping for the key(boardNo=")
+				.append(board.getBoardNo())
+				.append(")").toString();
+				
+				fail(errorMessage);
+			}
+			
+			// log.info();
+			
+			assertEquals("게시판 트리 노드의 그룹 번호와 게시판 레코드의 그룹 번호 비교", 
+					boardTreeNode.getGroupNo(), board.getGroupNo());
+			
+			assertEquals("게시판 트리 노드의 그룹 시퀀스와 게시판 레코드의 그룹 시퀀스 비교", 
+					boardTreeNode.getGroupSeq(), board.getGroupSeq());
+			
+			assertEquals("게시판 트리 노드의 부모번호와 게시판 레코드의 부모번호 비교", 
+					boardTreeNode.getParentNo(), board.getParentNo());
+			
+			assertEquals("게시판 트리 노드의 트리 깊이와 게시판 레코드의 트리 깊이 비교"+board.getBoardNo(), 
+					boardTreeNode.getDepth(), board.getDepth());
+			
+			assertEquals("게시판 트리 노드의 제목과 게시판 레코드의 제목 비교", 
+					boardTreeNode.getSubject(), board.getSubject());
+		}
 	}
 	
 	@Test
@@ -1174,6 +1326,247 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 	
 	@Test
+	public void 게시판차단_블락포함된블락() {			
+		final BoardType boardType = BoardType.FREE;
+		
+		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+			@Override
+			public BoardTree build(final BoardType boardType) {
+				String writerID = "test01";
+				String otherID = "test02";
+				
+				BoardTree boardTree = new BoardTree();				
+				
+				final short boardID = boardType.getBoardID();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1", "루트1");
+					
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1", "루트1_자식1");
+						{
+							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1", "루트1_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1");
+								{
+									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1_자식1");
+									root1Child1Child1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+								}
+								
+								root1Child1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1BoardTreeNode);
+							}
+							
+							root1Child1BoardTreeNode.addChildNode(root1Child1Child1BoardTreeNode);
+						}		
+						
+						root1BoardTreeNode.addChildNode(root1Child1BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2", "루트1_자식2");
+						
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							{
+								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식1", "루트1_자식2_자식1_자식1");
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child1BoardTreeNode);
+							}
+							
+							{
+								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식2", "루트1_자식2_자식1_자식2");
+								{
+									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1_자식2_자식1", "루트1_자식2_자식3_자식2_자식1");
+									root1Child2Child1Child2BoardTreeNode.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);									
+								}
+								
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child2BoardTreeNode);
+							}
+							
+							{
+								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식3", "루트1_자식2_자식1_자식3");
+								{
+									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1_자식3_자식1", "루트1_자식2_자식3_자식3_자식1");
+									root1Child2Child1Child3BoardTreeNode.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);									
+								}
+								
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child3BoardTreeNode);
+							}
+							
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						root1BoardTreeNode.addChildNode(root1Child2BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식3", "루트1_자식3");
+						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
+					}					
+					
+					boardTree.addRootNode(root1BoardTreeNode);
+				}
+				
+				return boardTree;
+			}			
+		}
+		
+		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
+		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
+				new VirutalBoardTreeBuilder(), boardType);
+		
+		BoardTreeNode firstBlockBoardTreeNode = boardTree.find("루트1_자식2_자식1_자식2");
+		
+		if (null == firstBlockBoardTreeNode) {
+			fail("첫번째 블락 대상 글(제목:루트1_자식2_자식1_자식2) 찾기 실패");
+		}
+		
+		BoardTreeNode deleteBoardTreeNode = boardTree.find("루트1_자식2_자식1_자식2_자식1");
+		
+		if (null == deleteBoardTreeNode) {
+			fail("삭제 대상 글(제목:루트1_자식2_자식1_자식2_자식1) 찾기 실패");
+		}
+		
+		BoardTreeNode secondBlockBoardTreeNode = boardTree.find("루트1_자식2");
+		
+		if (null == secondBlockBoardTreeNode) {
+			fail("두번째 블락 대상 글(제목:루트1_자식2) 찾기 실패");
+		}
+		
+		BoardDeleteReqServerTask boardDeleteReqServerTask = new BoardDeleteReqServerTask();
+		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
+		boardDeleteReq.setRequestUserID(deleteBoardTreeNode.getWriterID());
+		boardDeleteReq.setBoardID(deleteBoardTreeNode.getBoardID());
+		boardDeleteReq.setBoardNo(deleteBoardTreeNode.getBoardNo());
+		
+		try {
+			MessageResultRes messageResultRes = boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);			
+			if (! messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}	
+		
+		
+		BoardBlockReqServerTask boardBlockReqServerTask = new BoardBlockReqServerTask();
+		
+		BoardBlockReq firstBlcokBoardBlockReq = new BoardBlockReq();
+		firstBlcokBoardBlockReq.setRequestUserID("admin");
+		firstBlcokBoardBlockReq.setBoardID(firstBlockBoardTreeNode.getBoardID());
+		firstBlcokBoardBlockReq.setBoardNo(firstBlockBoardTreeNode.getBoardNo());
+		
+		try {
+			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(TEST_DBCP_NAME, firstBlcokBoardBlockReq);
+			
+			// log.info(messageResultRes.toString());
+			
+			if (! messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+			
+		} catch (Exception e) {
+			log.warn("fail to execuate doTask", e);
+			fail("fail to execuate doTask");
+		}
+		
+		int pageNo = 1;
+		int pageSize = boardTree.getHashSize();
+		
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setRequestUserID("admin");
+		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setPageNo(pageNo);
+		boardListReq.setPageSize(pageSize);
+		
+		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
+		BoardListRes boardListRes = null;
+		
+		try {
+			boardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME, boardListReq);
+			
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		for (BoardListRes.Board board : boardListRes.getBoardList()) {
+			String boardState = board.getBoardSate();
+			int groupSeq = board.getGroupSeq();
+			
+			if (firstBlockBoardTreeNode.getGroupSeq() == groupSeq) {
+				assertEquals("첫번째 블락 대상 게시글 상태 점검",  BoardStateType.BLOCK.getValue(), boardState);				
+			} else if (deleteBoardTreeNode.getGroupSeq() == groupSeq) {
+				assertEquals("삭제 대상 게시글 상태 점검",  BoardStateType.DELETE.getValue(), boardState);
+			} else if ((firstBlockBoardTreeNode.getGroupSeq() - 1) <= groupSeq
+					&& groupSeq < firstBlockBoardTreeNode.getGroupSeq()) {
+				assertEquals("첫번째 블락 트리에서 블락과 삭제 상태의 노드를 제외한 나머지 글들의 게시글 상태 점검",  
+						BoardStateType.TREEBLOCK.getValue(), boardState);
+			} else {
+				assertEquals("첫번째 블락 트리 제외한 글들의 게시글 상태 점검",  
+						BoardStateType.OK.getValue(), boardState);
+			}
+		}		
+		
+		BoardBlockReq secondBlcokBoardBlockReq = new BoardBlockReq();
+		secondBlcokBoardBlockReq.setRequestUserID("admin");
+		secondBlcokBoardBlockReq.setBoardID(secondBlockBoardTreeNode.getBoardID());
+		secondBlcokBoardBlockReq.setBoardNo(secondBlockBoardTreeNode.getBoardNo());
+		
+		try {
+			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(TEST_DBCP_NAME, secondBlcokBoardBlockReq);
+			
+			log.info(messageResultRes.toString());
+			
+			if (! messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+			
+		} catch (Exception e) {
+			log.warn("fail to execuate doTask", e);
+			fail("fail to execuate doTask");
+		}		
+		
+		try {
+			boardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME, boardListReq);
+			
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		for (BoardListRes.Board board : boardListRes.getBoardList()) {
+			String boardState = board.getBoardSate();
+			int groupSeq = board.getGroupSeq();
+			
+			if (firstBlockBoardTreeNode.getGroupSeq() == groupSeq) {
+				assertEquals("첫번째 블락 대상 게시글 상태 점검",  BoardStateType.BLOCK.getValue(), boardState);				
+			} else if (deleteBoardTreeNode.getGroupSeq() == groupSeq) {
+				assertEquals("삭제 대상 게시글 상태 점검",  BoardStateType.DELETE.getValue(), boardState);
+			} else if (secondBlockBoardTreeNode.getGroupSeq() == groupSeq) {
+				assertEquals("두번째 블락 대상 게시글 상태 점검",  BoardStateType.BLOCK.getValue(), boardState);	
+			} else if ((secondBlockBoardTreeNode.getGroupSeq() - 6) <= groupSeq
+					&& groupSeq < secondBlockBoardTreeNode.getGroupSeq()) {
+				assertEquals("두번째 최종 블락 트리에서 블락과 삭제 상태의 노드를 제외한 나머지 글들의 게시글 상태 점검",  
+						BoardStateType.TREEBLOCK.getValue(), boardState);
+			} else {
+				assertEquals("두번째 블락 트리를 제외한 글들의 게시글 상태 점검",  
+						BoardStateType.OK.getValue(), boardState);
+			}
+		}
+	}
+	
+	@Test
 	public void 게시글차단_루트정상() {
 		final BoardType boardType = BoardType.FREE;
 		
@@ -1475,6 +1868,267 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			fail("fail to execuate doTask");
 		}	
 	}
+	
+	@Test
+	public void 게시판해제_블락포함된블락() {	
+		final BoardType boardType = BoardType.FREE;
+		
+		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+			@Override
+			public BoardTree build(final BoardType boardType) {
+				String writerID = "test01";
+				String otherID = "test02";
+				
+				BoardTree boardTree = new BoardTree();				
+				
+				final short boardID = boardType.getBoardID();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1", "루트1");
+					
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1", "루트1_자식1");
+						{
+							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1", "루트1_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1");
+								{
+									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1_자식1");
+									root1Child1Child1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+								}
+								
+								root1Child1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1BoardTreeNode);
+							}
+							
+							root1Child1BoardTreeNode.addChildNode(root1Child1Child1BoardTreeNode);
+						}		
+						
+						root1BoardTreeNode.addChildNode(root1Child1BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2", "루트1_자식2");
+						
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							{
+								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식1", "루트1_자식2_자식1_자식1");
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child1BoardTreeNode);
+							}
+							
+							{
+								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식2", "루트1_자식2_자식1_자식2");
+								{
+									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1_자식2_자식1", "루트1_자식2_자식3_자식2_자식1");
+									root1Child2Child1Child2BoardTreeNode.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);									
+								}
+								
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child2BoardTreeNode);
+							}
+							
+							{
+								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식1_자식3", "루트1_자식2_자식1_자식3");
+								{
+									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1_자식3_자식1", "루트1_자식2_자식3_자식3_자식1");
+									root1Child2Child1Child3BoardTreeNode.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);									
+								}
+								
+								
+								root1Child2Child1BoardTreeNode.addChildNode(root1Child2Child1Child3BoardTreeNode);
+							}
+							
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						root1BoardTreeNode.addChildNode(root1Child2BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식3", "루트1_자식3");
+						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
+					}					
+					
+					boardTree.addRootNode(root1BoardTreeNode);
+				}
+				
+				return boardTree;
+			}			
+		}
+		
+		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
+		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
+				new VirutalBoardTreeBuilder(), boardType);
+		
+		BoardTreeNode firstBlockBoardTreeNode = boardTree.find("루트1_자식2_자식1_자식2");
+		
+		if (null == firstBlockBoardTreeNode) {
+			fail("첫번째 블락 대상 글(제목:루트1_자식2_자식1_자식2) 찾기 실패");
+		}
+		
+		BoardTreeNode secondBlockBoardTreeNode = boardTree.find("루트1_자식2");
+		
+		if (null == secondBlockBoardTreeNode) {
+			fail("두번째 블락 대상 글(제목:루트1_자식2) 찾기 실패");
+		}
+		
+		BoardTreeNode deleteBoardTreeNode = boardTree.find("루트1_자식2_자식1_자식2_자식1");
+		
+		if (null == deleteBoardTreeNode) {
+			fail("삭제 대상 글(제목:루트1_자식2_자식1_자식2_자식1) 찾기 실패");
+		}
+		
+		
+		BoardDeleteReqServerTask boardDeleteReqServerTask = new BoardDeleteReqServerTask();
+		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
+		boardDeleteReq.setRequestUserID(deleteBoardTreeNode.getWriterID());
+		boardDeleteReq.setBoardID(deleteBoardTreeNode.getBoardID());
+		boardDeleteReq.setBoardNo(deleteBoardTreeNode.getBoardNo());
+		
+		try {
+			MessageResultRes messageResultRes = boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);			
+			if (! messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		BoardBlockReqServerTask boardBlockReqServerTask = new BoardBlockReqServerTask();
+		
+		BoardBlockReq firstBlcokBoardBlockReq = new BoardBlockReq();
+		firstBlcokBoardBlockReq.setRequestUserID("admin");
+		firstBlcokBoardBlockReq.setBoardID(firstBlockBoardTreeNode.getBoardID());
+		firstBlcokBoardBlockReq.setBoardNo(firstBlockBoardTreeNode.getBoardNo());
+		
+		try {
+			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(TEST_DBCP_NAME, firstBlcokBoardBlockReq);
+			
+			// log.info(messageResultRes.toString());
+			
+			if (! messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+			
+		} catch (Exception e) {
+			log.warn("fail to execuate doTask", e);
+			fail("fail to execuate doTask");
+		}
+		
+		BoardBlockReq secondBlcokBoardBlockReq = new BoardBlockReq();
+		secondBlcokBoardBlockReq.setRequestUserID("admin");
+		secondBlcokBoardBlockReq.setBoardID(secondBlockBoardTreeNode.getBoardID());
+		secondBlcokBoardBlockReq.setBoardNo(secondBlockBoardTreeNode.getBoardNo());
+		
+		try {
+			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(TEST_DBCP_NAME, secondBlcokBoardBlockReq);
+			
+			log.info(messageResultRes.toString());
+			
+			if (! messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+			
+		} catch (Exception e) {
+			log.warn("fail to execuate doTask", e);
+			fail("fail to execuate doTask");
+		}
+		
+		BoardUnBlockReqServerTask boardUnBlockReqServerTask = new BoardUnBlockReqServerTask();
+		
+		BoardUnBlockReq boardUnBlockReq = new BoardUnBlockReq();
+		boardUnBlockReq.setRequestUserID("admin");
+		boardUnBlockReq.setBoardID(secondBlockBoardTreeNode.getBoardID());
+		boardUnBlockReq.setBoardNo(secondBlockBoardTreeNode.getBoardNo());
+		
+		try {
+			boardUnBlockReqServerTask.doWork(TEST_DBCP_NAME, boardUnBlockReq);	
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		int pageNo = 1;
+		int pageSize = boardTree.getHashSize();
+		
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setRequestUserID("admin");
+		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setPageNo(pageNo);
+		boardListReq.setPageSize(pageSize);
+		
+		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
+		BoardListRes boardListRes = null;
+		
+		try {
+			boardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME, boardListReq);
+			
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		for (BoardListRes.Board board : boardListRes.getBoardList()) {
+			String boardState = board.getBoardSate();
+			int groupSeq = board.getGroupSeq();
+			
+			if (firstBlockBoardTreeNode.getGroupSeq() == groupSeq) {
+				assertEquals("첫번째 블락 대상 게시글 상태 점검",  BoardStateType.BLOCK.getValue(), boardState);
+			} else if (deleteBoardTreeNode.getGroupSeq() == groupSeq) {
+				assertEquals("삭제 대상 게시글 상태 점검",  BoardStateType.DELETE.getValue(), boardState);
+			} else if ((firstBlockBoardTreeNode.getGroupSeq() - 1) <= groupSeq
+					&& groupSeq < firstBlockBoardTreeNode.getGroupSeq()) {
+				assertEquals("첫번째 블락 트리에서 블락과 삭제 상태의 노드를 제외한 나머지 글들의 게시글 상태 점검",  
+						BoardStateType.TREEBLOCK.getValue(), boardState);
+			} else {
+				assertEquals("첫번째 블락 트리 제외한 글들의 게시글 상태 점검",  
+						BoardStateType.OK.getValue(), boardState);
+			}
+		}		
+		
+		
+		boardUnBlockReq = new BoardUnBlockReq();
+		boardUnBlockReq.setRequestUserID("admin");
+		boardUnBlockReq.setBoardID(firstBlockBoardTreeNode.getBoardID());
+		boardUnBlockReq.setBoardNo(firstBlockBoardTreeNode.getBoardNo());
+		
+		try {
+			boardUnBlockReqServerTask.doWork(TEST_DBCP_NAME, boardUnBlockReq);	
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		try {
+			boardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME, boardListReq);
+			
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		for (BoardListRes.Board board : boardListRes.getBoardList()) {
+			String boardState = board.getBoardSate();
+			int groupSeq = board.getGroupSeq();
+			
+			if (deleteBoardTreeNode.getGroupSeq() == groupSeq) {
+				assertEquals("삭제 대상 게시글 상태 점검",  BoardStateType.DELETE.getValue(), boardState);
+			} else {
+				assertEquals("게시글 상태 점검",  
+						BoardStateType.OK.getValue(), boardState);
+			}
+		}
+	}
+	
 	
 	@Test
 	public void 게시판해제_정상() {		

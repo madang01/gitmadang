@@ -244,11 +244,11 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNoOfParentBoard, groupSeqOfParentBoard, parentNoOfParentBoard);
+			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupSeqOfParentBoard, parentNoOfParentBoard);
 
-			log.info("subject={}, toGroupSeq={}, parentBoardNo={}, groupNoOfParentBoard={}, groupSeqOfParentBoard={}, parentNoOfParentBoard={}", 
+			/*log.info("subject={}, toGroupSeq={}, parentBoardNo={}, groupNoOfParentBoard={}, groupSeqOfParentBoard={}, parentNoOfParentBoard={}", 
 					boardReplyReq.getSubject(), toGroupSeq, 
-					parentBoardNo, groupNoOfParentBoard, groupSeqOfParentBoard, parentNoOfParentBoard);
+					parentBoardNo, groupNoOfParentBoard, groupSeqOfParentBoard, parentNoOfParentBoard);*/
 			
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))

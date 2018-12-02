@@ -16,6 +16,9 @@ import javax.sql.DataSource;
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
+import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
+import kr.pe.codda.impl.task.server.BoardListReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
 import org.jooq.DSLContext;
@@ -258,7 +261,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 	
 
 	@Test
-	public void testGetToGroupSeqOfRelativeRootBoard() {
+	public void testGetToGroupSeqOfRelativeRootBoard_트리끝위치얻기2가지방법비교() {
 		final BoardType boardType = BoardType.FREE;
 		
 		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
@@ -337,6 +340,31 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
 		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
 				new VirutalBoardTreeBuilder(), boardType);
+		
+		
+		int pageNo = 1;
+		int pageSize = boardTree.getHashSize();
+		
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setRequestUserID("admin");
+		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setPageNo(pageNo);
+		boardListReq.setPageSize(pageSize);
+		
+		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
+		BoardListRes boardListRes = null;
+		
+		try {
+			boardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME, boardListReq);
+			
+		} catch(ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
 						
 		DataSource dataSource = null;
 		
@@ -355,26 +383,21 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 			
-			BoardTreeNode boardTreeNode = boardTree.find("루트1_자식2_자식1_자식3");
-			UShort expectedToGroupSeq = UShort.valueOf(1);			
-			UShort acutalToGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, 
-					UByte.valueOf(boardType.getBoardID()), 
-					UInteger.valueOf(boardTreeNode.getGroupNo()), 
-					UShort.valueOf(boardTreeNode.getGroupSeq()), 
-					UInteger.valueOf(boardTreeNode.getParentNo()));
-			
-			assertEquals("1.트리의 마지막 그룹 시퀀스 번호 비교", expectedToGroupSeq, acutalToGroupSeq);
-			
-			
-			boardTreeNode = boardTree.find("루트1_자식3");
-			expectedToGroupSeq = UShort.valueOf(0);			
-			acutalToGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, 
-					UByte.valueOf(boardType.getBoardID()), 
-					UInteger.valueOf(boardTreeNode.getGroupNo()), 
-					UShort.valueOf(boardTreeNode.getGroupSeq()), 
-					UInteger.valueOf(boardTreeNode.getParentNo()));
-			
-			assertEquals("2.트리의 마지막 그룹 시퀀스 번호 비교", expectedToGroupSeq, acutalToGroupSeq);
+			for (BoardListRes.Board board : boardListRes.getBoardList()) {
+				
+				UShort expectedFromGroupSq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, 
+						UByte.valueOf(boardListRes.getBoardID()), 
+						UInteger.valueOf(board.getGroupNo()), 
+						UShort.valueOf(board.getGroupSeq()), 
+						UByte.valueOf(board.getDepth()));
+				
+				UShort acutalFromGroupSq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, 
+						UByte.valueOf(boardListRes.getBoardID()), 
+						UShort.valueOf(board.getGroupSeq()), 
+						UInteger.valueOf(board.getParentNo()));
+				
+				assertEquals("트리의 마지막 그룹시퀀스를 얻는 방법 2가지(첫번째 depth이용한방법, 두번째 직계조상이용방법) 비교", expectedFromGroupSq,  acutalFromGroupSq);
+			}
 		
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -398,4 +421,163 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		}
 	}
 
+	@Test
+	public void testGetToGroupSeqOfRelativeRootBoard_트리끝위치얻기방법2가지속도비교() {
+		final BoardType boardType = BoardType.FREE;
+		
+		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+			@Override
+			public BoardTree build(final BoardType boardType) {
+				String writerID = "test01";
+				String otherID = "test02";
+				
+				BoardTree boardTree = new BoardTree();				
+				
+				final short boardID = boardType.getBoardID();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1", "루트1");
+					
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1", "루트1_자식1");
+						{
+							BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1_자식1", "루트1_자식1_자식1_자식1_자식1");
+								root1Child1Child1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+							}
+							root1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1BoardTreeNode);
+						}		
+						
+						root1BoardTreeNode.addChildNode(root1Child1BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2", "루트1_자식2");
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1", "루트1_자식2_자식1");
+							
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						{
+							BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식2", "루트1_자식2_자식2");
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child2BoardTreeNode);
+						}
+						
+						{
+							BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식3", "루트1_자식2_자식3");
+							{
+								BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식3_자식1", "루트1_자식2_자식3_자식1");
+								{
+									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
+									root1Child2Child3Child1BoardTreeNode.addChildNode(root1Child2Child3Child1Child1BoardTreeNode);									
+								}
+								{
+									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
+									root1Child2Child3Child1BoardTreeNode.addChildNode(root1Child2Child3Child1Child2BoardTreeNode);
+								}
+								{
+									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
+									root1Child2Child3Child1BoardTreeNode.addChildNode(root1Child2Child3Child1Child3BoardTreeNode);
+								}
+								root1Child2Child3BoardTreeNode.addChildNode(root1Child2Child3Child1BoardTreeNode);
+							}
+							root1Child2BoardTreeNode.addChildNode(root1Child2Child3BoardTreeNode);
+						}
+						root1BoardTreeNode.addChildNode(root1Child2BoardTreeNode);
+					}
+					
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식3", "루트1_자식3");
+						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
+					}					
+					
+					boardTree.addRootNode(root1BoardTreeNode);
+				}
+				
+				return boardTree;
+			}			
+		}
+		
+		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
+		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
+				new VirutalBoardTreeBuilder(), boardType);
+		
+		BoardTreeNode boardTreeNode = boardTree.find("루트1_자식2");
+		
+		if (null == boardTreeNode) {
+			fail("속도 비교를 위한 대상 글(제목:루트1_자식2) 찾기 실패");
+		}
+		
+		DataSource dataSource = null;
+		
+		try {
+		dataSource = DBCPManager.getInstance()
+				.getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
+		} catch(Exception e) {
+			log.warn("", e);
+			fail("fail to get a instance of DataSource class");
+		}
+		
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			conn.setAutoCommit(false);
+			
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
+			
+			int count = 10000;
+			
+			long beforeTime = 0, afterTime = 0;
+			
+			beforeTime = System.currentTimeMillis();
+			for (int i=0;i < count; i++) {
+				ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, 
+						UByte.valueOf(boardTreeNode.getBoardID()), 
+						UShort.valueOf(boardTreeNode.getGroupSeq()), 
+						UInteger.valueOf(boardTreeNode.getParentNo()));
+			}
+				
+			afterTime = System.currentTimeMillis();
+			
+			log.info(new StringBuilder("직계 부모 이용한 트리 끝 위치 얻기").append(":end(elapsed=")
+					.append((afterTime - beforeTime)).append(")").toString());
+			
+			beforeTime = System.currentTimeMillis();
+			for (int i=0;i < count; i++) {
+				ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, 
+						UByte.valueOf(boardTreeNode.getBoardID()), 
+						UInteger.valueOf(boardTreeNode.getGroupNo()), 
+						UShort.valueOf(boardTreeNode.getGroupSeq()), 
+						UByte.valueOf(boardTreeNode.getDepth()));
+			}
+			
+			afterTime = System.currentTimeMillis();
+			
+			log.info(new StringBuilder("트리 깊이를 이용한 트리 끝 위치 얻기").append(":end(elapsed=")
+					.append((afterTime - beforeTime)).append(")").toString());
+			
+			
+			
+		
+		} catch (Exception e) {
+			log.warn("error", e);
+			
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+			fail("에러 발생::errmsg="+e.getMessage());
+		} finally {
+			if (null != conn) {
+				try {
+					conn.close();
+				} catch (Exception e) {
+					log.warn("fail to close the db connection", e);
+				}
+			}
+		}
+	}
 }

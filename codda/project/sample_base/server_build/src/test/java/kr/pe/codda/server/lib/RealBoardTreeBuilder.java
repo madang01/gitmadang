@@ -130,7 +130,7 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 		BoardReplyRes boardReplyRes = null;
 		try {
 			boardReplyRes = boardReplyReqServerTask.doWork(workingDBName, boardReplyReq);
-			log.info(boardReplyRes.toString());
+			// log.info(boardReplyRes.toString());
 		} catch(ServerServiceException e) {
 			log.warn(e.getMessage(), e);
 			fail("fail to execuate doTask");

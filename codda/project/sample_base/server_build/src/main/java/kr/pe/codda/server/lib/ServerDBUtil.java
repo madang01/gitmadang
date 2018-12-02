@@ -24,6 +24,8 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import org.apache.commons.codec.binary.Base64;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
+import org.jooq.Record2;
+import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.conf.MappedSchema;
 import org.jooq.conf.RenderMapping;
@@ -371,9 +373,10 @@ public abstract class ServerDBUtil {
 		return DEFAULT_DBCP_SETTINGS;
 	}
 	
-	/*public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, 
+	public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, 
 			UByte boardID, 
 			UInteger groupNo, UShort groupSeq, UByte depth) {
+		
 		Result<Record2<UShort, UByte>> 
 		childBoardResult = create.select(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.DEPTH)
 		.from(SB_BOARD_TB)
@@ -397,11 +400,10 @@ public abstract class ServerDBUtil {
 		}
 		
 		return toGroupSeq;
-	}*/
+	}
 	
 	public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, 
 			UByte boardID, 
-			UInteger groupNo, 
 			UShort groupSq, 
 			UInteger directParentNo) throws ServerServiceException {
 		
@@ -411,15 +413,15 @@ public abstract class ServerDBUtil {
 			}
 			
 			Record1<UShort> 
-			nearestGroupSeqBoardRecord = create.select(SB_BOARD_TB.GROUP_SQ.max().as(SB_BOARD_TB.GROUP_SQ))
-			.from(SB_BOARD_TB)
-			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
-			.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
-			.and(SB_BOARD_TB.GROUP_SQ.lt(groupSq))
+			directParentBoardRecord = create.select(SB_BOARD_TB.GROUP_SQ.max()
+					.add(1).as("toGroupSeq"))
+			.from(SB_BOARD_TB.forceIndex("sb_board_idx2"))
+			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_TB.PARENT_NO.eq(directParentNo))
+			.and(SB_BOARD_TB.GROUP_SQ.lt(groupSq))
 			.fetchOne();
 			
-			if (null == nearestGroupSeqBoardRecord || null == nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ)) {
+			if (null == directParentBoardRecord.getValue("toGroupSeq")) {
 				Record1<UInteger> parnetBoardRecord = create.select(SB_BOARD_TB.PARENT_NO)
 				.from(SB_BOARD_TB)
 				.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
@@ -439,13 +441,10 @@ public abstract class ServerDBUtil {
 				directParentNo = parnetBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
 				
 				continue;
-			}
+			} 
 			
-			UShort nearestGroupSeq = nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+			UShort toGroupSeq = directParentBoardRecord.getValue("toGroupSeq", UShort.class);
 			
-			UShort toGroupSeq = UShort.valueOf(nearestGroupSeq.intValue() + 1);			
-			
-			// UShort toGroupSeq = nearestGroupSeqBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			
 			return toGroupSeq;
 		}

@@ -1,36 +1,16 @@
-delete from SINNORIDB.TW_BOARD_INFO_TB where board_id >= 1 and board_id <= 10;
-
-ALTER TABLE `SINNORIDB`.`TW_BOARD_INFO_TB` 
-AUTO_INCREMENT = 1 ;
-
-INSERT INTO `SINNORIDB`.`TW_BOARD_INFO_TB`
-(`board_id`,
-`board_name`,
-`board_gubun`,
-`board_info`)
-VALUES
-(0, '공지 게시판',
-0,
-'공지를 목적으로 하는 관리자 전용 게시판');
-
-INSERT INTO `SINNORIDB`.`TW_BOARD_INFO_TB`
-(`board_id`,
-`board_name`,
-`board_gubun`,
-`board_info`)
-VALUES
-(0, '자유 게시판',
-0,
-'일반 회원 게시판');
+select max(group_sq) from sb_board_tb
+where board_id = 1
+and parent_no = 1
+and group_sq < 2;
 
 
-INSERT INTO `SINNORIDB`.`TW_SEQ_MANAGER_TB`
-(`sq_type_id`,
-`sq_value`)
-VALUES
-(1,
-1);
-
+select a.board_id, a.board_no, 
+a.group_no, a.group_sq, a.parent_no, a.depth, 
+a.board_st,
+b.subject, b.modifier_id, b.ip, b.reg_dt 
+from sb_board_tb a, sb_board_history_tb b
+where a.board_id=b.board_id and a.board_no=b.board_no
+order by a.group_no desc, a.group_sq desc;
 
 SELECT b.*
 FROM (
@@ -47,8 +27,6 @@ inner join SB_BOARD_TB b
 	and a.group_sq = b.group_sq
 order by b.group_no desc, b.group_sq desc
 ;
-
-
 
 
 SELECT b.*

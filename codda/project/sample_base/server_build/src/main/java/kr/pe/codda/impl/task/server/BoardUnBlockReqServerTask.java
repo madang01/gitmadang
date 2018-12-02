@@ -165,7 +165,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
 			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 			
-			
+					
 			BoardStateType boardStateType = null;
 			try {
 				boardStateType = BoardStateType.valueOf(boardState, false);
@@ -302,7 +302,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			.and(SB_BOARD_TB.GROUP_SQ.lt(groupSeq))
 			.orderBy(SB_BOARD_TB.GROUP_SQ.desc())
 			.fetch();
-			
+						
 			while (childBoardResult.isNotEmpty()) {
 				Record3<UInteger, UByte, String> childBoardRecord = childBoardResult.remove(0);
 				
@@ -310,52 +310,65 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				UByte childDepth = childBoardRecord.getValue(SB_BOARD_TB.DEPTH);
 				String childBoardState  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 				
+				/*log.info("1.boardNo={}, depth={}, boardState={}, target depth={}",
+						childBoardNo, childDepth, childBoardState, depth);*/
+				
 				if (childDepth.shortValue() <= depth.shortValue()) {
 					break;
 				}
-				
-				outer:
-				// if (childGroupSeq.intValue() <= fromGroupSeq) {
-					if (BoardStateType.BLOCK.getValue().equals(childBoardState)) {
-						/**
-						 * INFO! 차단 해제 대상 글에 대한 차단 사유와 하위 경로상 글의 차단 사유가 다르다고 판단하기때문에
-						 * 하위 경로상 글은 차단 해제에서 제외한다.
-						 */
-						
-						UByte depthOfRelativeRootNode = childDepth;
-						
-						while (childBoardResult.isNotEmpty()) {
-							childBoardRecord = childBoardResult.remove(0);
-							
-							childBoardNo  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_NO);
-							childDepth = childBoardRecord.getValue(SB_BOARD_TB.DEPTH);
-							childBoardState  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
-							
-							if (childDepth.shortValue() <= depthOfRelativeRootNode.shortValue()) {
-								break outer;
-							}
-						}
-						
-						/*fromGroupSeq = ServerDBUtil
-								.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNo, 
-										childGroupSeq, childDepth).intValue() - 1;*/
-					} else if (BoardStateType.OK.getValue().equals(childBoardState)) {
-						log.error("게시판 트리 점검 필요, {}", boardUnBlockReq.toString());
-						
-						try {
-							conn.rollback();
-						} catch (Exception e) {
-							log.warn("fail to rollback");
-						}
-						String errorMessage = "게시판 트리 점검 필요";
-							throw new ServerServiceException(errorMessage);
-					}  else {
-						unBlockBoardNoSet.add(childBoardNo.longValue());
-					}				
 					
-				// }
+				if (BoardStateType.BLOCK.getValue().equals(childBoardState)) {
+					/**
+					 * INFO! 차단 해제 대상 글에 대한 차단 사유와 하위 경로상 글의 차단 사유가 다르다고 판단하기때문에
+					 * 하위 경로상 글은 차단 해제에서 제외한다.
+					 */
+					
+					UByte depthOfRelativeRootNode = childDepth;
+					
+					while (childBoardResult.isNotEmpty()) {
+						childBoardRecord = childBoardResult.get(0);
+						
+						childBoardNo  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_NO);
+						childDepth = childBoardRecord.getValue(SB_BOARD_TB.DEPTH);
+						childBoardState  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+						
+						/*log.info("2.boardNo={}, depth={}, boardState={}, depthOfRelativeRootNode={}",
+								childBoardNo, childDepth, childBoardState, depthOfRelativeRootNode);*/
+												
+						if (childDepth.shortValue() <= depthOfRelativeRootNode.shortValue()) {
+							break;
+						}
+						
+						childBoardResult.remove(0);
+						
+						if (BoardStateType.OK.getValue().equals(childBoardState)) {
+							log.warn("1.게시판 트리 점검 필요, childBoardNo={}, {}", 
+									childBoardNo, boardUnBlockReq.toString());
+							
+							try {
+								conn.rollback();
+							} catch (Exception e) {
+								log.warn("fail to rollback");
+							}
+							String errorMessage = "게시판 트리 점검 필요";
+								throw new ServerServiceException(errorMessage);
+						}
+					}
+				} else if (BoardStateType.OK.getValue().equals(childBoardState)) {
+					log.warn("2.게시판 트리 점검 필요, childBoardNo={}, {}", childBoardNo, boardUnBlockReq.toString());
+					
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					String errorMessage = "게시판 트리 점검 필요";
+						throw new ServerServiceException(errorMessage);
+				} else if (BoardStateType.TREEBLOCK.getValue().equals(childBoardState)) {
+					unBlockBoardNoSet.add(childBoardNo.longValue());
+				}
 			}
-			
+						
 			create.update(SB_BOARD_TB)
 			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
 			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
@@ -366,6 +379,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.add(unBlockBoardNoSet.size()))
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 			.execute();
+			
 			
 			conn.commit();			
 
