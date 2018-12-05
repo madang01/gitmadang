@@ -90,7 +90,7 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 					SB_SITEMENU_TB.ORDER_SQ,					
 					SB_SITEMENU_TB.MENU_NM,
 					SB_SITEMENU_TB.LINK_URL)
-			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx"))
+			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx1"))
 			.orderBy(SB_SITEMENU_TB.ORDER_SQ.asc())
 			.fetch();			
 			

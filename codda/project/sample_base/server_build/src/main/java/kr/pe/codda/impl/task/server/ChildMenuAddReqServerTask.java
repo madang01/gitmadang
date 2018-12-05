@@ -23,7 +23,6 @@ import kr.pe.codda.server.task.ToLetterCarrier;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record1;
 import org.jooq.Record3;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -153,7 +152,8 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			Record3<UInteger, UByte, UByte> parentMenuRecord = create.select(SB_SITEMENU_TB.PARENT_NO, 
+			Record3<UInteger, UByte, UByte> parentMenuRecord = create.select(
+					SB_SITEMENU_TB.PARENT_NO, 
 					SB_SITEMENU_TB.ORDER_SQ, 
 					SB_SITEMENU_TB.DEPTH)
 			.from(SB_SITEMENU_TB)
@@ -179,26 +179,6 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			UByte parentOrderSeq = parentMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
 			UByte parentDepth = parentMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
 			
-			UByte newOrderSeq = null;
-			
-			Record1<UByte> firstYoungerBrotherMenuReccordOfParentMenu = create.select(SB_SITEMENU_TB.ORDER_SQ.min().as(SB_SITEMENU_TB.ORDER_SQ)).from(SB_SITEMENU_TB)
-			.where(SB_SITEMENU_TB.PARENT_NO.eq(parentParnetNo))
-			.and(SB_SITEMENU_TB.DEPTH.eq(parentDepth))
-			.and(SB_SITEMENU_TB.ORDER_SQ.gt(parentOrderSeq))
-			.fetchOne();
-			
-			if (null == firstYoungerBrotherMenuReccordOfParentMenu || null == firstYoungerBrotherMenuReccordOfParentMenu.getValue(SB_SITEMENU_TB.ORDER_SQ)) {
-				Record1<UByte>  lastOrderSeqMenuRecord = create.select(
-						SB_SITEMENU_TB.ORDER_SQ.max().as(SB_SITEMENU_TB.ORDER_SQ))
-				.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx"))				
-				.fetchOne();
-				
-				newOrderSeq = UByte.valueOf(lastOrderSeqMenuRecord.value1().shortValue()+1);
-			} else {
-				newOrderSeq = firstYoungerBrotherMenuReccordOfParentMenu.getValue(SB_SITEMENU_TB.ORDER_SQ);
-			}
-			
-			
 			if (parentDepth.shortValue() >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				try {
 					conn.rollback();
@@ -212,10 +192,12 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			
+			UByte fromOrderSeq = ServerDBUtil.getToOrderSeqOfRelativeRootMenu(create, parentOrderSeq, parentParnetNo);
+			UByte newOrderSeq = UByte.valueOf(fromOrderSeq.shortValue() + 1);	
+						
 			create.update(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.add(1))
-			.where(SB_SITEMENU_TB.ORDER_SQ.greaterOrEqual(newOrderSeq))
+			.where(SB_SITEMENU_TB.ORDER_SQ.ge(newOrderSeq))
 			.execute();
 					
 			

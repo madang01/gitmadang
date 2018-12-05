@@ -6,25 +6,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.LoggerFactory;
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
@@ -45,6 +29,23 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.SiteMenuTree;
+import kr.pe.codda.server.lib.SiteMenuTreeNode;
+import kr.pe.codda.server.lib.VirtualSiteMenuTreeBuilderIF;
+
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * 사이트 메뉴 통합 테스트
@@ -53,8 +54,8 @@ import kr.pe.codda.server.lib.ServerDBUtil;
  */
 public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
-	private static UInteger backupMenuNo = null;
-	private static ArraySiteMenuRes backupArraySiteMenuRes = null;
+	// private static UInteger backupMenuNo = null;
+	// private static ArraySiteMenuRes backupArraySiteMenuRes = null;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -66,18 +67,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	public void setUp() {
 		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
 		
-		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
-
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
-
-		try {
-
-			backupArraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
-
-		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
-			fail("unknown error");
-		}
+		
 		
 		DataSource dataSource = null;
 		try {
@@ -96,24 +86,6 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 
-			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE).from(SB_SEQ_TB)
-					.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID)).forUpdate().fetchOne();
-
-			if (null == menuSeqRecord) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = new StringBuilder("메뉴 시퀀스 식별자[").append(menuSequenceID)
-						.append("]의 시퀀스를 가져오는데 실패하였습니다").toString();
-
-				log.warn(errorMessage);
-
-				fail(errorMessage);
-			}
-
 			create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, UInteger.valueOf(1))
 					.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID)).execute();
 			
@@ -121,7 +93,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 
 			conn.commit();	
 			
-			backupMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);
+			// backupMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);
 
 		} catch (Exception e) {
 
@@ -149,89 +121,9 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	
 	@After
 	public void tearDown(){
-		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
-		DataSource dataSource = null;
-		try {
-			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-
-			int menuSequenceUpdateCount = create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, backupMenuNo)
-					.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID)).execute();
-
-			if (0 == menuSequenceUpdateCount) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = "메뉴 시퀀스를 복구하는데 실패하였습니다";
-				log.warn(errorMessage);
-				fail(errorMessage);
-			}
-
-			create.delete(SB_SITEMENU_TB).execute();
-
-			for (ArraySiteMenuRes.Menu menu : backupArraySiteMenuRes.getMenuList()) {
-				int menuInsertCount = create.insertInto(SB_SITEMENU_TB)
-						.set(SB_SITEMENU_TB.MENU_NO, UInteger.valueOf(menu.getMenuNo()))
-						.set(SB_SITEMENU_TB.PARENT_NO, UInteger.valueOf(menu.getParentNo()))
-						.set(SB_SITEMENU_TB.DEPTH, UByte.valueOf(menu.getDepth()))
-						.set(SB_SITEMENU_TB.ORDER_SQ, UByte.valueOf(menu.getOrderSeq()))
-						.set(SB_SITEMENU_TB.MENU_NM, menu.getMenuName()).set(SB_SITEMENU_TB.LINK_URL, menu.getLinkURL())
-						.execute();
-
-				if (0 == menuInsertCount) {
-					try {
-						conn.rollback();
-					} catch (Exception e1) {
-						log.warn("fail to rollback");
-					}
-
-					String errorMessage = new StringBuilder().append("백업한 메뉴[").append(menu.getMenuNo())
-							.append("]를 저장하지 못했습니다, 전체 백업 메뉴=").append(backupArraySiteMenuRes.toString()).toString();
-					log.warn(errorMessage);
-					fail(errorMessage);
-				}
-			}
-
-			conn.commit();
-
-		} catch (Exception e) {
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
-			log.warn(e.getMessage(), e);
-
-			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		} 
+		
 	} 
-	
+	/*
 	private boolean compareMenuList(List<TreeSiteMenuRes.Menu> expectedMenuList,
 			List<TreeSiteMenuRes.Menu> acutalMenuList) {
 		if (null == expectedMenuList && null == acutalMenuList) {
@@ -298,12 +190,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 
 		return true;
 
-	}
+	}*/
 
 	/**
 	 * @return  2018년 8월 21일 기준 sample_base 프로젝트의 일반 유저 사이트 메뉴 구성과 같은 {@link TreeSiteMenuRes} 를 반환한다. 메뉴 깊이는 0부터 시작되는데 sample_base 프로젝트의 일반 유저 사이트 메뉴 최대 깊이는 1이다.
 	 */
-	private TreeSiteMenuRes getTreeSiteMenuResForTestScenarioNo1() {
+	/*private TreeSiteMenuRes getTreeSiteMenuResForTestScenarioNo1() {
 		TreeSiteMenuRes treeSiteMenuResForTestScenarioNo1 = new TreeSiteMenuRes();
 		
 		List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
@@ -410,7 +302,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("RSA 테스트");
-					childMenu.setLinkURL("/servlet/JSRSATest");
+					childMenu.setLinkURL("/servlet/JSRSAInput");
 					childMenuList.add(childMenu);
 				}
 				
@@ -418,7 +310,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("메세지 다이제스트(MD) 테스트");
-					childMenu.setLinkURL("/servlet/JSMessageDigestTest");
+					childMenu.setLinkURL("/servlet/JSMessageDigestInput");
 					childMenuList.add(childMenu);
 				}
 				
@@ -426,7 +318,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("대칭키 테스트");
-					childMenu.setLinkURL("/servlet/JSSymmetricKeyTest");
+					childMenu.setLinkURL("/servlet/JSSymmetricKeyInput");
 					childMenuList.add(childMenu);
 				}
 				
@@ -434,7 +326,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("에코 테스트");
-					childMenu.setLinkURL("/servlet/EchoTest");
+					childMenu.setLinkURL("/servlet/Echo");
 					childMenuList.add(childMenu);
 				}
 				
@@ -442,7 +334,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("모든 데이터 타입 검증");
-					childMenu.setLinkURL("/servlet/AllItemTypeTest");
+					childMenu.setLinkURL("/servlet/UserLoginInput");
 					childMenuList.add(childMenu);
 				}
 				
@@ -450,7 +342,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("자바 문자열 변환 도구");
-					childMenu.setLinkURL("/servlet/JavaStringConverter");
+					childMenu.setLinkURL("/servlet/JavaStringConverterInput");
 					childMenuList.add(childMenu);
 				}
 			}
@@ -474,7 +366,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("로그인");
-					childMenu.setLinkURL("/servlet/UserLogin");
+					childMenu.setLinkURL("/servlet/UserLoginInput");
 					childMenuList.add(childMenu);
 				}	
 				
@@ -482,7 +374,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("회원 가입");
-					childMenu.setLinkURL("/servlet/MemberRegistration");
+					childMenu.setLinkURL("/servlet/UserSiteMembershipInput");
 					childMenuList.add(childMenu);
 				}
 			}
@@ -497,7 +389,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		treeSiteMenuResForTestScenarioNo1.setRootMenuList(rootMenuList);
 		
 		return treeSiteMenuResForTestScenarioNo1;
-	}
+	}*/
 	
 	/**
 	 * WARNING! 메뉴 이동 테스트를 위한 메뉴 구성이므로 수정시 주의 요망. 
@@ -506,7 +398,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	 *  
 	 * @return 메뉴 이동 테스트를 위한 {@link TreeSiteMenuRes} 를 반환한다.   
 	 */
-	private TreeSiteMenuRes getTreeSiteMenuResForMiddleMenuMovement() {
+	/*private TreeSiteMenuRes getTreeSiteMenuResForMiddleMenuMovement() {
 		TreeSiteMenuRes treeSiteMenuResForTestScenarioNo1 = new TreeSiteMenuRes();
 		
 		List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
@@ -644,7 +536,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("RSA 테스트");
-					childMenu.setLinkURL("/servlet/JSRSATest");
+					childMenu.setLinkURL("/servlet/JSRSAInput");
 					List<TreeSiteMenuRes.Menu> twoDepthChildMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
 					{
 						TreeSiteMenuRes.Menu twoDepthChildMenu = new TreeSiteMenuRes.Menu();
@@ -698,7 +590,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("에코 테스트");
-					childMenu.setLinkURL("/servlet/EchoTest");
+					childMenu.setLinkURL("/servlet/Echo");
 					childMenuList.add(childMenu);
 				}
 				
@@ -706,7 +598,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("모든 데이터 타입 검증");
-					childMenu.setLinkURL("/servlet/AllItemTypeTest");
+					childMenu.setLinkURL("/servlet/UserLoginInput");
 					childMenuList.add(childMenu);
 				}
 				
@@ -738,7 +630,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("로그인");
-					childMenu.setLinkURL("/servlet/UserLogin");
+					childMenu.setLinkURL("/servlet/UserLoginInput");
 					childMenuList.add(childMenu);
 				}	
 				
@@ -746,7 +638,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("회원 가입");
-					childMenu.setLinkURL("/servlet/MemberRegistration");
+					childMenu.setLinkURL("/servlet/UserSiteMembershipInput");
 					childMenuList.add(childMenu);
 				}
 			}
@@ -761,9 +653,9 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		treeSiteMenuResForTestScenarioNo1.setRootMenuList(rootMenuList);
 		
 		return treeSiteMenuResForTestScenarioNo1;
-	}
+	}*/
 	
-	private TreeSiteMenuRes getTreeSiteMenuResForBottomMenuMovement() {
+	/*private TreeSiteMenuRes getTreeSiteMenuResForBottomMenuMovement() {
 		TreeSiteMenuRes treeSiteMenuResForTestScenarioNo1 = new TreeSiteMenuRes();
 		
 		List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
@@ -901,7 +793,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 					TreeSiteMenuRes.Menu childMenu = new TreeSiteMenuRes.Menu();
 
 					childMenu.setMenuName("RSA 테스트");
-					childMenu.setLinkURL("/servlet/JSRSATest");
+					childMenu.setLinkURL("/servlet/JSRSAInput");
 					List<TreeSiteMenuRes.Menu> twoDepthChildMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
 					{
 						TreeSiteMenuRes.Menu twoDepthChildMenu = new TreeSiteMenuRes.Menu();
@@ -946,7 +838,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		treeSiteMenuResForTestScenarioNo1.setRootMenuList(rootMenuList);
 		
 		return treeSiteMenuResForTestScenarioNo1;
-	}
+	}*/
 	
 	/**
 	 * 지정한 '부모 메뉴'의 자식 메뉴들을 전위순회(Pre-order) 하면서 추가한다. 
@@ -954,7 +846,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	 * @param childMenuAddReqServerTask 자식 메뉴 추가 서버 타스크
 	 * @param parnetMenu 전위순회(Pre-order) 대상 ROOT 노드인 '부모 메뉴', WARNING! '부모 메뉴'는 DB 에 미리 반영 되어 있어야 하며 부모 메뉴의 '메뉴 번호'는  또한 반듯이 DB 에 넣어진 '메뉴 번호' 값이어야 한다.
 	 */
-	private void addMenuUsingPreOrderTraversal(ChildMenuAddReqServerTask childMenuAddReqServerTask,
+	/*private void addMenuUsingPreOrderTraversal(ChildMenuAddReqServerTask childMenuAddReqServerTask,
 			TreeSiteMenuRes.Menu parnetMenu) {
 		// log.info("parnetMenu={}", parnetMenu.toString());
 		
@@ -986,7 +878,8 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 				fail(errorMessage);
 			}
 		}
-	}
+	}*/
+	
 	
 	@Test
 	public void 초기상태일때빈목록조회테스트() {
@@ -1029,268 +922,270 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 	}
 	
-	/**
-	 * 이 테스트는 메뉴 트리를 전위순회(Pre-order)하면서 메뉴를 추가를 하는 테스트 시나리오이다. 이 테스트에 사용되는 메뉴는 메뉴 트리 깊이가  최대 1인 2018년 8월 21일 기준 메뉴 구성을 바탕으로 작성되었다.
-	 */
-	@Test 
-	public void 사이트메뉴테스트시나리오_메뉴트리를전위순회하면서메뉴추가() {
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
-		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
-		ChildMenuAddReqServerTask childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
-
-		TreeSiteMenuRes expectedTreeSiteMenuRes = getTreeSiteMenuResForTestScenarioNo1();
-		List<TreeSiteMenuRes.Menu> expectedRootMenuList = expectedTreeSiteMenuRes.getRootMenuList();
-
-		for (TreeSiteMenuRes.Menu expectedRootMenu : expectedRootMenuList) {
-			RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
-			rootMenuAddReq.setMenuName(expectedRootMenu.getMenuName());
-			rootMenuAddReq.setLinkURL(expectedRootMenu.getLinkURL());
-
-			try {
-				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
-
-				expectedRootMenu.setMenuNo(rootMenuAddRes.getMenuNo());
-				
-				addMenuUsingPreOrderTraversal(childMenuAddReqServerTask, expectedRootMenu);
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder().append("루트 메뉴[").append(expectedRootMenu.getMenuName())
-						.append("] 추가 실패").toString();
-
-				log.warn(errorMessage, e);
-
-				fail(errorMessage);
-			}
-		}
-
-		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
-		TreeSiteMenuRes acutalTreeSiteMenuRes = null;
-		try {
-			acutalTreeSiteMenuRes = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
-		} catch (Exception e) {
-			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
-
-			log.warn(errorMessage, e);
-
-			fail(errorMessage);
-		}
-
-		log.info("expected::{}", expectedTreeSiteMenuRes.toString());
-		log.info("acutal::{}", acutalTreeSiteMenuRes.toString());
-
-		if (acutalTreeSiteMenuRes.getRootMenuListSize() != expectedRootMenuList.size()) {
-			fail("루트 메뉴 갯수 틀림");
-		}
-
-		boolean result = compareMenuList(expectedRootMenuList,
-				acutalTreeSiteMenuRes.getRootMenuList());
-
-		if (!result) {
-			fail("기대한 것과 다릅니다");
-		}
 		
-		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
-		try {
-			ArraySiteMenuRes  arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
-			
-			List<ArraySiteMenuRes.Menu> menuList = arraySiteMenuRes.getMenuList();
-			for (int i=0; i < arraySiteMenuRes.getCnt(); i++) {
-				ArraySiteMenuRes.Menu menu = menuList.get(i);
-				if (menu.getOrderSeq() != i) {
-					String errorMessage = new StringBuilder()
-							.append("메뉴 배열에서 인덱스가 ")
-							.append(i)
-							.append(" 인 메뉴[")
-							.append(menu.getMenuName())
-							.append("의 '메뉴 순서'[")
-							.append(menu.getOrderSeq())
-							.append("]가 배열 인덱스 값과 일치하지않습니다").toString();
-					fail(errorMessage);
-				}
-				
-				if (menu.getMenuNo() != (i+1)) {
-					String errorMessage = new StringBuilder()
-							.append("메뉴 배열에서 인덱스가 ")
-							.append(i)
-							.append(" 인 메뉴[")
-							.append(menu.getMenuName())
-							.append("의 '메뉴 번호'[")
-							.append(menu.getMenuNo())
-							.append("]가 배열 인덱스 값에 하나 더한 값과 일치하지않습니다").toString();
-					fail(errorMessage);
-				}
-			}
-		} catch (Exception e) {
-			String errorMessage = "배열형 사이트 목록을 가져오는데 실패";
-
-			log.warn(errorMessage, e);
-
-			fail(errorMessage);
-		}
-	}
-	
-	
-	/**
-	 * 이 테스트는 메뉴 깊이가 0인 루트 메뉴부터 차례로 메뉴 추가한후 루트 메뉴의 자식 메뉴들은 전위순회(Pre-order)하면서 추가하는 테스트 시니리오이다. 이 테스트에 사용되는 메뉴는 메뉴 트리 깊이가  최대 1인 2018년 8월 21일 기준 메뉴 구성을 바탕으로 작성되었다. 
-	 */
-	@Test
-	public void 사이트메뉴테스트시나리오_루트메뉴부터추가완료후루트의자식들은전위순회하면서추가() {
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
-		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
-		ChildMenuAddReqServerTask childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
-
-		TreeSiteMenuRes expectedTreeSiteMenuRes = getTreeSiteMenuResForTestScenarioNo1();
-		List<TreeSiteMenuRes.Menu> expectedRootMenuList = expectedTreeSiteMenuRes.getRootMenuList();
-
-		for (TreeSiteMenuRes.Menu expectedRootMenu : expectedRootMenuList) {
-			RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
-			rootMenuAddReq.setMenuName(expectedRootMenu.getMenuName());
-			rootMenuAddReq.setLinkURL(expectedRootMenu.getLinkURL());
-
-			try {
-				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
-
-				expectedRootMenu.setMenuNo(rootMenuAddRes.getMenuNo());
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder().append("루트 메뉴[").append(expectedRootMenu.getMenuName())
-						.append("] 추가 실패").toString();
-
-				log.warn(errorMessage, e);
-
-				fail(errorMessage);
-			}
-		}
-
-		for (TreeSiteMenuRes.Menu expectedRootMenu : expectedRootMenuList) {
-			addMenuUsingPreOrderTraversal(childMenuAddReqServerTask, expectedRootMenu);
-		}
-
-		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
-		TreeSiteMenuRes acutalTreeSiteMenuRes = null;
-		try {
-			acutalTreeSiteMenuRes = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
-		} catch (Exception e) {
-			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
-
-			log.warn(errorMessage, e);
-
-			fail(errorMessage);
-		}
-
-		log.info("expected::{}", expectedTreeSiteMenuRes.toString());
-		log.info("acutal::{}", acutalTreeSiteMenuRes.toString());
-
-		if (acutalTreeSiteMenuRes.getRootMenuListSize() != expectedRootMenuList.size()) {
-			fail("루트 메뉴 갯수 틀림");
-		}
-
-		boolean result = compareMenuList(expectedTreeSiteMenuRes.getRootMenuList(),
-				acutalTreeSiteMenuRes.getRootMenuList());
-
-		if (!result) {
-			fail("기대한 것과 다릅니다");
-		}
-		
-		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
-		try {
-			ArraySiteMenuRes  arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
-			
-			List<ArraySiteMenuRes.Menu> menuList = arraySiteMenuRes.getMenuList();
-			for (int i=0; i < arraySiteMenuRes.getCnt(); i++) {
-				ArraySiteMenuRes.Menu menu = menuList.get(i);
-				if (menu.getOrderSeq() != i) {
-					String errorMessage = new StringBuilder()
-							.append("메뉴 배열에서 인덱스가 ")
-							.append(i)
-							.append(" 인 메뉴[")
-							.append(menu.getMenuName())
-							.append("의 순서[")
-							.append(menu.getOrderSeq())
-							.append("]가 배열 인덱스 값과 일치하지않습니다").toString();
-					fail(errorMessage);
-				}
-			}
-		} catch (Exception e) {
-			String errorMessage = "배열형 사이트 목록을 가져오는데 실패";
-
-			log.warn(errorMessage, e);
-
-			fail(errorMessage);
-		}
-	}
-
-	
-	
 	@Test 
 	public void 메뉴이동테스트_상단이동후다시하단이동하여원복() {
 		/**
 		 * WARNING! 메뉴 이동 테스트 대상 메뉴는 메뉴 깊이 3을 갖는 '세션키 테스트' 와  'RSA 테스트' 이다.
 		 * 입력한 메뉴 순서는  '세션키 테스트' 이고 다음이 'RSA 테스트' 이다.
-		 * 메뉴 트리를 전위 순회 하면서 메뉴를 추가하므로 상단 이동할 테스트 대상 메뉴 'RSA 테스트'의 메뉴 번호는 14번이 되며
-		 * 상단 이동할 대상 메뉴는 '세션키 테스트' 로 메뉴 번호는 9번이 된다.
 		 */
-		final long menuNoForMoveUpDownTest = 14L;		
+		// final long menuNoForMoveUpDownTest = 14L;		
 		
-		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
-		ChildMenuAddReqServerTask childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
 		MenuMoveUpReqServerTask menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
 		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
 
-		TreeSiteMenuRes expectedTreeSiteMenuRes = getTreeSiteMenuResForMiddleMenuMovement();
-
 		
-		List<TreeSiteMenuRes.Menu> expectedRootMenuList = expectedTreeSiteMenuRes.getRootMenuList();
-		for (TreeSiteMenuRes.Menu expectedRootMenu : expectedRootMenuList) {
-			RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
-			rootMenuAddReq.setMenuName(expectedRootMenu.getMenuName());
-			rootMenuAddReq.setLinkURL(expectedRootMenu.getLinkURL());
+		class VirtualSiteMenuTreeBuilder implements VirtualSiteMenuTreeBuilderIF {
 
-			try {
-				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
-
-				expectedRootMenu.setMenuNo(rootMenuAddRes.getMenuNo());
+			@Override
+			public SiteMenuTree build() {
+				SiteMenuTree siteMenuTree = new SiteMenuTree();
 				
-				addMenuUsingPreOrderTraversal(childMenuAddReqServerTask, expectedRootMenu);
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder().append("루트 메뉴[").append(expectedRootMenu.getMenuName())
-						.append("] 추가 실패").toString();
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("사랑방");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/community/body.jsp");
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
 
-				log.warn(errorMessage, e);
+						childSiteMenuTreeNode.setMenuName("공지");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=0");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
 
-				fail(errorMessage);
+						childSiteMenuTreeNode.setMenuName("자유게시판");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=1");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("FAQ");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=2");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("문서");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/doc/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("코다 활용 howto");
+						childSiteMenuTreeNode.setLinkURL("/jsp/doc/CoddaHowTo.jsp");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}	
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("도구");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/doc/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("JDF-비 로그인 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFNotLogin");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("JDF-로그인 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFLogin");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("세션키 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFSessionKey");
+						
+						{
+							SiteMenuTreeNode childchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+							childchildSiteMenuTreeNode.setMenuName("세션키_2단계_1");
+							childchildSiteMenuTreeNode.setLinkURL("/servlet/sessionKey_twoDepth_1");
+							
+							{
+								SiteMenuTreeNode childchildchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+								childchildchildSiteMenuTreeNode.setMenuName("세션키_3단계_1");
+								childchildchildSiteMenuTreeNode.setLinkURL("/servlet/sessionKey_twoDepth_1");
+								
+								childchildSiteMenuTreeNode.addChildSiteMenuNode(childchildchildSiteMenuTreeNode);
+							}
+							
+							childSiteMenuTreeNode.addChildSiteMenuNode(childchildSiteMenuTreeNode);
+						}
+						
+						{
+							SiteMenuTreeNode childchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+							childchildSiteMenuTreeNode.setMenuName("세션키_2단계_2");
+							childchildSiteMenuTreeNode.setLinkURL("/servlet/sessionKey_twoDepth_2");
+							
+							childSiteMenuTreeNode.addChildSiteMenuNode(childchildSiteMenuTreeNode);
+						}
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("RSA 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSRSAInput");
+						
+						{
+							SiteMenuTreeNode childchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+							childchildSiteMenuTreeNode.setMenuName("RSA_2단계_1");
+							childchildSiteMenuTreeNode.setLinkURL("/servlet/rsa_twoDepth_1");							
+							
+							childSiteMenuTreeNode.addChildSiteMenuNode(childchildSiteMenuTreeNode);
+						}
+						
+						{
+							SiteMenuTreeNode childchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+							childchildSiteMenuTreeNode.setMenuName("RSA_2단계_2");
+							childchildSiteMenuTreeNode.setLinkURL("/servlet/rsa_twoDepth_2");
+							
+							{
+								SiteMenuTreeNode childchildchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+								childchildchildSiteMenuTreeNode.setMenuName("RSA_3단계_1");
+								childchildchildSiteMenuTreeNode.setLinkURL("/servlet/rsa_threeDepth_1");
+								
+								childchildSiteMenuTreeNode.addChildSiteMenuNode(childchildchildSiteMenuTreeNode);
+							}
+							
+							childSiteMenuTreeNode.addChildSiteMenuNode(childchildSiteMenuTreeNode);
+						}
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("메세지 다이제스트(MD) 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSMessageDigestInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("대칭키 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSSymmetricKeyInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("에코 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/Echo");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("모든 데이터 타입 검증");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserLoginInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("자바 문자열 변환 도구");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JavaStringConverterInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("회원");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/member/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("로그인");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserLoginInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("회원 가입");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserSiteMembershipInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				return siteMenuTree;
 			}
 		}
 		
-		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
-		TreeSiteMenuRes acutalTreeSiteMenuResBeforeMoveUp = null;
-		try {
-			acutalTreeSiteMenuResBeforeMoveUp = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
-		} catch (Exception e) {
-			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
-
-			log.warn(errorMessage, e);
-
-			fail(errorMessage);
+		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
+		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
+		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
+		
+		// RSA 테스트
+		SiteMenuTreeNode sourceSiteMenuTreeNode = siteMenuTree.find("RSA 테스트");
+		if (null == sourceSiteMenuTreeNode) {
+			fail("상단 이동할 대상 메뉴[RSA 테스트] 찾기 실패");
 		}
 		
-		log.info("BeforeMoveUp::{}", acutalTreeSiteMenuResBeforeMoveUp.toString());
-		/*, menu[2]=Menu[menuNo=9, parentNo=6, depth=1, orderSeq=9, menuName=세션키 테스트, linkURL=/servlet/JDFSessionKeyTest, 
-	childMenuListSize=2, childMenuList=[
-	menu[0]=Menu[menuNo=10, parentNo=9, depth=2, orderSeq=10, menuName=세션키_2단계_1, linkURL=/servlet/sessionKey_twoDepth_1, 
-		childMenuListSize=1, childMenuList=[
-		menu[0]=Menu[menuNo=11, parentNo=10, depth=3, orderSeq=11, menuName=세션키_3단계_1, linkURL=/servlet/sessionKey_threeDepth_1, childMenuListSize=0, childMenuList=empty]]
-	, menu[1]=Menu[menuNo=12, parentNo=9, depth=2, orderSeq=12, menuName=세션키_2단계_2, linkURL=/servlet/sessionKey_twoDepth_2, childMenuListSize=0, childMenuList=empty]]
-, menu[3]=Menu[menuNo=13, parentNo=6, depth=1, orderSeq=13, menuName=RSA 테스트, linkURL=/servlet/JSRSATest, 
-	childMenuListSize=2, childMenuList=[
-	menu[0]=Menu[menuNo=14, parentNo=13, depth=2, orderSeq=14, menuName=RSA_2단계_1, linkURL=/servlet/rsa_twoDepth_1, childMenuListSize=0, childMenuList=empty]
-	, menu[1]=Menu[menuNo=15, parentNo=13, depth=2, orderSeq=15, menuName=RSA_2단계_2, linkURL=/servlet/rsa_twoDepth_2, 
-		childMenuListSize=1, childMenuList=[
-		menu[0]=Menu[menuNo=16, parentNo=15, depth=3, orderSeq=16, menuName=RSA_3단계_1, linkURL=/servlet/rsa_threeDepth_1, childMenuListSize=0, childMenuList=empty]]] */
-
+		SiteMenuTreeNode targetSiteMenuTreeNode = siteMenuTree.find("세션키 테스트");
+		
+		if (null == targetSiteMenuTreeNode) {
+			fail("상단 이동할 위치에 있는 메뉴[세션키 테스트] 찾기 실패");
+		}
+		
 		MenuMoveUpReq menuUpMoveReq = new MenuMoveUpReq();
-		menuUpMoveReq.setMenuNo(menuNoForMoveUpDownTest);
+		menuUpMoveReq.setMenuNo(sourceSiteMenuTreeNode.getMenuNo());
 		
 		try {
 			MessageResultRes messageResultRes = menuUpMoveReqServerTask.doWork(TEST_DBCP_NAME, menuUpMoveReq);
@@ -1302,30 +1197,51 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("fail to get a output message 'MessageResultRes'");
 		}
 		
-		TreeSiteMenuRes acutalTreeSiteMenuResAfterMoveUp = null;
+		
+		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		ArraySiteMenuRes arraySiteMenuRes = null;
+		
 		try {
-			acutalTreeSiteMenuResAfterMoveUp = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
+			arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 		} catch (Exception e) {
-			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
+			String errorMessage = "배열형 사이트 목록을 가져오는데 실패";
 
 			log.warn(errorMessage, e);
 
 			fail(errorMessage);
 		}
 		
-		
-		log.info("AfterMoveUp::{}", acutalTreeSiteMenuResAfterMoveUp.toString());
-		
-
-		boolean result = compareMenuList(acutalTreeSiteMenuResBeforeMoveUp.getRootMenuList(),
-				acutalTreeSiteMenuResAfterMoveUp.getRootMenuList());
-
-		if (result) {
-			fail("상단 이동후 결과와 상단 이동전 결과가 같습니다");
+		for (ArraySiteMenuRes.Menu siteMenu : arraySiteMenuRes.getMenuList()) {
+			String menuName = siteMenu.getMenuName();
+			
+			
+			if (menuName.equals("RSA 테스트")) {
+				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq(), siteMenu.getOrderSeq());				
+			} else if (menuName.equals("RSA_2단계_1")) {	
+				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq()+1, siteMenu.getOrderSeq());
+			} else if (menuName.equals("RSA_2단계_2")) {
+				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq()+2, siteMenu.getOrderSeq());
+			} else if (menuName.equals("RSA_3단계_1")) {	
+				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq()+3, siteMenu.getOrderSeq());
+			} else if (menuName.equals("세션키 테스트")) {
+				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq(), siteMenu.getOrderSeq());
+			} else if (menuName.equals("세션키_2단계_1")) {
+				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq()+1, siteMenu.getOrderSeq());
+			} else if (menuName.equals("세션키_3단계_1")) {
+				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq()+2, siteMenu.getOrderSeq());
+			} else if (menuName.equals("세션키_2단계_2")) {
+				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq()+3, siteMenu.getOrderSeq());
+			} else {
+				SiteMenuTreeNode workingSiteMenuTreeNode = siteMenuTree.find(menuName);
+				if (null == workingSiteMenuTreeNode) {
+					fail("메뉴["+menuName+"] 찾기 실패");
+				}				
+				assertEquals("메뉴 순서 비교", workingSiteMenuTreeNode.getOrderSeq(), siteMenu.getOrderSeq());
+			}
 		}
 		
 		MenuMoveDownReq menuDownMoveReq = new MenuMoveDownReq();
-		menuDownMoveReq.setMenuNo(menuNoForMoveUpDownTest);
+		menuDownMoveReq.setMenuNo(sourceSiteMenuTreeNode.getMenuNo());
 		
 		try {
 			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
@@ -1337,77 +1253,288 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("fail to get a output message 'MessageResultRes'");
 		}
 		
-		TreeSiteMenuRes acutalTreeSiteMenuResAfterMoveDown = null;
 		try {
-			acutalTreeSiteMenuResAfterMoveDown = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
+			arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 		} catch (Exception e) {
-			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
+			String errorMessage = "배열형 사이트 목록을 가져오는데 실패";
 
 			log.warn(errorMessage, e);
 
 			fail(errorMessage);
 		}
 		
-		log.info("AfterMoveDown::{}", acutalTreeSiteMenuResAfterMoveDown.toString());
-		
-		if (! acutalTreeSiteMenuResBeforeMoveUp.toString().equals(acutalTreeSiteMenuResAfterMoveDown.toString())) {
-			fail("2.상단 이동전 결과와 상단 이동후 다시 하단 이동후 얻은 결과 즉 원복한 결과와 다릅니다");
+		for (ArraySiteMenuRes.Menu siteMenu : arraySiteMenuRes.getMenuList()) {
+			String menuName = siteMenu.getMenuName();			
+			
+			SiteMenuTreeNode workingSiteMenuTreeNode = siteMenuTree.find(menuName);
+			if (null == workingSiteMenuTreeNode) {
+				fail("메뉴["+menuName+"] 찾기 실패");
+			}
+			assertEquals("메뉴 순서 비교", workingSiteMenuTreeNode.getOrderSeq(), siteMenu.getOrderSeq());
 		}
 	}
 	
 	@Test 
 	public void 메뉴이동테스트_하단이동후다시상단이동하여원복() {
 		// FIXME!
-		
-		final long menuNoForMoveUpDownTest = 10L;		
-		
-		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
-		ChildMenuAddReqServerTask childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		/**
+		 * WARNING! 메뉴 이동 테스트 대상 메뉴는 메뉴 깊이 3을 갖는 '세션키 테스트' 와  'RSA 테스트' 이다.
+		 * 입력한 메뉴 순서는  '세션키 테스트' 이고 다음이 'RSA 테스트' 이다.
+		 */		
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
 		MenuMoveUpReqServerTask menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
 		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
 
-		TreeSiteMenuRes expectedTreeSiteMenuRes = getTreeSiteMenuResForBottomMenuMovement();
-
 		
-		List<TreeSiteMenuRes.Menu> expectedRootMenuList = expectedTreeSiteMenuRes.getRootMenuList();
-		for (TreeSiteMenuRes.Menu expectedRootMenu : expectedRootMenuList) {
-			RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
-			rootMenuAddReq.setMenuName(expectedRootMenu.getMenuName());
-			rootMenuAddReq.setLinkURL(expectedRootMenu.getLinkURL());
+		class VirtualSiteMenuTreeBuilder implements VirtualSiteMenuTreeBuilderIF {
 
-			try {
-				RootMenuAddRes rootMenuAddRes = rootMenuAddReqServerTask.doWork(TEST_DBCP_NAME, rootMenuAddReq);
-
-				expectedRootMenu.setMenuNo(rootMenuAddRes.getMenuNo());
+			@Override
+			public SiteMenuTree build() {
+				SiteMenuTree siteMenuTree = new SiteMenuTree();
 				
-				addMenuUsingPreOrderTraversal(childMenuAddReqServerTask, expectedRootMenu);
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder().append("루트 메뉴[").append(expectedRootMenu.getMenuName())
-						.append("] 추가 실패").toString();
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("사랑방");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/community/body.jsp");
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
 
-				log.warn(errorMessage, e);
+						childSiteMenuTreeNode.setMenuName("공지");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=0");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
 
-				fail(errorMessage);
+						childSiteMenuTreeNode.setMenuName("자유게시판");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=1");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("FAQ");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=2");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("문서");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/doc/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("코다 활용 howto");
+						childSiteMenuTreeNode.setLinkURL("/jsp/doc/CoddaHowTo.jsp");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}	
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("도구");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/doc/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("JDF-비 로그인 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFNotLogin");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("JDF-로그인 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFLogin");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("세션키 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFSessionKey");
+						
+						{
+							SiteMenuTreeNode childchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+							childchildSiteMenuTreeNode.setMenuName("세션키_2단계_1");
+							childchildSiteMenuTreeNode.setLinkURL("/servlet/sessionKey_twoDepth_1");
+							
+							{
+								SiteMenuTreeNode childchildchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+								childchildchildSiteMenuTreeNode.setMenuName("세션키_3단계_1");
+								childchildchildSiteMenuTreeNode.setLinkURL("/servlet/sessionKey_twoDepth_1");
+								
+								childchildSiteMenuTreeNode.addChildSiteMenuNode(childchildchildSiteMenuTreeNode);
+							}
+							
+							childSiteMenuTreeNode.addChildSiteMenuNode(childchildSiteMenuTreeNode);
+						}
+						
+						{
+							SiteMenuTreeNode childchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+							childchildSiteMenuTreeNode.setMenuName("세션키_2단계_2");
+							childchildSiteMenuTreeNode.setLinkURL("/servlet/sessionKey_twoDepth_2");
+							
+							childSiteMenuTreeNode.addChildSiteMenuNode(childchildSiteMenuTreeNode);
+						}
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("RSA 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSRSAInput");
+						
+						{
+							SiteMenuTreeNode childchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+							childchildSiteMenuTreeNode.setMenuName("RSA_2단계_1");
+							childchildSiteMenuTreeNode.setLinkURL("/servlet/rsa_twoDepth_1");							
+							
+							childSiteMenuTreeNode.addChildSiteMenuNode(childchildSiteMenuTreeNode);
+						}
+						
+						{
+							SiteMenuTreeNode childchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+							childchildSiteMenuTreeNode.setMenuName("RSA_2단계_2");
+							childchildSiteMenuTreeNode.setLinkURL("/servlet/rsa_twoDepth_2");
+							
+							{
+								SiteMenuTreeNode childchildchildSiteMenuTreeNode = new SiteMenuTreeNode();
+
+								childchildchildSiteMenuTreeNode.setMenuName("RSA_3단계_1");
+								childchildchildSiteMenuTreeNode.setLinkURL("/servlet/rsa_threeDepth_1");
+								
+								childchildSiteMenuTreeNode.addChildSiteMenuNode(childchildchildSiteMenuTreeNode);
+							}
+							
+							childSiteMenuTreeNode.addChildSiteMenuNode(childchildSiteMenuTreeNode);
+						}
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("메세지 다이제스트(MD) 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSMessageDigestInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("대칭키 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSSymmetricKeyInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("에코 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/Echo");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("모든 데이터 타입 검증");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserLoginInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("자바 문자열 변환 도구");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JavaStringConverterInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("회원");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/member/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("로그인");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserLoginInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("회원 가입");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserSiteMembershipInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				return siteMenuTree;
 			}
 		}
 		
-		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
-		TreeSiteMenuRes acutalTreeSiteMenuResBeforeMoveDown = null;
-		try {
-			acutalTreeSiteMenuResBeforeMoveDown = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
-		} catch (Exception e) {
-			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
-
-			log.warn(errorMessage, e);
-
-			fail(errorMessage);
+		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
+		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
+		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
+		
+		SiteMenuTreeNode sourceSiteMenuTreeNode = siteMenuTree.find("세션키 테스트");
+		if (null == sourceSiteMenuTreeNode) {
+			fail("하단 이동할 대상 메뉴[세션키 테스트] 찾기 실패");
 		}
 		
-		log.info("BeforeMoveDown::{}", acutalTreeSiteMenuResBeforeMoveDown.toString());
+		SiteMenuTreeNode targetSiteMenuTreeNode = siteMenuTree.find("RSA 테스트");
+		
+		if (null == targetSiteMenuTreeNode) {
+			fail("하단 이동할 위치에 있는 메뉴[RSA 테스트] 찾기 실패");
+		}
 		
 		MenuMoveDownReq menuDownMoveReq = new MenuMoveDownReq();
-		menuDownMoveReq.setMenuNo(menuNoForMoveUpDownTest);
+		menuDownMoveReq.setMenuNo(sourceSiteMenuTreeNode.getMenuNo());
 		
 		try {
 			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
@@ -1419,31 +1546,49 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("fail to get a output message 'MessageResultRes'");
 		}
 		
-		TreeSiteMenuRes acutalTreeSiteMenuResAfterMoveDown = null;
+		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		ArraySiteMenuRes arraySiteMenuRes = null;
+		
 		try {
-			acutalTreeSiteMenuResAfterMoveDown = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
+			arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 		} catch (Exception e) {
-			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
+			String errorMessage = "배열형 사이트 목록을 가져오는데 실패";
 
 			log.warn(errorMessage, e);
 
 			fail(errorMessage);
 		}
 		
-		
-		log.info("AfterMoveDown::{}", acutalTreeSiteMenuResAfterMoveDown.toString());
-		
-		
-		boolean result = compareMenuList(acutalTreeSiteMenuResBeforeMoveDown.getRootMenuList(),
-				acutalTreeSiteMenuResAfterMoveDown.getRootMenuList());
-
-		if (result) {
-			fail("하단 이동후 결과와 하단 이동전 결과가 같습니다");
+		for (ArraySiteMenuRes.Menu siteMenu : arraySiteMenuRes.getMenuList()) {
+			String menuName = siteMenu.getMenuName();			
+			
+			if (menuName.equals("RSA 테스트")) {
+				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq(), siteMenu.getOrderSeq());				
+			} else if (menuName.equals("RSA_2단계_1")) {	
+				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq()+1, siteMenu.getOrderSeq());
+			} else if (menuName.equals("RSA_2단계_2")) {
+				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq()+2, siteMenu.getOrderSeq());
+			} else if (menuName.equals("RSA_3단계_1")) {	
+				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq()+3, siteMenu.getOrderSeq());
+			} else if (menuName.equals("세션키 테스트")) {
+				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq(), siteMenu.getOrderSeq());
+			} else if (menuName.equals("세션키_2단계_1")) {
+				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq()+1, siteMenu.getOrderSeq());
+			} else if (menuName.equals("세션키_3단계_1")) {
+				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq()+2, siteMenu.getOrderSeq());
+			} else if (menuName.equals("세션키_2단계_2")) {
+				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq()+3, siteMenu.getOrderSeq());
+			} else {
+				SiteMenuTreeNode workingSiteMenuTreeNode = siteMenuTree.find(menuName);
+				if (null == workingSiteMenuTreeNode) {
+					fail("메뉴["+menuName+"] 찾기 실패");
+				}
+				assertEquals("메뉴 순서 비교", workingSiteMenuTreeNode.getOrderSeq(), siteMenu.getOrderSeq());
+			}
 		}
 		
-		
 		MenuMoveUpReq menuUpMoveReq = new MenuMoveUpReq();
-		menuUpMoveReq.setMenuNo(menuNoForMoveUpDownTest);
+		menuUpMoveReq.setMenuNo(sourceSiteMenuTreeNode.getMenuNo());
 		
 		try {
 			MessageResultRes messageResultRes = menuUpMoveReqServerTask.doWork(TEST_DBCP_NAME, menuUpMoveReq);
@@ -1455,22 +1600,24 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("fail to get a output message 'MessageResultRes'");
 		}
 		
-		TreeSiteMenuRes acutalTreeSiteMenuResAfterMoveUp = null;
 		try {
-			acutalTreeSiteMenuResAfterMoveUp = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
+			arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 		} catch (Exception e) {
-			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
+			String errorMessage = "배열형 사이트 목록을 가져오는데 실패";
 
 			log.warn(errorMessage, e);
 
 			fail(errorMessage);
 		}
 		
-		
-		log.info("AfterMoveUp::{}", acutalTreeSiteMenuResAfterMoveUp.toString());
-		
-		if (! acutalTreeSiteMenuResBeforeMoveDown.toString().equals(acutalTreeSiteMenuResAfterMoveUp.toString())) {
-			fail("2.하단 이동전 결과와 하단 이동후 다시 하단 이동후 얻은 결과 즉 원복한 결과와 다릅니다");
+		for (ArraySiteMenuRes.Menu siteMenu : arraySiteMenuRes.getMenuList()) {
+			String menuName = siteMenu.getMenuName();			
+			
+			SiteMenuTreeNode workingSiteMenuTreeNode = siteMenuTree.find(menuName);
+			if (null == workingSiteMenuTreeNode) {
+				fail("메뉴["+menuName+"] 찾기 실패");
+			}
+			assertEquals("메뉴 순서 비교", workingSiteMenuTreeNode.getOrderSeq(), siteMenu.getOrderSeq());
 		}
 	}
 	
@@ -1673,6 +1820,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 			
 			if (arraySiteMenuRes.getCnt() != 1) {
+				log.info(arraySiteMenuRes.toString());
 				fail("메뉴 삭제 실패하였습니다");
 			}
 			

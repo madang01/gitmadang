@@ -4,6 +4,7 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
+import static kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -55,7 +56,7 @@ public abstract class ServerDBUtil {
 		    .withRenderMapping(new RenderMapping()
 		    .withSchemata(
 		        new MappedSchema().withInput(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME.toLowerCase())
-		                          .withOutput(ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME.toLowerCase())));
+		                          .withOutput(ServerCommonStaticFinalVars.STREE_TEST_DBCP_NAME.toLowerCase())));
 	
 
 	public static void initializeDBEnvoroment(String dbcpName) throws Exception {
@@ -366,11 +367,77 @@ public abstract class ServerDBUtil {
 	public static Settings getDBCPSettings(String dbcpName) {
 		if (dbcpName.equals(ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME)) {
 			return GENERAL_TEST_DBCP_SETTINGS;
-		} else if (dbcpName.equals(ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME)) {
+		} else if (dbcpName.equals(ServerCommonStaticFinalVars.STREE_TEST_DBCP_NAME)) {
 			return LOAD_TEST_DBCP_SETTINGS;
 		}
 		
 		return DEFAULT_DBCP_SETTINGS;
+	}
+	
+	public static UByte getToOrderSeqOfRelativeRootMenu(DSLContext create, 
+			UByte orderSeq, UByte depth) {
+		UByte toOrderSeq = orderSeq;
+		
+		Result<Record2<UByte, UByte>> 
+		childMenuResult = create.select(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.DEPTH)
+		.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx1"))
+		.where(SB_SITEMENU_TB.ORDER_SQ.gt(orderSeq))
+		.orderBy(SB_SITEMENU_TB.ORDER_SQ.asc())
+		.fetch();
+		
+		for (Record2<UByte, UByte> childMenuRecord : childMenuResult) {
+			UByte childOrderSeq = childMenuRecord.get(SB_SITEMENU_TB.ORDER_SQ);
+			UByte childDepth = childMenuRecord.get(SB_SITEMENU_TB.DEPTH);
+			
+			if (childDepth.shortValue() <= depth.shortValue()) {
+				break;
+			}
+			
+			toOrderSeq = childOrderSeq;		
+		}
+		
+		
+		return toOrderSeq;
+	}
+	
+	public static UByte getToOrderSeqOfRelativeRootMenu(DSLContext create, 
+			UByte orderSeq, UInteger directParentNo) throws ServerServiceException {
+		while(true) {
+			if (0 == directParentNo.longValue()) {
+				Record1<UByte> maxOrderSqRecord = create.select(SB_SITEMENU_TB.ORDER_SQ.max())
+				.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx1"))			
+				.fetchOne();
+				
+				return maxOrderSqRecord.value1();
+			}
+			
+			Record1<UByte> toOrderSeqRecord = create.select(SB_SITEMENU_TB.ORDER_SQ.min().sub(1).as("toOrderSeq"))
+			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx2"))
+			.where(SB_SITEMENU_TB.PARENT_NO.eq(directParentNo))
+			.and(SB_SITEMENU_TB.ORDER_SQ.gt(orderSeq))
+			.fetchOne();
+			
+			if (null == toOrderSeqRecord.getValue("toOrderSeq")) {
+				Record1<UInteger> parentMenuRecord = create.select(SB_SITEMENU_TB.PARENT_NO)
+				.from(SB_SITEMENU_TB)
+				.where(SB_SITEMENU_TB.MENU_NO.eq(directParentNo))
+				.fetchOne();
+				
+				if (null == parentMenuRecord) {
+					String errorMessage = new StringBuilder()
+					.append("직계 조상 메뉴[menuNo=")
+					.append(directParentNo)
+					.append("]가 없습니다").toString();
+					throw new ServerServiceException(errorMessage);
+				}
+				
+				directParentNo = parentMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
+				continue;
+			}
+			
+			UByte toOrderSeq = toOrderSeqRecord.getValue("toOrderSeq", UByte.class);
+			return toOrderSeq;
+		}
 	}
 	
 	public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, 
@@ -413,7 +480,7 @@ public abstract class ServerDBUtil {
 			}
 			
 			Record1<UShort> 
-			directParentBoardRecord = create.select(SB_BOARD_TB.GROUP_SQ.max()
+			toGroupSeqRecord = create.select(SB_BOARD_TB.GROUP_SQ.max()
 					.add(1).as("toGroupSeq"))
 			.from(SB_BOARD_TB.forceIndex("sb_board_idx2"))
 			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
@@ -421,7 +488,7 @@ public abstract class ServerDBUtil {
 			.and(SB_BOARD_TB.GROUP_SQ.lt(groupSq))
 			.fetchOne();
 			
-			if (null == directParentBoardRecord.getValue("toGroupSeq")) {
+			if (null == toGroupSeqRecord.getValue("toGroupSeq")) {
 				Record1<UInteger> parnetBoardRecord = create.select(SB_BOARD_TB.PARENT_NO)
 				.from(SB_BOARD_TB)
 				.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
@@ -443,7 +510,7 @@ public abstract class ServerDBUtil {
 				continue;
 			} 
 			
-			UShort toGroupSeq = directParentBoardRecord.getValue("toGroupSeq", UShort.class);
+			UShort toGroupSeq = toGroupSeqRecord.getValue("toGroupSeq", UShort.class);
 			
 			
 			return toGroupSeq;

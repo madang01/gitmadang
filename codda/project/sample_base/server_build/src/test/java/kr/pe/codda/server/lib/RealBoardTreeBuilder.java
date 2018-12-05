@@ -98,7 +98,7 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 		}*/
 		
 		for (BoardTreeNode childBoardTreeNode : childBoardTreeNodeList) {
-			makeChildBoardTreeRecordUsingChildBoardTreeNode(
+			makeChildBoardRecordUsingChildBoardTreeNode(
 					boardReplyReqServerTask, rootBoardTreeNode.getGroupNo(), 
 					rootBoardTreeNode.getBoardNo(), 
 					(short)1,
@@ -106,7 +106,7 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 		}
 	}
 	
-	private void makeChildBoardTreeRecordUsingChildBoardTreeNode(
+	private void makeChildBoardRecordUsingChildBoardTreeNode(
 			BoardReplyReqServerTask boardReplyReqServerTask,
 			long groupNo,
 			long parentNo,
@@ -154,7 +154,7 @@ public final class RealBoardTreeBuilder implements RealBoardTreeBuilderIF {
 		}	*/
 		
 		for (BoardTreeNode childChildBoardTreeNode : childChildBoardTreeNodeList) {
-			makeChildBoardTreeRecordUsingChildBoardTreeNode(
+			makeChildBoardRecordUsingChildBoardTreeNode(
 					boardReplyReqServerTask, groupNo, childBoardTreeNode.getBoardNo(), 
 					(short)(depth + 1),
 					childChildBoardTreeNode);

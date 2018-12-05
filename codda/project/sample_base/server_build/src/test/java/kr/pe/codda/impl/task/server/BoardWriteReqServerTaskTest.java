@@ -19,7 +19,7 @@ import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
 public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
-	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME;
+	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.STREE_TEST_DBCP_NAME;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {

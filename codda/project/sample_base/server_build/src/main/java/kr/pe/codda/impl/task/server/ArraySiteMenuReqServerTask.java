@@ -15,6 +15,7 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -80,7 +81,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			Result<Record6<UInteger, UInteger, UByte, UByte, String, String>> menuListResult = create.select(SB_SITEMENU_TB.MENU_NO, 
 					SB_SITEMENU_TB.PARENT_NO, 
@@ -88,7 +89,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 					SB_SITEMENU_TB.ORDER_SQ,					
 					SB_SITEMENU_TB.MENU_NM,
 					SB_SITEMENU_TB.LINK_URL)
-			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx"))
+			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx1"))
 			.orderBy(SB_SITEMENU_TB.ORDER_SQ.asc())
 			.fetch();			
 			

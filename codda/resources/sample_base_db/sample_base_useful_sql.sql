@@ -47,8 +47,3 @@ order by b.board_no desc
 ;
 
 
-select a.board_id, a.board_no, 
-a.group_no, a.group_sq, a.parent_no, a.depth, 
-b.subject, b.modifier_id, b.ip, b.reg_dt from sb_board_tb a, sb_board_history_tb b
-where a.board_id=b.board_id and a.board_no=b.board_no
-order by a.group_no desc, a.group_sq desc;
