@@ -42,7 +42,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardHistoryTb extends TableImpl<SbBoardHistoryTbRecord> {
 
-    private static final long serialVersionUID = -1155139011;
+    private static final long serialVersionUID = 1642318247;
 
     /**
      * The reference instance of <code>sb_db.sb_board_history_tb</code>
@@ -68,19 +68,19 @@ public class SbBoardHistoryTb extends TableImpl<SbBoardHistoryTbRecord> {
     public final TableField<SbBoardHistoryTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "");
 
     /**
-     * The column <code>sb_db.sb_board_history_tb.history_sq</code>.
+     * The column <code>sb_db.sb_board_history_tb.history_sq</code>. 히스토리 순서
      */
-    public final TableField<SbBoardHistoryTbRecord, UByte> HISTORY_SQ = createField("history_sq", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "");
+    public final TableField<SbBoardHistoryTbRecord, UByte> HISTORY_SQ = createField("history_sq", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "히스토리 순서");
 
     /**
      * The column <code>sb_db.sb_board_history_tb.subject</code>.
      */
-    public final TableField<SbBoardHistoryTbRecord, String> SUBJECT = createField("subject", org.jooq.impl.SQLDataType.VARCHAR(255), this, "");
+    public final TableField<SbBoardHistoryTbRecord, String> SUBJECT = createField("subject", org.jooq.impl.SQLDataType.VARCHAR(255).defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>sb_db.sb_board_history_tb.content</code>.
      */
-    public final TableField<SbBoardHistoryTbRecord, String> CONTENT = createField("content", org.jooq.impl.SQLDataType.CLOB, this, "");
+    public final TableField<SbBoardHistoryTbRecord, String> CONTENT = createField("content", org.jooq.impl.SQLDataType.CLOB.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.CLOB)), this, "");
 
     /**
      * The column <code>sb_db.sb_board_history_tb.modifier_id</code>. 작성자
@@ -90,12 +90,12 @@ public class SbBoardHistoryTb extends TableImpl<SbBoardHistoryTbRecord> {
     /**
      * The column <code>sb_db.sb_board_history_tb.ip</code>.
      */
-    public final TableField<SbBoardHistoryTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(40), this, "");
+    public final TableField<SbBoardHistoryTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(40).defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>sb_db.sb_board_history_tb.reg_dt</code>. 최초 작성일
      */
-    public final TableField<SbBoardHistoryTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "최초 작성일");
+    public final TableField<SbBoardHistoryTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "최초 작성일");
 
     /**
      * Create a <code>sb_db.sb_board_history_tb</code> table reference

@@ -222,7 +222,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			UInteger groupNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_NO);
 			UShort groupSeqOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-			
+			UByte nextAttachedFileSeq = UByte.valueOf(boardReplyReq.getAttachedFileCnt());			
 
 			/** 댓글은 부모가 속한 그룹의 순서를 조정하므로 그룹 전체에 대해서 동기화가 필요하기때문에 부모가 속한 그룹 최상위 글에 대해서 락을 건다 */
 			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
@@ -253,12 +253,14 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
-					.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq)).execute();			
+					.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq)).execute();
+			
+			
 
 			int boardInsertCount = create
 					.insertInto(SB_BOARD_TB, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO,
 							SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH,
-							SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST)
+							SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ)
 					.select(create
 							.select(SB_BOARD_TB.BOARD_ID, DSL.val(boardNo).as(SB_BOARD_TB.BOARD_NO),
 									SB_BOARD_TB.GROUP_NO, DSL.val(toGroupSeq).as(SB_BOARD_TB.GROUP_SQ),
@@ -266,7 +268,8 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 											.as(SB_BOARD_TB.PARENT_NO),
 									SB_BOARD_TB.DEPTH.add(1).as(SB_BOARD_TB.DEPTH),									
 									DSL.val(0).as(SB_BOARD_TB.VIEW_CNT),
-									DSL.val(BoardStateType.OK.getValue()).as(SB_BOARD_TB.BOARD_ST))
+									DSL.val(BoardStateType.OK.getValue()).as(SB_BOARD_TB.BOARD_ST),
+									DSL.val(nextAttachedFileSeq).as(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ))
 							.from(SB_BOARD_TB)
 							.where(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardReplyReq.getParentBoardNo()))))
 					.execute();

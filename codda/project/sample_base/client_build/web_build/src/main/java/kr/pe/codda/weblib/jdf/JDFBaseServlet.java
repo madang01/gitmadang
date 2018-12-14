@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil;
@@ -289,16 +290,28 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 				
 		try {
 			performPreTask(req, res);
+		} catch(ConnectionPoolException e) {
+			log.warn("server connection fail", e);
+			
+			String errorMessage = e.getMessage();
+
+			String debugMessage = new StringBuilder("Programmer's Exception: ")
+					.append(traceLogBaseMsg)
+					.append(CommonStaticFinalVars.NEWLINE).append(errorMessage)
+					.toString();
+
+			String userMessage = "서버 접속이 실패하였습니다";
+			printErrorMessagePage(req, res, userMessage,
+					debugMessage);
 		} catch (Exception | java.lang.Error e) {
 			log.warn("unknown error", e);
-			e.printStackTrace();
-
+			
 			java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 			java.io.PrintWriter writer = new java.io.PrintWriter(bos);
 			e.printStackTrace(writer);
 			writer.flush();
 
-			String errorMessgae = bos.toString();
+			String errorMessage = bos.toString();
 
 			try {
 				writer.close();
@@ -311,10 +324,11 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 			// Logger.err.println(this, errString);
 			String debugMessage = new StringBuilder("Programmer's Exception: ")
 					.append(traceLogBaseMsg)
-					.append(CommonStaticFinalVars.NEWLINE).append(errorMessgae)
+					.append(CommonStaticFinalVars.NEWLINE).append(errorMessage)
 					.toString();
 
-			printErrorMessagePage(req, res, "에러가 발생하였습니다",
+			String userMessage = "알 수 없는 에러가 발생하였습니다";
+			printErrorMessagePage(req, res, userMessage,
 					debugMessage);
 		}
 

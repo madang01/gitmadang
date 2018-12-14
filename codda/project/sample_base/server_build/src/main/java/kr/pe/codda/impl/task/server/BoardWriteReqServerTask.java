@@ -146,6 +146,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 
 		UByte boardSequenceID = UByte.valueOf(boardSequenceType.getSequenceID());
 		UByte boardID = UByte.valueOf(boardWriteReq.getBoardID());
+		UByte nextAttachedFileSeq = UByte.valueOf(boardWriteReq.getNewAttachedFileCnt());
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -191,13 +192,16 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			conn.commit();			
+			conn.commit();
+			
+			
 
 			int boardInsertCount = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
 					.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
 					.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0)).set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
 					.set(SB_BOARD_TB.DEPTH, UByte.valueOf(0)).set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
-					.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue()).execute();
+					.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
+					.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, nextAttachedFileSeq).execute();
 
 			if (0 == boardInsertCount) {
 				try {

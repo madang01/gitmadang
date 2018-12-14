@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardDetailRes message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardDetailResDecoder extends AbstractMessageDecoder {
@@ -183,6 +183,14 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "lastModifiedDate" // itemName
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		boardDetailRes.setNextAttachedFileSeq((Short)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "nextAttachedFileSeq" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

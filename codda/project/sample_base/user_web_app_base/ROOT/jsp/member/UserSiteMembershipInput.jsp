@@ -184,6 +184,18 @@
 		var img = document.getElementById("captchaImage");
 		img.src="/servlet/stickyImg?" + new Date().getTime();
 	}
+	
+	function clickHiddenFrameButton(thisObj) {		
+		var hiddenFrame = document.getElementById("hiddenFrame");
+		
+		if (hiddenFrame.style.display == 'none') {
+			thisObj.innerText = "Hide Hidden Frame";
+			hiddenFrame.style.display = "block";			
+		} else {
+			thisObj.innerText = "Show Hidden Frame";
+			hiddenFrame.style.display = "none";
+		}
+	}
 
 	function init() {
 		var f = document.frm;
@@ -213,6 +225,9 @@
 	<div class="container-fluid">
 		<h3>일반 회원 가입</h3>
 		<div id="resultMessageView"></div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
+		</div>
 		<form method="post" name="frm" onsubmit="submitGoFormIfValid(); return false;">
 			<div class="form-group">
 				<label for="userID">아이디</label>
@@ -250,7 +265,7 @@
 			<button type="submit" class="btn btn-default">가입</button>
 		</form>
 	</div>
-	<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;visibility:hidden"></iframe>
+	<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
 </body>
 </html>
 

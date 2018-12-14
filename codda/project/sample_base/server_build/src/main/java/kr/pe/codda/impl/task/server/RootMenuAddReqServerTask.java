@@ -137,11 +137,14 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 						.append(menuSequenceID)
 						.append("]의 시퀀스 갱신하는데 실패하였습니다").toString();
 				throw new ServerServiceException(errorMessage);
-			}
+			}			
+						
+			short newOrderSeq = create.select(
+					JooqSqlUtil.getIfField(SB_SITEMENU_TB.ORDER_SQ.max(), 0, SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
+			.from(SB_SITEMENU_TB)
+			.fetchOne(0, Short.class);
 			
-			int numberOfMenu = create.selectCount().from(SB_SITEMENU_TB).fetchOne().value1();
-			
-			if (numberOfMenu >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			if (newOrderSeq >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -151,11 +154,6 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				String errorMessage = "메뉴 갯수가 최대치(=255)에 도달하여 더 이상 추가할 수 없습니다";
 				throw new ServerServiceException(errorMessage);
 			}
-			
-			short newOrderSeq = create.select(
-					JooqSqlUtil.getIfField(SB_SITEMENU_TB.ORDER_SQ.max(), 0, SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
-			.from(SB_SITEMENU_TB)
-			.fetchOne(0, Short.class);											
 			
 			int rootMenuInsertCount = create.insertInto(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.MENU_NO, rootMenuNo)

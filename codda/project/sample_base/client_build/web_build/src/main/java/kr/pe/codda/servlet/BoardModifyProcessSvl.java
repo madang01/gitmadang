@@ -10,11 +10,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FileUtils;
-
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
@@ -33,53 +28,16 @@ import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.common.WebCommonStaticUtil;
 import kr.pe.codda.weblib.jdf.AbstractMultipartServlet;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
 public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 
 	private static final long serialVersionUID = 3391482674902127151L;
 
 	
 	
-	private void saveNewAttachedFiles(String installedPathString, String mainProjectName,
-			short boardID, long boardNo, 
-			short firstNewAttachedFileSeq,
-			List<FileItem> fileItemList) {
-		short indexOfNewAttachedFileList = 0;
-		
-		for (FileItem fileItem : fileItemList) {
-			if (! fileItem.isFormField()) {
-				String newAttachedFileFullPathName = WebCommonStaticUtil.getUserAttachedFilePathString(installedPathString, mainProjectName, boardID, 
-						boardNo, (short)(firstNewAttachedFileSeq+indexOfNewAttachedFileList));
-				
-				File newAttachedFile = new File(newAttachedFileFullPathName);
-
-				if (newAttachedFile.exists()) {
-					/** 만약 첨부 파일 정식 이름을 갖는 파일이 존재하면 삭제 */
-					try {
-						FileUtils.forceDelete(newAttachedFile);
-
-						log.info(
-								"the attached file[index={}, fileName={}, size={}]'s target file[{}] exists and it was deleted",
-								indexOfNewAttachedFileList, fileItem.getName(), fileItem.getSize(), newAttachedFileFullPathName);
-					} catch (IOException e) {
-						log.warn("fail to delete the file[{}] with the same path as the new attached file[index={}, fileName={}, size={}]",
-								newAttachedFileFullPathName, indexOfNewAttachedFileList, fileItem.getName(), fileItem.getSize());
-						return;
-					}
-				}
-
-				try {
-					fileItem.write(newAttachedFile);
-				} catch (Exception e) {
-					log.warn("fail to copy the new attached file[index={}, fileName={}, size={}] to the target file[{}]",
-							indexOfNewAttachedFileList, fileItem.getName(), fileItem.getSize(), newAttachedFileFullPathName);
-					
-					return;
-				}
-
-				indexOfNewAttachedFileList++;
-			}			
-		}
-	}
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -116,6 +74,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		String paramBoardNo = null;
 		String paramSubject = null;
 		String paramContent = null;
+		String paramNextAttachedFileSeq = null;
 		List<BoardModifyReq.OldAttachedFileSeq> oldAttachedFileSeqList = new ArrayList<BoardModifyReq.OldAttachedFileSeq>();
 		List<BoardModifyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardModifyReq.NewAttachedFile>();
 
@@ -147,6 +106,8 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 						paramSubject = formFieldValue;
 					} else if (formFieldName.equals("content")) {
 						paramContent = formFieldValue;
+					} else if (formFieldName.equals("nextAttachedFileSeq")) {
+						paramNextAttachedFileSeq = formFieldValue;
 					} else if (formFieldName.equals("oldAttachedFileSeq")) {
 						String paramOldAttachedFileSeq = formFieldValue;
 						
@@ -459,7 +420,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			}
 
 			if (null == paramSubject) {
-				String errorMessage = "제목 값을 넣어주세요.";
+				String errorMessage = "제목 값을 넣어주세요";
 				String debugMessage = "the web parameter 'subject' is null";
 				log.warn(debugMessage);
 				printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -468,12 +429,78 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 
 			
 			if (null == paramContent) {
-				String errorMessage = "글 내용 값을 넣어주세요.";
+				String errorMessage = "글 내용 값을 넣어주세요";
 				String debugMessage = "the web parameter 'content' is null";
 				log.warn(debugMessage);
 				printErrorMessagePage(req, res, errorMessage, debugMessage);
 				return;
 			}
+			
+			if (null == paramNextAttachedFileSeq) {
+				String errorMessage = "다음 첨부 파일 시퀀스 번호를 넣어주세요";
+				String debugMessage = "the web parameter 'content' is null";
+				log.warn(debugMessage);
+				printErrorMessagePage(req, res, errorMessage, debugMessage);
+				return;
+			}
+			
+			short oldNextAttachedFileSeq = 0;
+			try {
+				oldNextAttachedFileSeq = Short.parseShort(paramNextAttachedFileSeq);
+			} catch(NumberFormatException e) {
+				String errorMessage = "잘못된 다음 첨부 파일 시퀀스 번호입니다";
+				String debugMessage = new StringBuilder("the web parameter \"nextAttachedFileSeq\"'s value[").append(paramNextAttachedFileSeq)
+						.append("] is not a Short").toString();
+				log.warn(debugMessage);
+				printErrorMessagePage(req, res, errorMessage, debugMessage);
+				return;
+			}
+			
+			if (oldNextAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+				String errorMessage = "잘못된 '다음 첨부 파일 시퀀스 번호'입니다";
+				String debugMessage = new StringBuilder("the web parameter \"nextAttachedFileSeq\"'s value[").append(paramNextAttachedFileSeq)
+						.append("] is greater than a maximum value(=255) tha an usniged byte can have").toString();
+				log.warn(debugMessage);
+				printErrorMessagePage(req, res, errorMessage, debugMessage);
+				return;
+			}
+			
+			short indexOfNewAttachedFileList = 0;			
+			List<File> renamedNewAttachedFileList = new ArrayList<File>();			
+			for (FileItem fileItem : fileItemList) {
+				if (! fileItem.isFormField()) {
+					String newAttachedFileFullPathName = WebCommonStaticUtil.getUserAttachedFilePathString(installedPathString, mainProjectName, boardID, 
+							boardNo, (short)(oldNextAttachedFileSeq+indexOfNewAttachedFileList));
+					
+					File newAttachedFile = new File(newAttachedFileFullPathName);
+					try {
+						fileItem.write(newAttachedFile);
+					} catch (Exception e) {
+						String errorMessage = new StringBuilder()
+							.append("임시로 저장된 신규 첨부 파일[index=")
+							.append(indexOfNewAttachedFileList)
+							.append(", fileName=")
+							.append(fileItem.getName())
+							.append("]의 이름을을 게시판 첨부 파일 이름 규칙에 맞도록 개명하는데 실패하였습니다").toString();
+						String debugMessage = new StringBuilder("fail to move the new attached file[index=")
+							.append(indexOfNewAttachedFileList)
+							.append(", fileName=")
+							.append(fileItem.getName())
+							.append(", size=")
+							.append(fileItem.getSize())
+							.append("] to the target file[")
+							.append(newAttachedFileFullPathName)
+							.append("]").toString();
+						log.warn(debugMessage);
+						printErrorMessagePage(req, res, errorMessage, debugMessage);
+						return;
+					}
+					
+					renamedNewAttachedFileList.add(newAttachedFile);
+
+					indexOfNewAttachedFileList++;
+				}			
+			}			
 
 			BoardModifyReq boardModifyReq = new BoardModifyReq();
 			boardModifyReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
@@ -482,6 +509,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			boardModifyReq.setSubject(paramSubject);
 			boardModifyReq.setContent(paramContent);			
 			boardModifyReq.setIp(req.getRemoteAddr());
+			boardModifyReq.setOldNextAttachedFileSeq(oldNextAttachedFileSeq);
 			boardModifyReq.setOldAttachedFileSeqCnt(oldAttachedFileSeqList.size());
 			boardModifyReq.setOldAttachedFileSeqList(oldAttachedFileSeqList);
 			boardModifyReq.setNewAttachedFileCnt(newAttachedFileList.size());
@@ -492,8 +520,31 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 
 			AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance()
 					.getMainProjectConnectionPool();
-			AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardModifyReq);
+			AbstractMessage outputMessage = null;
+			
+			try {
+				outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardModifyReq);
+			} catch(Exception e) {
+				
+				for (File renamedNewAttachedFile : renamedNewAttachedFileList) {
+					
+					boolean result = renamedNewAttachedFile.delete();
+					if (! result) {
+						log.warn("게시판 수정 처리 결과 메시지 얻기가 실패하여 게시판 첨부 파일 이름 규칙에 맞도록 개명한 신규 첨부 파일[{}] 삭제 하는데 실패하였습니다", renamedNewAttachedFile.getAbsolutePath());
+					}
+				}
+				
+				throw e;
+			}
 			if (! (outputMessage instanceof BoardModifyRes)) {
+				for (File renamedNewAttachedFile : renamedNewAttachedFileList) {
+					
+					boolean result = renamedNewAttachedFile.delete();
+					if (! result) {
+						log.warn("게시판 수정 처리가 실패하여 게시판 첨부 파일 이름 규칙에 맞도록 개명한 신규 첨부 파일[{}] 삭제 하는데 실패하였습니다", renamedNewAttachedFile.getAbsolutePath());
+					}
+				}
+
 				if (! (outputMessage instanceof MessageResultRes)) {
 					String errorMessage = "게시판 수정이 실패했습니다";
 					String debugMessage = new StringBuilder("입력 메시지[").append(boardModifyReq.getMessageID())
@@ -513,12 +564,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			
 			BoardModifyRes boardModifyRes = (BoardModifyRes) outputMessage;
 			
-			// FIXME! 게시글 수정 처리 성공시 기존 첨부 파일들과 신규 첨부 파일 조정 필요
-			saveNewAttachedFiles(installedPathString, mainProjectName,
-					boardID, boardNo, boardModifyRes.getFirstNewAttachedFileSeq(),
-					fileItemList);
-			
-			// fileItem.write(arg0);
+			log.info("게시글[{}] 수정이 완료되었습니다", boardModifyRes.toString());
 			
 			final String goPage = "/jsp/community/BoardModifyProcess.jsp";			
 			printJspPage(req, res, goPage);

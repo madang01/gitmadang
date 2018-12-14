@@ -4,8 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.codec.binary.Base64;
-
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
@@ -23,6 +21,8 @@ import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
+
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * 관리자 로그인 처리 서블릿
@@ -223,7 +223,7 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 				binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
 
 				AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);
-				
+
 				if (!(binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
 					String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
 					String debugMessage = new StringBuilder("입력 메시지[")
@@ -260,6 +260,7 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		adminLoginReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));			
 
 		AbstractMessage loginOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(adminLoginReq);
+		
 		if (!(loginOutputMessage instanceof MessageResultRes)) {
 			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
 			String debugMessage = new StringBuilder("입력 메시지[")

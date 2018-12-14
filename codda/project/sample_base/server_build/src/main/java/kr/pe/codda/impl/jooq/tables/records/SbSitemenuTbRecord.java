@@ -30,7 +30,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSitemenuTbRecord extends UpdatableRecordImpl<SbSitemenuTbRecord> implements Record6<UInteger, UInteger, UByte, UByte, String, String> {
 
-    private static final long serialVersionUID = -655244855;
+    private static final long serialVersionUID = 1773766953;
 
     /**
      * Setter for <code>sb_db.sb_sitemenu_tb.menu_no</code>. 메뉴 번호,  1부터 시작된다. 1 로 초기화 되는 시퀀스 테이블(SB_SEQ_TB) 로 부터 메뉴 번호를 얻어옴.
@@ -75,14 +75,14 @@ public class SbSitemenuTbRecord extends UpdatableRecordImpl<SbSitemenuTbRecord> 
     }
 
     /**
-     * Setter for <code>sb_db.sb_sitemenu_tb.order_sq</code>. 동일 깊이에서의 메뉴 순서
+     * Setter for <code>sb_db.sb_sitemenu_tb.order_sq</code>. 전체 메뉴 순서
      */
     public void setOrderSq(UByte value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_sitemenu_tb.order_sq</code>. 동일 깊이에서의 메뉴 순서
+     * Getter for <code>sb_db.sb_sitemenu_tb.order_sq</code>. 전체 메뉴 순서
      */
     public UByte getOrderSq() {
         return (UByte) get(3);

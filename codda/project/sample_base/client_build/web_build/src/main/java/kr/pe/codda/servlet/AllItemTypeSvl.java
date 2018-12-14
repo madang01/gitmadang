@@ -200,7 +200,7 @@ public class AllItemTypeSvl extends AbstractServlet {
 			
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(allDataTypeReq);		
-		
+				
 		boolean isSame = false;
 		if (!(outputMessage instanceof AllItemType)) {
 			String errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다.";

@@ -83,6 +83,14 @@ public final class BoardModifyReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardModifyReq.setOldNextAttachedFileSeq((Short)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "oldNextAttachedFileSeq" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardModifyReq.setOldAttachedFileSeqCnt((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "oldAttachedFileSeqCnt" // itemName

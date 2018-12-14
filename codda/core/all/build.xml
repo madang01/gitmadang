@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<project name="codda_core_all" default="make.all" basedir=".">
+<project name="codda_core_all" default="jar.all" basedir=".">
 	<description>codda core all</description>
 	<!-- set global properties for this build -->
 	<property name="dir.dist" location="dist" />
@@ -16,9 +16,9 @@
 	<property name="core.common.jar.name" value="codda-core-common.jar" />
 	<property name="core.junitlib.jar.name" value="codda-core-junitlib.jar" />
 	<property name="core.client.jar.name" value="codda-core-client.jar" />
-	<property name="core.client.only.jar.name" value="codda-core-onlyclient.jar" />
+	<property name="core.client.jar.name.only" value="codda-core-onlyclient.jar" />
 	<property name="core.server.jar.name" value="codda-core-server.jar" />
-	<property name="core.server.only.jar.name" value="codda-core-onlyserver.jar" />	
+	<property name="core.server.jar.name.only" value="codda-core-onlyserver.jar" />	
 	<property name="core.all.jar.name" value="codda-core-all.jar" />
 	
 	<property name="java.complile.option.debug" value="on" />
@@ -69,40 +69,40 @@
 		<delete dir="${dir.dist}" />
 	</target>
 
-	<target name="init" depends="clean">
+	<target name="init">
 		<tstamp />
 		<mkdir dir="${dir.dist}" />
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 	</target>
 	
-	<target name="unix.make.server" if="is.unix.yes" depends="init">
+	<target name="exec.unix.core.server" if="is.unix.yes" depends="init">
 		<exec dir="${dir.core.server.build}" executable="ant" />
 	</target>
 	
-	<target name="dos.make.server" if="is.windows.yes" depends="unix.make.server">
+	<target name="exec.dos.core.server" if="is.windows.yes" depends="exec.unix.core.server">
 		<exec dir="${dir.core.server.build}" executable="cmd">
 			<arg value="/c" />
 			<arg value="ant.bat" />
 		</exec>
 	</target>
 	
-	<target name="make.only.server" depends="dos.make.server" />	
+	<target name="exec.server" depends="exec.dos.core.server" />	
 	
-	<target name="copy.only.server" depends="make.only.server">
+	<target name="copy.server" depends="exec.server">
 		<mkdir dir="${dir.mainlib}/in" />
 		<mkdir dir="${dir.mainlib}/ex" />
 		<copy todir="${dir.mainlib}/in" verbose="true" overwrite="true">
 			<fileset file="${dir.core.common.build}/dist/${core.common.jar.name}" />
 		</copy>
 		<copy todir="${dir.mainlib}/in" verbose="true" overwrite="true">
-			<fileset file="${dir.core.server.build}/dist/${core.server.only.jar.name}" />
+			<fileset file="${dir.core.server.build}/dist/${core.server.jar.name.only}" />
 		</copy>
 		<copy todir="${dir.testlib}" verbose="true" overwrite="true">
 			<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
 		</copy>		
 	</target>	
 
-	<target name="make.server" depends="copy.only.server">
+	<target name="jar.server" depends="copy.server">
 		<jar jarfile="${dir.dist}/${core.server.jar.name}">
 			<restrict>
 				<archives>
@@ -114,38 +114,38 @@
 		</jar>
 	</target>
 	
-	<target name="unix.make.client" if="is.unix.yes" depends="make.server">
+	<target name="exec.unix.core.client" if="is.unix.yes" depends="jar.server">
 		<exec dir="${dir.core.client.build}" executable="ant" />
 	</target>
 	
-	<target name="dos.make.client" if="is.windows.yes" depends="unix.make.client">
+	<target name="exec.dos.core.client" if="is.windows.yes" depends="exec.unix.core.client">
 		<exec dir="${dir.core.client.build}" executable="cmd">
 			<arg value="/c" />
 			<arg value="ant.bat" />
 		</exec>
 	</target>
 	
-	<target name="make.only.client" depends="dos.make.client" />	
+	<target name="exec.client" depends="exec.dos.core.client" />	
 	
-	<target name="copy.only.client" depends="make.only.client">		
+	<target name="copy.client" depends="exec.client">		
 		<copy todir="${dir.mainlib}/in" verbose="true" overwrite="true">
-			<fileset file="${dir.core.client.build}/dist/${core.client.only.jar.name}" />
+			<fileset file="${dir.core.client.build}/dist/${core.client.jar.name.only}" />
 		</copy>
 	</target>
 	
-	<target name="make.client" depends="copy.only.client">
+	<target name="jar.client" depends="copy.client">
 		<jar jarfile="${dir.dist}/${core.client.jar.name}">
 			<restrict>
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" excludes="${core.server.only.jar.name}" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" excludes="${core.server.jar.name.only}" />
 					</zips>
 				</archives>
 			</restrict>
 		</jar>
 	</target>
 	
-	<target name="make.all" depends="make.client">
+	<target name="jar.all" depends="jar.client">
 		<jar jarfile="${dir.dist}/${core.all.jar.name}">
 			<restrict>
 				<archives>

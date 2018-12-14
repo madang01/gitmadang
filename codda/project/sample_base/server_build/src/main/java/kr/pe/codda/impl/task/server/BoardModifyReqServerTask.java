@@ -121,10 +121,17 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 				
-		if ((boardModifyReq.getOldAttachedFileSeqCnt() + boardModifyReq.getNewAttachedFileCnt()) > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[기존갯수=")
-					.append(boardModifyReq.getOldAttachedFileSeqCnt())
-					.append(",신규추가갯수=")
+		if (boardModifyReq.getOldAttachedFileSeqCnt()  > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder().append("기존 첨부 파일 시퀀스 갯수[")
+					.append(boardModifyReq.getOldAttachedFileSeqCnt())					
+					.append("]가 최대 첨부 파일 등록 갯수[")						
+					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
+					.append("]를 초과하였습니다").toString();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (boardModifyReq.getNewAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder().append("신규 첨부 파일 등록 갯수[")					
 					.append(boardModifyReq.getNewAttachedFileCnt())
 					.append("]가 최대 첨부 파일 등록 갯수[")						
 					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
@@ -152,6 +159,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		
 		UByte boardID = UByte.valueOf(boardModifyReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardModifyReq.getBoardNo());
+		
 		
 		HashSet<Short> remainingOldAttachedFileSequeceSet = new HashSet<Short>();
 		for (BoardModifyReq.OldAttachedFileSeq oldAttachedFile: boardModifyReq.getOldAttachedFileSeqList()) {
@@ -227,7 +235,8 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			Record1<String> boardRecord = create.select(SB_BOARD_TB.BOARD_ST)
+			Record2<String, UByte> boardRecord = create.select(SB_BOARD_TB.BOARD_ST,
+					SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ)
 			.from(SB_BOARD_TB)			
 			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
@@ -245,7 +254,8 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);			
+			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			UByte oldNextAttachedFileSeq = boardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
 			
 			BoardStateType boardStateType = null;
 			try {
@@ -283,13 +293,56 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			
+			if (boardModifyReq.getOldNextAttachedFileSeq()
+					!= oldNextAttachedFileSeq.shortValue()) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder()
+				.append("입력 메시지로 받은 '다음 첨부 파일 시퀀스 번호'[")
+				.append(boardModifyReq.getOldNextAttachedFileSeq())
+				.append("]가 DB 상 값[")
+				.append(oldNextAttachedFileSeq.shortValue())
+				.append("]과 다릅니다").toString();
+				
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			int newNextAttachedFileSeq = oldNextAttachedFileSeq.shortValue() + boardModifyReq.getNewAttachedFileCnt();
+			
+			if (newNextAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder()
+				.append("새로운 '다음 첨부 파일 시퀀스 번호'(= 기존 '다음 첨부 파일 시퀀스 번호'[")
+				.append(oldNextAttachedFileSeq.shortValue())
+				.append("] + 신규 첨부 파일 갯수[")
+				.append(boardModifyReq.getNewAttachedFileCnt())
+				.append("])가 최대 값(=255)을 초과하였습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			create.update(SB_BOARD_TB)
+			.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, UByte.valueOf(newNextAttachedFileSeq))
+			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+			.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
+			.execute();		
+			
 			Result<Record2<UByte, String>> attachFileListRecord = create.select(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, SB_BOARD_FILELIST_TB.ATTACHED_FNAME)
 					.from(SB_BOARD_FILELIST_TB)
 					.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_FILELIST_TB.BOARD_NO.eq(boardNo))
 					.fetch();			
 			
-			short firstNewAttachedFileSeq = -1;
+			// short firstNewAttachedFileSeq = -1;
 			
 			if (null == attachFileListRecord) {
 				/**
@@ -317,14 +370,14 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					attachedFile.setAttachedFileSeq(attachedFileSeq);
 					attachedFile.setAttachedFileName(attachedFileName);
 					
-					
+					/*
 					if (attachedFileSeq > firstNewAttachedFileSeq) {
 						firstNewAttachedFileSeq = attachedFileSeq;
-					}
+					}*/
 					actualOldAttachedFileSequeceSet.add(attachedFileSeq);
 				}
 				
-				firstNewAttachedFileSeq += 1;				
+				// firstNewAttachedFileSeq += 1;				
 				
 				
 				if (! actualOldAttachedFileSequeceSet.containsAll(remainingOldAttachedFileSequeceSet)) {
@@ -347,7 +400,9 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
 					.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.in(actualOldAttachedFileSequeceSet)).execute();
 				}
-			}					
+			}
+			
+			
 						
 			Record1<UByte> boardHistoryMaxSequenceRecord = create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max().add(1))
 					.from(SB_BOARD_HISTORY_TB)
@@ -394,19 +449,8 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			
 			if (boardModifyReq.getNewAttachedFileCnt() > 0) {
 				int newAttachedFileListIndex = 0;
-				for (BoardModifyReq.NewAttachedFile newAttachedFileForRequest : boardModifyReq.getNewAttachedFileList()) {					
-					int newAttachedFileSeq = firstNewAttachedFileSeq + newAttachedFileListIndex;
-					if (newAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-						try {
-							conn.rollback();
-						} catch (Exception e) {
-							log.warn("fail to rollback");
-						}
-						
-						String errorMessage = "게시글당 첨부 파일 최대 등록 횟수(=256)를 초가하였습니다";
-						throw new ServerServiceException(errorMessage);
-					}					
-					
+				int newAttachedFileSeq = oldNextAttachedFileSeq.shortValue();
+				for (BoardModifyReq.NewAttachedFile newAttachedFileForRequest : boardModifyReq.getNewAttachedFileList()) {
 					int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
 					.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID)
 					.set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
@@ -427,17 +471,17 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 						throw new ServerServiceException(errorMessage);
 					}
 					
+					newAttachedFileSeq++;
 					newAttachedFileListIndex++;
 				}
 			}										
 			
-			conn.commit();			
+			conn.commit();
 			
 			BoardModifyRes boardModifyRes = new BoardModifyRes();
 			
 			boardModifyRes.setBoardID(boardID.shortValue());
 			boardModifyRes.setBoardNo(boardNo.longValue());
-			boardModifyRes.setFirstNewAttachedFileSeq(firstNewAttachedFileSeq);
 					
 			return boardModifyRes;
 		} catch (ServerServiceException e) {

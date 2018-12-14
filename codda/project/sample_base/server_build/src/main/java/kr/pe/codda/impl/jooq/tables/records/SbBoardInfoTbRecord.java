@@ -29,19 +29,17 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTbRecord extends UpdatableRecordImpl<SbBoardInfoTbRecord> implements Record5<UByte, String, String, Integer, Integer> {
 
-    private static final long serialVersionUID = -573611945;
+    private static final long serialVersionUID = 1845686867;
 
     /**
-     * Setter for <code>sb_db.sb_board_info_tb.board_id</code>. 게시판 식별자,
-0 : 공지, 1:자유, 2:FAQ
+     * Setter for <code>sb_db.sb_board_info_tb.board_id</code>. 게시??
      */
     public void setBoardId(UByte value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_info_tb.board_id</code>. 게시판 식별자,
-0 : 공지, 1:자유, 2:FAQ
+     * Getter for <code>sb_db.sb_board_info_tb.board_id</code>. 게시??
      */
     public UByte getBoardId() {
         return (UByte) get(0);
@@ -76,28 +74,28 @@ public class SbBoardInfoTbRecord extends UpdatableRecordImpl<SbBoardInfoTbRecord
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_info_tb.admin_total</code>. 어드민용 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
+     * Setter for <code>sb_db.sb_board_info_tb.admin_total</code>. 어드민일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
      */
     public void setAdminTotal(Integer value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_info_tb.admin_total</code>. 어드민용 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
+     * Getter for <code>sb_db.sb_board_info_tb.admin_total</code>. 어드민일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
      */
     public Integer getAdminTotal() {
         return (Integer) get(3);
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_info_tb.user_total</code>. 사용자용 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
+     * Setter for <code>sb_db.sb_board_info_tb.user_total</code>. 사용자일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
      */
     public void setUserTotal(Integer value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_info_tb.user_total</code>. 사용자용 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
+     * Getter for <code>sb_db.sb_board_info_tb.user_total</code>. 사용자일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
      */
     public Integer getUserTotal() {
         return (Integer) get(4);

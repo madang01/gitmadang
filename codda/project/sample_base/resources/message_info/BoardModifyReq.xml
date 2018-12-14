@@ -23,6 +23,7 @@
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="content" type="si pascal string" />
 <singleitem name="ip" type="ub pascal string" />
+<singleitem name="oldNextAttachedFileSeq" type="unsigned byte" />
 <singleitem name="oldAttachedFileSeqCnt" type="integer" />
 <array name="oldAttachedFileSeq" cnttype="reference" cntvalue="oldAttachedFileSeqCnt">
 	<singleitem name="attachedFileSeq" type="unsigned byte" />

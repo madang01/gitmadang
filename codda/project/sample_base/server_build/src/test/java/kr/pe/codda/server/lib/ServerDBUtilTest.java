@@ -510,7 +510,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 	public void testGetToGroupSeqOfRelativeRootBoard_트리끝위치얻기2가지방법비교() {
 		final BoardType boardType = BoardType.FREE;
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -576,16 +576,16 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
 			}			
 		}
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		
 		int pageNo = 1;
@@ -671,7 +671,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 	public void testGetToGroupSeqOfRelativeRootBoard_트리끝위치얻기방법2가지속도비교() {
 		final BoardType boardType = BoardType.FREE;
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -737,16 +737,16 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
 			}			
 		}
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		BoardTreeNode boardTreeNode = boardTree.find("루트1_자식2");
 		

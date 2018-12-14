@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
 
-    private static final long serialVersionUID = -1677904043;
+    private static final long serialVersionUID = -1076817005;
 
     /**
      * The reference instance of <code>sb_db.sb_sitemenu_tb</code>
@@ -71,9 +71,9 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
     public final TableField<SbSitemenuTbRecord, UByte> DEPTH = createField("depth", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "트리 깊이,  0 부터 시작하며 부모보다 + 1 이 크다");
 
     /**
-     * The column <code>sb_db.sb_sitemenu_tb.order_sq</code>. 동일 깊이에서의 메뉴 순서
+     * The column <code>sb_db.sb_sitemenu_tb.order_sq</code>. 전체 메뉴 순서
      */
-    public final TableField<SbSitemenuTbRecord, UByte> ORDER_SQ = createField("order_sq", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "동일 깊이에서의 메뉴 순서");
+    public final TableField<SbSitemenuTbRecord, UByte> ORDER_SQ = createField("order_sq", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "전체 메뉴 순서");
 
     /**
      * The column <code>sb_db.sb_sitemenu_tb.menu_nm</code>. 메뉴 이름
@@ -127,7 +127,7 @@ public class SbSitemenuTb extends TableImpl<SbSitemenuTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_SITEMENU_TB_PRIMARY, Indexes.SB_SITEMENU_TB_SB_SITEMENU_IDX1);
+        return Arrays.<Index>asList(Indexes.SB_SITEMENU_TB_PRIMARY, Indexes.SB_SITEMENU_TB_SB_SITEMENU_IDX1, Indexes.SB_SITEMENU_TB_SB_SITEMENU_IDX2);
     }
 
     /**

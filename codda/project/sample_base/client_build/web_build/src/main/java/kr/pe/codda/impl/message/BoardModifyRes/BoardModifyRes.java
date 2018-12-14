@@ -27,7 +27,6 @@ import kr.pe.codda.common.message.AbstractMessage;
 public class BoardModifyRes extends AbstractMessage {
 	private short boardID;
 	private long boardNo;
-	private short firstNewAttachedFileSeq;
 
 	public short getBoardID() {
 		return boardID;
@@ -43,13 +42,6 @@ public class BoardModifyRes extends AbstractMessage {
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
 	}
-	public short getFirstNewAttachedFileSeq() {
-		return firstNewAttachedFileSeq;
-	}
-
-	public void setFirstNewAttachedFileSeq(short firstNewAttachedFileSeq) {
-		this.firstNewAttachedFileSeq = firstNewAttachedFileSeq;
-	}
 
 	@Override
 	public String toString() {
@@ -59,8 +51,6 @@ public class BoardModifyRes extends AbstractMessage {
 		builder.append(boardID);
 		builder.append(", boardNo=");
 		builder.append(boardNo);
-		builder.append(", firstNewAttachedFileSeq=");
-		builder.append(firstNewAttachedFileSeq);
 		builder.append("]");
 		return builder.toString();
 	}

@@ -21,7 +21,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardDetailRes message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardDetailRes extends AbstractMessage {
@@ -44,6 +44,7 @@ public class BoardDetailRes extends AbstractMessage {
 	private String lastModifierID;
 	private String lastModifierNickName;
 	private java.sql.Timestamp lastModifiedDate;
+	private short nextAttachedFileSeq;
 	private int attachedFileCnt;
 
 	public static class AttachedFile {
@@ -213,6 +214,13 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setLastModifiedDate(java.sql.Timestamp lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
+	public short getNextAttachedFileSeq() {
+		return nextAttachedFileSeq;
+	}
+
+	public void setNextAttachedFileSeq(short nextAttachedFileSeq) {
+		this.nextAttachedFileSeq = nextAttachedFileSeq;
+	}
 	public int getAttachedFileCnt() {
 		return attachedFileCnt;
 	}
@@ -270,6 +278,8 @@ public class BoardDetailRes extends AbstractMessage {
 		builder.append(lastModifierNickName);
 		builder.append(", lastModifiedDate=");
 		builder.append(lastModifiedDate);
+		builder.append(", nextAttachedFileSeq=");
+		builder.append(nextAttachedFileSeq);
 		builder.append(", attachedFileCnt=");
 		builder.append(attachedFileCnt);
 

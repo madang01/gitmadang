@@ -32,7 +32,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTbRecord> implements Record8<UByte, UInteger, UByte, String, String, String, String, Timestamp> {
 
-    private static final long serialVersionUID = 1215782141;
+    private static final long serialVersionUID = 1485327101;
 
     /**
      * Setter for <code>sb_db.sb_board_history_tb.board_id</code>.
@@ -63,14 +63,14 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_history_tb.history_sq</code>.
+     * Setter for <code>sb_db.sb_board_history_tb.history_sq</code>. 히스토리 순서
      */
     public void setHistorySq(UByte value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_history_tb.history_sq</code>.
+     * Getter for <code>sb_db.sb_board_history_tb.history_sq</code>. 히스토리 순서
      */
     public UByte getHistorySq() {
         return (UByte) get(2);

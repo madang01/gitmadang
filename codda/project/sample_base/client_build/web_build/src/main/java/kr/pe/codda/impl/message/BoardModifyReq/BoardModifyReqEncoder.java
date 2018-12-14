@@ -81,6 +81,13 @@ public final class BoardModifyReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "oldNextAttachedFileSeq"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardModifyReq.getOldNextAttachedFileSeq() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "oldAttachedFileSeqCnt"
 			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
 			, boardModifyReq.getOldAttachedFileSeqCnt() // itemValue

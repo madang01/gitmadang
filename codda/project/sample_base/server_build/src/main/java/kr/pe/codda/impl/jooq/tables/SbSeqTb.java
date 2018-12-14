@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSeqTb extends TableImpl<SbSeqTbRecord> {
 
-    private static final long serialVersionUID = 399402041;
+    private static final long serialVersionUID = -1187728573;
 
     /**
      * The reference instance of <code>sb_db.sb_seq_tb</code>
@@ -63,12 +63,12 @@ public class SbSeqTb extends TableImpl<SbSeqTbRecord> {
     /**
      * The column <code>sb_db.sb_seq_tb.sq_value</code>. 시퀀스 값, 1 부터 시작
      */
-    public final TableField<SbSeqTbRecord, UInteger> SQ_VALUE = createField("sq_value", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "시퀀스 값, 1 부터 시작");
+    public final TableField<SbSeqTbRecord, UInteger> SQ_VALUE = createField("sq_value", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "시퀀스 값, 1 부터 시작");
 
     /**
      * The column <code>sb_db.sb_seq_tb.sq_name</code>. 시퀀스 이름
      */
-    public final TableField<SbSeqTbRecord, String> SQ_NAME = createField("sq_name", org.jooq.impl.SQLDataType.VARCHAR(45), this, "시퀀스 이름");
+    public final TableField<SbSeqTbRecord, String> SQ_NAME = createField("sq_name", org.jooq.impl.SQLDataType.VARCHAR(45).defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.VARCHAR)), this, "시퀀스 이름");
 
     /**
      * Create a <code>sb_db.sb_seq_tb</code> table reference

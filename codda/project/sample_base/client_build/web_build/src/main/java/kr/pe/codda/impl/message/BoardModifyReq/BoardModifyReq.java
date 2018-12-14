@@ -31,6 +31,7 @@ public class BoardModifyReq extends AbstractMessage {
 	private String subject;
 	private String content;
 	private String ip;
+	private short oldNextAttachedFileSeq;
 	private int oldAttachedFileSeqCnt;
 
 	public static class OldAttachedFileSeq {
@@ -124,6 +125,13 @@ public class BoardModifyReq extends AbstractMessage {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
+	public short getOldNextAttachedFileSeq() {
+		return oldNextAttachedFileSeq;
+	}
+
+	public void setOldNextAttachedFileSeq(short oldNextAttachedFileSeq) {
+		this.oldNextAttachedFileSeq = oldNextAttachedFileSeq;
+	}
 	public int getOldAttachedFileSeqCnt() {
 		return oldAttachedFileSeqCnt;
 	}
@@ -169,6 +177,8 @@ public class BoardModifyReq extends AbstractMessage {
 		builder.append(content);
 		builder.append(", ip=");
 		builder.append(ip);
+		builder.append(", oldNextAttachedFileSeq=");
+		builder.append(oldNextAttachedFileSeq);
 		builder.append(", oldAttachedFileSeqCnt=");
 		builder.append(oldAttachedFileSeqCnt);
 

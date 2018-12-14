@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<project name="sample_base_server" default="compile.only.appinf" basedir=".">
+<project name="sample_base_server" default="compile.appinf.only" basedir=".">
 	<property name="dir.main.src" location="src/main/java" />
 	<property name="dir.main.build" location="build/main" />
 	<property name="dir.main.lib" location="lib/main" />
@@ -60,34 +60,37 @@
 		<fileset file="${dir.core.common.build}/lib/test/commons-exec-1.3.jar" />
 	</union>
 
-	<target name="clean.core">
-		<delete dir="${dir.corelib}" />
-	</target>
-
-	<target name="init.core.var">
+<target name="init.core">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
-		<mkdir dir="${dir.corelib}/ex" />
-		<mkdir dir="${dir.corelib}/in" />
 	</target>
-	
 
-	<target name="make.unix.core.all" if="is.unix.yes" depends="init.core.var">
+	<target name="exec.unix.core.all" if="is.unix.yes" depends="init.core">
 		<exec dir="${dir.core.all.build}" executable="ant" />
 	</target>
 
-	<target name="make.dos.core.all" if="is.windows.yes" depends="make.unix.core.all">
+	<target name="exec.dos.core.all" if="is.windows.yes" depends="exec.unix.core.all">
 		<exec dir="${dir.core.all.build}" executable="cmd">
 			<arg value="/c" />
 			<arg value="ant.bat" />
 		</exec>
 	</target>
 
-	<target name="make.core.all" depends="make.dos.core.all" />
-
-	<target name="copy.core" depends="make.core.all">
+	<target name="exec.core" depends="exec.dos.core.all" />
+	
+	<target name="clean.core">
+		<delete dir="${dir.corelib}" />
+	</target>
+	
+	
+	<target name="copy.core" depends="exec.core, copy.core.only" />
+	
+	<target name="copy.core.only">
+	  <mkdir dir="${dir.corelib}/ex" />
+		<mkdir dir="${dir.corelib}/in" />
+		
 		<copy todir="${dir.corelib}/in" verbose="true" overwrite="true">
 			<fileset file="${dir.core.all.build}/dist/${core.all.jar.name}" />
 		</copy>
@@ -103,11 +106,10 @@
 		<delete dir="${dir.appinf}/classes" />
 	</target>
 
-	<target name="init.var">
+	<target name="init.main">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
-		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
 		<mkdir dir="${dir.main.lib}/ex" />
 		<mkdir dir="${dir.main.lib}/in" />
 		<mkdir dir="${dir.main.build}" />
@@ -115,7 +117,7 @@
 		<mkdir dir="${dir.appinf}/classes" />
 	</target>
 
-	<target name="compile.main" depends="init.var">
+	<target name="compile.main" depends="init.main">
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.main.build}">
 			<exclude name="kr/pe/codda/impl/**" />
 			<classpath>
@@ -164,7 +166,7 @@
 		</mapper>
 	</pathconvert>
 
-	<target name="make.main" depends="copy.distlib">
+	<target name="jar.main" depends="copy.distlib">
 		<jar destfile="${dir.dist}/${server.main.jar.name}" basedir="${dir.main.build}">
 			<restrict>
 				<name name="**/*.class" />
@@ -182,33 +184,15 @@
 		</jar>
 	</target>
 
-	<target name="compile.appinf" depends="make.main">
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.appinf}/classes">
-			<include name="kr/pe/codda/impl/**" />
-			<classpath>
-				<fileset dir="${dir.corelib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.corelib}/in">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.main.lib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.main.lib}/in">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-	</target>
+	<target name="compile.appinf" depends="jar.main, compile.appinf.only" />
 
 	<target name="all" depends="compile.appinf" />
 
-	<target name="clean.appinf" depends="init.var">
+	<target name="clean.appinf">
 		<delete dir="${dir.appinf}/classes" />
 	</target>
 
-	<target name="compile.only.appinf" depends="init.var">
+	<target name="compile.appinf.only">
 		<mkdir dir="${dir.appinf}/classes" />
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.appinf}/classes">
 			<include name="kr/pe/codda/impl/**" />

@@ -39,7 +39,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
 
-    private static final long serialVersionUID = -1856267370;
+    private static final long serialVersionUID = 1564185471;
 
     /**
      * The reference instance of <code>sb_db.sb_board_info_tb</code>
@@ -55,30 +55,29 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
     }
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.board_id</code>. 게시판 식별자,
-0 : 공지, 1:자유, 2:FAQ
+     * The column <code>sb_db.sb_board_info_tb.board_id</code>. 게시??
      */
-    public final TableField<SbBoardInfoTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시판 식별자,\n0 : 공지, 1:자유, 2:FAQ");
+    public final TableField<SbBoardInfoTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시??");
 
     /**
      * The column <code>sb_db.sb_board_info_tb.board_name</code>. 게시판 이름
      */
-    public final TableField<SbBoardInfoTbRecord, String> BOARD_NAME = createField("board_name", org.jooq.impl.SQLDataType.VARCHAR(30), this, "게시판 이름");
+    public final TableField<SbBoardInfoTbRecord, String> BOARD_NAME = createField("board_name", org.jooq.impl.SQLDataType.VARCHAR(30).defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.VARCHAR)), this, "게시판 이름");
 
     /**
      * The column <code>sb_db.sb_board_info_tb.board_info</code>. 게시판 설명
      */
-    public final TableField<SbBoardInfoTbRecord, String> BOARD_INFO = createField("board_info", org.jooq.impl.SQLDataType.CLOB, this, "게시판 설명");
+    public final TableField<SbBoardInfoTbRecord, String> BOARD_INFO = createField("board_info", org.jooq.impl.SQLDataType.CLOB.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.CLOB)), this, "게시판 설명");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.admin_total</code>. 어드민용 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
+     * The column <code>sb_db.sb_board_info_tb.admin_total</code>. 어드민일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
      */
-    public final TableField<SbBoardInfoTbRecord, Integer> ADMIN_TOTAL = createField("admin_total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "어드민용 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.");
+    public final TableField<SbBoardInfoTbRecord, Integer> ADMIN_TOTAL = createField("admin_total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "어드민일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.user_total</code>. 사용자용 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
+     * The column <code>sb_db.sb_board_info_tb.user_total</code>. 사용자일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
      */
-    public final TableField<SbBoardInfoTbRecord, Integer> USER_TOTAL = createField("user_total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "사용자용 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.");
+    public final TableField<SbBoardInfoTbRecord, Integer> USER_TOTAL = createField("user_total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "사용자일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.");
 
     /**
      * Create a <code>sb_db.sb_board_info_tb</code> table reference

@@ -145,7 +145,7 @@
 		return;
 	}
 	
-	function errorMessageCallBack(errorMessage) {
+	function errorMessageCallBack(errorMessage) {		
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		resultMessageView.setAttribute("class", "alert alert-warning");
@@ -177,6 +177,18 @@
 		
 		g.submit();		
 	}
+	
+	function clickHiddenFrameButton(thisObj) {		
+		var hiddenFrame = document.getElementById("hiddenFrame");
+		
+		if (hiddenFrame.style.display == 'none') {
+			thisObj.innerText = "Hide Hidden Frame";
+			hiddenFrame.style.display = "block";			
+		} else {
+			thisObj.innerText = "Show Hidden Frame";
+			hiddenFrame.style.display = "none";
+		}
+	}
 //-->
 </script>
 </head>
@@ -186,8 +198,10 @@
 	<div class="container-fluid">
 		<h3>관리자 로그인</h3>
 		<div id="resultMessageView"></div>
-		<form method="post" name="gofrm" target="hiddenFrame" action="/servlet/AdminLogin">
-			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
+		</div>
+		<form method="post" name="gofrm" target="hiddenFrame" action="/servlet/AdminLoginProcess">
 			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 			<input type="hidden" name="userID" />
@@ -221,6 +235,6 @@
 			<button type="submit" class="btn btn-default">Submit</button>		
 		</form>
 	</div>
-	<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;visibility:hidden"></iframe>
+	<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
 </body>
 </html>

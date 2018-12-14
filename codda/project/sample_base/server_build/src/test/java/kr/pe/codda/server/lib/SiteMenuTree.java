@@ -24,16 +24,11 @@ public class SiteMenuTree {
 	private final HashMap<String, SiteMenuTreeNode> menuNameToTreeNodeHash =
 			new HashMap<String, SiteMenuTreeNode>();
 	
-	private final HashMap<Long, SiteMenuTreeNode> menuNoToTreeNodeHash =
-			new HashMap<Long, SiteMenuTreeNode>();
-	
+		
 	public void addRootSiteMenuNode(SiteMenuTreeNode rootSiteMenuTreeNode) {
 		rootSiteMenuNodeList.add(rootSiteMenuTreeNode);
 	}
-	/*
-	public java.util.List<SiteMenuTreeNode> getRootSiteMenuNodeList() {
-		return rootSiteMenuNodeList;
-	}*/
+	
 	
 	private void makeChildSiteMenuRecordUsingChildSiteMenuTreeNode(
 			String workingDBName,
@@ -62,7 +57,6 @@ public class SiteMenuTree {
 			}
 			
 			menuNameToTreeNodeHash.put(childSiteMenuTreeNode.getMenuName(), childSiteMenuTreeNode);
-			menuNoToTreeNodeHash.put(childSiteMenuTreeNode.getMenuNo(), childSiteMenuTreeNode);
 			
 			for (SiteMenuTreeNode childchildSiteMenuTreeNode : childSiteMenuTreeNode.getChildSiteMenuNodeList()) {
 				makeChildSiteMenuRecordUsingChildSiteMenuTreeNode(workingDBName, childSiteMenuTreeNode, childchildSiteMenuTreeNode);
@@ -101,7 +95,6 @@ public class SiteMenuTree {
 				}
 				
 				menuNameToTreeNodeHash.put(rootSiteMenuTreeNode.getMenuName(), rootSiteMenuTreeNode);
-				menuNoToTreeNodeHash.put(rootSiteMenuTreeNode.getMenuNo(), rootSiteMenuTreeNode);
 				
 				
 				for (SiteMenuTreeNode childSiteMenuTreeNode : rootSiteMenuTreeNode.getChildSiteMenuNodeList()) {
@@ -123,7 +116,4 @@ public class SiteMenuTree {
 		return menuNameToTreeNodeHash.get(menuName);
 	}
 	
-	public SiteMenuTreeNode find(long menuNo) {
-		return menuNoToTreeNodeHash.get(menuNo);
-	}
 }

@@ -53,13 +53,6 @@ public final class BoardModifyResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "firstNewAttachedFileSeq"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-			, boardModifyRes.getFirstNewAttachedFileSeq() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
 		pathStack.pop();
 	}
 }

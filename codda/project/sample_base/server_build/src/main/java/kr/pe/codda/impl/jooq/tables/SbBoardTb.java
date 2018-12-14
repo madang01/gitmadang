@@ -42,7 +42,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = 67658306;
+    private static final long serialVersionUID = 58481052;
 
     /**
      * The reference instance of <code>sb_db.sb_board_tb</code>
@@ -80,22 +80,27 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     /**
      * The column <code>sb_db.sb_board_tb.parent_no</code>. 부모 게시판 번호,  게시판 번호는 1부터 시작하며 부모가 없는 경우 부모 게시판 번호는 0 값을 갖는다.
      */
-    public final TableField<SbBoardTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "부모 게시판 번호,  게시판 번호는 1부터 시작하며 부모가 없는 경우 부모 게시판 번호는 0 값을 갖는다.");
+    public final TableField<SbBoardTbRecord, UInteger> PARENT_NO = createField("parent_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "부모 게시판 번호,  게시판 번호는 1부터 시작하며 부모가 없는 경우 부모 게시판 번호는 0 값을 갖는다.");
 
     /**
      * The column <code>sb_db.sb_board_tb.depth</code>. 트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.
      */
-    public final TableField<SbBoardTbRecord, UByte> DEPTH = createField("depth", org.jooq.impl.SQLDataType.TINYINTUNSIGNED, this, "트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.");
+    public final TableField<SbBoardTbRecord, UByte> DEPTH = createField("depth", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.TINYINTUNSIGNED)), this, "트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.");
 
     /**
      * The column <code>sb_db.sb_board_tb.view_cnt</code>. 조회수
      */
-    public final TableField<SbBoardTbRecord, Integer> VIEW_CNT = createField("view_cnt", org.jooq.impl.SQLDataType.INTEGER, this, "조회수");
+    public final TableField<SbBoardTbRecord, Integer> VIEW_CNT = createField("view_cnt", org.jooq.impl.SQLDataType.INTEGER.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.INTEGER)), this, "조회수");
 
     /**
-     * The column <code>sb_db.sb_board_tb.board_st</code>. 게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
+     * The column <code>sb_db.sb_board_tb.board_st</code>. 게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
      */
-    public final TableField<SbBoardTbRecord, String> BOARD_ST = createField("board_st", org.jooq.impl.SQLDataType.CHAR(1), this, "게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글");
+    public final TableField<SbBoardTbRecord, String> BOARD_ST = createField("board_st", org.jooq.impl.SQLDataType.CHAR(1).nullable(false), this, "게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글");
+
+    /**
+     * The column <code>sb_db.sb_board_tb.next_attached_file_sq</code>. 다음 첨부 파일 시퀀스, 처음 0부터 시작
+     */
+    public final TableField<SbBoardTbRecord, UByte> NEXT_ATTACHED_FILE_SQ = createField("next_attached_file_sq", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.TINYINTUNSIGNED)), this, "다음 첨부 파일 시퀀스, 처음 0부터 시작");
 
     /**
      * Create a <code>sb_db.sb_board_tb</code> table reference
@@ -139,7 +144,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1, Indexes.SB_BOARD_TB_SB_BOARD_IDX2);
     }
 
     /**
@@ -155,7 +160,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<UniqueKey<SbBoardTbRecord>> getKeys() {
-        return Arrays.<UniqueKey<SbBoardTbRecord>>asList(Keys.KEY_SB_BOARD_TB_PRIMARY);
+        return Arrays.<UniqueKey<SbBoardTbRecord>>asList(Keys.KEY_SB_BOARD_TB_PRIMARY, Keys.KEY_SB_BOARD_TB_SB_BOARD_IDX1);
     }
 
     /**

@@ -28,6 +28,7 @@ public class MenuManagementSvl extends AbstractAdminLoginServlet {
 		startTime = System.nanoTime();
 		
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuListReq);
+		
 		endTime = System.nanoTime();
 		
 		log.info("elapsed={}", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));

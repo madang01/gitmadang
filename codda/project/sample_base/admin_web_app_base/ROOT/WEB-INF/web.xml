@@ -103,7 +103,20 @@
 	<servlet-mapping>
 		<servlet-name>MembershipProcess</servlet-name>
 		<url-pattern>/servlet/MembershipProcess</url-pattern>
-	</servlet-mapping>	
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>MenuManagement</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.MenuManagementSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MenuManagement</servlet-name>
+		<url-pattern>/servlet/MenuManagement</url-pattern>
+	</servlet-mapping>
 	
 	<servlet>
 		<servlet-name>MenuModificationProcess</servlet-name>

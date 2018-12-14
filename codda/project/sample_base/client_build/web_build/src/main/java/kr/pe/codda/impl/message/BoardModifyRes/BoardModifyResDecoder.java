@@ -51,14 +51,6 @@ public final class BoardModifyResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardModifyRes.setFirstNewAttachedFileSeq((Short)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "firstNewAttachedFileSeq" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
 		pathStack.pop();
 
 		return boardModifyRes;

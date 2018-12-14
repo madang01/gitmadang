@@ -38,7 +38,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupInfoTb extends TableImpl<SbGroupInfoTbRecord> {
 
-    private static final long serialVersionUID = -1659689834;
+    private static final long serialVersionUID = 1645600351;
 
     /**
      * The reference instance of <code>sb_db.sb_group_info_tb</code>
@@ -61,12 +61,12 @@ public class SbGroupInfoTb extends TableImpl<SbGroupInfoTbRecord> {
     /**
      * The column <code>sb_db.sb_group_info_tb.group_name</code>.
      */
-    public final TableField<SbGroupInfoTbRecord, String> GROUP_NAME = createField("group_name", org.jooq.impl.SQLDataType.VARCHAR(45), this, "");
+    public final TableField<SbGroupInfoTbRecord, String> GROUP_NAME = createField("group_name", org.jooq.impl.SQLDataType.VARCHAR(45).defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>sb_db.sb_group_info_tb.group_info</code>.
      */
-    public final TableField<SbGroupInfoTbRecord, String> GROUP_INFO = createField("group_info", org.jooq.impl.SQLDataType.CLOB, this, "");
+    public final TableField<SbGroupInfoTbRecord, String> GROUP_INFO = createField("group_info", org.jooq.impl.SQLDataType.CLOB.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.CLOB)), this, "");
 
     /**
      * Create a <code>sb_db.sb_group_info_tb</code> table reference

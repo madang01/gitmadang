@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardDetailRes message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardDetailResEncoder extends AbstractMessageEncoder {
@@ -168,6 +168,13 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastModifiedDate"
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
 			, boardDetailRes.getLastModifiedDate() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "nextAttachedFileSeq"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardDetailRes.getNextAttachedFileSeq() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

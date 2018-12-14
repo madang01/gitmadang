@@ -24,7 +24,7 @@
 		if (parent != null) {
 			var userMessageNode = document.getElementById("userMessage");
 			
-			if (&& parent.errorMessageCallBack != null) {
+			if (parent.errorMessageCallBack != null) {				
 				parent.errorMessageCallBack(userMessageNode.innerText);
 			} else {
 				alert(userMessageNode.innerText);

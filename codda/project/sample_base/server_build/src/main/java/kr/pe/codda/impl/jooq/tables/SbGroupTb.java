@@ -40,7 +40,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupTb extends TableImpl<SbGroupTbRecord> {
 
-    private static final long serialVersionUID = -1083926152;
+    private static final long serialVersionUID = -1281859393;
 
     /**
      * The reference instance of <code>sb_db.sb_group_tb</code>
@@ -68,7 +68,7 @@ public class SbGroupTb extends TableImpl<SbGroupTbRecord> {
     /**
      * The column <code>sb_db.sb_group_tb.reg_dt</code>.
      */
-    public final TableField<SbGroupTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+    public final TableField<SbGroupTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
      * Create a <code>sb_db.sb_group_tb</code> table reference

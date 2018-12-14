@@ -34,7 +34,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record4;
 import org.jooq.Record6;
-import org.jooq.Record7;
+import org.jooq.Record8;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -124,13 +124,14 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}			
 			
-			Record7<UInteger, UShort, UInteger, UByte, Integer, String, Object> 
+			Record8<UInteger, UShort, UInteger, UByte, Integer, String, UByte, Object> 
 			boardRecord = create.select(SB_BOARD_TB.GROUP_NO, 
 						SB_BOARD_TB.GROUP_SQ,
 						SB_BOARD_TB.PARENT_NO, 
 						SB_BOARD_TB.DEPTH,						 
 						SB_BOARD_TB.VIEW_CNT, 
 						SB_BOARD_TB.BOARD_ST,
+						SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ,
 						create.selectCount().from(SB_BOARD_VOTE_TB)
 							.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(SB_BOARD_TB.BOARD_ID))
 							.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(SB_BOARD_TB.BOARD_NO)).asField("votes"))
@@ -150,17 +151,19 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			
 			UInteger groupNo = boardRecord.get(SB_BOARD_TB.GROUP_NO);
 			UShort groupSeqence = boardRecord.get(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNo = boardRecord.get(SB_BOARD_TB.PARENT_NO);
 			UByte depth = boardRecord.get(SB_BOARD_TB.DEPTH);
 			int viewCount = boardRecord.get(SB_BOARD_TB.VIEW_CNT);
+			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			UByte nextAttachedFileSeq = boardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
 			int votes = boardRecord.get("votes", Integer.class);			
 			
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(nativeBoardStateType, false);
+				boardStateType = BoardStateType.valueOf(boardState, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -169,7 +172,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("게시글의 상태 값[")
-						.append(nativeBoardStateType)
+						.append(boardState)
 						.append("]이 잘못되었습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
@@ -291,7 +294,8 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			boardDetailRes.setParentNo(parentNo.longValue());
 			boardDetailRes.setDepth(depth.shortValue());
 			boardDetailRes.setViewCount(viewCount);
-			boardDetailRes.setBoardSate(nativeBoardStateType);
+			boardDetailRes.setNextAttachedFileSeq(nextAttachedFileSeq.shortValue());
+			boardDetailRes.setBoardSate(boardState);
 			
 			boardDetailRes.setVotes(votes);			
 			

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<project name="codda_logger" default="make" basedir=".">
+<project name="codda_logger" default="jar" basedir=".">
 	<description>codda logger</description>
 	<!-- set global properties for this build -->
 	<property name="dir.src" location="src/main/java" />
@@ -15,7 +15,7 @@
 	</target>
 
 
-	<target name="init" depends="clean">
+	<target name="init">
 		<tstamp />
 		<mkdir dir="${dir.build}" />
 		<mkdir dir="${dir.dist}" />		
@@ -35,7 +35,7 @@
 		</javac>
 	</target>
 
-	<target name="make" depends="compile">
+	<target name="jar" depends="compile">
 		<jar jarfile="${dir.dist}/${logger.jar}">
 			<fileset dir="${dir.build}" />
 			<restrict>

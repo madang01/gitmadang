@@ -38,8 +38,6 @@ import kr.pe.codda.server.lib.BoardTree;
 import kr.pe.codda.server.lib.BoardTreeNode;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MemberType;
-import kr.pe.codda.server.lib.RealBoardTreeBuilder;
-import kr.pe.codda.server.lib.RealBoardTreeBuilderIF;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -594,7 +592,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		final BoardType boardType = BoardType.FREE;
 		
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -669,7 +667,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
@@ -677,9 +675,9 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 		
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		int pageNo = 1;
 		int pageSize = boardTree.getHashSize();
@@ -713,7 +711,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		java.util.List<BoardListRes.Board> firstBoardList = firstBoardListRes.getBoardList();
 		
 		for (BoardListRes.Board board : firstBoardList) {
-			BoardTreeNode boardTreeNode = boardTree.get(board.getBoardNo());
+			BoardTreeNode boardTreeNode = boardTree.find(board.getSubject());
 			if (null == boardTreeNode) {
 				String errorMessage = new StringBuilder()
 				.append("this 'boardNoToBoardTreeNodeHash' map contains no mapping for the key(boardNo=")
@@ -1177,7 +1175,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		final BoardType boardType = BoardType.FREE;
 		
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -1252,7 +1250,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
@@ -1260,9 +1258,9 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 		
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		int pageNo = 1;
 		int pageSize = boardTree.getHashSize();
@@ -1296,7 +1294,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		java.util.List<BoardListRes.Board> firstBoardList = firstBoardListRes.getBoardList();
 		
 		for (BoardListRes.Board board : firstBoardList) {
-			BoardTreeNode boardTreeNode = boardTree.get(board.getBoardNo());
+			BoardTreeNode boardTreeNode = boardTree.find(board.getSubject());
 			if (null == boardTreeNode) {
 				String errorMessage = new StringBuilder()
 				.append("this 'boardNoToBoardTreeNodeHash' map contains no mapping for the key(boardNo=")
@@ -1329,7 +1327,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	public void 게시판차단_블락포함된블락() {			
 		final BoardType boardType = BoardType.FREE;
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -1404,16 +1402,16 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
 			}			
 		}
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		BoardTreeNode firstBlockBoardTreeNode = boardTree.find("루트1_자식2_자식1_자식2");
 		
@@ -1570,7 +1568,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	public void 게시글차단_루트정상() {
 		final BoardType boardType = BoardType.FREE;
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -1645,16 +1643,16 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
 			}			
 		}
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		
 		BoardTreeNode blockBoardTreeNode = boardTree.find("루트1_자식1_자식1_자식1");
@@ -1873,7 +1871,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	public void 게시판해제_블락포함된블락() {	
 		final BoardType boardType = BoardType.FREE;
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -1948,16 +1946,16 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
 			}			
 		}
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		BoardTreeNode firstBlockBoardTreeNode = boardTree.find("루트1_자식2_자식1_자식2");
 		
@@ -2134,7 +2132,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	public void 게시판해제_정상() {		
 		final BoardType boardType = BoardType.FREE;
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -2209,16 +2207,16 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
 			}			
 		}
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		BoardTreeNode blockBoardTreeNode = boardTree.find("루트1_자식2_자식1_자식3");
 		
@@ -2688,7 +2686,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	public void 댓글등록_정상_중간() {			
 		final BoardType boardType = BoardType.FREE;
 		
-		class VirutalBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
 			public BoardTree build(final BoardType boardType) {
 				String writerID = "test01";
@@ -2763,16 +2761,16 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
 					}					
 					
-					boardTree.addRootNode(root1BoardTreeNode);
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
 				}
 				
 				return boardTree;
 			}			
 		}
 		
-		RealBoardTreeBuilderIF realBoardTreeBuilder = new RealBoardTreeBuilder();
-		BoardTree boardTree = realBoardTreeBuilder.build(TEST_DBCP_NAME, 
-				new VirutalBoardTreeBuilder(), boardType);
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		
 		BoardTreeNode parentBoardTreeNode = boardTree.find("루트1_자식1_자식1");
