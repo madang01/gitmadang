@@ -1,5 +1,6 @@
 package kr.pe.codda.server.lib;
 
+import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
@@ -240,13 +241,28 @@ public abstract class ServerDBUtil {
 				String errorMessage = "회원 등록하는데 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			String inputMessage = new StringBuilder()			
+				.append("회원 가입 신청 아이디[")
+				.append(userID)
+				.append("], 회원 종류[")
+				.append(memberType.getName())
+				.append("], ip[")
+				.append(ip)
+				.append("]").toString();
+			
+			create.insertInto(SB_USER_ACTION_HISTORY_TB)
+			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, "guest")
+			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, "MemberRegisterReq")
+			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, inputMessage)
+			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
+			.execute();			
 
 			try {
 				conn.commit();
 			} catch (Exception e) {
 				log.warn("fail to commit");
 			}
-
 			
 		} catch (ServerServiceException e) {
 			throw e;

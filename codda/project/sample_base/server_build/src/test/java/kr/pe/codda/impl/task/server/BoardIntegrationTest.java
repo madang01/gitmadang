@@ -757,7 +757,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
 			
-			String expectedErrorMessage = "해당 게시글이 존재 하지 않습니다";
+			String expectedErrorMessage = "1.해당 게시글이 존재 하지 않습니다";
 			
 			assertEquals("삭제 대상 글이 없을때  경고 메시지인지 검사", expectedErrorMessage, errorMessage);
 		} catch (Exception e) {
@@ -967,7 +967,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
 			
-			String expectedErrorMessage = "해당 게시글이 존재 하지 않습니다";
+			String expectedErrorMessage = "1.해당 게시글이 존재 하지 않습니다";
 			
 			assertEquals("대상 글 없는 경우 차단할때 경고 메시지인지 검사", expectedErrorMessage, errorMessage);
 		} catch (Exception e) {
@@ -1802,7 +1802,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		} catch(ServerServiceException e) {
 			String errorMessage = e.getMessage();
 			
-			String expectedErrorMessage = "해당 게시글이 존재 하지 않습니다";
+			String expectedErrorMessage = "1.해당 게시글이 존재 하지 않습니다";
 			
 			assertEquals("해제 대상 글이 없을때  경고 메시지인지 검사", expectedErrorMessage, errorMessage);
 		} catch (Exception e) {
@@ -2364,16 +2364,16 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setContent("내용::그림2 하나를 그리다");
 		boardWriteReq.setIp("172.16.0.1");
 		
-		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
+		List<BoardWriteReq.NewAttachedFile> newAttachedFileListForWrite = new ArrayList<BoardWriteReq.NewAttachedFile>();
 		{
 			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
 			attachedFile.setAttachedFileName("임시첨부파일01.jpg");
 			
-			attachedFileList.add(attachedFile);
+			newAttachedFileListForWrite.add(attachedFile);
 		}
 		
-		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
-		boardWriteReq.setNewAttachedFileList(attachedFileList);
+		boardWriteReq.setNewAttachedFileCnt((short)newAttachedFileListForWrite.size());
+		boardWriteReq.setNewAttachedFileList(newAttachedFileListForWrite);
 		
 		BoardWriteRes boardWriteRes = null;
 		try {
@@ -2392,9 +2392,10 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardDetailReq.setRequestUserID("guest");		
 		
 		BoardDetailReqServerTask boardDetailReqServerTask = new BoardDetailReqServerTask();
+		short oldNextAttachedFileSeq = 0;
 		try {
 			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(TEST_DBCP_NAME, boardDetailReq);
-			
+			oldNextAttachedFileSeq = boardDetailRes.getNextAttachedFileSeq();
 			log.info(boardDetailRes.toString());
 			
 			assertEquals("제목 비교", boardWriteReq.getSubject(), boardDetailRes.getSubject());
@@ -2403,11 +2404,12 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			assertEquals("작성 아이피 주소 비교", boardWriteReq.getIp(), boardDetailRes.getWriterIP());
 			assertEquals("최종 수정자 아이디 비교", boardWriteReq.getRequestUserID(), boardDetailRes.getLastModifierID());
 			assertEquals("최종 수정자 아이피 주소 비교", boardWriteReq.getIp(), boardDetailRes.getLastModifierIP());
-			assertEquals("첨부 파일 갯수 비교", attachedFileList.size(), boardDetailRes.getAttachedFileCnt());			
+			assertEquals("첨부 파일 갯수 비교", newAttachedFileListForWrite.size(), boardDetailRes.getAttachedFileCnt());	
+			assertEquals("다음 첨부 파일 시퀀스 비교", newAttachedFileListForWrite.size(), boardDetailRes.getNextAttachedFileSeq());	
 			
 			List<BoardDetailRes.AttachedFile> actualAttachedFileList = boardDetailRes.getAttachedFileList();
-			for (int i=0; i < attachedFileList.size(); i++) {
-				BoardWriteReq.NewAttachedFile expectedAttachedFile = attachedFileList.get(i);
+			for (int i=0; i < newAttachedFileListForWrite.size(); i++) {
+				BoardWriteReq.NewAttachedFile expectedAttachedFile = newAttachedFileListForWrite.get(i);
 				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList.get(i);
 				
 				assertEquals(i+"번째 첨부 파일명 비교", expectedAttachedFile.getAttachedFileName(), 
@@ -2428,11 +2430,12 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setSubject("수정 테스트를 위한 최상위 본문글#1");
 		boardModifyReq.setContent("내용::수정 테스트를 위한 최상위 본문글#1");
 		boardModifyReq.setIp("172.16.0.3");
+		boardModifyReq.setOldNextAttachedFileSeq(oldNextAttachedFileSeq);
 		
 		List<BoardModifyReq.OldAttachedFileSeq> oldAttachedFileSeqList = new ArrayList<BoardModifyReq.OldAttachedFileSeq>();		
 		{
 			{
-				for (int i=0; i < attachedFileList.size(); i++) {
+				for (int i=0; i < newAttachedFileListForWrite.size(); i++) {
 					BoardModifyReq.OldAttachedFileSeq oldAttachedFileSeq = new BoardModifyReq.OldAttachedFileSeq();
 					oldAttachedFileSeq.setAttachedFileSeq((short)i);
 					oldAttachedFileSeqList.add(oldAttachedFileSeq);
@@ -2443,16 +2446,16 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			boardModifyReq.setOldAttachedFileSeqList(oldAttachedFileSeqList);
 		}
 		
-		List<BoardModifyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardModifyReq.NewAttachedFile>();
+		List<BoardModifyReq.NewAttachedFile> newAttachedFileListForModify = new ArrayList<BoardModifyReq.NewAttachedFile>();
 		{
 			
 			BoardModifyReq.NewAttachedFile newAttachedFile = new BoardModifyReq.NewAttachedFile();
 			newAttachedFile.setAttachedFileName("임시첨부파일02.jpg");
 			
-			newAttachedFileList.add(newAttachedFile);
+			newAttachedFileListForModify.add(newAttachedFile);
 			
-			boardModifyReq.setNewAttachedFileCnt(newAttachedFileList.size());
-			boardModifyReq.setNewAttachedFileList(newAttachedFileList);
+			boardModifyReq.setNewAttachedFileCnt(newAttachedFileListForModify.size());
+			boardModifyReq.setNewAttachedFileList(newAttachedFileListForModify);
 		}
 		
 		BoardModifyReqServerTask boardModifyReqServerTask = new BoardModifyReqServerTask();
@@ -2481,11 +2484,12 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			assertEquals("최종 수정자 아이디 비교", boardModifyReq.getRequestUserID(), boardDetailRes.getLastModifierID());
 			assertEquals("최종 수정자 아이피 주소 비교", boardModifyReq.getIp(), boardDetailRes.getLastModifierIP());
 						
-			assertEquals("첨부 파일 갯수 비교", attachedFileList.size()+newAttachedFileList.size(), boardDetailRes.getAttachedFileCnt());			
+			assertEquals("첨부 파일 갯수 비교", newAttachedFileListForWrite.size()+newAttachedFileListForModify.size(), boardDetailRes.getAttachedFileCnt());
+			assertEquals("다음 첨부 파일 시퀀스 비교", oldNextAttachedFileSeq+newAttachedFileListForModify.size(), boardDetailRes.getNextAttachedFileSeq());
 			
 			List<BoardDetailRes.AttachedFile> actualAttachedFileList = boardDetailRes.getAttachedFileList();
-			for (int i=0; i < attachedFileList.size(); i++) {
-				BoardWriteReq.NewAttachedFile expectedAttachedFile = attachedFileList.get(i);
+			for (int i=0; i < newAttachedFileListForWrite.size(); i++) {
+				BoardWriteReq.NewAttachedFile expectedAttachedFile = newAttachedFileListForWrite.get(i);
 				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList.get(i);
 				
 				assertEquals(i+"번째 첨부 파일명 비교", expectedAttachedFile.getAttachedFileName(), 
@@ -2495,14 +2499,14 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 						acutalAttachedFile.getAttachedFileSeq());
 			}
 			
-			for (int i=0; i < newAttachedFileList.size(); i++) {
-				BoardModifyReq.NewAttachedFile expectedAttachedFile = newAttachedFileList.get(i);
-				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList.get(i+attachedFileList.size());
+			for (int i=0; i < newAttachedFileListForModify.size(); i++) {
+				BoardModifyReq.NewAttachedFile expectedAttachedFile = newAttachedFileListForModify.get(i);
+				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList.get(i+newAttachedFileListForWrite.size());
 				
-				assertEquals((i+attachedFileList.size())+"번째 첨부 파일명 비교", expectedAttachedFile.getAttachedFileName(), 
+				assertEquals((i+newAttachedFileListForWrite.size())+"번째 첨부 파일명 비교", expectedAttachedFile.getAttachedFileName(), 
 						acutalAttachedFile.getAttachedFileName());
 				
-				assertEquals((i+attachedFileList.size())+"번째 첨부 파일의 순번 비교", i+attachedFileList.size(), 
+				assertEquals((i+newAttachedFileListForWrite.size())+"번째 첨부 파일의 순번 비교", i+newAttachedFileListForWrite.size(), 
 						acutalAttachedFile.getAttachedFileSeq());
 			}
 		} catch (Exception e) {
@@ -2672,6 +2676,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			assertEquals("댓글 그룹 시퀀스번호 비교", parentOrderSeq.intValue(), boardDetailRes.getGroupSeq());
 			assertEquals("댓글 그룹 부모 번호 비교", boardWriteRes.getBoardNo(), boardDetailRes.getParentNo());
 			assertEquals("댓글 깊이 비교", 1, boardDetailRes.getDepth());
+			
+			assertEquals("다음 첨부 파일 시퀀스 비교", boardReplyReq.getAttachedFileCnt(), boardDetailRes.getNextAttachedFileSeq());
 			
 			
 			// log.info(boardDetailRes.toString());

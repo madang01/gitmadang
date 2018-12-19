@@ -519,7 +519,6 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	
 	@Test 
 	public void 메뉴이동테스트_하단이동후다시상단이동하여원복() {
-		// FIXME!
 		/**
 		 * WARNING! 메뉴 이동 테스트 대상 메뉴는 메뉴 깊이 3을 갖는 '세션키 테스트' 와  'RSA 테스트' 이다.
 		 * 입력한 메뉴 순서는  '세션키 테스트' 이고 다음이 'RSA 테스트' 이다.
@@ -1189,5 +1188,192 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			log.warn("unknown error", e);
 			fail("unknown error");
 		}		
+	}
+	
+	@Test
+	public void 메뉴생성_2018년8월19일기준메뉴() {
+		// FIXME!
+		
+		class VirtualSiteMenuTreeBuilder implements VirtualSiteMenuTreeBuilderIF {
+
+			@Override
+			public SiteMenuTree build() {
+				SiteMenuTree siteMenuTree = new SiteMenuTree();
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("사랑방");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/community/body.jsp");
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("공지");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=0");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("자유게시판");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=1");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("FAQ");
+						childSiteMenuTreeNode.setLinkURL("/servlet/BoardList?boardID=2");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("문서");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/doc/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("코다 활용 howto");
+						childSiteMenuTreeNode.setLinkURL("/jsp/doc/CoddaHowTo.jsp");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}	
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("도구");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/doc/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("JDF-비 로그인 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFNotLogin");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("JDF-로그인 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFLogin");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("세션키 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JDFSessionKey");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("RSA 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSRSAInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("메세지 다이제스트(MD) 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSMessageDigestInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("대칭키 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JSSymmetricKeyInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("에코 테스트");
+						childSiteMenuTreeNode.setLinkURL("/servlet/Echo");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("모든 데이터 타입 검증");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserLoginInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("자바 문자열 변환 도구");
+						childSiteMenuTreeNode.setLinkURL("/servlet/JavaStringConverterInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				{
+					SiteMenuTreeNode rootSiteMenuTreeNode = new SiteMenuTreeNode();
+					
+					rootSiteMenuTreeNode.setMenuName("회원");
+					rootSiteMenuTreeNode.setLinkURL("/jsp/member/body.jsp");
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("로그인");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserLoginInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					{
+						SiteMenuTreeNode childSiteMenuTreeNode = new SiteMenuTreeNode();
+
+						childSiteMenuTreeNode.setMenuName("회원 가입");
+						childSiteMenuTreeNode.setLinkURL("/servlet/UserSiteMembershipInput");
+						
+						rootSiteMenuTreeNode.addChildSiteMenuNode(childSiteMenuTreeNode);
+					}
+					
+					siteMenuTree.addRootSiteMenuNode(rootSiteMenuTreeNode);
+				}
+				
+				return siteMenuTree;
+			}
+		}
+		
+		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
+		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
+		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
 	}
 }

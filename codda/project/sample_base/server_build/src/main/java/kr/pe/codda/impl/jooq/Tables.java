@@ -16,6 +16,7 @@ import kr.pe.codda.impl.jooq.tables.SbGroupTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
 import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
+import kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb;
 
 
 /**
@@ -80,4 +81,9 @@ public class Tables {
      * The table <code>sb_db.sb_sitemenu_tb</code>.
      */
     public static final SbSitemenuTb SB_SITEMENU_TB = kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
+
+    /**
+     * The table <code>sb_db.sb_user_action_history_tb</code>.
+     */
+    public static final SbUserActionHistoryTb SB_USER_ACTION_HISTORY_TB = kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 }

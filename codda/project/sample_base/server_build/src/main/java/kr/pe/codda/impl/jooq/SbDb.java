@@ -20,6 +20,7 @@ import kr.pe.codda.impl.jooq.tables.SbGroupTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
 import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
+import kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb;
 
 import org.jooq.Catalog;
 import org.jooq.Table;
@@ -39,7 +40,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = -730146023;
+    private static final long serialVersionUID = 751711966;
 
     /**
      * The reference instance of <code>sb_db</code>
@@ -97,6 +98,11 @@ public class SbDb extends SchemaImpl {
     public final SbSitemenuTb SB_SITEMENU_TB = kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
     /**
+     * The table <code>sb_db.sb_user_action_history_tb</code>.
+     */
+    public final SbUserActionHistoryTb SB_USER_ACTION_HISTORY_TB = kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
+
+    /**
      * No further instances allowed
      */
     private SbDb() {
@@ -130,6 +136,7 @@ public class SbDb extends SchemaImpl {
             SbGroupTb.SB_GROUP_TB,
             SbMemberTb.SB_MEMBER_TB,
             SbSeqTb.SB_SEQ_TB,
-            SbSitemenuTb.SB_SITEMENU_TB);
+            SbSitemenuTb.SB_SITEMENU_TB,
+            SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB);
     }
 }

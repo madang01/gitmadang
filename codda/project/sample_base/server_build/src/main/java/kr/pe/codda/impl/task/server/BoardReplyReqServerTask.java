@@ -130,8 +130,17 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		if (boardReplyReq.getAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
 					.append(boardReplyReq.getAttachedFileCnt())
-					.append("]가 최대 첨부 파일 등록 갯수[")
+					.append("]가 unsgiend byte 최대값[")
 					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
+					.append("]을 초과하였습니다").toString();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (boardReplyReq.getAttachedFileCnt() > ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT) {
+			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
+					.append(boardReplyReq.getAttachedFileCnt())
+					.append("]가 첨부 파일 최대 갯수[")
+					.append(ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT)
 					.append("]를 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}

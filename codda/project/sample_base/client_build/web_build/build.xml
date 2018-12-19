@@ -97,9 +97,7 @@
 		<delete dir="${dir.main.build}" />
 		<delete dir="${dir.weblib.build}" />
 		<delete dir="${dir.dist}" />
-		<delete dir="${dir.user.webinf.lib}" />
 		<delete dir="${dir.user.webinf.classes}" />
-		<delete dir="${dir.admin.webinf.lib}" />
 		<delete dir="${dir.admin.webinf.classes}" />
 	</target>
 
@@ -156,22 +154,24 @@
 		<copy todir="${dir.user.webinf.lib}" verbose="true" overwrite="true">
 			<fileset file="${dir.dist}/${weblib.jar.name}" />
 		</copy>
-		<copy todir="${dir.user.webinf.lib}" verbose="true" overwrite="false">
-			<fileset file="${dir.main.lib}/ex/*.jar" />
-		</copy>
 		
 		<copy todir="${dir.admin.webinf.lib}" verbose="true" overwrite="true">
 			<fileset file="${dir.dist}/${weblib.jar.name}" />
 		</copy>
-		<copy todir="${dir.admin.webinf.lib}" verbose="true" overwrite="false">
-			<fileset file="${dir.main.lib}/ex/*.jar" />
-		</copy>
 	</target>
 
 	<target name="compile.user.webclasses.only">
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.user.webinf.classes}" excludes="kr/pe/codda/weblib/**">
+	  <mkdir dir="${dir.user.webinf.classes}" />
+	  
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.user.webinf.classes}">
+			<exclude name="kr/pe/codda/weblib/**" />
+			<exclude name="kr/pe/codda/servlet/admin/**" />
+			
 			<classpath>
-				<fileset dir="${dir.user.webinf.lib}">
+				<fileset dir="${dir.main.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.dist}">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${servlet.systemlib.path}">
@@ -179,15 +179,25 @@
 				</fileset>
 				<fileset dir="${dir.corelib}/ex">
 					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.user.webinf.lib}">
+					<include name="**/*.jar" />
+					<exclude name="**/${weblib.jar.name}" />
 				</fileset>
 			</classpath>
 		</javac>
 	</target>
 	
 	<target name="compile.admin.webclasses.only">
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.admin.webinf.classes}" excludes="kr/pe/codda/weblib/**">
+	  <mkdir dir="${dir.admin.webinf.classes}" />
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.main.src}" destdir="${dir.admin.webinf.classes}">
+			<exclude name="kr/pe/codda/weblib/**" />
+			<exclude name="kr/pe/codda/servlet/user/**" />
 			<classpath>
-				<fileset dir="${dir.admin.webinf.lib}">
+				<fileset dir="${dir.main.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.dist}">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${servlet.systemlib.path}">
@@ -196,11 +206,13 @@
 				<fileset dir="${dir.corelib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
+				<fileset dir="${dir.admin.webinf.lib}">
+					<include name="**/*.jar" />
+					<exclude name="**/${weblib.jar.name}" />
+				</fileset>
 			</classpath>
 		</javac>
 	</target>
-
-	<target name="all" depends="dist.weblib, compile.user.webclasses.only, compile.admin.webclasses.only" />
 
 	<target name="clean.webclasses">
 		<delete dir="${dir.user.webinf.classes}" />
@@ -208,4 +220,6 @@
 	</target>
 
 	<target name="compile.webclasses.only" depends="compile.user.webclasses.only, compile.admin.webclasses.only" />
+	
+	<target name="all" depends="dist.weblib, compile.webclasses.only" />
 </project>

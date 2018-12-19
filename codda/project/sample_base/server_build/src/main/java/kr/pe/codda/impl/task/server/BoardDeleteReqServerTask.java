@@ -4,8 +4,10 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.sql.Connection;
+import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
@@ -18,6 +20,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardType;
+import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.task.AbstractServerTask;
@@ -101,13 +104,53 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			Record1<String> 
-			boardRecord = create.select(SB_BOARD_TB.BOARD_ST)
+			Record1<UInteger> 
+			boardRecordForGroupNo = create.select(SB_BOARD_TB.GROUP_NO)
 					.from(SB_BOARD_TB)					
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).forUpdate()
+					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
 					.fetchOne();
 
+			if (null == boardRecordForGroupNo) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "1.해당 게시글이 존재 하지 않습니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			UInteger groupNo = boardRecordForGroupNo.value1();
+			
+			/** 최상위 그룹 레코드에 대한 락 걸기 */
+			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
+				.from(SB_BOARD_TB)
+				.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+				.and(SB_BOARD_TB.BOARD_NO.eq(groupNo)).forUpdate().fetchOne();
+			
+			if (null == rootBoardRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=")
+						.append(boardID.longValue())
+						.append(", boardNo=").append(groupNo.longValue())
+						.append("] 이 존재하지 않습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			/** 최상위 그룹 레코드에 대한 락 획득후 게시판 상태 얻기 */
+			Record1<String>  boardRecord = create.select(SB_BOARD_TB.BOARD_ST)
+			.from(SB_BOARD_TB)					
+			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+			.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
+			.fetchOne();
+			
 			if (null == boardRecord) {
 				try {
 					conn.rollback();
@@ -115,7 +158,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "해당 게시글이 존재 하지 않습니다";
+				String errorMessage = "2.해당 게시글이 존재 하지 않습니다";
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -211,6 +254,13 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 			.execute();
 			
+			
+			create.insertInto(SB_USER_ACTION_HISTORY_TB)
+			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestUserID)
+			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardDeleteReq.getMessageID())
+			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardDeleteReq.toString())
+			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
+			.execute();
 			
 			conn.commit();			
 

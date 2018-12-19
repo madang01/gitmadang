@@ -19,20 +19,20 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type="text/javascript">
 <!--
-function init() {
 	function init() {
-		
 		if (parent != null) {
 			var userMessageNode = document.getElementById("userMessage");
 			
-			if (&& parent.errorMessageCallBack != null) {
+			if (parent.errorMessageCallBack != null) {
+				
+				
 				parent.errorMessageCallBack(userMessageNode.innerText);
 			} else {
 				alert(userMessageNode.innerText);
 			}
 		}
+	
 	}
-}
 
 window.onload = init;
 //-->

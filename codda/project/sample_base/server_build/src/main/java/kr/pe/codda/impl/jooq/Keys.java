@@ -16,6 +16,7 @@ import kr.pe.codda.impl.jooq.tables.SbGroupTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
 import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
+import kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb;
 import kr.pe.codda.impl.jooq.tables.records.SbBoardFilelistTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbBoardHistoryTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbBoardInfoTbRecord;
@@ -26,10 +27,13 @@ import kr.pe.codda.impl.jooq.tables.records.SbGroupTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbMemberTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbSeqTbRecord;
 import kr.pe.codda.impl.jooq.tables.records.SbSitemenuTbRecord;
+import kr.pe.codda.impl.jooq.tables.records.SbUserActionHistoryTbRecord;
 
 import org.jooq.ForeignKey;
+import org.jooq.Identity;
 import org.jooq.UniqueKey;
 import org.jooq.impl.Internal;
+import org.jooq.types.UInteger;
 
 
 /**
@@ -50,6 +54,7 @@ public class Keys {
     // IDENTITY definitions
     // -------------------------------------------------------------------------
 
+    public static final Identity<SbUserActionHistoryTbRecord, UInteger> IDENTITY_SB_USER_ACTION_HISTORY_TB = Identities0.IDENTITY_SB_USER_ACTION_HISTORY_TB;
 
     // -------------------------------------------------------------------------
     // UNIQUE and PRIMARY KEY definitions
@@ -67,6 +72,7 @@ public class Keys {
     public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = UniqueKeys0.KEY_SB_MEMBER_TB_SB_MEMBER_IDX1;
     public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = UniqueKeys0.KEY_SB_SEQ_TB_PRIMARY;
     public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_PRIMARY = UniqueKeys0.KEY_SB_SITEMENU_TB_PRIMARY;
+    public static final UniqueKey<SbUserActionHistoryTbRecord> KEY_SB_USER_ACTION_HISTORY_TB_PRIMARY = UniqueKeys0.KEY_SB_USER_ACTION_HISTORY_TB_PRIMARY;
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
@@ -85,6 +91,10 @@ public class Keys {
     // [#1459] distribute members to avoid static initialisers > 64kb
     // -------------------------------------------------------------------------
 
+    private static class Identities0 {
+        public static Identity<SbUserActionHistoryTbRecord, UInteger> IDENTITY_SB_USER_ACTION_HISTORY_TB = Internal.createIdentity(SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB, SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB.NO);
+    }
+
     private static class UniqueKeys0 {
         public static final UniqueKey<SbBoardFilelistTbRecord> KEY_SB_BOARD_FILELIST_TB_PRIMARY = Internal.createUniqueKey(SbBoardFilelistTb.SB_BOARD_FILELIST_TB, "KEY_sb_board_filelist_tb_PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_NO, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ);
         public static final UniqueKey<SbBoardHistoryTbRecord> KEY_SB_BOARD_HISTORY_TB_PRIMARY = Internal.createUniqueKey(SbBoardHistoryTb.SB_BOARD_HISTORY_TB, "KEY_sb_board_history_tb_PRIMARY", SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_ID, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_NO, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.HISTORY_SQ);
@@ -98,6 +108,7 @@ public class Keys {
         public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_sb_member_tb_sb_member_idx1", SbMemberTb.SB_MEMBER_TB.NICKNAME);
         public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = Internal.createUniqueKey(SbSeqTb.SB_SEQ_TB, "KEY_sb_seq_tb_PRIMARY", SbSeqTb.SB_SEQ_TB.SQ_ID);
         public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_PRIMARY = Internal.createUniqueKey(SbSitemenuTb.SB_SITEMENU_TB, "KEY_sb_sitemenu_tb_PRIMARY", SbSitemenuTb.SB_SITEMENU_TB.MENU_NO);
+        public static final UniqueKey<SbUserActionHistoryTbRecord> KEY_SB_USER_ACTION_HISTORY_TB_PRIMARY = Internal.createUniqueKey(SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB, "KEY_sb_user_action_history_tb_PRIMARY", SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB.NO);
     }
 
     private static class ForeignKeys0 {

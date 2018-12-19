@@ -16,6 +16,8 @@ import kr.pe.codda.impl.message.TreeSiteMenuRes.TreeSiteMenuRes;
 
 public class UserSiteMenuManger {
 	private InternalLogger log = InternalLoggerFactory.getInstance(UserSiteMenuManger.class);
+	private String menuSitePartString = null;
+	
 	
 	
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
@@ -81,7 +83,7 @@ public class UserSiteMenuManger {
 				siteNavbarStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				
 				siteNavbarStringBuilder.append(getSiteNavbarString(menuGroupURL, childMenuList, tapStep+2));
-				siteNavbarStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				//siteNavbarStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				
 				siteNavbarStringBuilder.append(getTabStrings(tapStep+1));
 				siteNavbarStringBuilder.append("</ul>");

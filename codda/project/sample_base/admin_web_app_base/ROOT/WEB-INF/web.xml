@@ -15,45 +15,14 @@
                       http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	version="3.0" metadata-complete="true">
 
-	<display-name>Welcome to Codda Admin</display-name>
-	<description>
-	Welcome to Codda Admin
+  <display-name>Welcome to Codda Admin</display-name>
+  	<description>
+  	  Welcome to Codda Admin
     </description>
-	
-	<servlet>
-		<servlet-name>Sample</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.SampleSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Sample</servlet-name>
-		<url-pattern>/servlet/Sample</url-pattern>
-	</servlet-mapping>
-	
-	
-	<servlet>
-		<servlet-name>MemberRegistration</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MemberRegistrationSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/</param-value>
-		</init-param>
-		<init-param>
-			<param-name>siteType</param-name>
-			<param-value>ADMIN</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>MemberRegistration</servlet-name>
-		<url-pattern>/servlet/MemberRegistration</url-pattern>
-	</servlet-mapping>
-	
+  
 	<servlet>
 		<servlet-name>AdminLoginInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.AdminLoginInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.AdminLoginInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/</param-value>
@@ -66,7 +35,7 @@
 	
 	<servlet>
 		<servlet-name>AdminLoginProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.AdminLoginProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.AdminLoginProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/</param-value>
@@ -80,7 +49,7 @@
 	<!-- 회원 등록 화면, siteType : {admin, user} -->
 	<servlet>
 		<servlet-name>AdminSiteMembershipInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.AdminSiteMembershipInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.AdminSiteMembershipInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/AdminSiteMembershipInput</param-value>
@@ -94,7 +63,7 @@
 	<!-- 회원 등록 처리 -->
 	<servlet>
 		<servlet-name>MembershipProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MembershipProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.MembershipProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/AdminSiteMembershipInput</param-value>
@@ -107,7 +76,7 @@
 	
 	<servlet>
 		<servlet-name>MenuManagement</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuManagementSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.MenuManagementSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
@@ -120,7 +89,7 @@
 	
 	<servlet>
 		<servlet-name>MenuModificationProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuModificationProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.MenuModificationProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
@@ -133,7 +102,7 @@
 	
 	<servlet>
 		<servlet-name>MenuDeletionProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuDeletionProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.MenuDeletionProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
@@ -146,7 +115,7 @@
 	
 	<servlet>
 		<servlet-name>MenuMoveUpProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuMoveUpProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.MenuMoveUpProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
@@ -159,7 +128,7 @@
 	
 	<servlet>
 		<servlet-name>MenuMoveDownProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MenuMoveDownProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.MenuMoveDownProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
@@ -172,7 +141,7 @@
 	
 	<servlet>
 		<servlet-name>ChildMenuAdditionProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.ChildMenuAdditionProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.ChildMenuAdditionProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>
@@ -185,7 +154,7 @@
 	
 	<servlet>
 		<servlet-name>RootMenuAdditionProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.RootMenuAdditionProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.admin.RootMenuAdditionProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/MenuManagement</param-value>

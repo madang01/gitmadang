@@ -122,22 +122,33 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 				
 		if (boardModifyReq.getOldAttachedFileSeqCnt()  > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			String errorMessage = new StringBuilder().append("기존 첨부 파일 시퀀스 갯수[")
+			String errorMessage = new StringBuilder().append("기존 첨부 파일들중 남은 갯수[")
 					.append(boardModifyReq.getOldAttachedFileSeqCnt())					
-					.append("]가 최대 첨부 파일 등록 갯수[")						
+					.append("]가 unsgiend byte 최대값[")						
 					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
-					.append("]를 초과하였습니다").toString();
+					.append("]을 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (boardModifyReq.getNewAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder().append("신규 첨부 파일 등록 갯수[")					
 					.append(boardModifyReq.getNewAttachedFileCnt())
-					.append("]가 최대 첨부 파일 등록 갯수[")						
+					.append("]가 unsgiend byte 최대값[")						
 					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
+					.append("]을 초과하였습니다").toString();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if ((boardModifyReq.getNewAttachedFileCnt()+boardModifyReq.getOldAttachedFileSeqCnt()) > ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT) {
+			String errorMessage = new StringBuilder().append("총 첨부 파일 갯수(=신규 첨부 파일 등록 갯수[")					
+					.append(boardModifyReq.getNewAttachedFileCnt())
+					.append("] + 기존 첨부 파일들중 남은 갯수[")
+					.append("]) 가 첨부 파일 최대 갯수[")
+					.append(ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT)
 					.append("]를 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
+		
 		
 		if (boardModifyReq.getNewAttachedFileCnt() > 0) {			
 			int newAttachedFileCnt = boardModifyReq.getNewAttachedFileCnt();
@@ -291,8 +302,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				
 				String errorMessage = new StringBuilder("해당 게시글은 관리자에 의해 블락된 글입니다").toString();
 				throw new ServerServiceException(errorMessage);
-			}
-			
+			}			
 			
 			if (boardModifyReq.getOldNextAttachedFileSeq()
 					!= oldNextAttachedFileSeq.shortValue()) {

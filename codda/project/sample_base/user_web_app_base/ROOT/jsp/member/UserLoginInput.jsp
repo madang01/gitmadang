@@ -145,7 +145,7 @@
 		return;
 	}
 	
-	function errorMessageCallBack(errorMessage) {
+	function errorMessageCallBack(errorMessage) {		
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		resultMessageView.setAttribute("class", "alert alert-warning");
@@ -177,6 +177,18 @@
 		
 		g.submit();		
 	}
+	
+	function clickHiddenFrameButton(thisObj) {		
+		var hiddenFrame = document.getElementById("hiddenFrame");
+		
+		if (hiddenFrame.style.display == 'none') {
+			thisObj.innerText = "Hide Hidden Frame";
+			hiddenFrame.style.display = "block";			
+		} else {
+			thisObj.innerText = "Show Hidden Frame";
+			hiddenFrame.style.display = "none";
+		}
+	}
 //-->
 </script>
 </head>
@@ -186,6 +198,9 @@
 	<div class="container-fluid">
 		<h3>사용자 로그인</h3>
 		<div id="resultMessageView"></div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
+		</div>
 		<form method="post" name="gofrm" target="hiddenFrame" action="/servlet/UserLoginProcess">
 			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />

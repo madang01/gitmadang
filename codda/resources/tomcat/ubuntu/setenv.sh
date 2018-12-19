@@ -1,9 +1,10 @@
 #!/bin/sh
 export CODDA_HOME=/home/madang01/gitmadang/codda
 export PROJECT_NAME=sample_base
-export WEB_BUILD_PATH=$CODDA_HOME/project/$PROJECT_NAME/client_build/web_build
-export WEB_CORELIB_PATH=$WEB_BUILD_PATH/corelib/ex
-export WEB_MAINLIB_PATH=$WEB_BUILD_PATH/lib/main/ex
+export WEB_BUILD_HOME=$CODDA_HOME/project/$PROJECT_NAME/client_build/web_build
+export WEB_CORELIB_PATH=$WEB_BUILD_HOME/corelib/ex
+export WEB_MAINLIB_PATH=$WEB_BUILD_HOME/lib/main/ex
+export CLASSPATH=
 
 for jarfile in $WEB_CORELIB_PATH/*.jar
 do

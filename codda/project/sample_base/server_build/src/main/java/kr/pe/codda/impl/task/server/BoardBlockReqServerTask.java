@@ -2,8 +2,10 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
+import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.sql.Connection;
+import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
@@ -16,6 +18,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardType;
+import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -25,7 +28,7 @@ import kr.pe.codda.server.task.ToLetterCarrier;
 
 import org.jooq.DSLContext;
 import org.jooq.Record1;
-import org.jooq.Record4;
+import org.jooq.Record3;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
@@ -134,9 +137,48 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			Record4<UInteger, UShort, UInteger, String> 
-			boardRecord = create.select(SB_BOARD_TB.GROUP_NO, 
-					SB_BOARD_TB.GROUP_SQ, 
+			Record1<UInteger> 
+			boardRecordForGroupNo = create.select(SB_BOARD_TB.GROUP_NO)
+					.from(SB_BOARD_TB)					
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
+					.fetchOne();
+
+			if (null == boardRecordForGroupNo) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "1.해당 게시글이 존재 하지 않습니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			UInteger groupNo = boardRecordForGroupNo.value1();
+			
+			/** 최상위 그룹 레코드에 대한 락 걸기 */
+			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
+				.from(SB_BOARD_TB)
+				.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+				.and(SB_BOARD_TB.BOARD_NO.eq(groupNo)).forUpdate().fetchOne();
+			
+			if (null == rootBoardRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=")
+						.append(boardID.longValue())
+						.append(", boardNo=").append(groupNo.longValue())
+						.append("] 이 존재하지 않습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			Record3<UShort, UInteger, String> 
+			boardRecord = create.select(SB_BOARD_TB.GROUP_SQ, 
 					SB_BOARD_TB.PARENT_NO,
 					SB_BOARD_TB.BOARD_ST)
 					.from(SB_BOARD_TB)					
@@ -151,11 +193,11 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "해당 게시글이 존재 하지 않습니다";
+				String errorMessage = "2.해당 게시글이 존재 하지 않습니다";
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UInteger groupNo = boardRecord.getValue(SB_BOARD_TB.GROUP_NO);
+			
 			UShort groupSeq = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
 			// UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
@@ -197,52 +239,6 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
-			.from(SB_BOARD_TB)
-			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-			.and(SB_BOARD_TB.BOARD_NO.eq(groupNo))
-			.forUpdate().fetchOne();
-			
-			if (null == rootBoardRecord) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=")
-						.append(boardID.longValue())
-						.append(", boardNo=").append(groupNo.longValue())
-						.append("] 이 존재하지 않습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
-			
-			/*
-			HashSet<Long> childBoardNoSet = new HashSet<Long>();
-						
-			Result<Record3<UInteger, UByte, String>> 
-			childBoardResult = create.select(SB_BOARD_TB.BOARD_NO, 
-					SB_BOARD_TB.DEPTH, SB_BOARD_TB.BOARD_ST)
-			.from(SB_BOARD_TB)
-			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))				
-			.and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
-			.and(SB_BOARD_TB.GROUP_SQ.lt(groupSeq))
-			.orderBy(SB_BOARD_TB.GROUP_SQ.desc())
-			.fetch();
-			
-			for (Record3<UInteger, UByte, String> childBoardRecord : childBoardResult) {
-				UInteger childBoardNo  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_NO);
-				UByte childDepth = childBoardRecord.getValue(SB_BOARD_TB.DEPTH);
-				String childBoardState  = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
-				
-				if (childDepth.shortValue() <= depth.shortValue()) {
-					break;
-				}
-				
-				if (BoardStateType.OK.getValue().equals(childBoardState)) {
-					childBoardNoSet.add(childBoardNo.longValue());
-				}
-			}		*/
 			UShort fromGroupSeq = groupSeq;
 			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupSeq, parentNo);
 			
@@ -266,6 +262,13 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			create.update(SB_BOARD_INFO_TB)
 			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.sub(updateCount))
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
+			.execute();
+			
+			create.insertInto(SB_USER_ACTION_HISTORY_TB)
+			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestUserID)
+			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardBlockReq.getMessageID())
+			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardBlockReq.toString())
+			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
 			.execute();
 			
 			conn.commit();			

@@ -1,0 +1,35 @@
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="/jsp/community/body.jsp">사랑방<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/servlet/BoardList?boardID=0">공지</a></li>
+							<li><a href="/servlet/BoardList?boardID=1">자유게시판</a></li>
+							<li><a href="/servlet/BoardList?boardID=2">FAQ</a></li>
+						</ul>
+					</li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="/jsp/doc/body.jsp">문서<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/jsp/doc/CoddaHowTo.jsp">코다 활용 howto</a></li>
+						</ul>
+					</li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="/jsp/doc/body.jsp">도구<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li class="active"><a href="/servlet/JDFNotLogin">JDF-비 로그인 테스트</a></li>
+							<li><a href="/servlet/JDFLogin">JDF-로그인 테스트</a></li>
+							<li><a href="/servlet/JDFSessionKey">세션키 테스트</a></li>
+							<li><a href="/servlet/JSRSAInput">RSA 테스트</a></li>
+							<li><a href="/servlet/JSMessageDigestInput">메세지 다이제스트(MD) 테스트</a></li>
+							<li><a href="/servlet/JSSymmetricKeyInput">대칭키 테스트</a></li>
+							<li><a href="/servlet/Echo">에코 테스트</a></li>
+							<li><a href="/servlet/UserLoginInput">모든 데이터 타입 검증</a></li>
+							<li><a href="/servlet/JavaStringConverterInput">자바 문자열 변환 도구</a></li>
+						</ul>
+					</li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="/jsp/member/body.jsp">회원<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/servlet/UserLoginInput">로그인</a></li>
+							<li><a href="/servlet/UserSiteMembershipInput">회원 가입</a></li>
+						</ul>
+					</li>

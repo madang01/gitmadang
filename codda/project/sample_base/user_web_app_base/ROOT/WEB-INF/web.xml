@@ -23,7 +23,7 @@
 	<!-- 사용자 로그인 입력 화면 -->
 	<servlet>
 		<servlet-name>UserLoginInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.UserLoginInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.UserLoginInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/UserLoginInput</param-value>
@@ -37,7 +37,7 @@
 	<!-- DB 사용자 로그인 처리 -->
 	<servlet>
 		<servlet-name>UserLoginProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.UserLoginProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.UserLoginProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/UserLoginProcess</param-value>
@@ -51,7 +51,7 @@
 	<!-- 하드코딩된 사용자 정보를 마탕으로 하는 사용자 로그인 처리 -->
 	<servlet>
 		<servlet-name>UserHardCodingLoginProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.UserHardCodingLoginProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.UserHardCodingLoginProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/UserLoginProcess</param-value>
@@ -65,7 +65,7 @@
 	<!-- 사용자 사이트의 회원 등록 화면 -->
 	<servlet>
 		<servlet-name>UserSiteMembershipInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.UserSiteMembershipInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.UserSiteMembershipInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/UserSiteMembershipInput</param-value>
@@ -79,7 +79,7 @@
 	<!-- 회원 등록 처리 -->
 	<servlet>
 		<servlet-name>MembershipProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.MembershipProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.MembershipProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/UserSiteMembershipInput</param-value>
@@ -93,7 +93,7 @@
 	<!-- JDF 비로그 -->
 	<servlet>
 		<servlet-name>JDFNotLogin</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JDFNotLoginSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JDFNotLoginSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JDFNotLogin</param-value>
@@ -107,7 +107,7 @@
 	<!-- JDF 로그인 -->
 	<servlet>
 		<servlet-name>JDFLogin</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JDFLoginSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JDFLoginSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JDFLogin</param-value>
@@ -122,7 +122,7 @@
 	<!-- JDF 세션키  -->
 	<servlet>
 		<servlet-name>JDFSessionKey</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JDFSessionKeySvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JDFSessionKeySvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JDFSessionKey</param-value>
@@ -136,7 +136,7 @@
 	<!-- RSA 암/복호화 입력 화면 -->
 	<servlet>
 		<servlet-name>JSRSAInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSRSAInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JSRSAInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JSRSAInput</param-value>
@@ -150,7 +150,7 @@
 	<!-- RSA 암/복호화 처리 -->
 	<servlet>
 		<servlet-name>JSRSAProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSRSAProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JSRSAProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JSRSAInput</param-value>
@@ -166,7 +166,7 @@
 	<!-- 자바 스크립트 CryptoJS 라이브러리의 '메시지 다이제스트'(=해쉬) 입력 화면 -->
 	<servlet>
 		<servlet-name>JSMessageDigestInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSMessageDigestInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JSMessageDigestInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JSMessageDigestInput</param-value>
@@ -180,7 +180,7 @@
 	<!-- 자바 스크립트 CryptoJS 라이브러리의 '메시지 다이제스트'(=해쉬) 처리 -->
 	<servlet>
 		<servlet-name>JSMessageDigestProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSMessageDigestProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JSMessageDigestProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JSMessageDigestInput</param-value>
@@ -194,7 +194,7 @@
 	<!-- 자바 스크립트 CryptoJS 라이브러리의 대칭키 입력 화면 -->
 	<servlet>
 		<servlet-name>JSSymmetricKeyInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSSymmetricKeyInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JSSymmetricKeyInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JSSymmetricKeyInput</param-value>
@@ -208,7 +208,7 @@
 	<!-- 자바 스크립트 CryptoJS 라이브러리의 대칭키 처리 -->
 	<servlet>
 		<servlet-name>JSSymmetricKeyProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JSSymmetricKeyProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JSSymmetricKeyProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JSSymmetricKeyInput</param-value>
@@ -222,7 +222,7 @@
 	<!-- 에코 메시지 교환 -->
 	<servlet>
 		<servlet-name>Echo</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.EchoSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.EchoSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/Echo</param-value>
@@ -236,7 +236,7 @@
 	<!-- 모든 데이터 타입 메시지 교환 -->
 	<servlet>
 		<servlet-name>AllItemType</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.AllItemTypeSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.AllItemTypeSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/AllItemType</param-value>
@@ -250,7 +250,7 @@
 	<!-- JAVA GC caller -->
 	<servlet>
 		<servlet-name>JavaGCCaller</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JavaGCCallerSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JavaGCCallerSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JavaGCCaller</param-value>
@@ -264,7 +264,7 @@
 	<!-- 자바 문자열 변환 도구 입력 화면 -->
 	<servlet>
 		<servlet-name>JavaStringConverterInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JavaStringConverterInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JavaStringConverterInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JavaStringConverterInput</param-value>
@@ -278,7 +278,7 @@
 	<!-- 자바 문자열 변환 도구 처리 -->
 	<servlet>
 		<servlet-name>JavaStringConverterProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.JavaStringConverterProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.JavaStringConverterProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/JavaStringConverterInput</param-value>
@@ -292,7 +292,7 @@
 	<!-- 게시판 목록 -->
 	<servlet>
 		<servlet-name>BoardList</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardListSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardListSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
@@ -306,7 +306,7 @@
 	<!-- 게시글 추천 -->
 	<servlet>
 		<servlet-name>BoardVote</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardVoteSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardVoteSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
@@ -320,7 +320,7 @@
 	<!-- 게시글 상세 -->
 	<servlet>
 		<servlet-name>BoardDetail</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardDetailSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardDetailSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
@@ -334,7 +334,7 @@
 	<!-- 최상위 글 입력 화면 -->
 	<servlet>
 		<servlet-name>BoardWriteInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardWriteInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardWriteInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
@@ -348,7 +348,7 @@
 	<!-- 최상위 글 입력 처리 -->
 	<servlet>
 		<servlet-name>BoardWriteProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardWriteProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardWriteProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
@@ -362,7 +362,7 @@
 	<!-- 댓글 입력 화면 -->
 	<servlet>
 		<servlet-name>BoardReplyInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardReplyInputSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardReplyInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
@@ -377,7 +377,7 @@
 	<!-- 댓글 입력 처리 -->
 	<servlet>
 		<servlet-name>BoardReplyProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardReplyProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardReplyProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
@@ -391,7 +391,7 @@
 	<!-- 게시글 수정 처리 -->
 	<servlet>
 		<servlet-name>BoardModifyProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardModifyProcessSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardModifyProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
@@ -405,7 +405,7 @@
 	<!-- 첨부 파일 내려받기 -->
 	<servlet>
 		<servlet-name>BoardDownload</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.BoardDownloadSvl</servlet-class>
+		<servlet-class>kr.pe.codda.servlet.user.BoardDownloadSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/BoardList</param-value>
