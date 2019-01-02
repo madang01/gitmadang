@@ -165,6 +165,19 @@
 		<url-pattern>/servlet/RootMenuAdditionProcess</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>UserWebsiteMenuInfoFileUpdater</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.UserWebsiteMenuInfoFileUpdaterSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MenuManagement</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserWebsiteMenuInfoFileUpdater</servlet-name>
+		<url-pattern>/servlet/UserWebsiteMenuInfoFileUpdater</url-pattern>
+	</servlet-mapping>
+	
 
 	<!-- Simple Captcha start -->
 	<servlet>

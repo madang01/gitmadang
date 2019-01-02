@@ -2,7 +2,7 @@ package kr.pe.codda.weblib.common;
 
 public abstract class WebCommonStaticFinalVars {
 	public static final String USER_WEBSITE_TITLE = "Codda Home";
-	public static final String ADMIN_WEBSITE_TITLE = "Codda Admin Home";
+	public static final String ADMIN_WEBSITE_TITLE = "Codda Admin";
 	
 	//public static final String PARAMETER_KEY_NAME_OF_REQUEST_TYPE = "requestType";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY = "sessionkeyBase64";
@@ -16,7 +16,7 @@ public abstract class WebCommonStaticFinalVars {
 		
 	
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID = "userID";
-	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_MEMBER_TYPE = "memberType";
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ROLE_TYPE = "memberRoleType";
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID = "adminID";
 	public static final String HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY = "clientSessionKey";
 	
@@ -53,24 +53,29 @@ public abstract class WebCommonStaticFinalVars {
 	
 	
 	/** 아파치 파일 업로드에서 메모리에서 직접 처리할 수 있는 최대 파일 크기, 단위 byte */
-	public static int APACHE_FILEUPLOAD_MAX_MEMORY_SIZE = 1024*1024;
+	public static final int APACHE_FILEUPLOAD_MAX_MEMORY_SIZE = 1024*1024;
 	
 	/** 업로드 파일의 최대 크기 */
-	public static long ATTACHED_FILE_MAX_SIZE = 10*1024*1024;
+	public static final long ATTACHED_FILE_MAX_SIZE = 10*1024*1024;
+	
+	
 	
 	
 	/** 업로드 되는 파일의 시스템 파일명의 접두어 */
-	public static String WEBSITE_ATTACHED_FILE_PREFIX = "AttachedFile";
+	public static final String WEBSITE_ATTACHED_FILE_PREFIX = "AttachedFile";
 	
 	/** 업로드 되는 파일의 시스템 파일명의 접미어 */
-	public static String WEBSITE_ATTACHED_FILE_SUFFIX = ".dat";
+	public static final String WEBSITE_ATTACHED_FILE_SUFFIX = ".dat";
 	
 	/** 업로드 되는 파일의 최대 갯수, unsinged byte 이내의 값이어야 한다. */
-	public static int WEBSITE_ATTACHED_FILE_MAX_COUNT = 2;
+	public static final int WEBSITE_ATTACHED_FILE_MAX_COUNT = 2;
 	
 	
 	public static final short UPLOAD_FILENAME_SEQ_TYPE_ID = 1;
 	
 	public static final char[] FILENAME_FORBIDDEN_CHARS = {'/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
 	
+	
+	public static final String USER_WEBSITE_MENU_INFO_FILE = "userWebsiteMenuInfo.txt";
+	public static final int USER_WEBSITE_MENU_INFO_FILE_MAX_SIZE= 1*1024*1024;
 }

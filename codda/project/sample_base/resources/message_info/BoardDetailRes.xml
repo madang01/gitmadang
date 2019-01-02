@@ -41,5 +41,6 @@
 <array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
 	<singleitem name="attachedFileSeq" type="unsigned byte" />	
 	<singleitem name="attachedFileName" type="us pascal string" />
+	<singleitem name="attachedFileSize" type="long" />
 </array>
 </message>

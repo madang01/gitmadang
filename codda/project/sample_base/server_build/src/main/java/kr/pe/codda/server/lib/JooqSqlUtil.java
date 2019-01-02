@@ -19,13 +19,13 @@ public abstract class JooqSqlUtil {
 	
 	public static Field<String> getFieldOfMemberTypeName(Field<String> memberTypeField) {
 		String sqlString = new StringBuilder("if ({0} = '")
-				.append(MemberType.USER.getValue())
+				.append(MemberRoleType.USER.getValue())
 				.append("', '")
-				.append(MemberType.USER.getName())
+				.append(MemberRoleType.USER.getName())
 				.append("', if ({0} = '")
-				.append(MemberType.ADMIN.getValue())
+				.append(MemberRoleType.ADMIN.getValue())
 				.append("', '")
-				.append(MemberType.ADMIN.getName())
+				.append(MemberRoleType.ADMIN.getName())
 				.append("', '알수없음'))").toString();
 		// "if ({0} = 1, '일반회원', if ({0} = 0, '관리자', '알수없음'))"
 		return DSL.field(sqlString, 

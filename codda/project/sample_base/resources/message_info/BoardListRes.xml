@@ -17,7 +17,6 @@
 <messageID>BoardListRes</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 목록 응답 메시지</desc>
-<singleitem name="requestUserID" type="ub pascal string" />
 <singleitem name="boardID" type="unsigned byte" />
 <singleitem name="pageNo" type="unsigned short" />
 <singleitem name="pageSize" type="unsigned short" />

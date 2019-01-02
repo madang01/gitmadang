@@ -223,6 +223,13 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 					, null // nativeItemCharset
 					, attachedFile$2MiddleWritableObject);
 
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileSize"
+					, kr.pe.codda.common.type.SingleItemType.LONG // itemType
+					, attachedFile$2.getAttachedFileSize() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, attachedFile$2MiddleWritableObject);
+
 				pathStack.pop();
 			}
 		}

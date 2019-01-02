@@ -21,7 +21,7 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -89,7 +89,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		final String requestUserID = boardListReq.getRequestUserID();
+		final String requestedUserID = boardListReq.getRequestedUserID();
 
 		final UByte boardID = UByte.valueOf(boardListReq.getBoardID());
 		final int pageNo = boardListReq.getPageNo();
@@ -106,11 +106,11 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			create.setSchema(dbcpName);
 
-			String nativeMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log, requestUserID);
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);
 
-			MemberType meberType = null;
+			MemberRoleType memberRoleTypeOfRequestedUserID = null;
 			try {
-				meberType = MemberType.valueOf(nativeMemberType, false);
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -118,8 +118,8 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시판 목록 요청자[").append(requestUserID).append("]의 멤버 구분[")
-						.append(nativeMemberType).append("]이 잘못되었습니다").toString();
+				String errorMessage = new StringBuilder("게시판 목록 요청자[").append(requestedUserID).append("]의 멤버 구분[")
+						.append(memberRoleOfRequestedUserID).append("]이 잘못되었습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 
@@ -129,7 +129,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			SbBoardTb joinTableForBoardList = SB_BOARD_TB.as("b");
 			Table<Record3<UByte, UInteger, UShort>> fullIndexScanTableForBoardList = null;
 
-			if (meberType.equals(MemberType.ADMIN)) {
+			if (memberRoleTypeOfRequestedUserID.equals(MemberRoleType.ADMIN)) {
 				total = create.select(SB_BOARD_INFO_TB.ADMIN_TOTAL).from(SB_BOARD_INFO_TB)
 						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
 
@@ -235,7 +235,6 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			conn.commit();
 
 			BoardListRes boardListRes = new BoardListRes();
-			boardListRes.setRequestUserID(requestUserID);
 			boardListRes.setBoardID(boardID.shortValue());
 			boardListRes.setPageNo(pageNo);
 			boardListRes.setPageSize(pageSize);

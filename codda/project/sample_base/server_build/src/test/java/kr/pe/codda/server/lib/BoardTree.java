@@ -39,7 +39,7 @@ public class BoardTree {
 		
 		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestUserID(rootBoardTreeNode.getWriterID());
+		boardWriteReq.setRequestedUserID(rootBoardTreeNode.getWriterID());
 		boardWriteReq.setBoardID(rootBoardTreeNode.getBoardID());
 		boardWriteReq.setSubject(rootBoardTreeNode.getSubject());
 		boardWriteReq.setContent(rootBoardTreeNode.getContent());
@@ -94,12 +94,12 @@ public class BoardTree {
 		boardReplyReq.setParentBoardNo(parentNo);
 		boardReplyReq.setSubject(childBoardTreeNode.getSubject());
 		boardReplyReq.setContent(childBoardTreeNode.getContent());		
-		boardReplyReq.setRequestUserID(childBoardTreeNode.getWriterID());
+		boardReplyReq.setRequestedUserID(childBoardTreeNode.getWriterID());
 		boardReplyReq.setIp("127.0.0.1");		
 		
-		List<BoardReplyReq.AttachedFile> attachedFileList = new ArrayList<BoardReplyReq.AttachedFile>();
-		boardReplyReq.setAttachedFileCnt((short)attachedFileList.size());
-		boardReplyReq.setAttachedFileList(attachedFileList);
+		List<BoardReplyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardReplyReq.NewAttachedFile>();
+		boardReplyReq.setNewAttachedFileCnt((short)newAttachedFileList.size());
+		boardReplyReq.setNewAttachedFileList(newAttachedFileList);
 		
 		BoardReplyRes boardReplyRes = null;
 		try {

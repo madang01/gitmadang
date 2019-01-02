@@ -129,7 +129,7 @@ public abstract class ServerDBUtil {
 	 * 회원 종류에 따른 회원 등록을 수행한다.	어드민과 일반 회원 등록 관리를 일원화 시킬 목적으로 '회원 등록 서버 서버 타스크'(={@link MemberRegisterReqServerTask})가 아닌 이곳 서버 라이브러리에서 관리한다. 
 	 * 
 	 * @param dbcpName dbcp 이름(=db schema)
-	 * @param memberType 회원 종류로 어드민과 일반 유저가 있다 
+	 * @param memberRoleType 회원 종류로 어드민과 일반 유저가 있다 
 	 * @param userID 등록을 원하는 아이디
 	 * @param nickname 별명
 	 * @param pwdHint 패스워드 힌트 질문
@@ -137,12 +137,12 @@ public abstract class ServerDBUtil {
 	 * @param passwordBytes 패스워드
 	 * @throws Exception
 	 */
-	public static void registerMember(String dbcpName, MemberType memberType, String userID, String nickname, 
+	public static void registerMember(String dbcpName, MemberRoleType memberRoleType, String userID, String nickname, 
 			String pwdHint, String pwdAnswer, byte[] passwordBytes, String ip) throws Exception {
 		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
 		
-		if (null == memberType) {
-			String errorMessage = "the parameter memberType is null";
+		if (null == memberRoleType) {
+			String errorMessage = "the parameter memberRoleType is null";
 			throw new ServerServiceException(errorMessage);
 		}		
 		
@@ -193,7 +193,7 @@ public abstract class ServerDBUtil {
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
 			boolean isSameIDMember = create
-					.fetchExists(create.select().from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(userID)));
+					.fetchExists(create.select(SB_MEMBER_TB.USER_ID).from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(userID)));
 
 			if (isSameIDMember) {
 				try {
@@ -207,7 +207,7 @@ public abstract class ServerDBUtil {
 			}
 
 			boolean isSameNicknameMember = create
-					.fetchExists(create.select().from(SB_MEMBER_TB).where(SB_MEMBER_TB.NICKNAME.eq(nickname)));
+					.fetchExists(create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB).where(SB_MEMBER_TB.NICKNAME.eq(nickname)));
 
 			if (isSameNicknameMember) {
 				try {
@@ -223,8 +223,8 @@ public abstract class ServerDBUtil {
 			int resultOfInsert = create.insertInto(SB_MEMBER_TB).set(SB_MEMBER_TB.USER_ID, userID)
 					.set(SB_MEMBER_TB.NICKNAME, nickname).set(SB_MEMBER_TB.PWD_BASE64, passwordPairOfMemberTable.getPasswordBase64())
 					.set(SB_MEMBER_TB.PWD_SALT_BASE64, passwordPairOfMemberTable.getPasswordSaltBase64())
-					.set(SB_MEMBER_TB.MEMBER_TYPE, memberType.getValue())
-					.set(SB_MEMBER_TB.MEMBER_ST, MemberStateType.OK.getValue()).set(SB_MEMBER_TB.PWD_HINT, pwdHint)
+					.set(SB_MEMBER_TB.ROLE, memberRoleType.getValue())
+					.set(SB_MEMBER_TB.STATE, MemberStateType.OK.getValue()).set(SB_MEMBER_TB.PWD_HINT, pwdHint)
 					.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer).set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
 					.set(SB_MEMBER_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
 					.set(SB_MEMBER_TB.MOD_DT, SB_MEMBER_TB.REG_DT)
@@ -246,13 +246,13 @@ public abstract class ServerDBUtil {
 				.append("회원 가입 신청 아이디[")
 				.append(userID)
 				.append("], 회원 종류[")
-				.append(memberType.getName())
+				.append(memberRoleType.getName())
 				.append("], ip[")
 				.append(ip)
 				.append("]").toString();
 			
 			create.insertInto(SB_USER_ACTION_HISTORY_TB)
-			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, "guest")
+			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, userID)
 			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, "MemberRegisterReq")
 			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, inputMessage)
 			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))

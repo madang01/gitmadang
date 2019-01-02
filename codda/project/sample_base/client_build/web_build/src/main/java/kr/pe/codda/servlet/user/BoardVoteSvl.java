@@ -97,7 +97,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		}
 		
 		BoardVoteReq boardVoteReq =  new BoardVoteReq();
-		boardVoteReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
+		boardVoteReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
 		boardVoteReq.setBoardID(boardID);
 		boardVoteReq.setBoardNo(boardNo);
 		boardVoteReq.setIp(req.getRemoteAddr());

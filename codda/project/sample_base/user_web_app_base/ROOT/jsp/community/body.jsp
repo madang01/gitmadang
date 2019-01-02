@@ -22,7 +22,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getWebsiteMenuString(request)%>
 	<div class="container-fluid">
 		<h3>사랑방</h3>
 		이곳은 게시판이 중심이 되는 사랑방입니다. 공지게시판, 자유게시판 마지막으로 FAQ 로 구성되어 있습니다.

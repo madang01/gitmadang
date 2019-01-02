@@ -4,6 +4,9 @@
 
 package kr.pe.codda.gui.helper.projectmanager.screen;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -15,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -34,13 +36,6 @@ import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-import org.xml.sax.SAXException;
-
-import com.jgoodies.forms.factories.CC;
-import com.jgoodies.forms.layout.FormLayout;
-
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.buildsystem.pathsupporter.AppClientBuildSystemPathSupporter;
 import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporter;
@@ -64,6 +59,11 @@ import kr.pe.codda.gui.helper.projectmanager.table.messageinfo.FileFunctionCellE
 import kr.pe.codda.gui.helper.projectmanager.table.messageinfo.FileFunctionCellRendererForProject;
 import kr.pe.codda.gui.helper.projectmanager.table.messageinfo.FileFunctionCellValueForProject;
 import kr.pe.codda.gui.helper.projectmanager.table.messageinfo.MessageInfoTableModelForProject;
+
+import org.xml.sax.SAXException;
+
+import com.jgoodies.forms.factories.CC;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * @author Jonghoon Won
@@ -145,14 +145,98 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		JOptionPane.showMessageDialog(ownerFrame,
 				CommonStaticUtil.splitString(message, LineSeparatorType.NEWLINE, 100));
 	}
+	
+	public ArrayList<MessageInfo> getMessageInfoList(SEARCH_MODE searchMode) throws RuntimeException {
+		ArrayList<MessageInfo> messageInfoList = new ArrayList<MessageInfo>();
+		
+
+		File messageInfoPath = getValidPathFromTextField(messageInfoPathTextField,  ReadWriteMode.ONLY_READ);
+		
+		File messageInfoXMLFiles[] = messageInfoPath.listFiles(new XMLFileFilter());
+		
+		if (null == messageInfoXMLFiles) {
+			throw new RuntimeException("the var messageInfoXMLFiles is null");
+		}
+		
+		if (0 == messageInfoXMLFiles.length) {
+			String errorMessage = String.format("there is no XML file in the message information path[%s]", 
+					messageInfoPath.getAbsolutePath());
+			throw new RuntimeException(errorMessage);
+		}
+		
+
+		Arrays.sort(messageInfoXMLFiles, new FileLastModifiedComparator());
+
+		String fileNameSearchKeyword = "";
+
+		if (SEARCH_MODE.SEARCH == searchMode) {
+			fileNameSearchKeyword = fileNameSearchTextField.getText().trim();
+			fileNameSearchTextField.setText(fileNameSearchKeyword);
+
+			if (0 == fileNameSearchKeyword.length()) {
+				String errorMessage = "Please insert search keyword again";
+				throw new RuntimeException(errorMessage);
+			}
+
+		}
+		
+		
+		for (int i = 0; i < messageInfoXMLFiles.length; i++) {
+			File messageInfoFile = messageInfoXMLFiles[i];
+
+			if (!messageInfoFile.isFile()) {
+				String errorMessage = String.format("warning :: not file , file name=[%s]",
+						messageInfoFile.getName());
+				log.info(errorMessage);
+				continue;
+			}
+
+			if (!messageInfoFile.canRead()) {
+				String errorMessage = String.format("warning :: can't read, file name=[%s]",
+						messageInfoFile.getName());
+				log.warn(errorMessage);
+				continue;
+			}
+
+			MessageInfoSAXParser messageInfoSAXParser = null;
+			try {
+				messageInfoSAXParser = new MessageInfoSAXParser();
+			} catch (SAXException e) {
+				String errorMessage = e.toString();
+				log.warn(errorMessage, e);
+				continue;
+			}
+			MessageInfo messageInfo = null;
+			try {
+				messageInfo = messageInfoSAXParser.parse(messageInfoFile, true);
+			} catch (IllegalArgumentException | SAXException | IOException e) {
+				String errorMessage = e.toString();
+				log.warn(errorMessage, e);
+				continue;
+			}
+			if (null != messageInfo) {
+				if (SEARCH_MODE.SEARCH == searchMode) {
+					String fileName = messageInfoFile.getName();
+					if (fileName.indexOf(fileNameSearchKeyword) >= 0) {
+						messageInfoList.add(messageInfo);
+					}
+				} else {
+					messageInfoList.add(messageInfo);
+				}
+			}
+			// log.info("progressMonitor [{}/{}] process", i+1, messageInfoXMLFiles.length);				
+		}
+		
+
+		return messageInfoList;
+	}
 
 	private void rebuildMessageInfoTable(SEARCH_MODE searchMode) {
 		Toolkit.getDefaultToolkit().beep();
 		Cursor oldCursor = getCursor();
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-		MessageInfoListSwingWorker allMessageInfoTask = new MessageInfoListSwingWorker(searchMode);
-		// task.addPropertyChangeListener(mainFrame);
+		/*MessageInfoListSwingWorker allMessageInfoTask = new MessageInfoListSwingWorker(searchMode);
 		allMessageInfoTask.execute();
 
 		ArrayList<MessageInfo> messageInfoList = null;
@@ -172,7 +256,21 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			return;
 		} finally {
 			setCursor(oldCursor);
-		}
+		}*/
+		
+		ArrayList<MessageInfo> messageInfoList = null;
+		
+		try {
+			messageInfoList = getMessageInfoList(searchMode);
+		} catch(Exception e) {
+			log.warn("unknow error", e);
+			showMessageDialog("errmsg="+e.toString());
+			
+			createEmptyTable();
+			messageInfoPathTextField.requestFocusInWindow();
+			return;
+		}		
+		setCursor(oldCursor);
 
 		Object values[][] = new Object[messageInfoList.size()][titles.length];
 

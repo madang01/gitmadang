@@ -14,7 +14,7 @@ import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
@@ -35,7 +35,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		String ip = "127.0.0.1";
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 					.append(userID)
@@ -57,7 +57,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContent("내용::그림2 하나를 그리다");		
-		boardWriteReq.setRequestUserID("test01");
+		boardWriteReq.setRequestedUserID("test01");
 		boardWriteReq.setIp("172.16.0.1");
 		
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -93,7 +93,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContent("내용::그림2 하나를 그리다");		
-		boardWriteReq.setRequestUserID("test01");
+		boardWriteReq.setRequestedUserID("test01");
 		boardWriteReq.setIp("172.16.0.1");
 		
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();

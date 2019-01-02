@@ -25,13 +25,13 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardModifyReq extends AbstractMessage {
-	private String requestUserID;
+	private String requestedUserID;
 	private short boardID;
 	private long boardNo;
 	private String subject;
 	private String content;
 	private String ip;
-	private short oldNextAttachedFileSeq;
+	private short nextAttachedFileSeq;
 	private int oldAttachedFileSeqCnt;
 
 	public static class OldAttachedFileSeq {
@@ -61,6 +61,7 @@ public class BoardModifyReq extends AbstractMessage {
 
 	public static class NewAttachedFile {
 		private String attachedFileName;
+		private long attachedFileSize;
 
 		public String getAttachedFileName() {
 			return attachedFileName;
@@ -69,6 +70,13 @@ public class BoardModifyReq extends AbstractMessage {
 		public void setAttachedFileName(String attachedFileName) {
 			this.attachedFileName = attachedFileName;
 		}
+		public long getAttachedFileSize() {
+			return attachedFileSize;
+		}
+
+		public void setAttachedFileSize(long attachedFileSize) {
+			this.attachedFileSize = attachedFileSize;
+		}
 
 		@Override
 		public String toString() {
@@ -76,6 +84,8 @@ public class BoardModifyReq extends AbstractMessage {
 			builder.append("NewAttachedFile[");
 			builder.append("attachedFileName=");
 			builder.append(attachedFileName);
+			builder.append(", attachedFileSize=");
+			builder.append(attachedFileSize);
 			builder.append("]");
 			return builder.toString();
 		}
@@ -83,12 +93,12 @@ public class BoardModifyReq extends AbstractMessage {
 
 	private java.util.List<NewAttachedFile> newAttachedFileList;
 
-	public String getRequestUserID() {
-		return requestUserID;
+	public String getRequestedUserID() {
+		return requestedUserID;
 	}
 
-	public void setRequestUserID(String requestUserID) {
-		this.requestUserID = requestUserID;
+	public void setRequestedUserID(String requestedUserID) {
+		this.requestedUserID = requestedUserID;
 	}
 	public short getBoardID() {
 		return boardID;
@@ -125,12 +135,12 @@ public class BoardModifyReq extends AbstractMessage {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
-	public short getOldNextAttachedFileSeq() {
-		return oldNextAttachedFileSeq;
+	public short getNextAttachedFileSeq() {
+		return nextAttachedFileSeq;
 	}
 
-	public void setOldNextAttachedFileSeq(short oldNextAttachedFileSeq) {
-		this.oldNextAttachedFileSeq = oldNextAttachedFileSeq;
+	public void setNextAttachedFileSeq(short nextAttachedFileSeq) {
+		this.nextAttachedFileSeq = nextAttachedFileSeq;
 	}
 	public int getOldAttachedFileSeqCnt() {
 		return oldAttachedFileSeqCnt;
@@ -165,8 +175,8 @@ public class BoardModifyReq extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardModifyReq[");
-		builder.append("requestUserID=");
-		builder.append(requestUserID);
+		builder.append("requestedUserID=");
+		builder.append(requestedUserID);
 		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", boardNo=");
@@ -177,8 +187,8 @@ public class BoardModifyReq extends AbstractMessage {
 		builder.append(content);
 		builder.append(", ip=");
 		builder.append(ip);
-		builder.append(", oldNextAttachedFileSeq=");
-		builder.append(oldNextAttachedFileSeq);
+		builder.append(", nextAttachedFileSeq=");
+		builder.append(nextAttachedFileSeq);
 		builder.append(", oldAttachedFileSeqCnt=");
 		builder.append(oldAttachedFileSeqCnt);
 

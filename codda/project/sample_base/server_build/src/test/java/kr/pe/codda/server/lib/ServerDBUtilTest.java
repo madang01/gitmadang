@@ -59,7 +59,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -84,7 +84,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -109,7 +109,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -592,7 +592,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		int pageSize = boardTree.getHashSize();
 		
 		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestUserID("admin");
+		boardListReq.setRequestedUserID("admin");
 		boardListReq.setBoardID(boardType.getBoardID());
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);

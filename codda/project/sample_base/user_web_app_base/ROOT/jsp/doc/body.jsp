@@ -22,7 +22,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getWebsiteMenuString(request)%>
 	<div class="container-fluid">
 		<h3>문서</h3>
 		이곳은 코다와 관련된 문서를 다루는 곳입니다. 

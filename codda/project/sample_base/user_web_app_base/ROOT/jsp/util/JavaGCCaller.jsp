@@ -40,7 +40,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getWebsiteMenuString(request)%>
 	
 	<div class="container-fluid">
 		<h2>Java Garbage Collection Caller</h2>

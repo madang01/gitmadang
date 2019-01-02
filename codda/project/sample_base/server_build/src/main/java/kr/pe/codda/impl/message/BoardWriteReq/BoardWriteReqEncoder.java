@@ -39,9 +39,9 @@ public final class BoardWriteReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardWriteReq");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardWriteReq.getRequestUserID() // itemValue
+			, boardWriteReq.getRequestedUserID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -107,6 +107,13 @@ public final class BoardWriteReqEncoder extends AbstractMessageEncoder {
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileName"
 					, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
 					, newAttachedFile$2.getAttachedFileName() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, newAttachedFile$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileSize"
+					, kr.pe.codda.common.type.SingleItemType.LONG // itemType
+					, newAttachedFile$2.getAttachedFileSize() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, newAttachedFile$2MiddleWritableObject);

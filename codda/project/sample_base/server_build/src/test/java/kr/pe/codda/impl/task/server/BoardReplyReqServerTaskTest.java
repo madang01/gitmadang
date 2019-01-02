@@ -16,7 +16,7 @@ import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
@@ -37,7 +37,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		String ip = "127.0.0.1";
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 					.append(userID)
@@ -61,7 +61,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContent("내용::그림3 하나를 그리다");		
-		boardWriteReq.setRequestUserID("test01");
+		boardWriteReq.setRequestedUserID("test01");
 		boardWriteReq.setIp("172.16.0.2");		
 		
 		{
@@ -98,28 +98,28 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		boardReplyReq.setParentBoardNo(boardWriteRes.getBoardNo());
 		boardReplyReq.setSubject("테스트 주제03-1");
 		boardReplyReq.setContent("내용::그림3-1하나를 그리다");		
-		boardReplyReq.setRequestUserID("test01");
+		boardReplyReq.setRequestedUserID("test01");
 		boardReplyReq.setIp("127.0.0.1");		
 		
 		{			
-			List<BoardReplyReq.AttachedFile> attachedFileList = new ArrayList<BoardReplyReq.AttachedFile>();
+			List<BoardReplyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardReplyReq.NewAttachedFile>();
 			
 			{
-				BoardReplyReq.AttachedFile attachedFile = new BoardReplyReq.AttachedFile();
-				attachedFile.setAttachedFileName("임시첨부파일03_1.jpg");
+				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
+				newAttachedFile.setAttachedFileName("임시첨부파일03_1.jpg");
 				
-				attachedFileList.add(attachedFile);
+				newAttachedFileList.add(newAttachedFile);
 			}
 			
 			{
-				BoardReplyReq.AttachedFile attachedFile = new BoardReplyReq.AttachedFile();
-				attachedFile.setAttachedFileName("임시첨부파일03_2.jpg");
+				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
+				newAttachedFile.setAttachedFileName("임시첨부파일03_2.jpg");
 				
-				attachedFileList.add(attachedFile);
+				newAttachedFileList.add(newAttachedFile);
 			}
 			
-			boardReplyReq.setAttachedFileCnt((short)attachedFileList.size());
-			boardReplyReq.setAttachedFileList(attachedFileList);
+			boardReplyReq.setNewAttachedFileCnt((short)newAttachedFileList.size());
+			boardReplyReq.setNewAttachedFileList(newAttachedFileList);
 		}
 		
 		BoardReplyReqServerTask boardReplyReqServerTask= new BoardReplyReqServerTask();

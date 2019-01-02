@@ -16,7 +16,7 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -84,11 +84,11 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
-			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log,
-					boardDownloadFileReq.getRequestUserID());
-			MemberType requestUserIDMemberType = null;
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log,
+					boardDownloadFileReq.getRequestedUserID());
+			MemberRoleType memberRoleTypeOfRequestedUserID = null;
 			try {
-				requestUserIDMemberType = MemberType.valueOf(nativeRequestUserIDMemberType, false);
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -97,7 +97,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 				}
 
 				String errorMessage = new StringBuilder("해당 게시글 상세 보기 요청자의 멤버 타입[")
-						.append(nativeRequestUserIDMemberType).append("]이 잘못되어있습니다").toString();
+						.append(memberRoleOfRequestedUserID).append("]이 잘못되어있습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 
@@ -153,7 +153,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			if (!MemberType.ADMIN.equals(requestUserIDMemberType)) {
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 
 				Record1<String> firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
 						.from(SB_BOARD_HISTORY_TB).where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
@@ -173,7 +173,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 
 				String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
 
-				if (!boardDownloadFileReq.getRequestUserID().equals(firstWriterID)) {
+				if (!boardDownloadFileReq.getRequestedUserID().equals(firstWriterID)) {
 					try {
 						conn.rollback();
 					} catch (Exception e) {

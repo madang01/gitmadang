@@ -537,6 +537,17 @@
 		listView.display  = 'show';
 	}
 	
+	function updateUserWebsiteMenuInfoFile() {
+		var g = document.updateUserWebsiteMenuInfoFileFrm;
+		g.submit();
+	}
+	
+	function callBackForUserWebsiteMenuInfoFileUpdater() {
+		var resultMessageView = document.getElementById("resultMessageView");
+		resultMessageView.setAttribute("class", "alert alert-success");
+		resultMessageView.innerHTML = "<strong>Success!</strong> 일반 사용자 사이트의 메뉴 정보 파일을 갱신하였습니다";
+	}
+	
 	function errorMessageCallBack(errorMessage) {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
@@ -569,7 +580,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%= getWebsiteMenuString(request) %>
 <form name="moveMenuUpFrm" method="post" action="/servlet/MenuMoveUpProcess" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
@@ -584,12 +595,15 @@
 <form name="deleteMenuFrm" method="post" action="/servlet/MenuDeletionProcess" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
+<form name="updateUserWebsiteMenuInfoFileFrm" method="post" action="/servlet/UserWebsiteMenuInfoFileUpdater" target="hiddenFrame">
+</form>
 	<div class="container-fluid">
 		<h3>메뉴 관리</h3>		
 		<div class="btn-group">
 			<button type="button" class="btn btn-primary btn-sm" onClick="addRootMenu()">Add Root</button>
 			<button type="button" class="btn btn-primary btn-sm" onClick="reload();">Reload</button>
-			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
+			<button type="button" class="btn btn-primary btn-sm" onClick="updateUserWebsiteMenuInfoFile();">Update User Website Menu Info File</button>	
+			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>				
 		</div>
 					 
 		<div id="resultMessageView"></div>

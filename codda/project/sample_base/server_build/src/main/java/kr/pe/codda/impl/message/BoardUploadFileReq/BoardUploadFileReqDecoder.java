@@ -35,9 +35,9 @@ public final class BoardUploadFileReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardUploadFileReq");
 
-		boardUploadFileReq.setRequestUserID((String)
+		boardUploadFileReq.setRequestedUserID((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "requestUserID" // itemName
+			, "requestedUserID" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

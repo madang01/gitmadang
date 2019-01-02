@@ -46,9 +46,9 @@ public final class UserLoginResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberType"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberRole"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, userLoginRes.getMemberType() // itemValue
+			, userLoginRes.getMemberRole() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

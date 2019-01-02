@@ -16,7 +16,7 @@ import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
@@ -38,7 +38,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 		String ip = "127.0.0.1";
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 					.append(userID)
@@ -63,7 +63,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제1234");
 		boardWriteReq.setContent("내용::그림 하나를 그리다, 하하호호");		
-		boardWriteReq.setRequestUserID(userID);
+		boardWriteReq.setRequestedUserID(userID);
 		boardWriteReq.setIp("172.16.0.1");
 		
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -94,7 +94,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
 		boardDetailReq.setBoardID(boardWriteRes.getBoardID());
 		boardDetailReq.setBoardNo(boardWriteRes.getBoardNo());
-		boardDetailReq.setRequestUserID(userID);
+		boardDetailReq.setRequestedUserID(userID);
 		
 		
 		BoardDetailReqServerTask boardDetailReqServerTask = new BoardDetailReqServerTask();
@@ -103,7 +103,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 			
 			assertEquals(boardWriteReq.getSubject(), boardDetailRes.getSubject());
 			assertEquals(boardWriteReq.getContent(), boardDetailRes.getContent());
-			assertEquals(boardWriteReq.getRequestUserID(), boardDetailRes.getWriterID());
+			assertEquals(boardWriteReq.getRequestedUserID(), boardDetailRes.getWriterID());
 			assertEquals(boardWriteReq.getIp(), boardDetailRes.getWriterIP());
 			
 			

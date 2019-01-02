@@ -32,7 +32,7 @@
 </script>
 </head>
 <body>
-<%=getSiteNavbarString(request)%>
+<%=getWebsiteMenuString(request)%>
 	
 	<div class="container-fluid">
 		<h3>RSA 암/복호화 테스트 - 결과</h3>

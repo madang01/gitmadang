@@ -14,7 +14,7 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.HexUtil;
-import kr.pe.codda.weblib.common.MemberType;
+import kr.pe.codda.weblib.common.MemberRoleType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
@@ -23,10 +23,10 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 	class FreePassUserInfo {
 		private String userID = null;
 		private String password = null;
-		private MemberType memberType = null;
+		private MemberRoleType memberType = null;
 		
 		public FreePassUserInfo(String userID, String password,
-				MemberType memberType) {
+				MemberRoleType memberType) {
 			super();
 			this.userID = userID;
 			this.password = password;
@@ -41,7 +41,7 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 			return password;
 		}
 
-		public MemberType getMemberType() {
+		public MemberRoleType getMemberType() {
 			return memberType;
 		}
 	}
@@ -53,9 +53,9 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 	public UserHardCodingLoginProcessSvl() {
 		freePassUserInfoHash = new HashMap<String, FreePassUserInfo>();
 		
-		freePassUserInfoHash.put("admin", new FreePassUserInfo("admin", "test1234$", MemberType.ADMIN));
-		freePassUserInfoHash.put("test01", new FreePassUserInfo("test01", "test1234$", MemberType.USER));
-		freePassUserInfoHash.put("test02", new FreePassUserInfo("test02", "test1234$", MemberType.USER));
+		freePassUserInfoHash.put("admin", new FreePassUserInfo("admin", "test1234$", MemberRoleType.ADMIN));
+		freePassUserInfoHash.put("test01", new FreePassUserInfo("test01", "test1234$", MemberRoleType.USER));
+		freePassUserInfoHash.put("test02", new FreePassUserInfo("test02", "test1234$", MemberRoleType.USER));
 	}
 
 	@Override
@@ -248,7 +248,7 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 		
 		HttpSession httpSession = req.getSession();
 		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID, freePassUserInfo.getUserID());
-		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_MEMBER_TYPE, freePassUserInfo.getMemberType());
+		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ROLE_TYPE, freePassUserInfo.getMemberType());
 				
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, 
 				webServerSymmetricKey);

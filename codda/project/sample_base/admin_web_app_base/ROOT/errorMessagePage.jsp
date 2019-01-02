@@ -36,7 +36,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%= getWebsiteMenuString(request) %>
 	
 	<div class="container-fluid">
 		<h3>에러 내용</h3>

@@ -21,7 +21,7 @@ import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.UserLoginReq.UserLoginReq;
 import kr.pe.codda.impl.message.UserLoginRes.UserLoginRes;
-import kr.pe.codda.weblib.common.MemberType;
+import kr.pe.codda.weblib.common.MemberRoleType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
@@ -299,17 +299,17 @@ public class UserLoginProcessSvl extends AbstractServlet {
 		}
 		
 		UserLoginRes userLoginRes = (UserLoginRes) outputMessage;
-		MemberType memberType = MemberType.USER;
+		MemberRoleType memberRoleType = MemberRoleType.USER;
 		
 		try {
-			memberType =  MemberType.valueOf(userLoginRes.getMemberType(), false);
+			memberRoleType =  MemberRoleType.valueOf(userLoginRes.getMemberRole(), false);
 		} catch(IllegalArgumentException e) {
-			log.warn("사용자[{}]의 멤버 종류[{}] 가 잘못되어 멤버 종류를 '일반 유저'로 강제 변경합니다", userLoginRes.getUserID(), userLoginRes.getMemberType());
+			log.warn("사용자[{}]의 멤버 종류[{}] 가 잘못되어 멤버 종류를 '일반 유저'로 강제 변경합니다", userLoginRes.getUserID(), userLoginRes.getMemberRole());
 		}
 		
 		HttpSession httpSession = req.getSession();
 		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID, userLoginRes.getUserID());
-		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_MEMBER_TYPE, memberType);
+		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ROLE_TYPE, memberRoleType);
 		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,

@@ -18,5 +18,5 @@
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>사용자 로그인 성공시 응답 메시지</desc>
 <singleitem name="userID" type="ub pascal string" />
-<singleitem name="memberType" type="ub pascal string" />
+<singleitem name="memberRole" type="ub pascal string" />
 </message>

@@ -43,9 +43,9 @@ public final class UserLoginResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		userLoginRes.setMemberType((String)
+		userLoginRes.setMemberRole((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "memberType" // itemName
+			, "memberRole" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

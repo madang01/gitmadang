@@ -67,7 +67,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getWebsiteMenuString(request)%>
 	
 	<div class="container-fluid">
 		<h2>CryptoJS 해시 알고리즘(=메세지 다이제스트) 테스트 - 입력</h2>

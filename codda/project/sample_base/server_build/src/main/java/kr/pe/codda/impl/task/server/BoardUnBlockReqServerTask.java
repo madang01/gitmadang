@@ -20,7 +20,7 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -92,12 +92,12 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (null == boardUnBlockReq.getRequestUserID()) {
-			String errorMessage = "요청자 아이디가 null 입니다";
+		if (null == boardUnBlockReq.getRequestedUserID()) {
+			String errorMessage = "요청한 사용자 아이디를 넣어주세요";
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		String requestUserID = boardUnBlockReq.getRequestUserID();
+		String requestedUserID = boardUnBlockReq.getRequestedUserID();
 		UByte boardID = UByte.valueOf(boardUnBlockReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardUnBlockReq.getBoardNo());
 		
@@ -112,10 +112,10 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log, requestUserID);	
-			MemberType  requestUserIDMemberType = null;
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);	
+			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
 			try {
-				requestUserIDMemberType = MemberType.valueOf(nativeRequestUserIDMemberType, false);
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -124,12 +124,12 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("해당 게시글 삭제 요청자의 멤버 타입[")
-						.append(nativeRequestUserIDMemberType)
+						.append(memberRoleOfRequestedUserID)
 						.append("]이 잘못되어있습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
 			
-			if (! MemberType.ADMIN.equals(requestUserIDMemberType)) {
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -408,7 +408,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			
 			
 			create.insertInto(SB_USER_ACTION_HISTORY_TB)
-			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestUserID)
+			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestedUserID)
 			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardUnBlockReq.getMessageID())
 			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardUnBlockReq.toString())
 			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))

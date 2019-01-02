@@ -147,14 +147,17 @@ public abstract class CommonStaticUtil {
 			souceFileChannel.transferTo(0, souceFileChannel.size(), targetFileChannel);
 		} finally {
 			try {
-				if (null != fis)
+				if (null != fis) {
 					fis.close();
+				}
 			} catch (Exception e) {
-				// log.warn("fail to close source file[" + sourceFile.getAbsolutePath() + "] input stream", e);
+				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] input stream", targetFile.getAbsolutePath());
 			}
 			try {
-				if (null != fos)
+				if (null != fos) {
 					fos.close();
+				}
 			} catch (Exception e) {
 				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
 				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
@@ -232,8 +235,9 @@ public abstract class CommonStaticUtil {
 			fos.write(contents.getBytes(targetCharset));
 		} finally {
 			try {
-				if (null != fos)
+				if (null != fos) {
 					fos.close();
+				}
 			} catch (IOException e) {
 				// log.warn("fail to close the file[{}][{}] output stream", fileNickname, targetFile.getAbsolutePath());
 				// e.printStackTrace();
@@ -257,30 +261,31 @@ public abstract class CommonStaticUtil {
 			throw new IllegalArgumentException("the parameter 'targetCharset' is null");
 		}
 		
-		if (!targetFile.exists()) {
+		if (! targetFile.exists()) {
 			String errorMessage = String.format("the file[%s] doesn't exist", targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
 		
-		if (!targetFile.isFile()) {
+		if (! targetFile.isFile()) {
 			String errorMessage = String.format("the file[%s] is not a regular file",
 					targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
 
-		if (!targetFile.canWrite()) {
+		if (! targetFile.canWrite()) {
 			String errorMessage = String.format("the file[%s] can not be written", targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
 		FileOutputStream fos = null;
 		try {
-			fos = new FileOutputStream(targetFile);
+			fos = new FileOutputStream(targetFile, false);
 
 			fos.write(contents.getBytes(targetCharset));
 		} finally {
 			try {
-				if (null != fos)
+				if (null != fos) {
 					fos.close();
+				}
 			} catch (IOException e) {
 				// log.warn("fail to close the file[{}][{}] output stream", fileNickname, targetFile.getAbsolutePath());
 				// e.printStackTrace();

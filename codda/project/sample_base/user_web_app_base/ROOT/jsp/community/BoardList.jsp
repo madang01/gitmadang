@@ -155,7 +155,7 @@
 </script>
 </head>
 <body>
-<%=getSiteNavbarString(request)%>
+<%=getWebsiteMenuString(request)%>
 <form name=goWriteForm method="post" action="/servlet/BoardWriteInput">
 <input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />
 <input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />

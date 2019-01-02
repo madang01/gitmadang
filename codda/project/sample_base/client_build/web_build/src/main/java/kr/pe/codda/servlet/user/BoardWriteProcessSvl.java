@@ -121,7 +121,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
 				String newAttachedFileName = fileItem.getName();
 				String newAttachedFileContentType = fileItem.getContentType();
-				long newAtttachedFileSize = fileItem.getSize();
+				long newAttachedFileSize = fileItem.getSize();
 
 				/*log.info("fileName={}, fileContentType={}, fileSize={}",
 						newAttachedFileName, newAttachedFileContentType,
@@ -188,7 +188,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 					return;
 				}
 
-				if (newAtttachedFileSize == 0) {
+				if (newAttachedFileSize == 0) {
 					String errorMessage = "첨부 파일 크기가 0입니다";
 
 					String debugMessage = new StringBuilder(errorMessage)
@@ -279,6 +279,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
 				BoardWriteReq.NewAttachedFile newAttachedFile = new BoardWriteReq.NewAttachedFile();
 				newAttachedFile.setAttachedFileName(newAttachedFileName);
+				newAttachedFile.setAttachedFileSize(newAttachedFileSize);
 				newAttachedFileList.add(newAttachedFile);
 			}
 		}
@@ -442,7 +443,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 		}
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
+		boardWriteReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
 		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject(paramSubject);
 		boardWriteReq.setContent(paramContent);

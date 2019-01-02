@@ -31,7 +31,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> implements Record12<String, String, String, String, String, String, String, String, UByte, Timestamp, Timestamp, String> {
 
-    private static final long serialVersionUID = -1655087456;
+    private static final long serialVersionUID = 1205380282;
 
     /**
      * Setter for <code>sb_db.sb_member_tb.user_id</code>. 사용자 아이디
@@ -90,30 +90,30 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
     }
 
     /**
-     * Setter for <code>sb_db.sb_member_tb.member_type</code>. 회원 구분, A:관리자, M:일반회원
+     * Setter for <code>sb_db.sb_member_tb.role</code>. 회원 역할, A:관리자, M:일반회원
      */
-    public void setMemberType(String value) {
+    public void setRole(String value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_member_tb.member_type</code>. 회원 구분, A:관리자, M:일반회원
+     * Getter for <code>sb_db.sb_member_tb.role</code>. 회원 역할, A:관리자, M:일반회원
      */
-    public String getMemberType() {
+    public String getRole() {
         return (String) get(4);
     }
 
     /**
-     * Setter for <code>sb_db.sb_member_tb.member_st</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴
+     * Setter for <code>sb_db.sb_member_tb.state</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴
      */
-    public void setMemberSt(String value) {
+    public void setState(String value) {
         set(5, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_member_tb.member_st</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴
+     * Getter for <code>sb_db.sb_member_tb.state</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴
      */
-    public String getMemberSt() {
+    public String getState() {
         return (String) get(5);
     }
 
@@ -270,7 +270,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public Field<String> field5() {
-        return SbMemberTb.SB_MEMBER_TB.MEMBER_TYPE;
+        return SbMemberTb.SB_MEMBER_TB.ROLE;
     }
 
     /**
@@ -278,7 +278,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public Field<String> field6() {
-        return SbMemberTb.SB_MEMBER_TB.MEMBER_ST;
+        return SbMemberTb.SB_MEMBER_TB.STATE;
     }
 
     /**
@@ -366,7 +366,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public String component5() {
-        return getMemberType();
+        return getRole();
     }
 
     /**
@@ -374,7 +374,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public String component6() {
-        return getMemberSt();
+        return getState();
     }
 
     /**
@@ -462,7 +462,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public String value5() {
-        return getMemberType();
+        return getRole();
     }
 
     /**
@@ -470,7 +470,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public String value6() {
-        return getMemberSt();
+        return getState();
     }
 
     /**
@@ -562,7 +562,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public SbMemberTbRecord value5(String value) {
-        setMemberType(value);
+        setRole(value);
         return this;
     }
 
@@ -571,7 +571,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public SbMemberTbRecord value6(String value) {
-        setMemberSt(value);
+        setState(value);
         return this;
     }
 
@@ -663,15 +663,15 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
     /**
      * Create a detached, initialised SbMemberTbRecord
      */
-    public SbMemberTbRecord(String userId, String nickname, String pwdBase64, String pwdSaltBase64, String memberType, String memberSt, String pwdHint, String pwdAnswer, UByte pwdFailCnt, Timestamp regDt, Timestamp modDt, String ip) {
+    public SbMemberTbRecord(String userId, String nickname, String pwdBase64, String pwdSaltBase64, String role, String state, String pwdHint, String pwdAnswer, UByte pwdFailCnt, Timestamp regDt, Timestamp modDt, String ip) {
         super(SbMemberTb.SB_MEMBER_TB);
 
         set(0, userId);
         set(1, nickname);
         set(2, pwdBase64);
         set(3, pwdSaltBase64);
-        set(4, memberType);
-        set(5, memberSt);
+        set(4, role);
+        set(5, state);
         set(6, pwdHint);
         set(7, pwdAnswer);
         set(8, pwdFailCnt);

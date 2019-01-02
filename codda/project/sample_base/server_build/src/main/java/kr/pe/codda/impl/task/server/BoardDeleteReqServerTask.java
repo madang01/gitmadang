@@ -73,6 +73,11 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 	public MessageResultRes doWork(String dbcpName, BoardDeleteReq boardDeleteReq)
 			throws Exception {
 
+		if (null == boardDeleteReq.getRequestedUserID()) {
+			String errorMessage = "요청한 사용자 아이디를 넣어주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		try {
 			BoardType.valueOf(boardDeleteReq.getBoardID());
 		} catch (IllegalArgumentException e) {			
@@ -85,12 +90,9 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (null == boardDeleteReq.getRequestUserID()) {
-			String errorMessage = "요청자 아이디가 null 입니다";
-			throw new ServerServiceException(errorMessage);
-		}
 		
-		String requestUserID = boardDeleteReq.getRequestUserID();
+		
+		String requestedUserID = boardDeleteReq.getRequestedUserID();
 		UByte boardID = UByte.valueOf(boardDeleteReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardDeleteReq.getBoardNo());
 
@@ -231,7 +233,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			
 			String writerID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
 			
-			if (! requestUserID.equals(writerID)) {
+			if (! requestedUserID.equals(writerID)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -256,7 +258,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			
 			
 			create.insertInto(SB_USER_ACTION_HISTORY_TB)
-			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestUserID)
+			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestedUserID)
 			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardDeleteReq.getMessageID())
 			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardDeleteReq.toString())
 			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))

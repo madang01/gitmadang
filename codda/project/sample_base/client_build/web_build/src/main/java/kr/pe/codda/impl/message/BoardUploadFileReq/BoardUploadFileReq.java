@@ -25,7 +25,7 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardUploadFileReq extends AbstractMessage {
-	private String requestUserID;
+	private String requestedUserID;
 	private String ip;
 	private long attachId;
 	private int oldAttachedFileCnt;
@@ -79,12 +79,12 @@ public class BoardUploadFileReq extends AbstractMessage {
 
 	private java.util.List<NewAttachedFile> newAttachedFileList;
 
-	public String getRequestUserID() {
-		return requestUserID;
+	public String getRequestedUserID() {
+		return requestedUserID;
 	}
 
-	public void setRequestUserID(String requestUserID) {
-		this.requestUserID = requestUserID;
+	public void setRequestedUserID(String requestedUserID) {
+		this.requestedUserID = requestedUserID;
 	}
 	public String getIp() {
 		return ip;
@@ -133,8 +133,8 @@ public class BoardUploadFileReq extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardUploadFileReq[");
-		builder.append("requestUserID=");
-		builder.append(requestUserID);
+		builder.append("requestedUserID=");
+		builder.append(requestedUserID);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append(", attachId=");

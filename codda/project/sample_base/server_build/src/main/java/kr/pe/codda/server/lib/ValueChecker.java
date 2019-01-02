@@ -33,20 +33,20 @@ import org.jooq.Record2;
  *
  */
 public class ValueChecker {
-	/**
-	 * 사용자 아이디에 대한 입력값 검사를 수행한다.
-	 * @param userID 아이디
-	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
-	 */
-	public static void checkValidUserID(String userID) throws IllegalArgumentException {
+	private static void checkValidUserID(String title, String userID) throws IllegalArgumentException {
+		if (null == title) {
+			throw new IllegalArgumentException("the parameter title is null");
+		}
 		if (null == userID) {
 			throw new IllegalArgumentException("the parameter userID is null");
 		}		
 		
 		char[] userIDChars = userID.toCharArray();
 		
+				
 		if (userIDChars.length < ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS) {
-			String errorMessage = new StringBuilder("사용자 아이디[")
+			String errorMessage = new StringBuilder(title)
+					.append(" 아이디[")
 					.append(userID)
 					.append("]의 글자수는 최소 글자수[")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS)
@@ -55,34 +55,43 @@ public class ValueChecker {
 		}
 		
 		if (userIDChars.length > ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS) {
-			String errorMessage = new StringBuilder("사용자 아이디[")
+			String errorMessage = new StringBuilder(title)
+					.append(" 아이디[")
 					.append(userID)
 					.append("]의 글자수는 최대 글자수[")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS)
 					.append("] 보다 큽니다").toString();
 			throw new IllegalArgumentException(errorMessage);
-		}
+		}		
 		
-		int i=0;
-		
-		char firstChar = userIDChars[i];
+		char firstChar = userIDChars[0];
 		if (! Character.isAlphabetic(firstChar)) {
-			String errorMessage = new StringBuilder("사용자 아이디[")
+			String errorMessage = new StringBuilder(title)
+			.append(" 아이디[")
 					.append(userID)
 					.append("]의 첫글자가 영문이 아닙니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		for (i++; i < userIDChars.length; i++) {
+		for (int i=1; i < userIDChars.length; i++) {
 			char c = userIDChars[i];
 			if (! Character.isDigit(c) && ! Character.isAlphabetic(c)) {
-				String errorMessage = new StringBuilder("사용자 아이디[")
+				String errorMessage = new StringBuilder(title)
+						.append(" 아이디[")
 						.append(userID)
 						.append("]의 첫글자 이후 문자는 영문과 숫자 조합이어야 합니다").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
+	}
+	/**
+	 * 사용자 아이디에 대한 입력값 검사를 수행한다.
+	 * @param userID 아이디
+	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
+	 */
+	public static void checkValidUserID(String userID) throws IllegalArgumentException {
 		
+		checkValidUserID("사용자", userID);
 		
 		
 		/*String regexId = new StringBuilder("^\\p{Alpha}\\p{Alnum}{")
@@ -109,9 +118,7 @@ public class ValueChecker {
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
 	public static void checkValidWriterID(String writerID) throws IllegalArgumentException {
-		if (null == writerID) {
-			throw new IllegalArgumentException("the parameter writerID is null");
-		}
+		checkValidUserID("작성자", writerID);
 		
 		
 		/*String regexId = new StringBuilder("^\\p{Alpha}\\p{Alnum}{")
@@ -131,46 +138,20 @@ public class ValueChecker {
 					.append("자를 요구합니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}*/
-		
-		char[] writerIDChars = writerID.toCharArray();
-		
-		if (writerIDChars.length < ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS) {
-			String errorMessage = new StringBuilder("작성자 아이디[")
-					.append(writerID)
-					.append("]의 글자수는 최소 글자수[")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_USER_ID_CHARRACTERS)
-					.append("] 보다 작습니다").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (writerIDChars.length > ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS) {
-			String errorMessage = new StringBuilder("작성자 아이디[")
-					.append(writerID)
-					.append("]의 글자수는 최대 글자수[")
-					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_USER_ID_CHARRACTERS)
-					.append("] 보다 큽니다").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		int i=0;
-		
-		char firstChar = writerIDChars[i];
-		if (! Character.isAlphabetic(firstChar)) {
-			String errorMessage = new StringBuilder("작성자 아이디[")
-					.append(writerID)
-					.append("]는 첫글자가 영문이 아닙니다").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		for (i++; i < writerIDChars.length; i++) {
-			char c = writerIDChars[i];
-			if (! Character.isDigit(c) && ! Character.isAlphabetic(c)) {
-				String errorMessage = new StringBuilder("작성자 아이디[")
-						.append(writerID)
-						.append("]는 첫글자 이후 문자는 영문과 숫자 조합이어야 합니다").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-		}
+	}
+	
+	
+	
+	public static void checkValidRequestedUserID(String requestedUserID) throws IllegalArgumentException {
+		checkValidUserID("요청한 사용자", requestedUserID);
+	}
+	
+	public static void checkValidBlockUserID(String userID) throws IllegalArgumentException {
+		checkValidUserID("차단할 사용자", userID);
+	}
+	
+	public static void checkValidUnBlockUserID(String userID) throws IllegalArgumentException {
+		checkValidUserID("차단 해제할 사용자", userID);
 	}
 	
 	/**
@@ -662,22 +643,32 @@ public class ValueChecker {
 			throw new IllegalArgumentException(errorMessage);
 		}	*/
 		
-		for (char ch : fileNameChars) {
-			if (Character.isWhitespace(ch)) {
+		// char prevChar = ' ';
+		for (int i=0; i < fileNameChars.length; i++) {
+			char workingChar = fileNameChars[i];
+			
+			if (Character.isWhitespace(workingChar)) {
 				String errorMessage = new StringBuilder("첨부 파일명[")
 						.append(fileName)
 						.append("]에 공백 문자가 존재합니다").toString();
 				throw new IllegalArgumentException(errorMessage);
+			} else if (workingChar == '.') {
+				if (i > 0 && fileNameChars[i-1] == '.') {
+					String errorMessage = new StringBuilder("첨부 파일명[")
+					.append(fileName)
+					.append("]에 금지된 문자열[..]이 존재합니다").toString();
+					throw new IllegalArgumentException(errorMessage);
+				}
 			} else {
 				for (char forbiddenChar : ServerCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
-					if (ch == forbiddenChar) {
+					if (workingChar == forbiddenChar) {
 						String errorMessage = new StringBuilder("첨부 파일명[")
 								.append(fileName)
 								.append("]에 금지된 문자[")
 								.append(forbiddenChar)
 								.append("]가 존재합니다").toString();
 						throw new IllegalArgumentException(errorMessage);
-					}		
+					} 
 				}
 			}
 		}	
@@ -718,31 +709,27 @@ public class ValueChecker {
 	
 	/**
 	 * <pre>
-	 * 지정한 아이디가 정상인지 아래와 같은 검사를 수행하여 
-	 * 비정상시 예외를 던지고 최종 멤버 타입을 반환한다.
-	 * 
-	 * (1) 회원 테이블에 존재 여부
-	 * (2) 회원 테이블에 들어간 회원 상태 값이 옳바른지 여부 
-	 * (3) 블락 여부
-	 * (4) 탈퇴 여부
-	 * 
-	 * WARNING! 파라미터 null 검사를 수행하지 않습니다 또한 아이디 'guest' 는 시스템에 예약된 가상 아이디로써 회원 테이블에 존재 하지 않지만 손님을 뜻하는 아이디이다.  
+	 * 요청한 사용자가 정상인지 검사를 수행하여 비정상시 예외를 던지고 '회원 역활'을 반환한다
+	 *  
+	 * WARNING! 파라미터 null 검사를 수행하지 않습니다 
+	 * 또한 아이디 'guest' 는 예약된 가상 아이디로써 회원 테이블에 존재 하지 않지만 
+	 * 손님을 뜻하는 아이디이다.  
 	 * </pre>
 	 * 
 	 * @param conn
 	 * @param create
 	 * @param log
-	 * @param userID 사용자 아이디
-	 * @throws ServerServiceException 비정상인 경우 던지는 예외
-	 * @return  멤버 타입
+	 * @param requestedUserID 사용자 아이디
+	 * @throws ServerServiceException 비정상인 경우 던지는 예외, (1) 회원 테이블 미 존재 (2) 알 수 없는 회원 상태 값 (3) 회원 상태가 차단이나 탈퇴 즉 비정상일때
+	 * @return  회원 역활
 	 */
-	public static String checkValidMemberStateForUserID(Connection conn, DSLContext create, InternalLogger log, String userID) throws ServerServiceException {
-		if (userID.equals("guest")) {
-			return MemberType.USER.getValue();
+	public static String checkValidRequestedUserState(Connection conn, DSLContext create, InternalLogger log, String requestedUserID) throws ServerServiceException {
+		if (requestedUserID.equals("guest")) {
+			return MemberRoleType.USER.getValue();
 		}
 		
-		Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.MEMBER_ST, SB_MEMBER_TB.MEMBER_TYPE)
-				.from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(userID))
+		Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)
+				.from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
 				.fetchOne();
 		
 		if (null == memberRecord) {
@@ -752,17 +739,17 @@ public class ValueChecker {
 				log.warn("fail to rollback");
 			}
 			
-			String errorMessage = new StringBuilder("존재하지 않는 잘못된 아이디[")
-					.append(userID)
-					.append(" 입니다").toString();				
+			String errorMessage = new StringBuilder("요청한 사용자[")
+					.append(requestedUserID)
+					.append("가 회원 테이블에 존재하지 않습니다").toString();				
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		String memeberState = memberRecord.getValue(SB_MEMBER_TB.MEMBER_ST);
+		String memeberStateOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.STATE);
 		
-		MemberStateType memberStateType = null;
+		MemberStateType memberStateTypeOfRequestedUserID = null;
 		try {
-			memberStateType = MemberStateType.valueOf(memeberState, false);
+			memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memeberStateOfRequestedUserID, false);
 		} catch(IllegalArgumentException e) {
 			try {
 				conn.rollback();
@@ -770,33 +757,31 @@ public class ValueChecker {
 				log.warn("fail to rollback");
 			}
 			
-			String errorMessage = new StringBuilder("해당 아이디[")
-					.append(userID)
-					.append("]의 멤버 상태[")
-					.append(memeberState)
-					.append("] 가 잘못되었습니다").toString();				
+			String errorMessage = new StringBuilder("회원 테이블에서 회원[")
+				.append(requestedUserID)
+				.append("]의 상태[")
+				.append(memeberStateOfRequestedUserID)
+				.append("] 값이 잘못 되어 있습니다").toString();
+			
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (MemberStateType.BLOCK.equals(memberStateType)) {
+		if (! MemberStateType.OK.equals(memberStateTypeOfRequestedUserID)) {
 			try {
 				conn.rollback();
 			} catch (Exception e1) {
 				log.warn("fail to rollback");
 			}
 			
-			String errorMessage = new StringBuilder("해당 아이디[")
-					.append(userID)
-					.append("는 블락된 사용자입니다").toString();				
+			String errorMessage = new StringBuilder("요청한 사용자[")
+					.append(requestedUserID)
+					.append("] 상태[")
+					.append(memberStateTypeOfRequestedUserID.getName())
+					.append("]가 정상이 아닙니다").toString();				
 			throw new ServerServiceException(errorMessage);
-		} else if (MemberStateType.WITHDRAWAL.equals(memberStateType)) {
-			String errorMessage = new StringBuilder("해당 아이디[")
-					.append(userID)
-					.append("는 탈퇴한 사용자입니다").toString();				
-			throw new ServerServiceException(errorMessage);
-		}		
+		}
 		
-		return memberRecord.getValue(SB_MEMBER_TB.MEMBER_TYPE);
+		return memberRecord.getValue(SB_MEMBER_TB.ROLE);
 	}
 	
 }

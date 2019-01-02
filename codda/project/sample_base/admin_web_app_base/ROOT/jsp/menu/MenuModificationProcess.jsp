@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
+<title><%=WebCommonStaticFinalVars.ADMIN_WEBSITE_TITLE%></title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
 <!-- jQuery library -->
@@ -26,7 +26,7 @@
 </head>
 	<body>
 		<div class="container-fluid">
-			<h1>메시지 수정 성공 콜백</h1>	
+			<h1>메뉴 수정 처리 콜백</h1>	
 		</div>
 	</body>
 </html>

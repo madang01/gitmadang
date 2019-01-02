@@ -17,7 +17,7 @@
 <messageID>BoardUploadFileReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>게시판 업로드 파일 DB 처리 요청</desc>
-<singleitem name="requestUserID" type="ub pascal string" />
+<singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 <singleitem name="attachId" type="unsigned integer" />
 <singleitem name="oldAttachedFileCnt" type="integer" />

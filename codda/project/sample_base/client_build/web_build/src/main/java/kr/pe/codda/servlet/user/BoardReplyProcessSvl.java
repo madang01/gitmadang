@@ -15,13 +15,13 @@ import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
-import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
@@ -74,7 +74,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		String paramSubject = null;
 		String paramContent = null;
 
-		List<BoardWriteReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
+		List<BoardReplyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardReplyReq.NewAttachedFile>();
 
 		// Parse the request
 		List<FileItem> fileItemList = upload.parseRequest(req);
@@ -125,7 +125,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 
 				String newAttachedFileName = fileItem.getName();
 				String newAttachedFileContentType = fileItem.getContentType();
-				long newAtttachedFileSize = fileItem.getSize();
+				long newAttachedFileSize = fileItem.getSize();
 
 				/*log.info("fileName={}, fileContentType={}, fileSize={}",
 						newAttachedFileName, newAttachedFileContentType,
@@ -192,7 +192,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 					return;
 				}
 
-				if (newAtttachedFileSize == 0) {
+				if (newAttachedFileSize == 0) {
 					String errorMessage = "첨부 파일 크기가 0입니다";
 
 					String debugMessage = new StringBuilder(errorMessage)
@@ -281,8 +281,9 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 					}
 				}
 
-				BoardWriteReq.NewAttachedFile newAttachedFile = new BoardWriteReq.NewAttachedFile();
+				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
 				newAttachedFile.setAttachedFileName(newAttachedFileName);
+				newAttachedFile.setAttachedFileSize(newAttachedFileSize);				
 				newAttachedFileList.add(newAttachedFile);
 			}
 		}
@@ -471,14 +472,26 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			return;
 		}		
 		
+		if (newAttachedFileList.size() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = "첨부 파일 갯수의 데이터 타입은 unsigned byte 로 최대 255개를 넘을 수 없습니다";
+			String debugMessage = "the web parameter 'content' is null";
+
+			log.warn(debugMessage);
+
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
 		BoardReplyReq boardReplyReq = new BoardReplyReq();
-		boardReplyReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
+		boardReplyReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
 		boardReplyReq.setBoardID(boardID);
 		boardReplyReq.setParentBoardNo(parentBoardNo);
 		boardReplyReq.setSubject(paramSubject);
 		boardReplyReq.setContent(paramContent);
 		boardReplyReq.setIp(req.getRemoteAddr());
-
+		boardReplyReq.setNewAttachedFileCnt((short)newAttachedFileList.size());
+		boardReplyReq.setNewAttachedFileList(newAttachedFileList);
+		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager
 				.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool

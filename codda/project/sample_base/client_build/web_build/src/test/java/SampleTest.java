@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 import org.junit.Test;
 
-import kr.pe.codda.weblib.common.SiteType;
+import kr.pe.codda.weblib.common.WebsiteType;
 
 public class SampleTest {
 
@@ -101,10 +101,10 @@ public class SampleTest {
 	
 	@Test
 	public void enumTest() {
-		SiteType siteType = null;
+		WebsiteType siteType = null;
 		
 		try {
-			siteType = SiteType.valueOf("USER");
+			siteType = WebsiteType.valueOf("USER");
 			
 			System.out.printf("siteType=%s", siteType.toString());
 			System.out.println("");

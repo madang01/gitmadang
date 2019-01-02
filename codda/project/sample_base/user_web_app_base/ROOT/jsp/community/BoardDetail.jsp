@@ -496,7 +496,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%= getWebsiteMenuString(request) %>
 
 	<form name=voteFrm target=hiddenFrame method="post" action="/servlet/BoardVote">
 		<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />

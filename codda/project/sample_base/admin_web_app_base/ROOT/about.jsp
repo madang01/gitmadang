@@ -22,7 +22,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%= getWebsiteMenuString(request) %>
 	<div class="container-fluid">
 		<h3>코다 어드민 관리자</h3>
 	</div>

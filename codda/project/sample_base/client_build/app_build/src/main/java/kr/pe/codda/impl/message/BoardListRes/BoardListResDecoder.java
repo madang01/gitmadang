@@ -24,7 +24,7 @@ import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
  * BoardListRes message decoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardListResDecoder extends AbstractMessageDecoder {
@@ -34,14 +34,6 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 		BoardListRes boardListRes = new BoardListRes();
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardListRes");
-
-		boardListRes.setRequestUserID((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "requestUserID" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
 
 		boardListRes.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()

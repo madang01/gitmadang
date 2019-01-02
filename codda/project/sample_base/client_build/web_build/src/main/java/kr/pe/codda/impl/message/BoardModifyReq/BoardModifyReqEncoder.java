@@ -39,9 +39,9 @@ public final class BoardModifyReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardModifyReq");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardModifyReq.getRequestUserID() // itemValue
+			, boardModifyReq.getRequestedUserID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -81,9 +81,9 @@ public final class BoardModifyReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "oldNextAttachedFileSeq"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "nextAttachedFileSeq"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-			, boardModifyReq.getOldNextAttachedFileSeq() // itemValue
+			, boardModifyReq.getNextAttachedFileSeq() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -162,6 +162,13 @@ public final class BoardModifyReqEncoder extends AbstractMessageEncoder {
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileName"
 					, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
 					, newAttachedFile$2.getAttachedFileName() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, newAttachedFile$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileSize"
+					, kr.pe.codda.common.type.SingleItemType.LONG // itemType
+					, newAttachedFile$2.getAttachedFileSize() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, newAttachedFile$2MiddleWritableObject);

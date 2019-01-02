@@ -47,7 +47,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getWebsiteMenuString(request)%>
 	
 	<div class="container-fluid">
 		<h2>자바 문자열 변환 도구 - 입력</h2>

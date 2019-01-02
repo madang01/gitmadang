@@ -41,7 +41,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
 
-    private static final long serialVersionUID = -510964487;
+    private static final long serialVersionUID = 946001009;
 
     /**
      * The reference instance of <code>sb_db.sb_board_filelist_tb</code>
@@ -75,6 +75,11 @@ public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
      * The column <code>sb_db.sb_board_filelist_tb.attached_fname</code>. 첨부 파일 이름
      */
     public final TableField<SbBoardFilelistTbRecord, String> ATTACHED_FNAME = createField("attached_fname", org.jooq.impl.SQLDataType.VARCHAR(255).defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.VARCHAR)), this, "첨부 파일 이름");
+
+    /**
+     * The column <code>sb_db.sb_board_filelist_tb.attached_fsize</code>. 첨부 파일 크기
+     */
+    public final TableField<SbBoardFilelistTbRecord, Long> ATTACHED_FSIZE = createField("attached_fsize", org.jooq.impl.SQLDataType.BIGINT.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.BIGINT)), this, "첨부 파일 크기");
 
     /**
      * Create a <code>sb_db.sb_board_filelist_tb</code> table reference

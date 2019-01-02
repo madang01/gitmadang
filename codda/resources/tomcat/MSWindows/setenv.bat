@@ -8,7 +8,7 @@ SET PROJECT_NAME=sample_base
 SET WEB_BUILD_HOME=%CODDA_HOME%\project\%PROJECT_NAME%\client_build\web_build\
 SET WEB_CORELIB_PATH=%WEB_BUILD_HOME%\corelib\ex
 SET WEB_MAINLIB_PATH=%WEB_BUILD_HOME%\lib\main\ex
-SET CLASSPATH=
+SET CLASSPATH=%CATALINA_HOME%\lib\servlet-api.jar;%CATALINA_HOME%\lib\jsp-api.jar;%WEB_BUILD_HOME%\dist\CoddaWebLib.jar
 
 for %%f in (%WEB_CORELIB_PATH%\*.jar) do call CPAPPEND.BAT %%f
 for %%f in (%WEB_MAINLIB_PATH%\*.jar) do call CPAPPEND.BAT %%f

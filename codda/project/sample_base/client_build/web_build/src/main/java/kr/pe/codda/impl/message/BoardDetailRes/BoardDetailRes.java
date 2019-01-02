@@ -50,6 +50,7 @@ public class BoardDetailRes extends AbstractMessage {
 	public static class AttachedFile {
 		private short attachedFileSeq;
 		private String attachedFileName;
+		private long attachedFileSize;
 
 		public short getAttachedFileSeq() {
 			return attachedFileSeq;
@@ -65,6 +66,13 @@ public class BoardDetailRes extends AbstractMessage {
 		public void setAttachedFileName(String attachedFileName) {
 			this.attachedFileName = attachedFileName;
 		}
+		public long getAttachedFileSize() {
+			return attachedFileSize;
+		}
+
+		public void setAttachedFileSize(long attachedFileSize) {
+			this.attachedFileSize = attachedFileSize;
+		}
 
 		@Override
 		public String toString() {
@@ -74,6 +82,8 @@ public class BoardDetailRes extends AbstractMessage {
 			builder.append(attachedFileSeq);
 			builder.append(", attachedFileName=");
 			builder.append(attachedFileName);
+			builder.append(", attachedFileSize=");
+			builder.append(attachedFileSize);
 			builder.append("]");
 			return builder.toString();
 		}

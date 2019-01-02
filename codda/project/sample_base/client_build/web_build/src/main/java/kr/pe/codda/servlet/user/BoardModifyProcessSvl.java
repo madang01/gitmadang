@@ -207,7 +207,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 
 				String newAttachedFileName = fileItem.getName();
 				String newAttachedFileContentType = fileItem.getContentType();
-				long newAtttachedFileSize = fileItem.getSize();
+				long newAttachedFileSize = fileItem.getSize();
 				
 				/*log.info("fileName={}, fileContentType={}, fileSize={}",
 						newAttachedFileName, newAttachedFileContentType,
@@ -274,7 +274,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					return;
 				}
 
-				if (newAtttachedFileSize == 0) {
+				if (newAttachedFileSize == 0) {
 					String errorMessage = "첨부 파일 크기가 0입니다";
 
 					String debugMessage = new StringBuilder(errorMessage)
@@ -365,6 +365,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 
 				BoardModifyReq.NewAttachedFile newAttachedFile = new BoardModifyReq.NewAttachedFile();
 				newAttachedFile.setAttachedFileName(newAttachedFileName);
+				newAttachedFile.setAttachedFileSize(newAttachedFileSize);
 				newAttachedFileList.add(newAttachedFile);
 			}
 		}
@@ -548,9 +549,9 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			return;
 		}
 
-		short oldNextAttachedFileSeq = 0;
+		short nextAttachedFileSeq = 0;
 		try {
-			oldNextAttachedFileSeq = Short.parseShort(paramNextAttachedFileSeq);
+			nextAttachedFileSeq = Short.parseShort(paramNextAttachedFileSeq);
 		} catch (NumberFormatException e) {
 			String errorMessage = "잘못된 다음 첨부 파일 시퀀스 번호입니다";
 			String debugMessage = new StringBuilder(
@@ -562,7 +563,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			return;
 		}
 
-		if (oldNextAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+		if (nextAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = "잘못된 '다음 첨부 파일 시퀀스 번호'입니다";
 			String debugMessage = new StringBuilder(
 					"the web parameter \"nextAttachedFileSeq\"'s value[")
@@ -577,13 +578,13 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		
 
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
-		boardModifyReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
+		boardModifyReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
 		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(boardNo);
 		boardModifyReq.setSubject(paramSubject);
 		boardModifyReq.setContent(paramContent);
 		boardModifyReq.setIp(req.getRemoteAddr());
-		boardModifyReq.setOldNextAttachedFileSeq(oldNextAttachedFileSeq);
+		boardModifyReq.setNextAttachedFileSeq(nextAttachedFileSeq);
 		boardModifyReq.setOldAttachedFileSeqCnt(oldAttachedFileSeqList.size());
 		boardModifyReq.setOldAttachedFileSeqList(oldAttachedFileSeqList);
 		boardModifyReq.setNewAttachedFileCnt(newAttachedFileList.size());
@@ -622,7 +623,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 
 		// log.info("게시글[{}] 수정이 완료되었습니다", boardModifyRes.toString());
 		int indexOfNewAttachedFileList = 0;
-		short newAttachedFileSeq = oldNextAttachedFileSeq;
+		short newAttachedFileSeq = nextAttachedFileSeq;
 		for (FileItem fileItem : fileItemList) {
 			if (!fileItem.isFormField()) {
 				String newAttachedFileFullPathName = WebCommonStaticUtil

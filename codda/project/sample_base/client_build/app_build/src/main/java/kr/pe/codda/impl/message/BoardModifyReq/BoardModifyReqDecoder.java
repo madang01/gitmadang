@@ -35,9 +35,9 @@ public final class BoardModifyReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardModifyReq");
 
-		boardModifyReq.setRequestUserID((String)
+		boardModifyReq.setRequestedUserID((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "requestUserID" // itemName
+			, "requestedUserID" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
@@ -83,9 +83,9 @@ public final class BoardModifyReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardModifyReq.setOldNextAttachedFileSeq((Short)
+		boardModifyReq.setNextAttachedFileSeq((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "oldNextAttachedFileSeq" // itemName
+			, "nextAttachedFileSeq" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
@@ -142,6 +142,14 @@ public final class BoardModifyReqDecoder extends AbstractMessageDecoder {
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "attachedFileName" // itemName
 				, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, newAttachedFile$2MiddleWritableObject));
+
+			newAttachedFile$2.setAttachedFileSize((Long)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachedFileSize" // itemName
+				, kr.pe.codda.common.type.SingleItemType.LONG // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
 				, newAttachedFile$2MiddleWritableObject));

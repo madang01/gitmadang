@@ -38,10 +38,7 @@ import kr.pe.codda.common.type.SingleItemType;
 
 /**
  * <pre>
- * 신놀이 메시지를 구성하는 항목 타입을 관리 클래스. 
- * 자바 문자열로 변환은 org.apache.commons.lang.StringEscapeUtils 를 이용하는데,
- * 한글의 경우 유니코드 문자열로 변환을 하기때문에 읽기 곤란한 점이 있다. 
- * 하지만 한글은 주석에서만 있으므로 나중 영문으로 변경하면 회피할 수 있는 문제이므로 그대로 넘어가기로 함.
+ * 메시지 정보를 이루는 단일 항목 타입 관리자
  * </pre>
  * 
  * @author Won Jonghoon

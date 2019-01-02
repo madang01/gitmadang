@@ -39,9 +39,9 @@ public final class BoardUnBlockReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardUnBlockReq");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardUnBlockReq.getRequestUserID() // itemValue
+			, boardUnBlockReq.getRequestedUserID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

@@ -25,16 +25,17 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardReplyReq extends AbstractMessage {
-	private String requestUserID;
+	private String requestedUserID;
 	private short boardID;
 	private long parentBoardNo;
 	private String subject;
 	private String content;
 	private String ip;
-	private short attachedFileCnt;
+	private short newAttachedFileCnt;
 
-	public static class AttachedFile {
+	public static class NewAttachedFile {
 		private String attachedFileName;
+		private long attachedFileSize;
 
 		public String getAttachedFileName() {
 			return attachedFileName;
@@ -43,26 +44,35 @@ public class BoardReplyReq extends AbstractMessage {
 		public void setAttachedFileName(String attachedFileName) {
 			this.attachedFileName = attachedFileName;
 		}
+		public long getAttachedFileSize() {
+			return attachedFileSize;
+		}
+
+		public void setAttachedFileSize(long attachedFileSize) {
+			this.attachedFileSize = attachedFileSize;
+		}
 
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("AttachedFile[");
+			builder.append("NewAttachedFile[");
 			builder.append("attachedFileName=");
 			builder.append(attachedFileName);
+			builder.append(", attachedFileSize=");
+			builder.append(attachedFileSize);
 			builder.append("]");
 			return builder.toString();
 		}
 	}
 
-	private java.util.List<AttachedFile> attachedFileList;
+	private java.util.List<NewAttachedFile> newAttachedFileList;
 
-	public String getRequestUserID() {
-		return requestUserID;
+	public String getRequestedUserID() {
+		return requestedUserID;
 	}
 
-	public void setRequestUserID(String requestUserID) {
-		this.requestUserID = requestUserID;
+	public void setRequestedUserID(String requestedUserID) {
+		this.requestedUserID = requestedUserID;
 	}
 	public short getBoardID() {
 		return boardID;
@@ -99,27 +109,27 @@ public class BoardReplyReq extends AbstractMessage {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
-	public short getAttachedFileCnt() {
-		return attachedFileCnt;
+	public short getNewAttachedFileCnt() {
+		return newAttachedFileCnt;
 	}
 
-	public void setAttachedFileCnt(short attachedFileCnt) {
-		this.attachedFileCnt = attachedFileCnt;
+	public void setNewAttachedFileCnt(short newAttachedFileCnt) {
+		this.newAttachedFileCnt = newAttachedFileCnt;
 	}
-	public java.util.List<AttachedFile> getAttachedFileList() {
-		return attachedFileList;
+	public java.util.List<NewAttachedFile> getNewAttachedFileList() {
+		return newAttachedFileList;
 	}
 
-	public void setAttachedFileList(java.util.List<AttachedFile> attachedFileList) {
-		this.attachedFileList = attachedFileList;
+	public void setNewAttachedFileList(java.util.List<NewAttachedFile> newAttachedFileList) {
+		this.newAttachedFileList = newAttachedFileList;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardReplyReq[");
-		builder.append("requestUserID=");
-		builder.append(requestUserID);
+		builder.append("requestedUserID=");
+		builder.append(requestedUserID);
 		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", parentBoardNo=");
@@ -130,28 +140,28 @@ public class BoardReplyReq extends AbstractMessage {
 		builder.append(content);
 		builder.append(", ip=");
 		builder.append(ip);
-		builder.append(", attachedFileCnt=");
-		builder.append(attachedFileCnt);
+		builder.append(", newAttachedFileCnt=");
+		builder.append(newAttachedFileCnt);
 
-		builder.append(", attachedFileList=");
-		if (null == attachedFileList) {
+		builder.append(", newAttachedFileList=");
+		if (null == newAttachedFileList) {
 			builder.append("null");
 		} else {
-			int attachedFileListSize = attachedFileList.size();
-			if (0 == attachedFileListSize) {
+			int newAttachedFileListSize = newAttachedFileList.size();
+			if (0 == newAttachedFileListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < attachedFileListSize; i++) {
-					AttachedFile attachedFile = attachedFileList.get(i);
+				for (int i=0; i < newAttachedFileListSize; i++) {
+					NewAttachedFile newAttachedFile = newAttachedFileList.get(i);
 					if (0 == i) {
-						builder.append("attachedFile[");
+						builder.append("newAttachedFile[");
 					} else {
-						builder.append(", attachedFile[");
+						builder.append(", newAttachedFile[");
 					}
 					builder.append(i);
 					builder.append("]=");
-					builder.append(attachedFile.toString());
+					builder.append(newAttachedFile.toString());
 				}
 				builder.append("]");
 			}

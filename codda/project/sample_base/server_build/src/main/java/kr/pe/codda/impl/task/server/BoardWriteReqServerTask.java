@@ -105,7 +105,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		}
 
 		try {
-			ValueChecker.checkValidWriterID(boardWriteReq.getRequestUserID());
+			ValueChecker.checkValidWriterID(boardWriteReq.getRequestedUserID());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -125,11 +125,11 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (boardWriteReq.getNewAttachedFileCnt() > ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT) {
+		if (boardWriteReq.getNewAttachedFileCnt() > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
 			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
 					.append(boardWriteReq.getNewAttachedFileCnt())
 					.append("]가 첨부 파일 최대 갯수[")
-					.append(ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT)
+					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT)
 					.append("]를 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
@@ -139,16 +139,25 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			List<BoardWriteReq.NewAttachedFile> newAttachedFileList = boardWriteReq.getNewAttachedFileList();
 			
 			for (int i=0; i < newAttachedFileCnt; i++) {
-				BoardWriteReq.NewAttachedFile attachedFileForRequest = newAttachedFileList.get(i);
+				BoardWriteReq.NewAttachedFile newAttachedFile = newAttachedFileList.get(i);
 				try {
-					ValueChecker.checkValidFileName(attachedFileForRequest.getAttachedFileName());
+					ValueChecker.checkValidFileName(newAttachedFile.getAttachedFileName());
 				} catch (IllegalArgumentException e) {
 					String errorMessage = new StringBuilder()
 							.append(i)
 							.append("번째 파일 이름 유효성 검사 에러 메시지::")
 							.append(e.getMessage()).toString();
 					throw new ServerServiceException(errorMessage);
-				}			
+				}
+				
+				if (newAttachedFile.getAttachedFileSize() <= 0) {
+					String errorMessage = new StringBuilder()
+					.append(i)
+					.append("번째 파일[")
+					.append(newAttachedFile.getAttachedFileName())
+					.append("] 크기가 0보다 작거나 같습니다").toString();
+					throw new ServerServiceException(errorMessage);
+				}
 			}
 		}
 		
@@ -167,7 +176,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardWriteReq.getRequestUserID());
+			ValueChecker.checkValidRequestedUserState(conn, create, log, boardWriteReq.getRequestedUserID());
 
 			Record boardSequenceRecord = create.select(SB_SEQ_TB.SQ_VALUE).from(SB_SEQ_TB)
 					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID)).forUpdate().fetchOne();
@@ -227,7 +236,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, UByte.valueOf(0))
 					.set(SB_BOARD_HISTORY_TB.SUBJECT, boardWriteReq.getSubject())
 					.set(SB_BOARD_HISTORY_TB.CONTENT, boardWriteReq.getContent())
-					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardWriteReq.getRequestUserID())
+					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardWriteReq.getRequestedUserID())
 					.set(SB_BOARD_HISTORY_TB.IP, boardWriteReq.getIp())
 					.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
 
@@ -245,11 +254,13 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			if (boardWriteReq.getNewAttachedFileCnt() > 0) {
 				int attachedFileListIndex = 0;
 				
+				
 				for (BoardWriteReq.NewAttachedFile attachedFileForRequest : boardWriteReq.getNewAttachedFileList()) {
 					int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
 							.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID).set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
 							.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileListIndex))
 							.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, attachedFileForRequest.getAttachedFileName())
+							.set(SB_BOARD_FILELIST_TB.ATTACHED_FSIZE, attachedFileForRequest.getAttachedFileSize())
 							.execute();
 
 					if (0 == boardFileListInsertCount) {

@@ -39,9 +39,9 @@ public final class BoardBlockReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardBlockReq");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardBlockReq.getRequestUserID() // itemValue
+			, boardBlockReq.getRequestedUserID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

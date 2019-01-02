@@ -116,5 +116,5 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 		return (String)groupRequestURL;
 	}
 	
-	abstract public String getSiteNavbarString(HttpServletRequest request);
+	abstract public String getWebsiteMenuString(HttpServletRequest request);
 }

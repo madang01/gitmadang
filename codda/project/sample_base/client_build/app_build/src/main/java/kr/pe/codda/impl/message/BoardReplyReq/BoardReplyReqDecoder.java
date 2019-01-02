@@ -35,9 +35,9 @@ public final class BoardReplyReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardReplyReq");
 
-		boardReplyReq.setRequestUserID((String)
+		boardReplyReq.setRequestedUserID((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "requestUserID" // itemName
+			, "requestedUserID" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
@@ -83,35 +83,43 @@ public final class BoardReplyReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardReplyReq.setAttachedFileCnt((Short)
+		boardReplyReq.setNewAttachedFileCnt((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "attachedFileCnt" // itemName
+			, "newAttachedFileCnt" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		int attachedFile$2ListSize = boardReplyReq.getAttachedFileCnt();
-		Object attachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "attachedFile", attachedFile$2ListSize, middleReadableObject);
-		java.util.List<BoardReplyReq.AttachedFile> attachedFile$2List = new java.util.ArrayList<BoardReplyReq.AttachedFile>();
-		for (int i2=0; i2 < attachedFile$2ListSize; i2++) {
-			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("AttachedFile").append("[").append(i2).append("]").toString());
-			Object attachedFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), attachedFile$2ArrayMiddleObject, i2);
-			BoardReplyReq.AttachedFile attachedFile$2 = new BoardReplyReq.AttachedFile();
-			attachedFile$2List.add(attachedFile$2);
+		int newAttachedFile$2ListSize = boardReplyReq.getNewAttachedFileCnt();
+		Object newAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "newAttachedFile", newAttachedFile$2ListSize, middleReadableObject);
+		java.util.List<BoardReplyReq.NewAttachedFile> newAttachedFile$2List = new java.util.ArrayList<BoardReplyReq.NewAttachedFile>();
+		for (int i2=0; i2 < newAttachedFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachedFile").append("[").append(i2).append("]").toString());
+			Object newAttachedFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), newAttachedFile$2ArrayMiddleObject, i2);
+			BoardReplyReq.NewAttachedFile newAttachedFile$2 = new BoardReplyReq.NewAttachedFile();
+			newAttachedFile$2List.add(newAttachedFile$2);
 
-			attachedFile$2.setAttachedFileName((String)
+			newAttachedFile$2.setAttachedFileName((String)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "attachedFileName" // itemName
 				, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
-				, attachedFile$2MiddleWritableObject));
+				, newAttachedFile$2MiddleWritableObject));
+
+			newAttachedFile$2.setAttachedFileSize((Long)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachedFileSize" // itemName
+				, kr.pe.codda.common.type.SingleItemType.LONG // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, newAttachedFile$2MiddleWritableObject));
 
 			pathStack.pop();
 		}
 
-		boardReplyReq.setAttachedFileList(attachedFile$2List);
+		boardReplyReq.setNewAttachedFileList(newAttachedFile$2List);
 
 		pathStack.pop();
 

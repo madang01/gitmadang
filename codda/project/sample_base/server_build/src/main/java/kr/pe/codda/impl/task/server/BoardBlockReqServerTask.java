@@ -19,7 +19,7 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -77,6 +77,11 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 	}
 	public MessageResultRes doWork(String dbcpName, BoardBlockReq boardBlockReq)
 			throws Exception {
+		if (null == boardBlockReq.getRequestedUserID()) {
+			String errorMessage = "요청한 사용자 아이디를 넣어주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		try {
 			BoardType.valueOf(boardBlockReq.getBoardID());
 		} catch (IllegalArgumentException e) {			
@@ -87,14 +92,9 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 		if (boardBlockReq.getBoardNo() < 0 || boardBlockReq.getBoardNo() > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 			String errorMessage = "게시판 번호가 unsigned integer type 의 최대값(=4294967295) 보다 큽니다";
 			throw new ServerServiceException(errorMessage);
-		}
+		}		
 		
-		if (null == boardBlockReq.getRequestUserID()) {
-			String errorMessage = "요청자 아이디가 null 입니다";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		String requestUserID = boardBlockReq.getRequestUserID();
+		String requestedUserID = boardBlockReq.getRequestedUserID();
 		UByte boardID = UByte.valueOf(boardBlockReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardBlockReq.getBoardNo());
 		
@@ -109,10 +109,10 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log, requestUserID);	
-			MemberType  requestUserIDMemberType = null;
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);	
+			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
 			try {
-				requestUserIDMemberType = MemberType.valueOf(nativeRequestUserIDMemberType, false);
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -120,13 +120,13 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("해당 게시글 삭제 요청자의 멤버 타입[")
-						.append(nativeRequestUserIDMemberType)
+				String errorMessage = new StringBuilder("해당 게시글 차단 요청자의 멤버 타입[")
+						.append(memberRoleOfRequestedUserID)
 						.append("]이 잘못되어있습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
 			
-			if (! MemberType.ADMIN.equals(requestUserIDMemberType)) {
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -265,7 +265,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			.execute();
 			
 			create.insertInto(SB_USER_ACTION_HISTORY_TB)
-			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestUserID)
+			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestedUserID)
 			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardBlockReq.getMessageID())
 			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardBlockReq.toString())
 			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))

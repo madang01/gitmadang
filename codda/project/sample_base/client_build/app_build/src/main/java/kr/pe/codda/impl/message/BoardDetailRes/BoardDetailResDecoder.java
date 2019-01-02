@@ -228,6 +228,14 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, attachedFile$2MiddleWritableObject));
 
+			attachedFile$2.setAttachedFileSize((Long)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachedFileSize" // itemName
+				, kr.pe.codda.common.type.SingleItemType.LONG // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, attachedFile$2MiddleWritableObject));
+
 			pathStack.pop();
 		}
 

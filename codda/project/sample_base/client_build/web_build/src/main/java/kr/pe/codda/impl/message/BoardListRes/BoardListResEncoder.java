@@ -23,7 +23,7 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 
 /**
  * BoardListRes message encoder
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public final class BoardListResEncoder extends AbstractMessageEncoder {
@@ -38,13 +38,6 @@ public final class BoardListResEncoder extends AbstractMessageEncoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardListRes");
 
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardListRes.getRequestUserID() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType

@@ -22,7 +22,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getWebsiteMenuString(request)%>
 	<div class="container-fluid">
 		<div class="panel panel-default">
 			<div class="panel-heading">코다(Codda)</div>

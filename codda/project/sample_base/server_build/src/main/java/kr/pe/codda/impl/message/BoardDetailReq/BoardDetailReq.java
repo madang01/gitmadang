@@ -25,16 +25,16 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardDetailReq extends AbstractMessage {
-	private String requestUserID;
+	private String requestedUserID;
 	private short boardID;
 	private long boardNo;
 
-	public String getRequestUserID() {
-		return requestUserID;
+	public String getRequestedUserID() {
+		return requestedUserID;
 	}
 
-	public void setRequestUserID(String requestUserID) {
-		this.requestUserID = requestUserID;
+	public void setRequestedUserID(String requestedUserID) {
+		this.requestedUserID = requestedUserID;
 	}
 	public short getBoardID() {
 		return boardID;
@@ -55,8 +55,8 @@ public class BoardDetailReq extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardDetailReq[");
-		builder.append("requestUserID=");
-		builder.append(requestUserID);
+		builder.append("requestedUserID=");
+		builder.append(requestedUserID);
 		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", boardNo=");

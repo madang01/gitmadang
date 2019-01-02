@@ -151,13 +151,13 @@
 	</target>
 
 	<target name="dist.weblib" depends="jar.weblib">
-		<copy todir="${dir.user.webinf.lib}" verbose="true" overwrite="true">
+		<!-- copy todir="${dir.user.webinf.lib}" verbose="true" overwrite="true">
 			<fileset file="${dir.dist}/${weblib.jar.name}" />
 		</copy>
 		
 		<copy todir="${dir.admin.webinf.lib}" verbose="true" overwrite="true">
 			<fileset file="${dir.dist}/${weblib.jar.name}" />
-		</copy>
+		</copy -->
 	</target>
 
 	<target name="compile.user.webclasses.only">

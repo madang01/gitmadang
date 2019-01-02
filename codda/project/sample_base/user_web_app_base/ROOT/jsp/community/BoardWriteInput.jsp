@@ -204,7 +204,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%= getWebsiteMenuString(request) %>
 	
 		
 	<form name=goDetailForm method="post" action="/servlet/BoardDetail">

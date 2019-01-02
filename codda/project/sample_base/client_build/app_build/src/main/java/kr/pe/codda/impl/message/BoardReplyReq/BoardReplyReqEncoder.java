@@ -39,9 +39,9 @@ public final class BoardReplyReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("BoardReplyReq");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestUserID"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardReplyReq.getRequestUserID() // itemValue
+			, boardReplyReq.getRequestedUserID() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -81,42 +81,49 @@ public final class BoardReplyReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileCnt"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "newAttachedFileCnt"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-			, boardReplyReq.getAttachedFileCnt() // itemValue
+			, boardReplyReq.getNewAttachedFileCnt() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		java.util.List<BoardReplyReq.AttachedFile> attachedFile$2List = boardReplyReq.getAttachedFileList();
+		java.util.List<BoardReplyReq.NewAttachedFile> newAttachedFile$2List = boardReplyReq.getNewAttachedFileList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
-		if (null == attachedFile$2List) {
+		if (null == newAttachedFile$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
-			if (0 != boardReplyReq.getAttachedFileCnt()) {
-				String errorMessage = new StringBuilder("the var attachedFile$2List is null but the value referenced by the array size[boardReplyReq.getAttachedFileCnt()][").append(boardReplyReq.getAttachedFileCnt()).append("] is not zero").toString();
+			if (0 != boardReplyReq.getNewAttachedFileCnt()) {
+				String errorMessage = new StringBuilder("the var newAttachedFile$2List is null but the value referenced by the array size[boardReplyReq.getNewAttachedFileCnt()][").append(boardReplyReq.getNewAttachedFileCnt()).append("] is not zero").toString();
 				throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
-			int attachedFile$2ListSize = attachedFile$2List.size();
+			int newAttachedFile$2ListSize = newAttachedFile$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (boardReplyReq.getAttachedFileCnt() != attachedFile$2ListSize) {
-				String errorMessage = new StringBuilder("the var attachedFile$2ListSize[").append(attachedFile$2ListSize).append("] is not same to the value referenced by the array size[boardReplyReq.getAttachedFileCnt()][").append(boardReplyReq.getAttachedFileCnt()).append("]").toString();
+			if (boardReplyReq.getNewAttachedFileCnt() != newAttachedFile$2ListSize) {
+				String errorMessage = new StringBuilder("the var newAttachedFile$2ListSize[").append(newAttachedFile$2ListSize).append("] is not same to the value referenced by the array size[boardReplyReq.getNewAttachedFileCnt()][").append(boardReplyReq.getNewAttachedFileCnt()).append("]").toString();
 				throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object attachedFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "attachedFile", attachedFile$2ListSize, middleWritableObject);
-			for (int i2=0; i2 < attachedFile$2ListSize; i2++) {
-				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("AttachedFile").append("[").append(i2).append("]").toString());
-				Object attachedFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), attachedFile$2ArrayMiddleObject, i2);
-				BoardReplyReq.AttachedFile attachedFile$2 = attachedFile$2List.get(i2);
+			Object newAttachedFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "newAttachedFile", newAttachedFile$2ListSize, middleWritableObject);
+			for (int i2=0; i2 < newAttachedFile$2ListSize; i2++) {
+				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachedFile").append("[").append(i2).append("]").toString());
+				Object newAttachedFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), newAttachedFile$2ArrayMiddleObject, i2);
+				BoardReplyReq.NewAttachedFile newAttachedFile$2 = newAttachedFile$2List.get(i2);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileName"
 					, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
-					, attachedFile$2.getAttachedFileName() // itemValue
+					, newAttachedFile$2.getAttachedFileName() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
-					, attachedFile$2MiddleWritableObject);
+					, newAttachedFile$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileSize"
+					, kr.pe.codda.common.type.SingleItemType.LONG // itemType
+					, newAttachedFile$2.getAttachedFileSize() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, newAttachedFile$2MiddleWritableObject);
 
 				pathStack.pop();
 			}

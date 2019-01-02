@@ -93,7 +93,7 @@ public class BoardListSvl extends AbstractSessionKeyServlet {
 		// int pageSize = 20;		
 		
 		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestUserID(getLoginedUserIDFromHttpSession(req));
+		boardListReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
 		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(WebCommonStaticFinalVars.WEBSITE_BOARD_LIST_SIZE_PER_PAGE);

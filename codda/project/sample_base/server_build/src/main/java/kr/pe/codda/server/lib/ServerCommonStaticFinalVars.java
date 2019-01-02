@@ -2,7 +2,7 @@ package kr.pe.codda.server.lib;
 
 public abstract class ServerCommonStaticFinalVars {
 	/** 업로드 되는 파일의 최대 갯수, unsinged byte 범위내 값으로 0 보다 큰 수이어야 한다. */
-	public static int WEBSITE_FILEUPLOAD_MAX_COUNT = 2;
+	public static int WEBSITE_ATTACHED_FILE_MAX_COUNT = 2;
 		
 	/** sample_base 프로젝트의 DB 스키마, SB_DB ===> sample_base_database */
 	public static final String DEFAULT_DBCP_NAME = "SB_DB";

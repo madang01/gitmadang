@@ -23,7 +23,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -107,10 +107,10 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			String nativeRequestUserIDMemberType = ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardDetailReq.getRequestUserID());	
-			MemberType  requestUserIDMemberType = null;
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, boardDetailReq.getRequestedUserID());	
+			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
 			try {
-				requestUserIDMemberType = MemberType.valueOf(nativeRequestUserIDMemberType, false);
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -119,7 +119,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("해당 게시글 상세 보기 요청자의 멤버 타입[")
-						.append(nativeRequestUserIDMemberType)
+						.append(memberRoleOfRequestedUserID)
 						.append("]이 잘못되어있습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}			
@@ -206,7 +206,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			Timestamp firstRegisteredDate = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
 			String firstWriterNickname = firstWriterBoardRecord.getValue(SB_MEMBER_TB.NICKNAME);			
 			
-			if (! MemberType.ADMIN.equals(requestUserIDMemberType)) {
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				if (BoardStateType.DELETE.equals(boardStateType)) {
 					try {
 						conn.rollback();
@@ -263,6 +263,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					BoardDetailRes.AttachedFile attachedFile = new BoardDetailRes.AttachedFile();
 					attachedFile.setAttachedFileSeq(attachFileRecord.get(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ).shortValue());
 					attachedFile.setAttachedFileName(attachFileRecord.get(SB_BOARD_FILELIST_TB.ATTACHED_FNAME));
+					attachedFile.setAttachedFileSize(attachFileRecord.get(SB_BOARD_FILELIST_TB.ATTACHED_FSIZE));
 					attachedFileList.add(attachedFile);
 				}
 			}
@@ -282,9 +283,11 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder("해당 게시글 읽은 횟수 갱신이 실패하였습니다").toString();				
 				throw new ServerServiceException(errorMessage);
 			}
-			viewCount++;
 			
-			conn.commit();			
+			
+			conn.commit();	
+			
+			viewCount++;
 
 			BoardDetailRes boardDetailRes = new BoardDetailRes();
 			boardDetailRes.setBoardID(boardDetailReq.getBoardID());

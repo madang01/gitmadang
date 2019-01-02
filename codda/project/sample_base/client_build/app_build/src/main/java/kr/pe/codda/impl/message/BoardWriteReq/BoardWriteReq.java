@@ -25,7 +25,7 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class BoardWriteReq extends AbstractMessage {
-	private String requestUserID;
+	private String requestedUserID;
 	private short boardID;
 	private String subject;
 	private String content;
@@ -34,6 +34,7 @@ public class BoardWriteReq extends AbstractMessage {
 
 	public static class NewAttachedFile {
 		private String attachedFileName;
+		private long attachedFileSize;
 
 		public String getAttachedFileName() {
 			return attachedFileName;
@@ -42,6 +43,13 @@ public class BoardWriteReq extends AbstractMessage {
 		public void setAttachedFileName(String attachedFileName) {
 			this.attachedFileName = attachedFileName;
 		}
+		public long getAttachedFileSize() {
+			return attachedFileSize;
+		}
+
+		public void setAttachedFileSize(long attachedFileSize) {
+			this.attachedFileSize = attachedFileSize;
+		}
 
 		@Override
 		public String toString() {
@@ -49,6 +57,8 @@ public class BoardWriteReq extends AbstractMessage {
 			builder.append("NewAttachedFile[");
 			builder.append("attachedFileName=");
 			builder.append(attachedFileName);
+			builder.append(", attachedFileSize=");
+			builder.append(attachedFileSize);
 			builder.append("]");
 			return builder.toString();
 		}
@@ -56,12 +66,12 @@ public class BoardWriteReq extends AbstractMessage {
 
 	private java.util.List<NewAttachedFile> newAttachedFileList;
 
-	public String getRequestUserID() {
-		return requestUserID;
+	public String getRequestedUserID() {
+		return requestedUserID;
 	}
 
-	public void setRequestUserID(String requestUserID) {
-		this.requestUserID = requestUserID;
+	public void setRequestedUserID(String requestedUserID) {
+		this.requestedUserID = requestedUserID;
 	}
 	public short getBoardID() {
 		return boardID;
@@ -110,8 +120,8 @@ public class BoardWriteReq extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardWriteReq[");
-		builder.append("requestUserID=");
-		builder.append(requestUserID);
+		builder.append("requestedUserID=");
+		builder.append(requestedUserID);
 		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", subject=");

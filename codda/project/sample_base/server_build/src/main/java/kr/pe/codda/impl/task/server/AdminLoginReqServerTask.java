@@ -20,7 +20,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberStateType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -182,10 +182,10 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		String userId = null;		
+		String userID = null;		
 		
 		try {
-			userId = getDecryptedString(idCipherBytes, serverSymmetricKey);
+			userID = getDecryptedString(idCipherBytes, serverSymmetricKey);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = "아이디에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
@@ -201,7 +201,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidUserID(userId);
+			ValueChecker.checkValidUserID(userID);
 		} catch(IllegalArgumentException e) {						
 			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, adminLoginReq);
 			return;*/
@@ -229,13 +229,13 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
 			Record resultOfMember = create.select(
-					SB_MEMBER_TB.MEMBER_TYPE,
-					SB_MEMBER_TB.MEMBER_ST,
+					SB_MEMBER_TB.ROLE,
+					SB_MEMBER_TB.STATE,
 					SB_MEMBER_TB.PWD_FAIL_CNT,
 					SB_MEMBER_TB.PWD_BASE64,
 					SB_MEMBER_TB.PWD_SALT_BASE64)
 				.from(SB_MEMBER_TB)
-				.where(SB_MEMBER_TB.USER_ID.eq(userId))
+				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.forUpdate().fetchOne();
 			
 			if (null == resultOfMember) {
@@ -246,7 +246,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("아이디[")
-						.append(userId)
+						.append(userID)
 						.append("]가 존재하지 않습니다").toString();
 				
 				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, adminLoginReq);
@@ -254,16 +254,15 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String nativeMemberType = resultOfMember.get(SB_MEMBER_TB.MEMBER_TYPE);
-			String memberState = resultOfMember.get(SB_MEMBER_TB.MEMBER_ST);
+			String memberRole = resultOfMember.get(SB_MEMBER_TB.ROLE);
+			String memberState = resultOfMember.get(SB_MEMBER_TB.STATE);
 			short pwdFailedCount = resultOfMember.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
 			String pwdMDBase64 =  resultOfMember.get(SB_MEMBER_TB.PWD_BASE64);
-			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);	
+			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);
 			
-			
-			MemberType memberType = null;
+			MemberRoleType memberRoleType = null;
 			try {
-				memberType = MemberType.valueOf(nativeMemberType, false);
+				memberRoleType = MemberRoleType.valueOf(memberRole, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -272,10 +271,10 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("회원[")
-						.append(userId)
-						.append("] 구분[")
-						.append(nativeMemberType)
-						.append("]가 잘못되었습니다").toString();
+						.append(userID)
+						.append("] 역활 구분[")
+						.append(memberRole)
+						.append("]이 잘못되었습니다").toString();
 				
 				// log.warn(errorMessage);
 				
@@ -283,26 +282,6 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
-			
-			if (! memberType.equals(MemberType.ADMIN)) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("회원[")
-						.append(userId)
-						.append("] 구분[")
-						.append(nativeMemberType)
-						.append("]이 어드민이 아닙니다").toString();				
-				// log.warn(errorMessage);
-				
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, adminLoginReq);
-				return;*/
-				throw new ServerServiceException(errorMessage);
-			}
-			
 			
 			MemberStateType memberStateType = null;
 			try {
@@ -315,14 +294,51 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("회원[")
-						.append(userId)
+						.append(userID)
 						.append("]의 멤버 상태[")
 						.append(memberState)
 						.append("]가 잘못되었습니다").toString();
 				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, adminLoginReq);
 				return;*/
 				throw new ServerServiceException(errorMessage);
-			}			
+			}
+			
+			if (! memberRoleType.equals(MemberRoleType.ADMIN)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("회원[")
+						.append(userID)
+						.append("] 역활 구분[")
+						.append(memberRole)
+						.append("]이 어드민이 아닙니다").toString();				
+				// log.warn(errorMessage);
+				
+				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, adminLoginReq);
+				return;*/
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			if (MemberStateType.BLOCK.equals(memberStateType)) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("해당 아이디[")
+						.append(userID)
+						.append("는 블락된 사용자입니다").toString();				
+				throw new ServerServiceException(errorMessage);
+			} else if (MemberStateType.WITHDRAWAL.equals(memberStateType)) {
+				String errorMessage = new StringBuilder("해당 아이디[")
+						.append(userID)
+						.append("는 탈퇴한 사용자입니다").toString();				
+				throw new ServerServiceException(errorMessage);
+			}	
 			
 			if (ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES <= pwdFailedCount) {
 				try {
@@ -339,35 +355,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			if (memberStateType.equals(MemberStateType.BLOCK)) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
 				
-				String errorMessage = new StringBuilder("블락된 회원[")
-						.append(userId)
-						.append("] 입니다").toString();
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, adminLoginReq);
-				return;*/
-				throw new ServerServiceException(errorMessage);
-			}
-			
-			if (memberStateType.equals(MemberStateType.WITHDRAWAL)) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("탈퇴한 회원[")
-						.append(userId)
-						.append("] 입니다").toString();
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, adminLoginReq);
-				return;*/
-				throw new ServerServiceException(errorMessage);
-			}			
 			
 			byte[] passwordBytes = null;
 			
@@ -427,7 +415,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				int countOfPwdFailedCountUpdate = create.update(SB_MEMBER_TB)
 					.set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(pwdFailedCount+1))
 					.set(SB_MEMBER_TB.MOD_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-					.where(SB_MEMBER_TB.USER_ID.eq(userId))
+					.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
 				
 				if (0  == countOfPwdFailedCountUpdate) {

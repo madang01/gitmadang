@@ -114,7 +114,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		}
 
 		try {
-			ValueChecker.checkValidUserID(boardReplyReq.getRequestUserID());
+			ValueChecker.checkValidUserID(boardReplyReq.getRequestedUserID());
 		} catch (IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -127,39 +127,48 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (boardReplyReq.getAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+		if (boardReplyReq.getNewAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
-					.append(boardReplyReq.getAttachedFileCnt())
+					.append(boardReplyReq.getNewAttachedFileCnt())
 					.append("]가 unsgiend byte 최대값[")
 					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
 					.append("]을 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (boardReplyReq.getAttachedFileCnt() > ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT) {
+		if (boardReplyReq.getNewAttachedFileCnt() > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
 			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
-					.append(boardReplyReq.getAttachedFileCnt())
+					.append(boardReplyReq.getNewAttachedFileCnt())
 					.append("]가 첨부 파일 최대 갯수[")
-					.append(ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT)
+					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT)
 					.append("]를 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (boardReplyReq.getAttachedFileCnt() > 0) {			
-			int newAttachedFileCnt = boardReplyReq.getAttachedFileCnt();
-			List<BoardReplyReq.AttachedFile> newAttachedFileList = boardReplyReq.getAttachedFileList();
+		if (boardReplyReq.getNewAttachedFileCnt() > 0) {			
+			int newAttachedFileCnt = boardReplyReq.getNewAttachedFileCnt();
+			List<BoardReplyReq.NewAttachedFile> newAttachedFileList = boardReplyReq.getNewAttachedFileList();
 			
 			for (int i=0; i < newAttachedFileCnt; i++) {
-				BoardReplyReq.AttachedFile attachedFileForRequest = newAttachedFileList.get(i);
+				BoardReplyReq.NewAttachedFile newAttachedFile = newAttachedFileList.get(i);
 				try {
-					ValueChecker.checkValidFileName(attachedFileForRequest.getAttachedFileName());
+					ValueChecker.checkValidFileName(newAttachedFile.getAttachedFileName());
 				} catch (IllegalArgumentException e) {
 					String errorMessage = new StringBuilder()
 							.append(i)
 							.append("번째 파일 이름 유효성 검사 에러 메시지::")
 							.append(e.getMessage()).toString();
 					throw new ServerServiceException(errorMessage);
-				}			
+				}
+				
+				if (newAttachedFile.getAttachedFileSize() <= 0) {
+					String errorMessage = new StringBuilder()
+					.append(i)
+					.append("번째 파일[")
+					.append(newAttachedFile.getAttachedFileName())
+					.append("] 크기가 0보다 작거나 같습니다").toString();
+					throw new ServerServiceException(errorMessage);
+				}
 			}
 		}
 
@@ -177,7 +186,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			ValueChecker.checkValidMemberStateForUserID(conn, create, log, boardReplyReq.getRequestUserID());
+			ValueChecker.checkValidRequestedUserState(conn, create, log, boardReplyReq.getRequestedUserID());
 			
 			Record boardSequenceRecord = create.select(SB_SEQ_TB.SQ_VALUE).from(SB_SEQ_TB)
 					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID)).forUpdate().fetchOne();
@@ -231,7 +240,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			UInteger groupNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_NO);
 			UShort groupSeqOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-			UByte nextAttachedFileSeq = UByte.valueOf(boardReplyReq.getAttachedFileCnt());			
+			UByte nextAttachedFileSeq = UByte.valueOf(boardReplyReq.getNewAttachedFileCnt());			
 
 			/** 댓글은 부모가 속한 그룹의 순서를 조정하므로 그룹 전체에 대해서 동기화가 필요하기때문에 부모가 속한 그룹 최상위 글에 대해서 락을 건다 */
 			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
@@ -298,7 +307,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, UByte.valueOf(0))
 					.set(SB_BOARD_HISTORY_TB.SUBJECT, boardReplyReq.getSubject())
 					.set(SB_BOARD_HISTORY_TB.CONTENT, boardReplyReq.getContent())
-					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardReplyReq.getRequestUserID())
+					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardReplyReq.getRequestedUserID())
 					.set(SB_BOARD_HISTORY_TB.IP, boardReplyReq.getIp())
 					.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
 
@@ -312,13 +321,14 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			if (boardReplyReq.getAttachedFileCnt() > 0) {	
+			if (boardReplyReq.getNewAttachedFileCnt() > 0) {	
 				int attachedFileListIndex = 0;			
-				for (BoardReplyReq.AttachedFile attachedFileForRequest : boardReplyReq.getAttachedFileList()) {
+				for (BoardReplyReq.NewAttachedFile newAttachedFile : boardReplyReq.getNewAttachedFileList()) {
 					int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
 							.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID).set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
 							.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileListIndex))
-							.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, attachedFileForRequest.getAttachedFileName())
+							.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, newAttachedFile.getAttachedFileName())
+							.set(SB_BOARD_FILELIST_TB.ATTACHED_FSIZE, newAttachedFile.getAttachedFileSize())
 							.execute();
 
 					if (0 == boardFileListInsertCount) {

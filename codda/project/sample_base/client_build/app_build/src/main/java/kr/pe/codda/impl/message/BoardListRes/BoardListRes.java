@@ -21,11 +21,10 @@ import kr.pe.codda.common.message.AbstractMessage;
 
 /**
  * BoardListRes message
- * @author Won Jonghooon
+ * @author Won Jonghoon
  *
  */
 public class BoardListRes extends AbstractMessage {
-	private String requestUserID;
 	private short boardID;
 	private int pageNo;
 	private int pageSize;
@@ -176,13 +175,6 @@ public class BoardListRes extends AbstractMessage {
 
 	private java.util.List<Board> boardList;
 
-	public String getRequestUserID() {
-		return requestUserID;
-	}
-
-	public void setRequestUserID(String requestUserID) {
-		this.requestUserID = requestUserID;
-	}
 	public short getBoardID() {
 		return boardID;
 	}
@@ -230,9 +222,7 @@ public class BoardListRes extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("boardListRes[");
-		builder.append("requestUserID=");
-		builder.append(requestUserID);
-		builder.append(", boardID=");
+		builder.append("boardID=");
 		builder.append(boardID);
 		builder.append(", pageNo=");
 		builder.append(pageNo);

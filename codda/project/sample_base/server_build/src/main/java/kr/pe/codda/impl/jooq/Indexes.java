@@ -84,7 +84,7 @@ public class Indexes {
         public static Index SB_GROUP_TB_SB_GROUP_FK2_IDX = Internal.createIndex("sb_group_fk2_idx", SbGroupTb.SB_GROUP_TB, new OrderField[] { SbGroupTb.SB_GROUP_TB.USER_ID }, false);
         public static Index SB_MEMBER_TB_PRIMARY = Internal.createIndex("PRIMARY", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.USER_ID }, true);
         public static Index SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createIndex("sb_member_idx1", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.NICKNAME }, true);
-        public static Index SB_MEMBER_TB_SB_MEMBER_IDX2 = Internal.createIndex("sb_member_idx2", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.MEMBER_ST }, false);
+        public static Index SB_MEMBER_TB_SB_MEMBER_IDX2 = Internal.createIndex("sb_member_idx2", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.STATE }, false);
         public static Index SB_SEQ_TB_PRIMARY = Internal.createIndex("PRIMARY", SbSeqTb.SB_SEQ_TB, new OrderField[] { SbSeqTb.SB_SEQ_TB.SQ_ID }, true);
         public static Index SB_SITEMENU_TB_PRIMARY = Internal.createIndex("PRIMARY", SbSitemenuTb.SB_SITEMENU_TB, new OrderField[] { SbSitemenuTb.SB_SITEMENU_TB.MENU_NO }, true);
         public static Index SB_SITEMENU_TB_SB_SITEMENU_IDX1 = Internal.createIndex("sb_sitemenu_idx1", SbSitemenuTb.SB_SITEMENU_TB, new OrderField[] { SbSitemenuTb.SB_SITEMENU_TB.ORDER_SQ }, false);

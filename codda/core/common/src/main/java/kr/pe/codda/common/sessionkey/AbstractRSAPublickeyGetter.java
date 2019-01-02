@@ -107,7 +107,7 @@ public abstract class AbstractRSAPublickeyGetter {
 		try {
 			rsaPublickeyFile = commonPart.getRSAPublickeyFileOfSessionKey();
 			
-			publicKeyBytes =FileUtils.readFileToByteArray(rsaPublickeyFile);
+			publicKeyBytes = FileUtils.readFileToByteArray(rsaPublickeyFile);
 
 		} catch (CoddaConfigurationException e) {
 			String errorMessage = String.format("fail to get RSA public key file from Sinnnori configuration, errormessage=[%s]",

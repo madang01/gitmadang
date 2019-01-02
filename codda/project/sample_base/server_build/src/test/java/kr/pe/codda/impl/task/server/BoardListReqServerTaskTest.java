@@ -18,7 +18,7 @@ import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
 import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
 import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
@@ -41,7 +41,7 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 		String ip = "127.0.0.1";
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		} catch (ServerServiceException e) {
 			String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 					.append(userID)
@@ -81,7 +81,7 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 		int pageSize = 20;
 		
 		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestUserID("guest");
+		boardListReq.setRequestedUserID("guest");
 		boardListReq.setBoardID(BoardType.FREE.getBoardID());
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);

@@ -22,7 +22,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberStateType;
-import kr.pe.codda.server.lib.MemberType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -253,8 +253,8 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			*/
 			
 			Record resultOfMember = create.select(
-					SB_MEMBER_TB.MEMBER_TYPE,
-					SB_MEMBER_TB.MEMBER_ST,
+					SB_MEMBER_TB.ROLE,
+					SB_MEMBER_TB.STATE,
 					SB_MEMBER_TB.PWD_FAIL_CNT,
 					SB_MEMBER_TB.PWD_BASE64,
 					SB_MEMBER_TB.PWD_SALT_BASE64)
@@ -278,15 +278,15 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String nativeMemberType = resultOfMember.get(SB_MEMBER_TB.MEMBER_TYPE);
-			String memberState = resultOfMember.get(SB_MEMBER_TB.MEMBER_ST);
+			String memberRole = resultOfMember.get(SB_MEMBER_TB.ROLE);
+			String memberState = resultOfMember.get(SB_MEMBER_TB.STATE);
 			short pwdFailedCount = resultOfMember.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
 			String pwdMDBase64 =  resultOfMember.get(SB_MEMBER_TB.PWD_BASE64);
-			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);			
+			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);
 			
-			MemberType memberType = null;
+			MemberRoleType memberRoleType = null;
 			try {
-				memberType = MemberType.valueOf(nativeMemberType, false);
+				memberRoleType = MemberRoleType.valueOf(memberRole, false);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -297,7 +297,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder("회원[")
 						.append(userID)
 						.append("]의 멤버 구분[")
-						.append(nativeMemberType)
+						.append(memberRole)
 						.append("]이 잘못되었습니다").toString();
 				
 				// log.warn(errorMessage);
@@ -325,21 +325,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
 				return;*/
 				throw new ServerServiceException(errorMessage);
-			}			
-			
-			if (ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES <= pwdFailedCount) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("최대 비밀번호 실패 횟수[")
-						.append(ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES)
-						.append("] 이상으로 비밀번호가 틀렸습니다, 비밀번호 초기화를 수행하시기 바랍니다").toString();
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
-				throw new ServerServiceException(errorMessage);
 			}
 			
 			if (memberStateType.equals(MemberStateType.BLOCK)) {
@@ -355,9 +340,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
 				return;*/
 				throw new ServerServiceException(errorMessage);
-			}
-			
-			if (memberStateType.equals(MemberStateType.WITHDRAWAL)) {
+			} else if (memberStateType.equals(MemberStateType.WITHDRAWAL)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
@@ -370,7 +353,23 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
 				return;*/
 				throw new ServerServiceException(errorMessage);
+			}
+			
+			if (ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES <= pwdFailedCount) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("최대 비밀번호 실패 횟수[")
+						.append(ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES)
+						.append("] 이상으로 비밀번호가 틀렸습니다, 비밀번호 초기화를 수행하시기 바랍니다").toString();
+				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
+				return;*/
+				throw new ServerServiceException(errorMessage);
 			}			
+					
 			
 			byte[] passwordBytes = null;
 			
@@ -457,7 +456,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			messageResultRes.setResultMessage("로그인 성공하셨습니다");*/
 			UserLoginRes userLoginRes = new UserLoginRes();
 			userLoginRes.setUserID(userID);
-			userLoginRes.setMemberType(memberType.getValue());
+			userLoginRes.setMemberRole(memberRoleType.getValue());
 			
 			/*sendSuccessOutputMessageForCommit(userLoginRes, conn, toLetterCarrier);
 			return;*/

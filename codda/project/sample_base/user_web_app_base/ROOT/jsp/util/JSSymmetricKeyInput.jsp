@@ -76,7 +76,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%=getWebsiteMenuString(request)%>
 	
 	<div class="container-fluid">
 		<h2>CryptoJS 대칭키 테스트 - 입력</h2>
