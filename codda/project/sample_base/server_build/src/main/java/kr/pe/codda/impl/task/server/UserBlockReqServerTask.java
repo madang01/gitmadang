@@ -120,11 +120,11 @@ public class UserBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("회원 테이블에서 회원[")
+				String errorMessage = new StringBuilder("알 수 없는 회원[")
 					.append(requestedUserID)
 					.append("]의 역활[")
 					.append(memberRoleOfRequestedUserID)
-					.append("] 값이 잘못 되어 있습니다").toString();
+					.append("] 값입니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
 			
@@ -170,11 +170,11 @@ public class UserBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("회원 테이블에서 회원[")
+				String errorMessage = new StringBuilder("알 수 없는 회원[")
 					.append(targetUserID)
 					.append("]의 역활[")
 					.append(memberRoleOfTargetUserID)
-					.append("] 값이 잘못 되어 있습니다").toString();
+					.append("] 값입니다").toString();
 				
 				throw new ServerServiceException(errorMessage);
 			}	
@@ -201,11 +201,11 @@ public class UserBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("회원 테이블에서 회원[")
+				String errorMessage = new StringBuilder("알 수 없는 회원[")
 					.append(targetUserID)
 					.append("]의 상태[")
 					.append(memeberStateOfTargetUserID)
-					.append("] 값이 잘못 되어 있습니다").toString();				
+					.append("] 값입니다").toString();				
 				throw new ServerServiceException(errorMessage);
 			}
 			

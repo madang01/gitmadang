@@ -757,11 +757,11 @@ public class ValueChecker {
 				log.warn("fail to rollback");
 			}
 			
-			String errorMessage = new StringBuilder("회원 테이블에서 회원[")
+			String errorMessage = new StringBuilder("알 수 없는 회원[")
 				.append(requestedUserID)
-				.append("]의 상태[")
+				.append("] 상태[")
 				.append(memeberStateOfRequestedUserID)
-				.append("] 값이 잘못 되어 있습니다").toString();
+				.append("] 값입니다").toString();
 			
 			throw new ServerServiceException(errorMessage);
 		}

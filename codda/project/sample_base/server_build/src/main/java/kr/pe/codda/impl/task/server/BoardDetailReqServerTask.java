@@ -156,7 +156,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			UShort groupSeqence = boardRecord.get(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNo = boardRecord.get(SB_BOARD_TB.PARENT_NO);
 			UByte depth = boardRecord.get(SB_BOARD_TB.DEPTH);
-			int viewCount = boardRecord.get(SB_BOARD_TB.VIEW_CNT);
+			int oldViewCount = boardRecord.get(SB_BOARD_TB.VIEW_CNT);
 			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 			UByte nextAttachedFileSeq = boardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
 			int votes = boardRecord.get("votes", Integer.class);			
@@ -171,9 +171,9 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("게시글의 상태 값[")
-						.append(boardState)
-						.append("]이 잘못되었습니다").toString();
+				String errorMessage = new StringBuilder("게시글의 DB 상태 값[")
+					.append(boardState).append("]이 잘못되었습니다")
+					.toString();
 				throw new ServerServiceException(errorMessage);
 			}	
 			
@@ -207,23 +207,28 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			String firstWriterNickname = firstWriterBoardRecord.getValue(SB_MEMBER_TB.NICKNAME);			
 			
 			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
-				if (BoardStateType.DELETE.equals(boardStateType)) {
+				if (! BoardStateType.OK.equals(boardStateType)) {
 					try {
 						conn.rollback();
-					} catch (Exception e) {
+					} catch (Exception e1) {
 						log.warn("fail to rollback");
 					}
+
+					String errorMessage = null;
 					
-					String errorMessage = "해당 게시글은 삭제된 글입니다";
-					throw new ServerServiceException(errorMessage);
-				} else if (BoardStateType.BLOCK.equals(boardStateType)) {
-					try {
-						conn.rollback();
-					} catch (Exception e) {
-						log.warn("fail to rollback");
+					if (BoardStateType.DELETE.equals(boardStateType)) {
+						errorMessage = "해당 게시글은 삭제된 글입니다";
+					} else if (BoardStateType.BLOCK.equals(boardStateType)) {
+						errorMessage = "해당 게시글은 관리자에 의해 차단된 글입니다";
+					} else if (BoardStateType.TREEBLOCK.equals(boardStateType)) {
+						errorMessage = "해당 게시글은 관리자에 의해 차단된 글을 루트로 하는 트리에 속한 글입니다";
+					} else {
+						errorMessage = new StringBuilder()
+						.append("해당 게시글 상태[")
+						.append(boardStateType.getName())
+						.append("]가 정상이 아닙니다").toString();
 					}
 					
-					String errorMessage = "해당 게시글은 관리자에 의해 블락된 글입니다";
 					throw new ServerServiceException(errorMessage);
 				}
 			}			
@@ -287,8 +292,6 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			
 			conn.commit();	
 			
-			viewCount++;
-
 			BoardDetailRes boardDetailRes = new BoardDetailRes();
 			boardDetailRes.setBoardID(boardDetailReq.getBoardID());
 			boardDetailRes.setBoardNo(boardDetailReq.getBoardNo());			
@@ -296,7 +299,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			boardDetailRes.setGroupSeq(groupSeqence.intValue());
 			boardDetailRes.setParentNo(parentNo.longValue());
 			boardDetailRes.setDepth(depth.shortValue());
-			boardDetailRes.setViewCount(viewCount);
+			boardDetailRes.setViewCount(oldViewCount + 1);
 			boardDetailRes.setNextAttachedFileSeq(nextAttachedFileSeq.shortValue());
 			boardDetailRes.setBoardSate(boardState);
 			

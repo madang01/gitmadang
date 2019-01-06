@@ -7,7 +7,7 @@ package kr.pe.codda.server.lib;
  *
  */
 public enum BoardStateType {
-	OK("Y", "정상"), BLOCK("B", "블락"), DELETE("D", "삭제"), TREEBLOCK("T", "트리블락");;
+	OK("Y", "정상"), BLOCK("B", "블락"), DELETE("D", "삭제"), TREEBLOCK("T", "트리블락");
 	
 	private String boardStateTypeValue;
 	private String boardStateTypeName;

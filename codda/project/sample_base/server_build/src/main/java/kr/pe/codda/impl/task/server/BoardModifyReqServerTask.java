@@ -182,9 +182,6 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
-
-		UByte boardID = UByte.valueOf(boardModifyReq.getBoardID());
-		UInteger boardNo = UInteger.valueOf(boardModifyReq.getBoardNo());
 		
 		HashSet<Short> remainingOldAttachedFileSequeceSet = new HashSet<Short>();		
 		for (BoardModifyReq.OldAttachedFileSeq oldAttachedFile : boardModifyReq
@@ -211,6 +208,21 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			remainingOldAttachedFileSequeceSet.add(oldAttachedFileSeq);
+		}
+		
+		UByte boardID = UByte.valueOf(boardModifyReq.getBoardID());
+		UInteger boardNo = UInteger.valueOf(boardModifyReq.getBoardNo());
+		int newNextAttachedFileSeq = boardModifyReq.getNextAttachedFileSeq()
+				+ boardModifyReq.getNewAttachedFileCnt();
+
+		if (newNextAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder()
+					.append("새로운 '다음 첨부 파일 시퀀스 번호'(= 기존 '다음 첨부 파일 시퀀스 번호'[")
+					.append(boardModifyReq.getNextAttachedFileSeq())
+					.append("] + 신규 첨부 파일 갯수[")
+					.append(boardModifyReq.getNewAttachedFileCnt())
+					.append("])가 최대 값(=255)을 초과하였습니다").toString();
+			throw new ServerServiceException(errorMessage);
 		}
 
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(
@@ -262,8 +274,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 						log.warn("fail to rollback");
 					}
 
-					String errorMessage = new StringBuilder(
-							"해당 게시글의 최초 작성자 정보가 존재 하지 않습니다").toString();
+					String errorMessage = "해당 게시글의 최초 작성자 정보가 존재 하지 않습니다";
 					throw new ServerServiceException(errorMessage);
 				}
 
@@ -303,14 +314,14 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			String nativeBoardStateType = boardRecord
+			String boardState = boardRecord
 					.getValue(SB_BOARD_TB.BOARD_ST);
 			UByte nextAttachedFileSeq = boardRecord
 					.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
 
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(nativeBoardStateType,
+				boardStateType = BoardStateType.valueOf(boardState,
 						false);
 			} catch (IllegalArgumentException e) {
 				try {
@@ -319,33 +330,36 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시글의 상태 값[")
-						.append(nativeBoardStateType).append("]이 잘못되었습니다")
+				String errorMessage = new StringBuilder("게시글의 DB 상태 값[")
+						.append(boardState).append("]이 잘못되었습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
 			}
 
-			if (BoardStateType.DELETE.equals(boardStateType)) {
+			if (! BoardStateType.OK.equals(boardStateType)) {
 				try {
 					conn.rollback();
 				} catch (Exception e1) {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("해당 게시글은 삭제된 글입니다")
-						.toString();
-				throw new ServerServiceException(errorMessage);
-			} else if (BoardStateType.BLOCK.equals(boardStateType)) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
+				String errorMessage = null;
+				
+				if (BoardStateType.DELETE.equals(boardStateType)) {
+					errorMessage = "해당 게시글은 삭제된 글입니다";
+				} else if (BoardStateType.BLOCK.equals(boardStateType)) {
+					errorMessage = "해당 게시글은 관리자에 의해 차단된 글입니다";
+				} else if (BoardStateType.TREEBLOCK.equals(boardStateType)) {
+					errorMessage = "해당 게시글은 관리자에 의해 차단된 글을 루트로 하는 트리에 속한 글입니다";
+				} else {
+					errorMessage = new StringBuilder()
+					.append("해당 게시글 상태[")
+					.append(boardStateType.getName())
+					.append("]가 정상이 아닙니다").toString();
 				}
-
-				String errorMessage = new StringBuilder(
-						"해당 게시글은 관리자에 의해 블락된 글입니다").toString();
+				
 				throw new ServerServiceException(errorMessage);
-			}
+			}			
 
 			if (boardModifyReq.getNextAttachedFileSeq() != nextAttachedFileSeq
 					.shortValue()) {
@@ -358,68 +372,30 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder()
 						.append("입력 메시지로 받은 '다음 첨부 파일 시퀀스 번호'[")
 						.append(boardModifyReq.getNextAttachedFileSeq())
-						.append("]가 DB 상 값[")
+						.append("]가 DB 값[")
 						.append(nextAttachedFileSeq.shortValue())
 						.append("]과 다릅니다").toString();
 
 				throw new ServerServiceException(errorMessage);
-			}
-
-			int newNextAttachedFileSeq = nextAttachedFileSeq.shortValue()
-					+ boardModifyReq.getNewAttachedFileCnt();
-
-			if (newNextAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = new StringBuilder()
-						.append("새로운 '다음 첨부 파일 시퀀스 번호'(= 기존 '다음 첨부 파일 시퀀스 번호'[")
-						.append(nextAttachedFileSeq.shortValue())
-						.append("] + 신규 첨부 파일 갯수[")
-						.append(boardModifyReq.getNewAttachedFileCnt())
-						.append("])가 최대 값(=255)을 초과하였습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
+			}			
 
 			create.update(SB_BOARD_TB)
 					.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ,
 							UByte.valueOf(newNextAttachedFileSeq))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).execute();
-
-			Record1<UByte> boardHistoryMaxSequenceRecord = create
-					.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max().add(1))
-					.from(SB_BOARD_HISTORY_TB)
-					.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)).fetchOne();
-
-			if (null == boardHistoryMaxSequenceRecord) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = new StringBuilder()
-						.append("해당 게시판의 글[boardID=")
-						.append(boardID)
-						.append(", boardNo=")
-						.append(boardNo)
-						.append("]은  제목과 내용이 저장된 테이블(SB_BOARD_HISTORY_TB)에 미 존재합니다")
-						.toString();
-				throw new ServerServiceException(errorMessage);
-			}
-
-			UByte boardHistorySequence = boardHistoryMaxSequenceRecord.value1();
+			
+			UByte boardHistorySeq = create
+			.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max().add(1))
+			.from(SB_BOARD_HISTORY_TB)
+			.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
+			.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)).fetchOne().value1();
 
 			int boardHistoryInsertCount = create
 					.insertInto(SB_BOARD_HISTORY_TB)
 					.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID)
 					.set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
-					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, boardHistorySequence)
+					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, boardHistorySeq)
 					.set(SB_BOARD_HISTORY_TB.SUBJECT,
 							boardModifyReq.getSubject())
 					.set(SB_BOARD_HISTORY_TB.CONTENT,
@@ -437,7 +413,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
-				String errorMessage = "게시판 최상의 글 내용을 저장하는데 실패하였습니다";
+				String errorMessage = "게시판 이력 테이블에 글 내용을 저장하는데 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
 			}
 
@@ -448,9 +424,9 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_FILELIST_TB.BOARD_NO.eq(boardNo)).fetch();
 
-			if (null == attachFileListRecord) {
+			if (attachFileListRecord.isEmpty()) {
 				/**
-				 * 첨부 파일이 실제 DB 에 미 존재하는데 
+				 * 첨부 파일이 실제 DB 에 없는데 
 				 * 1개 이상의 원소를 갖는 구 첨부 파일 목록을 파라미터 받았을 경우 에러 처리
 				 */
 				if (! remainingOldAttachedFileSequeceSet.isEmpty()) {
@@ -460,14 +436,12 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 						log.warn("fail to rollback");
 					}
 
-					String errorMessage = new StringBuilder(
-							"구 첨부 파일들이 존재 하지 않는데 보존을 원하는 구 첨부 파일 목록을 요청하셨습니다")
-							.toString();
+					String errorMessage = "구 첨부 파일들이 존재 하지 않는데 보존을 원하는 구 첨부 파일 목록을 요청하셨습니다";
 					throw new ServerServiceException(errorMessage);
 				}
-			} else {
+			} else {				
 				HashSet<Short> actualOldAttachedFileSequeceSet = new HashSet<Short>();
-
+				
 				for (Record attachFileRecord : attachFileListRecord) {
 					UByte attachedFileSeq = attachFileRecord
 							.get(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ);
@@ -483,8 +457,11 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					}
 
 					String errorMessage = new StringBuilder(
-							"보존을 원하는 구 첨부 파일 목록중 실제 구 첨부 파일 목록에 존재하지 않는 첨부 파일이 존재합니다, 실제 구 첨부 파일 목록=")
-							.append(actualOldAttachedFileSequeceSet.toString())
+							"보존을 원하는 구 첨부 파일 목록[=")
+					.append(remainingOldAttachedFileSequeceSet.toString())
+					.append("]중 실제 구 첨부 파일 목록[=")					
+					.append(actualOldAttachedFileSequeceSet.toString())
+					.append("]에 존재하지 않는 첨부 파일이 존재합니다")
 							.toString();
 					throw new ServerServiceException(errorMessage);
 				}
@@ -494,9 +471,9 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 
 				if (! actualOldAttachedFileSequeceSet.isEmpty()) {
 					create.delete(SB_BOARD_FILELIST_TB)
-							.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
-							.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
-							.and(SB_BOARD_HISTORY_TB.HISTORY_SQ
+							.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))
+							.and(SB_BOARD_FILELIST_TB.BOARD_NO.eq(boardNo))
+							.and(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ
 									.in(actualOldAttachedFileSequeceSet))
 							.execute();
 				}

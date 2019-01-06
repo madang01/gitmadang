@@ -33,11 +33,11 @@ public class ValueCheckerTest extends AbstractJunitTest {
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  new StringBuilder("비밀번호 분실 힌트는 앞뒤로 공백없이 한글, 영문, 숫자 조합으로 최소 ")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자 최대 ")
-					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자를 요구합니다").toString();
+			String expectedErrorMessage =  new StringBuilder("비밀번호 분실시 힌트는 앞뒤로 공백없이 한줄로 최소 ")
+			.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
+			.append("자 최대 ")
+			.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
+			.append("자를 요구합니다").toString();
 			
 			assertEquals(expectedErrorMessage, errorMessage);
 		}
@@ -53,11 +53,11 @@ public class ValueCheckerTest extends AbstractJunitTest {
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  new StringBuilder("비밀번호 분실 힌트는 앞뒤로 공백없이 한글, 영문, 숫자 조합으로 최소 ")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자 최대 ")
-					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자를 요구합니다").toString();
+			String expectedErrorMessage =  new StringBuilder("비밀번호 분실시 힌트는 앞뒤로 공백없이 한줄로 최소 ")
+			.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
+			.append("자 최대 ")
+			.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
+			.append("자를 요구합니다").toString();
 			
 			assertEquals(expectedErrorMessage, errorMessage);
 		}
