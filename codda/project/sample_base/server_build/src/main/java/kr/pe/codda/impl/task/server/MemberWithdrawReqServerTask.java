@@ -190,15 +190,7 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 			
 			conn.commit();
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(memberWithdrawReq.getMessageID());
-			messageResultRes.setIsSuccess(true);
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append("아이디 [")
-					.append(memberWithdrawReq.getRequestedUserID())
-					.append("] 님께서 회원 탈퇴하셨습니다").toString());
 			
-			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -219,5 +211,15 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(memberWithdrawReq.getMessageID());
+		messageResultRes.setIsSuccess(true);
+		messageResultRes.setResultMessage(new StringBuilder()
+				.append("아이디 [")
+				.append(memberWithdrawReq.getRequestedUserID())
+				.append("] 님께서 회원 탈퇴하셨습니다").toString());
+		
+		return messageResultRes;
 	}
 }

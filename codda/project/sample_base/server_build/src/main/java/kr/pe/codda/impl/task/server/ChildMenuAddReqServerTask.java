@@ -75,6 +75,8 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 		
 		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
 		UInteger parentMenuNo = UInteger.valueOf(childMenuAddReq.getParentNo());
+		UInteger childMenuNo = null;
+		UByte newOrderSeq = null;
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -105,7 +107,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UInteger childMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);	
+			childMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);	
 			
 			if (childMenuNo.longValue() == UInteger.MAX_VALUE) {
 				try {
@@ -193,7 +195,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			}
 			
 			UByte fromOrderSeq = ServerDBUtil.getToOrderSeqOfRelativeRootMenu(create, parentOrderSeq, parentParnetNo);
-			UByte newOrderSeq = UByte.valueOf(fromOrderSeq.shortValue() + 1);	
+			newOrderSeq = UByte.valueOf(fromOrderSeq.shortValue() + 1);	
 						
 			create.update(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.add(1))
@@ -224,23 +226,13 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			try {
-				conn.commit();
-			} catch (Exception e) {
-				log.warn("fail to commit");
-			}
 			
-			log.info("자식 메뉴[부모 메뉴번호:{}, 번호:{}, 메뉴명:{}, URL:{}] 추가 완료",
-					childMenuAddReq.getParentNo(),
-					childMenuNo,
-					childMenuAddReq.getMenuName(),
-					childMenuAddReq.getLinkURL());
+			conn.commit();
 			
-			ChildMenuAddRes childMenuAddRes = new ChildMenuAddRes();
-			childMenuAddRes.setMenuNo(childMenuNo.longValue());
-			childMenuAddRes.setOrderSeq(newOrderSeq.shortValue());
 			
-			return childMenuAddRes;
+			
+			
+			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -264,6 +256,18 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		log.info("자식 메뉴[부모 메뉴번호:{}, 번호:{}, 메뉴명:{}, URL:{}] 추가 완료",
+				childMenuAddReq.getParentNo(),
+				childMenuNo,
+				childMenuAddReq.getMenuName(),
+				childMenuAddReq.getLinkURL());
+		
+		ChildMenuAddRes childMenuAddRes = new ChildMenuAddRes();
+		childMenuAddRes.setMenuNo(childMenuNo.longValue());
+		childMenuAddRes.setOrderSeq(newOrderSeq.shortValue());
+		
+		return childMenuAddRes;
 		
 	}
 

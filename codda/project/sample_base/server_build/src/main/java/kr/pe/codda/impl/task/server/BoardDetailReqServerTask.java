@@ -81,6 +81,8 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 
 	public BoardDetailRes doWork(String dbcpName, BoardDetailReq boardDetailReq)
 			throws Exception {
+		// FIXME!
+		log.info(boardDetailReq.toString());
 
 		try {
 			BoardType.valueOf(boardDetailReq.getBoardID());
@@ -96,6 +98,27 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 		
 		UByte boardID = UByte.valueOf(boardDetailReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardDetailReq.getBoardNo());
+		
+		UInteger groupNo = null;
+		UShort groupSeqence = null;
+		UInteger parentNo = null;
+		UByte depth = null;
+		int oldViewCount = 0;
+		String boardState = null;
+		UByte nextAttachedFileSeq = null;
+		int votes = 0;
+		String firstWriterID = null;
+		String firstWriterIP = null;
+		Timestamp firstRegisteredDate = null;
+		String firstWriterNickname = null;
+		String lastlModifiedSubject = null;
+		String lastModifiedContent = null;
+		String lastModifierID =  null;
+		String lastModifierNickName = null;
+		String lastModifierIP = null;
+		Timestamp lastModifedDate = null;
+		
+		List<BoardDetailRes.AttachedFile> attachedFileList = new ArrayList<BoardDetailRes.AttachedFile>();
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -152,14 +175,14 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			UInteger groupNo = boardRecord.get(SB_BOARD_TB.GROUP_NO);
-			UShort groupSeqence = boardRecord.get(SB_BOARD_TB.GROUP_SQ);
-			UInteger parentNo = boardRecord.get(SB_BOARD_TB.PARENT_NO);
-			UByte depth = boardRecord.get(SB_BOARD_TB.DEPTH);
-			int oldViewCount = boardRecord.get(SB_BOARD_TB.VIEW_CNT);
-			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
-			UByte nextAttachedFileSeq = boardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
-			int votes = boardRecord.get("votes", Integer.class);			
+			groupNo = boardRecord.get(SB_BOARD_TB.GROUP_NO);
+			groupSeqence = boardRecord.get(SB_BOARD_TB.GROUP_SQ);
+			parentNo = boardRecord.get(SB_BOARD_TB.PARENT_NO);
+			depth = boardRecord.get(SB_BOARD_TB.DEPTH);
+			oldViewCount = boardRecord.get(SB_BOARD_TB.VIEW_CNT);
+			boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			nextAttachedFileSeq = boardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
+			votes = boardRecord.get("votes", Integer.class);			
 			
 			BoardStateType boardStateType = null;
 			try {
@@ -201,10 +224,10 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
-			String firstWriterIP = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.IP);
-			Timestamp firstRegisteredDate = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
-			String firstWriterNickname = firstWriterBoardRecord.getValue(SB_MEMBER_TB.NICKNAME);			
+			firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+			firstWriterIP = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.IP);
+			firstRegisteredDate = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
+			firstWriterNickname = firstWriterBoardRecord.getValue(SB_MEMBER_TB.NICKNAME);			
 			
 			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				if (! BoardStateType.OK.equals(boardStateType)) {
@@ -249,14 +272,12 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)))).fetchOne();	
 			
-			String lastlModifiedSubject = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT);
-			String lastModifiedContent = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.CONTENT);
-			String lastModifierID =  lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
-			String lastModifierNickName = lastlModifiedBoardHistoryRecord.getValue(SB_MEMBER_TB.NICKNAME);
-			String lastModifierIP = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.IP);
-			Timestamp lastModifedDate = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
-			
-			List<BoardDetailRes.AttachedFile> attachedFileList = new ArrayList<BoardDetailRes.AttachedFile>();
+			lastlModifiedSubject = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT);
+			lastModifiedContent = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.CONTENT);
+			lastModifierID =  lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+			lastModifierNickName = lastlModifiedBoardHistoryRecord.getValue(SB_MEMBER_TB.NICKNAME);
+			lastModifierIP = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.IP);
+			lastModifedDate = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
 			
 			Result<Record> attachFileListRecord = create.select().from(SB_BOARD_FILELIST_TB)
 					.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))
@@ -287,40 +308,9 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				
 				String errorMessage = new StringBuilder("해당 게시글 읽은 횟수 갱신이 실패하였습니다").toString();				
 				throw new ServerServiceException(errorMessage);
-			}
+			}			
 			
-			
-			conn.commit();	
-			
-			BoardDetailRes boardDetailRes = new BoardDetailRes();
-			boardDetailRes.setBoardID(boardDetailReq.getBoardID());
-			boardDetailRes.setBoardNo(boardDetailReq.getBoardNo());			
-			boardDetailRes.setGroupNo(groupNo.longValue());
-			boardDetailRes.setGroupSeq(groupSeqence.intValue());
-			boardDetailRes.setParentNo(parentNo.longValue());
-			boardDetailRes.setDepth(depth.shortValue());
-			boardDetailRes.setViewCount(oldViewCount + 1);
-			boardDetailRes.setNextAttachedFileSeq(nextAttachedFileSeq.shortValue());
-			boardDetailRes.setBoardSate(boardState);
-			
-			boardDetailRes.setVotes(votes);			
-			
-			boardDetailRes.setWriterID(firstWriterID );
-			boardDetailRes.setWriterIP(firstWriterIP);
-			boardDetailRes.setRegisteredDate(firstRegisteredDate);
-			boardDetailRes.setNickname(firstWriterNickname);
-			
-			boardDetailRes.setSubject(lastlModifiedSubject);
-			boardDetailRes.setContent(lastModifiedContent);
-			boardDetailRes.setLastModifierID(lastModifierID);
-			boardDetailRes.setLastModifierNickName(lastModifierNickName);
-			boardDetailRes.setLastModifierIP(lastModifierIP);
-			boardDetailRes.setLastModifiedDate(lastModifedDate);						
-			
-			boardDetailRes.setAttachedFileCnt(attachedFileList.size());
-			boardDetailRes.setAttachedFileList(attachedFileList);
-
-			return boardDetailRes;
+			conn.commit();			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -341,5 +331,34 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		BoardDetailRes boardDetailRes = new BoardDetailRes();
+		boardDetailRes.setBoardID(boardDetailReq.getBoardID());
+		boardDetailRes.setBoardNo(boardDetailReq.getBoardNo());			
+		boardDetailRes.setGroupNo(groupNo.longValue());
+		boardDetailRes.setGroupSeq(groupSeqence.intValue());
+		boardDetailRes.setParentNo(parentNo.longValue());
+		boardDetailRes.setDepth(depth.shortValue());
+		boardDetailRes.setViewCount(oldViewCount + 1);
+		boardDetailRes.setNextAttachedFileSeq(nextAttachedFileSeq.shortValue());
+		boardDetailRes.setBoardSate(boardState);			
+		boardDetailRes.setVotes(votes);			
+		
+		boardDetailRes.setWriterID(firstWriterID );
+		boardDetailRes.setWriterIP(firstWriterIP);
+		boardDetailRes.setRegisteredDate(firstRegisteredDate);
+		boardDetailRes.setNickname(firstWriterNickname);			
+		boardDetailRes.setSubject(lastlModifiedSubject);
+		boardDetailRes.setContent(lastModifiedContent);
+		
+		boardDetailRes.setLastModifierID(lastModifierID);
+		boardDetailRes.setLastModifierNickName(lastModifierNickName);
+		boardDetailRes.setLastModifierIP(lastModifierIP);
+		boardDetailRes.setLastModifiedDate(lastModifedDate);						
+		
+		boardDetailRes.setAttachedFileCnt(attachedFileList.size());
+		boardDetailRes.setAttachedFileList(attachedFileList);
+
+		return boardDetailRes;
 	}
 }

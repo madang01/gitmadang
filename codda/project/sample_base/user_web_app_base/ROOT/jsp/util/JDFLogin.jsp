@@ -34,7 +34,7 @@
 </script>
 </head>
 <body>
-<%=getWebsiteMenuString(request)%>
+<%= getWebsiteMenuString(request) %>
 	
 	<div class="container-fluid">
 		<h3>JDF 테스트 - 로그인</h3>

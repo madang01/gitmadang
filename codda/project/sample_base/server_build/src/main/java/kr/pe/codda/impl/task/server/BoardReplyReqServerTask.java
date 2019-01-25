@@ -175,6 +175,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		UByte boardID = UByte.valueOf(boardReplyReq.getBoardID());
 		UByte boardSequenceID = UByte.valueOf(boardSequenceType.getSequenceID());
 		UInteger parentBoardNo = UInteger.valueOf(boardReplyReq.getParentBoardNo());
+		UInteger boardNo = null;
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -203,7 +204,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			UInteger boardNo = boardSequenceRecord.get(SB_SEQ_TB.SQ_VALUE);
+			boardNo = boardSequenceRecord.get(SB_SEQ_TB.SQ_VALUE);
 
 			int countOfUpdate = create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, SB_SEQ_TB.SQ_VALUE.add(1))
 					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID)).execute();
@@ -353,12 +354,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
 
 			conn.commit();
-
-			BoardReplyRes boardReplyRes = new BoardReplyRes();
-			boardReplyRes.setBoardID(boardID.shortValue());
-			boardReplyRes.setBoardNo(boardNo.longValue());
 			
-			return boardReplyRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -379,5 +375,11 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		BoardReplyRes boardReplyRes = new BoardReplyRes();
+		boardReplyRes.setBoardID(boardID.shortValue());
+		boardReplyRes.setBoardNo(boardNo.longValue());
+		
+		return boardReplyRes;
 	}
 }

@@ -11,8 +11,8 @@ public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends Abstra
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testValueOf_NullParamter_itemValue() throws Exception {
-		GeneralConverterReturningByteBetweenMinAndMax minMaxConverter = 
-				new GeneralConverterReturningByteBetweenMinAndMax((byte)10, (byte)20);
+		GeneralConverterReturningIntegerBetweenMinAndMax minMaxConverter = 
+				new GeneralConverterReturningIntegerBetweenMinAndMax((int)10, (int)20);
 		try {
 			minMaxConverter.valueOf(null);
 		} catch(IllegalArgumentException e) {
@@ -23,8 +23,8 @@ public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends Abstra
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testValueOf_EmptyString() throws Exception {
-		GeneralConverterReturningByteBetweenMinAndMax minMaxConverter = 
-				new GeneralConverterReturningByteBetweenMinAndMax((byte)10, (byte)20);
+		GeneralConverterReturningIntegerBetweenMinAndMax minMaxConverter = 
+				new GeneralConverterReturningIntegerBetweenMinAndMax((int)10, (int)20);
 		try {
 			minMaxConverter.valueOf("");
 		} catch(IllegalArgumentException e) {
@@ -35,8 +35,8 @@ public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends Abstra
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testValueOf_ValidButBadParameter_NotNumber() throws Exception {
-		GeneralConverterReturningByteBetweenMinAndMax minMaxConverter = 
-				new GeneralConverterReturningByteBetweenMinAndMax((byte)10, (byte)20);
+		GeneralConverterReturningIntegerBetweenMinAndMax minMaxConverter = 
+				new GeneralConverterReturningIntegerBetweenMinAndMax((int)10, (int)20);
 		try {
 			minMaxConverter.valueOf("a");
 		} catch(IllegalArgumentException e) {
@@ -47,8 +47,8 @@ public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends Abstra
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testValueOf_ValidButBadParameter_TooBig() throws Exception {
-		GeneralConverterReturningByteBetweenMinAndMax minMaxConverter = 
-				new GeneralConverterReturningByteBetweenMinAndMax((byte)10, (byte)20);
+		GeneralConverterReturningIntegerBetweenMinAndMax minMaxConverter = 
+				new GeneralConverterReturningIntegerBetweenMinAndMax((int)10, (int)20);
 		
 		
 		try {
@@ -62,11 +62,11 @@ public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends Abstra
 	
 	@Test
 	public void testValueOf_ExpectedValueComparison() {
-		GeneralConverterReturningByteBetweenMinAndMax minMaxConverter = 
-				new GeneralConverterReturningByteBetweenMinAndMax((byte)10, (byte)20);
+		GeneralConverterReturningIntegerBetweenMinAndMax minMaxConverter = 
+				new GeneralConverterReturningIntegerBetweenMinAndMax((int)10, (int)20);
 		
-		byte expectedValue;
-		byte returnedValue;
+		int expectedValue;
+		int returnedValue;
 		
 		expectedValue = 12;
 		returnedValue = minMaxConverter.valueOf(String.valueOf(expectedValue));

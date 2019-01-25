@@ -72,6 +72,8 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(arraySiteMenuReq.toString());
 		
+		java.util.List<ArraySiteMenuRes.Menu> menuList = new ArrayList<ArraySiteMenuRes.Menu>();
+		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
 
@@ -92,8 +94,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx1"))
 			.orderBy(SB_SITEMENU_TB.ORDER_SQ.asc())
 			.fetch();			
-			
-			java.util.List<ArraySiteMenuRes.Menu> menuList = new ArrayList<ArraySiteMenuRes.Menu>();			
+						
 			// buildMenuListRes(menuList, create, rootParnetNo);		
 			for (Record menuListRecord : menuListResult) {
 				ArraySiteMenuRes.Menu menu = new ArraySiteMenuRes.Menu();
@@ -111,11 +112,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 			
 			conn.commit();			
 			
-			ArraySiteMenuRes menuListRes = new ArraySiteMenuRes();
-			menuListRes.setMenuList(menuList);
-			menuListRes.setCnt(menuList.size());
-			
-			return menuListRes;		
+				
 		} catch (Exception e) {
 			if (null != conn) {
 				try {
@@ -137,5 +134,11 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		ArraySiteMenuRes menuListRes = new ArraySiteMenuRes();
+		menuListRes.setMenuList(menuList);
+		menuListRes.setCnt(menuList.size());
+		
+		return menuListRes;	
 	}
 }

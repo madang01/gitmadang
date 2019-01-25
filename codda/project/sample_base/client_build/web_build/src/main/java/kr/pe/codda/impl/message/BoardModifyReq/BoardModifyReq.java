@@ -32,9 +32,9 @@ public class BoardModifyReq extends AbstractMessage {
 	private String content;
 	private String ip;
 	private short nextAttachedFileSeq;
-	private int oldAttachedFileSeqCnt;
+	private int oldAttachedFileCnt;
 
-	public static class OldAttachedFileSeq {
+	public static class OldAttachedFile {
 		private short attachedFileSeq;
 
 		public short getAttachedFileSeq() {
@@ -48,7 +48,7 @@ public class BoardModifyReq extends AbstractMessage {
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("OldAttachedFileSeq[");
+			builder.append("OldAttachedFile[");
 			builder.append("attachedFileSeq=");
 			builder.append(attachedFileSeq);
 			builder.append("]");
@@ -56,7 +56,7 @@ public class BoardModifyReq extends AbstractMessage {
 		}
 	}
 
-	private java.util.List<OldAttachedFileSeq> oldAttachedFileSeqList;
+	private java.util.List<OldAttachedFile> oldAttachedFileList;
 	private int newAttachedFileCnt;
 
 	public static class NewAttachedFile {
@@ -142,19 +142,19 @@ public class BoardModifyReq extends AbstractMessage {
 	public void setNextAttachedFileSeq(short nextAttachedFileSeq) {
 		this.nextAttachedFileSeq = nextAttachedFileSeq;
 	}
-	public int getOldAttachedFileSeqCnt() {
-		return oldAttachedFileSeqCnt;
+	public int getOldAttachedFileCnt() {
+		return oldAttachedFileCnt;
 	}
 
-	public void setOldAttachedFileSeqCnt(int oldAttachedFileSeqCnt) {
-		this.oldAttachedFileSeqCnt = oldAttachedFileSeqCnt;
+	public void setOldAttachedFileCnt(int oldAttachedFileCnt) {
+		this.oldAttachedFileCnt = oldAttachedFileCnt;
 	}
-	public java.util.List<OldAttachedFileSeq> getOldAttachedFileSeqList() {
-		return oldAttachedFileSeqList;
+	public java.util.List<OldAttachedFile> getOldAttachedFileList() {
+		return oldAttachedFileList;
 	}
 
-	public void setOldAttachedFileSeqList(java.util.List<OldAttachedFileSeq> oldAttachedFileSeqList) {
-		this.oldAttachedFileSeqList = oldAttachedFileSeqList;
+	public void setOldAttachedFileList(java.util.List<OldAttachedFile> oldAttachedFileList) {
+		this.oldAttachedFileList = oldAttachedFileList;
 	}
 	public int getNewAttachedFileCnt() {
 		return newAttachedFileCnt;
@@ -189,28 +189,28 @@ public class BoardModifyReq extends AbstractMessage {
 		builder.append(ip);
 		builder.append(", nextAttachedFileSeq=");
 		builder.append(nextAttachedFileSeq);
-		builder.append(", oldAttachedFileSeqCnt=");
-		builder.append(oldAttachedFileSeqCnt);
+		builder.append(", oldAttachedFileCnt=");
+		builder.append(oldAttachedFileCnt);
 
-		builder.append(", oldAttachedFileSeqList=");
-		if (null == oldAttachedFileSeqList) {
+		builder.append(", oldAttachedFileList=");
+		if (null == oldAttachedFileList) {
 			builder.append("null");
 		} else {
-			int oldAttachedFileSeqListSize = oldAttachedFileSeqList.size();
-			if (0 == oldAttachedFileSeqListSize) {
+			int oldAttachedFileListSize = oldAttachedFileList.size();
+			if (0 == oldAttachedFileListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < oldAttachedFileSeqListSize; i++) {
-					OldAttachedFileSeq oldAttachedFileSeq = oldAttachedFileSeqList.get(i);
+				for (int i=0; i < oldAttachedFileListSize; i++) {
+					OldAttachedFile oldAttachedFile = oldAttachedFileList.get(i);
 					if (0 == i) {
-						builder.append("oldAttachedFileSeq[");
+						builder.append("oldAttachedFile[");
 					} else {
-						builder.append(", oldAttachedFileSeq[");
+						builder.append(", oldAttachedFile[");
 					}
 					builder.append(i);
 					builder.append("]=");
-					builder.append(oldAttachedFileSeq.toString());
+					builder.append(oldAttachedFile.toString());
 				}
 				builder.append("]");
 			}

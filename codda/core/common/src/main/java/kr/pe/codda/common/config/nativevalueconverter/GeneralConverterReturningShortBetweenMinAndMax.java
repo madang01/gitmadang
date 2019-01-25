@@ -1,12 +1,11 @@
 package kr.pe.codda.common.config.nativevalueconverter;
 
-import org.apache.commons.collections4.ComparatorUtils;
-
 import kr.pe.codda.common.config.AbstractMinMaxConverter;
+import kr.pe.codda.common.util.ComparableComparator;
 
 public class GeneralConverterReturningShortBetweenMinAndMax extends AbstractMinMaxConverter<Short> {	
 	public GeneralConverterReturningShortBetweenMinAndMax(Short min, Short max) {
-		super(min, max, ComparatorUtils.<Short>naturalComparator(), Short.class);		
+		super(min, max, ComparableComparator.<Short>comparableComparator(), Short.class);		
 	}
 
 	@Override

@@ -84,6 +84,11 @@ public final class BoardUploadFileResDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		int attachedFile$2ListSize = boardUploadFileRes.getAttachedFileCnt();
+		if (attachedFile$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var attachedFile$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
 		Object attachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "attachedFile", attachedFile$2ListSize, middleReadableObject);
 		java.util.List<BoardUploadFileRes.AttachedFile> attachedFile$2List = new java.util.ArrayList<BoardUploadFileRes.AttachedFile>();
 		for (int i2=0; i2 < attachedFile$2ListSize; i2++) {

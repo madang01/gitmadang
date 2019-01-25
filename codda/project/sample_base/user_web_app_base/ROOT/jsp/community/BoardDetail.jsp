@@ -11,7 +11,7 @@
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><jsp:useBean id="boardDetailRes" class="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" scope="request" /><%
 	// FIXME!
-	boardDetailRes.setBoardID(BoardType.FREE.getBoardID());
+	/* boardDetailRes.setBoardID(BoardType.FREE.getBoardID());
 	boardDetailRes.setBoardNo(1);
 	boardDetailRes.setViewCount(11);
 	boardDetailRes.setBoardSate(BoardStateType.OK.getValue());
@@ -50,7 +50,7 @@
 		
 		boardDetailRes.setAttachedFileCnt(attachedFileList.size());
 		boardDetailRes.setAttachedFileList(attachedFileList);
-	}	
+	}	 */
 
 
 	BoardType boardType = BoardType.valueOf(boardDetailRes.getBoardID());
@@ -164,7 +164,7 @@
 		attachedFileNode .setAttribute("type", "file");
 		attachedFileNode .setAttribute("class", "form-control");
 		attachedFileNode .setAttribute("title", "첨부파일('"+attachedFileRowDivID+"')");
-		attachedFileNode .setAttribute("name", "newAttachFile");
+		attachedFileNode .setAttribute("name", "newAttachedFile");
 		
 		var attachedFileColDivNode = document.createElement("div");
 		attachedFileColDivNode.setAttribute("class", "col-sm-10");
@@ -268,12 +268,12 @@
 			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
 			
 			if (1 == newFileListDivNode.childNodes.length) {
-				if (g.newAttachFile.value == '') {
+				if (g.newAttachedFile.value == '') {
 					alert("첨부 파일을 선택하세요");
 					return false;
 				}
 			} else {
-				if (g.newAttachFile[i].value == '') {
+				if (g.newAttachedFile[i].value == '') {
 					alert(fileInput.getAttribute("title")+"을 선택하세요");
 					return false;
 				}
@@ -295,8 +295,8 @@
 		return false;	
 	}
 	
-	function callBackForBoardModifyProcess() {
-		alert("게시글 수정이 완료되었습니다");
+	function callBackForBoardModifyProcess(boardModifyRes) {
+		alert("게시글["+boardModifyRes.boardNo+"] 수정이 완료되었습니다");
 		document.location.reload();
 	}
 		
@@ -341,7 +341,7 @@
 		fileInput.setAttribute("type", "file");
 		fileInput.setAttribute("class", "form-control");
 		fileInput.setAttribute("title", "첨부파일('"+attachedFileRowDivID+"')");
-		fileInput.setAttribute("name", "newAttachFile");
+		fileInput.setAttribute("name", "newAttachedFile");
 		
 		fileInputColDiv.appendChild(fileInput);		
 		
@@ -399,12 +399,12 @@
 			var fileInput = sourceNewFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
 			
 			if (1 == sourceNewFileListDivNode.childNodes.length) {
-				if (g.newAttachFile.value == '') {
+				if (g.newAttachedFile.value == '') {
 					alert("첨부 파일을 선택하세요");
 					return false;
 				}
 			} else {
-				if (g.newAttachFile[i].value == '') {
+				if (g.newAttachedFile[i].value == '') {
 					alert(fileInput.getAttribute("title")+"을 선택하세요");
 					return false;
 				}
@@ -418,8 +418,8 @@
 		g.submit();
 	}
 	
-	function callBackForBoardReplyProcess() {
-		alert("댓글 등록이 완료되었습니다");
+	function callBackForBoardReplyProcess(boardWriteResObj) {
+		alert("댓글["+boardWriteResObj.boardNo+"] 등록이 완료되었습니다");
 		goList();
 	}
 	

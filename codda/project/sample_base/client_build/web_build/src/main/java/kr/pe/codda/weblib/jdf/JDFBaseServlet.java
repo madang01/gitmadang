@@ -383,7 +383,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 		}
 	}
 	
-	private String buildDebugMessage(HttpServletRequest req,
+	private String buildErrorStackMessage(HttpServletRequest req,
 			HttpServletResponse res, Throwable e) {
 		
 		StringBuilder debugMessageStringBuilder = new StringBuilder();
@@ -466,7 +466,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 
 			try {
 				
-				String debugMessage = buildDebugMessage(req, res, e);
+				String errorStackMessage = buildErrorStackMessage(req, res, e);
 				
 				res.setContentType("text/html;charset=UTF-8");
 				java.io.PrintWriter out = null;
@@ -477,7 +477,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					out.print(WebCommonStaticFinalVars.USER_WEBSITE_TITLE);
 					out.print("</title>");
 					out.println("</head><body bgcolor=white>");
-					out.println(StringEscapeActorUtil.replace(debugMessage, 
+					out.println(StringEscapeActorUtil.replace(errorStackMessage, 
 							STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
 							STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR));
 					out.println("</body></html>");				

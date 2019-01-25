@@ -72,8 +72,6 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		// int serverMaxClients = 10;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		// int serverExecutorPoolSize = 2;
-		//int serverExecutorPoolMaxSize = 3;
 		
 		projectPartConfigurationForTest.build(host, 
 				port,
@@ -103,9 +101,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 				serverDataPacketBufferPoolSize,
 				serverMaxClients,
 				serverInputMessageQueueSize,
-				serverOutputMessageQueueSize,
-				serverExecutorPoolSize,
-				serverExecutorPoolMaxSize);
+				serverOutputMessageQueueSize);
 
 		return projectPartConfigurationForTest;
 	}
@@ -121,7 +117,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int serverMaxClients = clientConnectionCount;
 		int serverExecutorPoolSize = 3;
 		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
-		int retryCount = 1000000;
+		int retryCount = 1000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -209,7 +205,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 	@Test
 	public void testSendSyncInputMessage_threadSafeOk() {
 		String host = "localhost";
-		int port = 9092;
+		int port = 9094;
 		boolean clientDataPacketBufferIsDirect = true;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
 		int clientConnectionCount = 2;
@@ -221,7 +217,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int numberOfThread = 3;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread);
 		
-		int retryCount = 1000000;
+		int retryCount = 1000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -361,7 +357,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int serverExecutorPoolSize = 2;
 		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
 		
-		int retryCount = 1000000;
+		int retryCount = 1000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -451,7 +447,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 	@Test
 	public void testSendAsynInputMessage_threadSafeOk() {
 		String host = "localhost";
-		int port = 9092;
+		int port = 9093;
 		boolean clientDataPacketBufferIsDirect = true;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
 		int clientConnectionCount = 2;
@@ -463,7 +459,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int numberOfThread = 3;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread);
 		
-		int retryCount = 1000000;
+		int retryCount = 1000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;

@@ -433,21 +433,13 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				
 				conn.commit();				
 				
-				
 				String errorMessage = "비밀 번호가 틀렸습니다";
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, adminLoginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
 			
 			conn.commit();
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(adminLoginReq.getMessageID());
-			messageResultRes.setIsSuccess(true);		
-			messageResultRes.setResultMessage("로그인 성공하셨습니다");
-			// sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
-			return messageResultRes;
+			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -457,16 +449,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				} catch (Exception e1) {
 					log.warn("fail to rollback");
 				}
-			}	
-			
-			/* String errorMessage = new StringBuilder("unknown error, inObj=")
-					.append(adminLoginReq.toString()).toString();
-			log.warn(errorMessage, e);
-
-					
-			
-			sendErrorOutputMessageForRollback("로그인 실패하였습니다", conn, toLetterCarrier, adminLoginReq);
-			return;*/
+			}
 			throw e;
 
 		} finally {
@@ -478,5 +461,11 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(adminLoginReq.getMessageID());
+		messageResultRes.setIsSuccess(true);		
+		messageResultRes.setResultMessage("로그인 성공하셨습니다");
+		return messageResultRes;
 	}
 }

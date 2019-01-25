@@ -76,6 +76,8 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 		log.info(rootMenuAddReq.toString());
 		
 		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
+		UInteger rootMenuNo = null;
+		short newOrderSeq = 0;
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -106,7 +108,8 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UInteger rootMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);
+			
+			rootMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);
 			
 			if (rootMenuNo.longValue() == UInteger.MAX_VALUE) {
 				try {
@@ -138,8 +141,9 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 						.append("]의 시퀀스 갱신하는데 실패하였습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}			
-						
-			short newOrderSeq = create.select(
+		
+			
+			newOrderSeq = create.select(
 					JooqSqlUtil.getIfField(SB_SITEMENU_TB.ORDER_SQ.max(), 0, SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
 			.from(SB_SITEMENU_TB)
 			.fetchOne(0, Short.class);
@@ -177,19 +181,11 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			try {
-				conn.commit();
-			} catch (Exception e) {
-				log.warn("fail to commit");
-			}
 			
-			log.info("루트 메뉴[번호:{}, 메뉴명:{}, URL:{}] 추가 완료", rootMenuNo, rootMenuAddReq.getMenuName(), rootMenuAddReq.getLinkURL());
+			conn.commit();
 			
-			RootMenuAddRes rootMenuAddRes = new RootMenuAddRes();
-			rootMenuAddRes.setMenuNo(rootMenuNo.longValue());
-			rootMenuAddRes.setOrderSeq(newOrderSeq);
-						
-			return rootMenuAddRes;
+			
+			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -213,6 +209,15 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		
+		log.info("루트 메뉴[번호:{}, 메뉴명:{}, URL:{}] 추가 완료", rootMenuNo, rootMenuAddReq.getMenuName(), rootMenuAddReq.getLinkURL());
+		
+		RootMenuAddRes rootMenuAddRes = new RootMenuAddRes();
+		rootMenuAddRes.setMenuNo(rootMenuNo.longValue());
+		rootMenuAddRes.setOrderSeq(newOrderSeq);
+					
+		return rootMenuAddRes;
 		
 	}
 

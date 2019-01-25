@@ -71,6 +71,9 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 	public TreeSiteMenuRes doWork(String dbcpName, TreeSiteMenuReq treeSiteMenuReq) throws Exception {
 		// FIXME!
 		log.info(treeSiteMenuReq.toString());
+		
+		java.util.List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
+		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
 		
@@ -81,7 +84,7 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));			
 			
-			java.util.List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();	
+				
 			HashMap<UInteger, TreeSiteMenuRes.Menu> menuHash = new HashMap<UInteger, TreeSiteMenuRes.Menu>();
 			
 			Result<Record6<UInteger, UInteger, UByte, UByte, String, String>> menuListResult = create.select(SB_SITEMENU_TB.MENU_NO, 
@@ -143,11 +146,7 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 			
 			conn.commit();			
 			
-			TreeSiteMenuRes treeSiteMenuRes = new TreeSiteMenuRes();
-			treeSiteMenuRes.setRootMenuList(rootMenuList);
-			treeSiteMenuRes.setRootMenuListSize(rootMenuList.size());
 			
-			return treeSiteMenuRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -171,5 +170,11 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		TreeSiteMenuRes treeSiteMenuRes = new TreeSiteMenuRes();
+		treeSiteMenuRes.setRootMenuList(rootMenuList);
+		treeSiteMenuRes.setRootMenuListSize(rootMenuList.size());
+		
+		return treeSiteMenuRes;
 	}
 }

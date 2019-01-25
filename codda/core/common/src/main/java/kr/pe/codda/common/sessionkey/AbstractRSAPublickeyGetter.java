@@ -1,18 +1,18 @@
 package kr.pe.codda.common.sessionkey;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
-
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.type.SessionKey;
+import kr.pe.codda.common.util.CommonStaticUtil;
 
 public abstract class AbstractRSAPublickeyGetter {
 	
@@ -107,7 +107,7 @@ public abstract class AbstractRSAPublickeyGetter {
 		try {
 			rsaPublickeyFile = commonPart.getRSAPublickeyFileOfSessionKey();
 			
-			publicKeyBytes = FileUtils.readFileToByteArray(rsaPublickeyFile);
+			publicKeyBytes = CommonStaticUtil.readFileToByteArray(rsaPublickeyFile, 10*1024*1024);
 
 		} catch (CoddaConfigurationException e) {
 			String errorMessage = String.format("fail to get RSA public key file from Sinnnori configuration, errormessage=[%s]",

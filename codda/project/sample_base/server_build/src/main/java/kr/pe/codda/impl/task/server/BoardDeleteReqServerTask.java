@@ -266,16 +266,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			
 			conn.commit();			
 
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(boardDeleteReq.getMessageID());
-			messageResultRes.setIsSuccess(true);		
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append(BoardType.valueOf(boardID.shortValue()).getName())
-					.append(" 게시판의 글[")
-					.append(boardNo.longValue())
-					.append("] 삭제가 완료되었습니다").toString());
 			
-			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -296,5 +287,16 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(boardDeleteReq.getMessageID());
+		messageResultRes.setIsSuccess(true);		
+		messageResultRes.setResultMessage(new StringBuilder()
+				.append(BoardType.valueOf(boardID.shortValue()).getName())
+				.append(" 게시판의 글[")
+				.append(boardNo.longValue())
+				.append("] 삭제가 완료되었습니다").toString());
+		
+		return messageResultRes;
 	}
 }

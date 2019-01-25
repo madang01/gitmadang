@@ -95,6 +95,9 @@ public class BoardListReqServerTask extends AbstractServerTask {
 		final int pageNo = boardListReq.getPageNo();
 		final int pageSize = boardListReq.getPageSize();
 		final int offset = (pageNo - 1) * pageSize;
+		
+		int total = 0;
+		java.util.List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
 
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
 
@@ -104,7 +107,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-			create.setSchema(dbcpName);
+			// create.setSchema(dbcpName);
 
 			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);
 
@@ -123,8 +126,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			int total = 0;
-			java.util.List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
+			
 
 			SbBoardTb joinTableForBoardList = SB_BOARD_TB.as("b");
 			Table<Record3<UByte, UInteger, UShort>> fullIndexScanTableForBoardList = null;
@@ -234,15 +236,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 
 			conn.commit();
 
-			BoardListRes boardListRes = new BoardListRes();
-			boardListRes.setBoardID(boardID.shortValue());
-			boardListRes.setPageNo(pageNo);
-			boardListRes.setPageSize(pageSize);
-			boardListRes.setTotal(total);
-			boardListRes.setCnt(boardList.size());
-			boardListRes.setBoardList(boardList);
-
-			return boardListRes;
+			
 		} catch (Exception e) {
 
 			if (null != conn) {
@@ -263,5 +257,15 @@ public class BoardListReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		BoardListRes boardListRes = new BoardListRes();
+		boardListRes.setBoardID(boardID.shortValue());
+		boardListRes.setPageNo(pageNo);
+		boardListRes.setPageSize(pageSize);
+		boardListRes.setTotal(total);
+		boardListRes.setCnt(boardList.size());
+		boardListRes.setBoardList(boardList);
+
+		return boardListRes;
 	}
 }

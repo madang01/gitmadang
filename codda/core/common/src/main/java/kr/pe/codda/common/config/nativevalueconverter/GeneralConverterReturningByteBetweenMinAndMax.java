@@ -1,14 +1,13 @@
 package kr.pe.codda.common.config.nativevalueconverter;
 
-import org.apache.commons.collections4.ComparatorUtils;
-
 import kr.pe.codda.common.config.AbstractMinMaxConverter;
+import kr.pe.codda.common.util.ComparableComparator;
 
 
 public class GeneralConverterReturningByteBetweenMinAndMax
 	extends AbstractMinMaxConverter<Byte> {	
 	public GeneralConverterReturningByteBetweenMinAndMax(Byte min, Byte max) {
-		super(min, max, ComparatorUtils.<Byte>naturalComparator(), Byte.class);		
+		super(min, max, ComparableComparator.<Byte>comparableComparator(), Byte.class);		
 	}
 
 	@Override

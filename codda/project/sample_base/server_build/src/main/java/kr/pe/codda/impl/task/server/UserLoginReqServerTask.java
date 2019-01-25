@@ -97,29 +97,21 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 		String ivBase64 = loginReq.getIvBase64();
 		
 		if (null == idCipherBase64) {
-			/*sendErrorOutputMessage("아이디를 입력해 주세요", toLetterCarrier, loginReq);
-			return;*/
 			String errorMessage = "아이디를 입력해 주세요";
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == pwdCipherBase64) {
-			/*sendErrorOutputMessage("비밀번호를 입력해 주세요", toLetterCarrier, loginReq);
-			return;*/
 			String errorMessage = "비밀번호를 입력해 주세요";
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == sessionKeyBase64) {
-			/*sendErrorOutputMessage("세션키를 입력해 주세요", toLetterCarrier, loginReq);
-			return;*/
 			String errorMessage = "세션키를 입력해 주세요";
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		if (null == ivBase64) {
-			/*sendErrorOutputMessage("세션키 소금값을 입력해 주세요", toLetterCarrier, loginReq);
-			return;*/
 			String errorMessage = "비밀번호를 입력해 주세요";
 			throw new ServerServiceException(errorMessage);
 		}
@@ -132,8 +124,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 		try {
 			idCipherBytes = Base64.decodeBase64(idCipherBase64);
 		} catch(Exception e) {
-			/*sendErrorOutputMessage("아이디 암호문은 base64 인코딩되지 않았습니다", toLetterCarrier, loginReq);
-			return;*/
 			String errorMessage = "아이디 암호문은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
@@ -141,16 +131,12 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 		try {
 			pwdCipherBytes = Base64.decodeBase64(pwdCipherBase64);
 		} catch(Exception e) {
-			/*sendErrorOutputMessage("비밀번호 암호문은 base64 인코딩되지 않았습니다", toLetterCarrier, loginReq);
-			return;*/
 			String errorMessage = "비밀번호 암호문은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 		try {
 			sessionKeyBytes = Base64.decodeBase64(sessionKeyBase64);
 		} catch(Exception e) {
-			/*sendErrorOutputMessage("세션키는 base64 인코딩되지 않았습니다", toLetterCarrier, loginReq);
-			return;*/
 			String errorMessage = "세션키는 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
@@ -158,8 +144,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 		try {
 			ivBytes = Base64.decodeBase64(ivBase64);
 		} catch(Exception e) {
-			/*sendErrorOutputMessage("세션키 소금값은 base64 인코딩되지 않았습니다", toLetterCarrier, loginReq);
-			return;*/
 			String errorMessage = "세션키 소금값은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
@@ -173,14 +157,10 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 		} catch (IllegalArgumentException e) {
 			String errorMessage = "서버 세션키를 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
-			/*sendErrorOutputMessage(errorMessage, toLetterCarrier, loginReq);
-			return;*/
 			throw new ServerServiceException(errorMessage);
 		} catch (SymmetricException e) {
 			String errorMessage = "서버 세션키를 얻는데 실패하였습니다";
 			log.warn(loginReq.toString(), e);
-			/*sendErrorOutputMessage(errorMessage, toLetterCarrier, loginReq);
-			return;*/
 			throw new ServerServiceException(errorMessage);
 		}
 		
@@ -191,34 +171,21 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 		} catch (IllegalArgumentException e) {
 			String errorMessage = "아이디에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
-			/*sendErrorOutputMessage(errorMessage, toLetterCarrier, loginReq);
-			return;*/
 			throw new ServerServiceException(errorMessage);
 		} catch (SymmetricException e) {
 			String errorMessage = "아이디에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(loginReq.toString(), e);
-			/*sendErrorOutputMessage(errorMessage, toLetterCarrier, loginReq);
-			return;*/
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
 			ValueChecker.checkValidUserID(userID);
-		} catch(IllegalArgumentException e) {						
-			/*sendErrorOutputMessage(e.getMessage(), toLetterCarrier, loginReq);
-			return;*/
+		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		/*if (null== userId) {
-			log.warn("아이디 복호문 값을 얻는데 실패하였습니다. inObj=[{}]", sessionKeyLoginReq.toString());			
-			messageResultRes.setResultMessage("아이디 복호문 값을 얻는데 실패하였습니다");
-
-			toLetterCarrier.addSyncOutputMessage(messageResultRes);
-			return;
-		}*/
-		
+		MemberRoleType memberRoleType = null;
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -272,9 +239,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder("아이디[")
 						.append(userID)
 						.append("]가 존재하지 않습니다").toString();
-				
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -284,7 +248,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			String pwdMDBase64 =  resultOfMember.get(SB_MEMBER_TB.PWD_BASE64);
 			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);
 			
-			MemberRoleType memberRoleType = null;
+			
 			try {
 				memberRoleType = MemberRoleType.valueOf(memberRole, false);
 			} catch(IllegalArgumentException e) {
@@ -302,8 +266,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				
 				// log.warn(errorMessage);
 				
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -322,8 +284,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 						.append("]의 멤버 상태[")
 						.append(memberState)
 						.append("]가 잘못되었습니다").toString();
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -337,8 +297,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder("블락된 회원[")
 						.append(userID)
 						.append("] 입니다").toString();
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			} else if (memberStateType.equals(MemberStateType.WITHDRAWAL)) {
 				try {
@@ -350,8 +308,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder("탈퇴한 회원[")
 						.append(userID)
 						.append("] 입니다").toString();
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -365,8 +321,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				String errorMessage = new StringBuilder("최대 비밀번호 실패 횟수[")
 						.append(ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES)
 						.append("] 이상으로 비밀번호가 틀렸습니다, 비밀번호 초기화를 수행하시기 바랍니다").toString();
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}			
 					
@@ -384,15 +338,11 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = "비밀번호 복호문을 얻는데 실패하였습니다";
-				log.warn(errorMessage, e);				
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
+				log.warn(errorMessage, e);
 				throw new ServerServiceException(errorMessage);
 			} catch (SymmetricException e) {
 				String errorMessage = "비밀번호 복호문을 얻는데 실패하였습니다";
-				log.warn(errorMessage, e);				
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
+				log.warn(errorMessage, e);
 				throw new ServerServiceException(errorMessage);
 			}
 						
@@ -407,8 +357,6 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				
 				String errorMessage = "잘못된 비밀번호입니다";
 				log.warn(errorMessage, e);
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -434,50 +382,28 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 					}
 					
 					String errorMessage = "비밀 번호 실패 횟수 갱신이 실패하였습니다";
-					/*sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, loginReq);
-					return;*/
 					throw new ServerServiceException(errorMessage);
 				}
 				
 				conn.commit();
 				
 				String errorMessage = "비밀 번호가 틀렸습니다";
-				/*sendErrorOutputMessageForCommit(errorMessage, conn, toLetterCarrier, loginReq);
-				return;*/
 				throw new ServerServiceException(errorMessage);
 			}
 			
 			
 			conn.commit();
 			
-			/*MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(loginReq.getMessageID());
-			messageResultRes.setIsSuccess(true);		
-			messageResultRes.setResultMessage("로그인 성공하셨습니다");*/
-			UserLoginRes userLoginRes = new UserLoginRes();
-			userLoginRes.setUserID(userID);
-			userLoginRes.setMemberRole(memberRoleType.getValue());
-			
-			/*sendSuccessOutputMessageForCommit(userLoginRes, conn, toLetterCarrier);
-			return;*/
-			return userLoginRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
-			/*String errorMessage = new StringBuilder("unknown error, inObj=")
-					.append(loginReq.toString()).toString();
-			log.warn(errorMessage, e);*/
-
 			if (null != conn) {
 				try {
 					conn.rollback();
 				} catch (Exception e1) {
 					log.warn("fail to rollback");
 				}
-			}			
-			
-			/*sendErrorOutputMessageForRollback("로그인 실패하였습니다", conn, toLetterCarrier, loginReq);
-			return;*/
+			}
 			
 			throw e;
 		} finally {
@@ -489,5 +415,11 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		UserLoginRes userLoginRes = new UserLoginRes();
+		userLoginRes.setUserID(userID);
+		userLoginRes.setMemberRole(memberRoleType.getValue());
+
+		return userLoginRes;
 	}
 }

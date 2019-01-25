@@ -16,7 +16,7 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 	private byte[] sessionKeyBytes = null;
 	private byte[] ivBytes = null;
 	
-	public ClientSessionKey(ClientRSAIF clientRSA) throws SymmetricException {
+	public ClientSessionKey(ClientRSAIF clientRSA, boolean isBase64) throws SymmetricException {
 		this.clientRSA = clientRSA;
 		
 		CoddaConfiguration runningProjectConfiguration = 
@@ -34,7 +34,7 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 		
 		clientSymmetricKey = new ClientSymmetricKey(ivBytes);
 		
-		this.sessionKeyBytes = clientSymmetricKey.getSessionKeyBytes(clientRSA);
+		this.sessionKeyBytes = clientSymmetricKey.getSessionKeyBytes(clientRSA, isBase64);
 	}
 	
 	public ClientSymmetricKeyIF getClientSymmetricKey() {

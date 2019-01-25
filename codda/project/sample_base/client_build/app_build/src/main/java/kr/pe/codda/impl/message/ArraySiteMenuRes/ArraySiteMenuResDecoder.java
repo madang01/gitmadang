@@ -44,6 +44,11 @@ public final class ArraySiteMenuResDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		int menu$2ListSize = arraySiteMenuRes.getCnt();
+		if (menu$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var menu$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
 		Object menu$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "menu", menu$2ListSize, middleReadableObject);
 		java.util.List<ArraySiteMenuRes.Menu> menu$2List = new java.util.ArrayList<ArraySiteMenuRes.Menu>();
 		for (int i2=0; i2 < menu$2ListSize; i2++) {

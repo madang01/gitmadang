@@ -68,8 +68,6 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 		int serverMaxClients = 10;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		int serverExecutorPoolSize = 2;
-		int serverExecutorPoolMaxSize = 3;
 		
 		projectPartConfigurationForTest.build(host, 
 				port,
@@ -99,9 +97,7 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 				serverDataPacketBufferPoolSize,
 				serverMaxClients,
 				serverInputMessageQueueSize,
-				serverOutputMessageQueueSize,
-				serverExecutorPoolSize,
-				serverExecutorPoolMaxSize);
+				serverOutputMessageQueueSize);
 
 		return projectPartConfigurationForTest;
 	}

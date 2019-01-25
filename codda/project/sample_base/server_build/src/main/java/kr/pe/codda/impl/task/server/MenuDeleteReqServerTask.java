@@ -169,17 +169,9 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			log.info("메뉴[{}] 삭제 처리가 완료되었습니다", menuDeleteReq.getMenuNo());
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(menuDeleteReq.getMessageID());
-			messageResultRes.setIsSuccess(true);		
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append("메뉴[")
-					.append(menuDeleteReq.getMenuNo())
-					.append("] 삭제 처리가 완료되었습니다").toString());
 			
-			return messageResultRes;
+			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -205,5 +197,17 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		log.info("메뉴[{}] 삭제 처리가 완료되었습니다", menuDeleteReq.getMenuNo());
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(menuDeleteReq.getMessageID());
+		messageResultRes.setIsSuccess(true);		
+		messageResultRes.setResultMessage(new StringBuilder()
+				.append("메뉴[")
+				.append(menuDeleteReq.getMenuNo())
+				.append("] 삭제 처리가 완료되었습니다").toString());
+		
+		return messageResultRes;
 	}
 }

@@ -84,6 +84,11 @@ public final class BoardWriteReqDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		int newAttachedFile$2ListSize = boardWriteReq.getNewAttachedFileCnt();
+		if (newAttachedFile$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var newAttachedFile$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
 		Object newAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "newAttachedFile", newAttachedFile$2ListSize, middleReadableObject);
 		java.util.List<BoardWriteReq.NewAttachedFile> newAttachedFile$2List = new java.util.ArrayList<BoardWriteReq.NewAttachedFile>();
 		for (int i2=0; i2 < newAttachedFile$2ListSize; i2++) {

@@ -128,18 +128,18 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardModifyReq.setRequestedUserID(boardWriteReq.getRequestedUserID());
 		boardModifyReq.setIp("172.16.0.4");
 		
-		List<BoardModifyReq.OldAttachedFileSeq> oldAttachedFileSeqList = new ArrayList<BoardModifyReq.OldAttachedFileSeq>();		
+		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();		
 		{
 			{
 				for (int i=0; i < newAttachedFileListForBoardWriteReq.size(); i++) {
-					BoardModifyReq.OldAttachedFileSeq oldAttachedFileSeq = new BoardModifyReq.OldAttachedFileSeq();
-					oldAttachedFileSeq.setAttachedFileSeq((short)i);
-					oldAttachedFileSeqList.add(oldAttachedFileSeq);
+					BoardModifyReq.OldAttachedFile oldAttachedFile = new BoardModifyReq.OldAttachedFile();
+					oldAttachedFile.setAttachedFileSeq((short)i);
+					oldAttachedFileList.add(oldAttachedFile);
 				}
 			}
 			
-			boardModifyReq.setOldAttachedFileSeqCnt(oldAttachedFileSeqList.size());
-			boardModifyReq.setOldAttachedFileSeqList(oldAttachedFileSeqList);
+			boardModifyReq.setOldAttachedFileCnt(oldAttachedFileList.size());
+			boardModifyReq.setOldAttachedFileList(oldAttachedFileList);
 		}
 		
 		List<BoardModifyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardModifyReq.NewAttachedFile>();
@@ -277,18 +277,18 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardModifyReq.setRequestedUserID(boardReplyReq.getRequestedUserID());
 		boardModifyReq.setIp("172.16.0.7");
 		
-		List<BoardModifyReq.OldAttachedFileSeq> oldAttachedFileSeqList = new ArrayList<BoardModifyReq.OldAttachedFileSeq>();		
+		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();		
 		{
 			{
 				for (int i=0; i < newAttachedFileListForReply.size(); i++) {
-					BoardModifyReq.OldAttachedFileSeq oldAttachedFileSeq = new BoardModifyReq.OldAttachedFileSeq();
-					oldAttachedFileSeq.setAttachedFileSeq((short)i);
-					oldAttachedFileSeqList.add(oldAttachedFileSeq);
+					BoardModifyReq.OldAttachedFile oldAttachedFile = new BoardModifyReq.OldAttachedFile();
+					oldAttachedFile.setAttachedFileSeq((short)i);
+					oldAttachedFileList.add(oldAttachedFile);
 				}
 			}
 			
-			boardModifyReq.setOldAttachedFileSeqCnt(oldAttachedFileSeqList.size());
-			boardModifyReq.setOldAttachedFileSeqList(oldAttachedFileSeqList);
+			boardModifyReq.setOldAttachedFileCnt(oldAttachedFileList.size());
+			boardModifyReq.setOldAttachedFileList(oldAttachedFileList);
 		}
 		
 		List<BoardModifyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardModifyReq.NewAttachedFile>();

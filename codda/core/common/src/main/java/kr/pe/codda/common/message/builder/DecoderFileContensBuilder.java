@@ -169,16 +169,44 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		}
 	}
 	
+	public void addArraySizeCheckPart(StringBuilder contetnsStringBuilder, int depth, String varNameOfSetOwner, ArrayInfo arrayInfo) {	
+		contetnsStringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
+		contetnsStringBuilder.append("if (");
+		contetnsStringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+		contetnsStringBuilder.append(" < 0) {");
+		contetnsStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		contetnsStringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));	
+		contetnsStringBuilder.append("String errorMessage = new StringBuilder(\"the var ");
+		contetnsStringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+		contetnsStringBuilder.append(" is less than zero\").toString();");
+
+		// throw new BodyFormatException(errorMessage);
+		contetnsStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		contetnsStringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
+		contetnsStringBuilder.append("throw new ");
+		contetnsStringBuilder.append(BodyFormatException.class.getName());
+		contetnsStringBuilder.append("(errorMessage);");
+		
+		contetnsStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		contetnsStringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
+		contetnsStringBuilder.append("}");
+	}
+	
 	public void addArrayInfoPart(StringBuilder contetnsStringBuilder, int depth, String path, 
 			String varvarNameOfSetOwner, String middleObjVarName,
 			ArrayInfo arrayInfo) {
 		String newPath = new StringBuilder(path).append(".").append(arrayInfo.getFirstUpperItemName()).toString();
-				
 		
 		/** 배열 크기 변수 선언및 정의 */
 		contetnsStringBuilder.append(CommonStaticFinalVars.NEWLINE);		
 		addArraySizeVarDeclarationPart(contetnsStringBuilder, depth, varvarNameOfSetOwner, arrayInfo);
-
+		
+		/** 양수인 배열 크기 검사 */
+		contetnsStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		addArraySizeCheckPart(contetnsStringBuilder, depth, varvarNameOfSetOwner, arrayInfo);
+		contetnsStringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
 		// Object memberMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "member", memberListSize, middleReadableObject);
 		contetnsStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		contetnsStringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));

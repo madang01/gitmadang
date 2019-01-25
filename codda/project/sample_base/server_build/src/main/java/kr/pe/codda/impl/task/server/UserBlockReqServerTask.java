@@ -240,15 +240,7 @@ public class UserBlockReqServerTask extends AbstractServerTask {
 			
 			conn.commit();			
 
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(userBlockReq.getMessageID());
-			messageResultRes.setIsSuccess(true);
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append("사용자[")
-					.append(userBlockReq.getTargetUserID())
-					.append("]를 차단하였습니다").toString());
 			
-			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -269,6 +261,16 @@ public class UserBlockReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(userBlockReq.getMessageID());
+		messageResultRes.setIsSuccess(true);
+		messageResultRes.setResultMessage(new StringBuilder()
+				.append("사용자[")
+				.append(userBlockReq.getTargetUserID())
+				.append("]를 차단하였습니다").toString());
+		
+		return messageResultRes;
 	}
 
 }

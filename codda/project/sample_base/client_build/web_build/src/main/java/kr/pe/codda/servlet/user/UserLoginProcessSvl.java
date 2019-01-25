@@ -253,7 +253,7 @@ public class UserLoginProcessSvl extends AbstractServlet {
 				byte[] binaryPublicKeyBytes = binaryPublicKeyRes.getPublicKeyBytes();
 
 				clientSessionKey = ClientSessionKeyManager.getInstance()
-						.getNewClientSessionKey(binaryPublicKeyBytes);
+						.getNewClientSessionKey(binaryPublicKeyBytes, false);
 				
 				req.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY, clientSessionKey);			
 			}

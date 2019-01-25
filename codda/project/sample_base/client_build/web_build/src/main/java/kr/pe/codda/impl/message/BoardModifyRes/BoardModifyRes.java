@@ -27,6 +27,31 @@ import kr.pe.codda.common.message.AbstractMessage;
 public class BoardModifyRes extends AbstractMessage {
 	private short boardID;
 	private long boardNo;
+	private int deletedAttachedFileCnt;
+
+	public static class DeletedAttachedFile {
+		private short attachedFileSeq;
+
+		public short getAttachedFileSeq() {
+			return attachedFileSeq;
+		}
+
+		public void setAttachedFileSeq(short attachedFileSeq) {
+			this.attachedFileSeq = attachedFileSeq;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("DeletedAttachedFile[");
+			builder.append("attachedFileSeq=");
+			builder.append(attachedFileSeq);
+			builder.append("]");
+			return builder.toString();
+		}
+	}
+
+	private java.util.List<DeletedAttachedFile> deletedAttachedFileList;
 
 	public short getBoardID() {
 		return boardID;
@@ -42,6 +67,20 @@ public class BoardModifyRes extends AbstractMessage {
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
 	}
+	public int getDeletedAttachedFileCnt() {
+		return deletedAttachedFileCnt;
+	}
+
+	public void setDeletedAttachedFileCnt(int deletedAttachedFileCnt) {
+		this.deletedAttachedFileCnt = deletedAttachedFileCnt;
+	}
+	public java.util.List<DeletedAttachedFile> getDeletedAttachedFileList() {
+		return deletedAttachedFileList;
+	}
+
+	public void setDeletedAttachedFileList(java.util.List<DeletedAttachedFile> deletedAttachedFileList) {
+		this.deletedAttachedFileList = deletedAttachedFileList;
+	}
 
 	@Override
 	public String toString() {
@@ -51,6 +90,32 @@ public class BoardModifyRes extends AbstractMessage {
 		builder.append(boardID);
 		builder.append(", boardNo=");
 		builder.append(boardNo);
+		builder.append(", deletedAttachedFileCnt=");
+		builder.append(deletedAttachedFileCnt);
+
+		builder.append(", deletedAttachedFileList=");
+		if (null == deletedAttachedFileList) {
+			builder.append("null");
+		} else {
+			int deletedAttachedFileListSize = deletedAttachedFileList.size();
+			if (0 == deletedAttachedFileListSize) {
+				builder.append("empty");
+			} else {
+				builder.append("[");
+				for (int i=0; i < deletedAttachedFileListSize; i++) {
+					DeletedAttachedFile deletedAttachedFile = deletedAttachedFileList.get(i);
+					if (0 == i) {
+						builder.append("deletedAttachedFile[");
+					} else {
+						builder.append(", deletedAttachedFile[");
+					}
+					builder.append(i);
+					builder.append("]=");
+					builder.append(deletedAttachedFile.toString());
+				}
+				builder.append("]");
+			}
+		}
 		builder.append("]");
 		return builder.toString();
 	}

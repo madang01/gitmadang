@@ -64,8 +64,6 @@ public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
 		int serverMaxClients = 100000;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		int serverExecutorPoolSize = 2;
-		int serverExecutorPoolMaxSize = 3;
 		
 		projectPartConfigurationForTest.build(host, 
 				port,
@@ -95,9 +93,7 @@ public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
 				serverDataPacketBufferPoolSize,
 				serverMaxClients,
 				serverInputMessageQueueSize,
-				serverOutputMessageQueueSize,
-				serverExecutorPoolSize,
-				serverExecutorPoolMaxSize);
+				serverOutputMessageQueueSize);
 
 		return projectPartConfigurationForTest;
 	}

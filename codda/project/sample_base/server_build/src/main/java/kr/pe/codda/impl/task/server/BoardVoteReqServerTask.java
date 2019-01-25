@@ -173,12 +173,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			
 			conn.commit();			
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(boardVoteReq.getMessageID());
-			messageResultRes.setIsSuccess(true);
-			messageResultRes.setResultMessage("게시글에 대한 추천이 성공하였습니다");
 			
-			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -201,5 +196,12 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(boardVoteReq.getMessageID());
+		messageResultRes.setIsSuccess(true);
+		messageResultRes.setResultMessage("게시글에 대한 추천이 성공하였습니다");
+		
+		return messageResultRes;
 	}
 }

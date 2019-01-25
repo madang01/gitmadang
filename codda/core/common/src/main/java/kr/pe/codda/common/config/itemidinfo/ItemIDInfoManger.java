@@ -734,34 +734,7 @@ public class ItemIDInfoManger {
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							10, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"서버 비지니스 로직 수행 담당 쓰레드 최대 갯수",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"서버 비지니스 로직 수행 담당 쓰레드 갯수",
-					"1",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-			
+			addProjectPartItemIDInfo(itemIDInfo);	
 	
 		} catch (CoddaConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
@@ -896,38 +869,7 @@ public class ItemIDInfoManger {
 									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
 									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
 									Integer.class));
-		}
-		
-	
-		
-		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID;
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentTargetItemID[").append(dependentTargetItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new CoddaConfigurationException(errorMessage);
-			}
-	
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID;
-			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentSourceitemIDConfigInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentSourceItemID[").append(dependentSourceItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new CoddaConfigurationException(errorMessage);
-			}
-	
-			dependencyValidationHash
-					.put(dependentSourceItemID,
-							new MinAndMaxDependencyValidator<Integer>(
-									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
-									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
-									Integer.class));
-		}
+		}		
 	}
 
 	private void addAllDisabledItemChecker() throws IllegalArgumentException,

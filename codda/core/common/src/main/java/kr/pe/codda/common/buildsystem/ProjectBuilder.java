@@ -311,7 +311,7 @@ public class ProjectBuilder {
 			childRelativeDirectoryList.add(new StringBuilder("log/").append(logType.toString().toLowerCase()).toString());
 		}
 				
-		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+		createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
 
 		log.info("main project[{}]'s common child direcotry creation task end", mainProjectName);
 	}
@@ -338,7 +338,7 @@ public class ProjectBuilder {
 		childRelativeDirectoryList.add("server_build/build");
 		childRelativeDirectoryList.add("server_build/dist");
 		
-		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+		createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
 
 		log.info("main project[{}]'s server child direcotry creation task end", mainProjectName);
 	}
@@ -361,7 +361,7 @@ public class ProjectBuilder {
 		childRelativeDirectoryList.add("client_build/app_build/build");
 		childRelativeDirectoryList.add("client_build/app_build/dist");
 		
-		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+		createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
 
 		log.info("main project[{}]'s application build child direcotry creation task end", mainProjectName);
 	}
@@ -394,7 +394,7 @@ public class ProjectBuilder {
 		childRelativeDirectoryList.add("client_build/web_build/build");
 		childRelativeDirectoryList.add("client_build/web_build/dist");
 		
-		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+		createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
 
 		log.info("main project[{}]'s web build child direcotry creation task end", mainProjectName);
 	}
@@ -408,7 +408,7 @@ public class ProjectBuilder {
 		childRelativeDirectoryList.add("web_app_base/ROOT/WEB-INF/classes");
 		childRelativeDirectoryList.add("web_app_base/ROOT/WEB-INF/lib");
 		
-		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+		createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
 
 		log.info("main project[{}]'s web root child direcotry creation task end", mainProjectName);
 	}
@@ -962,11 +962,74 @@ public class ProjectBuilder {
 		log.info("mainproject[{}]'s server build path deletion task end", mainProjectName);
 	}
 
+	private void createChildDirectoriesOfBasePath(String basePathStrig,
+			List<String> childRelativeDirectoryList) throws BuildSystemException {
+		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
+		
+		for (String childRelativedirectory : childRelativeDirectoryList) {
+			// String relativeDir = childDirectories[i];
+
+			// log.info("relativeDir[{}]=[{}]", i, relativeDir);
+
+			String childRealPathString = null;
+			
+			
+			if (File.separator.equals("/")) {
+				childRealPathString = new StringBuilder(basePathStrig)
+						.append(File.separator).append(childRelativedirectory).toString();
+			} else {
+				childRealPathString = new StringBuilder(basePathStrig)
+						.append(File.separator).append(childRelativedirectory.replaceAll("/", "\\\\")).toString();
+			}
+			
+
+			File childRealPath = new File(childRealPathString);
+			if (! childRealPath.exists()) {
+				try {
+					FileUtils.forceMkdir(childRealPath);
+				} catch (IOException e) {
+					String errorMessage = String.format(
+							"fail to create a new path[%s][%s]", basePathStrig, childRelativedirectory);
+					log.info(errorMessage, e);
+					throw new BuildSystemException(errorMessage);
+				}
+
+				log.info("the new child relative direcotry[{}][{}] was created successfully",
+						basePathStrig, childRelativedirectory);
+			} else {
+				log.info("the child relative direcotry[{}][{}] exist, so nothing", basePathStrig, childRelativedirectory);
+			}
+
+			if (!childRealPath.isDirectory()) {
+				String errorMessage = String.format(
+						"the child relative direcotry[%s][%s] is not a real directory", basePathStrig, childRelativedirectory);
+				// log.warn(errorMessage);
+				throw new BuildSystemException(errorMessage);
+			}
+
+			if (!childRealPath.canRead()) {
+				String errorMessage = String.format(
+						"the child relative direcotry[%s][%s] doesn't hava permission to read",
+						basePathStrig, childRelativedirectory);
+				// log.warn(errorMessage);
+				throw new BuildSystemException(errorMessage);
+			}
+
+			if (!childRealPath.canWrite()) {
+				String errorMessage = String.format(
+						"the child relative direcotry[%s][%s] doesn't hava permission to write",
+						basePathStrig, childRelativedirectory);
+				// log.warn(errorMessage);
+				throw new BuildSystemException(errorMessage);
+			}
+
+		}
+	}
 	private void createNewMessageIDDirectory(String messageIOSetBasedirectoryPathString, String messageID)
 			throws BuildSystemException {
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
 		childRelativeDirectoryList.add(messageID);
-		CommonStaticUtil.createChildDirectoriesOfBasePath(messageIOSetBasedirectoryPathString,
+		createChildDirectoriesOfBasePath(messageIOSetBasedirectoryPathString,
 				childRelativeDirectoryList);
 	}
 

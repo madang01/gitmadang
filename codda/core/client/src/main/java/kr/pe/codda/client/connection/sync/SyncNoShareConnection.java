@@ -247,22 +247,29 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		if (null != clientInputStream) {
 			try {
 				clientInputStream.close();
-			} catch(Exception e1) {
-				
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder().append("fail to close the input stream of socket channel[")
+						.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
+				log.warn(errorMessage);
 			}
 		}
-		
+
 		if (null != clientOutputStream) {
 			try {
-				clientInputStream.close();
-			} catch(Exception e1) {					
+				clientOutputStream.close();
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder().append("fail to close the output stream of socket channel[")
+						.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
+				log.warn(errorMessage);
 			}
 		}
 		
 		try {
-			clientSC.close();
-		} catch (IOException e) {
-			log.warn("fail to close the socket channel[{}], errmsg={}", clientSC.hashCode(), e.getMessage());
+			clientSocket.close();
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder().append("fail to close the socket channel[")
+					.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
+			log.warn(errorMessage);
 		}
 
 		releaseResources();
@@ -291,30 +298,12 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		return isQueueIn;
 	}
 
-	private void releaseResources() {
-		socketOutputStream.close();
+	private void releaseResources() {		
+		if (! socketOutputStream.isClosed()) {
+			socketOutputStream.close();
 
-		if (null != clientInputStream) {
-			try {
-				clientInputStream.close();
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder().append("fail to close the input stream of socket channel[")
-						.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
-				log.warn(errorMessage);
-			}
+			log.info("this connection[{}]'s resources has been released", clientSC.hashCode());
 		}
-
-		if (null != clientOutputStream) {
-			try {
-				clientOutputStream.close();
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder().append("fail to close the output stream of socket channel[")
-						.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
-				log.warn(errorMessage);
-			}
-		}
-
-		log.info("this connection[{}]'s resources has been released", clientSC.hashCode());
 	}
 
 	private void setFinalReadTime() {
@@ -327,6 +316,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	
 	@Override 
 	protected void finalize() {
+		log.info("the SyncNoShareConnection[{}] instance call the 'finalize' method", clientSC.hashCode());
 		close();
 	}
 }

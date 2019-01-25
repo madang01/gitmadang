@@ -88,10 +88,7 @@ public class ProjectPartConfiguration {
 	private Integer  serverInputMessageQueueCapacity = null;
 	private Integer  serverOutputMessageQueueCapacity = null;
 	
-	// private Long serverAcceptSelectorTimeout = null;
-		
-	private Integer  serverExecutorPoolMaxSize = null;
-	private Integer  serverExecutorPoolSize = null;		
+	// private Long serverAcceptSelectorTimeout = null;		
 	/***** 서버 비동기 입출력 지원용 자원 종료 *****/
 	
 	/************* server 변수 종료 ******************/
@@ -205,13 +202,6 @@ public class ProjectPartConfiguration {
 		return serverDataPacketBufferPoolSize;
 	}	
 
-	public int getServerExecutorPoolSize() {
-		return serverExecutorPoolSize;
-	}
-
-	public int getServerExecutorPoolMaxSize() {
-		return serverExecutorPoolMaxSize;
-	}
 
 	public int getServerInputMessageQueueCapacity() {
 		return serverInputMessageQueueCapacity;
@@ -604,31 +594,7 @@ public class ProjectPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.serverOutputMessageQueueCapacity = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID)) {
-			if (!(nativeValue instanceof Integer)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new CoddaConfigurationException(errorMessage);
-			}
-			
-			this.serverExecutorPoolMaxSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID)) {
-			if (!(nativeValue instanceof Integer)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new CoddaConfigurationException(errorMessage);
-			}
-			
-			this.serverExecutorPoolSize = (Integer) nativeValue;
+			this.serverOutputMessageQueueCapacity = (Integer) nativeValue;		
 		} else {
 			String errorMessage = new StringBuilder("unknown porject's part item id(=the parameter itemIDInfo[")
 			.append(itemID)
@@ -665,9 +631,7 @@ public class ProjectPartConfiguration {
 			int serverDataPacketBufferPoolSize,
 			int serverMaxClients,
 			int serverInputMessageQueueSize,
-			int serverOutputMessageQueueSize,
-			int serverExecutorPoolSize,
-			int serverExecutorPoolMaxSize) throws IllegalArgumentException, CoddaConfigurationException {
+			int serverOutputMessageQueueSize) throws IllegalArgumentException, CoddaConfigurationException {
 		
 		mapping(new StringBuilder(prefexOfItemID)
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID).toString(), host);
@@ -785,15 +749,7 @@ public class ProjectPartConfiguration {
 
 		mapping(new StringBuilder(prefexOfItemID)
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_CAPACITY_ITEMID).toString(),
-				serverOutputMessageQueueSize);		
-
-		mapping(new StringBuilder(prefexOfItemID)
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID).toString(),
-				serverExecutorPoolSize);
-
-		mapping(new StringBuilder(prefexOfItemID)
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID)
-				.toString(), serverExecutorPoolMaxSize);		
+				serverOutputMessageQueueSize);
 
 	}
 
@@ -861,11 +817,7 @@ public class ProjectPartConfiguration {
 		builder.append(", serverInputMessageQueueSize=");
 		builder.append(serverInputMessageQueueCapacity);
 		builder.append(", serverOutputMessageQueueCapacity=");
-		builder.append(serverOutputMessageQueueCapacity);
-		builder.append(", serverExecutorPoolMaxSize=");
-		builder.append(serverExecutorPoolMaxSize);
-		builder.append(", serverExecutorPoolSize=");
-		builder.append(serverExecutorPoolSize);
+		builder.append(serverOutputMessageQueueCapacity);		
 		builder.append("]");
 		return builder.toString();
 	}	

@@ -51,6 +51,41 @@ public final class BoardModifyResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardModifyRes.setDeletedAttachedFileCnt((Integer)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "deletedAttachedFileCnt" // itemName
+			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		int deletedAttachedFile$2ListSize = boardModifyRes.getDeletedAttachedFileCnt();
+		if (deletedAttachedFile$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var deletedAttachedFile$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
+		Object deletedAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "deletedAttachedFile", deletedAttachedFile$2ListSize, middleReadableObject);
+		java.util.List<BoardModifyRes.DeletedAttachedFile> deletedAttachedFile$2List = new java.util.ArrayList<BoardModifyRes.DeletedAttachedFile>();
+		for (int i2=0; i2 < deletedAttachedFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("DeletedAttachedFile").append("[").append(i2).append("]").toString());
+			Object deletedAttachedFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), deletedAttachedFile$2ArrayMiddleObject, i2);
+			BoardModifyRes.DeletedAttachedFile deletedAttachedFile$2 = new BoardModifyRes.DeletedAttachedFile();
+			deletedAttachedFile$2List.add(deletedAttachedFile$2);
+
+			deletedAttachedFile$2.setAttachedFileSeq((Short)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachedFileSeq" // itemName
+				, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, deletedAttachedFile$2MiddleWritableObject));
+
+			pathStack.pop();
+		}
+
+		boardModifyRes.setDeletedAttachedFileList(deletedAttachedFile$2List);
+
 		pathStack.pop();
 
 		return boardModifyRes;

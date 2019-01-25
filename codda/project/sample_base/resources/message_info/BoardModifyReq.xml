@@ -24,8 +24,8 @@
 <singleitem name="content" type="si pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 <singleitem name="nextAttachedFileSeq" type="unsigned byte" />
-<singleitem name="oldAttachedFileSeqCnt" type="integer" />
-<array name="oldAttachedFileSeq" cnttype="reference" cntvalue="oldAttachedFileSeqCnt">
+<singleitem name="oldAttachedFileCnt" type="integer" />
+<array name="oldAttachedFile" cnttype="reference" cntvalue="oldAttachedFileCnt">
 	<singleitem name="attachedFileSeq" type="unsigned byte" />
 </array>
 <singleitem name="newAttachedFileCnt" type="integer" />

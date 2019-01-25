@@ -68,6 +68,11 @@ public final class BoardUploadFileReqDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		int oldAttachedFile$2ListSize = boardUploadFileReq.getOldAttachedFileCnt();
+		if (oldAttachedFile$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var oldAttachedFile$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
 		Object oldAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "oldAttachedFile", oldAttachedFile$2ListSize, middleReadableObject);
 		java.util.List<BoardUploadFileReq.OldAttachedFile> oldAttachedFile$2List = new java.util.ArrayList<BoardUploadFileReq.OldAttachedFile>();
 		for (int i2=0; i2 < oldAttachedFile$2ListSize; i2++) {
@@ -98,6 +103,11 @@ public final class BoardUploadFileReqDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		int newAttachedFile$2ListSize = boardUploadFileReq.getNewAttachedFileCnt();
+		if (newAttachedFile$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var newAttachedFile$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
 		Object newAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "newAttachedFile", newAttachedFile$2ListSize, middleReadableObject);
 		java.util.List<BoardUploadFileReq.NewAttachedFile> newAttachedFile$2List = new java.util.ArrayList<BoardUploadFileReq.NewAttachedFile>();
 		for (int i2=0; i2 < newAttachedFile$2ListSize; i2++) {

@@ -22,7 +22,7 @@ public class SessionKeyTest extends AbstractJunitTest {
 		ClientSessionKeyIF mainProjectClientSessionKey = null;
 		try {
 			mainProjectServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
-			mainProjectClientSessionKey = clientSessionKeyManager.getMainProjectClientSessionKey(RSAPublickeyGetterBuilder.build());
+			mainProjectClientSessionKey = clientSessionKeyManager.getMainProjectClientSessionKey(RSAPublickeyGetterBuilder.build(), false);
 		} catch (SymmetricException | InterruptedException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());

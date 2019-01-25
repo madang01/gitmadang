@@ -24,16 +24,16 @@ public final class ClientSessionKeyManager {
 		
 	}
 
-	public synchronized ClientSessionKeyIF getMainProjectClientSessionKey(AbstractRSAPublickeyGetter clientRSAPublickeyGetter) throws SymmetricException, InterruptedException {
+	public synchronized ClientSessionKeyIF getMainProjectClientSessionKey(AbstractRSAPublickeyGetter clientRSAPublickeyGetter, boolean isBase64) throws SymmetricException, InterruptedException {
 		if (null == mainClientSessionKey) {
 			
 			byte[] publicKeyBytes = clientRSAPublickeyGetter.getMainProjectPublickeyBytes();
-			mainClientSessionKey = getNewClientSessionKey(publicKeyBytes);
+			mainClientSessionKey = getNewClientSessionKey(publicKeyBytes, isBase64);
 		}
 		return mainClientSessionKey;
 	}
 	
-	public synchronized ClientSessionKeyIF getSubProjectClientSessionKey(String subProjectName, AbstractRSAPublickeyGetter clientRSAPublickeyGetter) throws IllegalArgumentException, SymmetricException {
+	public synchronized ClientSessionKeyIF getSubProjectClientSessionKey(String subProjectName, AbstractRSAPublickeyGetter clientRSAPublickeyGetter, boolean isBase64) throws IllegalArgumentException, SymmetricException {
 		if (null == subProjectName) {
 			throw new IllegalArgumentException("the parameter subProjectName is null");
 		}
@@ -49,24 +49,24 @@ public final class ClientSessionKeyManager {
 		
 		if (null == subClientSessionKey) {
 			byte[] publicKeyBytes = clientRSAPublickeyGetter.getSubProjectPublickeyBytes(subProjectName);
-			subClientSessionKey = buildNewSubClientSessionKey(subProjectName, publicKeyBytes);
+			subClientSessionKey = buildNewSubClientSessionKey(subProjectName, publicKeyBytes, isBase64);
 		}
 		 
 		return subClientSessionKey;
 	}
 	
-	private ClientSessionKeyIF buildNewSubClientSessionKey(String subProjectName, byte[] publicKeyBytes) throws SymmetricException {
-		ClientSessionKeyIF subClientSessionKey = getNewClientSessionKey(publicKeyBytes);	
+	private ClientSessionKeyIF buildNewSubClientSessionKey(String subProjectName, byte[] publicKeyBytes, boolean isBase64) throws SymmetricException {
+		ClientSessionKeyIF subClientSessionKey = getNewClientSessionKey(publicKeyBytes, isBase64);	
 		subProjectNameToClientSessionKeyHash.put(subProjectName, subClientSessionKey);
 		return subClientSessionKey;
 	}
 	
 	
-	public ClientSessionKeyIF getNewClientSessionKey(byte[] publicKeyBytes) throws SymmetricException {
+	public ClientSessionKeyIF getNewClientSessionKey(byte[] publicKeyBytes, boolean isBase64) throws SymmetricException {
 		if (null == publicKeyBytes) {
 			throw new IllegalArgumentException("the parameter publicKeyBytes is null");
 		}
 		
-		return new ClientSessionKey(new ClientRSA(publicKeyBytes));
+		return new ClientSessionKey(new ClientRSA(publicKeyBytes), isBase64);
 	}	
 }

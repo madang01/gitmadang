@@ -58,7 +58,13 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		}
 		
 		if (null == nativeItemValue) {
-			throw new IllegalArgumentException("the parameter nativeItemValue is null");
+			String errorMessage = new StringBuilder()
+			.append("the parameter nativeItemValue is null, path=[")
+			.append(path)
+			.append("], itemName=[")
+			.append(itemName).append("]").toString();
+			
+			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		if (null == writableMiddleObject) {

@@ -57,6 +57,8 @@ public abstract class WebCommonStaticFinalVars {
 	
 	/** 업로드 파일의 최대 크기 */
 	public static final long ATTACHED_FILE_MAX_SIZE = 10*1024*1024;
+	/** 업로드 파일의 최대 총 합 크기 */
+	public static final long TOTAL_ATTACHED_FILE_MAX_SIZE = 20*1024*1024;
 	
 	
 	

@@ -94,6 +94,16 @@ public class UserInformationReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
+		String nickname = null;
+		String memeberState = null;
+		String role = null;
+		String passwordHint = null;
+		String passwordAnswer = null;
+		UByte passwordFailedCount = null;
+		String ip = null;
+		Timestamp registeredDate = null;
+		Timestamp lastModifiedDate = null;
+		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
 
@@ -154,21 +164,18 @@ public class UserInformationReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			conn.commit();
-			
-			UserInformationRes userInformationRes = new UserInformationRes();
+			nickname = memberRecordOfTargetUserID.get(SB_MEMBER_TB.NICKNAME);
+			memeberState = memberRecordOfTargetUserID.get(SB_MEMBER_TB.STATE);			
+			role = memberRecordOfTargetUserID.get(SB_MEMBER_TB.ROLE);
+			passwordHint = memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_HINT);
+			passwordAnswer = memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_ANSWER);
+			passwordFailedCount = memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_FAIL_CNT);
+			ip = memberRecordOfTargetUserID.get(SB_MEMBER_TB.IP);
+			registeredDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.REG_DT);
+			lastModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.MOD_DT);
 
-			userInformationRes.setNickname(memberRecordOfTargetUserID.get(SB_MEMBER_TB.NICKNAME));
-			userInformationRes.setState(memberRecordOfTargetUserID.get(SB_MEMBER_TB.STATE));
-			userInformationRes.setRole(memberRecordOfTargetUserID.get(SB_MEMBER_TB.ROLE));
-			userInformationRes.setPasswordHint(memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_HINT));
-			userInformationRes.setPasswordAnswer(memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_ANSWER));
-			userInformationRes.setPasswordFailedCount(memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue());
-			userInformationRes.setIp(memberRecordOfTargetUserID.get(SB_MEMBER_TB.IP));
-			userInformationRes.setRegisteredDate(memberRecordOfTargetUserID.get(SB_MEMBER_TB.REG_DT));
-			userInformationRes.setLastModifiedDate(memberRecordOfTargetUserID.get(SB_MEMBER_TB.MOD_DT));
+			conn.commit();			
 			
-			return userInformationRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -188,7 +195,20 @@ public class UserInformationReqServerTask extends AbstractServerTask {
 					log.warn("fail to close the db connection", e);
 				}
 			}
-		}
+		}		
+		
+		UserInformationRes userInformationRes = new UserInformationRes();
+		userInformationRes.setNickname(nickname);
+		userInformationRes.setState(memeberState);		
+		userInformationRes.setRole(role);
+		userInformationRes.setPasswordHint(passwordHint);
+		userInformationRes.setPasswordAnswer(passwordAnswer);
+		userInformationRes.setPasswordFailedCount(passwordFailedCount.shortValue());
+		userInformationRes.setIp(ip);
+		userInformationRes.setRegisteredDate(registeredDate);
+		userInformationRes.setLastModifiedDate(lastModifiedDate);
+		
+		return userInformationRes;
 	}
 
 }

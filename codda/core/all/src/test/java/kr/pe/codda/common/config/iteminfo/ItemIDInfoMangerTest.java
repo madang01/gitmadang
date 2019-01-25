@@ -141,15 +141,15 @@ public class ItemIDInfoMangerTest extends AbstractJunitTest {
 		String mainProjectName = "sample_base";
 		String sampleBaseDBCPFilePathString = actuvalFileOrPathStringGetter
 		.getFileOrPathStringDependingOnInstalledPath(installedPath.getAbsolutePath(), 
-				mainProjectName, "sample_base_db");
+				mainProjectName, "SB_DB");
 		
 		File sampleBaseDBCPFile = new File(sampleBaseDBCPFilePathString);
 		if (! sampleBaseDBCPFile.exists()) {
-			fail("the sample_base project's sample_base_db file dosn't exist");
+			fail("the sample_base project's SB_DB file dosn't exist");
 		}
 		
 		if (! sampleBaseDBCPFile.isFile()) {
-			fail("the sample_base project's sample_base_db file is not a regual file");
+			fail("the sample_base project's SB_DB file is not a regual file");
 		}
 	}
 }

@@ -91,35 +91,40 @@ public final class BoardModifyReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardModifyReq.setOldAttachedFileSeqCnt((Integer)
+		boardModifyReq.setOldAttachedFileCnt((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "oldAttachedFileSeqCnt" // itemName
+			, "oldAttachedFileCnt" // itemName
 			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		int oldAttachedFileSeq$2ListSize = boardModifyReq.getOldAttachedFileSeqCnt();
-		Object oldAttachedFileSeq$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "oldAttachedFileSeq", oldAttachedFileSeq$2ListSize, middleReadableObject);
-		java.util.List<BoardModifyReq.OldAttachedFileSeq> oldAttachedFileSeq$2List = new java.util.ArrayList<BoardModifyReq.OldAttachedFileSeq>();
-		for (int i2=0; i2 < oldAttachedFileSeq$2ListSize; i2++) {
-			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("OldAttachedFileSeq").append("[").append(i2).append("]").toString());
-			Object oldAttachedFileSeq$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), oldAttachedFileSeq$2ArrayMiddleObject, i2);
-			BoardModifyReq.OldAttachedFileSeq oldAttachedFileSeq$2 = new BoardModifyReq.OldAttachedFileSeq();
-			oldAttachedFileSeq$2List.add(oldAttachedFileSeq$2);
+		int oldAttachedFile$2ListSize = boardModifyReq.getOldAttachedFileCnt();
+		if (oldAttachedFile$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var oldAttachedFile$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
 
-			oldAttachedFileSeq$2.setAttachedFileSeq((Short)
+		Object oldAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "oldAttachedFile", oldAttachedFile$2ListSize, middleReadableObject);
+		java.util.List<BoardModifyReq.OldAttachedFile> oldAttachedFile$2List = new java.util.ArrayList<BoardModifyReq.OldAttachedFile>();
+		for (int i2=0; i2 < oldAttachedFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("OldAttachedFile").append("[").append(i2).append("]").toString());
+			Object oldAttachedFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), oldAttachedFile$2ArrayMiddleObject, i2);
+			BoardModifyReq.OldAttachedFile oldAttachedFile$2 = new BoardModifyReq.OldAttachedFile();
+			oldAttachedFile$2List.add(oldAttachedFile$2);
+
+			oldAttachedFile$2.setAttachedFileSeq((Short)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "attachedFileSeq" // itemName
 				, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
-				, oldAttachedFileSeq$2MiddleWritableObject));
+				, oldAttachedFile$2MiddleWritableObject));
 
 			pathStack.pop();
 		}
 
-		boardModifyReq.setOldAttachedFileSeqList(oldAttachedFileSeq$2List);
+		boardModifyReq.setOldAttachedFileList(oldAttachedFile$2List);
 
 		boardModifyReq.setNewAttachedFileCnt((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
@@ -130,6 +135,11 @@ public final class BoardModifyReqDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		int newAttachedFile$2ListSize = boardModifyReq.getNewAttachedFileCnt();
+		if (newAttachedFile$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var newAttachedFile$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
 		Object newAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "newAttachedFile", newAttachedFile$2ListSize, middleReadableObject);
 		java.util.List<BoardModifyReq.NewAttachedFile> newAttachedFile$2List = new java.util.ArrayList<BoardModifyReq.NewAttachedFile>();
 		for (int i2=0; i2 < newAttachedFile$2ListSize; i2++) {

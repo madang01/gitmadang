@@ -241,7 +241,7 @@ public class MembershipProcessSvl extends AbstractServlet {
 		
 		BinaryPublicKey binaryPublicKeyOutObj = (BinaryPublicKey) binaryPublicKeyOutputMessage;
 		byte[] binaryPublicKeyBytes = binaryPublicKeyOutObj.getPublicKeyBytes();
-		ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance().getNewClientSessionKey(binaryPublicKeyBytes);
+		ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance().getNewClientSessionKey(binaryPublicKeyBytes, false);
 		
 		
 		byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();								

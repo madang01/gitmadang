@@ -77,6 +77,9 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 		log.info(menuMoveDownReq.toString());
 		
 		UInteger sourceMenuNo = UInteger.valueOf(menuMoveDownReq.getMenuNo());
+		UByte sourceOrderSeq = null;
+		UInteger targetMenuNo = null;
+		UByte targetOrderSeq = null;
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -133,7 +136,7 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 			
 			UInteger sourceParetNo = sourceMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
 			UByte sourceDepth = sourceMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
-			UByte sourceOrderSeq = sourceMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
+			sourceOrderSeq = sourceMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
 			
 						
 			Record3<UInteger, UByte, UByte>  targetMenuRecord = null;
@@ -180,10 +183,10 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			UInteger targetMenuNo = targetMenuRecord.getValue(SB_SITEMENU_TB.MENU_NO);
+			targetMenuNo = targetMenuRecord.getValue(SB_SITEMENU_TB.MENU_NO);
 			// UInteger targetParetNo = targetMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
 			UByte targetDepth = targetMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
-			UByte targetOrderSeq = targetMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
+			targetOrderSeq = targetMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
 						
 			
 			int sourceGroupListSize = targetOrderSeq.shortValue() - sourceOrderSeq.shortValue();
@@ -269,21 +272,7 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 				log.warn("fail to commit");
 			}
 			
-			log.info("메뉴[번호:{}, 순서:{}] <--하단 메뉴 이동에 따른 순서 뒤바뀜--> 위치가 뒤 바뀐 메뉴[번호:{}, 순서:{}]",
-					menuMoveDownReq.getMenuNo(),
-					sourceOrderSeq,
-					targetMenuNo,
-					targetOrderSeq);
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(menuMoveDownReq.getMessageID());
-			messageResultRes.setIsSuccess(true);		
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append("메뉴[")
-					.append(menuMoveDownReq.getMenuNo())
-					.append("]의 상단 이동 처리가 완료되었습니다").toString());
-			
-			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -307,5 +296,21 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		log.info("원본 메뉴[번호:{}, 순서:{}] <--하단 메뉴 이동에 따른 순서 뒤바뀜--> 목적지 메뉴[번호:{}, 순서:{}]",
+				menuMoveDownReq.getMenuNo(),
+				sourceOrderSeq,
+				targetMenuNo,
+				targetOrderSeq);
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(menuMoveDownReq.getMessageID());
+		messageResultRes.setIsSuccess(true);		
+		messageResultRes.setResultMessage(new StringBuilder()
+				.append("메뉴[")
+				.append(menuMoveDownReq.getMenuNo())
+				.append("]의 상단 이동 처리가 완료되었습니다").toString());
+		
+		return messageResultRes;
 	}
 }

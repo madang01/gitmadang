@@ -35,8 +35,12 @@ public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 	}
 	
 	
-	public byte[] getSessionKeyBytes(ClientRSAIF clientRSA) throws SymmetricException {
-		return clientRSA.encrypt(symmetricKeyBytes);
+	public byte[] getSessionKeyBytes(ClientRSAIF clientRSA, boolean isBase64) throws SymmetricException {
+		if (isBase64) {
+			return clientRSA.encrypt(org.apache.commons.codec.binary.Base64.encodeBase64(symmetricKeyBytes));
+		} else {
+			return clientRSA.encrypt(symmetricKeyBytes);
+		}
 	}
 	
 		

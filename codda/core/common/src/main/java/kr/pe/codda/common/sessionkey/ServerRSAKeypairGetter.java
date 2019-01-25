@@ -1,5 +1,8 @@
 package kr.pe.codda.common.sessionkey;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyFactory;
@@ -12,16 +15,13 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-import org.apache.commons.io.FileUtils;
-
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.type.SessionKey;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.common.util.HexUtil;
 
 public abstract class ServerRSAKeypairGetter {
@@ -95,7 +95,7 @@ public abstract class ServerRSAKeypairGetter {
 		
 		byte privateKeyBytes[] = null;
 		try {
-			privateKeyBytes = FileUtils.readFileToByteArray(rsaPrivateKeyFile);
+			privateKeyBytes = CommonStaticUtil.readFileToByteArray(rsaPrivateKeyFile, 1024*1024*10);
 		} catch (IOException e) {
 			String errorMessage = String.format("the RSA private key File[%s] IOException, errmessage=%s",
 					rsaPrivateKeyFile.getAbsolutePath(), e.getMessage());
@@ -125,7 +125,7 @@ public abstract class ServerRSAKeypairGetter {
 
 		byte publicKeyBytes[] = null;
 		try {
-			publicKeyBytes = FileUtils.readFileToByteArray(rsaPublicKeyFile);
+			publicKeyBytes = CommonStaticUtil.readFileToByteArray(rsaPublicKeyFile, 10*1024*1024);
 		} catch (IOException e) {
 			String errorMessage = String.format("the RSA public key file[%s] IOException, errormessage=%s",
 					rsaPublicKeyFile.getAbsolutePath(), e.getMessage());

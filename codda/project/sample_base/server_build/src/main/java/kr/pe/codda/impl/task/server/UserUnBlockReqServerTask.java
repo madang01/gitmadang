@@ -221,9 +221,7 @@ public class UserUnBlockReqServerTask extends AbstractServerTask {
 						.append(memberStateTypeOfTargetUserID.getName())
 						.append("]는 차단된 사용자가 아닙니다").toString();				
 				throw new ServerServiceException(errorMessage);
-			}
-			
-			
+			}			
 			
 			create.update(SB_MEMBER_TB)
 			.set(SB_MEMBER_TB.STATE, MemberStateType.OK.getValue())
@@ -239,15 +237,7 @@ public class UserUnBlockReqServerTask extends AbstractServerTask {
 			
 			conn.commit();			
 
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(userUnBlockReq.getMessageID());
-			messageResultRes.setIsSuccess(true);
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append("차단된 사용자[")
-					.append(userUnBlockReq.getTargetUserID())
-					.append("]를 해제하였습니다").toString());
 			
-			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -268,6 +258,16 @@ public class UserUnBlockReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(userUnBlockReq.getMessageID());
+		messageResultRes.setIsSuccess(true);
+		messageResultRes.setResultMessage(new StringBuilder()
+				.append("차단된 사용자[")
+				.append(userUnBlockReq.getTargetUserID())
+				.append("]에 대한 제제를 해제하였습니다").toString());
+		
+		return messageResultRes;
 	}
 
 }

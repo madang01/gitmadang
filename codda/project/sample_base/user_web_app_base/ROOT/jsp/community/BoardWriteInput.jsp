@@ -32,23 +32,26 @@
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
 <!--
-	function getSessionkey() {
-		var privateKeyBase64 = sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>');
+	function getSessionkeyBase64() {
+		var privateKey;
+		var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
 		
 		if (typeof(privateKeyBase64) == 'undefined') {
-			var newPrivateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);
-			var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
+			privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
+			privateKeyBase64 = CryptoJS.enc.Base64.stringify(privateKey);
 			
-			sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', newPrivateKeyBase64);
-			
-			privateKeyBase64 = newPrivateKeyBase64;
+			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', privateKeyBase64);
+		} else {
+			privateKey = CryptoJS.enc.Base64.parse(privateKeyBase64);
 		}
 		
 		var rsa = new RSAKey();
-		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+		rsa.setPublic("<%=getModulusHexString(request)%>", "10001");
 		
-		var sessionKeyHex = rsa.encrypt(privateKeyBase64);
-		return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+		var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
+		sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));		
+	
+		return sessionkeyBase64;
 	}
 	
 	function save() {		
@@ -74,12 +77,12 @@
 			var fileInput = sourceNewFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
 			
 			if (1 == sourceNewFileListDivNode.childNodes.length) {
-				if (g.newAttachFile.value == '') {
+				if (g.newAttachedFile.value == '') {
 					alert("첨부 파일을 선택하세요");
 					return;
 				}
 			} else {
-				if (g.newAttachFile[i].value == '') {
+				if (g.newAttachedFile[i].value == '') {
 					alert(fileInput.getAttribute("title")+"을 선택하세요");
 					return;
 				}
@@ -92,7 +95,7 @@
 		
 		
 		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
-			= getSessionkey();
+			= getSessionkeyBase64();
 		
 		
 		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
@@ -105,15 +108,16 @@
 	function callBackForBoardWriteProcess(boardWriteResObj) {
 		alert("게시글 작성이 완료되었습니다");
 		
+		
 		goDetailPage(boardWriteResObj.boardNo);
 	}
 
 	function goDetailPage(boardNo) {
 		var g = document.goDetailForm;
 		g.boardNo.value = boardNo;
-		g.sessionkeyBase64.value = getSessionkeyBase64();
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64();
 		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
 	}
 
@@ -168,7 +172,7 @@
 		fileInput.setAttribute("type", "file");
 		fileInput.setAttribute("class", "form-control");
 		fileInput.setAttribute("title", "첨부파일('"+attachedFileRowDivID+"')");
-		fileInput.setAttribute("name", "newAttachFile");
+		fileInput.setAttribute("name", "newAttachedFile");
 		
 		fileInputColDiv.appendChild(fileInput);		
 		attachedFileRowDiv.appendChild(fileInputColDiv);
@@ -194,6 +198,14 @@
 		var olddiv = document.getElementById(divIdName);
 		d.removeChild(olddiv);
 	}
+	
+	function goList() {
+		var g = document.goListForm;
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64();
+		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);		
+		g.submit();		
+	}
 
 	
 	function init() {
@@ -208,10 +220,15 @@
 	
 		
 	<form name=goDetailForm method="post" action="/servlet/BoardDetail">
-	<input type="hidden" name="boardID" value="<%= boardType.getBoardID() %>" />
-	<input type="hidden" name="boardNo" />
-	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
-	<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />	
+		<input type="hidden" name="boardID" value="<%= boardType.getBoardID() %>" />
+		<input type="hidden" name="boardNo" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />	
+	</form>
+	<form name=goListForm method="post" action="/servlet/BoardList">
+		<input type="hidden" name="boardID" value="<%= boardType.getBoardID() %>" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />	
 	</form>
 
 	<div class="container-fluid">

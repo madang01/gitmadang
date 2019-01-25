@@ -50,7 +50,7 @@
 </script>
 </head>
 <body>
-<%= getSiteNavbarString(request) %>
+<%= getWebsiteMenuString(request) %>
 	
 	<div class="container-fluid">
 		<h2>JDF 테스트 - 세션키</h2>

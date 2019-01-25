@@ -1,7 +1,5 @@
 package kr.pe.codda.common.sessionkey;
 
-import org.apache.commons.codec.binary.Base64;
-
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.SymmetricException;
@@ -9,8 +7,8 @@ import kr.pe.codda.common.exception.SymmetricException;
 public class ServerSessionkey implements ServerSessionkeyIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(ServerSessionkey.class);
 	
-	ServerSymmetricKeyIF serverSymmetricKey = null;
-	ServerRSAIF serverRSA = null;
+	private ServerRSAIF serverRSA = null;
+	private final java.util.Base64.Decoder base64Decoder = java.util.Base64.getMimeDecoder();
 	
 	
 	public ServerSessionkey(ServerRSAIF serverRSA) {
@@ -33,7 +31,7 @@ public class ServerSessionkey implements ServerSessionkeyIF {
 		if (isBase64) {
 			byte[] base64EncodedStringBytes = serverRSA.decrypt(sessionkeyBytes);
 			try {
-				realSymmetricKeyBytes = Base64.decodeBase64(base64EncodedStringBytes);
+				realSymmetricKeyBytes = base64Decoder.decode(base64EncodedStringBytes);
 			} catch (Exception e) {
 				String errorMessage = "fail to decode the parameter sessionkeyBytes using base64";
 				

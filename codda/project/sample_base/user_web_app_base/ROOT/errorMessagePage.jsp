@@ -39,7 +39,7 @@ window.onload = init;
 </script>
 </head>
 <body>
-<%=getWebsiteMenuString(request)%>
+<%= getWebsiteMenuString(request) %>
 	
 	<div class="container-fluid">
 		<h3>에러 내용</h3>

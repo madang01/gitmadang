@@ -88,42 +88,42 @@ public final class BoardModifyReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "oldAttachedFileSeqCnt"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "oldAttachedFileCnt"
 			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
-			, boardModifyReq.getOldAttachedFileSeqCnt() // itemValue
+			, boardModifyReq.getOldAttachedFileCnt() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		java.util.List<BoardModifyReq.OldAttachedFileSeq> oldAttachedFileSeq$2List = boardModifyReq.getOldAttachedFileSeqList();
+		java.util.List<BoardModifyReq.OldAttachedFile> oldAttachedFile$2List = boardModifyReq.getOldAttachedFileList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
-		if (null == oldAttachedFileSeq$2List) {
+		if (null == oldAttachedFile$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
-			if (0 != boardModifyReq.getOldAttachedFileSeqCnt()) {
-				String errorMessage = new StringBuilder("the var oldAttachedFileSeq$2List is null but the value referenced by the array size[boardModifyReq.getOldAttachedFileSeqCnt()][").append(boardModifyReq.getOldAttachedFileSeqCnt()).append("] is not zero").toString();
+			if (0 != boardModifyReq.getOldAttachedFileCnt()) {
+				String errorMessage = new StringBuilder("the var oldAttachedFile$2List is null but the value referenced by the array size[boardModifyReq.getOldAttachedFileCnt()][").append(boardModifyReq.getOldAttachedFileCnt()).append("] is not zero").toString();
 				throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
-			int oldAttachedFileSeq$2ListSize = oldAttachedFileSeq$2List.size();
+			int oldAttachedFile$2ListSize = oldAttachedFile$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (boardModifyReq.getOldAttachedFileSeqCnt() != oldAttachedFileSeq$2ListSize) {
-				String errorMessage = new StringBuilder("the var oldAttachedFileSeq$2ListSize[").append(oldAttachedFileSeq$2ListSize).append("] is not same to the value referenced by the array size[boardModifyReq.getOldAttachedFileSeqCnt()][").append(boardModifyReq.getOldAttachedFileSeqCnt()).append("]").toString();
+			if (boardModifyReq.getOldAttachedFileCnt() != oldAttachedFile$2ListSize) {
+				String errorMessage = new StringBuilder("the var oldAttachedFile$2ListSize[").append(oldAttachedFile$2ListSize).append("] is not same to the value referenced by the array size[boardModifyReq.getOldAttachedFileCnt()][").append(boardModifyReq.getOldAttachedFileCnt()).append("]").toString();
 				throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object oldAttachedFileSeq$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "oldAttachedFileSeq", oldAttachedFileSeq$2ListSize, middleWritableObject);
-			for (int i2=0; i2 < oldAttachedFileSeq$2ListSize; i2++) {
-				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("OldAttachedFileSeq").append("[").append(i2).append("]").toString());
-				Object oldAttachedFileSeq$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), oldAttachedFileSeq$2ArrayMiddleObject, i2);
-				BoardModifyReq.OldAttachedFileSeq oldAttachedFileSeq$2 = oldAttachedFileSeq$2List.get(i2);
+			Object oldAttachedFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "oldAttachedFile", oldAttachedFile$2ListSize, middleWritableObject);
+			for (int i2=0; i2 < oldAttachedFile$2ListSize; i2++) {
+				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("OldAttachedFile").append("[").append(i2).append("]").toString());
+				Object oldAttachedFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), oldAttachedFile$2ArrayMiddleObject, i2);
+				BoardModifyReq.OldAttachedFile oldAttachedFile$2 = oldAttachedFile$2List.get(i2);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileSeq"
 					, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-					, oldAttachedFileSeq$2.getAttachedFileSeq() // itemValue
+					, oldAttachedFile$2.getAttachedFileSeq() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
-					, oldAttachedFileSeq$2MiddleWritableObject);
+					, oldAttachedFile$2MiddleWritableObject);
 
 				pathStack.pop();
 			}

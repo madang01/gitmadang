@@ -48,10 +48,10 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 				
 		if (null == userMessage) {
 			userMessage = "user messsage is null";
-		}		
-		
+		}
+
 		if (null == debugMessage) {
-			debugMessage = "debug messsage is null";
+			debugMessage = "";
 		}
 		
 		req.setAttribute("debugMessage", debugMessage);

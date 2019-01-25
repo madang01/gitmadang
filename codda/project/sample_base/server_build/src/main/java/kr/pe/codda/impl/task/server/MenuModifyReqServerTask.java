@@ -66,6 +66,9 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(menuModifyReq.toString());
 		
+		String oldMenuName = null;
+		String oldMenuLinkURL = null;
+		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
 
@@ -96,6 +99,10 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			
+			oldMenuName = menuRecord.getValue(SB_SITEMENU_TB.MENU_NM);
+			oldMenuLinkURL = menuRecord.getValue(SB_SITEMENU_TB.LINK_URL);
+			
+			
 			int menuUpdateCount = create.update(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.MENU_NM, menuModifyReq.getMenuName())
 			.set(SB_SITEMENU_TB.LINK_URL, menuModifyReq.getLinkURL())
@@ -124,21 +131,7 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			log.info("메뉴[{}] 수정전 {메뉴명[{}], URL[{}]}, 수정후 {메뉴명[{}], URL[{}]}", 
-					menuRecord.getValue(SB_SITEMENU_TB.MENU_NM),
-					menuRecord.getValue(SB_SITEMENU_TB.LINK_URL),
-					menuModifyReq.getMenuName(),
-					menuModifyReq.getLinkURL());
 			
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(menuModifyReq.getMessageID());
-			messageResultRes.setIsSuccess(true);		
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append("메뉴[")
-					.append(menuModifyReq.getMenuNo())
-					.append("] 수정 처리가 완료되었습니다").toString());
-			
-			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -163,5 +156,21 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		log.info("메뉴 수정전 {메뉴명[{}], URL[{}]}, 수정후 {메뉴명[{}], URL[{}]}", 
+				oldMenuName,
+				oldMenuLinkURL,
+				menuModifyReq.getMenuName(),
+				menuModifyReq.getLinkURL());
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(menuModifyReq.getMessageID());
+		messageResultRes.setIsSuccess(true);		
+		messageResultRes.setResultMessage(new StringBuilder()
+				.append("메뉴[")
+				.append(menuModifyReq.getMenuNo())
+				.append("] 수정 처리가 완료되었습니다").toString());
+		
+		return messageResultRes;
 	}
 }

@@ -76,7 +76,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 
 	public BoardWriteRes doWork(String dbcpName, BoardWriteReq boardWriteReq) throws Exception {
 		// FIXME!
-		// log.info(boardWriteReq.toString());
+		log.info(boardWriteReq.toString());
 
 		BoardType boardType = null;
 		
@@ -165,6 +165,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		UByte boardSequenceID = UByte.valueOf(boardSequenceType.getSequenceID());
 		UByte boardID = UByte.valueOf(boardWriteReq.getBoardID());
 		UByte nextAttachedFileSeq = UByte.valueOf(boardWriteReq.getNewAttachedFileCnt());
+		UInteger boardNo = null;
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -193,7 +194,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			UInteger boardNo = boardSequenceRecord.get(SB_SEQ_TB.SQ_VALUE);
+			boardNo = boardSequenceRecord.get(SB_SEQ_TB.SQ_VALUE);
 
 			int countOfUpdate = create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, SB_SEQ_TB.SQ_VALUE.add(1))
 					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID)).execute();
@@ -289,11 +290,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			// log.info("게시판 최상의 글[boardID={}, boardNo={}, subject={}] 등록 성공", boardID,
 			// boardNo, boardWriteReq.getSubject());
 
-			BoardWriteRes boardWriteRes = new BoardWriteRes();
-			boardWriteRes.setBoardID(boardID.shortValue());
-			boardWriteRes.setBoardNo(boardNo.longValue());
-
-			return boardWriteRes;
+			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -314,5 +311,11 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		BoardWriteRes boardWriteRes = new BoardWriteRes();
+		boardWriteRes.setBoardID(boardID.shortValue());
+		boardWriteRes.setBoardNo(boardNo.longValue());
+
+		return boardWriteRes;
 	}
 }

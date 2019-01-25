@@ -86,6 +86,7 @@ public class BoardDetailSvl extends AbstractServlet {
 		
 		
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
+		boardDetailReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
 		boardDetailReq.setBoardID(boardID);
 		boardDetailReq.setBoardNo(boardNo);
 		

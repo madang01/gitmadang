@@ -1,5 +1,8 @@
 package kr.pe.codda.common.util;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,14 +10,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.BuildSystemException;
 import kr.pe.codda.common.type.LineSeparatorType;
 import kr.pe.codda.common.type.ReadWriteMode;
 
@@ -313,69 +310,7 @@ public abstract class CommonStaticUtil {
 		}
 	}
 	
-	public static void createChildDirectoriesOfBasePath(String basePathStrig,
-			List<String> childRelativeDirectoryList) throws BuildSystemException {
-		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
-		
-		for (String childRelativedirectory : childRelativeDirectoryList) {
-			// String relativeDir = childDirectories[i];
-
-			// log.info("relativeDir[{}]=[{}]", i, relativeDir);
-
-			String childRealPathString = null;
-			
-			
-			if (File.separator.equals("/")) {
-				childRealPathString = new StringBuilder(basePathStrig)
-						.append(File.separator).append(childRelativedirectory).toString();
-			} else {
-				childRealPathString = new StringBuilder(basePathStrig)
-						.append(File.separator).append(childRelativedirectory.replaceAll("/", "\\\\")).toString();
-			}
-			
-
-			File childRealPath = new File(childRealPathString);
-			if (!childRealPath.exists()) {
-				try {
-					FileUtils.forceMkdir(childRealPath);
-				} catch (IOException e) {
-					String errorMessage = String.format(
-							"fail to create a new path[%s][%s]", basePathStrig, childRelativedirectory);
-					log.info(errorMessage, e);
-					throw new BuildSystemException(errorMessage);
-				}
-
-				log.info("the new child relative direcotry[{}][{}] was created successfully",
-						basePathStrig, childRelativedirectory);
-			} else {
-				log.info("the child relative direcotry[{}][{}] exist, so nothing", basePathStrig, childRelativedirectory);
-			}
-
-			if (!childRealPath.isDirectory()) {
-				String errorMessage = String.format(
-						"the child relative direcotry[%s][%s] is not a real directory", basePathStrig, childRelativedirectory);
-				// log.warn(errorMessage);
-				throw new BuildSystemException(errorMessage);
-			}
-
-			if (!childRealPath.canRead()) {
-				String errorMessage = String.format(
-						"the child relative direcotry[%s][%s] doesn't hava permission to read",
-						basePathStrig, childRelativedirectory);
-				// log.warn(errorMessage);
-				throw new BuildSystemException(errorMessage);
-			}
-
-			if (!childRealPath.canWrite()) {
-				String errorMessage = String.format(
-						"the child relative direcotry[%s][%s] doesn't hava permission to write",
-						basePathStrig, childRelativedirectory);
-				// log.warn(errorMessage);
-				throw new BuildSystemException(errorMessage);
-			}
-
-		}
-	}
+	
 	
 	public static String getPrefixWithTabCharacters(int depth, int numberOfAdditionalTabs) {
 		if (depth < 0) {
@@ -495,5 +430,62 @@ public abstract class CommonStaticUtil {
 		
 		boolean isValid = sourceString.matches(regex);
 		return isValid;
+	}
+	
+	public static byte[] readFileToByteArray(File sourceFile, int maxSize) throws IOException {
+		if (null == sourceFile) {
+			throw new IllegalArgumentException("the parameter sourceFile is null");
+		}
+		
+		if (! sourceFile.exists()) {
+			String errorMessage = new StringBuilder("the parameter sourceFile[")
+			.append(sourceFile.getAbsolutePath())
+			.append("] doesn't exist").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (! sourceFile.isFile()) {
+			String errorMessage = new StringBuilder("the parameter sourceFile[")
+			.append(sourceFile.getAbsolutePath())
+			.append("] is not a normal file").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (! sourceFile.canRead()) {
+			String errorMessage = new StringBuilder("the parameter sourceFile[")
+			.append(sourceFile.getAbsolutePath())
+			.append("] can't be read").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (sourceFile.length() > maxSize) {
+			String errorMessage = new StringBuilder("the parameter sourceFile[")
+			.append(sourceFile.getAbsolutePath())
+			.append("]'s size[")
+			.append(sourceFile.length())
+			.append("] is greater than max[")
+			.append(maxSize)
+			.append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		byte[] result = new byte[(int)sourceFile.length()];
+		
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(sourceFile);
+			fis.read(result);
+		} catch(IOException e) {
+			throw e;
+		} finally {
+			if (null != fis) {
+				try {
+					fis.close();
+				} catch(Exception e) {
+				}
+			}
+		}				
+		
+		return result;
 	}
 }

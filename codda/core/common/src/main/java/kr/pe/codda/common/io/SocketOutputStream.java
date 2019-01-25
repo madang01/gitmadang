@@ -27,6 +27,7 @@ public class SocketOutputStream {
 	private ArrayDeque<WrapBuffer> socketOutputStreamWrapBufferQueue = new  ArrayDeque<WrapBuffer>();
 	/** 메시지를 추출시 생기는 부가 정보를  */
 	private Object userDefObject = null;
+	private boolean isClosed = false;
 	
 	public SocketOutputStream(CharsetDecoder streamCharsetDecoder, 
 			int dataPacketBufferMaxCntPerMessage, 
@@ -311,7 +312,6 @@ public class SocketOutputStream {
 	}
 	
 	
- 
 	public void close() {
 		// log.info("call close");
 		
@@ -325,6 +325,11 @@ public class SocketOutputStream {
 		
 		numberOfWrittenBytes = 0;
 		userDefObject = null;
+		isClosed = true;
+	}
+	
+	public boolean isClosed() {
+		return isClosed;
 	}
 	
 }

@@ -284,6 +284,11 @@ public final class AllItemTypeDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		int member$2ListSize = allItemType.getCnt();
+		if (member$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var member$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
 		Object member$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "member", member$2ListSize, middleReadableObject);
 		java.util.List<AllItemType.Member> member$2List = new java.util.ArrayList<AllItemType.Member>();
 		for (int i2=0; i2 < member$2ListSize; i2++) {
@@ -317,6 +322,11 @@ public final class AllItemTypeDecoder extends AbstractMessageDecoder {
 				, member$2MiddleWritableObject));
 
 			int item$3ListSize = member$2.getCnt();
+			if (item$3ListSize < 0) {
+				String errorMessage = new StringBuilder("the var item$3ListSize is less than zero").toString();
+				throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+			}
+
 			Object item$3ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "item", item$3ListSize, member$2MiddleWritableObject);
 			java.util.List<AllItemType.Member.Item> item$3List = new java.util.ArrayList<AllItemType.Member.Item>();
 			for (int i3=0; i3 < item$3ListSize; i3++) {
@@ -350,6 +360,11 @@ public final class AllItemTypeDecoder extends AbstractMessageDecoder {
 					, item$3MiddleWritableObject));
 
 				int subItem$4ListSize = item$3.getItemCnt();
+				if (subItem$4ListSize < 0) {
+					String errorMessage = new StringBuilder("the var subItem$4ListSize is less than zero").toString();
+					throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+				}
+
 				Object subItem$4ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "subItem", subItem$4ListSize, item$3MiddleWritableObject);
 				java.util.List<AllItemType.Member.Item.SubItem> subItem$4List = new java.util.ArrayList<AllItemType.Member.Item.SubItem>();
 				for (int i4=0; i4 < subItem$4ListSize; i4++) {

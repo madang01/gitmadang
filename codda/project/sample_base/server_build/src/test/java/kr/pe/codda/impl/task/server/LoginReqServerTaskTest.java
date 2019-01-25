@@ -116,7 +116,7 @@ public class LoginReqServerTaskTest extends AbstractJunitTest {
 		ClientSessionKeyIF clientSessionKey = null;
 		try {
 			clientSessionKey = clientSessionKeyManager
-					.getNewClientSessionKey(serverSessionkeyManager.getMainProjectServerSessionkey().getDupPublicKeyBytes());
+					.getNewClientSessionKey(serverSessionkeyManager.getMainProjectServerSessionkey().getDupPublicKeyBytes(), false);
 		} catch (SymmetricException e) {
 			fail("fail to get a ClientSessionKey");
 		}

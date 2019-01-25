@@ -416,16 +416,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			
 			conn.commit();			
 
-			MessageResultRes messageResultRes = new MessageResultRes();
-			messageResultRes.setTaskMessageID(boardUnBlockReq.getMessageID());
-			messageResultRes.setIsSuccess(true);
-			messageResultRes.setResultMessage(new StringBuilder()
-					.append(boardType.getName())
-					.append(" 게시판의 글[")
-					.append(boardNo.longValue())
-					.append("] 차단이 완료되었습니다").toString());
 			
-			return messageResultRes;
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -446,6 +437,17 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(boardUnBlockReq.getMessageID());
+		messageResultRes.setIsSuccess(true);
+		messageResultRes.setResultMessage(new StringBuilder()
+				.append(boardType.getName())
+				.append(" 게시판의 글[")
+				.append(boardNo.longValue())
+				.append("] 차단이 완료되었습니다").toString());
+		
+		return messageResultRes;
 	}
 
 }

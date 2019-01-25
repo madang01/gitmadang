@@ -6,6 +6,7 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -123,10 +124,10 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		if (boardModifyReq.getOldAttachedFileSeqCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+		if (boardModifyReq.getOldAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder()
 					.append("기존 첨부 파일들중 남은 갯수[")
-					.append(boardModifyReq.getOldAttachedFileSeqCnt())
+					.append(boardModifyReq.getOldAttachedFileCnt())
 					.append("]가 unsgiend byte 최대값[")
 					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
 					.append("]을 초과하였습니다").toString();
@@ -143,12 +144,12 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 
 		if ((boardModifyReq.getNewAttachedFileCnt() + boardModifyReq
-				.getOldAttachedFileSeqCnt()) > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
+				.getOldAttachedFileCnt()) > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
 			String errorMessage = new StringBuilder()
 					.append("총 첨부 파일 갯수(=신규 첨부 파일 등록 갯수[")
 					.append(boardModifyReq.getNewAttachedFileCnt())
 					.append("] + 기존 첨부 파일들중 남은 갯수[")
-					.append(boardModifyReq.getOldAttachedFileSeqCnt())
+					.append(boardModifyReq.getOldAttachedFileCnt())
 					.append("]) 가 첨부 파일 최대 갯수[")
 					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT)
 					.append("]를 초과하였습니다").toString();
@@ -184,8 +185,8 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 		
 		HashSet<Short> remainingOldAttachedFileSequeceSet = new HashSet<Short>();		
-		for (BoardModifyReq.OldAttachedFileSeq oldAttachedFile : boardModifyReq
-				.getOldAttachedFileSeqList()) {
+		for (BoardModifyReq.OldAttachedFile oldAttachedFile : boardModifyReq
+				.getOldAttachedFileList()) {
 			
 			short oldAttachedFileSeq = oldAttachedFile.getAttachedFileSeq();
 			
@@ -212,6 +213,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		
 		UByte boardID = UByte.valueOf(boardModifyReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardModifyReq.getBoardNo());
+		HashSet<Short> deletedAttachedFileSequeceSet = new HashSet<Short>();
 		int newNextAttachedFileSeq = boardModifyReq.getNextAttachedFileSeq()
 				+ boardModifyReq.getNewAttachedFileCnt();
 
@@ -225,6 +227,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
+		
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(
 				dbcpName);
 
@@ -440,15 +443,13 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					throw new ServerServiceException(errorMessage);
 				}
 			} else {				
-				HashSet<Short> actualOldAttachedFileSequeceSet = new HashSet<Short>();
-				
 				for (Record attachFileRecord : attachFileListRecord) {
 					UByte attachedFileSeq = attachFileRecord
 							.get(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ);
-					actualOldAttachedFileSequeceSet.add(attachedFileSeq.shortValue());
+					deletedAttachedFileSequeceSet.add(attachedFileSeq.shortValue());
 				}
 
-				if (! actualOldAttachedFileSequeceSet
+				if (! deletedAttachedFileSequeceSet
 						.containsAll(remainingOldAttachedFileSequeceSet)) {
 					try {
 						conn.rollback();
@@ -460,21 +461,21 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 							"보존을 원하는 구 첨부 파일 목록[=")
 					.append(remainingOldAttachedFileSequeceSet.toString())
 					.append("]중 실제 구 첨부 파일 목록[=")					
-					.append(actualOldAttachedFileSequeceSet.toString())
+					.append(deletedAttachedFileSequeceSet.toString())
 					.append("]에 존재하지 않는 첨부 파일이 존재합니다")
 							.toString();
 					throw new ServerServiceException(errorMessage);
 				}
 
-				actualOldAttachedFileSequeceSet
+				deletedAttachedFileSequeceSet
 						.removeAll(remainingOldAttachedFileSequeceSet);
 
-				if (! actualOldAttachedFileSequeceSet.isEmpty()) {
+				if (! deletedAttachedFileSequeceSet.isEmpty()) {
 					create.delete(SB_BOARD_FILELIST_TB)
 							.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))
 							.and(SB_BOARD_FILELIST_TB.BOARD_NO.eq(boardNo))
 							.and(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ
-									.in(actualOldAttachedFileSequeceSet))
+									.in(deletedAttachedFileSequeceSet))
 							.execute();
 				}
 			}
@@ -503,10 +504,9 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 						} catch (Exception e) {
 							log.warn("fail to rollback");
 						}
-						String errorMessage = "게시판 첨부 파일을  저장하는데 실패하였습니다";
-						log.warn(
-								"게시판 첨부 파일 목록내 인덱스[{}]의 첨부 파일 이름을 저장하는데 실패하였습니다",
-								newAttachedFileListIndex);
+						String errorMessage = new StringBuilder()
+						.append("게시판 ")
+						.append(newAttachedFileListIndex).append(" 번째 첨부 파일을  저장하는데 실패하였습니다").toString();						
 
 						throw new ServerServiceException(errorMessage);
 					}
@@ -517,13 +517,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 
 			conn.commit();
-
-			BoardModifyRes boardModifyRes = new BoardModifyRes();
-
-			boardModifyRes.setBoardID(boardID.shortValue());
-			boardModifyRes.setBoardNo(boardNo.longValue());
-
-			return boardModifyRes;
+			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -545,5 +539,25 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		BoardModifyRes boardModifyRes = new BoardModifyRes();
+
+		boardModifyRes.setBoardID(boardID.shortValue());
+		boardModifyRes.setBoardNo(boardNo.longValue());
+		
+		List<BoardModifyRes.DeletedAttachedFile> deletedAttachedFileList =
+				new ArrayList<BoardModifyRes.DeletedAttachedFile>();		
+		
+		for (Short deletedAttachedFileSequece : deletedAttachedFileSequeceSet) {
+			BoardModifyRes.DeletedAttachedFile deletedAttachedFile =
+					new BoardModifyRes.DeletedAttachedFile();
+			deletedAttachedFile.setAttachedFileSeq(deletedAttachedFileSequece);
+			deletedAttachedFileList.add(deletedAttachedFile);
+		}
+		
+		boardModifyRes.setDeletedAttachedFileCnt(deletedAttachedFileList.size());
+		boardModifyRes.setDeletedAttachedFileList(deletedAttachedFileList);
+
+		return boardModifyRes;
 	}
 }

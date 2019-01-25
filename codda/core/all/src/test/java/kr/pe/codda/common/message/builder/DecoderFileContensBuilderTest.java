@@ -66,6 +66,37 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 			log.info(contetnsStringBuilder.toString());
 		}
 		
+		@Test
+		public void testAddArraySizeCheckPart() {
+			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
+			
+			int depth = 1;
+			String varNameOfSetOwner = "empty";	
+			
+			String arrayName = "member";
+			String arrayCntType = "direct";
+			String arrayCntValue = "3";
+
+			ArrayInfo arrayInfo = new ArrayInfo(arrayName, arrayCntType, arrayCntValue);
+			OrderedItemSet arrayItemSet = arrayInfo.getOrderedItemSet();
+			{
+				String itemName = "ubBytes";
+				String itemTypeName = SingleItemType.UB_VARIABLE_LENGTH_BYTES.getItemTypeName();
+				String nativeItemDefaultValue = null;
+				String nativeItemSize = null;
+				String nativeItemCharset = null;
+
+				SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
+						nativeItemSize, nativeItemCharset);
+				arrayItemSet.addItemInfo(singleItemInfo);
+			}
+			
+			StringBuilder contetnsStringBuilder = new StringBuilder();
+			decoderFileContensBuilder.addArraySizeCheckPart(contetnsStringBuilder, depth, varNameOfSetOwner, arrayInfo);
+			
+			log.info(contetnsStringBuilder.toString());
+		}
+		
 		
 		@Test
 		public void testAddArrayInfoPart() {

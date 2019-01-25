@@ -19,4 +19,8 @@
 <desc>게시판 수정 응답 메시지</desc>
 <singleitem name="boardID" type="unsigned byte" />
 <singleitem name="boardNo" type="unsigned integer" />
+<singleitem name="deletedAttachedFileCnt" type="integer" />
+<array name="deletedAttachedFile" cnttype="reference" cntvalue="deletedAttachedFileCnt">
+	<singleitem name="attachedFileSeq" type="unsigned byte" />
+</array>
 </message>

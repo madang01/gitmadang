@@ -76,6 +76,11 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		int board$2ListSize = boardListRes.getCnt();
+		if (board$2ListSize < 0) {
+			String errorMessage = new StringBuilder("the var board$2ListSize is less than zero").toString();
+			throw new kr.pe.codda.common.exception.BodyFormatException(errorMessage);
+		}
+
 		Object board$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "board", board$2ListSize, middleReadableObject);
 		java.util.List<BoardListRes.Board> board$2List = new java.util.ArrayList<BoardListRes.Board>();
 		for (int i2=0; i2 < board$2ListSize; i2++) {

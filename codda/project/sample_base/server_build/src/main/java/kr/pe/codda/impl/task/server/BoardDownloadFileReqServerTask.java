@@ -73,6 +73,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 		UByte boardID = UByte.valueOf(boardDownloadFileReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardDownloadFileReq.getBoardNo());
 		UByte attachedFileSeq = UByte.valueOf(boardDownloadFileReq.getAttachedFileSeq());
+		String attachedFileName = null;
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -186,7 +187,8 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			Record1<String>  fileListRecord = create.select(SB_BOARD_FILELIST_TB.ATTACHED_FNAME).from(SB_BOARD_FILELIST_TB)
+			Record1<String>  fileListRecord = create.select(SB_BOARD_FILELIST_TB.ATTACHED_FNAME)
+					.from(SB_BOARD_FILELIST_TB)
 			.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_FILELIST_TB.BOARD_NO.eq(boardNo))
 			.and(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ.eq(attachedFileSeq)).fetchOne();
@@ -194,17 +196,14 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			if (null == fileListRecord) {
 				String errorMessage = "지정한 첨부 파일 정보가 존재하지 않습니다";
 				throw new ServerServiceException(errorMessage);
-			}			
+			}
+			
+			
+			attachedFileName = fileListRecord.getValue(SB_BOARD_FILELIST_TB.ATTACHED_FNAME);
 
 			conn.commit();
 
-			BoardDownloadFileRes boardDownloadFileRes = new BoardDownloadFileRes();
-			boardDownloadFileRes.setBoardID(boardDownloadFileReq.getBoardID());
-			boardDownloadFileRes.setBoardNo(boardDownloadFileReq.getBoardNo());
-			boardDownloadFileRes.setAttachedFileSeq(boardDownloadFileReq.getAttachedFileSeq());
-			boardDownloadFileRes.setAttachedFileName(fileListRecord.getValue(SB_BOARD_FILELIST_TB.ATTACHED_FNAME));			
-
-			return boardDownloadFileRes;
+			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -225,5 +224,13 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
+		
+		BoardDownloadFileRes boardDownloadFileRes = new BoardDownloadFileRes();
+		boardDownloadFileRes.setBoardID(boardDownloadFileReq.getBoardID());
+		boardDownloadFileRes.setBoardNo(boardDownloadFileReq.getBoardNo());
+		boardDownloadFileRes.setAttachedFileSeq(boardDownloadFileReq.getAttachedFileSeq());
+		boardDownloadFileRes.setAttachedFileName(attachedFileName);			
+
+		return boardDownloadFileRes;
 	}
 }
