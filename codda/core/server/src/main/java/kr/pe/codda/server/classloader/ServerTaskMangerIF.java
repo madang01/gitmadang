@@ -26,16 +26,7 @@ import kr.pe.codda.server.task.AbstractServerTask;
  * @author "Won Jonghoon"
  *
  */
-public interface ServerDynamicObjectMangerIF {
-	/**
-	 * 지정된 클래스 로더에서 메시지 식별자와 1:1 대응하는 서버 코덱 객체를 얻어 반환한다.
-	 * @param classLoader 클래스 로더
-	 * @param messageID 메시지 식별자
-	 * @return 지정된 클래스 로더에서 메시지 식별자와 1:1 대응하는 서버 코덱 객체
-	 * @throws DynamicClassCallException 동적 클래스를 다룰때 에러 발생시 던지는 예외
-	 */
-	// public MessageCodecIF getServerMessageCodec(final ClassLoader classLoader, String messageID) throws DynamicClassCallException;
-	
+public interface ServerTaskMangerIF {
 	/**
 	 * 지정된 메시지 식별자와 1:1 대응하는 서버 타스크를 얻어 반환한다.
 	 * @param messageID 메시지 식별자

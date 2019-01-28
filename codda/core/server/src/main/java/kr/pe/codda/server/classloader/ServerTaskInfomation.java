@@ -1,4 +1,4 @@
-package kr.pe.codda.server;
+package kr.pe.codda.server.classloader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,29 +6,41 @@ import java.io.FileNotFoundException;
 import kr.pe.codda.common.classloader.SimpleClassLoader;
 import kr.pe.codda.server.task.AbstractServerTask;
 
-public class ServerTaskObjectInfo {
+public class ServerTaskInfomation {
 	private File serverTaskClassFile = null;
 	private long loadedTime = 0;
 	private AbstractServerTask serverTask = null;
 	
-	public ServerTaskObjectInfo(File serverTaskClassFile, AbstractServerTask serverTask) {
+	public ServerTaskInfomation(File serverTaskClassFile, AbstractServerTask serverTask) {
+		if (null == serverTaskClassFile) {
+			String errorMessage = "the parmater serverTaskClassFile is null";			
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (! serverTaskClassFile.exists()) {
+			String errorMessage = new StringBuilder("the server task file[")
+					.append(serverTaskClassFile.getAbsolutePath())
+					.append("] was not found").toString();
+			
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == serverTask) {
+			String errorMessage = "the parmater serverTask is null";			
+			throw new IllegalArgumentException(errorMessage);
+		}		
+		
+		if (! (serverTask.getClass().getClassLoader() instanceof SimpleClassLoader)) {
+			throw new IllegalArgumentException("the parameter serverTask is not a instance of SimpleClassLoader class");
+		}		
+		
+		
 		this.serverTaskClassFile = serverTaskClassFile;
 		this.serverTask = serverTask;
 		this.loadedTime = serverTaskClassFile.lastModified();
 	}
 	
 	public boolean isModifed() throws FileNotFoundException {
-		/** 클래스로더가 SimpleClassLoader 가 아니라면 해당 클래스는 시스템 클래스로더 대상이므로 수정 여부는 무조건 거짓(=false)으로 반환한다  */
-		if (! (serverTask.getClass().getClassLoader() instanceof SimpleClassLoader)) {
-			return false;
-		}
-		if (! serverTaskClassFile.exists()) {
-			String errorMessage = new StringBuilder("the server task file[")
-					.append(serverTaskClassFile.getAbsolutePath())
-					.append("] was not found").toString();
-			
-			throw new FileNotFoundException(errorMessage);
-		}
 		long lastModifedTime = serverTaskClassFile.lastModified();
 		return (loadedTime != lastModifedTime);
 	}

@@ -38,7 +38,7 @@ import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
 import kr.pe.codda.common.type.MessageProtocolType;
 import kr.pe.codda.server.classloader.ServerClassLoaderFactory;
-import kr.pe.codda.server.classloader.ServerDynamicObjectManger;
+import kr.pe.codda.server.classloader.ServerTaskManger;
 
 
 public class AnyProjectServer {
@@ -56,7 +56,7 @@ public class AnyProjectServer {
 	private int serverDataPacketBufferPoolSize;	 
 	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;	
-	private ServerDynamicObjectManger serverObjectCacheManager = null;	
+	private ServerTaskManger serverObjectCacheManager = null;	
 	private ServerIOEventController serverIOEventController = null;
 	
 	public AnyProjectServer(String serverAPPINFClassPathString,
@@ -124,7 +124,7 @@ public class AnyProjectServer {
 		ServerClassLoaderFactory serverClassLoaderFactory = 
 				new ServerClassLoaderFactory(this.serverAPPINFClassPathString, this.projectResourcesPathString);
 		
-		serverObjectCacheManager = new ServerDynamicObjectManger(serverClassLoaderFactory);		
+		serverObjectCacheManager = new ServerTaskManger(serverClassLoaderFactory);		
 		
 		serverIOEventController = new ServerIOEventController(projectPartConfiguration,
 				socketOutputStreamFactory, 

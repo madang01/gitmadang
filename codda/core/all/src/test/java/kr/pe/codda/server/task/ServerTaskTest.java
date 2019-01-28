@@ -45,7 +45,7 @@ import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.ServerIOEvenetControllerIF;
-import kr.pe.codda.server.classloader.ServerDynamicObjectMangerIF;
+import kr.pe.codda.server.classloader.ServerTaskMangerIF;
 
 import org.junit.Test;
 
@@ -131,7 +131,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
+			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -362,7 +362,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerDynamicObjectMangerIF serverObjectCacheManagerMock = mock(ServerDynamicObjectMangerIF.class);
+			ServerTaskMangerIF serverObjectCacheManagerMock = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, 
 					fromSC, 
@@ -591,7 +591,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerDynamicObjectMangerIF serverObjectCacheManagerMock = mock(ServerDynamicObjectMangerIF.class);
+			ServerTaskMangerIF serverObjectCacheManagerMock = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, 
 					fromSC, 
@@ -831,7 +831,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
+			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -1065,7 +1065,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
+			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -1308,7 +1308,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
+			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -1549,7 +1549,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
+			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -1792,7 +1792,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);			
-			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
+			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 

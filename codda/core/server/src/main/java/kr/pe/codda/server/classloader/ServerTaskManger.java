@@ -8,28 +8,26 @@ import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.codda.common.classloader.SimpleClassLoader;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.util.CommonStaticUtil;
-import kr.pe.codda.server.ServerTaskObjectInfo;
 import kr.pe.codda.server.task.AbstractServerTask;
 
-public class ServerDynamicObjectManger implements ServerDynamicObjectMangerIF {
+public class ServerTaskManger implements ServerTaskMangerIF {
 	// private InternalLogger log = InternalLoggerFactory.getInstance(ServerDynamicObjectManger.class);
 
 	// private final Object monitor = new Object();
 
 	private ServerClassLoaderFactory serverClassLoaderFactory = null;
-
 	private SimpleClassLoader currentWorkingServerClassLoader = null;
 
-	private final HashMap<String, ServerTaskObjectInfo> messageID2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
+	private final HashMap<String, ServerTaskInfomation> messageID2ServerTaskInformationHash = new HashMap<String, ServerTaskInfomation>();
 	// private ReentrantLock lock = new ReentrantLock();
 
-	public ServerDynamicObjectManger(ServerClassLoaderFactory serverClassLoaderFactory) {
+	public ServerTaskManger(ServerClassLoaderFactory serverClassLoaderFactory) {
 		this.serverClassLoaderFactory = serverClassLoaderFactory;
 
 		this.currentWorkingServerClassLoader = serverClassLoaderFactory.createServerClassLoader();
 	}
 
-	private ServerTaskObjectInfo getNewServerTaskFromWorkBaseClassload(String classFullName)
+	private ServerTaskInfomation getNewServerTaskFromWorkBaseClassload(String classFullName)
 			throws DynamicClassCallException {
 		Object retObject = CommonStaticUtil.getNewObjectFromClassloader(currentWorkingServerClassLoader, classFullName);
 		
@@ -51,37 +49,37 @@ public class ServerDynamicObjectManger implements ServerDynamicObjectMangerIF {
 
 		File serverTaskClassFile = new File(classFileName);
 
-		return new ServerTaskObjectInfo(serverTaskClassFile, serverTask);
+		return new ServerTaskInfomation(serverTaskClassFile, serverTask);
 	}
 	
 	
-	private ServerTaskObjectInfo getServerTaskInfo(String messageID)
+	private ServerTaskInfomation getServerTaskInfomation(String messageID)
 			throws DynamicClassCallException, FileNotFoundException {
-		ServerTaskObjectInfo serverTaskObjectInfo = messageID2ServerTaskObjectInfoHash.get(messageID);
-		if (null == serverTaskObjectInfo) {
+		ServerTaskInfomation serverTaskInfomation = messageID2ServerTaskInformationHash.get(messageID);
+		if (null == serverTaskInfomation) {
 			// lock.lock();
 			
 					
 			String classFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
-			serverTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
+			serverTaskInfomation = getNewServerTaskFromWorkBaseClassload(classFullName);
 
-			messageID2ServerTaskObjectInfoHash.put(messageID, serverTaskObjectInfo);
+			messageID2ServerTaskInformationHash.put(messageID, serverTaskInfomation);
 						
-		} else if (serverTaskObjectInfo.isModifed()) {
+		} else if (serverTaskInfomation.isModifed()) {
 			/** 새로운 서버 클래스 로더로 교체 */
 			currentWorkingServerClassLoader = serverClassLoaderFactory.createServerClassLoader();
 			String classFullName = IOPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
-			serverTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
-			messageID2ServerTaskObjectInfoHash.put(messageID, serverTaskObjectInfo);
+			serverTaskInfomation = getNewServerTaskFromWorkBaseClassload(classFullName);
+			messageID2ServerTaskInformationHash.put(messageID, serverTaskInfomation);
 				
 		}
-		return serverTaskObjectInfo;
+		return serverTaskInfomation;
 	}
 	
 	@Override
 	public AbstractServerTask getServerTask(String messageID) throws DynamicClassCallException, FileNotFoundException {
-		ServerTaskObjectInfo serverTaskObjectInfo = getServerTaskInfo(messageID);
+		ServerTaskInfomation serverTaskInfomation = getServerTaskInfomation(messageID);
 	
-		return serverTaskObjectInfo.getServerTask();
+		return serverTaskInfomation.getServerTask();
 	}
 }
