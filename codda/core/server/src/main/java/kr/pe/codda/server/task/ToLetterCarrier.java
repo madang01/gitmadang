@@ -17,12 +17,13 @@
 
 package kr.pe.codda.server.task;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.nio.channels.SelectionKey;
 import java.util.ArrayDeque;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.classloader.ServerSimpleClassLoaderIF;
+import kr.pe.codda.common.classloader.MessageCodecManagerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -55,7 +56,7 @@ public class ToLetterCarrier {
 	
 	
 	private MessageProtocolIF messageProtocol = null;
-	private ServerSimpleClassLoaderIF serverSimpleClassLoader = null;
+	private MessageCodecManagerIF messageCodecManager = null;
 	
 	// private LinkedList<ToLetter> toLetterList = new LinkedList<ToLetter>();
 	
@@ -63,12 +64,12 @@ public class ToLetterCarrier {
 			AbstractMessage inputMessage,
 			ProjectLoginManagerIF projectLoginManager,
 			MessageProtocolIF messageProtocol,
-			ServerSimpleClassLoaderIF serverSimpleClassLoader) {
+			MessageCodecManagerIF messageCodecManager) {
 		this.fromAcceptedConnection = fromAcceptedConnection;
 		this.inputMessage = inputMessage;
 		this.projectLoginManager = projectLoginManager;
 		this.messageProtocol = messageProtocol;
-		this.serverSimpleClassLoader = serverSimpleClassLoader;
+		this.messageCodecManager = messageCodecManager;
 	}
 
 	private static SelfExnRes buildSelfExn(int mailboxIDOfSelfExn, 
@@ -98,7 +99,7 @@ public class ToLetterCarrier {
 		
 		MessageCodecIF messageServerCodec = null;
 		try {
-			messageServerCodec = serverSimpleClassLoader.getMessageCodec(messageIDToClient);
+			messageServerCodec = messageCodecManager.getMessageCodec(messageIDToClient);
 		} catch (DynamicClassCallException e) {
 			String errorMessage = new StringBuilder("fail to get a server output message codec::").append(e.getMessage()).toString();
 			

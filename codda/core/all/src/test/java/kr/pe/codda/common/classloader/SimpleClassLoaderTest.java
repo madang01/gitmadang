@@ -16,7 +16,7 @@ public class SimpleClassLoaderTest extends AbstractJunitTest {
 		
 		String classloaderClassPathString = "temp";
 		String classloaderReousrcesPathString = CommonBuildSytemPathSupporter.getCommonResourcesPathString(installedPath.getAbsolutePath());
-		ServerSystemClassLoaderClassManager serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager();
+		ExcludedDynamicClassManager serverSystemClassLoaderClassManager = new ExcludedDynamicClassManager();
 		
 		SimpleClassLoader simpleClassLoader = new SimpleClassLoader(classloaderClassPathString, classloaderReousrcesPathString, serverSystemClassLoaderClassManager);
 		

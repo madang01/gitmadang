@@ -1,16 +1,16 @@
-package kr.pe.codda.server;
+package kr.pe.codda.server.classloader;
 
 import java.io.File;
 
-import kr.pe.codda.common.classloader.ServerSystemClassLoaderClassManager;
-import kr.pe.codda.common.classloader.ServerSystemClassLoaderClassManagerIF;
+import kr.pe.codda.common.classloader.ExcludedDynamicClassManager;
+import kr.pe.codda.common.classloader.ExcludedDynamicClassManagerIF;
 import kr.pe.codda.common.classloader.SimpleClassLoader;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
 
 public class ServerClassLoaderFactory {
 	private String serverAPPINFClassPathString = null;
 	private String projectResourcesPathString = null;
-	private ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager();
+	private ExcludedDynamicClassManagerIF excludedDynamicClassManager = new ExcludedDynamicClassManager();
 	
 	public ServerClassLoaderFactory(String serverAPPINFClassPathString,
 			String projectResourcesPathString) throws CoddaConfigurationException {
@@ -44,6 +44,6 @@ public class ServerClassLoaderFactory {
 	}
 	
 	public SimpleClassLoader createServerClassLoader() {
-		return new SimpleClassLoader(serverAPPINFClassPathString, projectResourcesPathString, serverSystemClassLoaderClassManager);
+		return new SimpleClassLoader(serverAPPINFClassPathString, projectResourcesPathString, excludedDynamicClassManager);
 	}
 }

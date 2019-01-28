@@ -19,7 +19,11 @@ package kr.pe.codda.server.task;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.common.classloader.ServerSimpleClassLoaderIF;
+
+import java.util.HashMap;
+
+import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
+import kr.pe.codda.common.classloader.MessageCodecManagerIF;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskException;
@@ -29,6 +33,7 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
@@ -44,14 +49,37 @@ import kr.pe.codda.server.ProjectLoginManagerIF;
  * @author Won Jonghoon
  * 
  */
-public abstract class AbstractServerTask {
+public abstract class AbstractServerTask implements MessageCodecManagerIF {
 	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractServerTask.class);
 	
-	private ServerSimpleClassLoaderIF serverSimpleClassLoader = null;
-	
-	public void setServerSimpleClassloader(ServerSimpleClassLoaderIF serverSimpleClassLoader) {
-		this.serverSimpleClassLoader = serverSimpleClassLoader;
+	private ClassLoader taskClassLoader = this.getClass().getClassLoader();
+	private MessageCodecIF serverInputMessageCodec = null;
+	private HashMap<String, MessageCodecIF> messageID2MessageCodecHash = 
+			new HashMap<String, MessageCodecIF>();
+
+	public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
+		MessageCodecIF messageCodec = messageID2MessageCodecHash.get(messageID);
+		if (null == messageCodec) {
+			String classFullName = IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
+			Object retObject = CommonStaticUtil.getNewObjectFromClassloader(taskClassLoader, classFullName);
+			
+			if (! (retObject instanceof AbstractServerTask)) {
+				String errorMessage = new StringBuilder()
+				.append("TaskClassLoader hashCode=[")
+				.append(taskClassLoader.hashCode())
+				.append("]::this instance of ").append(classFullName)
+				.append("] class is not a instance of AbstractServerTask class").toString();
+
+				throw new DynamicClassCallException(errorMessage);
+			}
+			
+			messageCodec = (MessageCodecIF)retObject;
+			messageID2MessageCodecHash.put(messageID, messageCodec);
+		}
+		
+		return messageCodec;
 	}
+	
 	
 	public void execute(String projectName,
 			AcceptedConnection fromAcceptedConnection,			
@@ -60,42 +88,43 @@ public abstract class AbstractServerTask {
 			MessageProtocolIF messageProtocol,
 			PersonalLoginManagerIF fromPersonalLoginManager) throws InterruptedException {
 		
-		MessageCodecIF serverInputMessageCodec = null;
-
-		try {
-			// serverInputMessageCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, readableMiddleObjectWrapper.getMessageID());
-			serverInputMessageCodec = serverSimpleClassLoader.getMessageCodec(readableMiddleObjectWrapper.getMessageID());
-		} catch (DynamicClassCallException e) {
-			String errorMessage = new StringBuilder("fail to get the server message codec of the input message[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation())
-					.append("]").toString();
-			
-			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = errorMessage;
-			
-			log.warn(errorReason);
-			
-			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
-					errorType,
-					errorReason,
-					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
-			return;
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknown error::fail to get the server message codec of the input message[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation())
-					.append("]::").append(e.getMessage()).toString();
-			
-			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = errorMessage;
-			
-			log.warn(errorReason, e);
-			
-			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
-					errorType,
-					errorReason,
-					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
-			return;
+		if (null == serverInputMessageCodec) {
+			try {
+				serverInputMessageCodec = getMessageCodec(readableMiddleObjectWrapper.getMessageID());
+			} catch (DynamicClassCallException e) {
+				String errorMessage = new StringBuilder("fail to get the server message codec of the input message[")
+						.append(readableMiddleObjectWrapper.toSimpleInformation())
+						.append("]").toString();
+				
+				SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
+				String errorReason = errorMessage;
+				
+				log.warn(errorReason);
+				
+				ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
+						errorType,
+						errorReason,
+						readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
+				return;
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder("unknown error::fail to get the server message codec of the input message[")
+						.append(readableMiddleObjectWrapper.toSimpleInformation())
+						.append("]::").append(e.getMessage()).toString();
+				
+				SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
+				String errorReason = errorMessage;
+				
+				log.warn(errorReason, e);
+				
+				ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
+						errorType,
+						errorReason,
+						readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
+				return;
+			}
 		}
+
+		
 
 		AbstractMessageDecoder inputMessageDecoder = null;
 		try {
@@ -182,7 +211,7 @@ public abstract class AbstractServerTask {
 				inputMessage, 
 				projectLoginManager,
 				messageProtocol,
-				serverSimpleClassLoader);				
+				this);				
 
 		try {
 			doTask(projectName, fromPersonalLoginManager, toLetterCarrier, inputMessage);

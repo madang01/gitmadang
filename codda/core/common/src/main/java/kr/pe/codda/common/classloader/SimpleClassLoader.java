@@ -16,41 +16,39 @@
  */
 package kr.pe.codda.common.classloader;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.concurrent.ConcurrentHashMap;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.DynamicClassCallException;
-import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
-public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassLoaderIF {
+public class SimpleClassLoader extends ClassLoader {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SimpleClassLoader.class);
 
 	// private final Object monitor = new Object();
 
 	private String classloaderClassPathString = null;
 	private String classloaderReousrcesPathString = null;
-	private ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager = null;
+	private ExcludedDynamicClassManagerIF excludedDynamicClassManager = null;
 	
 	private final static ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 	
-	private ConcurrentHashMap<String, MessageCodecIF> messageCodecHash = new  ConcurrentHashMap<String, MessageCodecIF>();
+	// private ConcurrentHashMap<String, MessageCodecIF> messageCodecHash = new  ConcurrentHashMap<String, MessageCodecIF>();
 	
 	
 	public SimpleClassLoader(String classloaderClassPathString, String classloaderReousrcesPathString,
-			ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager) {
+			ExcludedDynamicClassManagerIF excludedDynamicClassManager) {
 		super(systemClassLoader);
 		
 		this.classloaderClassPathString = classloaderClassPathString;
 		this.classloaderReousrcesPathString = classloaderReousrcesPathString;
-		this.serverSystemClassLoaderClassManager = serverSystemClassLoaderClassManager;		
+		this.excludedDynamicClassManager = excludedDynamicClassManager;		
 
 		log.info("SimpleClassLoader hashCode=[{}] create", this.hashCode());
 	}
@@ -84,7 +82,7 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 				return systemClassLoader.loadClass(classFullName);
 			}
 
-			if (serverSystemClassLoaderClassManager.isSystemClassLoader(classFullName)) {
+			if (excludedDynamicClassManager.isExcludedDynamicClass(classFullName)) {
 				return systemClassLoader.loadClass(classFullName);
 			}
 
@@ -239,7 +237,7 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 
 		return url;
 	}*/
-	
+	/*
 	public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
 		MessageCodecIF messageCodec = messageCodecHash.get(messageID);
 		
@@ -251,7 +249,8 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 	}
 	
 	private MessageCodecIF addNewMessageCodec(String messageID) throws DynamicClassCallException {
-		String classFullName = serverSystemClassLoaderClassManager.getServerMessageCodecClassFullName(messageID);
+		String classFullName = excludedDynamicClassListManager.getMessageCodecClassFullName(messageID);
+		
 		
 		Class<?> messageCodecClass = null;
 		Object messageCodecInstance = null;
@@ -305,7 +304,7 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 		
 		return messageCodec;
 	}
-	
+	*/
 	
 
 	@Override

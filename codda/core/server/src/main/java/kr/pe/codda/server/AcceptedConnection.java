@@ -38,6 +38,7 @@ import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.codda.common.updownfile.LocalTargetFileResourceManager;
+import kr.pe.codda.server.classloader.ServerDynamicObjectMangerIF;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -60,7 +61,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 	private SocketOutputStream socketOutputStream = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ServerIOEvenetControllerIF serverIOEvenetController = null;
-	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
+	private ServerDynamicObjectMangerIF serverObjectCacheManager = null;
 
 	private transient ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = null;
 	private ProjectLoginManagerIF projectLoginManager = null;
@@ -78,7 +79,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 			SocketOutputStream socketOutputStreamOfAcceptedSC,
 			ProjectLoginManagerIF projectLoginManager, MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool, ServerIOEvenetControllerIF serverIOEvenetController,
-			ServerObjectCacheManagerIF serverObjectCacheManager) {
+			ServerDynamicObjectMangerIF serverObjectCacheManager) {
 
 		if (null == personalSelectionKey) {
 			throw new IllegalArgumentException("the parameter personalSelectionKey is null");

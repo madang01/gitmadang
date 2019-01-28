@@ -20,6 +20,7 @@ import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
+import kr.pe.codda.server.classloader.ServerDynamicObjectMangerIF;
 
 public class ServerIOEventController extends Thread implements ServerIOEvenetControllerIF, ProjectLoginManagerIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(ServerIOEventController.class);
@@ -34,7 +35,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
+	private ServerDynamicObjectMangerIF serverObjectCacheManager = null;
 
 	private Selector ioEventSelector = null; // OP_ACCEPT 전용 selector
 	private ServerSocketChannel ssc = null;
@@ -47,7 +48,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 
 	public ServerIOEventController(ProjectPartConfiguration projectPartConfiguration,
 			SocketOutputStreamFactoryIF socketOutputStreamFactory, MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferPool, ServerObjectCacheManagerIF serverObjectCacheManager) {
+			DataPacketBufferPoolIF dataPacketBufferPool, ServerDynamicObjectMangerIF serverObjectCacheManager) {
 
 		this.projectName = projectPartConfiguration.getProjectName();
 		this.serverHost = projectPartConfiguration.getServerHost();

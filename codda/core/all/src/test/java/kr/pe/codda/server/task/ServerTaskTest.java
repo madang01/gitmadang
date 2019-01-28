@@ -13,14 +13,11 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
 
-import org.junit.Test;
-
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.client.connection.ClientMessageUtility;
 import kr.pe.codda.client.connection.ClientObjectCacheManager;
 import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
-import kr.pe.codda.common.classloader.ServerSimpleClassLoaderIF;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
@@ -48,7 +45,9 @@ import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.ServerIOEvenetControllerIF;
-import kr.pe.codda.server.ServerObjectCacheManagerIF;
+import kr.pe.codda.server.classloader.ServerDynamicObjectMangerIF;
+
+import org.junit.Test;
 
 public class ServerTaskTest extends AbstractJunitTest {
 	
@@ -132,7 +131,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerObjectCacheManagerIF serverObjectCacheManager = mock(ServerObjectCacheManagerIF.class);
+			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -219,19 +218,13 @@ public class ServerTaskTest extends AbstractJunitTest {
 					ToLetterCarrier toLetterCarrier, AbstractMessage inputMessage) throws Exception {
 				fail("이 테스트는 동적 클래스 호출시 에러가 날 경우 예외 처리를 잘하는가에 대한 테스트로 이 메소드는 호출되어서는 안된다");
 			}
-		}
-
-		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
-
-		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {
-			@Override
+			
 			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
-
 				throw new DynamicClassCallException("the server message codec was not found");
 			}
 		}
 
-		serverTaskMock.setServerSimpleClassloader(new ServerSimpleClassLoaderMock());
+		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
 		
 		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
 
@@ -369,7 +362,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerObjectCacheManagerIF serverObjectCacheManagerMock = mock(ServerObjectCacheManagerIF.class);
+			ServerDynamicObjectMangerIF serverObjectCacheManagerMock = mock(ServerDynamicObjectMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, 
 					fromSC, 
@@ -458,18 +451,15 @@ public class ServerTaskTest extends AbstractJunitTest {
 					ToLetterCarrier toLetterCarrier, AbstractMessage inputMessage) throws Exception {
 				fail("이 테스트는 동적 클래스 호출시 에러가 날 경우 예외 처리를 잘하는가에 대한 테스트로 이 메소드는 호출되어서는 안된다");
 			}
-
-		}
-		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
-
-		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {
-			@Override
+			
 			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
-
 				throw new NullPointerException();
 			}
+
 		}
-		serverTaskMock.setServerSimpleClassloader(new ServerSimpleClassLoaderMock());
+		
+		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
+
 		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
 
 		try {
@@ -601,7 +591,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerObjectCacheManagerIF serverObjectCacheManagerMock = mock(ServerObjectCacheManagerIF.class);
+			ServerDynamicObjectMangerIF serverObjectCacheManagerMock = mock(ServerDynamicObjectMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, 
 					fromSC, 
@@ -688,11 +678,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 					ToLetterCarrier toLetterCarrier, AbstractMessage inputMessage) throws Exception {
 				fail("이 테스트는 동적 클래스 호출시 에러가 날 경우 예외 처리를 잘하는가에 대한 테스트로 이 메소드는 호출되어서는 안된다");
 			}
-
-		}
-
-		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {
-			@Override
+			
 			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
 				class MessageCodecMock implements MessageCodecIF {
 
@@ -710,10 +696,10 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 				return new MessageCodecMock();
 			}
+
 		}
 
 		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
-		serverTaskMock.setServerSimpleClassloader(new ServerSimpleClassLoaderMock());
 		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
 
 		try {
@@ -845,7 +831,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerObjectCacheManagerIF serverObjectCacheManager = mock(ServerObjectCacheManagerIF.class);
+			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -930,14 +916,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 					ToLetterCarrier toLetterCarrier, AbstractMessage inputMessage) throws Exception {
 				fail("이 테스트는 동적 클래스 호출시 에러가 날 경우 예외 처리를 잘하는가에 대한 테스트로 이 메소드는 호출되어서는 안된다");
 			}
-
-		}
-
-		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
-		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
-
-		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {
-			@Override
+			
 			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
 				class MessageCodecMock implements MessageCodecIF {
 
@@ -955,9 +934,11 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 				return new MessageCodecMock();
 			}
-		}
-		serverTaskMock.setServerSimpleClassloader(new ServerSimpleClassLoaderMock());
 
+		}
+
+		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
+		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
 		try {
 			serverTaskMock.execute( 
 					projectName,
@@ -1084,7 +1065,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerObjectCacheManagerIF serverObjectCacheManager = mock(ServerObjectCacheManagerIF.class);
+			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -1173,13 +1154,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("이 테스트는 동적 클래스 호출시 에러가 날 경우 예외 처리를 잘하는가에 대한 테스트로 이 메소드는 호출되어서는 안된다");
 			}
 
-		}
-
-		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
-		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
-
-		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {
-			@Override
 			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
 				class MessageCodecMock implements MessageCodecIF {
 
@@ -1207,7 +1181,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 				return new MessageCodecMock();
 			}
 		}
-		serverTaskMock.setServerSimpleClassloader(new ServerSimpleClassLoaderMock());
+
+		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
+		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
 
 		try {
 			serverTaskMock.execute(projectName,
@@ -1332,7 +1308,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerObjectCacheManagerIF serverObjectCacheManager = mock(ServerObjectCacheManagerIF.class);
+			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -1416,13 +1392,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 					ToLetterCarrier toLetterCarrier, AbstractMessage inputMessage) throws Exception {
 				fail("이 테스트는 동적 클래스 호출시 에러가 날 경우 예외 처리를 잘하는가에 대한 테스트로 이 메소드는 호출되어서는 안된다");
 			}
-
-		}
-
-		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
-		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
-		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {
-			@Override
+			
 			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
 				class MessageCodecMock implements MessageCodecIF {
 
@@ -1449,10 +1419,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 				return new MessageCodecMock();
 			}
+
 		}
 
-		serverTaskMock.setServerSimpleClassloader(new ServerSimpleClassLoaderMock());
-
+		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
+		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
+		
 		try {
 			serverTaskMock.execute(projectName,
 					fromAcceptedConnection,			
@@ -1577,7 +1549,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerObjectCacheManagerIF serverObjectCacheManager = mock(ServerObjectCacheManagerIF.class);
+			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -1668,13 +1640,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				toLetterCarrier.addSyncOutputMessage(inputMessage);
 			}
 
-		}
-
-		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
-		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
-		
-		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {
-			@Override
+			
 			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
 				class MessageCodecMock implements MessageCodecIF {
 
@@ -1695,8 +1661,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 		}
 
-		serverTaskMock.setServerSimpleClassloader(new ServerSimpleClassLoaderMock());
-
+		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
+		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
+	
 		try {
 			serverTaskMock.execute(projectName,
 					fromAcceptedConnection,			
@@ -1825,7 +1792,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);			
-			ServerObjectCacheManagerIF serverObjectCacheManager = mock(ServerObjectCacheManagerIF.class);
+			ServerDynamicObjectMangerIF serverObjectCacheManager = mock(ServerDynamicObjectMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
@@ -1914,13 +1881,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 				toLetterCarrier.addSyncOutputMessage(inputMessage);
 			}
-		}
-
-		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
-		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
-		
-		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {
-			@Override
+			
 			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
 				class MessageCodecMock implements MessageCodecIF {
 
@@ -1940,8 +1901,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 				return new MessageCodecMock();
 			}
 		}
-		
-		serverTaskMock.setServerSimpleClassloader(new ServerSimpleClassLoaderMock());
+
+		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
+		PersonalLoginManagerIF fromPersonalLoginManager = mock(PersonalLoginManagerIF.class);
 		
 
 		try {

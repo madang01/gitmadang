@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.codda.server;
+package kr.pe.codda.server.classloader;
 
 import java.io.FileNotFoundException;
 
@@ -26,7 +26,7 @@ import kr.pe.codda.server.task.AbstractServerTask;
  * @author "Won Jonghoon"
  *
  */
-public interface ServerObjectCacheManagerIF {
+public interface ServerDynamicObjectMangerIF {
 	/**
 	 * 지정된 클래스 로더에서 메시지 식별자와 1:1 대응하는 서버 코덱 객체를 얻어 반환한다.
 	 * @param classLoader 클래스 로더
