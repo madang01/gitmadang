@@ -15,7 +15,7 @@ import java.util.Arrays;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtility;
-import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
+import kr.pe.codda.common.classloader.MessageCodecMangerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -40,7 +40,6 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 
 	private SocketOutputStream socketOutputStream = null;
 	private MessageProtocolIF messageProtocol = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 
 	private String serverHost = null;
@@ -55,13 +54,13 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	private OutputStream clientOutputStream = null;
 	private final int mailboxID = 1;
 	private transient int mailID = Integer.MIN_VALUE;
-	private transient java.util.Date finalReadTime = new java.util.Date();	
+	private transient java.util.Date finalReadTime = new java.util.Date();
 	private boolean isQueueIn = true;
 	private SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
 
 	public SyncNoShareConnection(String serverHost, int serverPort, long socketTimeout, int clientDataPacketBufferSize,
 			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
-			ClientObjectCacheManagerIF clientObjectCacheManager, DataPacketBufferPoolIF dataPacketBufferPool)
+			DataPacketBufferPoolIF dataPacketBufferPool)
 			throws IOException {
 		this.serverHost = serverHost;
 		this.serverPort = serverPort;
@@ -69,17 +68,14 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		this.clientDataPacketBufferSize = clientDataPacketBufferSize;
 		this.socketOutputStream = socketOutputStream;
 		this.messageProtocol = messageProtocol;
-		this.clientObjectCacheManager = clientObjectCacheManager;
 		this.dataPacketBufferPool = dataPacketBufferPool;
-		
+
 		socketBuffer = new byte[this.clientDataPacketBufferSize];
 
 		openSocketChannel();
 
 		connectAndBuildIOStream();
 	}
-	
-	
 
 	private void connectAndBuildIOStream() throws IOException {
 		SocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
@@ -98,8 +94,6 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 					.append("an io error occurred when connecting to the server or building the I / O stream, errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			
-			
 
 			throw e;
 		} catch (Exception e) {
@@ -109,8 +103,6 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 					"an unknown error occurred when connecting to the server or building the I / O stream, errmsg=")
 					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
-			
-			
 
 			throw new IOException();
 		}
@@ -126,12 +118,12 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	}
 
 	@Override
-	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
+	public AbstractMessage sendSyncInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {
 
-		ClassLoader inputMessageClassLoader = inputMessage.getClass().getClassLoader();
-		
+		// ClassLoader inputMessageClassLoader =
+		// inputMessage.getClass().getClassLoader();
 
 		if (Integer.MAX_VALUE == mailID) {
 			mailID = Integer.MIN_VALUE;
@@ -142,8 +134,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		inputMessage.messageHeaderInfo.mailboxID = mailboxID;
 		inputMessage.messageHeaderInfo.mailID = mailID;
 
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
-				messageProtocol, clientObjectCacheManager, inputMessageClassLoader, inputMessage);
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility
+				.buildReadableWrapBufferList(messageCodecManger, messageProtocol, inputMessage);
 
 		while (!inputMessageWrapBufferQueue.isEmpty()) {
 			WrapBuffer inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
@@ -182,7 +174,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		}
 
 		syncReceivedMessageBlockingQueue.reset();
-		
+
 		try {
 			do {
 				int numberOfReadBytes = socketOutputStream.read(clientInputStream, socketBuffer);
@@ -228,16 +220,16 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 			Arrays.fill(socketBuffer, CommonStaticFinalVars.ZERO_BYTE);
 		}
 
-		AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageProtocol,
-				clientObjectCacheManager, inputMessageClassLoader,
+		AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageCodecManger, messageProtocol,
 				syncReceivedMessageBlockingQueue.getReadableMiddleObjectWrapper());
 
 		return outputMessage;
 	}
 
 	@Override
-	public void sendAsynInputMessage(AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
-			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
+	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage)
+			throws InterruptedException, NotSupportedException, IOException, NoMoreDataPacketBufferException,
+			DynamicClassCallException, BodyFormatException {
 		throw new NotSupportedException(
 				"this connection doesn't support this method because it is a blocking mode connection and no sharing connection between threads");
 	}
@@ -263,7 +255,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 				log.warn(errorMessage);
 			}
 		}
-		
+
 		try {
 			clientSocket.close();
 		} catch (Exception e) {
@@ -298,8 +290,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 		return isQueueIn;
 	}
 
-	private void releaseResources() {		
-		if (! socketOutputStream.isClosed()) {
+	private void releaseResources() {
+		if (!socketOutputStream.isClosed()) {
 			socketOutputStream.close();
 
 			log.info("this connection[{}]'s resources has been released", clientSC.hashCode());
@@ -313,8 +305,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	public java.util.Date getFinalReadTime() {
 		return finalReadTime;
 	}
-	
-	@Override 
+
+	@Override
 	protected void finalize() {
 		log.info("the SyncNoShareConnection[{}] instance call the 'finalize' method", clientSC.hashCode());
 		close();

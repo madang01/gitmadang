@@ -19,6 +19,7 @@ package kr.pe.codda.client;
 
 import java.io.IOException;
 
+import kr.pe.codda.common.classloader.MessageCodecMangerIF;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -35,12 +36,12 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public interface AnyProjectConnectionPoolIF {
 	
-	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
+	public AbstractMessage sendSyncInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage)
 			throws InterruptedException, ConnectionPoolException, 
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException;
 	
-	public void sendAsynInputMessage(AbstractMessage inputMessage)
+	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage)
 			throws InterruptedException, NotSupportedException, ConnectionPoolException, 
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException;
 		

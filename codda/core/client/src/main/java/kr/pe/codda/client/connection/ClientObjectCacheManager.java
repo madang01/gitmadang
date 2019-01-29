@@ -5,7 +5,7 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.client.connection.asyn.executor.AbstractClientTask;
+import kr.pe.codda.client.task.AbstractClientTask;
 import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
@@ -62,7 +62,7 @@ public class ClientObjectCacheManager implements ClientObjectCacheManagerIF {
 		
 		clientTask = (AbstractClientTask) valueObj;
 		
-		clientTask.setSourceClassLoader(systemClassLoader);
+		// clientTask.setTaskClassLoader(systemClassLoader);
 
 		return clientTask;
 	}

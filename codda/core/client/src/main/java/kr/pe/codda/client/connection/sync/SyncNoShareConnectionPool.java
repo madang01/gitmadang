@@ -7,7 +7,6 @@ import java.util.ArrayDeque;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.ConnectionIF;
-import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
@@ -33,7 +32,6 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	private int clientDataPacketBufferSize = 0;
 	
 	private MessageProtocolIF messageProtocol = null; 
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
@@ -44,7 +42,6 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	
 	public SyncNoShareConnectionPool(ProjectPartConfiguration projectPartConfiguration, 
 			MessageProtocolIF messageProtocol, 
-			ClientObjectCacheManagerIF clientObjectCacheManager,
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			SocketOutputStreamFactoryIF socketOutputStreamFactory,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
@@ -55,11 +52,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		if (null == messageProtocol) {
 			throw new IllegalArgumentException("the parameter messageProtocol is null");
 		}
-		
-		if (null == clientObjectCacheManager) {
-			throw new IllegalArgumentException("the parameter clientObjectCacheManager is null");
-		}
-		
+				
 		if (null == dataPacketBufferPool) {
 			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
 		}
@@ -80,7 +73,6 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		this.clientDataPacketBufferSize = projectPartConfiguration.getClientDataPacketBufferSize();
 		
 		this.messageProtocol = messageProtocol;
-		this.clientObjectCacheManager = clientObjectCacheManager;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
@@ -258,7 +250,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 					serverPort,
 					socketTimeout,
 					clientDataPacketBufferSize,
-					sos, messageProtocol, clientObjectCacheManager, dataPacketBufferPool);
+					sos, messageProtocol, dataPacketBufferPool);
 				
 		
 		log.info("the SyncNoShareConnection[{}] has been connected", syncNoShareConnection.hashCode());

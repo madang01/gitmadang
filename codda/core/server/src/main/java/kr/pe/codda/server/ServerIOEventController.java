@@ -35,7 +35,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ServerTaskMangerIF serverObjectCacheManager = null;
+	private ServerTaskMangerIF serverTaskManager = null;
 
 	private Selector ioEventSelector = null; // OP_ACCEPT 전용 selector
 	private ServerSocketChannel ssc = null;
@@ -48,7 +48,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 
 	public ServerIOEventController(ProjectPartConfiguration projectPartConfiguration,
 			SocketOutputStreamFactoryIF socketOutputStreamFactory, MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferPool, ServerTaskMangerIF serverObjectCacheManager) {
+			DataPacketBufferPoolIF dataPacketBufferPool, ServerTaskMangerIF serverTaskManager) {
 
 		this.projectName = projectPartConfiguration.getProjectName();
 		this.serverHost = projectPartConfiguration.getServerHost();
@@ -60,7 +60,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
-		this.serverObjectCacheManager = serverObjectCacheManager;
+		this.serverTaskManager = serverTaskManager;
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 								AcceptedConnection acceptedConnection = new AcceptedConnection(acceptedKey,
 										acceptableSocketChannel, projectName, socketTimeOut,
 										serverOutputMessageQueueCapacity, socketOutputStreamOfAcceptedSC, this,
-										messageProtocol, dataPacketBufferPool, this, serverObjectCacheManager);
+										messageProtocol, dataPacketBufferPool, this, serverTaskManager);
 
 								/** 소켓 자원 등록 작업 */
 								selectedKey2AcceptedConnectionHash.put(acceptedKey, acceptedConnection);

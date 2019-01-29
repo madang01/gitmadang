@@ -61,7 +61,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 	private SocketOutputStream socketOutputStream = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ServerIOEvenetControllerIF serverIOEvenetController = null;
-	private ServerTaskMangerIF serverObjectCacheManager = null;
+	private ServerTaskMangerIF serverTaskManager = null;
 
 	private transient ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = null;
 	private ProjectLoginManagerIF projectLoginManager = null;
@@ -79,7 +79,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 			SocketOutputStream socketOutputStreamOfAcceptedSC,
 			ProjectLoginManagerIF projectLoginManager, MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool, ServerIOEvenetControllerIF serverIOEvenetController,
-			ServerTaskMangerIF serverObjectCacheManager) {
+			ServerTaskMangerIF serverTaskManager) {
 
 		if (null == personalSelectionKey) {
 			throw new IllegalArgumentException("the parameter personalSelectionKey is null");
@@ -127,7 +127,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.serverIOEvenetController = serverIOEvenetController;
-		this.serverObjectCacheManager = serverObjectCacheManager;
+		this.serverTaskManager = serverTaskManager;
 
 		finalReadTime = new java.util.Date();
 
@@ -305,7 +305,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 		personalSelectionKey.interestOps(personalSelectionKey.interestOps() | SelectionKey.OP_WRITE);
 	}
 
-	/** only Junit test */
+	/** only JUnit test */
 	public ArrayDeque<ArrayDeque<WrapBuffer>> getOutputMessageQueue() {
 		return outputMessageQueue;
 	}
@@ -323,7 +323,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 		try {
 			AbstractServerTask serverTask = null;
 			try {
-				serverTask = serverObjectCacheManager.getServerTask(messageID);
+				serverTask = serverTaskManager.getServerTask(messageID);
 			} catch (DynamicClassCallException e) {
 				log.warn(e.getMessage());
 
@@ -334,7 +334,11 @@ public class AcceptedConnection implements ServerIOEventHandlerIF, ReceivedMessa
 
 				return;
 			} catch (Exception | Error e) {
-				log.warn("unknown error::fail to get a input message server task", e);
+				String errorMessage = new StringBuilder()
+						.append("unknown error::fail to get a input message[")
+						.append(messageID)
+						.append("] server task").toString();
+				log.warn(errorMessage, e);
 
 				SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 				String errorReason = "fail to get a input message server task::" + e.getMessage();

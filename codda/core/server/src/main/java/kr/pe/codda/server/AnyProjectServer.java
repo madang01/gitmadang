@@ -56,7 +56,7 @@ public class AnyProjectServer {
 	private int serverDataPacketBufferPoolSize;	 
 	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;	
-	private ServerTaskManger serverObjectCacheManager = null;	
+	private ServerTaskManger serverTaskManager = null;	
 	private ServerIOEventController serverIOEventController = null;
 	
 	public AnyProjectServer(String serverAPPINFClassPathString,
@@ -124,12 +124,12 @@ public class AnyProjectServer {
 		ServerClassLoaderFactory serverClassLoaderFactory = 
 				new ServerClassLoaderFactory(this.serverAPPINFClassPathString, this.projectResourcesPathString);
 		
-		serverObjectCacheManager = new ServerTaskManger(serverClassLoaderFactory);		
+		serverTaskManager = new ServerTaskManger(serverClassLoaderFactory);		
 		
 		serverIOEventController = new ServerIOEventController(projectPartConfiguration,
 				socketOutputStreamFactory, 
 				messageProtocol,
-				dataPacketBufferPool, serverObjectCacheManager);
+				dataPacketBufferPool, serverTaskManager);
 	}
 
 	

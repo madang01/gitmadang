@@ -14,8 +14,9 @@ public class ServerClassLoaderFactory {
 	
 	public ServerClassLoaderFactory(String serverAPPINFClassPathString,
 			String projectResourcesPathString) throws CoddaConfigurationException {
-		this.serverAPPINFClassPathString = serverAPPINFClassPathString;
-		this.projectResourcesPathString = projectResourcesPathString;
+		if (null == serverAPPINFClassPathString) {
+			throw new IllegalArgumentException("the parameter serverAPPINFClassPathString is null");
+		}
 		
 		File serverAPPINFClassPath = new File(serverAPPINFClassPathString);
 		
@@ -27,6 +28,10 @@ public class ServerClassLoaderFactory {
 		if (!serverAPPINFClassPath.isDirectory()) {
 			String errorMessage = String.format("the server APP-INF class path[%s] isn't a directory", serverAPPINFClassPathString);
 		 	throw new CoddaConfigurationException(errorMessage);
+		}
+		
+		if (null == projectResourcesPathString) {
+			throw new IllegalArgumentException("the parameter projectResourcesPathString is null");
 		}
 		
 		File projectResourcesPath = new File(projectResourcesPathString);
@@ -41,6 +46,8 @@ public class ServerClassLoaderFactory {
 		 	throw new CoddaConfigurationException(errorMessage);
 		}
 		
+		this.serverAPPINFClassPathString = serverAPPINFClassPathString;
+		this.projectResourcesPathString = projectResourcesPathString;
 	}
 	
 	public SimpleClassLoader createServerClassLoader() {

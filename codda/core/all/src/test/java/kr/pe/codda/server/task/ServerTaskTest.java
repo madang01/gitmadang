@@ -3,6 +3,7 @@ package kr.pe.codda.server.task;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -12,6 +13,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
+
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.client.connection.ClientMessageUtility;
@@ -47,8 +51,6 @@ import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.ServerIOEvenetControllerIF;
 import kr.pe.codda.server.classloader.ServerTaskMangerIF;
 
-import org.junit.Test;
-
 public class ServerTaskTest extends AbstractJunitTest {
 	
 	class ReceivedMessageBlockingQueueMock implements ReceivedMessageBlockingQueueIF {
@@ -72,6 +74,228 @@ public class ServerTaskTest extends AbstractJunitTest {
 		public ReadableMiddleObjectWrapper getReadableMiddleObjectWrapper() {
 			return readableMiddleObjectWrapper;
 		}
+	}
+	
+	@Test
+	public void testConstructor_통제된에러() {
+		String projectName = "sample_test";
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
+		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
+		int dataPacketBufferMaxCntPerMessage = 10;
+		long socketTimeOut = 5000;
+		int serverOutputMessageQueueCapacity = 5;		
+
+		SocketChannel fromSC = null;
+		try {
+			fromSC = SocketChannel.open();
+		} catch (IOException e) {
+			fail("fail to open new socket channel");
+		}
+
+		DataPacketBufferPoolIF dataPacketBufferPool = null;
+		{
+			ByteOrder streamByteOrder = ByteOrder.LITTLE_ENDIAN;
+			boolean isDirect = false;
+			int dataPacketBufferSize = 4096;
+			int dataPacketBufferPoolSize = 100;
+
+			try {
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize,
+						dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn("" + e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			}
+		}
+
+		MessageProtocolIF messageProtocol = null;
+		{
+
+			messageProtocol = new THBMessageProtocol(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder,
+					streamCharsetDecoder, dataPacketBufferPool);
+		}
+		
+		// ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
+		ProjectLoginManagerIF  projectLoginManagerMock = mock(ProjectLoginManagerIF.class);
+
+		AcceptedConnection fromAcceptedConnection = null;
+		{
+			
+
+			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			try {
+				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (NoMoreDataPacketBufferException e1) {
+				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+			}			
+			SelectionKey personalSelectionKey = mock(SelectionKey.class);
+			
+			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
+			
+			ServerTaskMangerIF serverTaskMangerMock = mock(ServerTaskMangerIF.class);
+			try {
+				Mockito.when(serverTaskMangerMock.getServerTask(Mockito.anyString()))
+				.thenThrow(new DynamicClassCallException("모의로 통제된 예외 던지기"));
+			} catch (FileNotFoundException e) {
+				fail("모키토 설정 실패, errmsg=" + e.getMessage());
+			} catch (DynamicClassCallException e) {
+				fail("모키토 설정 실패, errmsg=" + e.getMessage());
+			}
+			
+			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
+					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
+					socketOutputStreamOfAcceptedSC,
+					projectLoginManagerMock, messageProtocol,
+					dataPacketBufferPool, serverIOEvenetController,
+					serverTaskMangerMock);
+		}
+		
+		
+
+		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
+		{
+			Empty emptyReq = new Empty();
+			emptyReq.messageHeaderInfo.mailboxID = 1;
+			emptyReq.messageHeaderInfo.mailID = 3;
+
+			AbstractMessage message = emptyReq;
+
+			AbstractMessageEncoder messageEncoder = null;
+			try {
+				messageEncoder = (AbstractMessageEncoder) Class
+						.forName(IOPartDynamicClassNameUtil.getMessageEncoderClassFullName(message.getMessageID()))
+						.newInstance();
+			} catch (Exception e) {
+				fail(message.getMessageID() + " 메시지 인코더 인스턴스 생성 실패");
+			}
+
+			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
+			try {
+				wrapBufferListOfInputMessage = messageProtocol.M2S(message, messageEncoder);
+			} catch (Exception e) {
+				String errorMessage = "error::" + e.getMessage();
+				log.warn(errorMessage, e);
+				fail(errorMessage);
+			}
+
+			// log.info("2");
+
+			for (WrapBuffer inputMessageWrapBuffer : wrapBufferListOfInputMessage) {
+				if (inputMessageWrapBuffer.isInQueue()) {
+					fail("bad wrap buffer where is in of queue");
+				}
+
+				ByteBuffer inputMessageByteBuffer = inputMessageWrapBuffer.getByteBuffer();
+				inputMessageByteBuffer.position(inputMessageByteBuffer.limit());
+			}
+
+			// log.info("3");
+
+			SocketOutputStream sos = null;
+			try {
+				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (Exception e) {
+				String errorMessage = "error::" + e.getMessage();
+				log.warn(errorMessage, e);
+				fail(errorMessage);
+			}
+
+			// log.info("sos.size={}", sos.size());
+
+			// log.info("4");
+			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
+			try {
+				messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);
+			} catch (Exception e) {
+				String errorMessage = "error::" + e.getMessage();
+				log.warn(errorMessage, e);
+				fail(errorMessage);
+			}
+
+
+			inputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
+			
+			if (null == inputMessageWrapReadableMiddleObject) {
+				fail("추출된 입력 메시지 없습니다");
+			}
+		}
+		
+		// FIXME!
+		
+		try {
+			fromAcceptedConnection.putReceivedMessage(inputMessageWrapReadableMiddleObject);
+		} catch (InterruptedException e) {
+			fail("인터럽트 발생");
+		}
+		
+		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = fromAcceptedConnection.getOutputMessageQueue();
+		
+		if (1 != outputMessageQueue.size()) {
+			fail("메시지 갯수가 1개가 아님");
+		}
+		
+		
+		ArrayDeque<WrapBuffer> wrapBufferQueue = outputMessageQueue.poll();		
+		
+		for (WrapBuffer wrapBuffer : wrapBufferQueue) {
+			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+			byteBuffer.position(byteBuffer.remaining());
+		}
+		
+		
+		SocketOutputStream sos = null;
+		try {
+			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+		} catch (NoMoreDataPacketBufferException e) {
+			fail("fail to create a instance of SocketOutputStream");
+		}
+		
+		
+		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
+		try {
+			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
+			messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);			
+			outputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
+			if (null == outputMessageWrapReadableMiddleObject) {
+				fail("추출된 출력 메시지가 없습니다");
+			}
+		} catch (Exception e) {
+			fail("fail to close");
+		}
+		
+		
+		AbstractMessage receviedOutputMessage = null;
+		try {
+			receviedOutputMessage = ClientMessageUtility.buildOutputMessage(messageProtocol,
+					clientObjectCacheManager, this.getClass().getClassLoader(), outputMessageWrapReadableMiddleObject);
+		} catch (DynamicClassCallException | BodyFormatException e) {
+			fail("fail to build a output message");
+		}
+		
+		if (! (receviedOutputMessage instanceof SelfExnRes)) {
+			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
+		}
+		
+		SelfExnRes selfExnRes = (SelfExnRes)receviedOutputMessage;
+		
+		if (! selfExnRes.getErrorType().equals(ErrorType.DynamicClassCallException)) {
+			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 에러 종류가 DynamicClassCallException 가 아님");
+		}
+		
+		if (selfExnRes.getErrorReason().indexOf("fail to get the server message codec of the input message") < 0) {
+			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 코덱 얻기 실패가 아님");
+		}
+		
+		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+
+		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
+		// fromAcceptedConnection.close();
+		fromAcceptedConnection.close();
+		
 	}
 
 	@Test
@@ -131,14 +355,16 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
+			
+			
+			ServerTaskMangerIF serverTaskMangerMock = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
 					socketOutputStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
-					serverObjectCacheManager);
+					serverTaskMangerMock);
 		}
 		
 		
@@ -213,15 +439,16 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
+			public AbstractServerTaskMock() throws DynamicClassCallException {
+				throw new DynamicClassCallException("the server message codec was not found");
+			}
+
 			@Override
 			public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager,
 					ToLetterCarrier toLetterCarrier, AbstractMessage inputMessage) throws Exception {
 				fail("이 테스트는 동적 클래스 호출시 에러가 날 경우 예외 처리를 잘하는가에 대한 테스트로 이 메소드는 호출되어서는 안된다");
 			}
 			
-			public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
-				throw new DynamicClassCallException("the server message codec was not found");
-			}
 		}
 
 		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
@@ -346,8 +573,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager();
 		ProjectLoginManagerIF  projectLoginManagerMock = mock(ProjectLoginManagerIF.class);
-		
-		
 
 		AcceptedConnection fromAcceptedConnection = null;
 		{	
@@ -362,7 +587,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerTaskMangerIF serverObjectCacheManagerMock = mock(ServerTaskMangerIF.class);
+			ServerTaskMangerIF serverTaskMangerMock = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, 
 					fromSC, 
@@ -370,7 +595,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
-					serverObjectCacheManagerMock);
+					serverTaskMangerMock);
 		}
 		
 
@@ -591,7 +816,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerTaskMangerIF serverObjectCacheManagerMock = mock(ServerTaskMangerIF.class);
+			ServerTaskMangerIF serverTaskMangerMock = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, 
 					fromSC, 
@@ -599,7 +824,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
-					serverObjectCacheManagerMock);
+					serverTaskMangerMock);
 		}
 
 		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
@@ -831,14 +1056,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
+			ServerTaskMangerIF serverTaskManger = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
 					socketOutputStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
-					serverObjectCacheManager);
+					serverTaskManger);
 		}
 
 		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
@@ -1065,14 +1290,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
+			ServerTaskMangerIF serverTaskManger = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
 					socketOutputStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
-					serverObjectCacheManager);
+					serverTaskManger);
 		}
 
 		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
@@ -1308,14 +1533,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
+			ServerTaskMangerIF serverTaskManger = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
 					socketOutputStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
-					serverObjectCacheManager);
+					serverTaskManger);
 		}
 
 		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
@@ -1549,14 +1774,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);
-			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
+			ServerTaskMangerIF serverTaskManger = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
 					socketOutputStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
-					serverObjectCacheManager);
+					serverTaskManger);
 		}
 
 		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
@@ -1792,14 +2017,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);			
 			ServerIOEvenetControllerIF serverIOEvenetController = mock(ServerIOEvenetControllerIF.class);			
-			ServerTaskMangerIF serverObjectCacheManager = mock(ServerTaskMangerIF.class);
+			ServerTaskMangerIF serverTaskManger = mock(ServerTaskMangerIF.class);
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
 					socketOutputStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
-					serverObjectCacheManager);
+					serverTaskManger);
 		}
 
 		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;

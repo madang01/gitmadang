@@ -17,12 +17,13 @@ import java.util.concurrent.TimeUnit;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.client.classloader.ClientTaskMangerIF;
 import kr.pe.codda.client.connection.ClientMessageUtility;
-import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
-import kr.pe.codda.client.connection.asyn.executor.AbstractClientTask;
 import kr.pe.codda.client.connection.asyn.mainbox.AsynMessageMailbox;
 import kr.pe.codda.client.connection.asyn.mainbox.SyncMessageMailbox;
+import kr.pe.codda.client.task.AbstractClientTask;
+import kr.pe.codda.common.classloader.MessageCodecMangerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -50,8 +51,8 @@ public class AsynThreadSafeSingleConnection
 	int clientAsynInputMessageQueueCapacity;
 	private SocketOutputStream socketOutputStream = null;
 	private MessageProtocolIF messageProtocol = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
+	private ClientTaskMangerIF clientTaskManger = null;
 	private AsynConnectedConnectionAdderIF asynConnectedConnectionAdder = null;
 	private ClientIOEventControllerIF asynClientIOEventController = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
@@ -67,10 +68,9 @@ public class AsynThreadSafeSingleConnection
 	public AsynThreadSafeSingleConnection(String projectName, String serverHost, int serverPort, long socketTimeout,
 			int syncMessageMailboxCountPerAsynShareConnection, int clientAsynInputMessageQueueCapacity,
 			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
-			ClientObjectCacheManagerIF clientObjectCacheManager, DataPacketBufferPoolIF dataPacketBufferPool,
-			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
-			ClientIOEventControllerIF asynClientIOEventController,
-			ConnectionPoolSupporterIF connectionPoolSupporter) throws IOException {
+			DataPacketBufferPoolIF dataPacketBufferPool, ClientTaskMangerIF clientTaskManger, AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
+			ClientIOEventControllerIF asynClientIOEventController, ConnectionPoolSupporterIF connectionPoolSupporter)
+			throws IOException {
 		this.projectName = projectName;
 		this.serverHost = serverHost;
 		this.serverPort = serverPort;
@@ -79,8 +79,8 @@ public class AsynThreadSafeSingleConnection
 		this.clientAsynInputMessageQueueCapacity = clientAsynInputMessageQueueCapacity;
 		this.socketOutputStream = socketOutputStream;
 		this.messageProtocol = messageProtocol;
-		this.clientObjectCacheManager = clientObjectCacheManager;
 		this.dataPacketBufferPool = dataPacketBufferPool;
+		this.clientTaskManger = clientTaskManger;
 		this.asynConnectedConnectionAdder = asynConnectedConnectionAdder;
 		this.asynClientIOEventController = asynClientIOEventController;
 		this.connectionPoolSupporter = connectionPoolSupporter;
@@ -122,7 +122,7 @@ public class AsynThreadSafeSingleConnection
 	}
 
 	@Override
-	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
+	public AbstractMessage sendSyncInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {
 
@@ -134,22 +134,23 @@ public class AsynThreadSafeSingleConnection
 		}
 
 		try {
-			ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
+			// ClassLoader classloaderOfInputMessage =
+			// inputMessage.getClass().getClassLoader();
 
 			syncMessageMailbox.nextMailID();
 			inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
 			inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
-					messageProtocol, clientObjectCacheManager, classloaderOfInputMessage, inputMessage);
+			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility
+					.buildReadableWrapBufferList(messageCodecManger, messageProtocol, inputMessage);
 
 			addInputMessage(inputMessage, inputMessageWrapBufferQueue);
 
 			ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = syncMessageMailbox
 					.getSyncOutputMessage();
 
-			AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageProtocol,
-					clientObjectCacheManager, classloaderOfInputMessage, outputMessageWrapReadableMiddleObject);
+			AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageCodecManger, messageProtocol,
+					outputMessageWrapReadableMiddleObject);
 
 			return outputMessage;
 		} finally {
@@ -158,14 +159,14 @@ public class AsynThreadSafeSingleConnection
 	}
 
 	@Override
-	public void sendAsynInputMessage(AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
+	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
 
 		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox.getMailboxID();
 		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox.getNextMailID();
 
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
-				messageProtocol, clientObjectCacheManager, inputMessage.getClass().getClassLoader(), inputMessage);
+				messageCodecManger, messageProtocol, inputMessage);
 
 		addInputMessage(inputMessage, inputMessageWrapBufferQueue);
 
@@ -246,8 +247,8 @@ public class AsynThreadSafeSingleConnection
 			connectionPoolSupporter.notice("fail to finish a connection becase of io error");
 			return;
 		} catch (Exception e) {
-			log.warn("fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}",
-					hashCode(), e.getMessage());
+			log.warn("fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}", hashCode(),
+					e.getMessage());
 
 			close();
 			asynClientIOEventController.cancel(selectedKey);
@@ -270,7 +271,7 @@ public class AsynThreadSafeSingleConnection
 				asynClientIOEventController.cancel(selectedKey);
 				return;
 			}
-			
+
 			personalSelectionKey = selectedKey;
 			asynConnectedConnectionAdder.addConnectedConnection(this);
 		}
@@ -278,10 +279,10 @@ public class AsynThreadSafeSingleConnection
 
 	@Override
 	public void onRead(SelectionKey selectedKey) throws InterruptedException {
-		try {			
-			
+		try {
+
 			int numberOfReadBytes = socketOutputStream.read(clientSC);
-			
+
 			if (-1 == numberOfReadBytes) {
 				String errorMessage = new StringBuilder("this socket channel[").append(clientSC.hashCode())
 						.append("] has reached end-of-stream").toString();
@@ -294,7 +295,7 @@ public class AsynThreadSafeSingleConnection
 
 			setFinalReadTime();
 			messageProtocol.S2MList(socketOutputStream, this);
-			
+
 		} catch (NoMoreDataPacketBufferException e) {
 			String errorMessage = new StringBuilder()
 					.append("the no more data packet buffer error occurred while reading the socket[")
@@ -386,7 +387,7 @@ public class AsynThreadSafeSingleConnection
 
 				AbstractClientTask clientTask = null;
 				try {
-					clientTask = clientObjectCacheManager.getClientTask(messageID);
+					clientTask = clientTaskManger.getClientTask(messageID);
 				} catch (DynamicClassCallException e) {
 					log.warn(e.getMessage());
 					return;
@@ -396,8 +397,7 @@ public class AsynThreadSafeSingleConnection
 				}
 
 				try {
-					clientTask.execute(hashCode(), projectName, this, readableMiddleObjectWrapper,
-							messageProtocol, clientObjectCacheManager);
+					clientTask.execute(hashCode(), projectName, this, readableMiddleObjectWrapper, messageProtocol);
 				} catch (InterruptedException e) {
 					throw e;
 				} catch (Exception | Error e) {
@@ -425,8 +425,8 @@ public class AsynThreadSafeSingleConnection
 	public boolean isConnected() {
 		return clientSC.isConnected();
 	}
-	
-	@Override 
+
+	@Override
 	protected void finalize() {
 		close();
 	}

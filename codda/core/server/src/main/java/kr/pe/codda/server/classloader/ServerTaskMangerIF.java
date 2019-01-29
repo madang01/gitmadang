@@ -16,8 +16,6 @@
  */
 package kr.pe.codda.server.classloader;
 
-import java.io.FileNotFoundException;
-
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.server.task.AbstractServerTask;
 
@@ -32,7 +30,6 @@ public interface ServerTaskMangerIF {
 	 * @param messageID 메시지 식별자
 	 * @return 지정된 메시지 식별자와 1:1 대응하는 서버 타스크
 	 * @throws DynamicClassCallException 동적 클래스를 다룰때 에러 발생시 던지는 예외
-	 * @throws FileNotFoundException 동적 클래스 파일이 없을때 던지는 예외
 	 */
-	public AbstractServerTask getServerTask(String messageID) throws DynamicClassCallException, FileNotFoundException;
+	public AbstractServerTask getServerTask(String messageID) throws DynamicClassCallException;
 }

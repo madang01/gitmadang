@@ -4,6 +4,8 @@ import java.util.ArrayDeque;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.common.classloader.MessageDecoderMangerIF;
+import kr.pe.codda.common.classloader.MessageEncoderManagerIF;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.HeaderFormatException;
@@ -12,27 +14,30 @@ import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
-import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 
 public abstract class ClientMessageUtility {
 
-	public static AbstractMessage buildOutputMessage(MessageProtocolIF messageProtocol, 
-			ClientObjectCacheManagerIF clientObjectCacheManager, 
-			ClassLoader sourceClassLoader,
+	public static AbstractMessage buildOutputMessage(
+			MessageDecoderMangerIF messageDecoderManger, 
+			MessageProtocolIF messageProtocol,
 			ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
 			throws DynamicClassCallException, BodyFormatException {
-		if (null == sourceClassLoader) {
-			throw new IllegalArgumentException("the parameter sourceClassLoader is null");
+		if (null == messageDecoderManger) {
+			throw new IllegalArgumentException("the parameter messageDecoderManger is null");
 		}
-		
+
+		if (null == messageProtocol) {
+			throw new IllegalArgumentException("the parameter messageProtocol is null");
+		}
+
 		if (null == readableMiddleObjectWrapper) {
 			throw new IllegalArgumentException("the parameter readableMiddleObjectWrapper is null");
 		}
-		InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
 		
+		InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
 		
 		String messageID = readableMiddleObjectWrapper.getMessageID();
 		int mailboxID = readableMiddleObjectWrapper.getMailboxID();
@@ -46,11 +51,9 @@ public abstract class ClientMessageUtility {
 			return selfExnRes;
 		}
 
-		MessageCodecIF messageCodec = clientObjectCacheManager.getClientMessageCodec(sourceClassLoader, messageID);
-
-		AbstractMessageDecoder messageDecoder = null;
+		AbstractMessageDecoder messageDecoder = null;		
 		try {
-			messageDecoder = messageCodec.getMessageDecoder();
+			messageDecoder = messageDecoderManger.getMessageDecoder(messageID);
 		} catch (DynamicClassCallException e) {
 			String errorMessage = new StringBuilder("fail to get the client message codec of the output message[")
 					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("]").toString();
@@ -91,35 +94,17 @@ public abstract class ClientMessageUtility {
 		return outputMessage;
 	}
 
-	public static ArrayDeque<WrapBuffer> buildReadableWrapBufferList(MessageProtocolIF messageProtocol, 
-			ClientObjectCacheManagerIF clientObjectCacheManager,
-			ClassLoader sourceClassLoader, AbstractMessage inputMessage)
+	public static ArrayDeque<WrapBuffer> buildReadableWrapBufferList(
+			MessageEncoderManagerIF messageEncoderManager, 
+			MessageProtocolIF messageProtocol,
+			AbstractMessage inputMessage)
 			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
 		
-		MessageCodecIF messageCodec = null;
-
-		try {
-			messageCodec = clientObjectCacheManager.getClientMessageCodec(sourceClassLoader, inputMessage.getMessageID());
-		} catch (DynamicClassCallException e) {
-			/*String errorMessage = new StringBuilder("fail to get a client input message codec::").append(e.getMessage())
-					.toString();
-
-			log.warn(errorMessage);*/
-
-			throw e;
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknown error::fail to get a client input message codec::")
-					.append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
-
-			throw new DynamicClassCallException(errorMessage);
-		}
-
 		AbstractMessageEncoder messageEncoder = null;
 
 		try {
-			messageEncoder = messageCodec.getMessageEncoder();
+			messageEncoder = messageEncoderManager.getMessageEncoder(inputMessage.getMessageID());
 		} catch (DynamicClassCallException e) {
 			/*String errorMessage = new StringBuilder("fail to get a input message encoder::").append(e.getMessage())
 					.toString();

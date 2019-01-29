@@ -1,7 +1,6 @@
 package kr.pe.codda.server.classloader;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import kr.pe.codda.common.classloader.SimpleClassLoader;
 import kr.pe.codda.server.task.AbstractServerTask;
@@ -40,7 +39,7 @@ public class ServerTaskInfomation {
 		this.loadedTime = serverTaskClassFile.lastModified();
 	}
 	
-	public boolean isModifed() throws FileNotFoundException {
+	public boolean isModifed() {
 		long lastModifedTime = serverTaskClassFile.lastModified();
 		return (loadedTime != lastModifedTime);
 	}

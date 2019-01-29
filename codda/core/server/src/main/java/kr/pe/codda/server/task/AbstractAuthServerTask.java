@@ -18,6 +18,7 @@
 
 package kr.pe.codda.server.task;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
@@ -27,6 +28,10 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 
 public abstract class AbstractAuthServerTask extends AbstractServerTask {
+
+	public AbstractAuthServerTask() throws DynamicClassCallException {
+		super();
+	}
 
 	@Override
 	public void execute(String projectName,

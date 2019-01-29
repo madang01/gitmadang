@@ -15,7 +15,7 @@ import java.util.Arrays;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.connection.ClientMessageUtility;
-import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
+import kr.pe.codda.common.classloader.MessageCodecMangerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -34,7 +34,6 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 
 	private SocketOutputStream socketOutputStream = null;
 	private MessageProtocolIF messageProtocol = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 
 	private String serverHost = null;
@@ -55,7 +54,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 
 	public SyncThreadSafeSingleConnection(String serverHost, int serverPort, long socketTimeout,
 			int clientDataPacketBufferSize, SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
-			ClientObjectCacheManagerIF clientObjectCacheManager, DataPacketBufferPoolIF dataPacketBufferPool)
+			DataPacketBufferPoolIF dataPacketBufferPool)
 			throws IOException {
 
 		this.serverHost = serverHost;
@@ -64,7 +63,6 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 		this.clientDataPacketBufferSize = clientDataPacketBufferSize;
 		this.socketOutputStream = socketOutputStream;
 		this.messageProtocol = messageProtocol;
-		this.clientObjectCacheManager = clientObjectCacheManager;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		
 		socketBuffer = new byte[this.clientDataPacketBufferSize];
@@ -156,11 +154,11 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	}
 
 	@Override
-	synchronized public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
+	synchronized public AbstractMessage sendSyncInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
 			BodyFormatException, ServerTaskException, ServerTaskPermissionException {
 
-		ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
+		// ClassLoader classloaderOfInputMessage = inputMessage.getClass().getClassLoader();
 
 		
 
@@ -174,7 +172,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 		inputMessage.messageHeaderInfo.mailID = mailID;
 
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
-				messageProtocol, clientObjectCacheManager, classloaderOfInputMessage, inputMessage);
+				messageCodecManger, messageProtocol, inputMessage);
 
 		while (!inputMessageWrapBufferQueue.isEmpty()) {
 			WrapBuffer inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
@@ -263,15 +261,14 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 			Arrays.fill(socketBuffer, CommonStaticFinalVars.ZERO_BYTE);
 		}
 
-		AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageProtocol,
-				clientObjectCacheManager, classloaderOfInputMessage,
+		AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageCodecManger, messageProtocol,			
 				syncReceivedMessageBlockingQueue.getReadableMiddleObjectWrapper());
 
 		return outputMessage;
 	}
 
 	@Override
-	public void sendAsynInputMessage(AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
+	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
 			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
 		throw new NotSupportedException(
 				"this connection doesn't support this method because it is a blocking mode connection and no sharing connection between threads");

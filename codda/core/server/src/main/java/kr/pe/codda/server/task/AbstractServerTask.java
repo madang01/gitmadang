@@ -17,18 +17,18 @@
 
 package kr.pe.codda.server.task;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.util.HashMap;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
-import kr.pe.codda.common.classloader.MessageCodecManagerIF;
+import kr.pe.codda.common.classloader.MessageEncoderManagerIF;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
+import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
@@ -41,7 +41,9 @@ import kr.pe.codda.server.ProjectLoginManagerIF;
 /**
  * <pre>
  * 로그인을 요구하지 않는 서버 비지니스 로직 부모 클래스. 
- * 메시지는 자신만의 서버 비지니스를 갖는다. 
+ * 메시지는 자신만의 서버 비지니스를 갖는다.
+ * 서버 비지니스 로직 클래스 이름 형식은 
+ * 접두어 '메시지 식별자' 와 접미어 'ServerTask' 로 구성된다. 
  * 개발자는 이 클래스를 상속 받은 메시지별 비지니스 로직을 개발하며, 
  * 이렇게 개발된 비지니스 로직 모듈은 동적으로 로딩된다.
  * </pre>
@@ -49,37 +51,91 @@ import kr.pe.codda.server.ProjectLoginManagerIF;
  * @author Won Jonghoon
  * 
  */
-public abstract class AbstractServerTask implements MessageCodecManagerIF {
+public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractServerTask.class);
 	
 	private ClassLoader taskClassLoader = this.getClass().getClassLoader();
-	private MessageCodecIF serverInputMessageCodec = null;
-	private HashMap<String, MessageCodecIF> messageID2MessageCodecHash = 
-			new HashMap<String, MessageCodecIF>();
+	// private MessageCodecIF serverInputMessageCodec = null;
+	private AbstractMessageDecoder inputMessageDecoder = null;
+	private HashMap<String, AbstractMessageEncoder> messageID2MessageEncoderHash = 
+			new HashMap<String, AbstractMessageEncoder>();
+	
+	public AbstractServerTask() throws DynamicClassCallException {
+		String classFullName = this.getClass().getName();
+		int startIndex = classFullName.lastIndexOf(".") + 1;		
+		int endIndex = classFullName.lastIndexOf("ServerTask");
+		
+		String messageID = classFullName.substring(startIndex, endIndex);
+		
+		/** WARNING! junit 에서 inner class 로 mock 객체를 만들어 테스트시 필요하므로 지우지 말것 */
+		int middleIndex = messageID.lastIndexOf("$");		
+		if (middleIndex >= 0) {
+			char[] classNames =  messageID.toCharArray();
+			
+			for (middleIndex++; middleIndex < classNames.length; middleIndex++) {
+				if (classNames[middleIndex] < '0' || classNames[middleIndex] > '9') {
+					break;
+				}
+			}
+			
+			startIndex = startIndex + middleIndex++;
+			
+			messageID = classFullName.substring(startIndex, endIndex);
+		}
+		
+		
+		
+		// FIXME!
+		// log.info("className=[{}], messageID=[{}]", classFullName, messageID);
+		
+		String messageCodecClassFullName = IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
+		
+		Object retObject = CommonStaticUtil.getNewObjectFromClassloader(taskClassLoader, messageCodecClassFullName);		
+		
+		if (! (retObject instanceof MessageCodecIF)) {
+			String errorMessage = new StringBuilder()
+			.append("this instance(classLoader=")
+			.append(taskClassLoader.hashCode())
+			.append(") of ").append(classFullName)
+			.append("] class is not a instance of MessageCodecIF class").toString();
 
-	public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
-		MessageCodecIF messageCodec = messageID2MessageCodecHash.get(messageID);
-		if (null == messageCodec) {
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		MessageCodecIF serverInputMessageCodec = (MessageCodecIF)retObject;
+		
+		inputMessageDecoder = serverInputMessageCodec.getMessageDecoder();		
+		
+		AbstractMessageEncoder inputMessageEncoder = serverInputMessageCodec.getMessageEncoder();		
+		
+		messageID2MessageEncoderHash.put(messageID, inputMessageEncoder);
+	}
+
+	public AbstractMessageEncoder getMessageEncoder(String messageID) throws DynamicClassCallException {
+		AbstractMessageEncoder inputMessageEncoder = messageID2MessageEncoderHash.get(messageID);
+		if (null == inputMessageEncoder) {
 			String classFullName = IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
 			Object retObject = CommonStaticUtil.getNewObjectFromClassloader(taskClassLoader, classFullName);
 			
-			if (! (retObject instanceof AbstractServerTask)) {
+			if (! (retObject instanceof MessageCodecIF)) {
 				String errorMessage = new StringBuilder()
-				.append("TaskClassLoader hashCode=[")
+				.append("server task's classLoader hashCode=[")
 				.append(taskClassLoader.hashCode())
 				.append("]::this instance of ").append(classFullName)
-				.append("] class is not a instance of AbstractServerTask class").toString();
+				.append("] class is not a instance of MessageCodecIF class").toString();
 
 				throw new DynamicClassCallException(errorMessage);
 			}
 			
-			messageCodec = (MessageCodecIF)retObject;
-			messageID2MessageCodecHash.put(messageID, messageCodec);
+			MessageCodecIF serverInputMessageCodec = (MessageCodecIF)retObject;
+			
+			inputMessageEncoder = serverInputMessageCodec.getMessageEncoder();		
+			
+			messageID2MessageEncoderHash.put(messageID, inputMessageEncoder);
 		}
 		
-		return messageCodec;
-	}
-	
+		return inputMessageEncoder;
+	}	
 	
 	public void execute(String projectName,
 			AcceptedConnection fromAcceptedConnection,			
@@ -87,79 +143,6 @@ public abstract class AbstractServerTask implements MessageCodecManagerIF {
 			ReadableMiddleObjectWrapper readableMiddleObjectWrapper,
 			MessageProtocolIF messageProtocol,
 			PersonalLoginManagerIF fromPersonalLoginManager) throws InterruptedException {
-		
-		if (null == serverInputMessageCodec) {
-			try {
-				serverInputMessageCodec = getMessageCodec(readableMiddleObjectWrapper.getMessageID());
-			} catch (DynamicClassCallException e) {
-				String errorMessage = new StringBuilder("fail to get the server message codec of the input message[")
-						.append(readableMiddleObjectWrapper.toSimpleInformation())
-						.append("]").toString();
-				
-				SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-				String errorReason = errorMessage;
-				
-				log.warn(errorReason);
-				
-				ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
-						errorType,
-						errorReason,
-						readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
-				return;
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder("unknown error::fail to get the server message codec of the input message[")
-						.append(readableMiddleObjectWrapper.toSimpleInformation())
-						.append("]::").append(e.getMessage()).toString();
-				
-				SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-				String errorReason = errorMessage;
-				
-				log.warn(errorReason, e);
-				
-				ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
-						errorType,
-						errorReason,
-						readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
-				return;
-			}
-		}
-
-		
-
-		AbstractMessageDecoder inputMessageDecoder = null;
-		try {
-			inputMessageDecoder = serverInputMessageCodec.getMessageDecoder();
-		} catch (DynamicClassCallException e) {
-			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = new StringBuilder()
-					.append("fail to get a input message decoder[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation())
-					.append("], errmsg=")
-					.append(e.getMessage()).toString();
-			
-			log.warn(errorReason);
-			
-			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
-					errorType,
-					errorReason,
-					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
-			return;
-		} catch(Exception | Error e) {			
-			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = new StringBuilder()
-					.append("unknown error::fail to get a input message decoder[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation())
-					.append("], errmsg=")
-					.append(e.getMessage()).toString();
-			
-			log.warn(errorReason, e);
-			
-			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
-					errorType,
-					errorReason,
-					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
-			return;
-		}
 
 		/*log.info("classLoader[{}], serverTask[{}], create new messageDecoder", 
 				classLoaderOfSererTask.hashCode(),

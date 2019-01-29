@@ -60,7 +60,7 @@ public class SimpleClassLoader extends ClassLoader {
 	 *            클래스 파일 경로를 얻고자 하는 클래스 이름
 	 * @return 주어진 클래스 이름을 가지는 클래스 파일 경로
 	 */
-	public String getClassFileName(String classFullName) {
+	public String getClassFilePathString(String classFullName) {
 		String classFileName = new StringBuilder(classloaderClassPathString).append(File.separator)
 				.append(classFullName.replace(".", File.separator)).append(".class").toString();
 		return classFileName;
@@ -86,7 +86,7 @@ public class SimpleClassLoader extends ClassLoader {
 				return systemClassLoader.loadClass(classFullName);
 			}
 
-			String classFileName = getClassFileName(classFullName);
+			String classFileName = getClassFilePathString(classFullName);
 
 			// log.info("classFileName={}", classFileName);
 
@@ -187,7 +187,7 @@ public class SimpleClassLoader extends ClassLoader {
 		return retClass;
 	}
 	
-	@SuppressWarnings("resource")
+	
 	public InputStream getResourceAsStream(String name) {
 		InputStream is = null;
 

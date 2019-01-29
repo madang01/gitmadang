@@ -17,13 +17,12 @@
 
 package kr.pe.codda.server.task;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.nio.channels.SelectionKey;
 import java.util.ArrayDeque;
 
-import kr.pe.codda.common.classloader.MessageCodecManagerIF;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.common.classloader.MessageEncoderManagerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -32,7 +31,6 @@ import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
-import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
@@ -56,7 +54,7 @@ public class ToLetterCarrier {
 	
 	
 	private MessageProtocolIF messageProtocol = null;
-	private MessageCodecManagerIF messageCodecManager = null;
+	private MessageEncoderManagerIF messageCodecManager = null;
 	
 	// private LinkedList<ToLetter> toLetterList = new LinkedList<ToLetter>();
 	
@@ -64,7 +62,7 @@ public class ToLetterCarrier {
 			AbstractMessage inputMessage,
 			ProjectLoginManagerIF projectLoginManager,
 			MessageProtocolIF messageProtocol,
-			MessageCodecManagerIF messageCodecManager) {
+			MessageEncoderManagerIF messageCodecManager) {
 		this.fromAcceptedConnection = fromAcceptedConnection;
 		this.inputMessage = inputMessage;
 		this.projectLoginManager = projectLoginManager;
@@ -93,35 +91,13 @@ public class ToLetterCarrier {
 	private void doAddOutputMessage(AcceptedConnection toAcceptedConnection,
 			AbstractMessage outputMessage, 
 			MessageProtocolIF messageProtocol) throws InterruptedException {
-		String messageIDToClient = outputMessage.getMessageID();
+		String messageIDOfOutputMessage = outputMessage.getMessageID();
 	
 		ArrayDeque<WrapBuffer> outputMessageWrapBufferQueue = null;		
 		
-		MessageCodecIF messageServerCodec = null;
-		try {
-			messageServerCodec = messageCodecManager.getMessageCodec(messageIDToClient);
-		} catch (DynamicClassCallException e) {
-			String errorMessage = new StringBuilder("fail to get a server output message codec::").append(e.getMessage()).toString();
-			
-			log.warn(errorMessage);
-			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = e.getMessage();
-			
-			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
-			return;
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknown error::fail to get a server output message codec::").append(e.getMessage()).toString();
-			
-			log.warn(errorMessage, e);			
-			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = errorMessage;
-			doAddOutputErrorMessage(toAcceptedConnection, errorType, errorReason, outputMessage, messageProtocol);
-			return;
-		}
-	
 		AbstractMessageEncoder messageEncoder = null;
 		try {
-			messageEncoder = messageServerCodec.getMessageEncoder();
+			messageEncoder = messageCodecManager.getMessageEncoder(messageIDOfOutputMessage);
 		} catch (DynamicClassCallException e) {
 			String errorMessage = new StringBuilder("fail to get a output message encoder::").append(e.getMessage()).toString();
 			

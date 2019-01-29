@@ -16,7 +16,7 @@
  */
 package kr.pe.codda.client.connection;
 
-import kr.pe.codda.client.connection.asyn.executor.AbstractClientTask;
+import kr.pe.codda.client.task.AbstractClientTask;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 

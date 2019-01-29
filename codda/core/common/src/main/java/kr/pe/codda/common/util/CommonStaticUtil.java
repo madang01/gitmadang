@@ -553,7 +553,12 @@ public abstract class CommonStaticUtil {
 		try {
 			retClass = targetClassLoader.loadClass(classFullName);
 		} catch (ClassNotFoundException e) {
-			throw new DynamicClassCallException(e.getMessage());
+			String errorMessage = new StringBuilder()
+					.append("fail to find the class[")
+					.append(classFullName)
+					.append("], errmsg=")
+					.append(e.getMessage()).toString();
+			throw new DynamicClassCallException(errorMessage);
 		}
 
 		Object retObject = null;
@@ -561,53 +566,53 @@ public abstract class CommonStaticUtil {
 			retObject = retClass.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException e) {
 			String errorMessage = new StringBuilder()
-					.append("ServerClassLoader hashCode=[")
+					.append("fail to create a instance(ServerClassLoader=")
 					.append(targetClassLoader.hashCode())
-					.append("], classFullName=[").append(classFullName)
-					.append("]::InstantiationException, errmsg=")
+					.append(") of ").append(classFullName)
+					.append("class, InstantiationException errmsg=")
 					.append(e.getMessage()).toString();
 
 			throw new DynamicClassCallException(errorMessage);
 		} catch (IllegalAccessException e) {
 			String errorMessage = new StringBuilder()
-					.append("ServerClassLoader hashCode=[")
+					.append("fail to create a instance(ServerClassLoader=")
 					.append(targetClassLoader.hashCode())
-					.append("], classFullName=[").append(classFullName)
-					.append("]::IllegalAccessException, errmsg=")
+					.append(") of ").append(classFullName)
+					.append("class, IllegalAccessException errmsg=")
 					.append(e.getMessage()).toString();
 			throw new DynamicClassCallException(errorMessage);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder()
-					.append("ServerClassLoader hashCode=[")
+					.append("fail to create a instance(ServerClassLoader=")
 					.append(targetClassLoader.hashCode())
-					.append("], classFullName=[").append(classFullName)
-					.append("]::IllegalArgumentException, errmsg=")
+					.append(") of ").append(classFullName)
+					.append("class, IllegalArgumentException errmsg=")
 					.append(e.getMessage()).toString();
 			throw new DynamicClassCallException(errorMessage);
 		} catch (InvocationTargetException e) {
 			String errorMessage = new StringBuilder()
-					.append("ServerClassLoader hashCode=[")
+					.append("fail to create a instance(ServerClassLoader=")
 					.append(targetClassLoader.hashCode())
-					.append("], classFullName=[").append(classFullName)
-					.append("]::InvocationTargetException, errmsg=")
+					.append(") of ").append(classFullName)
+					.append("class, InvocationTargetException errmsg=")
 					.append(e.getMessage()).toString();
 
 			throw new DynamicClassCallException(errorMessage);
 		} catch (NoSuchMethodException e) {
 			String errorMessage = new StringBuilder()
-					.append("ServerClassLoader hashCode=[")
+					.append("fail to create a instance(ServerClassLoader=")
 					.append(targetClassLoader.hashCode())
-					.append("], classFullName=[").append(classFullName)
-					.append("]::NoSuchMethodException, errmsg=")
+					.append(") of ").append(classFullName)
+					.append("class, NoSuchMethodException errmsg=")
 					.append(e.getMessage()).toString();
 
 			throw new DynamicClassCallException(errorMessage);
 		} catch (SecurityException e) {
 			String errorMessage = new StringBuilder()
-					.append("ServerClassLoader hashCode=[")
+					.append("fail to create a instance(ServerClassLoader=")
 					.append(targetClassLoader.hashCode())
-					.append("], classFullName=[").append(classFullName)
-					.append("]::SecurityException, errmsg=")
+					.append(") of ").append(classFullName)
+					.append("class, SecurityException errmsg=")
 					.append(e.getMessage()).toString();
 
 			throw new DynamicClassCallException(errorMessage);

@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.ConnectionIF;
-import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
+import kr.pe.codda.client.classloader.ClientTaskMangerIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
-import kr.pe.codda.client.connection.asyn.ClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
+import kr.pe.codda.client.connection.asyn.ClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.ClientIOEventHandlerIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.ConnectionPoolException;
@@ -37,7 +37,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 	private int clientAsynInputMessageQueueCapacity=0;
 	
 	private MessageProtocolIF messageProtocol = null; 
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+	private ClientTaskMangerIF clientTaskManger = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
@@ -51,7 +51,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 
 	public AsynShareConnectionPool(ProjectPartConfiguration projectPartConfiguration,
 			MessageProtocolIF messageProtocol, 
-			ClientObjectCacheManagerIF clientObjectCacheManager,
+			ClientTaskMangerIF clientTaskManger,
 			DataPacketBufferPoolIF dataPacketBufferPool, SocketOutputStreamFactoryIF socketOutputStreamFactory,
 			ConnectionPoolSupporterIF connectionPoolSupporter)
 			throws NoMoreDataPacketBufferException, IOException {
@@ -63,8 +63,8 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 			throw new IllegalArgumentException("the parameter messageProtocol is null");
 		}
 		
-		if (null == clientObjectCacheManager) {
-			throw new IllegalArgumentException("the parameter clientObjectCacheManager is null");
+		if (null == clientTaskManger) {
+			throw new IllegalArgumentException("the parameter clientTaskManger is null");
 		}
 		
 		if (null == dataPacketBufferPool) {
@@ -88,7 +88,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		this.clientAsynInputMessageQueueCapacity = projectPartConfiguration.getClientAsynInputMessageQueueCapacity();
 		
 		this.messageProtocol = messageProtocol;
-		this.clientObjectCacheManager = clientObjectCacheManager;
+		this.clientTaskManger = clientTaskManger;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
@@ -236,7 +236,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 				clientSyncMessageMailboxCountPerAsynShareConnection,
 				clientAsynInputMessageQueueCapacity,
 				sos,
-				messageProtocol, clientObjectCacheManager, dataPacketBufferPool, this, 
+				messageProtocol, dataPacketBufferPool, clientTaskManger, this, 
 				asynClientIOEventController, connectionPoolSupporter);
 		return asynInterestedConnection;
 	}

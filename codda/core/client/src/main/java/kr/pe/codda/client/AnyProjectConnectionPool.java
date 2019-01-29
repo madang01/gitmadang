@@ -1,5 +1,6 @@
 package kr.pe.codda.client;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteOrder;
@@ -10,20 +11,28 @@ import java.util.concurrent.TimeUnit;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.client.connection.ClientObjectCacheManager;
-import kr.pe.codda.client.connection.ClientObjectCacheManagerIF;
+import kr.pe.codda.client.classloader.ClientClassLoaderFactory;
+import kr.pe.codda.client.classloader.ClientDynamicTaskManger;
+import kr.pe.codda.client.classloader.ClientStaticTaskManger;
+import kr.pe.codda.client.classloader.ClientTaskMangerIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporter;
-import kr.pe.codda.client.connection.asyn.ClientIOEventController;
 import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
 import kr.pe.codda.client.connection.asyn.AyncThreadSafeSingleConnectedConnectionAdder;
+import kr.pe.codda.client.connection.asyn.ClientIOEventController;
 import kr.pe.codda.client.connection.asyn.share.AsynShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncNoShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncThreadSafeSingleConnection;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
+import kr.pe.codda.common.classloader.MessageCodecMangerIF;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.exception.BodyFormatException;
+import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
@@ -38,6 +47,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
+import kr.pe.codda.common.type.ClassloaderType;
 import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.common.type.MessageProtocolType;
 
@@ -62,7 +72,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	private ConnectionPoolSupporter connectionPoolSupporter = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private MessageProtocolIF messageProtocol = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+	private ClientTaskMangerIF clientTaskManger = null;
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private ClientIOEventController asynClientIOEventController = null;
 	
@@ -117,7 +127,31 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				System.exit(1);
 			}
 		}
-		clientObjectCacheManager = new ClientObjectCacheManager();
+		
+		// FIXME! 환경 변수에 클래스로더 종류에 따라 설정하는 로직 필요함
+		ClassloaderType clientClassloaderType = ClassloaderType.Static;		
+		if (ClassloaderType.Static.equals(clientClassloaderType)) {
+			clientTaskManger = new ClientStaticTaskManger();
+		} else {
+			CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
+					.getRunningProjectConfiguration();
+			String installedPathString = runningProjectConfiguration.getInstalledPathString();
+			
+			String clientClassloaderClassPathString = new StringBuilder()
+					.append(WebRootBuildSystemPathSupporter.getUserWebINFPathString(installedPathString, mainProjectName))
+					.append(File.separator)
+					.append("classes")
+					.toString();
+			String clientClassloaderReousrcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPathString, mainProjectName); 
+			ClientClassLoaderFactory clientClassLoaderFactory = null;
+			try {
+				clientClassLoaderFactory = new ClientClassLoaderFactory(clientClassloaderClassPathString, clientClassloaderReousrcesPathString);
+			} catch (CoddaConfigurationException e) {
+				log.error("fail to create a instance of ClientClassLoaderFactory class, errmsg=", e.getMessage());
+				System.exit(1);
+			}
+			clientTaskManger = new ClientDynamicTaskManger(clientClassLoaderFactory);
+		}		
 		
 		socketOutputStreamFactory = new SocketOutputStreamFactory(charsetDecoderOfProject,
 				clientDataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
@@ -128,7 +162,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		
 		if (connectionType.equals(ConnectionType.SYNC_PRIVATE)) {
 			connectionPool = new SyncNoShareConnectionPool(projectPartConfiguration,
-					messageProtocol, clientObjectCacheManager, dataPacketBufferPool,
+					messageProtocol, dataPacketBufferPool,
 					socketOutputStreamFactory,
 					connectionPoolSupporter);
 		} else {
@@ -136,7 +170,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			
 			AsynConnectionPoolIF asynConnectionPool = 
 					new AsynShareConnectionPool(projectPartConfiguration,
-							messageProtocol, clientObjectCacheManager, dataPacketBufferPool,
+							messageProtocol, clientTaskManger, dataPacketBufferPool,
 					socketOutputStreamFactory,
 					connectionPoolSupporter);
 			
@@ -159,7 +193,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	
 
 	@Override
-	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
+	public AbstractMessage sendSyncInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException, BodyFormatException,
 			DynamicClassCallException, ServerTaskException, ServerTaskPermissionException, ConnectionPoolException {
 		/*long startTime = 0;
@@ -169,7 +203,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		AbstractMessage outObj = null;
 		ConnectionIF conn = connectionPool.getConnection();
 		try {
-			outObj = conn.sendSyncInputMessage(inputMessage);
+			outObj = conn.sendSyncInputMessage(messageCodecManger, inputMessage);
 		} catch (BodyFormatException e) {
 			throw e;
 		} catch (SocketTimeoutException e) {
@@ -197,7 +231,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	}
 
 	@Override
-	public void sendAsynInputMessage(AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
+	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
 			ConnectionPoolException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
 		long startTime = 0;
 		long endTime = 0;
@@ -205,7 +239,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 
 		ConnectionIF conn = connectionPool.getConnection();
 		try {
-			conn.sendAsynInputMessage(inputMessage);
+			conn.sendAsynInputMessage(messageCodecManger, inputMessage);
 		} finally {
 			connectionPool.release(conn);
 		}
@@ -231,7 +265,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 						projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
 						projectPartConfiguration.getClientAsynInputMessageQueueCapacity(),					 
 				socketOutputStreamFactory.createSocketOutputStream(), 
-				messageProtocol, clientObjectCacheManager, dataPacketBufferPool, ayncThreadSafeSingleConnectedConnectionAdder, 
+				messageProtocol, dataPacketBufferPool, clientTaskManger, ayncThreadSafeSingleConnectedConnectionAdder, 
 				asynClientIOEventController, connectionPoolSupporter);		
 		
 		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynThreadSafeSingleConnection);
@@ -261,7 +295,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				serverPort,
 				projectPartConfiguration.getClientSocketTimeout(),
 				projectPartConfiguration.getClientDataPacketBufferSize(),
-				socketOutputStreamFactory.createSocketOutputStream(), messageProtocol, clientObjectCacheManager, dataPacketBufferPool);
+				socketOutputStreamFactory.createSocketOutputStream(), messageProtocol, dataPacketBufferPool);
 		
 		return connectedConnection;
 	}
