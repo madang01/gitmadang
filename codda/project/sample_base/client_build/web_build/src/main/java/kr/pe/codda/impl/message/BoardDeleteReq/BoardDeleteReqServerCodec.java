@@ -29,9 +29,11 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class BoardDeleteReqServerCodec implements MessageCodecIF {
 
+	private AbstractMessageDecoder messageDecoder = new BoardDeleteReqDecoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new BoardDeleteReqDecoder();
+		return messageDecoder;
 	}
 
 	@Override

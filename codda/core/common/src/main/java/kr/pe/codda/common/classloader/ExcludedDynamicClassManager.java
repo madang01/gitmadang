@@ -8,7 +8,7 @@ public class ExcludedDynamicClassManager implements ExcludedDynamicClassManagerI
 	
 	public ExcludedDynamicClassManager() {
 		
-		String[] messageIDListOfServerExcludedDynamicClass = { "SelfExnRes"};
+		String[] messageIDListOfServerExcludedDynamicClass = { "SelfExnRes" };
 
 		for (String messageIDOfServerExcludedDynamicClass : messageIDListOfServerExcludedDynamicClass) {
 			serverExcludedDynamicClassFullNameSet

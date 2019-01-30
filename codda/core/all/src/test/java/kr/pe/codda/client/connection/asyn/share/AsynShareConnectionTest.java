@@ -22,6 +22,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.common.type.MessageProtocolType;
 import kr.pe.codda.common.type.ProjectType;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.Empty.Empty;
 import kr.pe.codda.server.AnyProjectServer;
 
@@ -34,9 +35,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 			MessageProtocolType messageProtocolType,
 			boolean clientDataPacketBufferIsDirect,
 			ConnectionType connectionType,
-			int serverMaxClients,
-			int serverExecutorPoolSize,
-			int serverExecutorPoolMaxSize)
+			int serverMaxClients)
 			throws CoddaConfigurationException {		
 		 
 		
@@ -66,9 +65,9 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int clientAsynExecutorPoolSize =2;
 		long serverMonitorTimeInterval = 5000L;
 		boolean serverDataPacketBufferIsDirect=true;
-		int serverDataPacketBufferMaxCntPerMessage=50;
+		int serverDataPacketBufferMaxCntPerMessage=1000;
 		int serverDataPacketBufferSize=2048;
-		int serverDataPacketBufferPoolSize=10000;
+		int serverDataPacketBufferPoolSize=100000;
 		// int serverMaxClients = 10;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
@@ -114,9 +113,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
 		int clientConnectionCount = 2;
 		int clientConnectionMaxCount = clientConnectionCount;
-		int serverMaxClients = clientConnectionCount;
-		int serverExecutorPoolSize = 3;
-		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
+		int serverMaxClients = clientConnectionCount;		
 		int retryCount = 1000;
 		
 		String testProjectName = "sample_test";
@@ -130,9 +127,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
 					ConnectionType.ASYN_PUBLIC,
-					serverMaxClients,
-					serverExecutorPoolSize,
-					serverExecutorPoolMaxSize);
+					serverMaxClients);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -178,7 +173,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 			long startTime = System.nanoTime();
 			
 			for (int i=0; i < retryCount; i++) {
-				AbstractMessage emptyRes =  anyProjectConnectionPool.sendSyncInputMessage(emptyReq);				
+				AbstractMessage emptyRes =  anyProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);				
 				if (!(emptyRes instanceof Empty)) {
 					fail("empty 메시지 수신 실패");
 				}
@@ -211,13 +206,11 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int clientConnectionCount = 2;
 		int clientConnectionMaxCount = clientConnectionCount;
 		int serverMaxClients = clientConnectionCount;
-		int serverExecutorPoolSize = 3;
-		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
 		
 		int numberOfThread = 3;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread);
 		
-		int retryCount = 1000;
+		int retryCount = 100000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -231,9 +224,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
 					ConnectionType.ASYN_PUBLIC,
-					serverMaxClients,
-					serverExecutorPoolSize,
-					serverExecutorPoolMaxSize);
+					serverMaxClients);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -292,7 +283,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 					for (int i=0; i < retryCount; i++) {
 						try {
 							Empty emptyReq = new Empty();
-							AbstractMessage emptyRes =  anyProjectConnectionPool.sendSyncInputMessage(emptyReq);
+							AbstractMessage emptyRes =  anyProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);
 							
 							if (!(emptyRes instanceof Empty)) {
 								fail("empty 메시지 수신 실패");
@@ -354,10 +345,8 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int clientConnectionCount = 2;
 		int clientConnectionMaxCount = clientConnectionCount;
 		int serverMaxClients = clientConnectionCount;
-		int serverExecutorPoolSize = 2;
-		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
 		
-		int retryCount = 1000;
+		int retryCount = 10000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -370,9 +359,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
 					ConnectionType.ASYN_PUBLIC,
-					serverMaxClients,
-					serverExecutorPoolSize,
-					serverExecutorPoolMaxSize);
+					serverMaxClients);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -419,7 +406,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 			
 			for (; i < retryCount; i++) {
 				try {
-					anyProjectConnectionPool.sendAsynInputMessage(emptyReq);
+					anyProjectConnectionPool.sendAsynInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);
 				} catch(SocketTimeoutException e) {
 					log.info("socket timeout, emptyReq={}", emptyReq.messageHeaderInfo.toString());
 				}
@@ -453,17 +440,15 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int clientConnectionCount = 2;
 		int clientConnectionMaxCount = clientConnectionCount;
 		int serverMaxClients = clientConnectionCount;
-		int serverExecutorPoolSize = 3;
-		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
+		
 		
 		int numberOfThread = 3;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread);
 		
-		int retryCount = 1000;
+		int retryCount = 10000;
 		
 		String testProjectName = "sample_test";
-		ProjectPartConfiguration projectPartConfigurationForTest = null;
-		
+		ProjectPartConfiguration projectPartConfigurationForTest = null;		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
 					host,  port,
@@ -472,9 +457,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
 					ConnectionType.ASYN_PUBLIC,
-					serverMaxClients,
-					serverExecutorPoolSize,
-					serverExecutorPoolMaxSize);
+					serverMaxClients);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -531,9 +514,10 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 					long startTime = System.nanoTime();
 					
 					for (int i=0; i < retryCount; i++) {
+						// log.info("{}::{} 횟수", Thread.currentThread().getName(), i);
 						try {
 							Empty emptyReq = new Empty();
-							anyProjectConnectionPool.sendAsynInputMessage(emptyReq);
+							anyProjectConnectionPool.sendAsynInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);
 						} catch(SocketTimeoutException e) {
 							continue;
 						}

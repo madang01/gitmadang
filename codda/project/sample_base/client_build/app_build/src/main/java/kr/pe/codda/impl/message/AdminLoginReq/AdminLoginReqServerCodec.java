@@ -29,9 +29,11 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class AdminLoginReqServerCodec implements MessageCodecIF {
 
+	private AbstractMessageDecoder messageDecoder = new AdminLoginReqDecoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new AdminLoginReqDecoder();
+		return messageDecoder;
 	}
 
 	@Override

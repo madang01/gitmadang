@@ -29,9 +29,11 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class JavaGarbageCollectionResClientCodec implements MessageCodecIF {
 
+	private AbstractMessageDecoder messageDecoder = new JavaGarbageCollectionResDecoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new JavaGarbageCollectionResDecoder();
+		return messageDecoder;
 	}
 
 	@Override

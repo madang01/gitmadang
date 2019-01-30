@@ -7,7 +7,6 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.concurrent.TimeUnit;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -126,32 +125,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 						messageProtocolType.toString()));
 				System.exit(1);
 			}
-		}
-		
-		// FIXME! 환경 변수에 클래스로더 종류에 따라 설정하는 로직 필요함
-		ClassloaderType clientClassloaderType = ClassloaderType.Static;		
-		if (ClassloaderType.Static.equals(clientClassloaderType)) {
-			clientTaskManger = new ClientStaticTaskManger();
-		} else {
-			CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
-					.getRunningProjectConfiguration();
-			String installedPathString = runningProjectConfiguration.getInstalledPathString();
-			
-			String clientClassloaderClassPathString = new StringBuilder()
-					.append(WebRootBuildSystemPathSupporter.getUserWebINFPathString(installedPathString, mainProjectName))
-					.append(File.separator)
-					.append("classes")
-					.toString();
-			String clientClassloaderReousrcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPathString, mainProjectName); 
-			ClientClassLoaderFactory clientClassLoaderFactory = null;
-			try {
-				clientClassLoaderFactory = new ClientClassLoaderFactory(clientClassloaderClassPathString, clientClassloaderReousrcesPathString);
-			} catch (CoddaConfigurationException e) {
-				log.error("fail to create a instance of ClientClassLoaderFactory class, errmsg=", e.getMessage());
-				System.exit(1);
-			}
-			clientTaskManger = new ClientDynamicTaskManger(clientClassLoaderFactory);
-		}		
+		}	
 		
 		socketOutputStreamFactory = new SocketOutputStreamFactory(charsetDecoderOfProject,
 				clientDataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
@@ -167,6 +141,30 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 					connectionPoolSupporter);
 		} else {
 			
+			// FIXME! 환경 변수에 클래스로더 종류에 따라 설정하는 로직 필요함
+			ClassloaderType clientClassloaderType = ClassloaderType.Static;		
+			if (ClassloaderType.Static.equals(clientClassloaderType)) {
+				clientTaskManger = new ClientStaticTaskManger();
+			} else {
+				CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
+						.getRunningProjectConfiguration();
+				String installedPathString = runningProjectConfiguration.getInstalledPathString();
+				
+				String clientClassloaderClassPathString = new StringBuilder()
+						.append(WebRootBuildSystemPathSupporter.getUserWebINFPathString(installedPathString, mainProjectName))
+						.append(File.separator)
+						.append("classes")
+						.toString();
+				String clientClassloaderReousrcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPathString, mainProjectName); 
+				ClientClassLoaderFactory clientClassLoaderFactory = null;
+				try {
+					clientClassLoaderFactory = new ClientClassLoaderFactory(clientClassloaderClassPathString, clientClassloaderReousrcesPathString);
+				} catch (CoddaConfigurationException e) {
+					log.error("fail to create a instance of ClientClassLoaderFactory class, errmsg=", e.getMessage());
+					System.exit(1);
+				}
+				clientTaskManger = new ClientDynamicTaskManger(clientClassLoaderFactory);
+			}
 			
 			AsynConnectionPoolIF asynConnectionPool = 
 					new AsynShareConnectionPool(projectPartConfiguration,
@@ -233,9 +231,9 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	@Override
 	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
 			ConnectionPoolException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
-		long startTime = 0;
+		/*long startTime = 0;
 		long endTime = 0;
-		startTime = System.nanoTime();
+		startTime = System.nanoTime();*/
 
 		ConnectionIF conn = connectionPool.getConnection();
 		try {
@@ -244,8 +242,8 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			connectionPool.release(conn);
 		}
 
-		endTime = System.nanoTime();
-		log.debug("elapsed={}", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+		//endTime = System.nanoTime();
+		//log.info("elapsed={}", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 
 	}
 

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.SelfExnRes;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,11 +23,13 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * SelfExnRes 서버 코덱
+ * SelfExnRes server codec
  * @author Won Jonghoon
  *
  */
 public final class SelfExnResServerCodec implements MessageCodecIF {
+
+	private AbstractMessageEncoder messageEncoder = new SelfExnResEncoder();
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
@@ -35,6 +38,6 @@ public final class SelfExnResServerCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new SelfExnResEncoder();
+		return messageEncoder;
 	}
 }

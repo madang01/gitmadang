@@ -40,9 +40,6 @@
 	</union>
 	
 	<union id="core.common.jarlibs">
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-codec-1.11.jar" />
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-collections4-4.1.jar" />
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-io-2.6.jar" />
 	</union>
 	
 	<union id="core.server.jarlibs">
@@ -107,7 +104,7 @@
 			<restrict>
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" excludes="${core.client.jar.name.only}" />
 					</zips>
 				</archives>
 			</restrict>

@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.Empty;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * Empty 메시지
+ * Empty message
  * @author Won Jonghoon
  *
  */
@@ -29,7 +30,7 @@ public class Empty extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Empty[");
+		builder.append("empty[");
 		builder.append("]");
 		return builder.toString();
 	}

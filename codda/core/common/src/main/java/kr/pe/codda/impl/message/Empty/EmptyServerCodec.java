@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.Empty;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,19 +23,22 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * Empty 서버 코덱
+ * Empty server codec
  * @author Won Jonghoon
  *
  */
 public final class EmptyServerCodec implements MessageCodecIF {
 
+	private AbstractMessageDecoder messageDecoder = new EmptyDecoder();
+	private AbstractMessageEncoder messageEncoder = new EmptyEncoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new EmptyDecoder();
+		return messageDecoder;
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new EmptyEncoder();
+		return messageEncoder;
 	}
 }

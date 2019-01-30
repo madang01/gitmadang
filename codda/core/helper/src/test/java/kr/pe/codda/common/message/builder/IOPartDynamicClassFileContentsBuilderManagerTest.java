@@ -13,7 +13,6 @@ import kr.pe.codda.common.buildsystem.pathsupporter.CommonBuildSytemPathSupporte
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.builder.info.MessageInfo;
 import kr.pe.codda.common.message.builder.info.MessageInfoSAXParser;
-import kr.pe.codda.common.type.MessageTransferDirectionType;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
 public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJunitTest {
@@ -118,7 +117,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 
 			{
 				String clientCodecSourceFileContents = ioFileSetContentsBuilderManager.getClientCodecSourceFileContents(
-						MessageTransferDirectionType.FROM_ALL_TO_ALL, targetMessageID, author);
+						messageInfo.getDirection(), targetMessageID, author);
 
 				File clientCodecSourceFile = new File(new StringBuilder(tempPathString).append(File.separator)
 						.append(targetMessageID).append("ClientCodec.java").toString());
@@ -137,7 +136,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 
 			{
 				String serverCodecSourceFileContents = ioFileSetContentsBuilderManager.getServerCodecSourceFileContents(
-						MessageTransferDirectionType.FROM_ALL_TO_ALL, targetMessageID, author);
+						messageInfo.getDirection(), targetMessageID, author);
 
 				File serverCodecSourceFile = new File(new StringBuilder(tempPathString).append(File.separator)
 						.append(targetMessageID).append("ServerCodec.java").toString());

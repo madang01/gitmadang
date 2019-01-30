@@ -418,7 +418,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = null;
-		this.javaLangTypeOfItemType = SelfExn.ErrorPlace.class.getName();
+		this.javaLangTypeOfItemType = SelfExn.ErrorPlace.class.getName().replace("$", ".");
 		this.JavaLangClassCastingTypeOfItemType = javaLangTypeOfItemType;
 	}
 
@@ -449,7 +449,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = null;
-		this.javaLangTypeOfItemType = SelfExn.ErrorType.class.getName();
+		this.javaLangTypeOfItemType = SelfExn.ErrorType.class.getName().replace("$", ".");
 		this.JavaLangClassCastingTypeOfItemType = javaLangTypeOfItemType;
 	}
 	

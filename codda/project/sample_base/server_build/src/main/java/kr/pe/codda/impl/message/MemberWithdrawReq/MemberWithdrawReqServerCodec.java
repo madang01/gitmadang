@@ -29,9 +29,11 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class MemberWithdrawReqServerCodec implements MessageCodecIF {
 
+	private AbstractMessageDecoder messageDecoder = new MemberWithdrawReqDecoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new MemberWithdrawReqDecoder();
+		return messageDecoder;
 	}
 
 	@Override

@@ -55,14 +55,15 @@ public abstract class ClientMessageUtility {
 		try {
 			messageDecoder = messageDecoderManger.getMessageDecoder(messageID);
 		} catch (DynamicClassCallException e) {
-			String errorMessage = new StringBuilder("fail to get the client message codec of the output message[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("]").toString();
+			String errorMessage = new StringBuilder("fail to get the client message decoder of the output message[")
+					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("], errmsg=")
+					.append(e.getMessage()).toString();
 
 			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
+			throw e;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder(
-					"unknwon error::fail to get the client message codec of the output message[")
+					"unknwon error::fail to get the client message decoder of the output message[")
 							.append(readableMiddleObjectWrapper.toSimpleInformation()).append("]::").append(e.getMessage())
 							.toString();
 

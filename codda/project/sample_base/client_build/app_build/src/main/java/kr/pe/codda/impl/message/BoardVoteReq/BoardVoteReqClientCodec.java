@@ -29,6 +29,8 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class BoardVoteReqClientCodec implements MessageCodecIF {
 
+	private AbstractMessageEncoder messageEncoder = new BoardVoteReqEncoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		throw new DynamicClassCallException("the client don't need a message decoder because it is a message[BoardVoteReq] that is not sent from server to client");
@@ -36,6 +38,6 @@ public final class BoardVoteReqClientCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new BoardVoteReqEncoder();
+		return messageEncoder;
 	}
 }

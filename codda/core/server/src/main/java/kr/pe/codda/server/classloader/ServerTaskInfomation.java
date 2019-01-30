@@ -2,7 +2,6 @@ package kr.pe.codda.server.classloader;
 
 import java.io.File;
 
-import kr.pe.codda.common.classloader.SimpleClassLoader;
 import kr.pe.codda.server.task.AbstractServerTask;
 
 public class ServerTaskInfomation {
@@ -16,22 +15,22 @@ public class ServerTaskInfomation {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (! serverTaskClassFile.exists()) {
+		/*if (! serverTaskClassFile.exists()) {
 			String errorMessage = new StringBuilder("the server task file[")
 					.append(serverTaskClassFile.getAbsolutePath())
 					.append("] was not found").toString();
 			
 			throw new IllegalArgumentException(errorMessage);
-		}
+		}*/
 		
 		if (null == serverTask) {
 			String errorMessage = "the parmater serverTask is null";			
 			throw new IllegalArgumentException(errorMessage);
 		}		
 		
-		if (! (serverTask.getClass().getClassLoader() instanceof SimpleClassLoader)) {
+		/*if (! (serverTask.getClass().getClassLoader() instanceof SimpleClassLoader)) {
 			throw new IllegalArgumentException("the parameter serverTask is not a instance of SimpleClassLoader class");
-		}		
+		}		*/
 		
 		
 		this.serverTaskClassFile = serverTaskClassFile;
@@ -40,6 +39,10 @@ public class ServerTaskInfomation {
 	}
 	
 	public boolean isModifed() {
+		if (! serverTaskClassFile.exists()) {
+			return false;
+		}
+		
 		long lastModifedTime = serverTaskClassFile.lastModified();
 		return (loadedTime != lastModifedTime);
 	}

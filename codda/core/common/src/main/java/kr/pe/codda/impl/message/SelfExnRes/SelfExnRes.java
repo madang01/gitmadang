@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kr.pe.codda.impl.message.SelfExnRes;
 
 import kr.pe.codda.common.message.AbstractMessage;
 
 /**
- * SelfExnRes 메시지
+ * SelfExnRes message
  * @author Won Jonghoon
  *
  */
@@ -43,6 +44,7 @@ public class SelfExnRes extends AbstractMessage {
 	public void setErrorType(kr.pe.codda.common.type.SelfExn.ErrorType errorType) {
 		this.errorType = errorType;
 	}
+
 	public String getErrorMessageID() {
 		return errorMessageID;
 	}
@@ -61,7 +63,7 @@ public class SelfExnRes extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SelfExnRes[");
+		builder.append("selfExnRes[");
 		builder.append("errorPlace=");
 		builder.append(errorPlace);
 		builder.append(", errorType=");

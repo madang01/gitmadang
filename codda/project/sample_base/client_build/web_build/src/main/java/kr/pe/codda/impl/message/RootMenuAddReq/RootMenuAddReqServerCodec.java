@@ -29,9 +29,11 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class RootMenuAddReqServerCodec implements MessageCodecIF {
 
+	private AbstractMessageDecoder messageDecoder = new RootMenuAddReqDecoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new RootMenuAddReqDecoder();
+		return messageDecoder;
 	}
 
 	@Override

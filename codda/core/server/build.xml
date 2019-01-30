@@ -28,9 +28,6 @@
 	</union>
 	
 	<union id="core.common.jarlibs">
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-codec-1.11.jar" />
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-collections4-4.1.jar" />
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-io-2.6.jar" />
 	</union>
 	
 	<union id="core.junitlib.jarlibs">

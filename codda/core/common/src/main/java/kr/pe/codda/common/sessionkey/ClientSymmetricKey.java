@@ -1,6 +1,8 @@
 package kr.pe.codda.common.sessionkey;
 
 import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Date;
 
 import kr.pe.codda.common.config.CoddaConfiguration;
@@ -10,6 +12,7 @@ import kr.pe.codda.common.exception.SymmetricException;
 
 public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 	private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstance();
+	private Encoder base64Encoder = Base64.getEncoder();
 	
 	private byte[] symmetricKeyBytes = null;
 	private String symmetricKeyAlgorithm = null;
@@ -37,7 +40,7 @@ public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 	
 	public byte[] getSessionKeyBytes(ClientRSAIF clientRSA, boolean isBase64) throws SymmetricException {
 		if (isBase64) {
-			return clientRSA.encrypt(org.apache.commons.codec.binary.Base64.encodeBase64(symmetricKeyBytes));
+			return clientRSA.encrypt(base64Encoder.encode(symmetricKeyBytes));
 		} else {
 			return clientRSA.encrypt(symmetricKeyBytes);
 		}

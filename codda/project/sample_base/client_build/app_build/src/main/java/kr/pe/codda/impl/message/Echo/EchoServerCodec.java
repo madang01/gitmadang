@@ -29,13 +29,16 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class EchoServerCodec implements MessageCodecIF {
 
+	private AbstractMessageDecoder messageDecoder = new EchoDecoder();
+	private AbstractMessageEncoder messageEncoder = new EchoEncoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new EchoDecoder();
+		return messageDecoder;
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new EchoEncoder();
+		return messageEncoder;
 	}
 }

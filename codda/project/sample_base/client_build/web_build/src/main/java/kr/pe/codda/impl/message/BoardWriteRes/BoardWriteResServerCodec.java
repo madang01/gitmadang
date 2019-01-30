@@ -29,6 +29,8 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class BoardWriteResServerCodec implements MessageCodecIF {
 
+	private AbstractMessageEncoder messageEncoder = new BoardWriteResEncoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		throw new DynamicClassCallException("the server don't need a message decoder because it is a message[BoardWriteRes] that is not sent from client to server");
@@ -36,6 +38,6 @@ public final class BoardWriteResServerCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new BoardWriteResEncoder();
+		return messageEncoder;
 	}
 }

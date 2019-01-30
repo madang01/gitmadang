@@ -19,6 +19,7 @@ import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.common.type.MessageProtocolType;
 import kr.pe.codda.common.type.ProjectType;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.Empty.Empty;
 
 public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
@@ -147,7 +148,7 @@ public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
 			long startTime = System.nanoTime();
 			
 			for (int i=0; i < retryCount; i++) {
-				anyProjectConnectionPool.sendSyncInputMessage(emptyReq);
+				anyProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);
 				
 				fail("no ConnectionPoolException");
 			}

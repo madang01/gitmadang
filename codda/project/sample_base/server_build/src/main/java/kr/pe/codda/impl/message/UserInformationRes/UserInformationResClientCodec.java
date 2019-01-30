@@ -29,9 +29,11 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class UserInformationResClientCodec implements MessageCodecIF {
 
+	private AbstractMessageDecoder messageDecoder = new UserInformationResDecoder();
+
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new UserInformationResDecoder();
+		return messageDecoder;
 	}
 
 	@Override

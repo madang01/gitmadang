@@ -57,8 +57,8 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 	private ClassLoader taskClassLoader = this.getClass().getClassLoader();
 	// private MessageCodecIF serverInputMessageCodec = null;
 	private AbstractMessageDecoder inputMessageDecoder = null;
-	private HashMap<String, AbstractMessageEncoder> messageID2MessageEncoderHash = 
-			new HashMap<String, AbstractMessageEncoder>();
+	private HashMap<String, MessageCodecIF> messageID2ServerMessageCodecHash = 
+			new HashMap<String, MessageCodecIF>();
 	
 	public AbstractServerTask() throws DynamicClassCallException {
 		String classFullName = this.getClass().getName();
@@ -78,7 +78,7 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 				}
 			}
 			
-			startIndex = startIndex + middleIndex++;
+			startIndex = startIndex + middleIndex;
 			
 			messageID = classFullName.substring(startIndex, endIndex);
 		}
@@ -102,39 +102,36 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 			throw new DynamicClassCallException(errorMessage);
 		}
 		
-		MessageCodecIF serverInputMessageCodec = (MessageCodecIF)retObject;
+		MessageCodecIF serverMessageCodec = (MessageCodecIF)retObject;
 		
-		inputMessageDecoder = serverInputMessageCodec.getMessageDecoder();		
+		inputMessageDecoder = serverMessageCodec.getMessageDecoder();		
 		
-		AbstractMessageEncoder inputMessageEncoder = serverInputMessageCodec.getMessageEncoder();		
-		
-		messageID2MessageEncoderHash.put(messageID, inputMessageEncoder);
+		messageID2ServerMessageCodecHash.put(messageID, serverMessageCodec);
 	}
 
 	public AbstractMessageEncoder getMessageEncoder(String messageID) throws DynamicClassCallException {
-		AbstractMessageEncoder inputMessageEncoder = messageID2MessageEncoderHash.get(messageID);
-		if (null == inputMessageEncoder) {
-			String classFullName = IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
-			Object retObject = CommonStaticUtil.getNewObjectFromClassloader(taskClassLoader, classFullName);
+		MessageCodecIF serverMessageCodec = messageID2ServerMessageCodecHash.get(messageID);
+		if (null == serverMessageCodec) {
+			String serverMessageCodecClassFullName = IOPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
+			Object retObject = CommonStaticUtil.getNewObjectFromClassloader(taskClassLoader, serverMessageCodecClassFullName);
 			
 			if (! (retObject instanceof MessageCodecIF)) {
 				String errorMessage = new StringBuilder()
-				.append("server task's classLoader hashCode=[")
+				.append("this instance of ")
+				.append(serverMessageCodecClassFullName)
+				.append(" class that was created by the classloader[")
 				.append(taskClassLoader.hashCode())
-				.append("]::this instance of ").append(classFullName)
-				.append("] class is not a instance of MessageCodecIF class").toString();
+				.append("] is not a instance of MessageCodecIF class").toString();
 
 				throw new DynamicClassCallException(errorMessage);
 			}
 			
-			MessageCodecIF serverInputMessageCodec = (MessageCodecIF)retObject;
+			serverMessageCodec = (MessageCodecIF)retObject;		
 			
-			inputMessageEncoder = serverInputMessageCodec.getMessageEncoder();		
-			
-			messageID2MessageEncoderHash.put(messageID, inputMessageEncoder);
+			messageID2ServerMessageCodecHash.put(messageID, serverMessageCodec);
 		}
 		
-		return inputMessageEncoder;
+		return serverMessageCodec.getMessageEncoder();
 	}	
 	
 	public void execute(String projectName,

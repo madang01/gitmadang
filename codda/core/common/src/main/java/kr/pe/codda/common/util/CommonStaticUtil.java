@@ -1,8 +1,5 @@
 package kr.pe.codda.common.util;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +9,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.type.LineSeparatorType;
@@ -566,54 +565,80 @@ public abstract class CommonStaticUtil {
 			retObject = retClass.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException e) {
 			String errorMessage = new StringBuilder()
-					.append("fail to create a instance(ServerClassLoader=")
+					.append("the classloader[")
 					.append(targetClassLoader.hashCode())
-					.append(") of ").append(classFullName)
-					.append("class, InstantiationException errmsg=")
+					.append("] failed to create a instance of ")
+					.append(classFullName)
+					.append(" class, InstantiationException errmsg=")
 					.append(e.getMessage()).toString();
 
 			throw new DynamicClassCallException(errorMessage);
 		} catch (IllegalAccessException e) {
 			String errorMessage = new StringBuilder()
-					.append("fail to create a instance(ServerClassLoader=")
+					.append("the classloader[")
 					.append(targetClassLoader.hashCode())
-					.append(") of ").append(classFullName)
-					.append("class, IllegalAccessException errmsg=")
+					.append("] failed to create a instance of ")
+					.append(classFullName)
+					.append(" class, IllegalAccessException errmsg=")
 					.append(e.getMessage()).toString();
+			
 			throw new DynamicClassCallException(errorMessage);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder()
-					.append("fail to create a instance(ServerClassLoader=")
+					.append("the classloader[")
 					.append(targetClassLoader.hashCode())
-					.append(") of ").append(classFullName)
-					.append("class, IllegalArgumentException errmsg=")
+					.append("] failed to create a instance of ")
+					.append(classFullName)
+					.append(" class, IllegalArgumentException errmsg=")
 					.append(e.getMessage()).toString();
+			
+			
 			throw new DynamicClassCallException(errorMessage);
 		} catch (InvocationTargetException e) {
+			Throwable targetException = e.getTargetException();
 			String errorMessage = new StringBuilder()
-					.append("fail to create a instance(ServerClassLoader=")
+					.append("the classloader[")
 					.append(targetClassLoader.hashCode())
-					.append(") of ").append(classFullName)
-					.append("class, InvocationTargetException errmsg=")
-					.append(e.getMessage()).toString();
+					.append("] failed to create a instance of ")
+					.append(classFullName)
+					.append(" class, InvocationTargetException errmsg=")
+					.append(targetException.getMessage()).toString();
+			
+			InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
+			log.warn(errorMessage, targetException);
 
 			throw new DynamicClassCallException(errorMessage);
 		} catch (NoSuchMethodException e) {
 			String errorMessage = new StringBuilder()
-					.append("fail to create a instance(ServerClassLoader=")
+					.append("the classloader[")
 					.append(targetClassLoader.hashCode())
-					.append(") of ").append(classFullName)
-					.append("class, NoSuchMethodException errmsg=")
+					.append("] failed to create a instance of ")
+					.append(classFullName)
+					.append(" class, NoSuchMethodException errmsg=")
 					.append(e.getMessage()).toString();
-
+			
 			throw new DynamicClassCallException(errorMessage);
 		} catch (SecurityException e) {
 			String errorMessage = new StringBuilder()
-					.append("fail to create a instance(ServerClassLoader=")
+					.append("the classloader[")
 					.append(targetClassLoader.hashCode())
-					.append(") of ").append(classFullName)
-					.append("class, SecurityException errmsg=")
+					.append("] failed to create a instance of ")
+					.append(classFullName)
+					.append(" class, SecurityException errmsg=")
 					.append(e.getMessage()).toString();
+
+			throw new DynamicClassCallException(errorMessage);
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder()
+					.append("the classloader[")
+					.append(targetClassLoader.hashCode())
+					.append("] failed to create a instance of ")
+					.append(classFullName)
+					.append(" class, unknwon error errmsg=")
+					.append(e.getMessage()).toString();
+			
+			InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
+			log.warn(errorMessage, e);
 
 			throw new DynamicClassCallException(errorMessage);
 		}

@@ -22,6 +22,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.common.type.MessageProtocolType;
 import kr.pe.codda.common.type.ProjectType;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.Empty.Empty;
 import kr.pe.codda.server.AnyProjectServer;
 
@@ -193,7 +194,7 @@ public class SyncThreadSafeSingleConnectionTest extends AbstractJunitTest {
 					long startTime = System.nanoTime();
 					
 					for (int i=0; i < retryCount; i++) {
-						AbstractMessage emptyRes =  connection.sendSyncInputMessage(emptyReq);				
+						AbstractMessage emptyRes =  connection.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);				
 						if (!(emptyRes instanceof Empty)) {
 							fail("empty 메시지 수신 실패");
 						}
