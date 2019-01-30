@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
@@ -77,7 +78,12 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
 		boardWriteReq.setNewAttachedFileList(attachedFileList);
 		
-		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		BoardWriteRes boardWriteRes = null;
 		try {
@@ -97,7 +103,13 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 		boardDetailReq.setRequestedUserID(userID);
 		
 		
-		BoardDetailReqServerTask boardDetailReqServerTask = new BoardDetailReqServerTask();
+		BoardDetailReqServerTask boardDetailReqServerTask = null;
+		try {
+			boardDetailReqServerTask = new BoardDetailReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+
 		try {
 			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(TEST_DBCP_NAME, boardDetailReq);
 			

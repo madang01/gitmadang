@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
@@ -19,7 +20,12 @@ public class ArraySiteMenuReqServerTaskTest extends AbstractJunitTest {
 	public void testDoService_메뉴레코드유효성검증() {
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		
 		try {

@@ -1,5 +1,6 @@
 package kr.pe.codda.impl.task.server;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.JavaGarbageCollectionReq.JavaGarbageCollectionReq;
 import kr.pe.codda.impl.message.JavaGarbageCollectionRes.JavaGarbageCollectionRes;
@@ -8,6 +9,10 @@ import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class JavaGarbageCollectionReqServerTask extends AbstractServerTask {	
+	public JavaGarbageCollectionReqServerTask() throws DynamicClassCallException {
+		super();
+	}
+
 	@Override
 	public void doTask(String projectName, 
 			PersonalLoginManagerIF personalLoginManager, 

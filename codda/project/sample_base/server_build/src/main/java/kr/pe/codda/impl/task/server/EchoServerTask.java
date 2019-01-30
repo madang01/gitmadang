@@ -16,6 +16,7 @@
  */
 package kr.pe.codda.impl.task.server;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.Echo.Echo;
 import kr.pe.codda.server.PersonalLoginManagerIF;
@@ -28,6 +29,10 @@ import kr.pe.codda.server.task.ToLetterCarrier;
  *
  */
 public final class EchoServerTask extends AbstractServerTask {	
+	public EchoServerTask() throws DynamicClassCallException {
+		super();
+	}
+
 	@Override
 	public void doTask(String projectName, 
 			PersonalLoginManagerIF personalLoginManager, 

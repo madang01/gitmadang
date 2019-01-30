@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import javax.sql.DataSource;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -32,6 +33,10 @@ import org.jooq.types.UInteger;
 public class TreeSiteMenuReqServerTask extends AbstractServerTask {	
 	// final UInteger rootParnetNo = UInteger.valueOf(0);
 	
+	public TreeSiteMenuReqServerTask() throws DynamicClassCallException {
+		super();
+	}
+
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {

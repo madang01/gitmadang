@@ -13,6 +13,7 @@ import org.jooq.Record2;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MemberWithdrawReq.MemberWithdrawReq;
@@ -29,6 +30,11 @@ import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class MemberWithdrawReqServerTask extends AbstractServerTask {
+
+	public MemberWithdrawReqServerTask() throws DynamicClassCallException {
+		super();
+	}
+
 	private void sendErrorOutputMessage(String errorMessage, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
 		log.warn("{}, inObj=", errorMessage, inputMessage.toString());

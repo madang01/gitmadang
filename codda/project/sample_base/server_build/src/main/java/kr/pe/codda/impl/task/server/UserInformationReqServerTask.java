@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -28,6 +29,10 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 
 public class UserInformationReqServerTask extends AbstractServerTask {
+
+	public UserInformationReqServerTask() throws DynamicClassCallException {
+		super();
+	}
 
 	private void sendErrorOutputMessage(String errorMessage, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {

@@ -4,10 +4,18 @@ import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
+import java.util.Base64;
 
 import javax.sql.DataSource;
 
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -19,8 +27,8 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
-import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -28,14 +36,13 @@ import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-import org.apache.commons.codec.binary.Base64;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
+public class AdminLoginReqServerTask extends AbstractServerTask {
+	private final Base64.Decoder base64Decoder =  Base64.getDecoder();
+	
+	public AdminLoginReqServerTask() throws DynamicClassCallException {
+		super();
+	}
 
-public class AdminLoginReqServerTask extends AbstractServerTask {	
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
@@ -128,7 +135,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 		byte[] ivBytes = null;
 		
 		try {
-			idCipherBytes = Base64.decodeBase64(idCipherBase64);
+			idCipherBytes = base64Decoder.decode(idCipherBase64);
 		} catch(Exception e) {
 			/*sendErrorOutputMessage("아이디 암호문은 base64 인코딩되지 않았습니다", toLetterCarrier, adminLoginReq);
 			return;*/
@@ -137,7 +144,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			pwdCipherBytes = Base64.decodeBase64(pwdCipherBase64);
+			pwdCipherBytes = base64Decoder.decode(pwdCipherBase64);
 		} catch(Exception e) {
 			/*sendErrorOutputMessage("비밀번호 암호문은 base64 인코딩되지 않았습니다", toLetterCarrier, adminLoginReq);
 			return;*/
@@ -145,7 +152,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		try {
-			sessionKeyBytes = Base64.decodeBase64(sessionKeyBase64);
+			sessionKeyBytes = base64Decoder.decode(sessionKeyBase64);
 		} catch(Exception e) {
 			/*sendErrorOutputMessage("세션키는 base64 인코딩되지 않았습니다", toLetterCarrier, adminLoginReq);
 			return;*/
@@ -154,7 +161,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ivBytes = Base64.decodeBase64(ivBase64);
+			ivBytes = base64Decoder.decode(ivBase64);
 		} catch(Exception e) {
 			/*sendErrorOutputMessage("세션키 소금값은 base64 인코딩되지 않았습니다", toLetterCarrier, adminLoginReq);
 			return;*/
@@ -404,7 +411,7 @@ public class AdminLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			byte[] pwdSaltBytes = Base64.decodeBase64(pwdSaltBase64);
+			byte[] pwdSaltBytes = base64Decoder.decode(pwdSaltBase64);
 						
 			PasswordPairOfMemberTable passwordPairOfMemberTable = ServerDBUtil.toPasswordPairOfMemberTable(passwordBytes, pwdSaltBytes);
 			

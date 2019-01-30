@@ -11,6 +11,7 @@ import java.util.HashSet;
 import javax.sql.DataSource;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardUnBlockReq.BoardUnBlockReq;
@@ -40,6 +41,10 @@ import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
 public class BoardUnBlockReqServerTask extends AbstractServerTask {
+	public BoardUnBlockReqServerTask() throws DynamicClassCallException {
+		super();
+	}
+
 	private void sendErrorOutputMessage(String errorMessage, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
 		log.warn("{}, inObj=", errorMessage, inputMessage.toString());

@@ -1,11 +1,11 @@
 package kr.pe.codda.server.lib;
 
-import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
+import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -13,17 +13,12 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Random;
 
 import javax.sql.DataSource;
 
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
-import kr.pe.codda.common.exception.ServerServiceException;
-import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
-import kr.pe.codda.server.dbcp.DBCPManager;
-
-import org.apache.commons.codec.binary.Base64;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.Record2;
@@ -38,6 +33,12 @@ import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
+import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
+import kr.pe.codda.server.dbcp.DBCPManager;
 
 public abstract class ServerDBUtil {
 	
@@ -318,9 +319,11 @@ public abstract class ServerDBUtil {
 		byte passwordMDBytes[] = md.digest();
 
 		/** 복호환 비밀번호 초기화 */
-		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);		
+		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);	
 		
-		return new PasswordPairOfMemberTable(Base64.encodeBase64String(passwordMDBytes), Base64.encodeBase64String(pwdSaltBytes));
+		Encoder base64Encoder = Base64.getEncoder();		
+		
+		return new PasswordPairOfMemberTable(base64Encoder.encodeToString(passwordMDBytes), base64Encoder.encodeToString(pwdSaltBytes));
 	}
 
 	private static void insertAllSeqIDIfNotExist(DSLContext create) throws Exception {

@@ -11,9 +11,9 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
 public class ClientMessageCodecManger implements MessageCodecMangerIF {
-	private HashMap<String, MessageCodecIF> messageID2ClientMessageCodecHash = 
+	private final HashMap<String, MessageCodecIF> messageID2ClientMessageCodecHash = 
 			new HashMap<String, MessageCodecIF>();
-	private ClassLoader classloader = this.getClass().getClassLoader();
+	private final ClassLoader classloader = this.getClass().getClassLoader();
 	
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class MessageCodecMangerHolder {

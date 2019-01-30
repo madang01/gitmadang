@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
@@ -23,21 +24,31 @@ public class BoardTree {
 	private final Stack<BoardTreeNode> boardTreeNodeStack =
 			new Stack<BoardTreeNode>();
 	
-	private  final BoardWriteReqServerTask boardWriteReqServerTask = new BoardWriteReqServerTask();
-	private  final BoardReplyReqServerTask boardReplyReqServerTask = new BoardReplyReqServerTask();
-	
+	private  BoardWriteReqServerTask boardWriteReqServerTask = null;
+	private  BoardReplyReqServerTask boardReplyReqServerTask = null;	
 	
 	private final List<BoardTreeNode> rootBoardTreeNodeList = new ArrayList<BoardTreeNode>();
-	
-	
 	
 	private final HashMap<String, BoardTreeNode> subjectToBoardTreeNodeHash =
 			new HashMap<String, BoardTreeNode>();
 	
+	public BoardTree() {
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e) {
+			log.error("dead code");
+			System.exit(1);
+		}
+		try {
+			boardReplyReqServerTask = new BoardReplyReqServerTask();
+		} catch (DynamicClassCallException e) {
+			log.error("dead code");
+			System.exit(1);
+		}
+	}
 	
-	private void makeRootBoardTreeRecordUsingRootBoardTreeNode(String workingDBName, BoardTreeNode rootBoardTreeNode) {
-		
-		
+	
+	private void makeRootBoardTreeRecordUsingRootBoardTreeNode(String workingDBName, BoardTreeNode rootBoardTreeNode) {		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(rootBoardTreeNode.getWriterID());
 		boardWriteReq.setBoardID(rootBoardTreeNode.getBoardID());

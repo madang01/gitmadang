@@ -13,6 +13,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
@@ -39,6 +40,10 @@ import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
 public class BoardWriteReqServerTask extends AbstractServerTask {
+
+	public BoardWriteReqServerTask() throws DynamicClassCallException {
+		super();
+	}
 
 	private void sendErrorOutputMessage(String errorMessage, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {

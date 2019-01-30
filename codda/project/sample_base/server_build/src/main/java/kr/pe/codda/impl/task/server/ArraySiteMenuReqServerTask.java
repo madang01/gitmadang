@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.sql.DataSource;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
@@ -31,6 +32,11 @@ import org.jooq.types.UInteger;
 public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 	// final UInteger rootParnetNo = UInteger.valueOf(0);
 	
+	public ArraySiteMenuReqServerTask() throws DynamicClassCallException {
+		super();
+	}
+
+
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {

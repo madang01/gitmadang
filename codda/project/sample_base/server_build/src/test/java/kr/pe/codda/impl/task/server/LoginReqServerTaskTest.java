@@ -3,16 +3,17 @@ package kr.pe.codda.impl.task.server;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.Base64;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.common.classloader.ServerSimpleClassLoaderIF;
+import kr.pe.codda.common.classloader.MessageEncoderManagerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
@@ -81,12 +82,12 @@ public class LoginReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoTask_ok() {
-		class ToLetterCarrierMock extends ToLetterCarrier {			
+		class ToLetterCarrierMock extends ToLetterCarrier {
 
 			public ToLetterCarrierMock(AcceptedConnection fromAcceptedConnection, AbstractMessage inputMessage,
 					ProjectLoginManagerIF projectLoginManager, MessageProtocolIF messageProtocol,
-					ServerSimpleClassLoaderIF serverSimpleClassLoader) {
-				super(fromAcceptedConnection, inputMessage, projectLoginManager, messageProtocol, serverSimpleClassLoader);
+					MessageEncoderManagerIF messageCodecManager) {
+				super(fromAcceptedConnection, inputMessage, projectLoginManager, messageProtocol, messageCodecManager);
 			}
 
 			public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {
@@ -139,13 +140,20 @@ public class LoginReqServerTaskTest extends AbstractJunitTest {
 		
 		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);
 		
+		Base64.Encoder base64Encoder =  Base64.getEncoder();		
+		
 		UserLoginReq inObj = new UserLoginReq();
-		inObj.setIdCipherBase64(Base64.encodeBase64String(idCipherTextBytes));
-		inObj.setPwdCipherBase64(Base64.encodeBase64String(passwordCipherTextBytes));
-		inObj.setSessionKeyBase64(Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes()));
-		inObj.setIvBase64(Base64.encodeBase64String(clientSessionKey.getDupIVBytes()));
+		inObj.setIdCipherBase64(base64Encoder.encodeToString(idCipherTextBytes));
+		inObj.setPwdCipherBase64(base64Encoder.encodeToString(passwordCipherTextBytes));
+		inObj.setSessionKeyBase64(base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes()));
+		inObj.setIvBase64(base64Encoder.encodeToString(clientSessionKey.getDupIVBytes()));
 	
-		UserLoginReqServerTask loginReqServerTask = new UserLoginReqServerTask();
+		UserLoginReqServerTask loginReqServerTask = null;
+		try {
+			loginReqServerTask = new UserLoginReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			loginReqServerTask.doTask(mainProjectName, 

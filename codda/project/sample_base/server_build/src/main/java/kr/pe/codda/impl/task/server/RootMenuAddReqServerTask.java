@@ -8,6 +8,7 @@ import java.sql.Connection;
 import javax.sql.DataSource;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -31,7 +32,10 @@ import org.jooq.types.UInteger;
 
 public class RootMenuAddReqServerTask extends AbstractServerTask {
 	
-	
+	public RootMenuAddReqServerTask() throws DynamicClassCallException {
+		super();
+	}
+
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {

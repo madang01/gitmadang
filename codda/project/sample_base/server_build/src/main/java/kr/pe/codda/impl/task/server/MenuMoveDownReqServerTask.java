@@ -8,6 +8,7 @@ import java.util.HashSet;
 
 import javax.sql.DataSource;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MenuMoveDownReq.MenuMoveDownReq;
@@ -35,6 +36,10 @@ import org.jooq.types.UInteger;
 
 public class MenuMoveDownReqServerTask extends AbstractServerTask {	
 	
+	public MenuMoveDownReqServerTask() throws DynamicClassCallException {
+		super();
+	}
+
 	private void sendErrorOutputMessage(String errorMessage,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {	

@@ -1,6 +1,9 @@
 package kr.pe.codda.impl.task.server;
 
+import java.util.Base64;
+
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -17,9 +20,12 @@ import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-import org.apache.commons.codec.binary.Base64;
-
 public class MemberRegisterReqServerTask extends AbstractServerTask {
+	private final Base64.Decoder base64Decoder =  Base64.getDecoder();
+
+	public MemberRegisterReqServerTask() throws DynamicClassCallException {
+		super();
+	}
 
 	private void sendErrorOutputMessage(String errorMessage, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
@@ -131,49 +137,49 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		byte[] ivBytes = null;
 
 		try {
-			idCipherBytes = Base64.decodeBase64(idCipherBase64);
+			idCipherBytes = base64Decoder.decode(idCipherBase64);
 		} catch (Exception e) {
 			String errorMessage = "아이디 암호문은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
-			pwdCipherBytes = Base64.decodeBase64(pwdCipherBase64);
+			pwdCipherBytes = base64Decoder.decode(pwdCipherBase64);
 		} catch (Exception e) {
 			String errorMessage = "비밀번호 암호문은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
-			nicknameCipherBytes = Base64.decodeBase64(nicknameCipherBase64);
+			nicknameCipherBytes = base64Decoder.decode(nicknameCipherBase64);
 		} catch (Exception e) {
 			String errorMessage = "별명은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
-			hintCipherBytes = Base64.decodeBase64(hintCipherBase64);
+			hintCipherBytes = base64Decoder.decode(hintCipherBase64);
 		} catch (Exception e) {
 			String errorMessage = "비밀번호 분실 힌트는 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
-			answerCipherBytes = Base64.decodeBase64(answerCipherBase64);
+			answerCipherBytes = base64Decoder.decode(answerCipherBase64);
 		} catch (Exception e) {
 			String errorMessage = "비밀번호 분실 답변은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
-			sessionKeyBytes = Base64.decodeBase64(sessionKeyBase64);
+			sessionKeyBytes = base64Decoder.decode(sessionKeyBase64);
 		} catch (Exception e) {
 			String errorMessage = "세션키는 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
-			ivBytes = Base64.decodeBase64(ivBase64);
+			ivBytes = base64Decoder.decode(ivBase64);
 		} catch (Exception e) {
 			String errorMessage = "세션키 소금값은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);

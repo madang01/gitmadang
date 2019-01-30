@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.sql.DataSource;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.jooq.tables.SbBoardTb;
@@ -42,6 +43,10 @@ import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
 public class BoardListReqServerTask extends AbstractServerTask {
+
+	public BoardListReqServerTask() throws DynamicClassCallException {
+		super();
+	}
 
 	private void sendErrorOutputMessage(String errorMessage, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {
