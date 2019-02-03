@@ -8,14 +8,14 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
 public class ClientStaticTaskManger implements ClientTaskMangerIF {
-	private final Object monitor = new Object();
+	//private final Object monitor = new Object();
 	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 	
 	private final HashMap<String, AbstractClientTask> messageID2ClientTaskHash = new HashMap<String, AbstractClientTask>();	
 
 	@Override
 	public AbstractClientTask getClientTask(String messageID) throws DynamicClassCallException {
-		synchronized (monitor) {
+		//synchronized (monitor) {
 			AbstractClientTask clientTask = messageID2ClientTaskHash.get(messageID);
 			
 			if (null == clientTask) {
@@ -35,6 +35,6 @@ public class ClientStaticTaskManger implements ClientTaskMangerIF {
 			}		
 			
 			return clientTask;
-		}
+		//}
 	}
 }

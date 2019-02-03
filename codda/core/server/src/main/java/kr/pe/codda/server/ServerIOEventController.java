@@ -1,5 +1,8 @@
 package kr.pe.codda.server;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
@@ -12,8 +15,6 @@ import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Set;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
@@ -189,7 +190,8 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 										acceptedKey.hashCode(), acceptableSocketChannel.hashCode());
 							}
 
-							if (selectedKey.isReadable() && isEnoughDataPacketBuffer(100)) {							
+							//  && isEnoughDataPacketBuffer(100)
+							if (selectedKey.isReadable()) {							
 								ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
 										.get(selectedKey);
 
@@ -217,14 +219,15 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 								accpetedConneciton.onWrite(selectedKey);
 							}
 						} catch(CancelledKeyException e) {
-							log.warn("CancelledKeyException occured, selectedKey="+selectedKey.hashCode(), e);
+							log.warn("CancelledKeyException occured, socket="+selectedKey.channel().hashCode(), e);
 							
 							ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
 									.get(selectedKey);
 
-							if (null != accpetedConneciton) {
+							if (null != accpetedConneciton) {								
 								log.warn("the cancelled key[{}] doesn't be deleted in selectedKey2AcceptedConnectionHash", selectedKey.hashCode());
 							}
+							
 							continue;
 						}
 					}	
@@ -351,11 +354,11 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		return selectedKey2AcceptedConnectionHash.get(selectedKey);
 	}
 
-	private boolean isEnoughDataPacketBuffer(int limitQueueSize) {
+	/*private boolean isEnoughDataPacketBuffer(int limitQueueSize) {
 		int queueSize = dataPacketBufferPool.size();
 		boolean isResult = (queueSize >= limitQueueSize);
 		return isResult;
-	}
+	}*/
 
 	// isEnoughFreeMemory(10*1024*1024L)
 	/*

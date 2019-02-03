@@ -188,6 +188,8 @@ public class SimpleClassLoader extends ClassLoader {
 	}
 	
 	
+	
+	@SuppressWarnings("resource")
 	public InputStream getResourceAsStream(String name) {
 		InputStream is = null;
 

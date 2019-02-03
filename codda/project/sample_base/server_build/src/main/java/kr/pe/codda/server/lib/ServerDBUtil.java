@@ -422,14 +422,6 @@ public abstract class ServerDBUtil {
 	public static UByte getToOrderSeqOfRelativeRootMenu(DSLContext create, 
 			UByte orderSeq, UInteger directParentNo) throws ServerServiceException {
 		while(true) {
-			if (0 == directParentNo.longValue()) {
-				Record1<UByte> maxOrderSqRecord = create.select(SB_SITEMENU_TB.ORDER_SQ.max())
-				.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx1"))			
-				.fetchOne();
-				
-				return maxOrderSqRecord.value1();
-			}
-			
 			Record1<UByte> toOrderSeqRecord = create.select(SB_SITEMENU_TB.ORDER_SQ.min().sub(1).as("toOrderSeq"))
 			.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx2"))
 			.where(SB_SITEMENU_TB.PARENT_NO.eq(directParentNo))
@@ -437,6 +429,14 @@ public abstract class ServerDBUtil {
 			.fetchOne();
 			
 			if (null == toOrderSeqRecord.getValue("toOrderSeq")) {
+				if (0 == directParentNo.longValue()) {
+					Record1<UByte> maxOrderSqRecord = create.select(SB_SITEMENU_TB.ORDER_SQ.max())
+					.from(SB_SITEMENU_TB.forceIndex("sb_sitemenu_idx1"))			
+					.fetchOne();
+					
+					return maxOrderSqRecord.value1();
+				}
+				
 				Record1<UInteger> parentMenuRecord = create.select(SB_SITEMENU_TB.PARENT_NO)
 				.from(SB_SITEMENU_TB)
 				.where(SB_SITEMENU_TB.MENU_NO.eq(directParentNo))

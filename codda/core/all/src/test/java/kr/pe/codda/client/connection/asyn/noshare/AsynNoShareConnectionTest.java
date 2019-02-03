@@ -1,4 +1,4 @@
-package kr.pe.codda.client.connection.asyn.share;
+package kr.pe.codda.client.connection.asyn.noshare;
 
 import static org.junit.Assert.fail;
 
@@ -8,8 +8,6 @@ import java.nio.charset.Charset;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
-
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.client.AnyProjectConnectionPool;
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
@@ -18,6 +16,7 @@ import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporte
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
+import kr.pe.codda.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.common.type.MessageProtocolType;
@@ -26,7 +25,9 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.Empty.Empty;
 import kr.pe.codda.server.AnyProjectServer;
 
-public class AsynShareConnectionTest extends AbstractJunitTest {
+import org.junit.Test;
+
+public class AsynNoShareConnectionTest extends AbstractJunitTest {
 	
 	private ProjectPartConfiguration buildMainProjectPartConfiguration(String projectName,
 			String host, int port,
@@ -65,9 +66,9 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int clientAsynExecutorPoolSize =2;
 		long serverMonitorTimeInterval = 5000L;
 		boolean serverDataPacketBufferIsDirect=true;
-		int serverDataPacketBufferMaxCntPerMessage=1000;
+		int serverDataPacketBufferMaxCntPerMessage=80;
 		int serverDataPacketBufferSize=2048;
-		int serverDataPacketBufferPoolSize=100000;
+		int serverDataPacketBufferPoolSize=10000;
 		// int serverMaxClients = 10;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
@@ -114,7 +115,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int clientConnectionCount = 2;
 		int clientConnectionMaxCount = clientConnectionCount;
 		int serverMaxClients = clientConnectionCount;		
-		int retryCount = 1000;
+		int retryCount = 10000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -203,14 +204,14 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int port = 9094;
 		boolean clientDataPacketBufferIsDirect = true;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-		int clientConnectionCount = 2;
+		int clientConnectionCount = 3;
 		int clientConnectionMaxCount = clientConnectionCount;
 		int serverMaxClients = clientConnectionCount;
 		
 		int numberOfThread = 3;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread);
 		
-		int retryCount = 100000;
+		int retryCount = 10000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -263,7 +264,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 			fail("fail to create a asyn no-share connection pool");
 		}
 		
-		class ThreadSafeTester implements Runnable {
+		/*class ThreadSafeTester implements Runnable {
 			private AnyProjectConnectionPoolIF  anyProjectConnectionPool = null;
 			private int retryCount;
 			private ArrayBlockingQueue<String> noticeBlockingQueue = null;
@@ -317,7 +318,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 				
 				noticeBlockingQueue.offer(Thread.currentThread().getName());
 			}
-		}		
+		}		*/
 		
 		Thread[] threadSafeTester = new Thread[numberOfThread];
 		
@@ -346,7 +347,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		int clientConnectionMaxCount = clientConnectionCount;
 		int serverMaxClients = clientConnectionCount;
 		
-		int retryCount = 10000;
+		int retryCount = 1000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
@@ -387,8 +388,7 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		} catch (Exception e) {
 			log.warn("fail to start a server", e);
 			fail("fail to start a server");
-		}
-		
+		}		
 		
 		Empty emptyReq = new Empty();
 		
@@ -401,19 +401,23 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 			fail("fail to create a asyn no-share connection pool");
 		}
 		int i=0;
-		try {
-			long startTime = System.nanoTime();
-			
+		try {			
 			for (; i < retryCount; i++) {
+				long startTime = System.nanoTime();
+				
 				try {
 					anyProjectConnectionPool.sendAsynInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);
 				} catch(SocketTimeoutException e) {
 					log.info("socket timeout, emptyReq={}", emptyReq.messageHeaderInfo.toString());
 				}
+				
+				long endTime = System.nanoTime();
+				
+				log.info("elasped {} microseconds", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+				// log.info("{} 회 평균시간[{}] microseconds", retryCount, TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
 			}
 			
-			long endTime = System.nanoTime();
-			log.info("{} 회 평균시간[{}] microseconds", retryCount, TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
+			
 			
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -431,21 +435,75 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 		}
 	}
 	
+	public static class ThreadSafeTester implements Runnable {
+		private AnyProjectConnectionPoolIF  anyProjectConnectionPool = null;
+		private int retryCount;
+		private ArrayBlockingQueue<String> noticeBlockingQueue = null;
+		
+		public ThreadSafeTester(AnyProjectConnectionPoolIF  anyProjectConnectionPool, int retryCount, ArrayBlockingQueue<String> noticeBlockingQueue) {
+			this.anyProjectConnectionPool = anyProjectConnectionPool;
+			this.retryCount = retryCount;
+			this.noticeBlockingQueue = noticeBlockingQueue;
+		}			
+
+		@Override
+		public void run() {
+			log.info("start");				
+			try {
+				long startTime = System.nanoTime();
+				
+				for (int i=0; i < retryCount; i++) {
+					// log.info("{}::{} 횟수", Thread.currentThread().getName(), i);
+					Empty emptyReq = new Empty();
+					try {
+						anyProjectConnectionPool.sendAsynInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);
+					} catch(ConnectionPoolTimeoutException e) {
+						log.info("socket timeout, errmsg={}", 
+								e.getMessage());
+						continue;
+						
+					} catch(Exception e) {
+						log.info("unknwon error", e);
+						continue;			
+					}
+					
+					//Thread.sleep(0, 5);
+				}
+				
+				long endTime = System.nanoTime();
+				log.info("{} {} 회 평균시간[{}] microseconds",
+						Thread.currentThread().getName(),
+						retryCount,
+						TimeUnit.MICROSECONDS.convert((endTime - startTime)/retryCount, TimeUnit.NANOSECONDS));
+				
+			} catch (Exception e) {
+				log.warn("error", e);
+
+				/*String errorMessage = String.format(
+						"fail to get a output message::%s",
+						e.getMessage());*/
+
+				// fail(errorMessage);
+			}
+			
+			noticeBlockingQueue.offer(Thread.currentThread().getName());
+		}
+	}		
+	
 	@Test
 	public void testSendAsynInputMessage_threadSafeOk() {
 		String host = "localhost";
 		int port = 9093;
 		boolean clientDataPacketBufferIsDirect = true;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
-		int clientConnectionCount = 2;
+		int clientConnectionCount = 3;
 		int clientConnectionMaxCount = clientConnectionCount;
-		int serverMaxClients = clientConnectionCount;
-		
+		int serverMaxClients = clientConnectionCount;		
 		
 		int numberOfThread = 3;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread);
 		
-		int retryCount = 10000;
+		int retryCount = 1000;
 		
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;		
@@ -489,58 +547,12 @@ public class AsynShareConnectionTest extends AbstractJunitTest {
 				
 		AnyProjectConnectionPoolIF  anyProjectConnectionPool  = null;
 		
-		try {
-			anyProjectConnectionPool = new AnyProjectConnectionPool(projectPartConfigurationForTest);
+		try {			
+			anyProjectConnectionPool = new AnyProjectConnectionPool(projectPartConfigurationForTest);			
 		} catch (Exception e) {
 			log.warn("fail to create a asyn no-share connection pool", e);
 			fail("fail to create a asyn no-share connection pool");
 		}
-		
-		class ThreadSafeTester implements Runnable {
-			private AnyProjectConnectionPoolIF  anyProjectConnectionPool = null;
-			private int retryCount;
-			private ArrayBlockingQueue<String> noticeBlockingQueue = null;
-			
-			public ThreadSafeTester(AnyProjectConnectionPoolIF  anyProjectConnectionPool, int retryCount, ArrayBlockingQueue<String> noticeBlockingQueue) {
-				this.anyProjectConnectionPool = anyProjectConnectionPool;
-				this.retryCount = retryCount;
-				this.noticeBlockingQueue = noticeBlockingQueue;
-			}			
-
-			@Override
-			public void run() {
-				log.info("start");				
-				try {
-					long startTime = System.nanoTime();
-					
-					for (int i=0; i < retryCount; i++) {
-						// log.info("{}::{} 횟수", Thread.currentThread().getName(), i);
-						try {
-							Empty emptyReq = new Empty();
-							anyProjectConnectionPool.sendAsynInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);
-						} catch(SocketTimeoutException e) {
-							continue;
-						}
-					}
-					
-					long endTime = System.nanoTime();
-					log.info("{} 회 평균시간[{}] microseconds",
-							retryCount,
-							TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
-					
-				} catch (Exception e) {
-					log.warn("error", e);
-
-					String errorMessage = String.format(
-							"fail to get a output message::%s",
-							e.getMessage());
-
-					fail(errorMessage);
-				}
-				
-				noticeBlockingQueue.offer(Thread.currentThread().getName());
-			}
-		}		
 		
 		Thread[] threadSafeTester = new Thread[numberOfThread];
 		

@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
@@ -356,7 +357,12 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
 		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
 		
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		ArraySiteMenuRes arraySiteMenuRes = null;
 		
@@ -630,7 +636,12 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
 		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
 		
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		ArraySiteMenuRes arraySiteMenuRes = null;
 		

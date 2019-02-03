@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.impl.message.TreeSiteMenuReq.TreeSiteMenuReq;
 import kr.pe.codda.impl.message.TreeSiteMenuRes.TreeSiteMenuRes;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
@@ -16,7 +17,12 @@ public class TreeSiteMenuReqServerTaskTest extends AbstractJunitTest {
 	public void testDoService_ok() {
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
 		
-		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
+		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = null;
+		try {
+			treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			TreeSiteMenuRes treeSiteMenuRes = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);

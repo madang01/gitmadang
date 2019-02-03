@@ -5,11 +5,6 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.Base64;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.classloader.MessageEncoderManagerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
@@ -27,6 +22,11 @@ import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.task.ToLetterCarrier;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class LoginReqServerTaskTest extends AbstractJunitTest {	
 	@Before 
@@ -84,10 +84,14 @@ public class LoginReqServerTaskTest extends AbstractJunitTest {
 	public void testDoTask_ok() {
 		class ToLetterCarrierMock extends ToLetterCarrier {
 
-			public ToLetterCarrierMock(AcceptedConnection fromAcceptedConnection, AbstractMessage inputMessage,
-					ProjectLoginManagerIF projectLoginManager, MessageProtocolIF messageProtocol,
+			public ToLetterCarrierMock(
+					AcceptedConnection fromAcceptedConnection,
+					AbstractMessage inputMessage,
+					ProjectLoginManagerIF projectLoginManager,
+					MessageProtocolIF messageProtocol,
 					MessageEncoderManagerIF messageCodecManager) {
-				super(fromAcceptedConnection, inputMessage, projectLoginManager, messageProtocol, messageCodecManager);
+				super(fromAcceptedConnection, inputMessage, projectLoginManager,
+						messageProtocol, messageCodecManager);
 			}
 
 			public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {

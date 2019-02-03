@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
@@ -71,7 +72,12 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
 		boardWriteReq.setNewAttachedFileList(attachedFileList);
 		
-		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			BoardWriteRes boardWriteRes = boardWriteReqServerTask.doWork(TEST_DBCP_NAME, boardWriteReq);
@@ -87,7 +93,12 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoService_자유게시판1천만레코드생성() {
-		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());

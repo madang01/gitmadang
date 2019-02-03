@@ -3,12 +3,11 @@ package kr.pe.codda.impl.task.server;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
-
-import org.apache.commons.codec.binary.Base64;
-import org.junit.Test;
+import java.util.Base64;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
@@ -18,8 +17,12 @@ import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 
+import org.junit.Test;
+
 public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {	
 	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
+	// private final Base64.Decoder base64Decoder =  Base64.getDecoder();
+	private final Base64.Encoder base64Encoder = Base64.getEncoder();
 	
 	@Test
 	public void testDoService_ok() {		
@@ -82,15 +85,20 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
-		memberRegisterReq.setIdCipherBase64(Base64.encodeBase64String(idCipherTextBytes));
-		memberRegisterReq.setPwdCipherBase64(Base64.encodeBase64String(passwordCipherTextBytes));
-		memberRegisterReq.setNicknameCipherBase64(Base64.encodeBase64String(nicknameCipherTextBytes));
-		memberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(pwdHintCipherTextBytes));
-		memberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(pwdAnswerCipherTextBytes));
-		memberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes()));
-		memberRegisterReq.setIvBase64(Base64.encodeBase64String(clientSessionKey.getDupIVBytes()));
+		memberRegisterReq.setIdCipherBase64(base64Encoder.encodeToString(idCipherTextBytes));
+		memberRegisterReq.setPwdCipherBase64(base64Encoder.encodeToString(passwordCipherTextBytes));
+		memberRegisterReq.setNicknameCipherBase64(base64Encoder.encodeToString(nicknameCipherTextBytes));
+		memberRegisterReq.setHintCipherBase64(base64Encoder.encodeToString(pwdHintCipherTextBytes));
+		memberRegisterReq.setAnswerCipherBase64(base64Encoder.encodeToString(pwdAnswerCipherTextBytes));
+		memberRegisterReq.setSessionKeyBase64(base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes()));
+		memberRegisterReq.setIvBase64(base64Encoder.encodeToString(clientSessionKey.getDupIVBytes()));
 	
-		MemberRegisterReqServerTask memberRegisterReqServerTask= new MemberRegisterReqServerTask();
+		MemberRegisterReqServerTask memberRegisterReqServerTask = null;
+		try {
+			memberRegisterReqServerTask = new MemberRegisterReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			@SuppressWarnings("unused")

@@ -1,11 +1,12 @@
-package kr.pe.codda.client.connection.asyn.share;
-
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
+package kr.pe.codda.client.connection.asyn.noshare;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.concurrent.TimeUnit;
+
 import kr.pe.codda.client.ConnectionIF;
 import kr.pe.codda.client.classloader.ClientTaskMangerIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
@@ -16,23 +17,23 @@ import kr.pe.codda.client.connection.asyn.ClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.ClientIOEventHandlerIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.ConnectionPoolException;
+import kr.pe.codda.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 
-public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnectedConnectionAdderIF {
-	private InternalLogger log = InternalLoggerFactory.getInstance(AsynShareConnectionPool.class);
+public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConnectedConnectionAdderIF {
+	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnectionPool.class);
 	private final Object monitor = new Object();
 
-	// private ProjectPartConfiguration projectPartConfiguration = null;
 	private String projectName = null;
 	private String serverHost = null;
 	private int serverPort  = 0;
 	private long socketTimeout=0;
 	private int clientConnectionCount = 0; 
-	private int clientConnectionMaxCount = 0;
+	
 	private int clientSyncMessageMailboxCountPerAsynShareConnection=0;
 	private int clientAsynInputMessageQueueCapacity=0;
 	
@@ -42,14 +43,14 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
-	private ArrayList<AsynShareConnection> connectionList = null;
-
-	private int index = -1;
-	private int numberOfUnregisteredConnection = 0;
+	
+	private ArrayDeque<AsynNoShareConnection> connectionQueue = null;
+	private transient int numberOfConnection = 0;	
+	private transient int numberOfUnregisteredConnection = 0;
 
 	private ClientIOEventControllerIF asynClientIOEventController = null;
 
-	public AsynShareConnectionPool(ProjectPartConfiguration projectPartConfiguration,
+	public AsynNoShareConnectionPool(ProjectPartConfiguration projectPartConfiguration,
 			MessageProtocolIF messageProtocol, 
 			ClientTaskMangerIF clientTaskManger,
 			DataPacketBufferPoolIF dataPacketBufferPool, SocketOutputStreamFactoryIF socketOutputStreamFactory,
@@ -83,7 +84,6 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		this.serverPort = projectPartConfiguration.getServerPort();
 		this.socketTimeout = projectPartConfiguration.getClientSocketTimeout();
 		this.clientConnectionCount = projectPartConfiguration.getClientConnectionCount();
-		this.clientConnectionMaxCount =  projectPartConfiguration.getClientConnectionMaxCount();
 		this.clientSyncMessageMailboxCountPerAsynShareConnection = projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection();
 		this.clientAsynInputMessageQueueCapacity = projectPartConfiguration.getClientAsynInputMessageQueueCapacity();
 		
@@ -93,7 +93,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
 
-		connectionList = new ArrayList<AsynShareConnection>(clientConnectionMaxCount);
+		connectionQueue = new ArrayDeque<AsynNoShareConnection>(projectPartConfiguration.getClientConnectionMaxCount());
 
 		connectionPoolSupporter.registerPool(this);
 	}
@@ -103,55 +103,70 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 	}
 
 	@Override
-	public ConnectionIF getConnection() throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
-		AsynShareConnection asynShareConnection = null;
+	public ConnectionIF getConnection() throws InterruptedException, ConnectionPoolTimeoutException, ConnectionPoolException {
+		AsynNoShareConnection asynNoShareConnection = null;
 		boolean loop = false;
 
 		long currentSocketTimeOut = socketTimeout;
-		long startTime = System.currentTimeMillis();
+		long startTime = System.nanoTime();
 
 		synchronized (monitor) {
-			do {
-				if (0 == connectionList.size()) {
+			do {				
+				if (0 == numberOfConnection) {
 					connectionPoolSupporter.notice("no more connection");
 					throw new ConnectionPoolException("check server is alive or something is bad");
 				}
-
-				index = (index + 1) % connectionList.size();
-
-				asynShareConnection = connectionList.get(index);
-
-				if (asynShareConnection.isConnected()) {
+				
+				if (connectionQueue.isEmpty()) {					
+					monitor.wait(currentSocketTimeOut);					
+					
+					if (connectionQueue.isEmpty()) {						
+						throw new ConnectionPoolTimeoutException("1.asynchronized no-share connection pool timeout");
+					}
+				}
+				
+				asynNoShareConnection = connectionQueue.pollFirst();				
+				
+				if (asynNoShareConnection.isConnected()) {
+					asynNoShareConnection.queueOut();
 					loop = false;
 				} else {
 					loop = true;
-
+					
 					/**
 					 * <pre>
 					 * 폴에서 꺼낸 연결이 닫힌 경우 폐기한다. 단  이러한 작업은 큐에 넣어진 상태에서 이루어 져야 한다.
 					 * 왜냐하면 연결은 참조 포인트가 없어 gc 될때 큐에 넣어진 상태가 아니면 로그를 남기는데
-					 * 사용자 한테 넘기기전 폐기이므로 gc 될때 로그를 남기지 말아야 하기때문이다.
-					 * </pre>
+					 * 사용자 한테 넘기기전 폐기이므로 gc 될때 로그를 남기지 말아야 하기때문이다.  
+					 * </pre>   
 					 */
-					String reasonForLoss = new StringBuilder("목록에서 꺼낸 연결[").append(asynShareConnection.hashCode())
-							.append("]이 닫혀있어 폐기").toString();
+					String reasonForLoss = new StringBuilder("폴에서 꺼낸 연결[")							
+							.append(asynNoShareConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
 
-					connectionList.remove(index);
+					numberOfConnection--;
 
-					log.warn("{}, numberOfConnection[{}]", reasonForLoss, connectionList.size());
+					log.warn("{}, numberOfConnection[{}]", reasonForLoss, numberOfConnection);
 
 					connectionPoolSupporter.notice(reasonForLoss);
-
-					currentSocketTimeOut -= (System.currentTimeMillis() - startTime);
+					
+					long elapsedTime = TimeUnit.MICROSECONDS.convert((System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
+					
+					currentSocketTimeOut -= elapsedTime;
+					
 					if (currentSocketTimeOut <= 0) {
-						throw new SocketTimeoutException("2.synchronized private connection pool timeout");
+						throw new ConnectionPoolTimeoutException("2.asynchronized no-share connection pool timeout");
 					}
 				}
 
 			} while (loop);
 		}
+		
+		/*long endTime = System.nanoTime();
+		log.info("getConnection::elasped {} microseconds, connectionQueue.size={}",
+				TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS),
+				connectionQueue.size());*/
 
-		return asynShareConnection;
+		return asynNoShareConnection;
 	}
 
 	@Override
@@ -162,65 +177,90 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (!(conn instanceof AsynShareConnection)) {
-			String errorMessage = "the parameter conn is not instace of AsynShareConnection class";
+		if (!(conn instanceof AsynNoShareConnection)) {
+			String errorMessage = "the parameter conn is not instace of AsynNoShareConnection class";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		AsynShareConnection asynPrivateConnection = (AsynShareConnection) conn;
-
-		if (!asynPrivateConnection.isConnected()) {
-			synchronized (monitor) {
-				connectionList.remove(asynPrivateConnection);
+		AsynNoShareConnection asynNoShareConnection = (AsynNoShareConnection) conn;
+	
+		synchronized (monitor) {
+			
+			/**
+			 * 연속 2회 큐 입력 방지
+			 */
+			if (asynNoShareConnection.isInQueue()) {
+				String errorMessage = new StringBuilder()
+				.append("the paramter conn[")
+				.append(conn.hashCode())
+				.append("] allready was in connection queue").toString();
+				log.warn(errorMessage, new Throwable());
+				throw new ConnectionPoolException(errorMessage);
 			}
 
-			String reasonForLoss = new StringBuilder("반환된 연결[").append(asynPrivateConnection.hashCode())
-					.append("]이 닫혀있어 폐기").toString();
+			/**
+			 * 큐에 넣어진 상태로 변경
+			 */
+			asynNoShareConnection.queueIn();
 
-			log.warn("{}, numberOfConnection[{}]", reasonForLoss, connectionList.size());
+			if (! asynNoShareConnection.isConnected()) {
+				/**
+				 * <pre>
+				 * 반환된 연결이 닫힌 경우 폐기한다. 단  이러한 작업은 큐에 넣어진 상태에서 이루어 져야 한다.
+				 * 왜냐하면 연결은 참조 포인트가 없어 gc 될때 큐에 넣어진 상태가 아니면 로그를 남기는데
+				 * 정상적인 반환이므로 gc 될때 로그를 남기지 말아야 하기때문이다.  
+				 * </pre>   
+				 */
+				numberOfConnection--;
 
-			connectionPoolSupporter.notice(reasonForLoss);
-			return;
+				String reasonForLoss = new StringBuilder("반환된 연결[")
+						.append(asynNoShareConnection.hashCode())
+						.append("]이 닫혀있어 폐기").toString();
 
+				log.warn("{}, numberOfConnection[{}]", reasonForLoss, numberOfConnection);
+
+				connectionPoolSupporter.notice(reasonForLoss);
+				return;
+			}
+
+			connectionQueue.addLast(asynNoShareConnection);
+			
+			monitor.notify();
 		}
-
+		
 	}
 	
 	public void addAllLostConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
-		while (isConnectionToAdd()) {				
+		while (canHasMoreInterestedConnection()) {				
 			addConnection();
 		}
 		
 		asynClientIOEventController.wakeup();
 	}
 	
-	public boolean isConnectionToAdd() {
+	public boolean canHasMoreInterestedConnection() {
 		boolean isInterestedConnection  = false;
-		synchronized (monitor) {
+		//synchronized (monitor) {
 			isInterestedConnection = ((numberOfUnregisteredConnection
-					+ connectionList.size()) < clientConnectionCount);
-		}		
+					+ numberOfConnection) < clientConnectionCount);
+		//}		
 		return isInterestedConnection;
 	}
 
 	public void addConnection() throws NoMoreDataPacketBufferException, IOException {
 		ClientIOEventHandlerIF unregisteredAsynConnection = newUnregisteredConnection();
-		addCountOfUnregisteredConnection();
-		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynConnection);
-	}
-
-	private void addCountOfUnregisteredConnection() {
-		synchronized (monitor) {
+		//synchronized (monitor) {
 			numberOfUnregisteredConnection++;
-		}		
+		//}
+		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynConnection);
 	}
 
 	@Override
 	public void removeUnregisteredConnection(ClientIOEventHandlerIF asynInterestedConnection) {
-		synchronized (monitor) {
+		//synchronized (monitor) {
 			numberOfUnregisteredConnection--;
-		}
+		//}
 		
 		
 		log.info("remove the interedted connection[{}]", asynInterestedConnection.hashCode());
@@ -229,7 +269,7 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 	private ClientIOEventHandlerIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
 		SocketOutputStream sos = socketOutputStreamFactory.createSocketOutputStream();
 
-		ClientIOEventHandlerIF asynInterestedConnection = new AsynShareConnection(projectName,
+		ClientIOEventHandlerIF asynInterestedConnection = new AsynNoShareConnection(projectName,
 				serverHost,
 				serverPort,
 				socketTimeout,
@@ -243,9 +283,11 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 
 	@Override
 	public String getPoolState() {
-		return new StringBuilder().append("numberOfConnection=").append(connectionList.size())
-				.append(", numberOfInterrestedConnection=").append(numberOfUnregisteredConnection)
-				.append(", connectionQueue.size=").append(connectionList.size()).toString();
+		return new StringBuilder()
+		.append("numberOfConnection=")
+		.append(numberOfConnection)
+		.append(", connectionQueue.size=")
+		.append(connectionQueue.size()).toString();
 	}
 
 	@Override
@@ -254,22 +296,20 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 			throw new ConnectionPoolException(
 					"fail to add a connection because the var numberOfInterrestedConnection is zero");
 		}*/
+		
+		long startTime = System.nanoTime();
 
 		synchronized (monitor) {
-			/*if (connectionList.size() >= clientConnectionMaxCount) {
-				throw new ConnectionPoolException(
-						"fail to add a connection because this connection pool's size is max");
-			}*/
-
-			AsynShareConnection asynShareConnection = (AsynShareConnection) connectedAsynConnection;
-			numberOfUnregisteredConnection--;
-			connectionList.add(asynShareConnection);
-
+			connectionQueue.addLast((AsynNoShareConnection)connectedAsynConnection);
+			numberOfConnection++;
 			monitor.notify();
 		}
 		
-		log.info("Successfully added the connected connection[{}] to this connection pool",
-				connectedAsynConnection.hashCode());
+		long endTime = System.nanoTime();
+		
+		log.info("Successfully added the connected connection[{}] to this connection pool, errasped {} micoseconds",
+				connectedAsynConnection.hashCode(), 
+				TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 	}
 
 	@Override
@@ -280,6 +320,4 @@ public class AsynShareConnectionPool implements AsynConnectionPoolIF, AsynConnec
 		
 		log.info("remove the interedted connection[{}]", interestedAsynConnection.hashCode());
 	}
-
-	
 }

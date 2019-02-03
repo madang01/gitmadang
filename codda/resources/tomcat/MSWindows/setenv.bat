@@ -1,7 +1,6 @@
 REM for %%f in (D:\sinnori_framework\core_build\lib\ex\*.jar) do set CLASSPATH=%CLASSPATH%;%%f
-REM ì´ ë™ì‘í•˜ì§€ ì•Šì•˜ëŠ”ë° ì´ì— ëŒ€í•œ í•´ê²° ë°©ë²•ì„ ì•„ë˜ ì‚¬ì´íŠ¸ì—ì„œ ì–»ìŒ.
-REM í•´ê²° ë°©ë²• ì œì‹œ ì°¸ê³  ì‚¬ì´íŠ¸ : http://alvinalexander.com/blog/post/page-1/thu-mar-9-2006-dynamically-build-environment-variables-in-dos-c
-
+REM ÀÌ µ¿ÀÛÇÏÁö ¾Ê¾Ò´Âµ¥ ÀÌ¿¡ ´ëÇÑ ÇØ°á ¹æ¹ıÀ» ¾Æ·¡ »çÀÌÆ®¿¡¼­ ¾òÀ½.
+REM ÇØ°á ¹æ¹ı Á¦½Ã Âü°í »çÀÌÆ® : http://alvinalexander.com/blog/post/page-1/thu-mar-9-2006-dynamically-build-environment-variables-in-dos-c
 
 SET CODDA_HOME=D:\gitmadang\codda
 SET PROJECT_NAME=sample_base

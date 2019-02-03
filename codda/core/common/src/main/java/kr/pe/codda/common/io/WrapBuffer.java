@@ -39,8 +39,9 @@ public class WrapBuffer {
 	private ByteBuffer buffer = null;
 	private boolean isInQueue = true;
 	private ByteOrder byteOrderOfBuffer = null;
-	// private Throwable lastCallerThrowable = null;
 	private boolean isPoolBuffer = false;
+	// FIXME! 잃어 버린 버퍼 추적용
+	//private Throwable lastThrowable = null;
 
 	
 	public WrapBuffer(boolean isDirect, int capacity, ByteOrder byteOrderOfBuffer) {
@@ -51,10 +52,7 @@ public class WrapBuffer {
 			buffer = ByteBuffer.allocate(capacity);
 		}
 		buffer.order(byteOrderOfBuffer);
-		this.byteOrderOfBuffer = byteOrderOfBuffer;
-		
-		// FIXME!
-		// log.info("추적용 로그", new Throwable());
+		this.byteOrderOfBuffer = byteOrderOfBuffer;		
 	}
 	
 	
@@ -86,9 +84,7 @@ public class WrapBuffer {
 	protected void queueIn() {
 		isInQueue = true;
 		buffer.clear();
-		buffer.order(byteOrderOfBuffer);
-		
-		// lastCallerThrowable = null;
+		buffer.order(byteOrderOfBuffer);		
 	}
 
 	/**
@@ -97,7 +93,8 @@ public class WrapBuffer {
 	protected void queueOut() {
 		isInQueue = false;
 		
-		// log.info("hash code="+hashCode(), new Throwable());
+		// FIXME! 잃어 버린 버퍼가 어디서 왔는지 추적하기 위한 로그
+		//lastThrowable = new Throwable();
 	}
 
 	@Override
@@ -108,6 +105,7 @@ public class WrapBuffer {
 						.append(hashCode())
 						.append("] was destroyed outside the queue").toString();
 				
+				//log.warn(errorMessage, lastThrowable);
 				log.warn(errorMessage);
 			}
 		} else {
@@ -115,6 +113,7 @@ public class WrapBuffer {
 					.append(hashCode())
 					.append("] was destroyed").toString();
 			
+			//log.warn(errorMessage, lastThrowable);
 			log.warn(errorMessage);
 		}
 		

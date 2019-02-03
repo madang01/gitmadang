@@ -112,7 +112,7 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
 		
-		int retryCount = 1000000;
+		int retryCount = 10000;
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,

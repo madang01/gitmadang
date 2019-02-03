@@ -10,7 +10,7 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
 public class ClientDynamicTaskManger implements ClientTaskMangerIF {
-	private final Object monitor = new Object();
+	//private final Object monitor = new Object();
 	
 	private ClientClassLoaderFactory clientClassLoaderFactory = null;
 	private SimpleClassLoader currentWorkingClientClassLoader = null;
@@ -52,7 +52,7 @@ public class ClientDynamicTaskManger implements ClientTaskMangerIF {
 	
 	private ClientTaskInfomation getClientTaskInfomation(String messageID)
 			throws DynamicClassCallException {
-		synchronized (monitor) {
+		//synchronized (monitor) {
 			ClientTaskInfomation clientTaskInfomation = messageID2ClientTaskInformationHash.get(messageID);
 			if (null == clientTaskInfomation) {
 				// lock.lock();			
@@ -68,7 +68,7 @@ public class ClientDynamicTaskManger implements ClientTaskMangerIF {
 					
 			}
 			return clientTaskInfomation;
-		}		
+		//}		
 	}
 
 	@Override

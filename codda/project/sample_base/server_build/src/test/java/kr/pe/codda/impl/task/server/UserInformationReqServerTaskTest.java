@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.UserInformationReq.UserInformationReq;
 import kr.pe.codda.impl.message.UserInformationRes.UserInformationRes;
@@ -161,8 +162,12 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 
 	@Test
 	public void 사용자정보조회_일반유저_타인() {
-		UserInformationReqServerTask userInformationReqServerTask 
-		= new UserInformationReqServerTask();
+		UserInformationReqServerTask userInformationReqServerTask = null;
+		try {
+			userInformationReqServerTask = new UserInformationReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		UserInformationReq userInformationReq = new UserInformationReq();
 		userInformationReq.setRequestedUserID("test01");
@@ -200,8 +205,12 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		try {
-			UserInformationReqServerTask userInformationReqServerTask 
-			= new UserInformationReqServerTask();
+			UserInformationReqServerTask userInformationReqServerTask = null;
+			try {
+				userInformationReqServerTask = new UserInformationReqServerTask();
+			} catch (DynamicClassCallException e1) {
+				fail("dead code");
+			}
 			
 			UserInformationReq userInformationReq = new UserInformationReq();
 			userInformationReq.setRequestedUserID("test03");
@@ -294,8 +303,12 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}
 		
-		UserInformationReqServerTask userInformationReqServerTask 
-		= new UserInformationReqServerTask();
+		UserInformationReqServerTask userInformationReqServerTask = null;
+		try {
+			userInformationReqServerTask = new UserInformationReqServerTask();
+		} catch (DynamicClassCallException e2) {
+			fail("dead code");
+		}
 		
 		UserInformationReq userInformationReq = new UserInformationReq();
 		userInformationReq.setRequestedUserID("admin");

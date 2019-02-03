@@ -1,4 +1,6 @@
-package java.lang;
+package test.java.lang;
+
+import java.lang.Exception;
 
 import org.junit.After;
 import org.junit.AfterClass;

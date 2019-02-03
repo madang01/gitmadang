@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.MemberWithdrawReq.MemberWithdrawReq;
 import kr.pe.codda.impl.message.UserBlockReq.UserBlockReq;
@@ -316,8 +317,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}		
 		
-		UserInformationReqServerTask userInformationReqServerTask 
-		= new UserInformationReqServerTask();
+		UserInformationReqServerTask userInformationReqServerTask = null;
+		try {
+			userInformationReqServerTask = new UserInformationReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		UserInformationReq userInformationReq = new UserInformationReq();
 		userInformationReq.setRequestedUserID("test03");
@@ -410,8 +415,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		
-		UserInformationReqServerTask userInformationReqServerTask 
-		= new UserInformationReqServerTask();
+		UserInformationReqServerTask userInformationReqServerTask = null;
+		try {
+			userInformationReqServerTask = new UserInformationReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		UserInformationReq userInformationReq = new UserInformationReq();
 		userInformationReq.setRequestedUserID("test03");
@@ -447,7 +456,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userBlockReq.setRequestedUserID("test03");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();
+		UserBlockReqServerTask userBlockReqServerTask = null;
+		try {
+			userBlockReqServerTask = new UserBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
@@ -469,7 +483,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userBlockReq.setRequestedUserID("test01");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();
+		UserBlockReqServerTask userBlockReqServerTask = null;
+		try {
+			userBlockReqServerTask = new UserBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
@@ -492,7 +511,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("testAA");
 		
-		UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();
+		UserBlockReqServerTask userBlockReqServerTask = null;
+		try {
+			userBlockReqServerTask = new UserBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
@@ -577,7 +601,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();
+		UserBlockReqServerTask userBlockReqServerTask = null;
+		try {
+			userBlockReqServerTask = new UserBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
@@ -660,7 +689,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();
+		UserBlockReqServerTask userBlockReqServerTask = null;
+		try {
+			userBlockReqServerTask = new UserBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
@@ -673,8 +707,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userInformationReq.setRequestedUserID("admin");
 		userInformationReq.setTargetUserID("test03");
 		
-		UserInformationReqServerTask userInformationReqServerTask 
-		= new UserInformationReqServerTask();
+		UserInformationReqServerTask userInformationReqServerTask = null;
+		try {
+			userInformationReqServerTask = new UserInformationReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
@@ -787,7 +825,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();
+		UserBlockReqServerTask userBlockReqServerTask = null;
+		try {
+			userBlockReqServerTask = new UserBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);		
@@ -800,8 +843,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userInformationReq.setRequestedUserID("admin");
 		userInformationReq.setTargetUserID("test03");
 		
-		UserInformationReqServerTask userInformationReqServerTask 
-		= new UserInformationReqServerTask();
+		UserInformationReqServerTask userInformationReqServerTask = null;
+		try {
+			userInformationReqServerTask = new UserInformationReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
@@ -833,7 +880,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userUnBlockReq.setRequestedUserID("test03");
 		userUnBlockReq.setTargetUserID("test03");
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		try {
+			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userUnBlockReqServerTask.doWork(TEST_DBCP_NAME, userUnBlockReq);
@@ -855,7 +907,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userUnBlockReq.setRequestedUserID("test01");
 		userUnBlockReq.setTargetUserID("test03");
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		try {
+			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userUnBlockReqServerTask.doWork(TEST_DBCP_NAME, userUnBlockReq);
@@ -877,7 +934,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID("testAA");
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		try {
+			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userUnBlockReqServerTask.doWork(TEST_DBCP_NAME, userUnBlockReq);
@@ -961,7 +1023,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		try {
+			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userUnBlockReqServerTask.doWork(TEST_DBCP_NAME, userUnBlockReq);
@@ -1043,7 +1110,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		try {
+			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userUnBlockReqServerTask.doWork(TEST_DBCP_NAME, userUnBlockReq);
@@ -1129,7 +1201,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID(userID);
 		
-		UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();		
+		UserBlockReqServerTask userBlockReqServerTask = null;
+		try {
+			userBlockReqServerTask = new UserBlockReqServerTask();
+		} catch (DynamicClassCallException e2) {
+			fail("dead code");
+		}		
 		try {
 			userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
 		} catch (Exception e)  {
@@ -1141,8 +1218,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userInformationReq.setRequestedUserID("admin");
 		userInformationReq.setTargetUserID(userID);
 		
-		UserInformationReqServerTask userInformationReqServerTask 
-		= new UserInformationReqServerTask();
+		UserInformationReqServerTask userInformationReqServerTask = null;
+		try {
+			userInformationReqServerTask = new UserInformationReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
@@ -1158,7 +1239,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		try {
+			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			userUnBlockReqServerTask.doWork(TEST_DBCP_NAME, userUnBlockReq);
@@ -1183,7 +1269,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberWithdrawReq memberWithdrawReq = new MemberWithdrawReq();
 		memberWithdrawReq.setRequestedUserID("testAA");
 		
-		MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+		MemberWithdrawReqServerTask memberWithdrawReqServerTask = null;
+		try {
+			memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			memberWithdrawReqServerTask.doWork(TEST_DBCP_NAME, memberWithdrawReq);
@@ -1207,7 +1298,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberWithdrawReq memberWithdrawReq = new MemberWithdrawReq();
 		memberWithdrawReq.setRequestedUserID("admin");
 		
-		MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+		MemberWithdrawReqServerTask memberWithdrawReqServerTask = null;
+		try {
+			memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			memberWithdrawReqServerTask.doWork(TEST_DBCP_NAME, memberWithdrawReq);
@@ -1290,7 +1386,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID(userID);
 		
-		UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();		
+		UserBlockReqServerTask userBlockReqServerTask = null;
+		try {
+			userBlockReqServerTask = new UserBlockReqServerTask();
+		} catch (DynamicClassCallException e2) {
+			fail("dead code");
+		}		
 		try {
 			userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
 		} catch (Exception e)  {
@@ -1301,7 +1402,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberWithdrawReq memberWithdrawReq = new MemberWithdrawReq();
 		memberWithdrawReq.setRequestedUserID(userID);
 		
-		MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+		MemberWithdrawReqServerTask memberWithdrawReqServerTask = null;
+		try {
+			memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			memberWithdrawReqServerTask.doWork(TEST_DBCP_NAME, memberWithdrawReq);
@@ -1388,7 +1494,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberWithdrawReq memberWithdrawReq = new MemberWithdrawReq();
 		memberWithdrawReq.setRequestedUserID(userID);
 		
-		MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+		MemberWithdrawReqServerTask memberWithdrawReqServerTask = null;
+		try {
+			memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			memberWithdrawReqServerTask.doWork(TEST_DBCP_NAME, memberWithdrawReq);		
@@ -1401,8 +1512,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		userInformationReq.setRequestedUserID("admin");
 		userInformationReq.setTargetUserID(userID);
 		
-		UserInformationReqServerTask userInformationReqServerTask 
-		= new UserInformationReqServerTask();
+		UserInformationReqServerTask userInformationReqServerTask = null;
+		try {
+			userInformationReqServerTask = new UserInformationReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);

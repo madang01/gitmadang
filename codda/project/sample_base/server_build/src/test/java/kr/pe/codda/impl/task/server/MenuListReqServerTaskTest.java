@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
@@ -28,7 +29,12 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoServie_ok() {
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		
@@ -52,7 +58,13 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoServie_두번루트메뉴등록하여목록점검() {
-		ArraySiteMenuReqServerTask menuListReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask menuListReqServerTask = null;
+		try {
+			menuListReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+
 		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
 		ArraySiteMenuRes beforeMenuListRes = null;
 		ArraySiteMenuRes afterMenuListRes = null;
@@ -63,7 +75,12 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 			fail("fail to get a output message 'ArraySiteMenuRes'");
 		}		
 		
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		RootMenuAddReq firstRootMenuAddReq = new RootMenuAddReq();
 		firstRootMenuAddReq.setMenuName("temp1");

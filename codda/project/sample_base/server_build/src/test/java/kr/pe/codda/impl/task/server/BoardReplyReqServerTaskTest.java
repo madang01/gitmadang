@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
@@ -80,7 +81,12 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		
 		
 		
-		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		BoardWriteRes boardWriteRes = null;
 		try {
 			boardWriteRes = boardWriteReqServerTask.doWork(TEST_DBCP_NAME, boardWriteReq);
@@ -122,7 +128,12 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 			boardReplyReq.setNewAttachedFileList(newAttachedFileList);
 		}
 		
-		BoardReplyReqServerTask boardReplyReqServerTask= new BoardReplyReqServerTask();
+		BoardReplyReqServerTask boardReplyReqServerTask = null;
+		try {
+			boardReplyReqServerTask = new BoardReplyReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			BoardReplyRes boardReplyRes = boardReplyReqServerTask.doWork(TEST_DBCP_NAME, boardReplyReq);

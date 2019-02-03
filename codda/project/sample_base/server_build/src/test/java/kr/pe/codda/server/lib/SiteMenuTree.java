@@ -7,6 +7,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.impl.message.ChildMenuAddReq.ChildMenuAddReq;
 import kr.pe.codda.impl.message.ChildMenuAddRes.ChildMenuAddRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
@@ -18,8 +19,19 @@ public class SiteMenuTree {
 	private final InternalLogger log = InternalLoggerFactory.getInstance(SiteMenuTree.class);
 	
 	private final java.util.List<SiteMenuTreeNode> rootSiteMenuNodeList = new ArrayList<SiteMenuTreeNode>();
-	private final RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
-	private final ChildMenuAddReqServerTask childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+	private RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+	private ChildMenuAddReqServerTask childMenuAddReqServerTask = null;
+	
+	
+	public SiteMenuTree() {
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+			childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		} catch (DynamicClassCallException e) {
+			log.error("dead code", e);
+			System.exit(1);
+		}
+	}
 	
 	private final HashMap<String, SiteMenuTreeNode> menuNameToTreeNodeHash =
 			new HashMap<String, SiteMenuTreeNode>();

@@ -36,7 +36,7 @@ public class BoardTree {
 		try {
 			boardWriteReqServerTask = new BoardWriteReqServerTask();
 		} catch (DynamicClassCallException e) {
-			log.error("dead code");
+			log.error("dead code", e);
 			System.exit(1);
 		}
 		try {

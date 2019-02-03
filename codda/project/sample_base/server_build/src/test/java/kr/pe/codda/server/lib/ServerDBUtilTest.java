@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
@@ -439,7 +440,12 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
 		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
 		
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e2) {
+			fail("dead code");
+		}
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		ArraySiteMenuRes arraySiteMenuRes = null;
 		
@@ -480,6 +486,10 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 				UByte acutalFromGroupSeq = ServerDBUtil.getToOrderSeqOfRelativeRootMenu(create, 
 						UByte.valueOf(siteMenu.getOrderSeq()), 
 						UInteger.valueOf(siteMenu.getParentNo()));
+				
+				// FIXME!
+				log.info("siteMenu=[{}], expectedFromOrderSeq={}, acutalFromGroupSeq={}", 
+						siteMenu.toString(), expectedFromOrderSeq, acutalFromGroupSeq);
 				
 				assertEquals("트리의 마지막 그룹시퀀스를 얻는 방법 2가지(첫번째 트리 깊이를 이용한 방법, 두번째 직계 조상 이용한 방법) 비교", expectedFromOrderSeq,  acutalFromGroupSeq);
 			}
@@ -597,7 +607,12 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 		
-		BoardListReqServerTask boardListReqServerTask= new BoardListReqServerTask();
+		BoardListReqServerTask boardListReqServerTask = null;
+		try {
+			boardListReqServerTask = new BoardListReqServerTask();
+		} catch (DynamicClassCallException e2) {
+			fail("dead code");
+		}
 		BoardListRes boardListRes = null;
 		
 		try {

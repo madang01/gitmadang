@@ -7,6 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.MenuDeleteReq.MenuDeleteReq;
 import kr.pe.codda.impl.message.MenuMoveDownReq.MenuMoveDownReq;
@@ -28,7 +29,12 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 
 	@Test
 	public void testDoService_ok() {
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		RootMenuAddRes fromRootMenuAddRes = null;
 		RootMenuAddRes toRootMenuAddRes = null;
@@ -75,7 +81,12 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		
 		MenuMoveDownReq menuDownMoveReq = new MenuMoveDownReq();
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
-		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
+		MenuMoveDownReqServerTask menuDownMoveReqServerTask = null;
+		try {
+			menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		try {
 			MessageResultRes messageResultRes = menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
 			if (! messageResultRes.getIsSuccess()) {
@@ -92,7 +103,12 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoService_menuNoDoesNotExist() {
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		RootMenuAddRes fromRootMenuAddRes = null;		
 		{
@@ -109,7 +125,12 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 			}
 		}
 		
-		MenuDeleteReqServerTask menuDeleteReqServerTask = new MenuDeleteReqServerTask();
+		MenuDeleteReqServerTask menuDeleteReqServerTask = null;
+		try {
+			menuDeleteReqServerTask = new MenuDeleteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
 		menuDeleteReq.setMenuNo(fromRootMenuAddRes.getMenuNo());		
@@ -128,7 +149,12 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		
 		MenuMoveDownReq menuDownMoveReq = new MenuMoveDownReq();
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
-		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
+		MenuMoveDownReqServerTask menuDownMoveReqServerTask = null;
+		try {
+			menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		try {
 			menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
 			
@@ -151,7 +177,12 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoService_하단이동할수없는루트메뉴() {
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		RootMenuAddRes fromRootMenuAddRes = null;		
 		{
@@ -169,7 +200,12 @@ public class MenuMoveDownReqServerTaskTest extends AbstractJunitTest {
 		
 		MenuMoveDownReq menuDownMoveReq = new MenuMoveDownReq();
 		menuDownMoveReq.setMenuNo(fromRootMenuAddRes.getMenuNo());
-		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
+		MenuMoveDownReqServerTask menuDownMoveReqServerTask = null;
+		try {
+			menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		try {
 			menuDownMoveReqServerTask.doWork(TEST_DBCP_NAME, menuDownMoveReq);
 			

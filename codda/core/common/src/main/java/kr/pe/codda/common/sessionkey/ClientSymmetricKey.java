@@ -23,7 +23,7 @@ public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 		if (null == ivBytes) {
 			throw new IllegalArgumentException("the parameter ivBytes is null");
 		}
-		
+				
 		CoddaConfiguration runningProjectConfiguration = 
 				CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();		

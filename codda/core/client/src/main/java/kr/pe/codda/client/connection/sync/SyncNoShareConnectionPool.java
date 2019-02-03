@@ -1,16 +1,17 @@
 package kr.pe.codda.client.connection.sync;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.ArrayDeque;
-
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayDeque;
+
 import kr.pe.codda.client.ConnectionIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.ConnectionPoolException;
+import kr.pe.codda.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
@@ -115,8 +116,8 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	}
 
 	@Override
-	public ConnectionIF getConnection() throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
-		 SyncNoShareConnection asynNoShareConnection = null;
+	public ConnectionIF getConnection() throws InterruptedException, ConnectionPoolTimeoutException, ConnectionPoolException {
+		SyncNoShareConnection syncNoShareConnection = null;
 		boolean loop = false;
 		
 		long currentSocketTimeOut = socketTimeout;
@@ -129,18 +130,18 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 					throw new ConnectionPoolException("check server is alive or something is bad");
 				}
 				
-				asynNoShareConnection = connectionQueue.pollFirst();
-				
-				if (null == asynNoShareConnection) {
-					monitor.wait(currentSocketTimeOut);
-					asynNoShareConnection = connectionQueue.pollFirst();
-					if (null == asynNoShareConnection) {
-						throw new SocketTimeoutException("1.asynchronized no-share connection pool timeout");
+				if (connectionQueue.isEmpty()) {					
+					monitor.wait(currentSocketTimeOut);					
+					
+					if (connectionQueue.isEmpty()) {						
+						throw new ConnectionPoolTimeoutException("1.synchronized no-share connection pool timeout");
 					}
-				}
+				}	
+				
+				syncNoShareConnection = connectionQueue.pollFirst();				
 
-				if (asynNoShareConnection.isConnected()) {
-					asynNoShareConnection.queueOut();
+				if (syncNoShareConnection.isConnected()) {
+					syncNoShareConnection.queueOut();
 					loop = false;
 				} else {
 					loop = true;					
@@ -153,7 +154,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 					 * </pre>   
 					 */
 					String reasonForLoss = new StringBuilder("폴에서 꺼낸 연결[")							
-							.append(asynNoShareConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
+							.append(syncNoShareConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
 
 					numberOfConnection--;
 
@@ -163,14 +164,14 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 					
 					currentSocketTimeOut -= (System.currentTimeMillis() - startTime);
 					if (currentSocketTimeOut <= 0) {
-						throw new SocketTimeoutException("2.synchronized private connection pool timeout");
+						throw new ConnectionPoolTimeoutException("2.synchronized no-share connection pool timeout");
 					}
 				}
 
 			} while (loop);
 		}
 
-		return asynNoShareConnection;
+		return syncNoShareConnection;
 	}
 
 	@Override

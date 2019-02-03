@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.lib.BoardType;
@@ -24,7 +25,12 @@ public class BoardVoteReqServerTaskTest extends AbstractJunitTest {
 		inObj.setRequestedUserID("test02");
 		inObj.setIp("127.0.0.1");		
 		
-		BoardVoteReqServerTask boardVoteReqServerTask= new BoardVoteReqServerTask();
+		BoardVoteReqServerTask boardVoteReqServerTask = null;
+		try {
+			boardVoteReqServerTask = new BoardVoteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			boardVoteReqServerTask.doTask(mainProjectName, 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
@@ -106,7 +107,12 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setNewAttachedFileCnt((short)newAttachedFileListForBoardWriteReq.size());
 		boardWriteReq.setNewAttachedFileList(newAttachedFileListForBoardWriteReq);
 		
-		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		BoardWriteRes boardWriteRes = null;
 		try {
@@ -148,7 +154,12 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			boardModifyReq.setNewAttachedFileList(newAttachedFileList);
 		}
 		
-		BoardModifyReqServerTask boardModifyReqServerTask = new BoardModifyReqServerTask();
+		BoardModifyReqServerTask boardModifyReqServerTask = null;
+		try {
+			boardModifyReqServerTask = new BoardModifyReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			BoardModifyRes boardModifyRes = boardModifyReqServerTask.doWork(TEST_DBCP_NAME, boardModifyReq);
@@ -167,7 +178,12 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardDetailReq.setRequestedUserID(boardWriteReq.getRequestedUserID());
 		
 		
-		BoardDetailReqServerTask boardDetailReqServerTask = new BoardDetailReqServerTask();
+		BoardDetailReqServerTask boardDetailReqServerTask = null;
+		try {
+			boardDetailReqServerTask = new BoardDetailReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		try {
 			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(TEST_DBCP_NAME, boardDetailReq);
 			
@@ -210,7 +226,12 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		BoardWriteReqServerTask boardWriteReqServerTask= new BoardWriteReqServerTask();
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		BoardWriteRes boardWriteRes = null;
 		try {
@@ -254,7 +275,12 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardReplyReq.setNewAttachedFileList(newAttachedFileListForReply);
 		
 		
-		BoardReplyReqServerTask boardReplyReqServerTask= new BoardReplyReqServerTask();
+		BoardReplyReqServerTask boardReplyReqServerTask = null;
+		try {
+			boardReplyReqServerTask = new BoardReplyReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		BoardReplyRes boardReplyRes = null;
 		try {
@@ -297,7 +323,12 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			boardModifyReq.setNewAttachedFileList(newAttachedFileList);
 		}
 		
-		BoardModifyReqServerTask boardModifyReqServerTask = new BoardModifyReqServerTask();
+		BoardModifyReqServerTask boardModifyReqServerTask = null;
+		try {
+			boardModifyReqServerTask = new BoardModifyReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		try {
 			BoardModifyRes boardModifyRes = boardModifyReqServerTask.doWork(TEST_DBCP_NAME, boardModifyReq);
@@ -316,7 +347,13 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardDetailReq.setRequestedUserID(boardReplyReq.getRequestedUserID());
 		
 		
-		BoardDetailReqServerTask boardDetailReqServerTask = new BoardDetailReqServerTask();
+		BoardDetailReqServerTask boardDetailReqServerTask = null;
+		try {
+			boardDetailReqServerTask = new BoardDetailReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		
 		try {
 			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(TEST_DBCP_NAME, boardDetailReq);
 			

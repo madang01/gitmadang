@@ -1,5 +1,8 @@
 package kr.pe.codda.client;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -8,8 +11,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.classloader.ClientClassLoaderFactory;
 import kr.pe.codda.client.classloader.ClientDynamicTaskManger;
 import kr.pe.codda.client.classloader.ClientStaticTaskManger;
@@ -20,7 +21,7 @@ import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
 import kr.pe.codda.client.connection.asyn.AyncThreadSafeSingleConnectedConnectionAdder;
 import kr.pe.codda.client.connection.asyn.ClientIOEventController;
-import kr.pe.codda.client.connection.asyn.share.AsynShareConnectionPool;
+import kr.pe.codda.client.connection.asyn.noshare.AsynNoShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncNoShareConnectionPool;
 import kr.pe.codda.client.connection.sync.SyncThreadSafeSingleConnection;
 import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
@@ -167,7 +168,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			}
 			
 			AsynConnectionPoolIF asynConnectionPool = 
-					new AsynShareConnectionPool(projectPartConfiguration,
+					new AsynNoShareConnectionPool(projectPartConfiguration,
 							messageProtocol, clientTaskManger, dataPacketBufferPool,
 					socketOutputStreamFactory,
 					connectionPoolSupporter);
@@ -231,9 +232,9 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	@Override
 	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
 			ConnectionPoolException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {
-		/*long startTime = 0;
-		long endTime = 0;
-		startTime = System.nanoTime();*/
+		// long startTime = System.nanoTime();
+		
+		//log.info("sendAsynInputMessage::start");
 
 		ConnectionIF conn = connectionPool.getConnection();
 		try {
@@ -242,9 +243,9 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			connectionPool.release(conn);
 		}
 
-		//endTime = System.nanoTime();
-		//log.info("elapsed={}", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
-
+		// long endTime = System.nanoTime();
+		// log.info("elapsed={} microseconds", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+		//log.info("sendAsynInputMessage::end");
 	}
 
 	@Override

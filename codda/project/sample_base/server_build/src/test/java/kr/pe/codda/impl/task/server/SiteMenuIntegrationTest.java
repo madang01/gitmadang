@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
+import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
@@ -126,8 +127,18 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 	@Test
 	public void 초기상태일때빈목록조회테스트() {
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
-		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = null;
+		try {
+			treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
@@ -174,10 +185,16 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		 */
 		// final long menuNoForMoveUpDownTest = 14L;		
 		
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
-		MenuMoveUpReqServerTask menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
-		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
-
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		MenuMoveUpReqServerTask menuUpMoveReqServerTask = null;
+		MenuMoveDownReqServerTask menuDownMoveReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+			menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
+			menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		class VirtualSiteMenuTreeBuilder implements VirtualSiteMenuTreeBuilderIF {
 
@@ -523,10 +540,16 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		 * WARNING! 메뉴 이동 테스트 대상 메뉴는 메뉴 깊이 3을 갖는 '세션키 테스트' 와  'RSA 테스트' 이다.
 		 * 입력한 메뉴 순서는  '세션키 테스트' 이고 다음이 'RSA 테스트' 이다.
 		 */		
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
-		MenuMoveUpReqServerTask menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
-		MenuMoveDownReqServerTask menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
-
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		MenuMoveUpReqServerTask menuUpMoveReqServerTask = null;
+		MenuMoveDownReqServerTask menuDownMoveReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+			menuUpMoveReqServerTask = new MenuMoveUpReqServerTask();
+			menuDownMoveReqServerTask = new MenuMoveDownReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		class VirtualSiteMenuTreeBuilder implements VirtualSiteMenuTreeBuilderIF {
 
@@ -869,7 +892,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		Level oldLogLevel = logger.getLevel(); 
 		logger.setLevel(Level.OFF);*/
 		
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		for (int i=0; i < CommonStaticFinalVars.UNSIGNED_BYTE_MAX; i++) {
 			RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
@@ -917,7 +945,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		Level oldLogLevel = logger.getLevel(); 
 		logger.setLevel(Level.OFF);
 		
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		for (int i=0; (i+1) < CommonStaticFinalVars.UNSIGNED_BYTE_MAX; i++) {
 			
@@ -955,7 +988,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail(errorMessage);
 		}
 		
-		ChildMenuAddReqServerTask childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		ChildMenuAddReqServerTask childMenuAddReqServerTask = null;
+		try {
+			childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		ChildMenuAddReq firstChildMenuAddReq = new ChildMenuAddReq();
 		firstChildMenuAddReq.setParentNo(rootMenuAddRes.getMenuNo());
@@ -984,7 +1022,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	public void 자식메뉴추가테스트_부모없음() {
 		final long parentMenuNo = 10;
 		
-		ChildMenuAddReqServerTask childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		ChildMenuAddReqServerTask childMenuAddReqServerTask = null;
+		try {
+			childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		ChildMenuAddReq firstChildMenuAddReq = new ChildMenuAddReq();
 		firstChildMenuAddReq.setParentNo(parentMenuNo);
@@ -1012,7 +1055,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	
 	@Test 
 	public void 메뉴삭제테스트_2개루트메뉴등록후1개만삭제한경우() {   
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		RootMenuAddReq rootMenuAddReqForDelete = new RootMenuAddReq();
 		rootMenuAddReqForDelete.setMenuName("temp1");
@@ -1039,7 +1087,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("fail to get a output message 'RootMenuAddRes'");
 		}
 		
-		MenuDeleteReqServerTask menuDeleteReqServerTask = new MenuDeleteReqServerTask();
+		MenuDeleteReqServerTask menuDeleteReqServerTask = null;
+		try {
+			menuDeleteReqServerTask = new MenuDeleteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
 		menuDeleteReq.setMenuNo(rootMenuAddResForDelete.getMenuNo());
@@ -1056,7 +1109,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail(messageResultRes.getResultMessage());
 		}		
 		
-		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
 		try {
 			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
@@ -1085,7 +1143,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	 */
 	@Test 
 	public void 메뉴삭제테스트_삭제할대상메뉴없는경우() {		
-		MenuDeleteReqServerTask menuDeleteReqServerTask = new MenuDeleteReqServerTask();
+		MenuDeleteReqServerTask menuDeleteReqServerTask = null;
+		try {
+			menuDeleteReqServerTask = new MenuDeleteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
 		menuDeleteReq.setMenuNo(10);
@@ -1109,7 +1172,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	
 	@Test 
 	public void 메뉴삭제테스트_자식이있는메뉴삭제할경우() {		
-		RootMenuAddReqServerTask rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
+		try {
+			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
 		rootMenuAddReq.setMenuName("temp1");
@@ -1123,7 +1191,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("fail to get a output message 'RootMenuAddRes'");
 		}
 		
-		ChildMenuAddReqServerTask childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		ChildMenuAddReqServerTask childMenuAddReqServerTask = null;
+		try {
+			childMenuAddReqServerTask = new ChildMenuAddReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		ChildMenuAddReq childMenuAddReq = new ChildMenuAddReq();
 		childMenuAddReq.setParentNo(rootMenuAddRes.getMenuNo());
 		childMenuAddReq.setMenuName("temp1_1");
@@ -1137,7 +1210,12 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("fail to get a output message 'RootMenuAddRes'");
 		}		
 		
-		MenuDeleteReqServerTask menuDeleteReqServerTask = new MenuDeleteReqServerTask();
+		MenuDeleteReqServerTask menuDeleteReqServerTask = null;
+		try {
+			menuDeleteReqServerTask = new MenuDeleteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
 		menuDeleteReq.setMenuNo(rootMenuAddRes.getMenuNo());

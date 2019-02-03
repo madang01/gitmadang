@@ -58,10 +58,10 @@ public class SocketOutputStream {
 			this.socketOutputStreamWrapBufferQueue.add(writtenWrapBuffer);
 		}
 	}
-
+		
 	private boolean isFull() {
 		return (dataPacketBufferMaxCntPerMessage != socketOutputStreamWrapBufferQueue.size());
-	}
+	}	
 
 	private WrapBuffer addNewSocketOutputStreamWrapBuffer() throws NoMoreDataPacketBufferException {
 		// dataPacketBufferMaxCntPerMessage != socketOutputStreamWrapBufferList.size()
