@@ -1,6 +1,7 @@
 package kr.pe.codda.weblib.jdf;
 
 import java.io.IOException;
+import java.util.Base64;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -8,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.HttpJspPage;
 
-import org.apache.commons.codec.binary.Base64;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
@@ -88,7 +88,7 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 			log.warn("the jsp request's attribute[{}] doesn't exist", WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY);
 			return "";
 		}
-		return Base64.encodeBase64String(webServerSymmetricKey.encrypt(painText.getBytes(CommonStaticFinalVars.CIPHER_CHARSET)));
+		return Base64.getEncoder().encodeToString(webServerSymmetricKey.encrypt(painText.getBytes(CommonStaticFinalVars.CIPHER_CHARSET)));
 	}
 	
 	protected String getParameterIVBase64Value(HttpServletRequest req) {

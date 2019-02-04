@@ -13,6 +13,7 @@ import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.TreeSiteMenuReq.TreeSiteMenuReq;
 import kr.pe.codda.impl.message.TreeSiteMenuRes.TreeSiteMenuRes;
@@ -104,7 +105,7 @@ public class UserWebsiteMenuInfoFileUpdaterSvl extends
 		TreeSiteMenuRes treeSiteMenuRes = null;
 
 		AbstractMessage outputMessage = mainProjectConnectionPool
-				.sendSyncInputMessage(treeSiteMenuReq);
+				.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), treeSiteMenuReq);
 
 		if (!(outputMessage instanceof TreeSiteMenuRes)) {
 

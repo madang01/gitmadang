@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -321,11 +323,12 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 					.append(e.getMessage()).toString();
 			throw new WebClinetException(errorMessage, debugMessage);
 		}
+		
+		Base64.Decoder base64Dcoder = Base64.getDecoder();
 
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = org.apache.commons.codec.binary.Base64
-					.decodeBase64(paramSessionKeyBase64);
+			sessionkeyBytes = base64Dcoder.decode(paramSessionKeyBase64);
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
 					.append("the web parameter '")
@@ -343,8 +346,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = org.apache.commons.codec.binary.Base64
-					.decodeBase64(paramIVBase64);
+			ivBytes = base64Dcoder.decode(paramIVBase64);
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
 					.append("the web parameter '")
@@ -457,7 +459,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager
 				.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool
-				.sendSyncInputMessage(boardReplyReq);
+				.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), boardReplyReq);
 
 		if ((outputMessage instanceof MessageResultRes)) {
 			MessageResultRes messageResultRes = (MessageResultRes) outputMessage;

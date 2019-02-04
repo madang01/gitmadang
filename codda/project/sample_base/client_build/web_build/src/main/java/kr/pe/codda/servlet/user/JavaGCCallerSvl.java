@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.JavaGarbageCollectionReq.JavaGarbageCollectionReq;
 import kr.pe.codda.impl.message.JavaGarbageCollectionRes.JavaGarbageCollectionRes;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
@@ -22,7 +23,7 @@ public class JavaGCCallerSvl extends AbstractServlet {
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 
 		
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(javaGarbageCollectionReq);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), javaGarbageCollectionReq);
 		
 		if (! (outputMessage instanceof JavaGarbageCollectionRes)) {
 			String errorMessage = "자바 가비지 컬렉터를 호출하는데 실패하였습니다";

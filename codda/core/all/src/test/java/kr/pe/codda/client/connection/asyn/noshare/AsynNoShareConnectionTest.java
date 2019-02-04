@@ -127,7 +127,7 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 					clientConnectionMaxCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PUBLIC,
+					ConnectionType.ASYN,
 					serverMaxClients);
 
 		} catch (Exception e) {
@@ -224,7 +224,7 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 					clientConnectionMaxCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PUBLIC,
+					ConnectionType.ASYN,
 					serverMaxClients);
 
 		} catch (Exception e) {
@@ -359,7 +359,7 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 					clientConnectionMaxCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PUBLIC,
+					ConnectionType.ASYN,
 					serverMaxClients);
 
 		} catch (Exception e) {
@@ -514,7 +514,7 @@ public class AsynNoShareConnectionTest extends AbstractJunitTest {
 					clientConnectionMaxCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PUBLIC,
+					ConnectionType.ASYN,
 					serverMaxClients);
 
 		} catch (Exception e) {

@@ -29,7 +29,7 @@ protected InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolS
 		
 		String reasonForWakingUp = null;
 		try {
-			while (! this.isInterrupted()) {
+			while (! Thread.currentThread().isInterrupted()) {
 				reasonForWakingUp = wakeupEventQueue.poll(wakeupInterval, TimeUnit.MILLISECONDS);
 				if (null != reasonForWakingUp) {
 					log.info("연결 폴 후원자 작업을 일찍 실행하는 사유[{}] 발생", reasonForWakingUp);
@@ -39,7 +39,7 @@ protected InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolS
 				log.info("reasonForWakingUp={}", reasonForWakingUp);
 				
 				try {
-					connectionPool.addAllLostConnection();
+					connectionPool.fillAllConnection();
 				} catch(InterruptedException e) {
 					throw e;
 				} catch(Exception e) {

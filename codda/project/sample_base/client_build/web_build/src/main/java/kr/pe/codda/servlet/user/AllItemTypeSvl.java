@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.AllItemType.AllItemType;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
@@ -199,7 +200,7 @@ public class AllItemTypeSvl extends AbstractServlet {
 		allDataTypeReq.setMemberList(memberList);
 			
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(allDataTypeReq);		
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), allDataTypeReq);		
 				
 		boolean isSame = false;
 		if (!(outputMessage instanceof AllItemType)) {

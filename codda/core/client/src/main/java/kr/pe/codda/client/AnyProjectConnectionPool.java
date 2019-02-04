@@ -133,9 +133,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		
 		connectionPoolSupporter = new ConnectionPoolSupporter(clientConnectionPoolSupporterTimeInterval);
 		
-		
-		
-		if (connectionType.equals(ConnectionType.SYNC_PRIVATE)) {
+		if (connectionType.equals(ConnectionType.SYNC)) {
 			connectionPool = new SyncNoShareConnectionPool(projectPartConfiguration,
 					messageProtocol, dataPacketBufferPool,
 					socketOutputStreamFactory,
@@ -184,7 +182,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-			}
+			}			
 		} 
 		
 		connectionPoolSupporter.start();
@@ -250,7 +248,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 
 	@Override
 	public ConnectionIF createAsynThreadSafeConnection(String serverHost, int serverPort) throws InterruptedException, IOException, NoMoreDataPacketBufferException, NotSupportedException {
-		if (connectionType.equals(ConnectionType.SYNC_PRIVATE)) {
+		if (connectionType.equals(ConnectionType.SYNC)) {
 			throw new NotSupportedException("the connection type is sync_private, it must be asyn_private or asyn_public, check the connection type in configuration");
 		}
 		

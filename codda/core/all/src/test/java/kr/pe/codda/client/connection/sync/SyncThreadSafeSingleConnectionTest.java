@@ -126,7 +126,7 @@ public class SyncThreadSafeSingleConnectionTest extends AbstractJunitTest {
 					clientConnectionCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.SYNC_PRIVATE);
+					ConnectionType.SYNC);
 
 		} catch (Exception e) {
 			log.warn("error", e);

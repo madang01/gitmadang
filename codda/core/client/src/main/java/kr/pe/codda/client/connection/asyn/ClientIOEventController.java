@@ -31,21 +31,18 @@ public class ClientIOEventController extends Thread implements
 		this.clientSelectorWakeupInterval = clientSelectorWakeupInterval;
 		this.asynConnectionPool = connectionPool;
 
+		ioEventSelector = Selector.open();		
 		asynConnectionPool.setAsynSelectorManger(this);
-
-		ioEventSelector = Selector.open();
-
+		
 		/**
 		 * WARNING! 반듯이 AsynConnectionPoolIF#setAsynSelectorManger 를 통해 이 객체 등록이
 		 * 선행되어야 한다
 		 */
-		while (connectionPool.canHasMoreInterestedConnection()) {
-			connectionPool.addConnection();
+		try {
+			connectionPool.fillAllConnection();
+		} catch (InterruptedException e) {
+			log.warn("연결 폴 구성을 위한 추가 작업중 인터럽트가 발생하였지만 인터럽트 무시하고 진행");
 		}
-
-		// selectorAlarm = new SelectorAlarm(ioEventSelector,
-		// this.clientSelectorWakeupInterval);
-		// selectorAlarm.start();
 	}
 
 	@Override
@@ -104,7 +101,7 @@ public class ClientIOEventController extends Thread implements
 		log.info("AsynSelectorManger Thread start");
 
 		try {
-			while (!isInterrupted()) {
+			while (Thread.currentThread().isInterrupted()) {
 				processNewConnection();
 
 				ioEventSelector.select(clientSelectorWakeupInterval);

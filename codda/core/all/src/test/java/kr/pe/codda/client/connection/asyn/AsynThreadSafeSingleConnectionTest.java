@@ -126,7 +126,7 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 					clientConnectionCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.SYNC_PRIVATE);
+					ConnectionType.SYNC);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -268,7 +268,7 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 					numberOfConnection,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
-					ConnectionType.ASYN_PUBLIC);
+					ConnectionType.ASYN);
 
 		} catch (Exception e) {
 			log.warn("error", e);

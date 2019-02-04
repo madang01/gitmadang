@@ -231,37 +231,25 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 		
 	}
 	
-	public void addAllLostConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
-		while (canHasMoreInterestedConnection()) {				
-			addConnection();
+	public void fillAllConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
+		synchronized (monitor) {				
+			while ((numberOfUnregisteredConnection
+					+ numberOfConnection) < clientConnectionCount) {				
+				
+				ClientIOEventHandlerIF unregisteredAsynConnection = newUnregisteredConnection();
+				numberOfUnregisteredConnection++;
+				asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynConnection);
+			}
 		}
 		
 		asynClientIOEventController.wakeup();
 	}
 	
-	public boolean canHasMoreInterestedConnection() {
-		boolean isInterestedConnection  = false;
-		//synchronized (monitor) {
-			isInterestedConnection = ((numberOfUnregisteredConnection
-					+ numberOfConnection) < clientConnectionCount);
-		//}		
-		return isInterestedConnection;
-	}
-
-	public void addConnection() throws NoMoreDataPacketBufferException, IOException {
-		ClientIOEventHandlerIF unregisteredAsynConnection = newUnregisteredConnection();
-		//synchronized (monitor) {
-			numberOfUnregisteredConnection++;
-		//}
-		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynConnection);
-	}
-
 	@Override
 	public void removeUnregisteredConnection(ClientIOEventHandlerIF asynInterestedConnection) {
-		//synchronized (monitor) {
+		synchronized (monitor) {
 			numberOfUnregisteredConnection--;
-		//}
-		
+		}		
 		
 		log.info("remove the interedted connection[{}]", asynInterestedConnection.hashCode());
 	}

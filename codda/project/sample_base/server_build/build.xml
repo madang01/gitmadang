@@ -82,6 +82,7 @@
 	
 	<target name="clean.core">
 		<delete dir="${dir.corelib}" />
+		<mkdir dir="${dir.corelib}" />
 	</target>
 	
 	

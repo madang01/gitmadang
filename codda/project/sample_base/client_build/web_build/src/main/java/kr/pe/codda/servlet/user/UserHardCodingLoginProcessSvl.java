@@ -1,12 +1,11 @@
 package kr.pe.codda.servlet.user;
 
+import java.util.Base64;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.commons.codec.binary.Base64;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
@@ -77,22 +76,9 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 			return;
 		}
 		
-		if (! Base64.isBase64(paramSessionKeyBase64)) {
-			String errorMessage = "the request parameter paramSessionKeyBase64 is not a base64 string";
-			String debugMessage = errorMessage;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
 		
 		if (null == paramIVBase64) {
 			String errorMessage = "the request parameter paramIVBase64 is null";
-			String debugMessage = errorMessage;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
-		
-		if (! Base64.isBase64(paramIVBase64)) {
-			String errorMessage = "the request parameter paramIVBase64 is not a base64 string";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -105,22 +91,9 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 			return;
 		}
 		
-		if (! Base64.isBase64(paramUserIDCipherBase64)) {
-			String errorMessage = "the request parameter userID is not a base64 cipher text";
-			String debugMessage = errorMessage;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
 		
 		if (null == paramPwdCipherBase64) {
 			String errorMessage = "the request parameter paramPwdCipherBase64 is null";
-			String debugMessage = errorMessage;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
-		
-		if (! Base64.isBase64(paramPwdCipherBase64)) {
-			String errorMessage = "the request parameter paramPwdCipherBase64 is not a base64 cipher string";
 			String debugMessage = errorMessage;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -141,10 +114,12 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 		log.info("param pwd=[{}}]", paramPwdCipherBase64);
 
 		// req.setAttribute("isSuccess", Boolean.FALSE);
+		
+		Base64.Decoder base64Decoder = Base64.getDecoder();
 
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramSessionKeyBase64);
+			sessionkeyBytes = base64Decoder.decode(paramSessionKeyBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
@@ -155,7 +130,7 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramIVBase64);
+			ivBytes = base64Decoder.decode(paramIVBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
@@ -207,9 +182,9 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-				
-		byte[] userIDBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramUserIDCipherBase64));
-		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdCipherBase64));
+		
+		byte[] userIDBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramUserIDCipherBase64));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwdCipherBase64));
 
 		String userID = new String(userIDBytes, CommonStaticFinalVars.CIPHER_CHARSET);
 		String password = new String(passwordBytes, CommonStaticFinalVars.CIPHER_CHARSET);

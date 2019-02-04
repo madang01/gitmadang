@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -27,7 +28,7 @@ public class MenuManagementSvl extends AbstractAdminLoginServlet {
 		long endTime = 0;
 		startTime = System.nanoTime();
 		
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(menuListReq);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), menuListReq);
 		
 		endTime = System.nanoTime();
 		

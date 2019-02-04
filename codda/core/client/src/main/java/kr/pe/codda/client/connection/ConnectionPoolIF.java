@@ -12,7 +12,7 @@ public interface ConnectionPoolIF {
 	public void release(ConnectionIF conn) throws ConnectionPoolException;
 	
 	
-	public void addAllLostConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException;
+	public void fillAllConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException;
 		
 	public String getPoolState();
 }

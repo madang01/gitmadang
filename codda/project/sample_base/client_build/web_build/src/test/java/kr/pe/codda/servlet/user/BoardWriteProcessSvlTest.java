@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.Base64;
 import java.util.HashMap;
 
 import javax.servlet.RequestDispatcher;
@@ -26,12 +27,12 @@ import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.weblib.MockServletInputStream;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -60,8 +61,8 @@ public class BoardWriteProcessSvlTest extends AbstractJunitTest {
 			fail("fail to get a intanace of ClientSessionKeyIF class");
 		}
 		
-		final String sessionKeyBase64 = org.apache.commons.codec.binary.Base64.encodeBase64String(clientSessionKey.getDupSessionKeyBytes());
-		final String ivBase64 = org.apache.commons.codec.binary.Base64.encodeBase64String(clientSessionKey.getDupIVBytes());
+		final String sessionKeyBase64 = Base64.getEncoder().encodeToString(clientSessionKey.getDupSessionKeyBytes());
+		final String ivBase64 = Base64.getEncoder().encodeToString(clientSessionKey.getDupIVBytes());
 		final String subject = "테스트주제1_그림";
 		final String content = "테스트내용1_한글사랑";
 
@@ -98,7 +99,7 @@ public class BoardWriteProcessSvlTest extends AbstractJunitTest {
 		
 		byte[] contentsOfUploadFile = null;
 		try {
-			contentsOfUploadFile = FileUtils.readFileToByteArray(selectedUploadFile);
+			contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(selectedUploadFile, 10*1024*1024);
 		} catch (IOException e) {
 			fail("첨부 파일로 지정한 파일 읽기 실패");
 		}

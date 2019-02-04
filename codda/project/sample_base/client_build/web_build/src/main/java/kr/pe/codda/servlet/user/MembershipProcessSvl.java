@@ -1,12 +1,10 @@
 package kr.pe.codda.servlet.user;
 
+import java.util.Base64;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import nl.captcha.Captcha;
-
-import org.apache.commons.codec.binary.Base64;
 
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
@@ -20,11 +18,13 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.HexUtil;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
+import nl.captcha.Captcha;
 
 public class MembershipProcessSvl extends AbstractServlet {
 
@@ -110,9 +110,11 @@ public class MembershipProcessSvl extends AbstractServlet {
 			return;
 		}
 		
+		Base64.Decoder base64Decoder = Base64.getDecoder();
+		
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramSessionKeyBase64);
+			sessionkeyBytes = base64Decoder.decode(paramSessionKeyBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
@@ -130,7 +132,7 @@ public class MembershipProcessSvl extends AbstractServlet {
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramIVBase64);
+			ivBytes = base64Decoder.decode(paramIVBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
@@ -193,12 +195,12 @@ public class MembershipProcessSvl extends AbstractServlet {
 			return;
 		}
 	
-		byte[] userIdBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramUserID));
-		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwd));
-		byte[] nicknameBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramNickname));
-		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdHint));
-		byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdAnswer));
-		byte[] answerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramCaptchaAnswer));
+		byte[] userIdBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramUserID));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwd));
+		byte[] nicknameBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramNickname));
+		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwdHint));
+		byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwdAnswer));
+		byte[] answerBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramCaptchaAnswer));
 		
 		String answer = new String(answerBytes, CommonStaticFinalVars.CIPHER_CHARSET);
 		
@@ -224,7 +226,7 @@ public class MembershipProcessSvl extends AbstractServlet {
 		BinaryPublicKey binaryPublicKeyReq = new BinaryPublicKey();			
 		binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
 		
-		AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);					
+		AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), binaryPublicKeyReq);					
 		if (! (binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
 			String errorMessage = "회원 가입이 실패했습니다";
 			String debugMessage = new StringBuilder("입력 메시지[")
@@ -250,16 +252,18 @@ public class MembershipProcessSvl extends AbstractServlet {
 
 		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
 		
-		memberRegisterReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(userIdBytes)));
-		memberRegisterReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
-		memberRegisterReq.setNicknameCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(nicknameBytes)));
-		memberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdHintBytes)));
-		memberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdAnswerBytes)));
-		memberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
-		memberRegisterReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));
+		Base64.Encoder base64Encoder = Base64.getEncoder();
+		
+		memberRegisterReq.setIdCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIdBytes)));
+		memberRegisterReq.setPwdCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
+		memberRegisterReq.setNicknameCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(nicknameBytes)));
+		memberRegisterReq.setHintCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(pwdHintBytes)));
+		memberRegisterReq.setAnswerCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(pwdAnswerBytes)));
+		memberRegisterReq.setSessionKeyBase64(base64Encoder.encodeToString(sessionKeyBytesOfServer));
+		memberRegisterReq.setIvBase64(base64Encoder.encodeToString(ivBytesOfServer));
 		memberRegisterReq.setIp(req.getRemoteAddr());
 
-		AbstractMessage memberRegisterOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(memberRegisterReq);					
+		AbstractMessage memberRegisterOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), memberRegisterReq);					
 		if (! (memberRegisterOutputMessage instanceof MessageResultRes)) {
 			String errorMessage = "회원 가입이 실패했습니다";
 			String debugMessage = new StringBuilder("입력 메시지[")

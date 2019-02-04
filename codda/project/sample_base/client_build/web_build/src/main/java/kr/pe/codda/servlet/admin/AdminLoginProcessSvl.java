@@ -1,5 +1,7 @@
 package kr.pe.codda.servlet.admin;
 
+import java.util.Base64;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -16,13 +18,12 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.HexUtil;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.AdminLoginReq.AdminLoginReq;
 import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
-
-import org.apache.commons.codec.binary.Base64;
 
 /**
  * 관리자 로그인 처리 서블릿
@@ -53,12 +54,6 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 			return;
 		}
 		
-		if (! Base64.isBase64(paramSessionKeyBase64)) {
-			String errorMessage = "the request parameter paramSessionKeyBase64 is not a base64 string";
-			String debugMessage = null;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
 		
 		if (null == paramIVBase64) {
 			String errorMessage = "the request parameter paramIVBase64 is null";
@@ -67,12 +62,6 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 			return;
 		}
 		
-		if (! Base64.isBase64(paramIVBase64)) {
-			String errorMessage = "the request parameter paramIVBase64 is not a base64 string";
-			String debugMessage = null;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
 		
 		if (null == paramUserIDCipherBase64) {
 			String errorMessage = "the request parameter userID is null";
@@ -81,12 +70,6 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 			return;
 		}
 		
-		if (! Base64.isBase64(paramUserIDCipherBase64)) {
-			String errorMessage = "the request parameter userID is not a base64 cipher text";
-			String debugMessage = null;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
 		
 		if (null == paramPwdCipherBase64) {
 			String errorMessage = "the request parameter paramPwdCipherBase64 is null";
@@ -94,13 +77,7 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-		
-		if (! Base64.isBase64(paramPwdCipherBase64)) {
-			String errorMessage = "the request parameter paramPwdCipherBase64 is not a base64 cipher string";
-			String debugMessage = null;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		} 		
+			
 		
 		
 		/*if (successURL.indexOf('/') != 0) {
@@ -116,10 +93,13 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		log.info("param pwd=[{}}]", paramPwdCipherBase64);
 
 		// req.setAttribute("isSuccess", Boolean.FALSE);
+		
+		Base64.Decoder base64Decoder = java.util.Base64.getDecoder();
+		
 
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramSessionKeyBase64);
+			sessionkeyBytes = base64Decoder.decode(paramSessionKeyBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
@@ -136,7 +116,7 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramIVBase64);
+			ivBytes = base64Decoder.decode(paramIVBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
@@ -195,11 +175,14 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 			return;
 		}
 		
+		Base64.Encoder base64Encoder = Base64.getEncoder();
+		
+		
 		// FIXME!
-		log.info("한글 대칭키 암호문 base64={}", Base64.encodeBase64String(webServerSymmetricKey.encrypt("한글".getBytes("UTF8"))));
+		log.info("한글 대칭키 암호문 base64={}", base64Encoder.encodeToString(webServerSymmetricKey.encrypt("한글".getBytes("UTF8"))));
 
-		byte[] userIDBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramUserIDCipherBase64));
-		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(paramPwdCipherBase64));
+		byte[] userIDBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramUserIDCipherBase64));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwdCipherBase64));
 
 		String userId = new String(userIDBytes, CommonStaticFinalVars.CIPHER_CHARSET);
 		// String password = new String(passwordBytes,
@@ -222,7 +205,7 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 				BinaryPublicKey binaryPublicKeyReq = new BinaryPublicKey();
 				binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
 
-				AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);
+				AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), binaryPublicKeyReq);
 
 				if (!(binaryPublicKeyOutputMessage instanceof BinaryPublicKey)) {
 					String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
@@ -254,12 +237,12 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
 		AdminLoginReq adminLoginReq = new AdminLoginReq();
 
-		adminLoginReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(userIDBytes)));
-		adminLoginReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
-		adminLoginReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
-		adminLoginReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));			
+		adminLoginReq.setIdCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIDBytes)));
+		adminLoginReq.setPwdCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
+		adminLoginReq.setSessionKeyBase64(base64Encoder.encodeToString(sessionKeyBytesOfServer));
+		adminLoginReq.setIvBase64(base64Encoder.encodeToString(ivBytesOfServer));			
 
-		AbstractMessage loginOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(adminLoginReq);
+		AbstractMessage loginOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), adminLoginReq);
 		
 		if (!(loginOutputMessage instanceof MessageResultRes)) {
 			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";

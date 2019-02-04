@@ -1,4 +1,15 @@
-1. web.xml(ex D:\apache-tomcat-8.5.32\conf\web.xml) 파일 에서 
+
+1. host 등록
+www.codda.pe.kr 와 admin.codda.pe.kr 2개 도메인 등록을 해야한다.
+만약 정식으로 도메인 등록을 하지 않았다면
+윈도우는 C:\Windows\System32\drivers\etc\hosts 파일에서 아래 2줄을 추가를 해야한다.
+데비안은 /etc/hosts 파일에서 아래와 같이 추가하면 된다
+
+127.0.0.1 admin.codda.pe.kr
+127.0.0.1 www.codda.pe.kr
+
+
+2. web.xml(ex D:\apache-tomcat-8.5.32\conf\web.xml) 파일 에서 
 웹 파라미터 값을 UTF8 문자열로 다루기 위한 조취로
 아래 처럼 2 군데 주석(첫번째 : 첫번째 UTF8 을 갖는 문자열 인코딩 필터 정의 부, 
 두번째 : 두번째 UTF8 문자열 인코딩 필터 URL 매칭 정의 부)을 풀어준다.
@@ -20,22 +31,22 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     
-2. server.xml 파일에 어드민과 일반 사용자 사이트 각각 추가
-<!-- 일반 사용자 사이트 -->
-      <Host name="www.codda.org" appBase="D:\gitmadang\codda\project\sample_base\user_web_app_base" unpackWARs="true" autoDeploy="true">
-			  <Context path="" docBase="ROOT" debug="0" reloadable="true"/>
-			  <Valve className="org.apache.catalina.valves.AccessLogValve" directory="D:\gitmadang\codda\project\sample_base\log\tomcat"  prefix="tomcat_access_www_" suffix=".log" pattern="%h %l %u %t &quot;%r&quot; %s %b" resolveHosts="false"/>
-		  </Host>
+3. server.xml 파일에 어드민과 일반 사용자 사이트 각각 추가
+	<!-- 일반 사용자 사이트 -->
+	<Host name="www.codda.pe.kr" appBase="D:\gitmadang\codda\project\sample_base\user_web_app_base" unpackWARs="true" autoDeploy="true">
+		<Context path="" docBase="ROOT" debug="0" reloadable="true"/>
+		<Valve className="org.apache.catalina.valves.AccessLogValve" directory="D:\gitmadang\codda\project\sample_base\log\tomcat"  prefix="tomcat_access_www_" suffix=".log" pattern="%h %l %u %t &quot;%r&quot; %s %b" resolveHosts="false"/>
+	</Host>
 	
-<!-- 관리자 사이트 -->
-		  <Host name="admin.codda.org" appBase="D:\gitmadang\codda\project\sample_base\admin_web_app_base" unpackWARs="true" autoDeploy="true">
-			  <Context path="" docBase="ROOT" debug="0" reloadable="true"/>
-			  <Valve className="org.apache.catalina.valves.AccessLogValve" directory="D:\gitmadang\codda\project\sample_base\log\tomcat"  prefix="tomcat_access_admin_" suffix=".log" pattern="%h %l %u %t &quot;%r&quot; %s %b" resolveHosts="false"/>
-		  </Host>
+	<!-- 관리자 사이트 -->
+	<Host name="admin.codda.pe.kr" appBase="D:\gitmadang\codda\project\sample_base\admin_web_app_base" unpackWARs="true" autoDeploy="true">
+		<Context path="" docBase="ROOT" debug="0" reloadable="true"/>
+		<Valve className="org.apache.catalina.valves.AccessLogValve" directory="D:\gitmadang\codda\project\sample_base\log\tomcat"  prefix="tomcat_access_admin_" suffix=".log" pattern="%h %l %u %t &quot;%r&quot; %s %b" resolveHosts="false"/>
+	</Host>
 		  
-3. codda 환경 변수 설정 적용하기
-(1) win7/win8/win10
+4. codda 환경 변수 설정 적용하기
+  (1) win7/win8/win10
 setenv.bat 를 환경에 맞게 수정후 <CATALINA_HOME>/bin  위치에 setenv.bat 와 CPAPPEND.BAT 넣는다.
 참고 : CPAPPEND.BAT 는 도스 shell 에서 CLASSPATH 환경 변수에 값을 추가하기 위한 shell 이다.
-(2) 데비안
+  (2) 데비안
 setenv.sh 을 환경에 맞게 수정후 <CATALINA_HOME>/bin  위치에 setenv.sh 을 넣는다.

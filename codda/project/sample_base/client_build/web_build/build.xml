@@ -30,9 +30,6 @@
 	</condition>
 
 	<union id="core.common.jarlibs">
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-io-2.6.jar" />
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-collections4-4.1.jar" />
-		<fileset file="${dir.core.common.build}/lib/main/ex/commons-codec-1.11.jar" />
 	</union>
 
 	<union id="core.server.jarlibs">
@@ -77,6 +74,7 @@
 	
 	<target name="clean.core">
 		<delete dir="${dir.corelib}" />
+		<mkdir dir="${dir.corelib}" />
 	</target>
 	
 	

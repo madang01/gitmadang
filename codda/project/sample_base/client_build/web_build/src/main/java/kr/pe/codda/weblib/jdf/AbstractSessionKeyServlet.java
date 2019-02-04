@@ -16,6 +16,8 @@
 
 package kr.pe.codda.weblib.jdf;
 
+import java.util.Base64;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -71,9 +73,11 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			return;
 		}		
 		
+		Base64.Decoder base64Decoder = Base64.getDecoder();
+		
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramSessionKeyBase64);
+			sessionkeyBytes = base64Decoder.decode(paramSessionKeyBase64);
 		} catch(Exception e) {
 			log.warn("paramSessionKeyBase64[{}] base64 decode error, errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
@@ -90,7 +94,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(paramIVBase64);
+			ivBytes = base64Decoder.decode(paramIVBase64);
 		} catch(Exception e) {
 			log.warn("paramIVBase64[{}] base64 decode error, errormessage=[{}]", paramIVBase64, e.getMessage());
 			

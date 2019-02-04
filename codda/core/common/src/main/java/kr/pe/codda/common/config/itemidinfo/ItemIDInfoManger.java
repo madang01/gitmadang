@@ -514,8 +514,8 @@ public class ItemIDInfoManger {
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.SINGLE_SET,
 					itemID,
-					"소캣 랩퍼 클래스인 연결 종류, ASYN_PUBLIC:공유+비동기, SYNC_PRIVATE:비공유+동기",
-					"ASYN_PUBLIC", isDefaultValueCheck,
+					"소캣 랩퍼 클래스인 연결 종류, ASYN:비동기, SYNC:동기",
+					"ASYN", isDefaultValueCheck,
 					new SetTypeConverterReturningConnectionType());
 			addProjectPartItemIDInfo(itemIDInfo);
 	

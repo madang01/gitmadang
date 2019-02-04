@@ -17,6 +17,7 @@ import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.codda.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -146,7 +147,7 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		
 		
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardDownloadFileReq);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), boardDownloadFileReq);
 		
 		if ((outputMessage instanceof MessageResultRes)) {
 			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
