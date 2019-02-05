@@ -1,7 +1,5 @@
 package kr.pe.codda.servlet.admin;
 
-import java.util.Base64;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,6 +15,7 @@ import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.common.util.HexUtil;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.AdminLoginReq.AdminLoginReq;
@@ -93,13 +92,11 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		log.info("param pwd=[{}}]", paramPwdCipherBase64);
 
 		// req.setAttribute("isSuccess", Boolean.FALSE);
-		
-		Base64.Decoder base64Decoder = java.util.Base64.getDecoder();
-		
+				
 
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = base64Decoder.decode(paramSessionKeyBase64);
+			sessionkeyBytes = CommonStaticUtil.Base64Decoder.decode(paramSessionKeyBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
@@ -116,7 +113,7 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = base64Decoder.decode(paramIVBase64);
+			ivBytes = CommonStaticUtil.Base64Decoder.decode(paramIVBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
@@ -174,15 +171,13 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-		
-		Base64.Encoder base64Encoder = Base64.getEncoder();
-		
+				
 		
 		// FIXME!
-		log.info("한글 대칭키 암호문 base64={}", base64Encoder.encodeToString(webServerSymmetricKey.encrypt("한글".getBytes("UTF8"))));
+		log.info("한글 대칭키 암호문 base64={}", CommonStaticUtil.Base64Encoder.encodeToString(webServerSymmetricKey.encrypt("한글".getBytes("UTF8"))));
 
-		byte[] userIDBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramUserIDCipherBase64));
-		byte[] passwordBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwdCipherBase64));
+		byte[] userIDBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramUserIDCipherBase64));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramPwdCipherBase64));
 
 		String userId = new String(userIDBytes, CommonStaticFinalVars.CIPHER_CHARSET);
 		// String password = new String(passwordBytes,
@@ -237,10 +232,10 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
 		AdminLoginReq adminLoginReq = new AdminLoginReq();
 
-		adminLoginReq.setIdCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIDBytes)));
-		adminLoginReq.setPwdCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
-		adminLoginReq.setSessionKeyBase64(base64Encoder.encodeToString(sessionKeyBytesOfServer));
-		adminLoginReq.setIvBase64(base64Encoder.encodeToString(ivBytesOfServer));			
+		adminLoginReq.setIdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIDBytes)));
+		adminLoginReq.setPwdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
+		adminLoginReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
+		adminLoginReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));			
 
 		AbstractMessage loginOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), adminLoginReq);
 		

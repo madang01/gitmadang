@@ -1,7 +1,9 @@
 package kr.pe.codda.client.connection.asyn;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.io.IOException;
-import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -9,8 +11,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 
 public class ClientIOEventController extends Thread implements
@@ -31,9 +31,9 @@ public class ClientIOEventController extends Thread implements
 		this.clientSelectorWakeupInterval = clientSelectorWakeupInterval;
 		this.asynConnectionPool = connectionPool;
 
-		ioEventSelector = Selector.open();		
+		ioEventSelector = Selector.open();
 		asynConnectionPool.setAsynSelectorManger(this);
-		
+
 		/**
 		 * WARNING! 반듯이 AsynConnectionPoolIF#setAsynSelectorManger 를 통해 이 객체 등록이
 		 * 선행되어야 한다
@@ -54,34 +54,32 @@ public class ClientIOEventController extends Thread implements
 	}
 
 	private void processNewConnection() {
-		while (!unregisteredAsynConnectionQueue.isEmpty()) {
+		while (! unregisteredAsynConnectionQueue.isEmpty()) {
 			ClientIOEventHandlerIF unregisteredAsynConnection = unregisteredAsynConnectionQueue
 					.removeFirst();
-
-			// FIXME!
-			// log.info("unregisteredAsynConnection[{}] start",
-			// unregisteredAsynConnection.hashCode());
 
 			boolean isConnected;
 			try {
 				isConnected = unregisteredAsynConnection.doConect();
-			} catch (IOException e) {
+			} catch (Exception e) {
+				log.warn("입출력 에러로 인한 연결 실패", e.getMessage());
 				unregisteredAsynConnection.close();
 				asynConnectionPool
 						.removeUnregisteredConnection(unregisteredAsynConnection);
 				continue;
 			}
+			
 
 			try {
 				SelectionKey registeredSelectionKey = null;
 				if (isConnected) {
-					unregisteredAsynConnection
-							.onConnect(registeredSelectionKey);
+					registeredSelectionKey = unregisteredAsynConnection
+							.register(ioEventSelector, SelectionKey.OP_READ);
 				} else {
 					registeredSelectionKey = unregisteredAsynConnection
 							.register(ioEventSelector, SelectionKey.OP_CONNECT);
 				}
-
+				
 				selectedKey2ConnectionHash.put(registeredSelectionKey,
 						unregisteredAsynConnection);
 
@@ -95,13 +93,14 @@ public class ClientIOEventController extends Thread implements
 			}
 		}
 	}
+	
 
 	@Override
 	public void run() {
-		log.info("AsynSelectorManger Thread start");
+		log.info("ClientIOEventController Thread start");
 
 		try {
-			while (Thread.currentThread().isInterrupted()) {
+			while (! Thread.currentThread().isInterrupted()) {				
 				processNewConnection();
 
 				ioEventSelector.select(clientSelectorWakeupInterval);
@@ -109,13 +108,13 @@ public class ClientIOEventController extends Thread implements
 				Set<SelectionKey> selectedKeySet = ioEventSelector
 						.selectedKeys();
 				for (SelectionKey selectedKey : selectedKeySet) {
-
-					if (selectedKey.isConnectable()) {
-						ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
-								.get(selectedKey);
-						interestedAsynConnection.onConnect(selectedKey);
-					}
 					try {
+						if (selectedKey.isConnectable()) {
+							ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
+									.get(selectedKey);
+							interestedAsynConnection.onConnect(selectedKey);
+						}
+						
 						if (selectedKey.isReadable()) {
 							ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
 									.get(selectedKey);
@@ -129,19 +128,27 @@ public class ClientIOEventController extends Thread implements
 							interestedAsynConnection.onWrite(selectedKey);
 
 						}
-					} catch (CancelledKeyException e) {
-						log.warn("CancelledKeyException occured in this socket={}"
-								, selectedKey.channel().hashCode());
-						
+					} catch (InterruptedException e) {
+						throw e;						
+					} catch (Exception e) {
+						log.warn("error", e);
+						continue;
+					}
+
+					
+					/*} catch (CancelledKeyException e) {
+						log.warn(
+								"CancelledKeyException occured in this socket={}",
+								selectedKey.channel().hashCode());
+
 						ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
 								.get(selectedKey);
-						
-						if (null != interestedAsynConnection) {	
+
+						if (null != interestedAsynConnection) {
 							interestedAsynConnection.close();
-							selectedKey2ConnectionHash
-							.remove(selectedKey);
+							selectedKey2ConnectionHash.remove(selectedKey);
 						}
-					}
+					}*/
 				}
 				selectedKeySet.clear();
 			}
@@ -151,10 +158,13 @@ public class ClientIOEventController extends Thread implements
 			String errorMessage = new StringBuilder().toString();
 			log.warn(errorMessage, e);
 		}
-		log.debug("Thread end");
+		log.info("ClientIOEventController Thread end");
 	}
 
 	public void cancel(SelectionKey selectedKey) {
+		if (null == selectedKey) {
+			return;
+		}
 		selectedKey2ConnectionHash.remove(selectedKey);
 		selectedKey.channel();
 	}

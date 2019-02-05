@@ -13,11 +13,16 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Base64;
-import java.util.Base64.Encoder;
 import java.util.Random;
 
 import javax.sql.DataSource;
+
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
+import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.common.util.CommonStaticUtil;
+import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
+import kr.pe.codda.server.dbcp.DBCPManager;
 
 import org.jooq.DSLContext;
 import org.jooq.Record1;
@@ -33,12 +38,6 @@ import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
-import kr.pe.codda.common.exception.ServerServiceException;
-import kr.pe.codda.impl.task.server.MemberRegisterReqServerTask;
-import kr.pe.codda.server.dbcp.DBCPManager;
 
 public abstract class ServerDBUtil {
 	
@@ -320,10 +319,9 @@ public abstract class ServerDBUtil {
 
 		/** 복호환 비밀번호 초기화 */
 		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);	
+			
 		
-		Encoder base64Encoder = Base64.getEncoder();		
-		
-		return new PasswordPairOfMemberTable(base64Encoder.encodeToString(passwordMDBytes), base64Encoder.encodeToString(pwdSaltBytes));
+		return new PasswordPairOfMemberTable(CommonStaticUtil.Base64Encoder.encodeToString(passwordMDBytes), CommonStaticUtil.Base64Encoder.encodeToString(pwdSaltBytes));
 	}
 
 	private static void insertAllSeqIDIfNotExist(DSLContext create) throws Exception {

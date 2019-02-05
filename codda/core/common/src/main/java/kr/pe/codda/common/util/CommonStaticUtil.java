@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.util.Base64;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -17,6 +18,9 @@ import kr.pe.codda.common.type.LineSeparatorType;
 import kr.pe.codda.common.type.ReadWriteMode;
 
 public abstract class CommonStaticUtil {
+	public static final Base64.Encoder Base64Encoder = Base64.getEncoder();
+	public static final Base64.Decoder Base64Decoder = Base64.getDecoder();
+	
 	/**
 	 * 주어진 문자열 앞뒤로 공백 문자 여부를 반환한다. 주의점) 주어진 문자열이 빈 문자열일 경우 true 를 던진다.
 	 * 

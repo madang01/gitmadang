@@ -30,7 +30,7 @@ public class RSATestThread extends Thread {
 		// log.info("threadID[{}] start", threadID);
 		
 		try {
-			while (!Thread.currentThread().isInterrupted()) {
+			while (! Thread.currentThread().isInterrupted()) {
 				// log.info("threadID[{}] running 111", threadID);
 				
 				String plainText = new StringBuilder("hello한글").append(random.nextLong()).toString();

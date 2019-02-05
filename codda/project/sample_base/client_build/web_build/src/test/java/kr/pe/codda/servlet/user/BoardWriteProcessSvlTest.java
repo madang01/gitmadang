@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.util.Base64;
 import java.util.HashMap;
 
 import javax.servlet.RequestDispatcher;
@@ -41,6 +40,7 @@ import org.mockito.ArgumentMatchers;
 
 public class BoardWriteProcessSvlTest extends AbstractJunitTest {
 	
+	
 	@Test
 	public void testDoWork_ok() {
 		ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager
@@ -61,8 +61,8 @@ public class BoardWriteProcessSvlTest extends AbstractJunitTest {
 			fail("fail to get a intanace of ClientSessionKeyIF class");
 		}
 		
-		final String sessionKeyBase64 = Base64.getEncoder().encodeToString(clientSessionKey.getDupSessionKeyBytes());
-		final String ivBase64 = Base64.getEncoder().encodeToString(clientSessionKey.getDupIVBytes());
+		final String sessionKeyBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes());
+		final String ivBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes());
 		final String subject = "테스트주제1_그림";
 		final String content = "테스트내용1_한글사랑";
 

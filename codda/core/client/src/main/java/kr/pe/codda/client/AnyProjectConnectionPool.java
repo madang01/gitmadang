@@ -266,8 +266,8 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				asynClientIOEventController, connectionPoolSupporter);		
 		
 		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynThreadSafeSingleConnection);
-		asynClientIOEventController.wakeup();		
-		
+		asynClientIOEventController.wakeup();
+				
 		try {
 			connectedConnection = ayncThreadSafeSingleConnectedConnectionAdder.poll(socketTimeout);
 		} catch(SocketTimeoutException e) {			

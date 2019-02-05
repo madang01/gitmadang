@@ -5,15 +5,8 @@ import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
-import java.util.Base64;
 
 import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -23,6 +16,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.UserLoginReq.UserLoginReq;
 import kr.pe.codda.impl.message.UserLoginRes.UserLoginRes;
@@ -38,8 +32,13 @@ import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+
 public class UserLoginReqServerTask extends AbstractServerTask {
-	private final Base64.Decoder base64Decoder =  Base64.getDecoder();
 	
 	public UserLoginReqServerTask() throws DynamicClassCallException {
 		super();
@@ -129,27 +128,27 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 		byte[] ivBytes = null;
 		
 		try {
-			idCipherBytes = base64Decoder.decode(idCipherBase64);
+			idCipherBytes = CommonStaticUtil.Base64Decoder.decode(idCipherBase64);
 		} catch(Exception e) {
 			String errorMessage = "아이디 암호문은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
-			pwdCipherBytes = base64Decoder.decode(pwdCipherBase64);
+			pwdCipherBytes = CommonStaticUtil.Base64Decoder.decode(pwdCipherBase64);
 		} catch(Exception e) {
 			String errorMessage = "비밀번호 암호문은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 		try {
-			sessionKeyBytes = base64Decoder.decode(sessionKeyBase64);
+			sessionKeyBytes = CommonStaticUtil.Base64Decoder.decode(sessionKeyBase64);
 		} catch(Exception e) {
 			String errorMessage = "세션키는 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
-			ivBytes = base64Decoder.decode(ivBase64);
+			ivBytes = CommonStaticUtil.Base64Decoder.decode(ivBase64);
 		} catch(Exception e) {
 			String errorMessage = "세션키 소금값은 base64 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
@@ -367,7 +366,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			byte[] pwdSaltBytes = base64Decoder.decode(pwdSaltBase64);			
+			byte[] pwdSaltBytes = CommonStaticUtil.Base64Decoder.decode(pwdSaltBase64);			
 			
 			PasswordPairOfMemberTable passwordPairOfMemberTable = ServerDBUtil.toPasswordPairOfMemberTable(passwordBytes, pwdSaltBytes);
 			

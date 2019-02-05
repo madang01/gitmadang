@@ -232,6 +232,13 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 	}
 	
 	public void fillAllConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
+		// FIXME!
+		log.info("numberOfUnregisteredConnection={}, numberOfConnection={}," +
+				"clientConnectionCount={}",
+				numberOfUnregisteredConnection,
+				numberOfConnection,
+				clientConnectionCount);
+		
 		synchronized (monitor) {				
 			while ((numberOfUnregisteredConnection
 					+ numberOfConnection) < clientConnectionCount) {				

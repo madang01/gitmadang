@@ -1,7 +1,5 @@
 package kr.pe.codda.servlet.user;
 
-import java.util.Base64;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,6 +15,7 @@ import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.common.util.HexUtil;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
@@ -110,11 +109,10 @@ public class MembershipProcessSvl extends AbstractServlet {
 			return;
 		}
 		
-		Base64.Decoder base64Decoder = Base64.getDecoder();
 		
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = base64Decoder.decode(paramSessionKeyBase64);
+			sessionkeyBytes = CommonStaticUtil.Base64Decoder.decode(paramSessionKeyBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramSessionKeyBase64[{}], errormessage=[{}]", paramSessionKeyBase64, e.getMessage());
 			
@@ -132,7 +130,7 @@ public class MembershipProcessSvl extends AbstractServlet {
 		}
 		byte[] ivBytes = null;
 		try {
-			ivBytes = base64Decoder.decode(paramIVBase64);
+			ivBytes = CommonStaticUtil.Base64Decoder.decode(paramIVBase64);
 		} catch(Exception e) {
 			log.warn("base64 encoding error for the parameter paramIVBase64[{}], errormessage=[{}]", paramIVBase64, e.getMessage());
 			
@@ -195,12 +193,12 @@ public class MembershipProcessSvl extends AbstractServlet {
 			return;
 		}
 	
-		byte[] userIdBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramUserID));
-		byte[] passwordBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwd));
-		byte[] nicknameBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramNickname));
-		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwdHint));
-		byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramPwdAnswer));
-		byte[] answerBytes = webServerSymmetricKey.decrypt(base64Decoder.decode(paramCaptchaAnswer));
+		byte[] userIdBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramUserID));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramPwd));
+		byte[] nicknameBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramNickname));
+		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramPwdHint));
+		byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramPwdAnswer));
+		byte[] answerBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramCaptchaAnswer));
 		
 		String answer = new String(answerBytes, CommonStaticFinalVars.CIPHER_CHARSET);
 		
@@ -252,15 +250,14 @@ public class MembershipProcessSvl extends AbstractServlet {
 
 		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
 		
-		Base64.Encoder base64Encoder = Base64.getEncoder();
 		
-		memberRegisterReq.setIdCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIdBytes)));
-		memberRegisterReq.setPwdCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
-		memberRegisterReq.setNicknameCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(nicknameBytes)));
-		memberRegisterReq.setHintCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(pwdHintBytes)));
-		memberRegisterReq.setAnswerCipherBase64(base64Encoder.encodeToString(clientSymmetricKey.encrypt(pwdAnswerBytes)));
-		memberRegisterReq.setSessionKeyBase64(base64Encoder.encodeToString(sessionKeyBytesOfServer));
-		memberRegisterReq.setIvBase64(base64Encoder.encodeToString(ivBytesOfServer));
+		memberRegisterReq.setIdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIdBytes)));
+		memberRegisterReq.setPwdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
+		memberRegisterReq.setNicknameCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(nicknameBytes)));
+		memberRegisterReq.setHintCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(pwdHintBytes)));
+		memberRegisterReq.setAnswerCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(pwdAnswerBytes)));
+		memberRegisterReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
+		memberRegisterReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));
 		memberRegisterReq.setIp(req.getRemoteAddr());
 
 		AbstractMessage memberRegisterOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), memberRegisterReq);					

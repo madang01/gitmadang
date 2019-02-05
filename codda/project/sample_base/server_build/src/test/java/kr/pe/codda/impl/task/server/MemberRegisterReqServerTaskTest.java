@@ -3,7 +3,6 @@ package kr.pe.codda.impl.task.server;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
-import java.util.Base64;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
@@ -13,6 +12,7 @@ import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
@@ -22,7 +22,6 @@ import org.junit.Test;
 public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {	
 	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
 	// private final Base64.Decoder base64Decoder =  Base64.getDecoder();
-	private final Base64.Encoder base64Encoder = Base64.getEncoder();
 	
 	@Test
 	public void testDoService_ok() {		
@@ -85,13 +84,13 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
-		memberRegisterReq.setIdCipherBase64(base64Encoder.encodeToString(idCipherTextBytes));
-		memberRegisterReq.setPwdCipherBase64(base64Encoder.encodeToString(passwordCipherTextBytes));
-		memberRegisterReq.setNicknameCipherBase64(base64Encoder.encodeToString(nicknameCipherTextBytes));
-		memberRegisterReq.setHintCipherBase64(base64Encoder.encodeToString(pwdHintCipherTextBytes));
-		memberRegisterReq.setAnswerCipherBase64(base64Encoder.encodeToString(pwdAnswerCipherTextBytes));
-		memberRegisterReq.setSessionKeyBase64(base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes()));
-		memberRegisterReq.setIvBase64(base64Encoder.encodeToString(clientSessionKey.getDupIVBytes()));
+		memberRegisterReq.setIdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(idCipherTextBytes));
+		memberRegisterReq.setPwdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(passwordCipherTextBytes));
+		memberRegisterReq.setNicknameCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(nicknameCipherTextBytes));
+		memberRegisterReq.setHintCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(pwdHintCipherTextBytes));
+		memberRegisterReq.setAnswerCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(pwdAnswerCipherTextBytes));
+		memberRegisterReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes()));
+		memberRegisterReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes()));
 	
 		MemberRegisterReqServerTask memberRegisterReqServerTask = null;
 		try {

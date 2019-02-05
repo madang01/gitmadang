@@ -42,9 +42,10 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 
-public class AsynThreadSafeSingleConnection
-		implements AsynConnectionIF, ClientIOEventHandlerIF, ReceivedMessageBlockingQueueIF {
-	private InternalLogger log = InternalLoggerFactory.getInstance(AsynThreadSafeSingleConnection.class);
+public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
+		ClientIOEventHandlerIF, ReceivedMessageBlockingQueueIF {
+	private InternalLogger log = InternalLoggerFactory
+			.getInstance(AsynThreadSafeSingleConnection.class);
 
 	private final Object writeMonitor = new Object();
 	private final Object readMonitor = new Object();
@@ -70,11 +71,17 @@ public class AsynThreadSafeSingleConnection
 
 	private ArrayDeque<ArrayDeque<WrapBuffer>> inputMessageQueue = new ArrayDeque<ArrayDeque<WrapBuffer>>();
 
-	public AsynThreadSafeSingleConnection(String projectName, String serverHost, int serverPort, long socketTimeout,
-			int syncMessageMailboxCountPerAsynShareConnection, int clientAsynInputMessageQueueCapacity,
-			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferPool, ClientTaskMangerIF clientTaskManger, AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
-			ClientIOEventControllerIF asynClientIOEventController, ConnectionPoolSupporterIF connectionPoolSupporter)
+	public AsynThreadSafeSingleConnection(String projectName,
+			String serverHost, int serverPort, long socketTimeout,
+			int syncMessageMailboxCountPerAsynShareConnection,
+			int clientAsynInputMessageQueueCapacity,
+			SocketOutputStream socketOutputStream,
+			MessageProtocolIF messageProtocol,
+			DataPacketBufferPoolIF dataPacketBufferPool,
+			ClientTaskMangerIF clientTaskManger,
+			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
+			ClientIOEventControllerIF asynClientIOEventController,
+			ConnectionPoolSupporterIF connectionPoolSupporter)
 			throws IOException {
 		this.projectName = projectName;
 		this.serverHost = serverHost;
@@ -96,7 +103,8 @@ public class AsynThreadSafeSingleConnection
 				syncMessageMailboxCountPerAsynShareConnection);
 
 		for (int i = 0; i < syncMessageMailboxCountPerAsynShareConnection; i++) {
-			SyncMessageMailbox syncMessageMailbox = new SyncMessageMailbox(this, i + 1, socketTimeout);
+			SyncMessageMailbox syncMessageMailbox = new SyncMessageMailbox(
+					this, i + 1, socketTimeout);
 
 			syncMessageMailboxQueue.add(syncMessageMailbox);
 			syncMessageMailboxList.add(syncMessageMailbox);
@@ -115,7 +123,8 @@ public class AsynThreadSafeSingleConnection
 		clientSC.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 		// setReuseAddress
 
-		// log.info("{} connection[{}] created", projectName, serverSC.hashCode());
+		// log.info("{} connection[{}] created", projectName,
+		// serverSC.hashCode());
 	}
 
 	private void setFinalReadTime() {
@@ -127,15 +136,21 @@ public class AsynThreadSafeSingleConnection
 	}
 
 	@Override
-	public AbstractMessage sendSyncInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage)
-			throws InterruptedException, IOException, NoMoreDataPacketBufferException, DynamicClassCallException,
-			BodyFormatException, ServerTaskException, ServerTaskPermissionException {
+	public AbstractMessage sendSyncInputMessage(
+			MessageCodecMangerIF messageCodecManger,
+			AbstractMessage inputMessage) throws InterruptedException,
+			IOException, NoMoreDataPacketBufferException,
+			DynamicClassCallException, BodyFormatException,
+			ServerTaskException, ServerTaskPermissionException {
 
-		SyncMessageMailbox syncMessageMailbox = syncMessageMailboxQueue.poll(socketTimeout, TimeUnit.MILLISECONDS);
+		SyncMessageMailbox syncMessageMailbox = syncMessageMailboxQueue.poll(
+				socketTimeout, TimeUnit.MILLISECONDS);
 		if (null == syncMessageMailbox) {
-			log.warn("drop the input message[{}] becase it failed to get a mailbox within socket timeout",
+			log.warn(
+					"drop the input message[{}] becase it failed to get a mailbox within socket timeout",
 					inputMessage.toString());
-			throw new SocketTimeoutException("fail to get a mailbox within socket timeout");
+			throw new SocketTimeoutException(
+					"fail to get a mailbox within socket timeout");
 		}
 
 		try {
@@ -143,15 +158,18 @@ public class AsynThreadSafeSingleConnection
 			// inputMessage.getClass().getClassLoader();
 
 			syncMessageMailbox.nextMailID();
-			inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox.getMailboxID();
-			inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
+			inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox
+					.getMailboxID();
+			inputMessage.messageHeaderInfo.mailID = syncMessageMailbox
+					.getMailID();
 
 			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility
-					.buildReadableWrapBufferList(messageCodecManger, messageProtocol, inputMessage);
+					.buildReadableWrapBufferList(messageCodecManger,
+							messageProtocol, inputMessage);
 
 			try {
 				addInputMessage(inputMessage, inputMessageWrapBufferQueue);
-			} catch(CancelledKeyException e) {
+			} catch (CancelledKeyException e) {
 				close();
 				throw e;
 			}
@@ -159,8 +177,9 @@ public class AsynThreadSafeSingleConnection
 			ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = syncMessageMailbox
 					.getSyncOutputMessage();
 
-			AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageCodecManger, messageProtocol,
-					outputMessageWrapReadableMiddleObject);
+			AbstractMessage outputMessage = ClientMessageUtility
+					.buildOutputMessage(messageCodecManger, messageProtocol,
+							outputMessageWrapReadableMiddleObject);
 
 			return outputMessage;
 		} finally {
@@ -169,42 +188,54 @@ public class AsynThreadSafeSingleConnection
 	}
 
 	@Override
-	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger, AbstractMessage inputMessage) throws InterruptedException, NotSupportedException,
-			IOException, NoMoreDataPacketBufferException, DynamicClassCallException, BodyFormatException {		
-		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox.getMailboxID();
-		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox.getNextMailID();
+	public void sendAsynInputMessage(MessageCodecMangerIF messageCodecManger,
+			AbstractMessage inputMessage) throws InterruptedException,
+			NotSupportedException, IOException,
+			NoMoreDataPacketBufferException, DynamicClassCallException,
+			BodyFormatException {
+		inputMessage.messageHeaderInfo.mailboxID = AsynMessageMailbox
+				.getMailboxID();
+		inputMessage.messageHeaderInfo.mailID = AsynMessageMailbox
+				.getNextMailID();
 
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
-				messageCodecManger, messageProtocol, inputMessage);
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility
+				.buildReadableWrapBufferList(messageCodecManger,
+						messageProtocol, inputMessage);
 
-		
 		addInputMessage(inputMessage, inputMessageWrapBufferQueue);
 	}
 
-	private void addInputMessage(AbstractMessage inputMessage, ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue)
-			throws InterruptedException, ConnectionPoolTimeoutException, CancelledKeyException {
+	private void addInputMessage(AbstractMessage inputMessage,
+			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue)
+			throws InterruptedException, ConnectionPoolTimeoutException,
+			CancelledKeyException {
 
-		//long startTime = System.nanoTime();
-		synchronized (writeMonitor) {	
-			
+		// long startTime = System.nanoTime();
+		synchronized (writeMonitor) {
+
 			if (inputMessageQueue.size() >= clientAsynInputMessageQueueCapacity) {
 				writeMonitor.wait(socketTimeout);
-				
+
 				if (inputMessageQueue.size() >= clientAsynInputMessageQueueCapacity) {
-					String errorMessage = new StringBuilder().append("fail to inserts the specified element[")
-							.append(inputMessage.toString()).append("] into the input message queue while socket[")
+					String errorMessage = new StringBuilder()
+							.append("fail to inserts the specified element[")
+							.append(inputMessage.toString())
+							.append("] into the input message queue while socket[")
 							.append(hashCode()).append("] timeout").toString();
 
-					/*while (!inputMessageWrapBufferQueue.isEmpty()) {
-						WrapBuffer wrapBuffer = inputMessageWrapBufferQueue.pollFirst();
-						dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
-					}*/
-					
+					/*
+					 * while (!inputMessageWrapBufferQueue.isEmpty()) {
+					 * WrapBuffer wrapBuffer =
+					 * inputMessageWrapBufferQueue.pollFirst();
+					 * dataPacketBufferPool.putDataPacketBuffer(wrapBuffer); }
+					 */
+
 					log.warn(errorMessage);
-					
+
 					/** 입력 메시지 스트림을 담은 버퍼 리스트는 별도 해제 */
-					while (! inputMessageWrapBufferQueue.isEmpty()) {
-						WrapBuffer wrapBuffer = inputMessageWrapBufferQueue.removeFirst();
+					while (!inputMessageWrapBufferQueue.isEmpty()) {
+						WrapBuffer wrapBuffer = inputMessageWrapBufferQueue
+								.removeFirst();
 						dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 					}
 
@@ -212,63 +243,70 @@ public class AsynThreadSafeSingleConnection
 					throw new ConnectionPoolTimeoutException(errorMessage);
 				}
 			}
-			
-			inputMessageQueue.add(inputMessageWrapBufferQueue);			
-			
+
+			inputMessageQueue.add(inputMessageWrapBufferQueue);
+
 			try {
-				personalSelectionKey.interestOps(personalSelectionKey.interestOps() | SelectionKey.OP_WRITE);
+				personalSelectionKey.interestOps(personalSelectionKey
+						.interestOps() | SelectionKey.OP_WRITE);
 				asynClientIOEventController.wakeup();
-			} catch(CancelledKeyException e) {
-				log.warn("CancelledKeyException occured in this socket[{}]", clientSC.hashCode());
+			} catch (CancelledKeyException e) {
+				log.warn("CancelledKeyException occured in this socket[{}]",
+						clientSC.hashCode());
 				// close();
-				//throw e;
+				// throw e;
 			}
 		}
-		
-		/*long endTime = System.nanoTime();
-		log.info("addInputMessage elasped {} microseconds",
-				TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));*/
+
+		/*
+		 * long endTime = System.nanoTime();
+		 * log.info("addInputMessage elasped {} microseconds",
+		 * TimeUnit.MICROSECONDS.convert((endTime - startTime),
+		 * TimeUnit.NANOSECONDS));
+		 */
 	}
 
 	@Override
 	public void close() {
 		log.info("socket[{}] closed", clientSC.hashCode());
-		
-		
-			try {
-				clientSC.close();
-			} catch (IOException e) {
-				log.warn("fail to close the socket channel[{}], errmsg={}", clientSC.hashCode(), e.getMessage());
-			}
-			
-			asynClientIOEventController.cancel(personalSelectionKey);
 
-			releaseResources();
-		
-	}	
+		try {
+			clientSC.close();
+		} catch (IOException e) {
+			log.warn("fail to close the socket channel[{}], errmsg={}",
+					clientSC.hashCode(), e.getMessage());
+		}
+
+		asynClientIOEventController.cancel(personalSelectionKey);
+
+		releaseResources();
+
+	}
 
 	private void releaseResources() {
 		synchronized (readMonitor) {
 			socketOutputStream.close();
 		}
-		
+
 		synchronized (writeMonitor) {
-			if (! inputMessageQueue.isEmpty()) {
+			if (!inputMessageQueue.isEmpty()) {
 				log.info("the var inputMessageStreamQueue is not a empty");
 
-				while (! inputMessageQueue.isEmpty()) {
-					ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageQueue.poll();
+				while (!inputMessageQueue.isEmpty()) {
+					ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageQueue
+							.poll();
 
-					while (! inputMessageWrapBufferQueue.isEmpty()) {
-						WrapBuffer wrapBuffer = inputMessageWrapBufferQueue.removeFirst();
+					while (!inputMessageWrapBufferQueue.isEmpty()) {
+						WrapBuffer wrapBuffer = inputMessageWrapBufferQueue
+								.removeFirst();
 						dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 					}
-				} 
+				}
 			}
 		}
-		
 
-		log.info("this connection[{}]'s resources has been released", clientSC.hashCode());
+		log.info("this connection[{}]'s resources has been released",
+				clientSC.hashCode());
 	}
 
 	public int hashCode() {
@@ -281,20 +319,24 @@ public class AsynThreadSafeSingleConnection
 		try {
 			isSuccess = clientSC.finishConnect();
 		} catch (IOException e) {
-			log.warn("fail to finish a connection[{}] becase io exception has been occurred, errmsg={}", hashCode(),
-					e.getMessage());
+			log.warn(
+					"fail to finish a connection[{}] becase io exception has been occurred, errmsg={}",
+					hashCode(), e.getMessage());
 
 			close();
 			asynConnectedConnectionAdder.removeInterestedConnection(this);
-			connectionPoolSupporter.notice("fail to finish a connection becase of io error");
+			connectionPoolSupporter
+					.notice("fail to finish a connection becase of io error");
 			return;
 		} catch (Exception e) {
-			log.warn("fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}", hashCode(),
-					e.getMessage());
+			log.warn(
+					"fail to finish a connection[{}] becase unknown error has been occurred, errmsg={}",
+					hashCode(), e.getMessage());
 
 			close();
 			asynConnectedConnectionAdder.removeInterestedConnection(this);
-			connectionPoolSupporter.notice("fail to finish a connection becase of unknow error");
+			connectionPoolSupporter
+					.notice("fail to finish a connection becase of unknow error");
 			return;
 		}
 
@@ -315,9 +357,10 @@ public class AsynThreadSafeSingleConnection
 			asynConnectedConnectionAdder.addConnectedConnection(this);
 		}
 	}
-	
+
 	@Override
-	public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
+	public void putReceivedMessage(
+			ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
 			throws InterruptedException {
 		int mailboxID = readableMiddleObjectWrapper.getMailboxID();
 		if (CommonStaticFinalVars.ASYN_MAILBOX_ID == mailboxID) {
@@ -336,11 +379,14 @@ public class AsynThreadSafeSingleConnection
 				}
 
 				try {
-					clientTask.execute(hashCode(), projectName, this, readableMiddleObjectWrapper, messageProtocol);
+					clientTask.execute(hashCode(), projectName, this,
+							readableMiddleObjectWrapper, messageProtocol);
 				} catch (InterruptedException e) {
 					throw e;
 				} catch (Exception | Error e) {
-					log.warn("unknwon error::fail to execute a output message client task", e);
+					log.warn(
+							"unknwon error::fail to execute a output message client task",
+							e);
 					return;
 				}
 
@@ -353,23 +399,26 @@ public class AsynThreadSafeSingleConnection
 			try {
 				syncMessageMailbox = syncMessageMailboxList.get(mailboxID - 1);
 			} catch (IndexOutOfBoundsException e) {
-				log.warn("fail to match a mailbox of the received message[{}], errmsg={}",
-						readableMiddleObjectWrapper.toSimpleInformation(), e.getMessage());
+				log.warn(
+						"fail to match a mailbox of the received message[{}], errmsg={}",
+						readableMiddleObjectWrapper.toSimpleInformation(),
+						e.getMessage());
 				return;
 			}
-			syncMessageMailbox.putSyncOutputMessage(readableMiddleObjectWrapper);
+			syncMessageMailbox
+					.putSyncOutputMessage(readableMiddleObjectWrapper);
 		}
 	}
 
 	@Override
 	public void onRead(SelectionKey selectedKey) throws InterruptedException {
-		synchronized (readMonitor) {
-			try {
-
+		try {
+			synchronized (readMonitor) {
 				int numberOfReadBytes = socketOutputStream.read(clientSC);
 
 				if (-1 == numberOfReadBytes) {
-					String errorMessage = new StringBuilder("this socket channel[").append(clientSC.hashCode())
+					String errorMessage = new StringBuilder(
+							"this socket channel[").append(clientSC.hashCode())
 							.append("] has reached end-of-stream").toString();
 
 					log.warn(errorMessage);
@@ -379,87 +428,130 @@ public class AsynThreadSafeSingleConnection
 
 				setFinalReadTime();
 				messageProtocol.S2MList(socketOutputStream, this);
-
-			} catch (NoMoreDataPacketBufferException e) {
-				String errorMessage = new StringBuilder()
-						.append("the no more data packet buffer error occurred while reading the socket[")
-						.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
-				log.warn(errorMessage, e);
-				close();
-				return;
-			} catch (IOException e) {
-				String errorMessage = new StringBuilder().append("the io error occurred while reading the socket[")
-						.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
-				log.warn(errorMessage, e);
-				close();
-				return;
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder().append("the unknown error occurred while reading the socket[")
-						.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
-				log.warn(errorMessage, e);
-				close();
-				return;
 			}
+
+		} catch (NoMoreDataPacketBufferException e) {
+			String errorMessage = new StringBuilder()
+					.append("the no more data packet buffer error occurred while reading the socket[")
+					.append(clientSC.hashCode()).append("], errmsg=")
+					.append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+			close();
+			return;
+		} catch (IOException e) {
+			String errorMessage = new StringBuilder()
+					.append("the io error occurred while reading the socket[")
+					.append(clientSC.hashCode()).append("], errmsg=")
+					.append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+			close();
+			return;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder()
+					.append("the unknown error occurred while reading the socket[")
+					.append(clientSC.hashCode()).append("], errmsg=")
+					.append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+			close();
+			return;
 		}
 	}
 
 	@Override
-	public void onWrite(SelectionKey selectedKey) throws InterruptedException, CancelledKeyException {
-		synchronized (writeMonitor) {
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageQueue.peek();
-			if (null == inputMessageWrapBufferQueue) {
-				return;
-			}
+	public void onWrite(SelectionKey selectedKey) throws InterruptedException,
+			CancelledKeyException {
+		try {
+			synchronized (writeMonitor) {
+				ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = inputMessageQueue
+						.peek();
+				if (null == inputMessageWrapBufferQueue) {
+					return;
+				}
 
-			WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
-			ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
+				WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue
+						.peek();
+				ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer
+						.getByteBuffer();
 
-			int numberOfBytesWritten = 0;
-			try {
-				numberOfBytesWritten = clientSC.write(currentWorkingByteBuffer);
-			} catch (IOException e) {
-				String errorMessage = new StringBuilder().append("fail to write a sequence of bytes to this channel[")
-						.append(clientSC.hashCode()).append("] because error occured, errmsg=").append(e.getMessage())
-						.toString();
-				log.warn(errorMessage, e);
-				close();
-				return;
-			}
+				int numberOfBytesWritten = clientSC
+						.write(currentWorkingByteBuffer);
 
-			if (numberOfBytesWritten > 0) {
-				if (!currentWorkingByteBuffer.hasRemaining()) {
-					inputMessageWrapBufferQueue.removeFirst();
-					dataPacketBufferPool.putDataPacketBuffer(currentWorkingWrapBuffer);
+				if (numberOfBytesWritten > 0) {
+					if (!currentWorkingByteBuffer.hasRemaining()) {
+						inputMessageWrapBufferQueue.removeFirst();
+						dataPacketBufferPool
+								.putDataPacketBuffer(currentWorkingWrapBuffer);
 
-					if (inputMessageWrapBufferQueue.isEmpty()) {						
-						try {
-							inputMessageQueue.poll();
-							if (inputMessageQueue.isEmpty()) {						
-								selectedKey.interestOps(selectedKey.interestOps() & ~SelectionKey.OP_WRITE);							
+						if (inputMessageWrapBufferQueue.isEmpty()) {
+							try {
+								inputMessageQueue.poll();
+								if (inputMessageQueue.isEmpty()) {
+									selectedKey.interestOps(selectedKey
+											.interestOps()
+											& ~SelectionKey.OP_WRITE);
+								}
+							} finally {
+								writeMonitor.notify();
 							}
-						} finally {
-							writeMonitor.notify();
+							return;
 						}
-						return;
 					}
 				}
 			}
+		} catch (CancelledKeyException e) {
+			log.warn(
+					"CancelledKeyException occured in this channel={}",
+					clientSC.hashCode());
+			
+			String errorMessage = new StringBuilder()
+			.append("CancelledKeyException occured in this channel[")
+			.append(clientSC.hashCode())
+			.append("]").toString();
+			
+			log.warn("{}, errmsg={}", errorMessage, e.getMessage());
+			close();
+			return;
+		} catch (IOException e) {
+			String errorMessage = new StringBuilder()
+			.append("the io error occurred while writing the socket[")
+			.append(clientSC.hashCode()).append("], errmsg=")
+			.append(e.getMessage()).toString();
+			
+			log.warn("{}, errmsg={}", errorMessage, e.getMessage());
+			close();
+			return;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder()
+			.append("the unknown error occurred while writing the socket[")
+			.append(clientSC.hashCode()).append("], errmsg=")
+			.append(e.getMessage()).toString();
+			
+			log.warn(errorMessage, e);
+			close();
+			return;
 		}
 	}
 
 	@Override
-	public SelectionKey register(Selector ioEventSelector, int wantedInterestOps) throws ClosedChannelException {
-		SelectionKey registeredSelectionKey = clientSC.register(ioEventSelector, wantedInterestOps);
+	public SelectionKey register(Selector ioEventSelector, int wantedInterestOps)
+			throws ClosedChannelException {
+		SelectionKey registeredSelectionKey = clientSC.register(
+				ioEventSelector, wantedInterestOps);
 		return registeredSelectionKey;
 	}
 
 	@Override
 	public boolean doConect() throws IOException {
-		SocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
-		return clientSC.connect(serverAddress);
-	}
+		SocketAddress serverAddress = new InetSocketAddress(serverHost,
+				serverPort);
+		boolean isSuceess = clientSC.connect(serverAddress);
 
-	
+		if (isSuceess) {
+			isSuceess = clientSC.finishConnect();
+		}
+
+		return isSuceess;
+	}
 
 	public boolean isConnected() {
 		return clientSC.isConnected();

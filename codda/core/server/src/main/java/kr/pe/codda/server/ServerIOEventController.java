@@ -6,8 +6,6 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
-import java.nio.channels.CancelledKeyException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -23,8 +21,10 @@ import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.server.classloader.ServerTaskMangerIF;
 
-public class ServerIOEventController extends Thread implements ServerIOEvenetControllerIF, ProjectLoginManagerIF {
-	private InternalLogger log = InternalLoggerFactory.getInstance(ServerIOEventController.class);
+public class ServerIOEventController extends Thread implements
+		ServerIOEvenetControllerIF, ProjectLoginManagerIF {
+	private InternalLogger log = InternalLoggerFactory
+			.getInstance(ServerIOEventController.class);
 
 	private String projectName;
 	private String serverHost;
@@ -47,16 +47,20 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	private HashMap<SelectionKey, String> selectedKey2LonginIDHash = new HashMap<SelectionKey, String>();
 	private HashMap<String, SelectionKey> longinID2SelectedKeyHash = new HashMap<String, SelectionKey>();
 
-	public ServerIOEventController(ProjectPartConfiguration projectPartConfiguration,
-			SocketOutputStreamFactoryIF socketOutputStreamFactory, MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferPool, ServerTaskMangerIF serverTaskManager) {
+	public ServerIOEventController(
+			ProjectPartConfiguration projectPartConfiguration,
+			SocketOutputStreamFactoryIF socketOutputStreamFactory,
+			MessageProtocolIF messageProtocol,
+			DataPacketBufferPoolIF dataPacketBufferPool,
+			ServerTaskMangerIF serverTaskManager) {
 
 		this.projectName = projectPartConfiguration.getProjectName();
 		this.serverHost = projectPartConfiguration.getServerHost();
 		this.serverPort = projectPartConfiguration.getServerPort();
 		this.maxClients = projectPartConfiguration.getServerMaxClients();
 		this.socketTimeOut = projectPartConfiguration.getClientSocketTimeout();
-		this.serverOutputMessageQueueCapacity = projectPartConfiguration.getServerOutputMessageQueueCapacity();
+		this.serverOutputMessageQueueCapacity = projectPartConfiguration
+				.getServerOutputMessageQueueCapacity();
 
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.messageProtocol = messageProtocol;
@@ -78,7 +82,8 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 			ssc.configureBlocking(false); // non block 설정
 			ssc.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 
-			InetSocketAddress address = new InetSocketAddress(serverHost, serverPort);
+			InetSocketAddress address = new InetSocketAddress(serverHost,
+					serverPort);
 			ssc.socket().bind(address);
 
 			ssc.register(ioEventSelector, SelectionKey.OP_ACCEPT);
@@ -87,6 +92,158 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 			System.exit(1);
 		}
 
+	}
+	
+	private void closeAcceptedSocketChannel(SocketChannel acceptableSocketChannel) {
+		try {
+			acceptableSocketChannel
+					.setOption(
+							StandardSocketOptions.SO_LINGER,
+							0);
+		} catch (Exception e) {
+			log.warn(
+					"fail to set the value of a acceptable channel[{}] option 'SO_LINGER'",
+					acceptableSocketChannel
+							.hashCode());
+		}
+		try {
+			acceptableSocketChannel.close();
+		} catch (Exception e) {
+			log.warn(
+					"fail to close the acceptable channel[{}]",
+					acceptableSocketChannel
+							.hashCode());
+		}
+	}
+	
+	private void onConnect(SelectionKey selectedKey) {
+		ServerSocketChannel readyChannel = (ServerSocketChannel) selectedKey
+				.channel();
+		
+		SocketChannel acceptableSocketChannel = null;
+		
+		try {
+			acceptableSocketChannel = readyChannel.accept();
+		} catch(Exception e) {
+			String errorMessage = new StringBuilder()
+			.append("fail to accept a connection[")
+			.append(readyChannel.hashCode())
+			.append("] made to this channel's socket").toString();			
+
+			log.warn("{}, errmsg={}", errorMessage, e.getMessage());
+			return;
+		}
+										
+
+		if (null == acceptableSocketChannel) {
+			try {
+				readyChannel.close();
+			} catch (IOException e) {				
+			}
+			log.warn("acceptableSocketChannel is null");
+			return;
+		}
+
+		int numberOfAcceptedConnection = selectedKey2AcceptedConnectionHash
+				.size();
+
+		log.info(
+				"acceptable socket channel={}, numberOfAcceptedConnection={}",
+				acceptableSocketChannel.hashCode(),
+				numberOfAcceptedConnection);
+
+		if (numberOfAcceptedConnection >= maxClients) {
+			closeAcceptedSocketChannel(acceptableSocketChannel);			
+			
+			String errorMessage = new StringBuilder()
+			.append("close the acceptable socket channel[")
+			.append(acceptableSocketChannel.hashCode())
+			.append("] because the maximum number[")
+			.append(maxClients)
+			.append("] of sockets has been reached").toString();
+			
+
+			log.warn(errorMessage);
+			return;
+		}
+
+		try {
+			if (acceptableSocketChannel
+					.isConnectionPending()) {
+				acceptableSocketChannel.finishConnect();
+			}
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder()
+			.append("fail to finish connect the accepted channel[")
+			.append(acceptableSocketChannel.hashCode())
+			.append("]").toString();
+			
+			log.warn("{}, errmsg={}", errorMessage, e.getMessage());
+			
+			return;
+		}
+
+		try {
+			setupAcceptedSocketChannel(acceptableSocketChannel);
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder()
+			.append("fail to setup the accepted channel[")
+			.append(acceptableSocketChannel.hashCode())
+			.append("]'s options").toString();
+			
+			log.warn("{}, errmsg={}", errorMessage, e.getMessage());
+			
+			return;
+		}
+
+		SelectionKey acceptedKey = null;
+
+		try {
+			acceptedKey = acceptableSocketChannel
+					.register(ioEventSelector,
+							SelectionKey.OP_READ);
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder()
+			.append("fail to register this channel[")
+			.append(acceptableSocketChannel.hashCode())
+			.append("] with the given selector having a the interest set OP_READ").toString();
+			
+			log.warn("{}, errmsg={}",
+					errorMessage, e.getMessage());
+
+			return;
+		}
+
+		SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+
+		try {
+			socketOutputStreamOfAcceptedSC = socketOutputStreamFactory
+					.createSocketOutputStream();
+		} catch (NoMoreDataPacketBufferException e) {
+			closeAcceptedSocketChannel(acceptableSocketChannel);
+			acceptedKey.cancel();
+			log.warn(
+					"close the acceptable socket channel[{}] becase there is no more data packet buffer",
+					acceptableSocketChannel.hashCode());
+			return;
+		}
+
+		AcceptedConnection acceptedConnection = new AcceptedConnection(
+				acceptedKey, acceptableSocketChannel,
+				projectName, socketTimeOut,
+				serverOutputMessageQueueCapacity,
+				socketOutputStreamOfAcceptedSC, this,
+				messageProtocol, dataPacketBufferPool,
+				this, serverTaskManager);
+
+		/** 소켓 자원 등록 작업 */
+		selectedKey2AcceptedConnectionHash.put(
+				acceptedKey, acceptedConnection);
+
+		log.info(
+				"successfully changed acceptedKey[{}]'s acceptable socket channel[{}] to accepted socket channel",
+				acceptedKey.hashCode(),
+				acceptableSocketChannel.hashCode());
 	}
 
 	@Override
@@ -103,102 +260,25 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 
 				// if (keyReady > 0) {
 
-				Set<SelectionKey> selectedKeySet = ioEventSelector.selectedKeys();
+				Set<SelectionKey> selectedKeySet = ioEventSelector
+						.selectedKeys();
 
 				try {
 					for (SelectionKey selectedKey : selectedKeySet) {
 						try {
-							if (selectedKey.isAcceptable()) {
-								ServerSocketChannel readyChannel = (ServerSocketChannel) selectedKey.channel();
-
-								SocketChannel acceptableSocketChannel = readyChannel.accept();
-
-								if (null == acceptableSocketChannel) {
-									log.warn("acceptableSocketChannel is null");
-									continue;
-								}							
-
-								int numberOfAcceptedConnection = selectedKey2AcceptedConnectionHash.size();
-								
-								log.info("acceptable socket channel={}, numberOfAcceptedConnection={}", 
-										acceptableSocketChannel.hashCode(), numberOfAcceptedConnection);
-								
-								if (numberOfAcceptedConnection >= maxClients) {
-									try {
-										acceptableSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
-									} catch(Exception e) {
-										log.warn("fail to set the value of a acceptable channel[{}] option 'SO_LINGER'", acceptableSocketChannel.hashCode());
-									}
-									try {
-										acceptableSocketChannel.close();
-									} catch(Exception e) {
-										log.warn("fail to close the acceptable channel[{}]", acceptableSocketChannel.hashCode());
-									}
-									log.warn(
-											"close the acceptable socket channel[{}] because the maximum number[{}] of sockets has been reached",
-											acceptableSocketChannel.hashCode(), maxClients);
-									
-									continue;
-								}
-								
-								try {
-									if (acceptableSocketChannel.isConnectionPending()) {
-										acceptableSocketChannel.finishConnect();
-									}	
-								} catch(Exception e) {
-									log.warn("fail to finish connect the accepted channel[{}]", acceptableSocketChannel.hashCode());
-									continue;
-								}
-								
-								setupAcceptedSocketChannel(acceptableSocketChannel);
-
-								SelectionKey acceptedKey = null;
-
-								try {
-									acceptedKey = acceptableSocketChannel.register(ioEventSelector, SelectionKey.OP_READ);
-								} catch (ClosedChannelException e) {
-									log.warn(
-											"fail to register this channel[{}] with the given selector having a the interest set OP_READ",
-											acceptableSocketChannel.hashCode());
-
-									continue;
-								}
-
-								SocketOutputStream socketOutputStreamOfAcceptedSC = null;
-
-								try {
-									socketOutputStreamOfAcceptedSC = socketOutputStreamFactory.createSocketOutputStream();
-								} catch (NoMoreDataPacketBufferException e) {
-									acceptableSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
-									acceptableSocketChannel.close();
-									acceptedKey.cancel();
-									log.warn(
-											"close the acceptable socket channel[{}] becase there is no more data packet buffer",
-											acceptableSocketChannel.hashCode());
-									continue;
-								}
-
-								AcceptedConnection acceptedConnection = new AcceptedConnection(acceptedKey,
-										acceptableSocketChannel, projectName, socketTimeOut,
-										serverOutputMessageQueueCapacity, socketOutputStreamOfAcceptedSC, this,
-										messageProtocol, dataPacketBufferPool, this, serverTaskManager);
-
-								/** 소켓 자원 등록 작업 */
-								selectedKey2AcceptedConnectionHash.put(acceptedKey, acceptedConnection);
-								
-								log.info("successfully changed acceptedKey[{}]'s acceptable socket channel[{}] to accepted socket channel", 
-										acceptedKey.hashCode(), acceptableSocketChannel.hashCode());
+							if (selectedKey.isAcceptable()) {								
+								onConnect(selectedKey);								
 							}
-
-							//  && isEnoughDataPacketBuffer(100)
-							if (selectedKey.isReadable()) {							
+						
+							if (selectedKey.isReadable()) {
 								ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
 										.get(selectedKey);
 
 								if (null == accpetedConneciton) {
 									log.warn(
 											"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
-											selectedKey.hashCode(), selectedKey.channel().hashCode());
+											selectedKey.hashCode(), selectedKey
+													.channel().hashCode());
 									continue;
 								}
 
@@ -212,25 +292,20 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 								if (null == accpetedConneciton) {
 									log.warn(
 											"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
-											selectedKey.hashCode(), selectedKey.channel().hashCode());
+											selectedKey.hashCode(), selectedKey
+													.channel().hashCode());
 									continue;
 								}
 
 								accpetedConneciton.onWrite(selectedKey);
 							}
-						} catch(CancelledKeyException e) {
-							log.warn("CancelledKeyException occured, socket="+selectedKey.channel().hashCode(), e);
-							
-							ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
-									.get(selectedKey);
-
-							if (null != accpetedConneciton) {								
-								log.warn("the cancelled key[{}] doesn't be deleted in selectedKey2AcceptedConnectionHash", selectedKey.hashCode());
-							}
-							
+						} catch (InterruptedException e) {
+							throw e;						
+						} catch (Exception e) {
+							log.warn("error", e);
 							continue;
 						}
-					}	
+					}
 				} finally {
 					selectedKeySet.clear();
 				}
@@ -241,7 +316,8 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 			log.warn("{} ServerIOEventController stop", projectName);
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder().append(projectName)
-					.append(" ServerIOEventController unknown error, errmsg=").append(e.getMessage()).toString();
+					.append(" ServerIOEventController unknown error, errmsg=")
+					.append(e.getMessage()).toString();
 			log.warn(errorMessage, e);
 		} finally {
 			try {
@@ -258,12 +334,16 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		}
 	}
 
-	private void setupAcceptedSocketChannel(SocketChannel acceptedSocketChannel) throws IOException {
+	private void setupAcceptedSocketChannel(SocketChannel acceptedSocketChannel)
+			throws IOException {
 		acceptedSocketChannel.configureBlocking(false);
-		acceptedSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		acceptedSocketChannel.setOption(StandardSocketOptions.TCP_NODELAY, true);
+		acceptedSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE,
+				true);
+		acceptedSocketChannel
+				.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		acceptedSocketChannel.setOption(StandardSocketOptions.SO_LINGER, 0);
-		acceptedSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+		acceptedSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR,
+				true);
 	}
 
 	@Override
@@ -279,7 +359,8 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	@Override
 	public void registerloginUser(SelectionKey selectedKey, String loginID) {
 		if (null == selectedKey) {
-			throw new IllegalArgumentException("the parameter selectedKey is null");
+			throw new IllegalArgumentException(
+					"the parameter selectedKey is null");
 		}
 
 		if (null == loginID) {
@@ -288,12 +369,15 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 
 		// synchronized (loginMangerMonitor) {
 		if (selectedKey2LonginIDHash.containsKey(selectedKey)) {
-			log.warn("the parameter selectedKey[{}] is the socket channel that is already registered",
+			log.warn(
+					"the parameter selectedKey[{}] is the socket channel that is already registered",
 					selectedKey.hashCode());
 			return;
 		}
 		if (longinID2SelectedKeyHash.containsKey(loginID)) {
-			log.warn("the parameter loginID[{}] is the login id that is already registered", loginID);
+			log.warn(
+					"the parameter loginID[{}] is the login id that is already registered",
+					loginID);
 			return;
 		}
 
@@ -301,8 +385,10 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		longinID2SelectedKeyHash.put(loginID, selectedKey);
 		// }
 
-		log.info("login register success, selectedKey={}, socketChannel={}, loginID={}", selectedKey.hashCode(),
-				selectedKey.channel().hashCode(), loginID);
+		log.info(
+				"login register success, selectedKey={}, socketChannel={}, loginID={}",
+				selectedKey.hashCode(), selectedKey.channel().hashCode(),
+				loginID);
 	}
 
 	private void doRemoveLoginUser(SelectionKey selectedKey, String loginID) {
@@ -312,7 +398,8 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 
 	public void removeLoginUser(SelectionKey selectedKey) {
 		if (null == selectedKey) {
-			throw new IllegalArgumentException("the parameter selectedKey is null");
+			throw new IllegalArgumentException(
+					"the parameter selectedKey is null");
 		}
 
 		String loginID = selectedKey2LonginIDHash.get(selectedKey);
@@ -354,16 +441,16 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 		return selectedKey2AcceptedConnectionHash.get(selectedKey);
 	}
 
-	/*private boolean isEnoughDataPacketBuffer(int limitQueueSize) {
-		int queueSize = dataPacketBufferPool.size();
-		boolean isResult = (queueSize >= limitQueueSize);
-		return isResult;
-	}*/
+	/*
+	 * private boolean isEnoughDataPacketBuffer(int limitQueueSize) { int
+	 * queueSize = dataPacketBufferPool.size(); boolean isResult = (queueSize >=
+	 * limitQueueSize); return isResult; }
+	 */
 
 	// isEnoughFreeMemory(10*1024*1024L)
 	/*
-	 * private boolean isEnoughFreeMemory(long limitFreeMemorySize) { long free =
-	 * Runtime.getRuntime().freeMemory(); boolean isResult = (free >=
+	 * private boolean isEnoughFreeMemory(long limitFreeMemorySize) { long free
+	 * = Runtime.getRuntime().freeMemory(); boolean isResult = (free >=
 	 * limitFreeMemorySize); return isResult; }
 	 */
 
@@ -371,7 +458,7 @@ public class ServerIOEventController extends Thread implements ServerIOEvenetCon
 	 * private boolean canRead() { for (ServerIOEventHandlerIF
 	 * currentWorkingAcceptedConnection :
 	 * selectedKey2AcceptedConnectionHash.values()) { if (!
-	 * currentWorkingAcceptedConnection.canRead()) { return false; } } return true;
-	 * }
+	 * currentWorkingAcceptedConnection.canRead()) { return false; } } return
+	 * true; }
 	 */
 }

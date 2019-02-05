@@ -115,34 +115,42 @@ public class AppClientMain {
 				long startTime = 0;
 				long endTime = 0;
 				
-				try {
-					startTime = System.nanoTime();	
-					
-					if (ConnectionType.ASYN.equals(mainProjectPartConfiguration.getConnectionType())) {
-						connection = mainProjectConnectionPool.createAsynThreadSafeConnection(serverHost, serverPort);
-					} else {
-						connection = mainProjectConnectionPool.createSyncThreadSafeConnection(serverHost, serverPort);
-					}
-													
-					endTime = System.nanoTime();
-					log.info("{} 연결 경과 시간[{}] microseconds",
-							mainProjectPartConfiguration.getConnectionType().name(),
-							TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
-					
-					
-				} catch (Exception e) {
-					log.warn("fail to create a intance of SyncThreadSafeSingleConnection class");
-					
-					try {
-						Thread.sleep(5000L);
-					} catch (InterruptedException e1) {
-						log.error("this thread[{}] InterruptedException", Thread.currentThread().getName());
-						return;
-					}
-				}
+				
 				
 				try {
 					while (! Thread.currentThread().isInterrupted()) {
+						
+						if (null == connection) {
+							try {
+								startTime = System.nanoTime();	
+								
+								if (ConnectionType.ASYN.equals(mainProjectPartConfiguration.getConnectionType())) {
+									connection = mainProjectConnectionPool.createAsynThreadSafeConnection(serverHost, serverPort);
+								} else {
+									connection = mainProjectConnectionPool.createSyncThreadSafeConnection(serverHost, serverPort);
+								}
+																
+								endTime = System.nanoTime();
+								log.info("{} 연결 경과 시간[{}] microseconds",
+										mainProjectPartConfiguration.getConnectionType().name(),
+										TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+								
+								
+							} catch (Exception e) {
+								log.warn("fail to create a intance of ConnectionIF class", e);
+								
+								try {
+									Thread.sleep(5000L);
+								} catch (InterruptedException e1) {
+									log.error("this thread[{}] InterruptedException", Thread.currentThread().getName());
+									return;
+								}
+								
+								continue;
+							}
+						}						
+						
+						
 						Echo echoReq = new Echo();
 						echoReq.setRandomInt(random.nextInt());
 						echoReq.setStartTime(System.nanoTime());
@@ -156,12 +164,7 @@ public class AppClientMain {
 						} catch (Exception e) {
 							log.warn("error", e);
 							connection.close();
-							
-							if (ConnectionType.ASYN.equals(mainProjectPartConfiguration.getConnectionType())) {
-								connection = mainProjectConnectionPool.createAsynThreadSafeConnection(serverHost, serverPort);
-							} else {
-								connection = mainProjectConnectionPool.createSyncThreadSafeConnection(serverHost, serverPort);
-							}
+							connection = null;
 							continue;
 						}				
 						if (outputMessage instanceof Echo) {

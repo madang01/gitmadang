@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +19,7 @@ import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
@@ -321,11 +321,10 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 			throw new WebClinetException(errorMessage, debugMessage);
 		}
 
-		Base64.Decoder base64Decoder = Base64.getDecoder();
 		
 		byte[] sessionkeyBytes = null;
 		try {
-			sessionkeyBytes = base64Decoder.decode(paramSessionKeyBase64);
+			sessionkeyBytes = CommonStaticUtil.Base64Decoder.decode(paramSessionKeyBase64);
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
 					.append("the web parameter '")
@@ -344,7 +343,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
 		byte[] ivBytes = null;
 		try {
-			ivBytes = base64Decoder.decode(paramIVBase64);
+			ivBytes = CommonStaticUtil.Base64Decoder.decode(paramIVBase64);
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder()
 					.append("the web parameter '")

@@ -8,6 +8,8 @@ import kr.pe.codda.common.util.HexUtil;
 import kr.pe.codda.impl.message.Empty.Empty;
 
 public class TestClassName {
+	
+	
 	@Test
 	public void showClassName() {
 		System.out.println(HexUtil.class.getName());

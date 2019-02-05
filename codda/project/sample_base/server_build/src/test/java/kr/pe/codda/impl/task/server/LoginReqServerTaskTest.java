@@ -3,7 +3,6 @@ package kr.pe.codda.impl.task.server;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
-import java.util.Base64;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.classloader.MessageEncoderManagerIF;
@@ -16,6 +15,7 @@ import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.UserLoginReq.UserLoginReq;
 import kr.pe.codda.server.AcceptedConnection;
@@ -143,14 +143,13 @@ public class LoginReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);
-		
-		Base64.Encoder base64Encoder =  Base64.getEncoder();		
+			
 		
 		UserLoginReq inObj = new UserLoginReq();
-		inObj.setIdCipherBase64(base64Encoder.encodeToString(idCipherTextBytes));
-		inObj.setPwdCipherBase64(base64Encoder.encodeToString(passwordCipherTextBytes));
-		inObj.setSessionKeyBase64(base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes()));
-		inObj.setIvBase64(base64Encoder.encodeToString(clientSessionKey.getDupIVBytes()));
+		inObj.setIdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(idCipherTextBytes));
+		inObj.setPwdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(passwordCipherTextBytes));
+		inObj.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes()));
+		inObj.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes()));
 	
 		UserLoginReqServerTask loginReqServerTask = null;
 		try {

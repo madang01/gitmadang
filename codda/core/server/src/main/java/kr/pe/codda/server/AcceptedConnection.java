@@ -174,29 +174,33 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	private void turnOnSocketWriteMode() throws CancelledKeyException {
 		personalSelectionKey.interestOps(personalSelectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
-		
-		// log.info("call turn on OP_WRITE[{}]", acceptedSocketChannel.hashCode());
+
+		// log.info("call turn on OP_WRITE[{}]",
+		// acceptedSocketChannel.hashCode());
 	}
 
 	private void turnOffSocketWriteMode() throws CancelledKeyException {
 		personalSelectionKey.interestOps(personalSelectionKey.interestOps()
 				& ~SelectionKey.OP_WRITE);
-		
-		// log.info("call turn off OP_WRITE[{}]", acceptedSocketChannel.hashCode());
+
+		// log.info("call turn off OP_WRITE[{}]",
+		// acceptedSocketChannel.hashCode());
 	}
 
 	private void turnOnSocketReadMode() throws CancelledKeyException {
 		personalSelectionKey.interestOps(personalSelectionKey.interestOps()
 				| SelectionKey.OP_READ);
-		
-		// log.info("call turn on OP_READ[{}]", acceptedSocketChannel.hashCode());
+
+		// log.info("call turn on OP_READ[{}]",
+		// acceptedSocketChannel.hashCode());
 	}
 
 	private void turnOffSocketReadMode() throws CancelledKeyException {
 		personalSelectionKey.interestOps(personalSelectionKey.interestOps()
 				& ~SelectionKey.OP_READ);
-		
-		// log.info("call turn off OP_READ[{}]", acceptedSocketChannel.hashCode());
+
+		// log.info("call turn off OP_READ[{}]",
+		// acceptedSocketChannel.hashCode());
 	}
 
 	/**
@@ -235,18 +239,19 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	}
 
 	private void releaseResources() {
-		while(! outputMessageQueue.isEmpty()) {
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue.removeFirst();
-						
-			while (! inputMessageWrapBufferQueue.isEmpty()) {
+		while (!outputMessageQueue.isEmpty()) {
+			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue
+					.removeFirst();
+
+			while (!inputMessageWrapBufferQueue.isEmpty()) {
 				WrapBuffer buffer = inputMessageWrapBufferQueue.removeFirst();
 				dataPacketBufferPool.putDataPacketBuffer(buffer);
 			}
 		}
-		
+
 		socketOutputStream.close();
 		releaseLoginUserResource();
-		
+
 		log.info(
 				"this accepted socket channel[hashcode={}, selection key={}]'s resources has been released",
 				acceptedSocketChannel.hashCode(),
@@ -254,8 +259,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	}
 
 	@Override
-	public void onRead(SelectionKey personalSelectionKey)
-			throws InterruptedException, CancelledKeyException {
+	public void onRead(SelectionKey personalSelectionKey) throws Exception {
 		try {
 			int numberOfReadBytes = socketOutputStream
 					.read(acceptedSocketChannel);
@@ -311,19 +315,18 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	}
 
 	@Override
-	public void onWrite(SelectionKey personalSelectionKey)
-			throws InterruptedException, CancelledKeyException {				
+	public void onWrite(SelectionKey personalSelectionKey) throws Exception {
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue
 				.peek();
 		if (null == inputMessageWrapBufferQueue) {
 			return;
 		}
-		
+
 		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue
 				.peek();
 		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer
 				.getByteBuffer();
-		boolean loop = true;		
+		boolean loop = true;
 		try {
 			while (loop) {
 				int numberOfBytesWritten = 0;
@@ -357,7 +360,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 					return;
 				}
 
-				if (! currentWorkingByteBuffer.hasRemaining()) {
+				if (!currentWorkingByteBuffer.hasRemaining()) {
 					inputMessageWrapBufferQueue.removeFirst();
 					dataPacketBufferPool
 							.putDataPacketBuffer(currentWorkingWrapBuffer);
@@ -365,7 +368,13 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 					if (inputMessageWrapBufferQueue.isEmpty()) {
 						outputMessageQueue.removeFirst();
 						if (outputMessageQueue.isEmpty()) {
-							turnOffSocketWriteMode();
+							try {
+								turnOffSocketWriteMode();
+							} catch (CancelledKeyException e) {
+								log.warn("더 이상의 출력 메시지가 없어 OP_WRITE 스위치를 끄려고 할때 CancelledKeyException 발생");
+								close();
+								return;
+							}
 							loop = false;
 							return;
 						}
@@ -373,26 +382,32 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 
 					}
 
-					currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
+					currentWorkingWrapBuffer = inputMessageWrapBufferQueue
+							.peek();
 					currentWorkingByteBuffer = currentWorkingWrapBuffer
 							.getByteBuffer();
 				}
 			}
 		} finally {
 			/**
-			 * 소켓 읽기 이벤트가 꺼져 있는 상태라면 더 이상 전송할 데이터 없는 상태가 되어 소켓 쓰기 이벤트가 꺼져 있거나 혹은 출력
-			 * 메시지 큐가 최대 용량 25% 보다 작은 경우 소켓 읽기 이벤트 켜기
+			 * 소켓 읽기 이벤트가 꺼져 있는 상태라면 더 이상 전송할 데이터 없는 상태가 되어 소켓 쓰기 이벤트가 꺼져 있거나 혹은
+			 * 출력 메시지 큐가 최대 용량 25% 보다 작은 경우 소켓 읽기 이벤트 켜기
 			 */
-			int interestOps = personalSelectionKey.interestOps();			
-						
-			if (((interestOps & SelectionKey.OP_READ) == 0)) {			
-				if ((interestOps & SelectionKey.OP_WRITE) == 0 || outputMessageQueue.size() < serverOutputMessageQueueCapacity / 4) {
-					turnOnSocketReadMode();
+			try {
+				int interestOps = personalSelectionKey.interestOps();
+
+				if (((interestOps & SelectionKey.OP_READ) == 0)) {
+					if ((interestOps & SelectionKey.OP_WRITE) == 0
+							|| outputMessageQueue.size() < serverOutputMessageQueueCapacity / 4) {
+						turnOnSocketReadMode();
+					}
 				}
+			} catch (CancelledKeyException e) {
+				log.warn("OP_READ 스위치를 다시 켜야 할지 판단하는 영역에서 CancelledKeyException 발생");
+				close();
+				return;
 			}
 		}
-
-		
 	}
 
 	/** only JUnit test */
@@ -419,7 +434,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		// outputMessageQueue.size(), inputMessageCount);
 
 		outputMessageQueue.offer(outputMessageWrapBufferQueue);
-		try {			
+		try {
 			/**
 			 * 소켓 쓰기 이벤트를 켠다
 			 */
@@ -427,7 +442,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		} catch (CancelledKeyException e) {
 			log.warn("this client[{}]'s selection key has been cancelled",
 					acceptedSocketChannel.hashCode());
-			
+
 			close();
 		}
 	}
