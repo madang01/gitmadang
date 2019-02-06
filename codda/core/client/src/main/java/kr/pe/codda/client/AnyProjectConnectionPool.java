@@ -17,7 +17,6 @@ import kr.pe.codda.client.classloader.ClientStaticTaskManger;
 import kr.pe.codda.client.classloader.ClientTaskMangerIF;
 import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporter;
-import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
 import kr.pe.codda.client.connection.asyn.AyncThreadSafeSingleConnectedConnectionAdder;
 import kr.pe.codda.client.connection.asyn.ClientIOEventController;
@@ -77,7 +76,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	private ClientIOEventController asynClientIOEventController = null;
 	
 
-	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
+	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException, InterruptedException {
 		this.projectPartConfiguration = projectPartConfiguration;
 		
 		mainProjectName = projectPartConfiguration.getProjectName();
@@ -165,18 +164,19 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				clientTaskManger = new ClientDynamicTaskManger(clientClassLoaderFactory);
 			}
 			
-			AsynConnectionPoolIF asynConnectionPool = 
+			asynClientIOEventController = new ClientIOEventController(
+					projectPartConfiguration.getClientSelectorWakeupInterval());
+			
+			ConnectionPoolIF asynConnectionPool = 
 					new AsynNoShareConnectionPool(projectPartConfiguration,
 							messageProtocol, clientTaskManger, dataPacketBufferPool,
 					socketOutputStreamFactory,
-					connectionPoolSupporter);
+					connectionPoolSupporter, asynClientIOEventController);
 			
 			connectionPool = asynConnectionPool;
 			
-			asynClientIOEventController = new ClientIOEventController(
-					projectPartConfiguration.getClientSelectorWakeupInterval(),
-					asynConnectionPool);
-			
+			connectionPool.fillAllConnection();
+			/** WARNING! 클라이언트 셀렉터 구동전에 반듯이 먼저 연결 폴 구성을 위한 연결들을 셀렉터에 선 등록해야 한다 */
 			asynClientIOEventController.start();
 			
 			try {
@@ -263,7 +263,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 						projectPartConfiguration.getClientAsynInputMessageQueueCapacity(),					 
 				socketOutputStreamFactory.createSocketOutputStream(), 
 				messageProtocol, dataPacketBufferPool, clientTaskManger, ayncThreadSafeSingleConnectedConnectionAdder, 
-				asynClientIOEventController, connectionPoolSupporter);		
+				asynClientIOEventController);		
 		
 		asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynThreadSafeSingleConnection);
 		asynClientIOEventController.wakeup();

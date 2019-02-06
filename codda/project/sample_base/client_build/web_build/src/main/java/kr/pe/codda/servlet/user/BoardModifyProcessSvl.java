@@ -28,7 +28,7 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.common.WebCommonStaticUtil;
-import kr.pe.codda.weblib.exception.WebClinetException;
+import kr.pe.codda.weblib.exception.WebClientException;
 import kr.pe.codda.weblib.jdf.AbstractMultipartServlet;
 
 import org.apache.commons.fileupload.FileItem;
@@ -88,7 +88,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		BoardModifyRes boardModifyRes = null;
 		try {
 			boardModifyRes = doWork(req, res);
-		} catch (WebClinetException e) {
+		} catch (WebClientException e) {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 
@@ -189,7 +189,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 								.append("을 추가할 수 없습니다").toString();
 
 						String debugMessage = null;
-						throw new WebClinetException(errorMessage, debugMessage);
+						throw new WebClientException(errorMessage, debugMessage);
 					}
 
 					BoardModifyReq.OldAttachedFile oldAttachedFile = new BoardModifyReq.OldAttachedFile();
@@ -202,7 +202,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 								.append(paramOldAttachedFileSeq)
 								.append("]이 잘못되었습니다").toString();
 						String debugMessage = null;
-						throw new WebClinetException(errorMessage, debugMessage);
+						throw new WebClientException(errorMessage, debugMessage);
 					}
 
 					if (oldAttachedFile.getAttachedFileSeq() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
@@ -212,7 +212,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 								.append("]이 unsigned byte 범위 최대값(=255)를 넘었습니다")
 								.toString();
 						String debugMessage = null;
-						throw new WebClinetException(errorMessage, debugMessage);
+						throw new WebClientException(errorMessage, debugMessage);
 					}
 
 					if (oldAttachedFileList.contains(oldAttachedFile)) {
@@ -221,7 +221,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 								.append(paramOldAttachedFileSeq)
 								.append("]이 중복되었습니다").toString();
 						String debugMessage = null;
-						throw new WebClinetException(errorMessage, debugMessage);
+						throw new WebClientException(errorMessage, debugMessage);
 					}
 
 					oldAttachedFileList.add(oldAttachedFile);
@@ -245,7 +245,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 							.append(formFieldName).append("]이 잘못되었습니다")
 							.toString();
 					String debugMessage = null;
-					throw new WebClinetException(errorMessage, debugMessage);
+					throw new WebClientException(errorMessage, debugMessage);
 				}
 
 				if ((newAttachedFileList.size() + oldAttachedFileList.size()) == WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
@@ -261,7 +261,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 							.append("] 을 추가할 수 없습니다").toString();
 
 					String debugMessage = null;
-					throw new WebClinetException(errorMessage, debugMessage);
+					throw new WebClientException(errorMessage, debugMessage);
 				}
 
 				/*
@@ -277,7 +277,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 								.append("]에 공백 문자가 존재합니다").toString();
 
 						String debugMessage = null;
-						throw new WebClinetException(errorMessage, debugMessage);
+						throw new WebClientException(errorMessage, debugMessage);
 					} else {
 						for (char forbiddenChar : WebCommonStaticFinalVars.FILENAME_FORBIDDEN_CHARS) {
 							if (ch == forbiddenChar) {
@@ -288,7 +288,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 										.append("]가 존재합니다").toString();
 
 								String debugMessage = null;
-								throw new WebClinetException(errorMessage,
+								throw new WebClientException(errorMessage,
 										debugMessage);
 							}
 						}
@@ -307,14 +307,14 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 							.toString();
 
 					String debugMessage = null;
-					throw new WebClinetException(errorMessage, debugMessage);
+					throw new WebClientException(errorMessage, debugMessage);
 				}
 
 				if (newAttachedFileSize == 0) {
 					String errorMessage = "첨부 파일 크기가 0입니다";
 
 					String debugMessage = null;
-					throw new WebClinetException(errorMessage, debugMessage);
+					throw new WebClientException(errorMessage, debugMessage);
 				}
 
 				if (null == newAttachedFileContentType) {
@@ -322,7 +322,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 							"알 수 없는 내용이 담긴 첨부 파일[").append(newAttachedFileName)
 							.append("] 입니다").toString();
 					String debugMessage = null;
-					throw new WebClinetException(errorMessage, debugMessage);
+					throw new WebClientException(errorMessage, debugMessage);
 				}
 
 				if (!newAttachedFileContentType.equals("image/jpeg")
@@ -334,7 +334,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 							.append("]은 이미지 jpg, gif, png 만 올 수 있습니다")
 							.toString();
 					String debugMessage = null;
-					throw new WebClinetException(errorMessage, debugMessage);
+					throw new WebClientException(errorMessage, debugMessage);
 				}
 
 				InputStream attachedFileInputStream = fileItem.getInputStream();
@@ -347,7 +347,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 								.append("] 데이터 내용으로 파일 종류를 파악하는데 실패하였습니다")
 								.toString();
 						String debugMessage = null;
-						throw new WebClinetException(errorMessage, debugMessage);
+						throw new WebClientException(errorMessage, debugMessage);
 					}
 
 					if (!guessedContentType.equals(newAttachedFileContentType)) {
@@ -358,7 +358,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 								.append(guessedContentType).append("]가 다릅니다")
 								.toString();
 						String debugMessage = null;
-						throw new WebClinetException(errorMessage, debugMessage);
+						throw new WebClientException(errorMessage, debugMessage);
 					}
 				} finally {
 					try {
@@ -380,7 +380,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY)
 					.append("' is null").toString();
 
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		if (null == paramIVBase64) {
@@ -389,7 +389,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)
 					.append("' is null").toString();
 
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		ServerSessionkeyIF webServerSessionkey = null;
@@ -405,7 +405,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			String debugMessage = new StringBuilder()
 					.append("fail to initialize ServerSessionkeyManger instance, errmsg=")
 					.append(e.getMessage()).toString();
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
 		
@@ -426,7 +426,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					.append("] is not a base64 string, errmsg=")
 					.append(e.getMessage()).toString();
 
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 		byte[] ivBytes = null;
 		try {
@@ -444,7 +444,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					.append("] is not a base64 string, errmsg=")
 					.append(e.getMessage()).toString();
 
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		// log.info("sessionkeyBytes=[{}]",
@@ -462,7 +462,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요.";
 			String debugMessage = "the web parameter 'boardID' is null";
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		short boardID = 0;
@@ -473,7 +473,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			String debugMessage = new StringBuilder(
 					"the web parameter 'boardID'[").append(paramBoardID)
 					.append("] is not a short").toString();
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		try {
@@ -484,13 +484,13 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					"the web parameter 'boardID'[").append(paramBoardID)
 					.append("] is not a element of set[")
 					.append(BoardType.getSetString()).append("]").toString();
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		if (null == paramBoardNo) {
 			String errorMessage = "게시판 번호 값을 넣어 주세요";
 			String debugMessage = "the web parameter 'boardNo' is null";
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		long boardNo = 0L;
@@ -502,7 +502,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			String debugMessage = new StringBuilder(
 					"the web parameter 'boardNo'[").append(paramBoardNo)
 					.append("] is not a Long").toString();
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		if (boardNo <= 0) {
@@ -510,25 +510,25 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			String debugMessage = new StringBuilder(
 					"the web parameter 'boardNo'[").append(paramBoardNo)
 					.append("] is less than or equal to zero").toString();
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		if (null == paramSubject) {
 			String errorMessage = "제목 값을 넣어주세요";
 			String debugMessage = "the web parameter 'subject' is null";
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		if (null == paramContent) {
 			String errorMessage = "글 내용 값을 넣어주세요";
 			String debugMessage = "the web parameter 'content' is null";
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		if (null == paramNextAttachedFileSeq) {
 			String errorMessage = "다음 첨부 파일 시퀀스 번호를 넣어주세요";
 			String debugMessage = "the web parameter 'content' is null";
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		short nextAttachedFileSeq = 0;
@@ -540,7 +540,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					"the web parameter 'nextAttachedFileSeq'[")
 					.append(paramNextAttachedFileSeq)
 					.append("] is not a Short").toString();
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		if (nextAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
@@ -550,7 +550,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					.append(paramNextAttachedFileSeq)
 					.append("] is greater than a maximum value(=255) tha an usniged byte can have")
 					.toString();
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
@@ -582,13 +582,13 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 						.append(outputMessage.toString()).append("] 도착")
 						.toString();
 
-				throw new WebClinetException(errorMessage, debugMessage);
+				throw new WebClientException(errorMessage, debugMessage);
 			}
 
 			MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
 			String errorMessage = messageResultRes.getResultMessage();
 			String debugMessage = null;
-			throw new WebClinetException(errorMessage, debugMessage);
+			throw new WebClientException(errorMessage, debugMessage);
 		}
 
 		BoardModifyRes boardModifyRes = (BoardModifyRes) outputMessage;

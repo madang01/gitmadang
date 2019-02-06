@@ -9,10 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 import kr.pe.codda.client.ConnectionIF;
 import kr.pe.codda.client.classloader.ClientTaskMangerIF;
+import kr.pe.codda.client.connection.ConnectionPoolIF;
 import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectionIF;
-import kr.pe.codda.client.connection.asyn.AsynConnectionPoolIF;
 import kr.pe.codda.client.connection.asyn.ClientIOEventControllerIF;
 import kr.pe.codda.client.connection.asyn.ClientIOEventHandlerIF;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
@@ -24,7 +24,7 @@ import kr.pe.codda.common.io.SocketOutputStream;
 import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 
-public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConnectedConnectionAdderIF {
+public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnectedConnectionAdderIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AsynNoShareConnectionPool.class);
 	private final Object monitor = new Object();
 
@@ -54,7 +54,8 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 			MessageProtocolIF messageProtocol, 
 			ClientTaskMangerIF clientTaskManger,
 			DataPacketBufferPoolIF dataPacketBufferPool, SocketOutputStreamFactoryIF socketOutputStreamFactory,
-			ConnectionPoolSupporterIF connectionPoolSupporter)
+			ConnectionPoolSupporterIF connectionPoolSupporter,
+			ClientIOEventControllerIF asynClientIOEventController)
 			throws NoMoreDataPacketBufferException, IOException {
 		if (null == projectPartConfiguration) {
 			throw new IllegalArgumentException("the parameter projectPartConfiguration is null");
@@ -92,15 +93,13 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
+		this.asynClientIOEventController = asynClientIOEventController;
 
 		connectionQueue = new ArrayDeque<AsynNoShareConnection>(projectPartConfiguration.getClientConnectionMaxCount());
 
 		connectionPoolSupporter.registerPool(this);
 	}
 
-	public void setAsynSelectorManger(ClientIOEventControllerIF asynClientIOEventController) {
-		this.asynClientIOEventController = asynClientIOEventController;
-	}
 
 	@Override
 	public ConnectionIF getConnection() throws InterruptedException, ConnectionPoolTimeoutException, ConnectionPoolException {
@@ -253,12 +252,12 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 	}
 	
 	@Override
-	public void removeUnregisteredConnection(ClientIOEventHandlerIF asynInterestedConnection) {
-		synchronized (monitor) {
+	public void removeUnregisteredConnection(AsynConnectionIF unregisteredAsynConnection) {
+		//synchronized (monitor) {
 			numberOfUnregisteredConnection--;
-		}		
+		//}		
 		
-		log.info("remove the interedted connection[{}]", asynInterestedConnection.hashCode());
+		log.info("remove the unregistered connection[{}]", unregisteredAsynConnection.hashCode());
 	}
 
 	private ClientIOEventHandlerIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
@@ -272,7 +271,7 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 				clientAsynInputMessageQueueCapacity,
 				sos,
 				messageProtocol, dataPacketBufferPool, clientTaskManger, this, 
-				asynClientIOEventController, connectionPoolSupporter);
+				asynClientIOEventController);
 		return asynInterestedConnection;
 	}
 
@@ -307,12 +306,12 @@ public class AsynNoShareConnectionPool implements AsynConnectionPoolIF, AsynConn
 				TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 	}
 
-	@Override
-	public void removeInterestedConnection(AsynConnectionIF interestedAsynConnection) {
+	// @Override
+	/*public void removeInterestedConnection(AsynConnectionIF interestedAsynConnection) {
 		synchronized (monitor) {
 			numberOfUnregisteredConnection--;
 		}
 		
 		log.info("remove the interedted connection[{}]", interestedAsynConnection.hashCode());
-	}
+	}*/
 }

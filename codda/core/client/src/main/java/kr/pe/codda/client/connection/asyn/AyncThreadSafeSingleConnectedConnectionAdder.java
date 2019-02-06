@@ -1,9 +1,9 @@
 package kr.pe.codda.client.connection.asyn;
 
-import java.net.SocketTimeoutException;
-
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+
+import java.net.SocketTimeoutException;
 
 public class AyncThreadSafeSingleConnectedConnectionAdder implements AsynConnectedConnectionAdderIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(AyncThreadSafeSingleConnectedConnectionAdder.class);
@@ -28,10 +28,9 @@ public class AyncThreadSafeSingleConnectedConnectionAdder implements AsynConnect
 	}
 
 	@Override
-	public void removeInterestedConnection(AsynConnectionIF interestedAsynConnection) {
-		log.warn("remove the interested asyn connection[{}]", interestedAsynConnection.hashCode());
-	}
-	
+	public void removeUnregisteredConnection(AsynConnectionIF unregisteredAsynConnection) {
+		log.warn("remove the unregistered asyn connection[{}]", unregisteredAsynConnection.hashCode());
+	}	
 	
 	public AsynConnectionIF poll(long socketTimeout) throws InterruptedException, SocketTimeoutException {
 		synchronized (monitor) {

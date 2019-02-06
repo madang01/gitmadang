@@ -1,12 +1,12 @@
 package kr.pe.codda.weblib.exception;
 
-public class WebClinetException extends Exception {		
+public class WebClientException extends Exception {		
 	private static final long serialVersionUID = 8262277067679796952L;
 	
 	private String errorMessage = null;
 	private String debugMessage = null;
 	
-	public WebClinetException(String errorMessage, String debugMessage) {
+	public WebClientException(String errorMessage, String debugMessage) {
 		if (null == errorMessage) {
 			throw new IllegalArgumentException("the parameter errorMessage is null");
 		}

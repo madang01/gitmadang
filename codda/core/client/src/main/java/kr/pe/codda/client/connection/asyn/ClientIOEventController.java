@@ -4,7 +4,6 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
@@ -19,30 +18,27 @@ public class ClientIOEventController extends Thread implements
 			.getInstance(ClientIOEventController.class);
 
 	private long clientSelectorWakeupInterval;
-	private AsynConnectionPoolIF asynConnectionPool = null;
+	// private AsynConnectionPoolIF asynConnectionPool = null;
 
 	private Selector ioEventSelector = null;
 	private ConcurrentHashMap<SelectionKey, ClientIOEventHandlerIF> selectedKey2ConnectionHash = new ConcurrentHashMap<SelectionKey, ClientIOEventHandlerIF>();
 	private LinkedBlockingDeque<ClientIOEventHandlerIF> unregisteredAsynConnectionQueue = new LinkedBlockingDeque<ClientIOEventHandlerIF>();
 
-	public ClientIOEventController(long clientSelectorWakeupInterval,
-			AsynConnectionPoolIF connectionPool) throws IOException,
+	public ClientIOEventController(long clientSelectorWakeupInterval) throws IOException,
 			NoMoreDataPacketBufferException {
 		this.clientSelectorWakeupInterval = clientSelectorWakeupInterval;
-		this.asynConnectionPool = connectionPool;
 
 		ioEventSelector = Selector.open();
-		asynConnectionPool.setAsynSelectorManger(this);
 
 		/**
 		 * WARNING! 반듯이 AsynConnectionPoolIF#setAsynSelectorManger 를 통해 이 객체 등록이
 		 * 선행되어야 한다
 		 */
-		try {
-			connectionPool.fillAllConnection();
+		/*try {
+			asynConnectionPool.fillAllConnection();
 		} catch (InterruptedException e) {
 			log.warn("연결 폴 구성을 위한 추가 작업중 인터럽트가 발생하였지만 인터럽트 무시하고 진행");
-		}
+		}*/
 	}
 
 	@Override
@@ -58,23 +54,22 @@ public class ClientIOEventController extends Thread implements
 			ClientIOEventHandlerIF unregisteredAsynConnection = unregisteredAsynConnectionQueue
 					.removeFirst();
 
-			boolean isConnected;
+			boolean isConnectionFinshined;
 			try {
-				isConnected = unregisteredAsynConnection.doConect();
+				isConnectionFinshined = unregisteredAsynConnection.doConnect();			
 			} catch (Exception e) {
-				log.warn("입출력 에러로 인한 연결 실패", e.getMessage());
+				log.warn("fail to connect becase of error", e);
 				unregisteredAsynConnection.close();
-				asynConnectionPool
-						.removeUnregisteredConnection(unregisteredAsynConnection);
+				unregisteredAsynConnection.doRemoveUnregisteredConnection();
 				continue;
-			}
-			
+			}			
 
 			try {
 				SelectionKey registeredSelectionKey = null;
-				if (isConnected) {
+				if (isConnectionFinshined) {					
 					registeredSelectionKey = unregisteredAsynConnection
 							.register(ioEventSelector, SelectionKey.OP_READ);
+					unregisteredAsynConnection.doFinishConnect(registeredSelectionKey);
 				} else {
 					registeredSelectionKey = unregisteredAsynConnection
 							.register(ioEventSelector, SelectionKey.OP_CONNECT);
@@ -83,13 +78,14 @@ public class ClientIOEventController extends Thread implements
 				selectedKey2ConnectionHash.put(registeredSelectionKey,
 						unregisteredAsynConnection);
 
-			} catch (ClosedChannelException e) {
-				log.warn(
-						"fail to register the socket channel[{}] on selector, errmsg={}",
-						unregisteredAsynConnection.hashCode(), e.getMessage());
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder()
+				.append("fail to register the socket channel[")
+				.append(unregisteredAsynConnection.hashCode())
+				.append("] on selector").toString();
+				log.warn(errorMessage, e);
 				unregisteredAsynConnection.close();
-				asynConnectionPool
-						.removeUnregisteredConnection(unregisteredAsynConnection);
+				unregisteredAsynConnection.doRemoveUnregisteredConnection();
 			}
 		}
 	}
@@ -130,25 +126,10 @@ public class ClientIOEventController extends Thread implements
 						}
 					} catch (InterruptedException e) {
 						throw e;						
-					} catch (Exception e) {
+					} catch (Exception e) {						
 						log.warn("error", e);
 						continue;
 					}
-
-					
-					/*} catch (CancelledKeyException e) {
-						log.warn(
-								"CancelledKeyException occured in this socket={}",
-								selectedKey.channel().hashCode());
-
-						ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
-								.get(selectedKey);
-
-						if (null != interestedAsynConnection) {
-							interestedAsynConnection.close();
-							selectedKey2ConnectionHash.remove(selectedKey);
-						}
-					}*/
 				}
 				selectedKeySet.clear();
 			}

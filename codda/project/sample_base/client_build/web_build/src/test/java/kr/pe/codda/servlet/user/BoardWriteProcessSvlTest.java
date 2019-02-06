@@ -66,16 +66,16 @@ public class BoardWriteProcessSvlTest extends AbstractJunitTest {
 		final String subject = "테스트주제1_그림";
 		final String content = "테스트내용1_한글사랑";
 
-		HashMap<String, String> parameterHash = new HashMap<String, String>();
-		parameterHash.put(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY, sessionKeyBase64);
-		parameterHash.put(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV, ivBase64);
-		parameterHash.put("boardID", String.valueOf(BoardType.FREE.getBoardID()));
-		parameterHash.put("subject", subject);
-		parameterHash.put("content", content);
+		HashMap<String, String> writeParameterHash = new HashMap<String, String>();
+		writeParameterHash.put(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY, sessionKeyBase64);
+		writeParameterHash.put(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV, ivBase64);
+		writeParameterHash.put("boardID", String.valueOf(BoardType.FREE.getBoardID()));
+		writeParameterHash.put("subject", subject);
+		writeParameterHash.put("content", content);
 		
-		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-		for (String key : parameterHash.keySet()) {
-			builder.addTextBody(key, parameterHash.get(key), 
+		MultipartEntityBuilder writeBuilder = MultipartEntityBuilder.create();
+		for (String key : writeParameterHash.keySet()) {
+			writeBuilder.addTextBody(key, writeParameterHash.get(key), 
 					ContentType.create("text/plain", "UTF-8"));
 		}		
 
@@ -123,39 +123,39 @@ public class BoardWriteProcessSvlTest extends AbstractJunitTest {
 			fail("파일 유형을 알 수 없습니다");
 		}
 		
-		builder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), selectedUploadFile.getName());
+		writeBuilder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), selectedUploadFile.getName());
 		
-		HttpEntity entity = builder.build();
+		HttpEntity writeEntity = writeBuilder.build();
 
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ByteArrayOutputStream writeByteArrayOputStream = new ByteArrayOutputStream();
         try {
-			entity.writeTo(os);
+			writeEntity.writeTo(writeByteArrayOputStream);
 		} catch (IOException e) {
 			log.warn("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패, errmsg={}", e.getMessage());
 			fail("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패");
 		}
         
-        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        ByteArrayInputStream writeByteArrayInputStream = new ByteArrayInputStream(writeByteArrayOputStream.toByteArray());
         
-        HttpSession session = mock(HttpSession.class);
-		when(session.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn("test00");
+        HttpSession sessionMock = mock(HttpSession.class);
+		when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn("test00");
 		
-		HttpServletRequest request = mock(HttpServletRequest.class);
-		when(request.getMethod()).thenReturn("POST");
-		when(request.getContentType()).thenReturn(entity.getContentType().getValue());
-        when(request.getContentLength()).thenReturn((int)entity.getContentLength());
+		HttpServletRequest writeRequestMock = mock(HttpServletRequest.class);
+		when(writeRequestMock.getMethod()).thenReturn("POST");
+		when(writeRequestMock.getContentType()).thenReturn(writeEntity.getContentType().getValue());
+        when(writeRequestMock.getContentLength()).thenReturn((int)writeEntity.getContentLength());
         try {
-			when(request.getInputStream()).thenReturn(new MockServletInputStream(is));
+			when(writeRequestMock.getInputStream()).thenReturn(new MockServletInputStream(writeByteArrayInputStream));
 		} catch (IOException e) {
 			fail("dead code");
 		}
-		when(request.getSession()).thenReturn(session);
-		when(request.getRequestURI()).thenReturn("/servlet/BoardWriteProcess");
-		when(request.getRemoteHost()).thenReturn("");
-		when(request.getRemoteAddr()).thenReturn("172.0.1.32");
-		when(request.getRemoteUser()).thenReturn("");
+		when(writeRequestMock.getSession()).thenReturn(sessionMock);
+		when(writeRequestMock.getRequestURI()).thenReturn("/servlet/BoardWriteProcess");
+		when(writeRequestMock.getRemoteHost()).thenReturn("");
+		when(writeRequestMock.getRemoteAddr()).thenReturn("172.0.1.32");
+		when(writeRequestMock.getRemoteUser()).thenReturn("");
 		
-		HttpServletResponse response = mock(HttpServletResponse.class);
+		HttpServletResponse responseMock = mock(HttpServletResponse.class);
 
 		BoardWriteProcessSvl boardWriteProcessSvl = new BoardWriteProcessSvl();
 		
@@ -176,7 +176,7 @@ public class BoardWriteProcessSvlTest extends AbstractJunitTest {
 			//boardWriteProcessSvl.service(request, response);
 			
 			boardWriteProcessSvl.init(servletConfigMock);
-			boardWriteRes = boardWriteProcessSvl.doWork(request, response);
+			boardWriteRes = boardWriteProcessSvl.doWork(writeRequestMock, responseMock);
 			
 			log.info(boardWriteRes.toString());
 		} catch (Exception e) {

@@ -3,7 +3,6 @@ package kr.pe.codda.client.connection.asyn.noshare;
 import java.io.IOException;
 
 import kr.pe.codda.client.classloader.ClientTaskMangerIF;
-import kr.pe.codda.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
 import kr.pe.codda.client.connection.asyn.ClientIOEventControllerIF;
@@ -24,13 +23,12 @@ public class AsynNoShareConnection extends AsynThreadSafeSingleConnection {
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			ClientTaskMangerIF clientTaskManger,
 			AsynConnectedConnectionAdderIF asynConnectedConnectionAdder,
-			ClientIOEventControllerIF asynClientIOEventController,
-			ConnectionPoolSupporterIF connectionPoolSupporter)
+			ClientIOEventControllerIF asynClientIOEventController)
 			throws IOException {
 		
 		super(projectName, serverHost, serverPort, socketTimeout, syncMessageMailboxCountPerAsynShareConnection,
 				clientAsynInputMessageQueueCapacity, socketOutputStream, messageProtocol, dataPacketBufferPool,
-				clientTaskManger, asynConnectedConnectionAdder, asynClientIOEventController, connectionPoolSupporter);
+				clientTaskManger, asynConnectedConnectionAdder, asynClientIOEventController);
 		
 	}
 
