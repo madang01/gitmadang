@@ -16,4 +16,7 @@ public interface ServerIOEventHandlerIF {
 	 * @throws Exception 예상 못한 예외
 	 */
 	public void onWrite(SelectionKey selectedKey) throws Exception;
+	
+	public void close();
+	public int hashCode();
 }

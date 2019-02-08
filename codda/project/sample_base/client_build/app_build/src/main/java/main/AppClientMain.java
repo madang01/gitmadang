@@ -6,14 +6,9 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
-import kr.pe.codda.client.ConnectionIF;
 import kr.pe.codda.client.ConnectionPoolManager;
-import kr.pe.codda.common.config.CoddaConfiguration;
-import kr.pe.codda.common.config.CoddaConfigurationManager;
-import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.Echo.Echo;
 
@@ -37,7 +32,7 @@ public class AppClientMain {
 		
 		log.info("numberOfThread={}", numberOfThread);
 		
-		/*class ConnectionPoolThreadSafeTester implements Runnable {
+		class ConnectionPoolThreadSafeTester implements Runnable {
 			private InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 			
 			private AnyProjectConnectionPoolIF mainProjectConnectionPool = null;
@@ -83,9 +78,9 @@ public class AppClientMain {
 				}
 				
 			}
-		}*/
+		}
 		
-		class SigleConnectionThreadSafeTester implements Runnable {
+		/*class SigleConnectionThreadSafeTester implements Runnable {
 			private InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 			
 			private AnyProjectConnectionPoolIF mainProjectConnectionPool = null;
@@ -186,15 +181,15 @@ public class AppClientMain {
 					log.warn("unknow error", e);
 				}
 			}
-		}
+		}*/
 		
 		ConnectionPoolManager connectionPoolManager = ConnectionPoolManager.getInstance();
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = connectionPoolManager.getMainProjectConnectionPool();		
 		Thread[] threadSafeTester = new Thread[numberOfThread];
 
 		for (int i=0; i < numberOfThread; i++) {
-			// threadSafeTester[i] = new Thread(new ConnectionPoolThreadSafeTester(mainProjectConnectionPool));
-			threadSafeTester[i] = new Thread(new SigleConnectionThreadSafeTester(mainProjectConnectionPool));
+			threadSafeTester[i] = new Thread(new ConnectionPoolThreadSafeTester(mainProjectConnectionPool));
+			// threadSafeTester[i] = new Thread(new SigleConnectionThreadSafeTester(mainProjectConnectionPool));
 			threadSafeTester[i].start();
 		}	
 				

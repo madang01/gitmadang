@@ -28,7 +28,7 @@ public class AyncThreadSafeSingleConnectedConnectionAdder implements AsynConnect
 	}
 
 	@Override
-	public void removeUnregisteredConnection(AsynConnectionIF unregisteredAsynConnection) {
+	public void subtractOneFromNumberOfUnregisteredConnections(AsynConnectionIF unregisteredAsynConnection) {
 		log.warn("remove the unregistered asyn connection[{}]", unregisteredAsynConnection.hashCode());
 	}	
 	

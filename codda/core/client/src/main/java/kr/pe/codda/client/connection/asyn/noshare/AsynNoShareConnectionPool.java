@@ -46,7 +46,7 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	
 	private ArrayDeque<AsynNoShareConnection> connectionQueue = null;
 	private transient int numberOfConnection = 0;	
-	private transient int numberOfUnregisteredConnection = 0;
+	private transient int numberOfUnregisteredConnections = 0;
 
 	private ClientIOEventControllerIF asynClientIOEventController = null;
 
@@ -231,19 +231,19 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	}
 	
 	public void fillAllConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
-		// FIXME!
+		/*
 		log.info("numberOfUnregisteredConnection={}, numberOfConnection={}," +
 				"clientConnectionCount={}",
 				numberOfUnregisteredConnection,
 				numberOfConnection,
-				clientConnectionCount);
+				clientConnectionCount);*/
 		
 		synchronized (monitor) {				
-			while ((numberOfUnregisteredConnection
+			while ((numberOfUnregisteredConnections
 					+ numberOfConnection) < clientConnectionCount) {				
 				
 				ClientIOEventHandlerIF unregisteredAsynConnection = newUnregisteredConnection();
-				numberOfUnregisteredConnection++;
+				numberOfUnregisteredConnections++;
 				asynClientIOEventController.addUnregisteredAsynConnection(unregisteredAsynConnection);
 			}
 		}
@@ -252,12 +252,12 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	}
 	
 	@Override
-	public void removeUnregisteredConnection(AsynConnectionIF unregisteredAsynConnection) {
-		//synchronized (monitor) {
-			numberOfUnregisteredConnection--;
-		//}		
+	public void subtractOneFromNumberOfUnregisteredConnections(AsynConnectionIF unregisteredAsynConnection) {
+		synchronized (monitor) {
+			numberOfUnregisteredConnections--;
+		}
 		
-		log.info("remove the unregistered connection[{}]", unregisteredAsynConnection.hashCode());
+		log.info("subtract one[unregistered connection={}] from the number of unregistered connection", unregisteredAsynConnection.hashCode());
 	}
 
 	private ClientIOEventHandlerIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
@@ -291,27 +291,19 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 					"fail to add a connection because the var numberOfInterrestedConnection is zero");
 		}*/
 		
-		long startTime = System.nanoTime();
+		// long startTime = System.nanoTime();
 
 		synchronized (monitor) {
 			connectionQueue.addLast((AsynNoShareConnection)connectedAsynConnection);
 			numberOfConnection++;
+			numberOfUnregisteredConnections--;
 			monitor.notify();
 		}
 		
-		long endTime = System.nanoTime();
+		/*long endTime = System.nanoTime();
 		
 		log.info("Successfully added the connected connection[{}] to this connection pool, errasped {} micoseconds",
 				connectedAsynConnection.hashCode(), 
-				TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+				TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));*/
 	}
-
-	// @Override
-	/*public void removeInterestedConnection(AsynConnectionIF interestedAsynConnection) {
-		synchronized (monitor) {
-			numberOfUnregisteredConnection--;
-		}
-		
-		log.info("remove the interedted connection[{}]", interestedAsynConnection.hashCode());
-	}*/
 }

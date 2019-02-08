@@ -20,7 +20,6 @@ package kr.pe.codda.server;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
@@ -28,7 +27,6 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
-import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.SocketOutputStream;
@@ -260,58 +258,29 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 
 	@Override
 	public void onRead(SelectionKey personalSelectionKey) throws Exception {
-		try {
-			int numberOfReadBytes = socketOutputStream
-					.read(acceptedSocketChannel);
 
-			if (numberOfReadBytes == -1) {
-				String errorMessage = new StringBuilder("this socket channel[")
-						.append(acceptedSocketChannel.hashCode())
-						.append("] has reached end-of-stream").toString();
+		int numberOfReadBytes = socketOutputStream.read(acceptedSocketChannel);
 
-				log.warn(errorMessage);
-				close();
-				return;
-			}
-
-			setFinalReadTime();
-			messageProtocol.S2MList(socketOutputStream, this);
-			/**
-			 * 추출된 메시지에 1:1 대응하는 서버 비지니스 로직 수행후 출력 메시지 큐 크기가 수용 가능 용량의 50% 보다 클
-			 * 경우 소켓 읽기 이벤트 끄기
-			 */
-			if (outputMessageQueue.size() > serverOutputMessageQueueCapacity / 2) {
-				turnOffSocketReadMode();
-			}
-
-		} catch (NoMoreDataPacketBufferException e) {
-			String errorMessage = new StringBuilder()
-					.append("the no more data packet buffer error occurred while reading the socket[")
+		if (numberOfReadBytes == -1) {
+			String errorMessage = new StringBuilder("this socket channel[")
 					.append(acceptedSocketChannel.hashCode())
-					.append("], errmsg=").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
+					.append("] has reached end-of-stream").toString();
 
-			close();
-			return;
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder()
-					.append("the io error occurred while reading the socket[")
-					.append(acceptedSocketChannel.hashCode())
-					.append("], errmsg=").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
-
-			close();
-			return;
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder()
-					.append("the unknown error occurred while reading the socket[")
-					.append(acceptedSocketChannel.hashCode())
-					.append("], errmsg=").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
-
+			log.warn(errorMessage);
 			close();
 			return;
 		}
+
+		setFinalReadTime();
+		messageProtocol.S2MList(socketOutputStream, this);
+		/**
+		 * 추출된 메시지에 1:1 대응하는 서버 비지니스 로직 수행후 출력 메시지 큐 크기가 수용 가능 용량의 50% 보다 클 경우
+		 * 소켓 읽기 이벤트 끄기
+		 */
+		if (outputMessageQueue.size() > serverOutputMessageQueueCapacity / 2) {
+			turnOffSocketReadMode();
+		}
+
 	}
 
 	@Override
@@ -319,6 +288,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue
 				.peek();
 		if (null == inputMessageWrapBufferQueue) {
+			log.warn("the var inputMessageWrapBufferQueue is null");
 			return;
 		}
 
@@ -327,85 +297,79 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer
 				.getByteBuffer();
 		boolean loop = true;
-		try {
-			while (loop) {
-				int numberOfBytesWritten = 0;
-				try {
-					numberOfBytesWritten = acceptedSocketChannel
-							.write(currentWorkingByteBuffer);
-				} catch (IOException e) {
-					String errorMessage = new StringBuilder()
-							.append("fail to write a sequence of bytes to this channel[")
-							.append(acceptedSocketChannel.hashCode())
-							.append("] because io error occured, errmsg=")
-							.append(e.getMessage()).toString();
-					log.warn(errorMessage, e);
 
-					close();
-					return;
-				} catch (Exception e) {
-					String errorMessage = new StringBuilder()
-							.append("fail to write a sequence of bytes to this channel[")
-							.append(acceptedSocketChannel.hashCode())
-							.append("] because unknow error occured, errmsg=")
-							.append(e.getMessage()).toString();
-					log.warn(errorMessage, e);
+		while (loop) {
+			int numberOfBytesWritten = acceptedSocketChannel
+						.write(currentWorkingByteBuffer);
+			/*} catch (IOException e) {
+				String errorMessage = new StringBuilder()
+						.append("fail to write a sequence of bytes to this channel[")
+						.append(acceptedSocketChannel.hashCode())
+						.append("] because io error occured, errmsg=")
+						.append(e.getMessage()).toString();
+				log.warn(errorMessage, e);
 
-					close();
-					return;
-				}
-
-				if (0 == numberOfBytesWritten) {
-					loop = false;
-					return;
-				}
-
-				if (!currentWorkingByteBuffer.hasRemaining()) {
-					inputMessageWrapBufferQueue.removeFirst();
-					dataPacketBufferPool
-							.putDataPacketBuffer(currentWorkingWrapBuffer);
-
-					if (inputMessageWrapBufferQueue.isEmpty()) {
-						outputMessageQueue.removeFirst();
-						if (outputMessageQueue.isEmpty()) {
-							try {
-								turnOffSocketWriteMode();
-							} catch (CancelledKeyException e) {
-								log.warn("더 이상의 출력 메시지가 없어 OP_WRITE 스위치를 끄려고 할때 CancelledKeyException 발생");
-								close();
-								return;
-							}
-							loop = false;
-							return;
-						}
-						inputMessageWrapBufferQueue = outputMessageQueue.peek();
-
-					}
-
-					currentWorkingWrapBuffer = inputMessageWrapBufferQueue
-							.peek();
-					currentWorkingByteBuffer = currentWorkingWrapBuffer
-							.getByteBuffer();
-				}
-			}
-		} finally {
-			/**
-			 * 소켓 읽기 이벤트가 꺼져 있는 상태라면 더 이상 전송할 데이터 없는 상태가 되어 소켓 쓰기 이벤트가 꺼져 있거나 혹은
-			 * 출력 메시지 큐가 최대 용량 25% 보다 작은 경우 소켓 읽기 이벤트 켜기
-			 */
-			try {
-				int interestOps = personalSelectionKey.interestOps();
-
-				if (((interestOps & SelectionKey.OP_READ) == 0)) {
-					if ((interestOps & SelectionKey.OP_WRITE) == 0
-							|| outputMessageQueue.size() < serverOutputMessageQueueCapacity / 4) {
-						turnOnSocketReadMode();
-					}
-				}
-			} catch (CancelledKeyException e) {
-				log.warn("OP_READ 스위치를 다시 켜야 할지 판단하는 영역에서 CancelledKeyException 발생");
 				close();
 				return;
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder()
+						.append("fail to write a sequence of bytes to this channel[")
+						.append(acceptedSocketChannel.hashCode())
+						.append("] because unknow error occured, errmsg=")
+						.append(e.getMessage()).toString();
+				log.warn(errorMessage, e);
+
+				close();
+				return;
+			}*/
+
+			if (0 == numberOfBytesWritten) {
+				loop = false;
+				break;
+			}
+
+			if (!currentWorkingByteBuffer.hasRemaining()) {
+				inputMessageWrapBufferQueue.removeFirst();
+				dataPacketBufferPool
+						.putDataPacketBuffer(currentWorkingWrapBuffer);
+
+				if (inputMessageWrapBufferQueue.isEmpty()) {
+					outputMessageQueue.removeFirst();
+					if (outputMessageQueue.isEmpty()) {
+						try {
+							turnOffSocketWriteMode();
+						} catch (CancelledKeyException e) {
+							log.warn("더 이상의 출력 메시지가 없어 OP_WRITE 스위치를 끄려고 할때 CancelledKeyException 발생");
+							close();
+							return;
+						}
+						loop = false;
+						break;
+					}
+					inputMessageWrapBufferQueue = outputMessageQueue.peek();
+
+				}
+
+				currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
+				currentWorkingByteBuffer = currentWorkingWrapBuffer
+						.getByteBuffer();
+			}
+		}
+
+		turnOnSocketReadModeIfValid();
+	}
+
+	/**
+	 * 소켓 읽기 이벤트가 꺼져 있는 상태라면 더 이상 전송할 데이터 없는 상태가 되어 소켓 쓰기 이벤트가 꺼져 있거나 혹은 출력 메시지
+	 * 큐가 최대 용량 25% 보다 작은 경우 소켓 읽기 이벤트 켜기
+	 */
+	private void turnOnSocketReadModeIfValid() {
+		int interestOps = personalSelectionKey.interestOps();
+
+		if (((interestOps & SelectionKey.OP_READ) == 0)) {
+			if ((interestOps & SelectionKey.OP_WRITE) == 0
+					|| outputMessageQueue.size() < serverOutputMessageQueueCapacity / 4) {
+				turnOnSocketReadMode();
 			}
 		}
 	}

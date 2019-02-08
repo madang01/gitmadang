@@ -6,6 +6,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -101,135 +102,77 @@ public class ServerIOEventController extends Thread implements
 							StandardSocketOptions.SO_LINGER,
 							0);
 		} catch (Exception e) {
-			log.warn(
-					"fail to set the value of a acceptable channel[{}] option 'SO_LINGER'",
-					acceptableSocketChannel
-							.hashCode());
+			String errorMessage = new StringBuilder()
+			.append("fail to set the value of a acceptable channel[")
+			.append(acceptableSocketChannel
+					.hashCode())
+			.append("] option 'SO_LINGER'").toString();
+			
+			log.warn(errorMessage, e);
 		}
 		try {
 			acceptableSocketChannel.close();
 		} catch (Exception e) {
-			log.warn(
-					"fail to close the acceptable channel[{}]",
-					acceptableSocketChannel
-							.hashCode());
+			String errorMessage = new StringBuilder()
+			.append("fail to close the acceptable channel[")
+			.append(acceptableSocketChannel
+					.hashCode())
+			.append("]").toString();
+			
+			
+			log.warn(errorMessage, e);
 		}
 	}
 	
-	private void onConnect(SelectionKey selectedKey) {
-		ServerSocketChannel readyChannel = (ServerSocketChannel) selectedKey
-				.channel();
-		
-		SocketChannel acceptableSocketChannel = null;
-		
-		try {
-			acceptableSocketChannel = readyChannel.accept();
-		} catch(Exception e) {
-			String errorMessage = new StringBuilder()
-			.append("fail to accept a connection[")
-			.append(readyChannel.hashCode())
-			.append("] made to this channel's socket").toString();			
-
-			log.warn("{}, errmsg={}", errorMessage, e.getMessage());
-			return;
-		}
-										
-
-		if (null == acceptableSocketChannel) {
-			try {
-				readyChannel.close();
-			} catch (IOException e) {				
-			}
-			log.warn("acceptableSocketChannel is null");
-			return;
-		}
+	private void registerInAcceptedConnectionHash(SocketChannel acceptedSocketChannel) throws Exception {
 
 		int numberOfAcceptedConnection = selectedKey2AcceptedConnectionHash
 				.size();
 
-		log.info(
+		/*log.info(
 				"acceptable socket channel={}, numberOfAcceptedConnection={}",
 				acceptableSocketChannel.hashCode(),
-				numberOfAcceptedConnection);
+				numberOfAcceptedConnection);*/
 
-		if (numberOfAcceptedConnection >= maxClients) {
-			closeAcceptedSocketChannel(acceptableSocketChannel);			
-			
+		if (numberOfAcceptedConnection >= maxClients) {			
 			String errorMessage = new StringBuilder()
-			.append("close the acceptable socket channel[")
-			.append(acceptableSocketChannel.hashCode())
+			.append("close the accepted socket channel[")
+			.append(acceptedSocketChannel.hashCode())
 			.append("] because the maximum number[")
 			.append(maxClients)
 			.append("] of sockets has been reached").toString();
-			
-
-			log.warn(errorMessage);
-			return;
+			throw new IOException(errorMessage);
 		}
-
-		try {
-			if (acceptableSocketChannel
-					.isConnectionPending()) {
-				acceptableSocketChannel.finishConnect();
+		
+		if (acceptedSocketChannel
+				.isConnectionPending()) {
+			log.info("OP_CONNECT but a connection operation is in progress on this accepted channel[{}]", 
+					acceptedSocketChannel.hashCode());
+			
+			boolean isSuccess = acceptedSocketChannel.finishConnect();
+			
+			if (! isSuccess) {
+				String errorMessage = new StringBuilder()
+				.append("fail to finish connect the accepted channel[")
+				.append(acceptedSocketChannel.hashCode())
+				.append("]").toString();
+				
+				throw new IOException(errorMessage);
 			}
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder()
-			.append("fail to finish connect the accepted channel[")
-			.append(acceptableSocketChannel.hashCode())
-			.append("]").toString();
-			
-			log.warn("{}, errmsg={}", errorMessage, e.getMessage());
-			
-			return;
 		}
+		
+		setupAcceptedSocketChannel(acceptedSocketChannel);
 
-		try {
-			setupAcceptedSocketChannel(acceptableSocketChannel);
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder()
-			.append("fail to setup the accepted channel[")
-			.append(acceptableSocketChannel.hashCode())
-			.append("]'s options").toString();
-			
-			log.warn("{}, errmsg={}", errorMessage, e.getMessage());
-			
-			return;
-		}
 
-		SelectionKey acceptedKey = null;
-
-		try {
-			acceptedKey = acceptableSocketChannel
+		SelectionKey acceptedKey = acceptedSocketChannel
 					.register(ioEventSelector,
-							SelectionKey.OP_READ);
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder()
-			.append("fail to register this channel[")
-			.append(acceptableSocketChannel.hashCode())
-			.append("] with the given selector having a the interest set OP_READ").toString();
-			
-			log.warn("{}, errmsg={}",
-					errorMessage, e.getMessage());
+							SelectionKey.OP_READ);		
 
-			return;
-		}
-
-		SocketOutputStream socketOutputStreamOfAcceptedSC = null;
-
-		try {
-			socketOutputStreamOfAcceptedSC = socketOutputStreamFactory
-					.createSocketOutputStream();
-		} catch (NoMoreDataPacketBufferException e) {
-			closeAcceptedSocketChannel(acceptableSocketChannel);
-			acceptedKey.cancel();
-			log.warn(
-					"close the acceptable socket channel[{}] becase there is no more data packet buffer",
-					acceptableSocketChannel.hashCode());
-			return;
-		}
+		SocketOutputStream socketOutputStreamOfAcceptedSC = socketOutputStreamFactory
+					.createSocketOutputStream();		
 
 		AcceptedConnection acceptedConnection = new AcceptedConnection(
-				acceptedKey, acceptableSocketChannel,
+				acceptedKey, acceptedSocketChannel,
 				projectName, socketTimeOut,
 				serverOutputMessageQueueCapacity,
 				socketOutputStreamOfAcceptedSC, this,
@@ -241,9 +184,9 @@ public class ServerIOEventController extends Thread implements
 				acceptedKey, acceptedConnection);
 
 		log.info(
-				"successfully changed acceptedKey[{}]'s acceptable socket channel[{}] to accepted socket channel",
+				"successfully changed acceptedKey[{}]'s accepted socket channel[{}] to accepted socket channel",
 				acceptedKey.hashCode(),
-				acceptableSocketChannel.hashCode());
+				acceptedSocketChannel.hashCode());
 	}
 
 	@Override
@@ -266,44 +209,172 @@ public class ServerIOEventController extends Thread implements
 				try {
 					for (SelectionKey selectedKey : selectedKeySet) {
 						try {
-							if (selectedKey.isAcceptable()) {								
-								onConnect(selectedKey);								
-							}
-						
-							if (selectedKey.isReadable()) {
-								ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
-										.get(selectedKey);
+							if (selectedKey.isAcceptable()) {	
+								ServerSocketChannel readyChannel = (ServerSocketChannel) selectedKey
+										.channel();
+								
+								SocketChannel acceptedSocketChannel = null;
+								
+								try {
+									acceptedSocketChannel = readyChannel.accept();
+								} catch(Exception e) {
+									String errorMessage = new StringBuilder()
+									.append("fail to accept a connection[")
+									.append(readyChannel.hashCode())
+									.append("] made to this channel's socket, errmsg=")
+									.append(e.getMessage()).toString();			
 
-								if (null == accpetedConneciton) {
-									log.warn(
-											"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
-											selectedKey.hashCode(), selectedKey
-													.channel().hashCode());
+									log.warn(errorMessage);
 									continue;
 								}
+								
+								if (null == acceptedSocketChannel) {
+									String errorMessage = new StringBuilder()
+									.append("fail to accept a connection[")
+									.append(readyChannel.hashCode())
+									.append("] made to this channel's socket becase the returned value is null").toString();			
 
+									log.warn(errorMessage);
+									continue;
+								}
+								
+								try {
+									registerInAcceptedConnectionHash(acceptedSocketChannel);
+								} catch (NoMoreDataPacketBufferException e) {
+									String errorMessage = new StringBuilder()
+											.append("the no more data packet buffer error occurred while registering the socket[")
+											.append(acceptedSocketChannel.hashCode())
+											.append("] in the accepted connection hash, errmsg=").append(e.getMessage()).toString();
+									log.warn(errorMessage);
+
+									closeAcceptedSocketChannel(acceptedSocketChannel);
+									continue;
+								} catch (IOException e) {
+									String errorMessage = new StringBuilder()
+											.append("the io error occurred while registering the socket[")
+											.append(acceptedSocketChannel.hashCode())
+											.append("] in the accepted connection hash, errmsg=").append(e.getMessage()).toString();
+									log.warn(errorMessage);
+
+									closeAcceptedSocketChannel(acceptedSocketChannel);
+									continue;
+								} catch(CancelledKeyException e) {
+									String errorMessage = new StringBuilder()
+									.append("this selector key[hashCode=socket channel=")
+									.append(acceptedSocketChannel.hashCode())
+									.append("] has been cancelled")
+									.toString();
+									
+									log.warn(errorMessage);
+									
+									closeAcceptedSocketChannel(acceptedSocketChannel);
+									continue;
+								} catch (Exception e) {
+									String errorMessage = new StringBuilder()
+											.append("the unknown error occurred while registering the socket[")
+											.append(acceptedSocketChannel.hashCode())
+											.append("] in the accepted connection hash").toString();
+									log.warn(errorMessage, e);
+
+									closeAcceptedSocketChannel(acceptedSocketChannel);
+									continue;									
+								}
+								continue;
+							}
+						} catch(CancelledKeyException e) {
+							String errorMessage = new StringBuilder()
+							.append("this selector key[")
+							.append(selectedKey.hashCode())
+							.append("] has been cancelled")
+							.toString();
+							
+							log.warn(errorMessage);
+							
+							ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
+									.get(selectedKey);
+							
+							if (null != accpetedConneciton) {
+								/** 등록된 셀렉터 키인 경우 자원 회수및 소켓을 닫는다 */
+								accpetedConneciton.close();
+							}
+							continue;
+						} catch(Exception e) {
+							String errorMessage = new StringBuilder()
+							.append("dead code entering, this selector key[")
+							.append(selectedKey.hashCode())
+							.append("]")
+							.toString();
+							
+							log.error(errorMessage, e);
+							System.exit(1);
+						}
+						
+						ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
+								.get(selectedKey);
+						
+						if (null == accpetedConneciton) {
+							log.warn(
+									"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
+									selectedKey.hashCode(), selectedKey
+											.channel().hashCode());
+							continue;
+						}
+						
+						try {
+							if (selectedKey.isReadable()) {
 								accpetedConneciton.onRead(selectedKey);
 							}
 
 							if (selectedKey.isWritable()) {
-								ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
-										.get(selectedKey);
-
-								if (null == accpetedConneciton) {
-									log.warn(
-											"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
-											selectedKey.hashCode(), selectedKey
-													.channel().hashCode());
-									continue;
-								}
-
 								accpetedConneciton.onWrite(selectedKey);
 							}
 						} catch (InterruptedException e) {
-							throw e;						
-						} catch (Exception e) {
-							log.warn("error", e);
+							String errorMessage = new StringBuilder()
+							.append("InterruptedException occurred while reading the socket[")
+							.append(accpetedConneciton.hashCode()).append("]").toString();
+							log.warn(errorMessage);
+							
+							accpetedConneciton.close();
+					
+							throw e;
+						} catch(CancelledKeyException e) {
+							String errorMessage = new StringBuilder()
+							.append("this selector key[socket channel=")
+							.append(accpetedConneciton.hashCode())
+							.append("] has been cancelled")
+							.toString();
+							
+							log.warn(errorMessage);
+							
+							accpetedConneciton.close();
+							continue;							
+						} catch (NoMoreDataPacketBufferException e) {
+							String errorMessage = new StringBuilder()
+									.append("the no more data packet buffer error occurred while reading the socket[")
+									.append(accpetedConneciton.hashCode())
+									.append("], errmsg=").append(e.getMessage()).toString();
+							log.warn(errorMessage);
+
+							accpetedConneciton.close();
 							continue;
+						} catch (IOException e) {
+							String errorMessage = new StringBuilder()
+									.append("the io error occurred while reading or writing the socket[")
+									.append(accpetedConneciton.hashCode())
+									.append("], errmsg=").append(e.getMessage()).toString();
+							log.warn(errorMessage);
+
+							accpetedConneciton.close();
+							continue;
+						} catch (Exception e) {
+							String errorMessage = new StringBuilder()
+									.append("the unknown error occurred while reading or writing the socket[")
+									.append(accpetedConneciton.hashCode())
+									.append("]").toString();
+							log.warn(errorMessage, e);
+
+							accpetedConneciton.close();
+							continue;					
 						}
 					}
 				} finally {
@@ -335,7 +406,7 @@ public class ServerIOEventController extends Thread implements
 	}
 
 	private void setupAcceptedSocketChannel(SocketChannel acceptedSocketChannel)
-			throws IOException {
+			throws Exception {
 		acceptedSocketChannel.configureBlocking(false);
 		acceptedSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE,
 				true);
@@ -348,7 +419,10 @@ public class ServerIOEventController extends Thread implements
 
 	@Override
 	public void cancel(SelectionKey selectedKey) {
-		selectedKey.channel();
+		if (null == selectedKey) {
+			return;
+		}
+		selectedKey.cancel();
 		selectedKey2AcceptedConnectionHash.remove(selectedKey);
 	}
 

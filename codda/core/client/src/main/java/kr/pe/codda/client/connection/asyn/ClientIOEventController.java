@@ -4,6 +4,7 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
@@ -17,8 +18,7 @@ public class ClientIOEventController extends Thread implements
 	private InternalLogger log = InternalLoggerFactory
 			.getInstance(ClientIOEventController.class);
 
-	private long clientSelectorWakeupInterval;
-	// private AsynConnectionPoolIF asynConnectionPool = null;
+	private long clientSelectorWakeupInterval = 0L;
 
 	private Selector ioEventSelector = null;
 	private ConcurrentHashMap<SelectionKey, ClientIOEventHandlerIF> selectedKey2ConnectionHash = new ConcurrentHashMap<SelectionKey, ClientIOEventHandlerIF>();
@@ -29,16 +29,6 @@ public class ClientIOEventController extends Thread implements
 		this.clientSelectorWakeupInterval = clientSelectorWakeupInterval;
 
 		ioEventSelector = Selector.open();
-
-		/**
-		 * WARNING! 반듯이 AsynConnectionPoolIF#setAsynSelectorManger 를 통해 이 객체 등록이
-		 * 선행되어야 한다
-		 */
-		/*try {
-			asynConnectionPool.fillAllConnection();
-		} catch (InterruptedException e) {
-			log.warn("연결 폴 구성을 위한 추가 작업중 인터럽트가 발생하였지만 인터럽트 무시하고 진행");
-		}*/
 	}
 
 	@Override
@@ -60,7 +50,7 @@ public class ClientIOEventController extends Thread implements
 			} catch (Exception e) {
 				log.warn("fail to connect becase of error", e);
 				unregisteredAsynConnection.close();
-				unregisteredAsynConnection.doRemoveUnregisteredConnection();
+				unregisteredAsynConnection.doSubtractOneFromNumberOfUnregisteredConnections();
 				continue;
 			}			
 
@@ -85,7 +75,7 @@ public class ClientIOEventController extends Thread implements
 				.append("] on selector").toString();
 				log.warn(errorMessage, e);
 				unregisteredAsynConnection.close();
-				unregisteredAsynConnection.doRemoveUnregisteredConnection();
+				unregisteredAsynConnection.doSubtractOneFromNumberOfUnregisteredConnections();
 			}
 		}
 	}
@@ -104,30 +94,104 @@ public class ClientIOEventController extends Thread implements
 				Set<SelectionKey> selectedKeySet = ioEventSelector
 						.selectedKeys();
 				for (SelectionKey selectedKey : selectedKeySet) {
+					ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
+							.get(selectedKey);
+					
+					if (null == interestedAsynConnection) {
+						log.warn("the var interestedAsynConnection[{}] is null", selectedKey.channel().hashCode());
+						continue;
+					}
+					
 					try {
 						if (selectedKey.isConnectable()) {
-							ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
-									.get(selectedKey);
 							interestedAsynConnection.onConnect(selectedKey);
+							continue;
 						}
-						
+					} catch (IOException e) {
+						String errorMessage = new StringBuilder()
+								.append("fail to finish connection[").append(interestedAsynConnection.hashCode())
+								.append("] becase io error occured, errmsg=")
+								.append(e.getMessage()).toString();
+						log.warn(errorMessage);
+
+						interestedAsynConnection.close();
+						interestedAsynConnection.doSubtractOneFromNumberOfUnregisteredConnections();
+
+						continue;
+					} catch (CancelledKeyException e) {
+						String errorMessage = new StringBuilder()
+								.append("this selector key[socket channel=")
+								.append(interestedAsynConnection.hashCode())
+								.append("] has been cancelled")
+								.toString();
+						log.warn(errorMessage);
+
+						interestedAsynConnection.close();
+						interestedAsynConnection.doSubtractOneFromNumberOfUnregisteredConnections();
+
+						continue;
+					} catch (Exception e) {
+						String errorMessage = new StringBuilder()
+								.append("fail to finish connection[").append(interestedAsynConnection.hashCode())
+								.append("] becase unknown error occured").toString();
+						log.warn(errorMessage, e);
+
+						interestedAsynConnection.close();
+						interestedAsynConnection.doSubtractOneFromNumberOfUnregisteredConnections();
+
+						continue;
+					}
+					
+					try {
 						if (selectedKey.isReadable()) {
-							ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
-									.get(selectedKey);
+							
 							interestedAsynConnection.onRead(selectedKey);
 						}
 
 						if (selectedKey.isWritable()) {
-							ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
-									.get(selectedKey);
-
 							interestedAsynConnection.onWrite(selectedKey);
 
 						}
 					} catch (InterruptedException e) {
-						throw e;						
-					} catch (Exception e) {						
-						log.warn("error", e);
+						String errorMessage = new StringBuilder()
+								.append("InterruptedException occurred while reading the socket[")
+								.append(interestedAsynConnection.hashCode()).append("]").toString();
+						log.warn(errorMessage);
+						interestedAsynConnection.close();
+						throw e;
+					} catch (NoMoreDataPacketBufferException e) {
+						String errorMessage = new StringBuilder()
+								.append("the no more data packet buffer error occurred while reading the socket[")
+								.append(interestedAsynConnection.hashCode()).append("], errmsg=")
+								.append(e.getMessage()).toString();
+						log.warn(errorMessage);
+						interestedAsynConnection.close();
+						continue;
+					} catch (IOException e) {
+						String errorMessage = new StringBuilder()
+								.append("the io error occurred while reading or writing the socket[")
+								.append(interestedAsynConnection.hashCode()).append("], errmsg=")
+								.append(e.getMessage()).toString();
+						log.warn(errorMessage);
+						interestedAsynConnection.close();
+						continue;
+					} catch (CancelledKeyException e) {
+						String errorMessage = new StringBuilder()
+						.append("this selector key[socket channel=")
+						.append(interestedAsynConnection.hashCode())
+						.append("] has been cancelled")
+						.toString();
+						
+						log.warn(errorMessage);
+						interestedAsynConnection.close();
+						continue;
+					} catch (Exception e) {
+						String errorMessage = new StringBuilder()
+								.append("the unknown error occurred while reading or writing the socket[")
+								.append(interestedAsynConnection.hashCode()).append("], errmsg=")
+								.append(e.getMessage()).toString();
+						log.warn(errorMessage, e);
+						interestedAsynConnection.close();
 						continue;
 					}
 				}
@@ -147,7 +211,7 @@ public class ClientIOEventController extends Thread implements
 			return;
 		}
 		selectedKey2ConnectionHash.remove(selectedKey);
-		selectedKey.channel();
+		selectedKey.cancel();
 	}
 
 	@Override

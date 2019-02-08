@@ -201,10 +201,10 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		ConnectionIF conn = connectionPool.getConnection();
 		try {
 			outObj = conn.sendSyncInputMessage(messageCodecManger, inputMessage);
-		} catch (BodyFormatException e) {
+		/*} catch (BodyFormatException e) {
 			throw e;
 		} catch (SocketTimeoutException e) {
-			/** 연결 종류 마다  각자 처리하며 이곳에서는 아무 행동하지 않음 */
+			*//** 연결 종류 마다  각자 처리하며 이곳에서는 아무 행동하지 않음 *//*
 			throw e;
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder()
@@ -216,7 +216,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			conn.close();
 			
 
-			throw e;
+			throw e;*/
 		} finally {
 			connectionPool.release(conn);
 		}

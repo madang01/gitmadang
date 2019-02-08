@@ -20,7 +20,7 @@ codda/project/sample_*test/**
 !codda/project/sample_base/server_build/lib/**/*.jar
 !codda/project/sample_base/client_build/app_build/lib/**/*.jar
 !codda/project/sample_base/client_build/web_build/lib/**/*.jar
-codda/project/sample_base/user_web_app_base/upload/*
+codda/project/sample_base/user_web_app_base/upload/*.dat
 !codda/resources/newproject/web_build/lib/main/ex/*.jar
 !codda/util/jooq/*.jar
 # Logs #
