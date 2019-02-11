@@ -21,7 +21,7 @@ import java.util.ArrayDeque;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.HeaderFormatException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
@@ -38,7 +38,7 @@ public interface MessageProtocolIF {
 	public ArrayDeque<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException;
 	
-	public void S2MList(SocketOutputStream socketOutputStream, ReceivedMessageBlockingQueueIF receivedMessageBlockingQueue) 
+	public void S2MList(ReceivedDataOnlyStream receivedDataOnlyStream, ReceivedMessageBlockingQueueIF receivedMessageBlockingQueue) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException;
 	
 	

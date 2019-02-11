@@ -17,21 +17,24 @@
 
 package kr.pe.codda.common.io;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.CharsetDecoderException;
 import kr.pe.codda.common.exception.BufferUnderflowExceptionWithMessage;
+import kr.pe.codda.common.exception.CharsetDecoderException;
 import kr.pe.codda.common.util.HexUtil;
 
 /**
@@ -893,6 +896,63 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 	public CharsetDecoder getStreamCharsetDecoder() {
 		return streamCharsetDecoder;
+	}
+	
+	public byte[] getMD5WithoutChange(long size)
+			throws IllegalArgumentException, BufferUnderflowExceptionWithMessage {		
+		
+		if (size < 0) {
+			String errorMessage = new StringBuilder("the parameter size[").append(size).append("] is less than zero")
+					.toString();
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (size > available()) {
+			String errorMessage = String.format("the parameter size[%d] is greater than the numbfer of bytes[%d] remaing in this input stream", 
+					size,
+					available());
+			log.info(errorMessage);
+			throw new BufferUnderflowExceptionWithMessage(errorMessage);
+		}
+				
+		if (0 == size) {
+			byte md5Bytes[] = new byte[CommonStaticFinalVars.MD5_BYTESIZE];
+			Arrays.fill(md5Bytes, CommonStaticFinalVars.ZERO_BYTE);
+			return md5Bytes;
+		}
+		
+		java.security.MessageDigest md5 = null;
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		byte md5Bytes[] = null;
+				
+		for (ByteBuffer byteBuffer : streamBufferList) {
+			ByteBuffer dupByteBuffer = byteBuffer.duplicate();
+			//dupByteBuffer.order(byteBuffer.order());
+			
+			int remaing = dupByteBuffer.remaining();
+			if (remaing == 0) {
+				continue;
+			}
+			
+			if (size < remaing) {
+				dupByteBuffer.limit(dupByteBuffer.position()+(int)size);
+				md5.update(dupByteBuffer);
+				break;
+			}
+			
+			md5.update(dupByteBuffer);
+			size -= remaing;
+		}
+		
+		md5Bytes = md5.digest();		
+		return md5Bytes;
 	}
 
 	@Override

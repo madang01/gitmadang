@@ -6,7 +6,6 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
@@ -14,9 +13,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import kr.pe.codda.client.classloader.ClientTaskMangerIF;
 import kr.pe.codda.client.connection.ClientMessageUtility;
@@ -33,7 +29,7 @@ import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
@@ -53,7 +49,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 	private long socketTimeout = 0;
 	int syncMessageMailboxCountPerAsynShareConnection;
 	int clientAsynInputMessageQueueCapacity;
-	private SocketOutputStream socketOutputStream = null;
+	private ReceivedDataOnlyStream receivedDataOnlyStream = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ClientTaskMangerIF clientTaskManger = null;
@@ -63,16 +59,15 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 	private SocketChannel clientSC = null;
 	private SelectionKey personalSelectionKey = null;
 	private java.util.Date finalReadTime = new java.util.Date();
-	private ArrayBlockingQueue<SyncMessageMailbox> syncMessageMailboxQueue = null;
-	private ArrayList<SyncMessageMailbox> syncMessageMailboxList = new ArrayList<SyncMessageMailbox>();
+
+	private SyncMessageMailbox syncMessageMailbox = null;
 
 	private ArrayDeque<ArrayDeque<WrapBuffer>> inputMessageQueue = new ArrayDeque<ArrayDeque<WrapBuffer>>();
 
 	public AsynThreadSafeSingleConnection(String projectName,
 			String serverHost, int serverPort, long socketTimeout,
 			int syncMessageMailboxCountPerAsynShareConnection,
-			int clientAsynInputMessageQueueCapacity,
-			SocketOutputStream socketOutputStream,
+			int clientAsynInputMessageQueueCapacity, ReceivedDataOnlyStream receivedDataOnlyStream,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			ClientTaskMangerIF clientTaskManger,
@@ -85,7 +80,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 		this.socketTimeout = socketTimeout;
 		this.syncMessageMailboxCountPerAsynShareConnection = syncMessageMailboxCountPerAsynShareConnection;
 		this.clientAsynInputMessageQueueCapacity = clientAsynInputMessageQueueCapacity;
-		this.socketOutputStream = socketOutputStream;
+		this.receivedDataOnlyStream = receivedDataOnlyStream;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.clientTaskManger = clientTaskManger;
@@ -94,19 +89,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 
 		openSocketChannel();
 
-		syncMessageMailboxQueue = new ArrayBlockingQueue<SyncMessageMailbox>(
-				syncMessageMailboxCountPerAsynShareConnection);
-
-		for (int i = 0; i < syncMessageMailboxCountPerAsynShareConnection; i++) {
-			SyncMessageMailbox syncMessageMailbox = new SyncMessageMailbox(
-					this, i + 1, socketTimeout);
-
-			syncMessageMailboxQueue.add(syncMessageMailbox);
-			syncMessageMailboxList.add(syncMessageMailbox);
-		}
-
-		// inputMessageQueue = new
-		// ArrayBlockingQueue<ArrayDeque<WrapBuffer>>(this.clientAsynInputMessageQueueCapacity);
+		syncMessageMailbox = new SyncMessageMailbox(this, 1, socketTimeout);
 	}
 
 	private void openSocketChannel() throws IOException {
@@ -138,43 +121,29 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 			DynamicClassCallException, BodyFormatException,
 			ServerTaskException, ServerTaskPermissionException {
 
-		SyncMessageMailbox syncMessageMailbox = syncMessageMailboxQueue.poll(
-				socketTimeout, TimeUnit.MILLISECONDS);
-		if (null == syncMessageMailbox) {
-			log.warn(
-					"drop the input message[{}] becase it failed to get a mailbox within socket timeout",
-					inputMessage.toString());
-			throw new SocketTimeoutException(
-					"fail to get a mailbox within socket timeout");
-		}
+		// ClassLoader classloaderOfInputMessage =
+		// inputMessage.getClass().getClassLoader();
 
-		try {
-			// ClassLoader classloaderOfInputMessage =
-			// inputMessage.getClass().getClassLoader();
+		syncMessageMailbox.nextMailID();
+		inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox
+				.getMailboxID();
+		inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 
-			syncMessageMailbox.nextMailID();
-			inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox
-					.getMailboxID();
-			inputMessage.messageHeaderInfo.mailID = syncMessageMailbox
-					.getMailID();
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility
+				.buildReadableWrapBufferList(messageCodecManger,
+						messageProtocol, inputMessage);
 
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility
-					.buildReadableWrapBufferList(messageCodecManger,
-							messageProtocol, inputMessage);
+		addInputMessage(inputMessage, inputMessageWrapBufferQueue);
 
-			addInputMessage(inputMessage, inputMessageWrapBufferQueue);
+		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = syncMessageMailbox
+				.getSyncOutputMessage();
 
-			ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = syncMessageMailbox
-					.getSyncOutputMessage();
+		AbstractMessage outputMessage = ClientMessageUtility
+				.buildOutputMessage(messageCodecManger, messageProtocol,
+						outputMessageWrapReadableMiddleObject);
 
-			AbstractMessage outputMessage = ClientMessageUtility
-					.buildOutputMessage(messageCodecManger, messageProtocol,
-							outputMessageWrapReadableMiddleObject);
+		return outputMessage;
 
-			return outputMessage;
-		} finally {
-			syncMessageMailboxQueue.offer(syncMessageMailbox);
-		}
 	}
 
 	@Override
@@ -214,7 +183,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 
 	private void releaseResources() {
 		synchronized (readMonitor) {
-			socketOutputStream.close();
+			receivedDataOnlyStream.close();
 		}
 
 		synchronized (writeMonitor) {
@@ -282,7 +251,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 
 		selectedKey.interestOps(SelectionKey.OP_READ);
 
-		doFinishConnect(selectedKey);		
+		doFinishConnect(selectedKey);
 	}
 
 	@Override
@@ -322,16 +291,6 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 			}
 
 		} else {
-			SyncMessageMailbox syncMessageMailbox = null;
-			try {
-				syncMessageMailbox = syncMessageMailboxList.get(mailboxID - 1);
-			} catch (IndexOutOfBoundsException e) {
-				log.warn(
-						"fail to match a mailbox of the received message[{}], errmsg={}",
-						readableMiddleObjectWrapper.toSimpleInformation(),
-						e.getMessage());
-				return;
-			}
 			syncMessageMailbox
 					.putSyncOutputMessage(readableMiddleObjectWrapper);
 		}
@@ -340,7 +299,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 	@Override
 	public void onRead(SelectionKey selectedKey) throws Exception {
 		synchronized (readMonitor) {
-			int numberOfReadBytes = socketOutputStream.read(clientSC);
+			int numberOfReadBytes = receivedDataOnlyStream.read(clientSC);
 
 			if (-1 == numberOfReadBytes) {
 				String errorMessage = new StringBuilder("this socket channel[")
@@ -353,7 +312,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 			}
 
 			setFinalReadTime();
-			messageProtocol.S2MList(socketOutputStream, this);
+			messageProtocol.S2MList(receivedDataOnlyStream, this);
 		}
 	}
 

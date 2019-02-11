@@ -24,7 +24,7 @@ import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
@@ -32,7 +32,7 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SyncThreadSafeSingleConnection.class);
 
-	private SocketOutputStream socketOutputStream = null;
+	private ReceivedDataOnlyStream receivedDataOnlyStream = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 
@@ -53,7 +53,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	private SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
 
 	public SyncThreadSafeSingleConnection(String serverHost, int serverPort, long socketTimeout,
-			int clientDataPacketBufferSize, SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
+			int clientDataPacketBufferSize, ReceivedDataOnlyStream receivedDataOnlyStream, MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool)
 			throws IOException {
 
@@ -61,7 +61,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 		this.serverPort = serverPort;
 		this.socketTimeout = socketTimeout;
 		this.clientDataPacketBufferSize = clientDataPacketBufferSize;
-		this.socketOutputStream = socketOutputStream;
+		this.receivedDataOnlyStream = receivedDataOnlyStream;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		
@@ -118,7 +118,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	}
 
 	private void releaseResources() {
-		socketOutputStream.close();
+		receivedDataOnlyStream.close();
 
 		if (null != clientInputStream) {
 			try {
@@ -217,7 +217,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 			do {
 				int numberOfReadBytes = 0;
 
-				numberOfReadBytes = socketOutputStream.read(clientInputStream, socketBuffer);
+				numberOfReadBytes = receivedDataOnlyStream.read(clientInputStream, socketBuffer);
 
 				if (numberOfReadBytes == -1) {
 					String errorMessage = new StringBuilder("this socket channel[").append(clientSC.hashCode())
@@ -230,7 +230,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 
 				setFinalReadTime();
 
-				messageProtocol.S2MList(socketOutputStream, syncReceivedMessageBlockingQueue);
+				messageProtocol.S2MList(receivedDataOnlyStream, syncReceivedMessageBlockingQueue);
 
 				// log.info("numberOfReadBytes={}, readableMiddleObjectWrapperQueue.isEmpty={}",
 				// numberOfReadBytes, readableMiddleObjectWrapperQueue.isEmpty());

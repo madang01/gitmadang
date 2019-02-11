@@ -18,7 +18,7 @@ import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
@@ -121,9 +121,9 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			
 			//log.info("3");
 			
-			SocketOutputStream sos = null;
+			ReceivedDataOnlyStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPoolManager);
+				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPoolManager);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -180,7 +180,7 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			}
 		}
 		
-		afterTime= new Date().getTime();
+		afterTime = new Date().getTime();
 		
 		log.info("{} 번 시간차={} ms, 평균={} ms, firstIndex={}, differentCount={}", retryCount, (afterTime-beforeTime), (double)(afterTime-beforeTime)/retryCount, firstIndex, differentCount);
 	}

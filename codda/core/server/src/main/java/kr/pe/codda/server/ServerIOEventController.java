@@ -17,8 +17,8 @@ import java.util.Set;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
-import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.server.classloader.ServerTaskMangerIF;
 
@@ -34,7 +34,7 @@ public class ServerIOEventController extends Thread implements
 
 	private long socketTimeOut = 5000;
 	private int serverOutputMessageQueueCapacity = 5;
-	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
+	private ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ServerTaskMangerIF serverTaskManager = null;
@@ -42,15 +42,12 @@ public class ServerIOEventController extends Thread implements
 	private Selector ioEventSelector = null; // OP_ACCEPT 전용 selector
 	private ServerSocketChannel ssc = null;
 
-	private HashMap<SelectionKey, AcceptedConnection> selectedKey2AcceptedConnectionHash = new HashMap<SelectionKey, AcceptedConnection>();
-
-	// private final Object loginMangerMonitor = new Object();
 	private HashMap<SelectionKey, String> selectedKey2LonginIDHash = new HashMap<SelectionKey, String>();
 	private HashMap<String, SelectionKey> longinID2SelectedKeyHash = new HashMap<String, SelectionKey>();
 
 	public ServerIOEventController(
 			ProjectPartConfiguration projectPartConfiguration,
-			SocketOutputStreamFactoryIF socketOutputStreamFactory,
+			ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			ServerTaskMangerIF serverTaskManager) {
@@ -63,10 +60,12 @@ public class ServerIOEventController extends Thread implements
 		this.serverOutputMessageQueueCapacity = projectPartConfiguration
 				.getServerOutputMessageQueueCapacity();
 
-		this.socketOutputStreamFactory = socketOutputStreamFactory;
+		this.receivedDataOnlyStreamFactory = receivedDataOnlyStreamFactory;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.serverTaskManager = serverTaskManager;
+		
+		initServerSocket();
 	}
 
 	/**
@@ -124,84 +123,18 @@ public class ServerIOEventController extends Thread implements
 		}
 	}
 	
-	private void registerInAcceptedConnectionHash(SocketChannel acceptedSocketChannel) throws Exception {
-
-		int numberOfAcceptedConnection = selectedKey2AcceptedConnectionHash
-				.size();
-
-		/*log.info(
-				"acceptable socket channel={}, numberOfAcceptedConnection={}",
-				acceptableSocketChannel.hashCode(),
-				numberOfAcceptedConnection);*/
-
-		if (numberOfAcceptedConnection >= maxClients) {			
-			String errorMessage = new StringBuilder()
-			.append("close the accepted socket channel[")
-			.append(acceptedSocketChannel.hashCode())
-			.append("] because the maximum number[")
-			.append(maxClients)
-			.append("] of sockets has been reached").toString();
-			throw new IOException(errorMessage);
-		}
-		
-		if (acceptedSocketChannel
-				.isConnectionPending()) {
-			log.info("OP_CONNECT but a connection operation is in progress on this accepted channel[{}]", 
-					acceptedSocketChannel.hashCode());
-			
-			boolean isSuccess = acceptedSocketChannel.finishConnect();
-			
-			if (! isSuccess) {
-				String errorMessage = new StringBuilder()
-				.append("fail to finish connect the accepted channel[")
-				.append(acceptedSocketChannel.hashCode())
-				.append("]").toString();
-				
-				throw new IOException(errorMessage);
-			}
-		}
-		
-		setupAcceptedSocketChannel(acceptedSocketChannel);
-
-
-		SelectionKey acceptedKey = acceptedSocketChannel
-					.register(ioEventSelector,
-							SelectionKey.OP_READ);		
-
-		SocketOutputStream socketOutputStreamOfAcceptedSC = socketOutputStreamFactory
-					.createSocketOutputStream();		
-
-		AcceptedConnection acceptedConnection = new AcceptedConnection(
-				acceptedKey, acceptedSocketChannel,
-				projectName, socketTimeOut,
-				serverOutputMessageQueueCapacity,
-				socketOutputStreamOfAcceptedSC, this,
-				messageProtocol, dataPacketBufferPool,
-				this, serverTaskManager);
-
-		/** 소켓 자원 등록 작업 */
-		selectedKey2AcceptedConnectionHash.put(
-				acceptedKey, acceptedConnection);
-
-		log.info(
-				"successfully changed acceptedKey[{}]'s accepted socket channel[{}] to accepted socket channel",
-				acceptedKey.hashCode(),
-				acceptedSocketChannel.hashCode());
-	}
 
 	@Override
 	public void run() {
 		log.info("ServerIOEventController::projectName[{}] start", projectName);
 
-		initServerSocket();
+		
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				@SuppressWarnings("unused")
 				int keyReady = ioEventSelector.select();
-				// log.info("keyReady={}", keyReady);
-
-				// if (keyReady > 0) {
+				
 
 				Set<SelectionKey> selectedKeySet = ioEventSelector
 						.selectedKeys();
@@ -238,8 +171,61 @@ public class ServerIOEventController extends Thread implements
 									continue;
 								}
 								
+								if (getNumberOfAcceptedConnection() >= maxClients) {			
+									String errorMessage = new StringBuilder()
+									.append("close the accepted socket channel[")
+									.append(acceptedSocketChannel.hashCode())
+									.append("] because the maximum number[")
+									.append(maxClients)
+									.append("] of sockets has been reached").toString();
+									log.warn(errorMessage);
+									continue;
+								}
+								
 								try {
-									registerInAcceptedConnectionHash(acceptedSocketChannel);
+									if (acceptedSocketChannel
+											.isConnectionPending()) {
+										log.info("OP_CONNECT but a connection operation is in progress on this accepted channel[{}]", 
+												acceptedSocketChannel.hashCode());
+										
+										boolean isSuccess = acceptedSocketChannel.finishConnect();
+										
+										if (! isSuccess) {
+											String errorMessage = new StringBuilder()
+											.append("fail to finish connect the accepted channel[")
+											.append(acceptedSocketChannel.hashCode())
+											.append("]").toString();
+											
+											log.warn(errorMessage);
+											continue;
+										}
+									}
+									
+									setupAcceptedSocketChannel(acceptedSocketChannel);
+
+									SelectionKey acceptedKey = acceptedSocketChannel
+												.register(ioEventSelector,
+														SelectionKey.OP_READ);		
+
+									ReceivedDataOnlyStream receivedDataOnlyStream = receivedDataOnlyStreamFactory
+												.createReceivedDataOnlyStream();		
+
+									AcceptedConnection acceptedConnection = new AcceptedConnection(
+											acceptedKey, acceptedSocketChannel,
+											projectName, socketTimeOut,
+											serverOutputMessageQueueCapacity,
+											receivedDataOnlyStream, this,
+											messageProtocol, dataPacketBufferPool,
+											this, serverTaskManager);
+
+									/** 소켓 자원 등록 작업 */
+									acceptedKey.attach(acceptedConnection);
+									
+
+									log.info(
+											"successfully changed acceptedKey[{}]'s accepted socket channel[{}] to accepted socket channel",
+											acceptedKey.hashCode(),
+											acceptedSocketChannel.hashCode());
 								} catch (NoMoreDataPacketBufferException e) {
 									String errorMessage = new StringBuilder()
 											.append("the no more data packet buffer error occurred while registering the socket[")
@@ -290,11 +276,11 @@ public class ServerIOEventController extends Thread implements
 							
 							log.warn(errorMessage);
 							
-							ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
-									.get(selectedKey);
+							Object attachedObject = selectedKey.attachment();							
 							
-							if (null != accpetedConneciton) {
+							if (null != attachedObject) {
 								/** 등록된 셀렉터 키인 경우 자원 회수및 소켓을 닫는다 */
+								ServerIOEventHandlerIF accpetedConneciton = (ServerIOEventHandlerIF)attachedObject;
 								accpetedConneciton.close();
 							}
 							continue;
@@ -305,20 +291,29 @@ public class ServerIOEventController extends Thread implements
 							.append("]")
 							.toString();
 							
-							log.error(errorMessage, e);
-							System.exit(1);
+							log.warn(errorMessage, e);
+							
+							Object attachedObject = selectedKey.attachment();							
+							
+							if (null != attachedObject) {
+								/** 등록된 셀렉터 키인 경우 자원 회수및 소켓을 닫는다 */
+								ServerIOEventHandlerIF accpetedConneciton = (ServerIOEventHandlerIF)attachedObject;
+								accpetedConneciton.close();
+							}
+							continue;
 						}
 						
-						ServerIOEventHandlerIF accpetedConneciton = selectedKey2AcceptedConnectionHash
-								.get(selectedKey);
+						Object attachedObject = selectedKey.attachment();
 						
-						if (null == accpetedConneciton) {
+						if (null == attachedObject) {
 							log.warn(
 									"this selectedKey2AcceptedConnectionHash map contains no mapping for the key[{}][{}]",
 									selectedKey.hashCode(), selectedKey
 											.channel().hashCode());
 							continue;
 						}
+						
+						ServerIOEventHandlerIF accpetedConneciton = (ServerIOEventHandlerIF)attachedObject;
 						
 						try {
 							if (selectedKey.isReadable()) {
@@ -422,12 +417,15 @@ public class ServerIOEventController extends Thread implements
 		if (null == selectedKey) {
 			return;
 		}
+		
+		
 		selectedKey.cancel();
-		selectedKey2AcceptedConnectionHash.remove(selectedKey);
+		selectedKey.attach(null);
 	}
 
-	public int getNumberOfAcceptedConnection() {
-		return selectedKey2AcceptedConnectionHash.size();
+	public int getNumberOfAcceptedConnection() {		
+		Set<SelectionKey> selectionKeySet = ioEventSelector.keys();		
+		return selectionKeySet.size() - 1;
 	}
 
 	@Override
@@ -510,29 +508,4 @@ public class ServerIOEventController extends Thread implements
 		SelectionKey selectedKey = longinID2SelectedKeyHash.get(loginID);
 		return selectedKey;
 	}
-
-	public AcceptedConnection getAcceptedConnection(SelectionKey selectedKey) {
-		return selectedKey2AcceptedConnectionHash.get(selectedKey);
-	}
-
-	/*
-	 * private boolean isEnoughDataPacketBuffer(int limitQueueSize) { int
-	 * queueSize = dataPacketBufferPool.size(); boolean isResult = (queueSize >=
-	 * limitQueueSize); return isResult; }
-	 */
-
-	// isEnoughFreeMemory(10*1024*1024L)
-	/*
-	 * private boolean isEnoughFreeMemory(long limitFreeMemorySize) { long free
-	 * = Runtime.getRuntime().freeMemory(); boolean isResult = (free >=
-	 * limitFreeMemorySize); return isResult; }
-	 */
-
-	/*
-	 * private boolean canRead() { for (ServerIOEventHandlerIF
-	 * currentWorkingAcceptedConnection :
-	 * selectedKey2AcceptedConnectionHash.values()) { if (!
-	 * currentWorkingAcceptedConnection.canRead()) { return false; } } return
-	 * true; }
-	 */
 }

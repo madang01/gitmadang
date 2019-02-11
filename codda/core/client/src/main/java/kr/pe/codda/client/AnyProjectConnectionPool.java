@@ -40,8 +40,8 @@ import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStreamFactory;
-import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactory;
+import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
@@ -72,7 +72,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private MessageProtocolIF messageProtocol = null;
 	private ClientTaskMangerIF clientTaskManger = null;
-	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
+	private ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = null;
 	private ClientIOEventController asynClientIOEventController = null;
 	
 
@@ -127,7 +127,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			}
 		}	
 		
-		socketOutputStreamFactory = new SocketOutputStreamFactory(charsetDecoderOfProject,
+		receivedDataOnlyStreamFactory = new ReceivedDataOnlyStreamFactory(charsetDecoderOfProject,
 				clientDataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		
 		connectionPoolSupporter = new ConnectionPoolSupporter(clientConnectionPoolSupporterTimeInterval);
@@ -135,7 +135,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 		if (connectionType.equals(ConnectionType.SYNC)) {
 			connectionPool = new SyncNoShareConnectionPool(projectPartConfiguration,
 					messageProtocol, dataPacketBufferPool,
-					socketOutputStreamFactory,
+					receivedDataOnlyStreamFactory,
 					connectionPoolSupporter);
 		} else {
 			
@@ -170,7 +170,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			ConnectionPoolIF asynConnectionPool = 
 					new AsynNoShareConnectionPool(projectPartConfiguration,
 							messageProtocol, clientTaskManger, dataPacketBufferPool,
-					socketOutputStreamFactory,
+					receivedDataOnlyStreamFactory,
 					connectionPoolSupporter, asynClientIOEventController);
 			
 			connectionPool = asynConnectionPool;
@@ -261,7 +261,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 						projectPartConfiguration.getClientSocketTimeout(),
 						projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
 						projectPartConfiguration.getClientAsynInputMessageQueueCapacity(),					 
-				socketOutputStreamFactory.createSocketOutputStream(), 
+				receivedDataOnlyStreamFactory.createReceivedDataOnlyStream(), 
 				messageProtocol, dataPacketBufferPool, clientTaskManger, ayncThreadSafeSingleConnectedConnectionAdder, 
 				asynClientIOEventController);		
 		
@@ -292,7 +292,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				serverPort,
 				projectPartConfiguration.getClientSocketTimeout(),
 				projectPartConfiguration.getClientDataPacketBufferSize(),
-				socketOutputStreamFactory.createSocketOutputStream(), messageProtocol, dataPacketBufferPool);
+				receivedDataOnlyStreamFactory.createReceivedDataOnlyStream(), messageProtocol, dataPacketBufferPool);
 		
 		return connectedConnection;
 	}

@@ -50,13 +50,10 @@ public class ToLetterCarrier {
 	private AbstractMessage inputMessage;
 	private ProjectLoginManagerIF projectLoginManager = null;
 	
-	private AbstractMessage syncOutputMessage = null;	
-	
+	private AbstractMessage syncOutputMessage = null;
 	
 	private MessageProtocolIF messageProtocol = null;
 	private MessageEncoderManagerIF messageCodecManager = null;
-	
-	// private LinkedList<ToLetter> toLetterList = new LinkedList<ToLetter>();
 	
 	public ToLetterCarrier(AcceptedConnection fromAcceptedConnection,
 			AbstractMessage inputMessage,
@@ -252,12 +249,14 @@ public class ToLetterCarrier {
 			throw new LoginUserNotFoundException(errorMessage);
 		}
 		
-		AcceptedConnection loignUserAcceptedConnection = projectLoginManager.getAcceptedConnection(loginIDSelectionKey);
+		Object attachedObject = loginIDSelectionKey.attachment();	
 		
-		if (null == loignUserAcceptedConnection) {
+		if (null == attachedObject) {
 			String errorMessage = String.format("the user who has the parameter loginUserID[%s] was disconnected", toLoginID);
 			throw new LoginUserNotFoundException(errorMessage);
 		}
+		
+		AcceptedConnection loignUserAcceptedConnection = (AcceptedConnection)attachedObject;
 		
 		asynOutputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		asynOutputMessage.messageHeaderInfo.mailID = loignUserAcceptedConnection.getServerMailID();		

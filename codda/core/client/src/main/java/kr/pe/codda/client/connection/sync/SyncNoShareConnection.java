@@ -24,7 +24,7 @@ import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
@@ -38,7 +38,7 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 public final class SyncNoShareConnection implements SyncConnectionIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SyncNoShareConnection.class);
 
-	private SocketOutputStream socketOutputStream = null;
+	private ReceivedDataOnlyStream receivedDataOnlyStream = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 
@@ -59,14 +59,14 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	private SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
 
 	public SyncNoShareConnection(String serverHost, int serverPort, long socketTimeout, int clientDataPacketBufferSize,
-			SocketOutputStream socketOutputStream, MessageProtocolIF messageProtocol,
+			ReceivedDataOnlyStream receivedDataOnlyStream, MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool)
 			throws IOException {
 		this.serverHost = serverHost;
 		this.serverPort = serverPort;
 		this.socketTimeout = socketTimeout;
 		this.clientDataPacketBufferSize = clientDataPacketBufferSize;
-		this.socketOutputStream = socketOutputStream;
+		this.receivedDataOnlyStream = receivedDataOnlyStream;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 
@@ -177,7 +177,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 
 		try {
 			do {
-				int numberOfReadBytes = socketOutputStream.read(clientInputStream, socketBuffer);
+				int numberOfReadBytes = receivedDataOnlyStream.read(clientInputStream, socketBuffer);
 
 				if (numberOfReadBytes == -1) {
 					String errorMessage = new StringBuilder("this socket channel[").append(clientSC.hashCode())
@@ -190,7 +190,7 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 
 				setFinalReadTime();
 
-				messageProtocol.S2MList(socketOutputStream, syncReceivedMessageBlockingQueue);
+				messageProtocol.S2MList(receivedDataOnlyStream, syncReceivedMessageBlockingQueue);
 
 				// log.info("numberOfReadBytes={}, readableMiddleObjectWrapperQueue.isEmpty={}",
 				// numberOfReadBytes, readableMiddleObjectWrapperQueue.isEmpty());
@@ -291,8 +291,8 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 	}
 
 	private void releaseResources() {
-		if (!socketOutputStream.isClosed()) {
-			socketOutputStream.close();
+		if (!receivedDataOnlyStream.isClosed()) {
+			receivedDataOnlyStream.close();
 
 			log.info("this connection[{}]'s resources has been released", clientSC.hashCode());
 		}

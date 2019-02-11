@@ -8,7 +8,6 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
@@ -21,7 +20,6 @@ public class ClientIOEventController extends Thread implements
 	private long clientSelectorWakeupInterval = 0L;
 
 	private Selector ioEventSelector = null;
-	private ConcurrentHashMap<SelectionKey, ClientIOEventHandlerIF> selectedKey2ConnectionHash = new ConcurrentHashMap<SelectionKey, ClientIOEventHandlerIF>();
 	private LinkedBlockingDeque<ClientIOEventHandlerIF> unregisteredAsynConnectionQueue = new LinkedBlockingDeque<ClientIOEventHandlerIF>();
 
 	public ClientIOEventController(long clientSelectorWakeupInterval) throws IOException,
@@ -65,8 +63,7 @@ public class ClientIOEventController extends Thread implements
 							.register(ioEventSelector, SelectionKey.OP_CONNECT);
 				}
 				
-				selectedKey2ConnectionHash.put(registeredSelectionKey,
-						unregisteredAsynConnection);
+				registeredSelectionKey.attach(unregisteredAsynConnection);
 
 			} catch (Exception e) {
 				String errorMessage = new StringBuilder()
@@ -94,13 +91,14 @@ public class ClientIOEventController extends Thread implements
 				Set<SelectionKey> selectedKeySet = ioEventSelector
 						.selectedKeys();
 				for (SelectionKey selectedKey : selectedKeySet) {
-					ClientIOEventHandlerIF interestedAsynConnection = selectedKey2ConnectionHash
-							.get(selectedKey);
+					Object attachedObject = selectedKey.attachment();
 					
-					if (null == interestedAsynConnection) {
+					if (null == attachedObject) {
 						log.warn("the var interestedAsynConnection[{}] is null", selectedKey.channel().hashCode());
 						continue;
 					}
+					
+					ClientIOEventHandlerIF interestedAsynConnection = (ClientIOEventHandlerIF)attachedObject;
 					
 					try {
 						if (selectedKey.isConnectable()) {
@@ -210,7 +208,7 @@ public class ClientIOEventController extends Thread implements
 		if (null == selectedKey) {
 			return;
 		}
-		selectedKey2ConnectionHash.remove(selectedKey);
+		selectedKey.attach(null);
 		selectedKey.cancel();
 	}
 

@@ -26,7 +26,7 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
@@ -121,12 +121,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
@@ -142,7 +142,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
-					socketOutputStreamOfAcceptedSC,
+					receivedDataOnlyStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
 					serverTaskMangerMock);
@@ -189,9 +189,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			SocketOutputStream sos = null;
+			ReceivedDataOnlyStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -240,12 +240,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		SocketOutputStream sos = null;
+		ReceivedDataOnlyStream sos = null;
 		try {
-			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
-			fail("fail to create a instance of SocketOutputStream");
+			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
 		
@@ -339,12 +339,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
@@ -360,7 +360,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
-					socketOutputStreamOfAcceptedSC,
+					receivedDataOnlyStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
 					serverTaskMangerMock);
@@ -407,9 +407,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			SocketOutputStream sos = null;
+			ReceivedDataOnlyStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -458,12 +458,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		SocketOutputStream sos = null;
+		ReceivedDataOnlyStream sos = null;
 		try {
-			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
-			fail("fail to create a instance of SocketOutputStream");
+			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
 		
@@ -556,12 +556,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
@@ -595,7 +595,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
-					socketOutputStreamOfAcceptedSC,
+					receivedDataOnlyStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
 					serverTaskMangerMock);
@@ -642,9 +642,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			SocketOutputStream sos = null;
+			ReceivedDataOnlyStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -693,12 +693,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		SocketOutputStream sos = null;
+		ReceivedDataOnlyStream sos = null;
 		try {
-			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
-			fail("fail to create a instance of SocketOutputStream");
+			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
 		
@@ -791,12 +791,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
@@ -830,7 +830,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
-					socketOutputStreamOfAcceptedSC,
+					receivedDataOnlyStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocol,
 					dataPacketBufferPool, serverIOEvenetController,
 					serverTaskMangerMock);
@@ -877,9 +877,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			SocketOutputStream sos = null;
+			ReceivedDataOnlyStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -928,12 +928,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		SocketOutputStream sos = null;
+		ReceivedDataOnlyStream sos = null;
 		try {
-			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
-			fail("fail to create a instance of SocketOutputStream");
+			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
 		
@@ -1026,12 +1026,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			SocketOutputStream socketOutputStreamOfAcceptedSC = null;
+			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				socketOutputStreamOfAcceptedSC = new SocketOutputStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
-				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
+				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
 			}			
 			SelectionKey personalSelectionKey = mock(SelectionKey.class);
 			
@@ -1086,7 +1086,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			fromAcceptedConnection = new AcceptedConnection(personalSelectionKey, fromSC, 
 					projectName, socketTimeOut, serverOutputMessageQueueCapacity, 
-					socketOutputStreamOfAcceptedSC,
+					receivedDataOnlyStreamOfAcceptedSC,
 					projectLoginManagerMock, messageProtocolMock,
 					dataPacketBufferPool, serverIOEvenetController,
 					serverTaskMangerMock);
@@ -1133,9 +1133,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			SocketOutputStream sos = null;
+			ReceivedDataOnlyStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -1184,12 +1184,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		SocketOutputStream sos = null;
+		ReceivedDataOnlyStream sos = null;
 		try {
-			sos = new SocketOutputStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
-			fail("fail to create a instance of SocketOutputStream");
+			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
 		

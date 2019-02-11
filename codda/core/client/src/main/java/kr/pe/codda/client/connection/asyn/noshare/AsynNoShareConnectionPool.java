@@ -20,8 +20,8 @@ import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
-import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnectedConnectionAdderIF {
@@ -40,7 +40,7 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	private MessageProtocolIF messageProtocol = null; 
 	private ClientTaskMangerIF clientTaskManger = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
+	private ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
 	
@@ -53,7 +53,7 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	public AsynNoShareConnectionPool(ProjectPartConfiguration projectPartConfiguration,
 			MessageProtocolIF messageProtocol, 
 			ClientTaskMangerIF clientTaskManger,
-			DataPacketBufferPoolIF dataPacketBufferPool, SocketOutputStreamFactoryIF socketOutputStreamFactory,
+			DataPacketBufferPoolIF dataPacketBufferPool, ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory,
 			ConnectionPoolSupporterIF connectionPoolSupporter,
 			ClientIOEventControllerIF asynClientIOEventController)
 			throws NoMoreDataPacketBufferException, IOException {
@@ -73,8 +73,8 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
 		}
 
-		if (null == socketOutputStreamFactory) {
-			throw new IllegalArgumentException("the parameter socketOutputStreamFactory is null");
+		if (null == receivedDataOnlyStreamFactory) {
+			throw new IllegalArgumentException("the parameter receivedDataOnlyStreamFactory is null");
 		}
 		if (null == connectionPoolSupporter) {
 			throw new IllegalArgumentException("the parameter connectionPoolSupporter is null");
@@ -91,7 +91,7 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 		this.messageProtocol = messageProtocol;
 		this.clientTaskManger = clientTaskManger;
 		this.dataPacketBufferPool = dataPacketBufferPool;
-		this.socketOutputStreamFactory = socketOutputStreamFactory;
+		this.receivedDataOnlyStreamFactory = receivedDataOnlyStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
 		this.asynClientIOEventController = asynClientIOEventController;
 
@@ -261,7 +261,7 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	}
 
 	private ClientIOEventHandlerIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
-		SocketOutputStream sos = socketOutputStreamFactory.createSocketOutputStream();
+		ReceivedDataOnlyStream sos = receivedDataOnlyStreamFactory.createReceivedDataOnlyStream();
 
 		ClientIOEventHandlerIF asynInterestedConnection = new AsynNoShareConnection(projectName,
 				serverHost,

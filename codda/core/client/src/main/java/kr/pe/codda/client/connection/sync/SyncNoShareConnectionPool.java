@@ -14,8 +14,8 @@ import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
-import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public class SyncNoShareConnectionPool implements ConnectionPoolIF {
@@ -35,7 +35,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	private MessageProtocolIF messageProtocol = null; 
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
-	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
+	private ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 	
 	private ArrayDeque<SyncNoShareConnection> connectionQueue = null;
@@ -44,7 +44,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	public SyncNoShareConnectionPool(ProjectPartConfiguration projectPartConfiguration, 
 			MessageProtocolIF messageProtocol, 
 			DataPacketBufferPoolIF dataPacketBufferPool,
-			SocketOutputStreamFactoryIF socketOutputStreamFactory,
+			ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 		if (null == projectPartConfiguration) {
 			throw new IllegalArgumentException("the parameter projectPartConfiguration is null");
@@ -58,8 +58,8 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
 		}
 		
-		if (null == socketOutputStreamFactory) {
-			throw new IllegalArgumentException("the parameter socketOutputStreamFactory is null");
+		if (null == receivedDataOnlyStreamFactory) {
+			throw new IllegalArgumentException("the parameter receivedDataOnlyStreamFactory is null");
 		}
 		if (null == connectionPoolSupporter) {
 			throw new IllegalArgumentException("the parameter connectionPoolSupporter is null");
@@ -75,7 +75,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 		
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
-		this.socketOutputStreamFactory = socketOutputStreamFactory;
+		this.receivedDataOnlyStreamFactory = receivedDataOnlyStreamFactory;
 		this.connectionPoolSupporter = connectionPoolSupporter;
 				
 		
@@ -246,13 +246,13 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	public void fillAllConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
 		synchronized (monitor) {
 			while (numberOfConnection  < clientConnectionCount) {				
-				SocketOutputStream sos = socketOutputStreamFactory.createSocketOutputStream();
+				ReceivedDataOnlyStream receivedDataOnlyStream = receivedDataOnlyStreamFactory.createReceivedDataOnlyStream();
 				
 				SyncNoShareConnection syncNoShareConnection = new SyncNoShareConnection(serverHost,
 							serverPort,
 							socketTimeout,
 							clientDataPacketBufferSize,
-							sos, messageProtocol, dataPacketBufferPool);
+							receivedDataOnlyStream, messageProtocol, dataPacketBufferPool);
 						
 				
 				log.info("the SyncNoShareConnection[{}] has been connected", syncNoShareConnection.hashCode());

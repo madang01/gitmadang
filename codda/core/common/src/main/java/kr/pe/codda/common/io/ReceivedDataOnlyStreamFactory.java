@@ -4,12 +4,12 @@ import java.nio.charset.CharsetDecoder;
 
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 
-public class SocketOutputStreamFactory implements SocketOutputStreamFactoryIF {
+public class ReceivedDataOnlyStreamFactory implements ReceivedDataOnlyStreamFactoryIF {
 	private CharsetDecoder streamCharsetDecoder = null;
 	private int dataPacketBufferMaxCntPerMessage;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
-	public SocketOutputStreamFactory(CharsetDecoder streamCharsetDecoder,
+	public ReceivedDataOnlyStreamFactory(CharsetDecoder streamCharsetDecoder,
 			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolIF dataPacketBufferPool) {
 		if (null == streamCharsetDecoder) {
@@ -31,9 +31,9 @@ public class SocketOutputStreamFactory implements SocketOutputStreamFactoryIF {
 	}
 
 	@Override
-	public SocketOutputStream createSocketOutputStream() throws NoMoreDataPacketBufferException {
-		SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
+	public ReceivedDataOnlyStream createReceivedDataOnlyStream() throws NoMoreDataPacketBufferException {
+		ReceivedDataOnlyStream receivedDataOnlyStream = new ReceivedDataOnlyStream(streamCharsetDecoder,
 				dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-		return socketOutputStream;
+		return receivedDataOnlyStream;
 	}
 }

@@ -8,5 +8,4 @@ public interface ProjectLoginManagerIF {
 			
 	public boolean isLogin(String loginID);
 	public SelectionKey getSelectionKey(String loginID);
-	public AcceptedConnection getAcceptedConnection(SelectionKey selectedKey);
 }

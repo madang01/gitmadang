@@ -31,8 +31,8 @@ import kr.pe.codda.common.exception.CoddaConfigurationException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStreamFactory;
-import kr.pe.codda.common.io.SocketOutputStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactory;
+import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
@@ -116,8 +116,8 @@ public class AnyProjectServer {
 		}
 		
 		
-		SocketOutputStreamFactoryIF socketOutputStreamFactory = 
-				new SocketOutputStreamFactory(charsetDecoderOfProject,
+		ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = 
+				new ReceivedDataOnlyStreamFactory(charsetDecoderOfProject,
 						serverDataPacketBufferMaxCntPerMessage,
 						dataPacketBufferPool);
 		
@@ -127,7 +127,7 @@ public class AnyProjectServer {
 		serverTaskManager = new ServerTaskManger(serverClassLoaderFactory);		
 		
 		serverIOEventController = new ServerIOEventController(projectPartConfiguration,
-				socketOutputStreamFactory, 
+				receivedDataOnlyStreamFactory, 
 				messageProtocol,
 				dataPacketBufferPool, serverTaskManager);
 	}

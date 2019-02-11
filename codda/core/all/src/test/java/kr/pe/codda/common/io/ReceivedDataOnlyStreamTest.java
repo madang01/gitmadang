@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
 
-public class SocketOutputStreamTest extends AbstractJunitTest {
+public class ReceivedDataOnlyStreamTest extends AbstractJunitTest {
 	
 	
 	
@@ -28,7 +28,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 15;
-		// SocketOutputStream 
+		
 		
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
@@ -40,13 +40,12 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		}
 		
 		
-		SocketOutputStream sos = null;
+		ReceivedDataOnlyStream sos = null;
 		FreeSizeOutputStream fsos = null;
 		try {
 			{
 				long expectedSize = dataPacketBufferSize*3+42;
 				{
-					// sos.makeEmptySocketOutputStream(expectedSize);
 					
 					ArrayDeque<WrapBuffer> emptyOutputStreamWrapBufferList = null;
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
@@ -54,17 +53,17 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 					
 					fsos.skip(expectedSize);
 					emptyOutputStreamWrapBufferList = fsos.getOutputStreamWrapBufferList();
-					sos = new SocketOutputStream(emptyOutputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
+					sos = new ReceivedDataOnlyStream(emptyOutputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
 				}
 				
-				long actualSize = sos.getNumberOfWrittenBytesUsingList();
+				long actualSize = sos.getSreamSizeUsingStreamWrapBufferQueue();
 				
 				assertEquals(expectedSize, actualSize);
 			}			
 			
 			FreeSizeInputStream fsis = null;
 			try {
-				long oldSize = sos.getNumberOfWrittenBytesUsingList();
+				long oldSize = sos.getSreamSizeUsingStreamWrapBufferQueue();
 				
 				long expectedSize = oldSize - dataPacketBufferSize - 24;
 				fsis = sos.cutMessageInputStreamFromStartingPosition(expectedSize);
@@ -72,7 +71,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 				//log.info("fsis size={}", fsis.available());
 				// log.info("sos size={}", sos.size());
 				
-				long actualSize = sos.getNumberOfWrittenBytesUsingList();
+				long actualSize = sos.getSreamSizeUsingStreamWrapBufferQueue();
 				
 				assertEquals(oldSize - expectedSize, actualSize);
 			} finally {
@@ -90,7 +89,6 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		}
 	}
 	
-	// FIXME!
 	@Test
 	public void testCutMessageInputStreamFromStartingPosition_complex() {
 		int dataPacketBufferMaxCount = 15;
@@ -102,7 +100,6 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		boolean isDirect = false;
 		int dataPacketBufferSize = 6;
 		int dataPacketBufferPoolSize = 15;
-		// SocketOutputStream 
 		
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
@@ -123,7 +120,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		final byte eofByte = (byte) 0xc1;
 		 
 		
-		SocketOutputStream sos = null;
+		ReceivedDataOnlyStream sos = null;
 		
 		FreeSizeOutputStream fsos = null;
 		ArrayDeque<WrapBuffer> outputStreamWrapBufferListForTest = null;
@@ -141,7 +138,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 			outputStreamWrapBufferListForTest = fsos.getOutputStreamWrapBufferList();
 			
 			sos = 
-					new SocketOutputStream(outputStreamWrapBufferListForTest, streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
+					new ReceivedDataOnlyStream(outputStreamWrapBufferListForTest, streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
 			
 			// log.info("sos.size={}", sos.size());
 			FreeSizeInputStream fsis = null;
@@ -159,9 +156,9 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 				}
 			}
 			
-			if (1 != sos.getSocketOutputStreamWrapBufferList().size()) {
-				fail(String.format("socketOutputStreamWrapBufferList size[%d] is not equal to one", 
-						sos.getSocketOutputStreamWrapBufferList().size()));
+			if (1 != sos.getStreamWrapBufferQueue().size()) {
+				fail(String.format("StreamWrapBufferQueue size[%d] is not equal to one", 
+						sos.getStreamWrapBufferQueue().size()));
 			}
 			
 			try {
@@ -175,17 +172,17 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 				}				
 			}
 			
-			if (0L != sos.size()) {
-				fail("1. socketOutputStream is not empty");
+			if (0L != sos.getStreamSize()) {
+				fail("1. the number of socket read bytes is not zero");
 			}
 			
-			if (0L != sos.getNumberOfWrittenBytesUsingList()) {
-				fail("2. socketOutputStream is not empty");
+			if (0L != sos.getSreamSizeUsingStreamWrapBufferQueue()) {
+				fail("2. the number of socket read bytes is not zero");
 			}
 			
-			if (0 != sos.getSocketOutputStreamWrapBufferList().size()) {
-				fail(String.format("socketOutputStreamWrapBufferList size[%d] is not equal to zero", 
-						sos.getSocketOutputStreamWrapBufferList().size()));
+			if (0 != sos.getStreamWrapBufferQueue().size()) {
+				fail(String.format("StreamWrapBufferQueue size[%d] is not equal to zero", 
+						sos.getStreamWrapBufferQueue().size()));
 			}
 			
 		} catch (Exception e) {

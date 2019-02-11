@@ -29,7 +29,7 @@ import java.util.ArrayDeque;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
@@ -60,7 +60,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	private long socketTimeout = 5000;
 	private int serverOutputMessageQueueCapacity = 5;
 	private MessageProtocolIF messageProtocol = null;
-	private SocketOutputStream socketOutputStream = null;
+	private ReceivedDataOnlyStream receivedDataOnlyStream = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ServerIOEvenetControllerIF serverIOEvenetController = null;
 	private ServerTaskMangerIF serverTaskManager = null;
@@ -79,7 +79,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	public AcceptedConnection(SelectionKey personalSelectionKey,
 			SocketChannel acceptedSocketChannel, String projectName,
 			long socketTimeOut, int serverOutputMessageQueueCapacity,
-			SocketOutputStream socketOutputStreamOfAcceptedSC,
+			ReceivedDataOnlyStream receivedDataOnlyStream,
 			ProjectLoginManagerIF projectLoginManager,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool,
@@ -106,9 +106,9 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 					"the parameter serverOutputMessageQueueCapacity is less than or equal to zero");
 		}
 
-		if (null == socketOutputStreamOfAcceptedSC) {
+		if (null == receivedDataOnlyStream) {
 			throw new IllegalArgumentException(
-					"the parameter socketOutputStreamOfAcceptedSC is null");
+					"the parameter receivedDataOnlyStream is null");
 		}
 
 		if (null == projectLoginManager) {
@@ -136,7 +136,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		this.projectName = projectName;
 		this.socketTimeout = socketTimeOut;
 		this.serverOutputMessageQueueCapacity = serverOutputMessageQueueCapacity;
-		this.socketOutputStream = socketOutputStreamOfAcceptedSC;
+		this.receivedDataOnlyStream = receivedDataOnlyStream;
 		this.projectLoginManager = projectLoginManager;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferPool = dataPacketBufferPool;
@@ -149,9 +149,9 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 				serverOutputMessageQueueCapacity);
 	}
 
-	public SocketChannel getOwnerSC() {
+	/*public SocketChannel getOwnerSC() {
 		return acceptedSocketChannel;
-	}
+	}*/
 
 	/**
 	 * 마지막으로 읽은 시간을 반환한다.
@@ -237,7 +237,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	}
 
 	private void releaseResources() {
-		while (!outputMessageQueue.isEmpty()) {
+		while (! outputMessageQueue.isEmpty()) {
 			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue
 					.removeFirst();
 
@@ -247,7 +247,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 			}
 		}
 
-		socketOutputStream.close();
+		receivedDataOnlyStream.close();
 		releaseLoginUserResource();
 
 		log.info(
@@ -259,7 +259,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	@Override
 	public void onRead(SelectionKey personalSelectionKey) throws Exception {
 
-		int numberOfReadBytes = socketOutputStream.read(acceptedSocketChannel);
+		int numberOfReadBytes = receivedDataOnlyStream.read(acceptedSocketChannel);
 
 		if (numberOfReadBytes == -1) {
 			String errorMessage = new StringBuilder("this socket channel[")
@@ -272,7 +272,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		}
 
 		setFinalReadTime();
-		messageProtocol.S2MList(socketOutputStream, this);
+		messageProtocol.S2MList(receivedDataOnlyStream, this);
 		/**
 		 * 추출된 메시지에 1:1 대응하는 서버 비지니스 로직 수행후 출력 메시지 큐 크기가 수용 가능 용량의 50% 보다 클 경우
 		 * 소켓 읽기 이벤트 끄기
@@ -301,28 +301,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		while (loop) {
 			int numberOfBytesWritten = acceptedSocketChannel
 						.write(currentWorkingByteBuffer);
-			/*} catch (IOException e) {
-				String errorMessage = new StringBuilder()
-						.append("fail to write a sequence of bytes to this channel[")
-						.append(acceptedSocketChannel.hashCode())
-						.append("] because io error occured, errmsg=")
-						.append(e.getMessage()).toString();
-				log.warn(errorMessage, e);
-
-				close();
-				return;
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder()
-						.append("fail to write a sequence of bytes to this channel[")
-						.append(acceptedSocketChannel.hashCode())
-						.append("] because unknow error occured, errmsg=")
-						.append(e.getMessage()).toString();
-				log.warn(errorMessage, e);
-
-				close();
-				return;
-			}*/
-
+			
 			if (0 == numberOfBytesWritten) {
 				loop = false;
 				break;

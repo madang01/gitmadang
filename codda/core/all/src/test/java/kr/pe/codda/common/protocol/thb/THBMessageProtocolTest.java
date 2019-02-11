@@ -18,7 +18,7 @@ import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.SocketOutputStream;
+import kr.pe.codda.common.io.ReceivedDataOnlyStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
@@ -124,9 +124,9 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			}
 			//log.info("3");
 			
-			SocketOutputStream sos = null;
+			ReceivedDataOnlyStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -269,9 +269,9 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			
 			//log.info("3");
 			
-			SocketOutputStream sos = null;
+			ReceivedDataOnlyStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
