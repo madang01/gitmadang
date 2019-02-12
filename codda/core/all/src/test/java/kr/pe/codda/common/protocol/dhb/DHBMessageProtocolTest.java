@@ -108,8 +108,7 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 				fail(errorMessage);
 			}
 			
-			//log.info("2");
-			
+			//log.info("3");			
 			for (WrapBuffer inputMessageWrapBuffer : wrapBufferListOfInputMessage) {
 				if (inputMessageWrapBuffer.isInQueue()) {
 					fail("bad wrap buffer where is in of queue");
