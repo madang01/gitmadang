@@ -50,10 +50,6 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private int dataPacketBufferMaxCount;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;	
 
-	private ByteBuffer shortBuffer = null;
-	private ByteBuffer intBuffer = null;
-	private ByteBuffer longBuffer = null;
-
 	private ByteBuffer workBuffer = null;
 	private long numberOfWrittenBytes = 0;
 	private long outputStreamMaxSize = 0;
@@ -84,18 +80,6 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		WrapBuffer wrapBuffer = dataPacketBufferPool.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
 		outputStreamWrapBufferQueue.add(wrapBuffer);
-		
-		byte twoBytes[] = new byte[2];
-		shortBuffer = ByteBuffer.wrap(twoBytes);
-		shortBuffer.order(streamByteOrder);
-
-		byte fourBytes[] = new byte[4];
-		intBuffer = ByteBuffer.wrap(fourBytes);
-		intBuffer.order(streamByteOrder);
-
-		byte eightBytes[] = new byte[8];
-		longBuffer = ByteBuffer.wrap(eightBytes);
-		longBuffer.order(streamByteOrder);
 
 		outputStreamMaxSize = dataPacketBufferMaxCount * dataPacketBufferPool.getDataPacketBufferSize();
 	}
@@ -193,20 +177,36 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 
 	private void doPutUnsignedShort(short value)
 			throws BufferOverflowExceptionWithMessage, NoMoreDataPacketBufferException {
-		shortBuffer.clear();
-		shortBuffer.putShort(value);
-		shortBuffer.rewind();
-
-		do {
-
+		
+		byte t2 = (byte)(value & 0xff);
+		byte t1 = (byte)((value & 0xff00) >> 8);
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
+			
 			if (!workBuffer.hasRemaining()) {
 				addBuffer();
 			}
-
-			workBuffer.put(shortBuffer.get());
+			workBuffer.put(t1);
 			numberOfWrittenBytes++;
-
-		} while (shortBuffer.hasRemaining());
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+		} else {
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+		}
 	}
 
 	private void throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(long numberOfBytesRequired)
@@ -288,17 +288,36 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 			throws BufferOverflowException, BufferOverflowExceptionWithMessage, NoMoreDataPacketBufferException {
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(2);
-
-		shortBuffer.clear();
-		shortBuffer.putShort(value);
-		shortBuffer.rewind();
-		do {
+		
+		byte t2 = (byte)(value & 0xff);
+		byte t1 = (byte)((value & 0xff00) >> 8);
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+		} else {
 			if (!workBuffer.hasRemaining()) {
 				addBuffer();
 			}
-			workBuffer.put(shortBuffer.get());
+			workBuffer.put(t2);
 			numberOfWrittenBytes++;
-		} while (shortBuffer.hasRemaining());
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+		}
 	}
 
 	@Override
@@ -343,17 +362,60 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(4);
 
-		intBuffer.clear();
-		intBuffer.putInt(value);
-		intBuffer.rewind();
-		do {
+		byte t4 = (byte)(value & 0xff);
+		byte t3 = (byte)((value & 0xff00) >> 8);
+		byte t2 = (byte)((value & 0xff0000) >> 16);
+		byte t1 = (byte)((value & 0xff000000) >> 24);
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t3);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t4);
+			numberOfWrittenBytes++;
+		} else {
 			if (!workBuffer.hasRemaining()) {
 				addBuffer();
 			}
-			workBuffer.put(intBuffer.get());
+			workBuffer.put(t4);
 			numberOfWrittenBytes++;
-		} while (intBuffer.hasRemaining());
-
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t3);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+		}
 	}
 
 	@Override
@@ -370,20 +432,60 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(4);
 	
-		intBuffer.clear();
-		intBuffer.putInt((int) value);
-		intBuffer.rewind();
-	
-		do {
-	
+		byte t4 = (byte)(value & 0xffL);
+		byte t3 = (byte)((value & 0xff00L) >> 8);
+		byte t2 = (byte)((value & 0xff0000L) >> 16);
+		byte t1 = (byte)((value & 0xff000000L) >> 24);
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t3);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t4);
+			numberOfWrittenBytes++;
+		} else {
 			if (!workBuffer.hasRemaining()) {
 				addBuffer();
 			}
-	
-			workBuffer.put(intBuffer.get());
+			workBuffer.put(t4);
 			numberOfWrittenBytes++;
-	
-		} while (intBuffer.hasRemaining());
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t3);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+		}
 	}
 
 	@Override
@@ -391,16 +493,112 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 			throws BufferOverflowException, NoMoreDataPacketBufferException, BufferOverflowExceptionWithMessage {
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(8);
 	
-		longBuffer.clear();
-		longBuffer.putLong(value);
-		longBuffer.rewind();
-		do {
+		byte t8 = (byte)(value & 0xffL);
+		byte t7 = (byte)((value & 0xff00L) >> 8);
+		byte t6 = (byte)((value & 0xff0000L) >> 16);
+		byte t5 = (byte)((value & 0xff000000L) >> 24);
+		byte t4 = (byte)((value & 0xff00000000L) >> 32);
+		byte t3 = (byte)((value & 0xff0000000000L) >> 40);
+		byte t2 = (byte)((value & 0xff000000000000L) >> 48);
+		byte t1 = (byte)((value & 0xff00000000000000L) >> 56);
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t3);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t4);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t5);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t6);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t7);
+			numberOfWrittenBytes++;
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t8);
+			numberOfWrittenBytes++;
+		} else {
 			if (!workBuffer.hasRemaining()) {
 				addBuffer();
 			}
-			workBuffer.put(longBuffer.get());
+			workBuffer.put(t8);
 			numberOfWrittenBytes++;
-		} while (longBuffer.hasRemaining());
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t7);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t6);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t5);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t4);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t3);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t2);
+			numberOfWrittenBytes++;
+			
+			if (!workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			workBuffer.put(t1);
+			numberOfWrittenBytes++;
+		}
 	}
 
 	

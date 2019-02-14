@@ -240,6 +240,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferQueue,
 							streamCharsetDecoder, dataPacketBufferPool);
+					long inputStreamSize = fsis.available();
 
 					actualValue = fsis.getByte();
 
@@ -247,7 +248,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					assertEquals(expectedValue, actualValue);
 
-					long numberOfReadBytes = fsis.getNumberOfReadBytes();
+					long numberOfReadBytes = inputStreamSize - fsis.available();
 					if (numberOfReadBytes != outputStreamSize) {
 						String errorMessage = String.format(
 								"numberOfReadBytes[%d] is different from outputStreamSize[%d]", numberOfReadBytes,
@@ -400,6 +401,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
 							streamCharsetDecoder, dataPacketBufferPool);
+					long inputStreamSize =  fsis.available();
 
 					actualValue = fsis.getUnsignedByte();
 
@@ -412,7 +414,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					assertEquals(expectedValue, actualValue);
 
-					long numberOfReadBytes = fsis.getNumberOfReadBytes();
+					long numberOfReadBytes = inputStreamSize - fsis.available();
 					if (numberOfReadBytes != outputStreamSize) {
 						String errorMessage = String.format(
 								"numberOfReadBytes[%d] is different from outputStreamSize[%d]", numberOfReadBytes,
@@ -565,7 +567,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					// HexUtil.getHexString(expectedValue), HexUtil.getHexString(actualValue));
 					// log.info("FreeSizeInputStream size={}", fsis.position());
 
-					assertEquals(expectedValue, actualValue);
+					assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
 					long numberOfReadBytes = fsis.getNumberOfReadBytes();
 					if (numberOfReadBytes != outputStreamSize) {
@@ -864,7 +866,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 						// log.info("1.expectedValue=0x{}, actualValue=0x{}",
 						// HexUtil.getHexString(expectedValue), HexUtil.getHexString(actualValue));
 
-						assertEquals(expectedValue, actualValue);
+						assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
 						log.info(
 								"test case::public void putInt(int value)::하나의 버퍼에 쓴 내용이 모두 담겨있을 경우 ByteBuffer 를 이용한 데이터 검증 완료");
@@ -879,7 +881,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					// HexUtil.getHexString(expectedValue), HexUtil.getHexString(actualValue));
 					// log.info("FreeSizeInputStream size={}", fsis.position());
 
-					assertEquals(expectedValue, actualValue);
+					assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
 					long numberOfReadBytes = fsis.getNumberOfReadBytes();
 					if (numberOfReadBytes != outputStreamSize) {
@@ -1036,7 +1038,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					// HexUtil.getHexString(expectedValue), HexUtil.getHexString(actualValue));
 					// log.info("FreeSizeInputStream size={}", fsis.position());
 
-					assertEquals(expectedValue, actualValue);
+					assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
 					long numberOfReadBytes = fsis.getNumberOfReadBytes();
 					if (numberOfReadBytes != outputStreamSize) {
@@ -1195,7 +1197,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					// HexUtil.getHexString(expectedValue), HexUtil.getHexString(actualValue));
 					// log.info("FreeSizeInputStream size={}", fsis.position());
 
-					assertEquals(expectedValue, actualValue);
+					assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
 					long numberOfReadBytes = fsis.getNumberOfReadBytes();
 					if (numberOfReadBytes != outputStreamSize) {

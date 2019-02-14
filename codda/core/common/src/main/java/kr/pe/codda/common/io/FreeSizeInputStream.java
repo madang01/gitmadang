@@ -17,9 +17,6 @@
 
 package kr.pe.codda.common.io;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
@@ -32,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BufferUnderflowExceptionWithMessage;
 import kr.pe.codda.common.exception.CharsetDecoderException;
@@ -61,14 +60,6 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 	private long numberOfBytesRemaining = -1;
 	private long inputStreamSize = 0;
-
-	// private byte[] bytesOfShortBuffer = null;
-	private byte[] bytesOfIntBuffer = null;
-	private byte[] bytesOfLongBuffer = null;
-
-	private ByteBuffer shortBuffer = null;
-	private ByteBuffer intBuffer = null;
-	private ByteBuffer longBuffer = null;
 
 	public FreeSizeInputStream(int dataPacketBufferMaxCount, ArrayDeque<WrapBuffer> readableWrapBufferQueue,
 			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolIF dataPacketBufferPool) {
@@ -130,18 +121,6 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		} else {
 			indexOfWorkBuffer = 0;
 			workBuffer = streamBufferList.get(indexOfWorkBuffer);
-
-			byte twoBytes[] = new byte[2];
-			shortBuffer = ByteBuffer.wrap(twoBytes);
-			shortBuffer.order(streamByteOrder);
-
-			bytesOfIntBuffer = new byte[4];
-			intBuffer = ByteBuffer.wrap(bytesOfIntBuffer);
-			intBuffer.order(streamByteOrder);
-
-			bytesOfLongBuffer = new byte[8];
-			longBuffer = ByteBuffer.wrap(bytesOfLongBuffer);
-			longBuffer.order(streamByteOrder);
 		}
 
 		// log.info("limitedRemainingBytes={}, streamBufferList size={}",
@@ -281,36 +260,42 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
 
-		short retValue = 0;
-
-		/*
-		 * try { retValue = workBuffer.getShort(); } catch (BufferUnderflowException e)
-		 * { // int workRemaining = workBuffer.remaining(); clearShortBuffer();
-		 * shortBuffer.put(workBuffer);
-		 * 
-		 * nextBuffer();
-		 * 
-		 * while (shortBuffer.hasRemaining()) { shortBuffer.put(workBuffer.get()); }
-		 * 
-		 * 
-		 * workBuffer.get(shortBytes, shortBuffer.position(), shortBuffer.remaining());
-		 * 
-		 * shortBuffer.clear(); retValue = shortBuffer.getShort(); }
-		 */
-
-		shortBuffer.clear();
-		do {
+		short retValue = 0;	
+		
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-
-			shortBuffer.put(workBuffer.get());
+			
+			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-
-		} while (shortBuffer.hasRemaining());
-
-		shortBuffer.rewind();
-		retValue = shortBuffer.getShort();
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (short)(((t1 & 0xff) << 8) | (t2 & 0xff));
+		} else {
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t1 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (short)(((t2 & 0xff) << 8) | (t1 & 0xff));
+		}
 
 		return retValue;
 	}
@@ -320,93 +305,112 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(2);
 
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
-
-		// int retValue;
-
-		// clearIntBuffer();
-
-		intBuffer.clear();
-		Arrays.fill(bytesOfIntBuffer, CommonStaticFinalVars.ZERO_BYTE);
-		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
-			intBuffer.position(2);
-			intBuffer.limit(4);
-		} else {
-			intBuffer.position(0);
-			intBuffer.limit(2);
-		}
-
-		/*
-		 * try { intBuffer.put(workBuffer.get()); intBuffer.put(workBuffer.get()); }
-		 * catch (BufferUnderflowException e) { // log.info("11. workBuffer[%s]",
-		 * workBuffer.toString()); // log.info("11. valueBuffer[%s]",
-		 * valueBuffer.toString());
-		 * 
-		 * nextBuffer();
-		 * 
-		 * 
-		 * while (intBuffer.hasRemaining()) { intBuffer.put(workBuffer.get()); }
-		 * 
-		 * workBuffer.get(intBytes, intBuffer.position(), intBuffer.remaining()); }
-		 * 
-		 * intBuffer.clear();
-		 */
-		// log.info("22. workBuffer[%s]", workBuffer.toString());
-		// log.info("22. valueBuffer[%s]", valueBuffer.toString());
-
-		// retValue = intBuffer.getInt();
-
-		// return retValue;
-
-		do {
+		
+		int retValue = 0;
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-
-			intBuffer.put(workBuffer.get());
+			
+			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-		} while (intBuffer.hasRemaining());
-
-		intBuffer.clear();
-		return intBuffer.getInt();
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (((t1 & 0xff) << 8) | (t2 & 0xff));
+		} else {
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t1 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (((t2 & 0xff) << 8)  | (t1 & 0xff));
+		}
+		
+		return retValue;
 	}
 
 	@Override
 	public int getInt() throws BufferUnderflowExceptionWithMessage {
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(4);
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
-
-		/*
-		 * int retValue;
-		 * 
-		 * try { retValue = workBuffer.getInt(); } catch (BufferUnderflowException e) {
-		 * // int workRemaining = workBuffer.remaining(); //
-		 * log.info("workRemaining=[%d]", workRemaining);
-		 * 
-		 * 
-		 * clearIntBuffer(); intBuffer.put(workBuffer);
-		 * 
-		 * nextBuffer();
-		 * 
-		 * while (intBuffer.hasRemaining()) { intBuffer.put(workBuffer.get()); }
-		 * 
-		 * 
-		 * workBuffer.get(intBytes, intBuffer.position(), intBuffer.remaining());
-		 * 
-		 * intBuffer.clear(); retValue = intBuffer.getInt(); } return retValue;
-		 */
-
-		intBuffer.clear();
-		do {
+		
+		int retValue = 0;
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t1 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t3 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t4 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (((t1 & 0xff) << 24) | ((t2 & 0xff) << 16) | ((t3 & 0xff) << 8)  | (t4 & 0xff));
+		} else {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-
-			intBuffer.put(workBuffer.get());
+			
+			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-		} while (intBuffer.hasRemaining());
-
-		intBuffer.rewind();
-		return intBuffer.getInt();
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t3 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t4 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (((t4 & 0xff) << 24) | ((t3 & 0xff) << 16) | ((t2 & 0xff) << 8)  | (t1 & 0xff));
+		}
+		return retValue;
+		
 	}
 
 	@Override
@@ -414,81 +418,180 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(4);
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
 
-		/*
-		 * long retValue;
-		 * 
-		 * clearLongBuffer();
-		 * 
-		 * if (ByteOrder.BIG_ENDIAN == streamByteOrder) { longBuffer.position(4);
-		 * longBuffer.limit(8); } else { longBuffer.position(0); longBuffer.limit(4); }
-		 * 
-		 * try { longBuffer.put(workBuffer.get()); longBuffer.put(workBuffer.get());
-		 * longBuffer.put(workBuffer.get()); longBuffer.put(workBuffer.get()); } catch
-		 * (BufferUnderflowException e) { nextBuffer();
-		 * 
-		 * while (longBuffer.hasRemaining()) { longBuffer.put(workBuffer.get()); }
-		 * 
-		 * workBuffer.get(longBytes, longBuffer.position(), longBuffer.remaining()); }
-		 * 
-		 * longBuffer.clear();
-		 * 
-		 * retValue = longBuffer.getLong(); return retValue;
-		 */
-
-		longBuffer.clear();
-		Arrays.fill(bytesOfLongBuffer, CommonStaticFinalVars.ZERO_BYTE);
-		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
-			longBuffer.position(4);
-			longBuffer.limit(8);
+		long retValue = 0;
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t1 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t3 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t4 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (((t1 & 0xffL) << 24) | ((t2 & 0xffL) << 16) | ((t3 & 0xffL) << 8)  | (t4 & 0xffL));
 		} else {
-			longBuffer.position(0);
-			longBuffer.limit(4);
-		}
-
-		do {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-
-			longBuffer.put(workBuffer.get());
+			
+			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-		} while (longBuffer.hasRemaining());
-
-		longBuffer.clear();
-		return longBuffer.getLong();
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t3 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}
+			
+			byte t4 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (((t4 & 0xffL) << 24) | ((t3 & 0xffL) << 16) | ((t2 & 0xffL) << 8)  | (t1 & 0xffL));
+		}
+		return retValue;
 	}
 
 	@Override
 	public long getLong() throws BufferUnderflowExceptionWithMessage {
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(8);
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
-
-		/*
-		 * long retValue;
-		 * 
-		 * try { retValue = workBuffer.getLong(); } catch (BufferUnderflowException e) {
-		 * // int workRemaining = workBuffer.remaining(); clearLongBuffer();
-		 * longBuffer.put(workBuffer); nextBuffer();
-		 * 
-		 * while (longBuffer.hasRemaining()) { longBuffer.put(workBuffer.get()); }
-		 * 
-		 * workBuffer.get(longBytes, longBuffer.position(), longBuffer.remaining());
-		 * 
-		 * longBuffer.clear(); retValue = longBuffer.getLong(); } return retValue;
-		 */
-
-		longBuffer.clear();
-		do {
+	
+		long retValue = 0;
+		
+		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}
-
-			longBuffer.put(workBuffer.get());
+			}			
+			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-		} while (longBuffer.hasRemaining());
-
-		longBuffer.rewind();
-		return longBuffer.getLong();
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t3 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t4 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t5 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t6 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t7 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t8 = workBuffer.get();
+			numberOfBytesRemaining--;			
+			
+			retValue = (((t1 & 0xffL) << 56 ) | ((t2 & 0xffL) << 48) 
+					| ((t3 & 0xffL) << 40)  | ((t4 & 0xffL) << 32 ) 
+					| ( (t5 & 0xffL) << 24)| ((t6 & 0xffL) << 16) | ((t7 & 0xffL) << 8) | (t8  & 0xffL));
+		} else {
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t1 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t2 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t3 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t4 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t5 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t6 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t7 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			if (!workBuffer.hasRemaining()) {
+				nextBuffer();
+			}			
+			byte t8 = workBuffer.get();
+			numberOfBytesRemaining--;
+			
+			retValue = (((t8 & 0xffL) << 56 ) | ((t7 & 0xffL) << 48) | ((t6 & 0xffL) << 40)  | ((t5 & 0xffL) << 32 ) 
+					| ( (t4 & 0xffL) << 24)| ((t3 & 0xffL) << 16) | ((t2 & 0xffL) << 8) | (t1  & 0xffL));
+		}
+		return retValue;
 	}
 
 	@Override
@@ -803,7 +906,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		return numberOfBytesRemaining;
 	}
 
-	public long getNumberOfReadBytes() {
+	private long getNumberOfReadBytes() {
 		/**
 		 * <pre>
 		 * 스트림을 구성하는 버퍼들의 각각의 상태가 중구난방이므로 
