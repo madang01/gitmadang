@@ -71,7 +71,7 @@ public class AppClientMain {
 							log.info("실패::echo 메시지 입력/출력 다름");
 						}
 						
-						// Thread.sleep(1000L);
+						// Thread.sleep(200L);
 					} catch (Exception e) {
 						log.warn("소켓 통신중 에러 발생", e);
 					}

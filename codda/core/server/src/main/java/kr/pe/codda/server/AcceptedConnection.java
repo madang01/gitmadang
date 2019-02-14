@@ -215,47 +215,6 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		// }
 	}
 
-	public void close() {
-		try {
-			acceptedSocketChannel.shutdownOutput();
-		} catch (Exception e) {
-			log.warn(
-					"fail to shutdown output of the socket channel[{}], errmsg={}",
-					acceptedSocketChannel.hashCode(), e.getMessage());
-		}
-
-		try {
-			acceptedSocketChannel.close();
-		} catch (Exception e) {
-			log.warn("fail to close the socket channel[{}], errmsg={}",
-					acceptedSocketChannel.hashCode(), e.getMessage());
-		}
-
-		serverIOEvenetController.cancel(personalSelectionKey);
-
-		releaseResources();
-	}
-
-	private void releaseResources() {
-		while (! outputMessageQueue.isEmpty()) {
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue
-					.removeFirst();
-
-			while (!inputMessageWrapBufferQueue.isEmpty()) {
-				WrapBuffer buffer = inputMessageWrapBufferQueue.removeFirst();
-				dataPacketBufferPool.putDataPacketBuffer(buffer);
-			}
-		}
-
-		receivedDataOnlyStream.close();
-		releaseLoginUserResource();
-
-		log.info(
-				"this accepted socket channel[hashcode={}, selection key={}]'s resources has been released",
-				acceptedSocketChannel.hashCode(),
-				personalSelectionKey.hashCode());
-	}
-
 	@Override
 	public void onRead(SelectionKey personalSelectionKey) throws Exception {
 
@@ -483,17 +442,6 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		return personalLoginID;
 	}
 
-	/** 로그 아웃시 할당 받은 자원을 해제한다. */
-	private void releaseLoginUserResource() {
-		if (null != personalLoginID) {
-			projectLoginManager.removeLoginUser(personalSelectionKey);
-			LocalSourceFileResourceManager.getInstance()
-					.removeUsingUserIDWithUnlockFile(personalLoginID);
-			LocalTargetFileResourceManager.getInstance()
-					.removeUsingUserIDWithUnlockFile(personalLoginID);
-		}
-	}
-
 	public String toSimpleInfomation() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("personalSelectionKey=");
@@ -505,6 +453,58 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 
 	public boolean isConnected() {
 		return acceptedSocketChannel.isConnected();
+	}
+
+	private void releaseResources() {
+		while (! outputMessageQueue.isEmpty()) {
+			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue
+					.removeFirst();
+	
+			while (!inputMessageWrapBufferQueue.isEmpty()) {
+				WrapBuffer buffer = inputMessageWrapBufferQueue.removeFirst();
+				dataPacketBufferPool.putDataPacketBuffer(buffer);
+			}
+		}
+	
+		receivedDataOnlyStream.close();
+		releaseLoginUserResource();
+	
+		log.info(
+				"this accepted socket channel[hashcode={}, selection key={}]'s resources has been released",
+				acceptedSocketChannel.hashCode(),
+				personalSelectionKey.hashCode());
+	}
+
+	/** 로그 아웃시 할당 받은 자원을 해제한다. */
+	private void releaseLoginUserResource() {
+		if (null != personalLoginID) {
+			projectLoginManager.removeLoginUser(personalSelectionKey);
+			LocalSourceFileResourceManager.getInstance()
+					.removeUsingUserIDWithUnlockFile(personalLoginID);
+			LocalTargetFileResourceManager.getInstance()
+					.removeUsingUserIDWithUnlockFile(personalLoginID);
+		}
+	}
+
+	public void close() {
+		try {
+			acceptedSocketChannel.shutdownOutput();
+		} catch (Exception e) {
+			log.warn(
+					"fail to shutdown output of the socket channel[{}], errmsg={}",
+					acceptedSocketChannel.hashCode(), e.getMessage());
+		}
+	
+		try {
+			acceptedSocketChannel.close();
+		} catch (Exception e) {
+			log.warn("fail to close the socket channel[{}], errmsg={}",
+					acceptedSocketChannel.hashCode(), e.getMessage());
+		}
+	
+		serverIOEvenetController.cancel(personalSelectionKey);
+	
+		releaseResources();
 	}
 
 }

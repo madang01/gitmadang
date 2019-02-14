@@ -27,7 +27,6 @@ import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.ConnectionPoolException;
-import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil;
 import kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE;
@@ -234,35 +233,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL,
 					req.getRequestURI());
 			menuGroupURL = "/";
-		}
-		
-		if (menuGroupURL.equals("/servlet/BoardList")) {
-			String paramBoardID = req.getParameter("boardID");
-			short boardID = BoardType.FREE.getBoardID();
-			BoardType boardType = BoardType.FREE;
-			
-			if (null != paramBoardID) {
-				try {
-					boardID = Short.parseShort(paramBoardID);
-					
-					try {
-						boardType = BoardType.valueOf(boardID);
-					} catch(IllegalArgumentException e) {
-						log.warn("the parameter 'boardID'[{}] is not a BoardType in the request URI[{}]", paramBoardID, req.getRequestURI());
-						// System.exit(1);
-					}
-				} catch (NumberFormatException nfe) {
-					log.warn("the parameter 'boardID'[{}] is not a short type in the request URI[{}]", paramBoardID, req.getRequestURI());
-					// System.exit(1);
-				}
-			} else {
-				log.warn("the parameter 'boardID' doesn't exist in the request URI[{}]", req.getRequestURI());
-				//System.exit(1);
-			}		
-			
-			menuGroupURL = new StringBuilder(menuGroupURL).append("?boardID=")
-					.append(boardType.getBoardID()).toString();			
-		}
+		}		
 		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL, menuGroupURL);
 		

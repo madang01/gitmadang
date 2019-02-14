@@ -190,10 +190,10 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		BoardWriteRes boardWriteRes = null;
 		
 		try {
-			//boardWriteProcessSvl.service(request, response);
-			
 			boardWriteProcessSvl.init(servletConfigMock);
-			boardWriteRes = boardWriteProcessSvl.doWork(writeRequestMock, responseMock);
+			
+			boardWriteProcessSvl.service(writeRequestMock, responseMock);			
+			// boardWriteRes = boardWriteProcessSvl.doWork(writeRequestMock, responseMock);
 			
 			// log.info(boardWriteRes.toString());
 		} catch (Exception e) {

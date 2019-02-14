@@ -4,10 +4,7 @@
 	<property name="dir.main.build" location="build/main" />
 	<property name="dir.main.lib" location="lib/main" />
 	<property name="dir.dist" location="dist" />
-	<property name="dir.corelib" location="corelib" />
-	<property name="dir.test.src" location="src/test/java" />
-	<property name="dir.test.build" location="build/test" />
-	<property name="dir.test.lib" location="lib/test" />
+	<property name="dir.corelib" location="corelib" />	
 	<property name="dir.logger.build" location="../../../../core/logger" />
 	<property name="dir.core.all.build" location="../../../../core/all" />
 	<property name="dir.core.common.build" location="../../../../core/common" />
@@ -180,57 +177,5 @@
 	</target>
 
 	<target name="all" depends="jar.main" />
-
-
-	<target name="clean.test">
-		<delete dir="${dir.report}" />
-		<delete dir="${dir.test.build}" />
-	</target>
-
-	<target name="compile.test">
-		<mkdir dir="${dir.test.build}" />
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.test.src}" destdir="${dir.test.build}">
-			<classpath>
-				<fileset file="${dir.dist}/${appclient.main.jar.name}" />
-				<fileset dir="${dir.corelib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.main.lib}/ex">
-					<include name="**/*.jar" />
-				</fileset>				
-				<union refid="core.junitlib.jarlibs" />
-				<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
-				<fileset dir="${dir.test.lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-	</target>
-
-	<target name="test" depends="compile.test">
-		<mkdir dir="${dir.report}" />
-		<junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes" showoutput="true">
-			<formatter type="xml" />
-			<classpath>
-				<fileset file="${dir.dist}/${appclient.main.jar.name}" />
-				<fileset dir="${dir.corelib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.main.lib}/ex">
-					<include name="**/*.jar" />
-				</fileset>				
-				<union refid="core.junitlib.jarlibs" />
-				<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
-				<fileset dir="${dir.test.lib}">
-					<include name="**/*.jar" />
-				</fileset>
-				<pathelement location="${dir.test.build}" />
-			</classpath>
-			<batchtest todir="${dir.report}">
-				<fileset dir="${dir.test.src}">
-					<include name="kr/pe/codda/**/*Test.java" />
-				</fileset>
-			</batchtest>
-		</junit>
-	</target>
+	
 </project>
