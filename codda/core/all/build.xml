@@ -3,9 +3,7 @@
 	<description>codda core all</description>
 	<!-- set global properties for this build -->
 	<property name="dir.dist" location="dist" />
-	<property name="dir.mainlib" location="lib/main" />
 	<property name="dir.testsrc" location="src/test/java" />
-	<property name="dir.testlib" location="lib/test" />
 	<property name="dir.report" location="report" />
 	
 	<property name="dir.logger.build" location="../logger" />
@@ -85,7 +83,7 @@
 	
 	<target name="exec.server" depends="exec.dos.core.server" />	
 	
-	<target name="copy.server" depends="exec.server">
+	<!-- target name="copy.server" depends="exec.server">
 		<mkdir dir="${dir.mainlib}/in" />
 		<mkdir dir="${dir.mainlib}/ex" />
 		<copy todir="${dir.mainlib}/in" verbose="true" overwrite="true">
@@ -97,14 +95,15 @@
 		<copy todir="${dir.testlib}" verbose="true" overwrite="true">
 			<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
 		</copy>		
-	</target>	
+	</target -->	
 
-	<target name="jar.server" depends="copy.server">
+	<target name="jar.server" depends="exec.server">
 		<jar jarfile="${dir.dist}/${core.server.jar.name}">
 			<restrict>
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" excludes="${core.client.jar.name.only}" />
+						<fileset file="${dir.core.common.build}/dist/${core.common.jar.name}" />
+						<fileset file="${dir.core.server.build}/dist/${core.server.jar.name.only}" />
 					</zips>
 				</archives>
 			</restrict>
@@ -124,18 +123,19 @@
 	
 	<target name="exec.client" depends="exec.dos.core.client" />	
 	
-	<target name="copy.client" depends="exec.client">		
+	<!-- target name="copy.client" depends="exec.client">		
 		<copy todir="${dir.mainlib}/in" verbose="true" overwrite="true">
 			<fileset file="${dir.core.client.build}/dist/${core.client.jar.name.only}" />
 		</copy>
-	</target>
+	</target -->
 	
-	<target name="jar.client" depends="copy.client">
+	<target name="jar.client" depends="exec.client">
 		<jar jarfile="${dir.dist}/${core.client.jar.name}">
 			<restrict>
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" excludes="${core.server.jar.name.only}" />
+						<fileset file="${dir.core.common.build}/dist/${core.common.jar.name}" />
+						<fileset file="${dir.core.client.build}/dist/${core.client.jar.name.only}" />
 					</zips>
 				</archives>
 			</restrict>
@@ -147,7 +147,9 @@
 			<restrict>
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+						<fileset file="${dir.core.common.build}/dist/${core.common.jar.name}" />
+						<fileset file="${dir.core.client.build}/dist/${core.client.jar.name.only}" />
+						<fileset file="${dir.core.server.build}/dist/${core.server.jar.name.only}" />
 					</zips>
 				</archives>
 			</restrict>
@@ -171,9 +173,7 @@
 				<union refid="logback.jarlibs" />
 				
 				<union refid="core.junitlib.jarlibs" />
-				<fileset dir="${dir.testlib}">
-					<include name="**/*.jar" />
-				</fileset>
+				<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
 			</classpath>
 		</javac>		
 	</target>
@@ -188,9 +188,7 @@
 				<union refid="logback.jarlibs" />
 				
 				<union refid="core.junitlib.jarlibs" />
-				<fileset dir="${dir.testlib}">
-					<include name="**/*.jar" />
-				</fileset>				
+				<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />				
 			</classpath>
 			<classpath>
 				<pathelement location="${dir.build}/test/"/>

@@ -81,8 +81,8 @@
 	<target name="copy.core" depends="exec.core, copy.core.only" />
 	
 	<target name="copy.core.only">
-	  <mkdir dir="${dir.corelib}/ex" />
-		
+		<mkdir dir="${dir.corelib}/ex" />
+
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
 			<fileset file="${dir.core.all.build}/dist/${core.all.jar.name}" />
 		</copy>

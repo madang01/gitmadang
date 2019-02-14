@@ -560,6 +560,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
 							streamCharsetDecoder, dataPacketBufferPool);
+					long inputStreamSize = fsis.available();
 
 					actualValue = fsis.getShort();
 
@@ -569,7 +570,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
-					long numberOfReadBytes = fsis.getNumberOfReadBytes();
+					long numberOfReadBytes = inputStreamSize - fsis.available();
 					if (numberOfReadBytes != outputStreamSize) {
 						String errorMessage = String.format(
 								"numberOfReadBytes[%d] is different from outputStreamSize[%d]", numberOfReadBytes,
@@ -718,6 +719,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
 							streamCharsetDecoder, dataPacketBufferPool);
+					long inputStreamSize = fsis.available();
 
 					actualValue = fsis.getUnsignedShort();
 
@@ -727,7 +729,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					assertEquals(expectedValue, actualValue);
 
-					long numberOfReadBytes = fsis.getNumberOfReadBytes();
+					long numberOfReadBytes = inputStreamSize - fsis.available();
 					if (numberOfReadBytes != outputStreamSize) {
 						String errorMessage = String.format(
 								"numberOfReadBytes[%d] is different from outputStreamSize[%d]", numberOfReadBytes,
@@ -874,6 +876,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
 							streamCharsetDecoder, dataPacketBufferPool);
+					long inputStreamSize = fsis.available(); 
 
 					actualValue = fsis.getInt();
 
@@ -883,7 +886,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
-					long numberOfReadBytes = fsis.getNumberOfReadBytes();
+					long numberOfReadBytes = inputStreamSize - fsis.available();
 					if (numberOfReadBytes != outputStreamSize) {
 						String errorMessage = String.format(
 								"numberOfReadBytes[%d] is different from outputStreamSize[%d]", numberOfReadBytes,
@@ -1031,6 +1034,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
 							streamCharsetDecoder, dataPacketBufferPool);
+					long inputStreamSize = fsis.available();
 
 					actualValue = fsis.getUnsignedInt();
 
@@ -1040,7 +1044,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
-					long numberOfReadBytes = fsis.getNumberOfReadBytes();
+					long numberOfReadBytes = inputStreamSize - fsis.available();
 					if (numberOfReadBytes != outputStreamSize) {
 						String errorMessage = String.format(
 								"numberOfReadBytes[%d] is different from outputStreamSize[%d]", numberOfReadBytes,
@@ -1190,6 +1194,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
 							streamCharsetDecoder, dataPacketBufferPool);
+					long inputStreamSize = fsis.available();
 
 					actualValue = fsis.getLong();
 
@@ -1199,7 +1204,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 					assertEquals(streamByteOrder.toString(), expectedValue, actualValue);
 
-					long numberOfReadBytes = fsis.getNumberOfReadBytes();
+					long numberOfReadBytes = inputStreamSize - fsis.available();
 					if (numberOfReadBytes != outputStreamSize) {
 						String errorMessage = String.format(
 								"numberOfReadBytes[%d] is different from outputStreamSize[%d]", numberOfReadBytes,
@@ -1743,13 +1748,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
-				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
+				long inputStreamSize = fsis.available();
 
 				destinationBytes = fsis.getBytes(sourceBytes.length);
 
 				Assert.assertArrayEquals(sourceBytes, destinationBytes);
 
-				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				long numberOfReadBytes = inputStreamSize - fsis.available();
 				if (numberOfReadBytes != outputStreamSize) {
 					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
 							numberOfReadBytes, outputStreamSize);
@@ -1819,13 +1824,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
+				long inputStreamSize = fsis.available();
 				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
 
 				destinationBytes = fsis.getBytes(sourceLength);
 
 				Assert.assertArrayEquals(expectedBytes, destinationBytes);
 
-				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				long numberOfReadBytes = inputStreamSize - fsis.available();
 				if (numberOfReadBytes != outputStreamSize) {
 					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
 							numberOfReadBytes, outputStreamSize);
@@ -1893,13 +1899,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
-				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
+				long inputStreamSize = fsis.available();
 
 				destinationBytes = fsis.getBytes(sourceBytes.length);
 
 				Assert.assertArrayEquals(sourceBytes, destinationBytes);
 
-				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				long numberOfReadBytes = inputStreamSize - fsis.available();
 				if (numberOfReadBytes != outputStreamSize) {
 					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
 							numberOfReadBytes, outputStreamSize);
@@ -2295,20 +2301,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
-				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
-
-				/*
-				 * byte temp[] = new byte[(int) outputStreamSize]; fsis.getBytes(temp);
-				 * actualValue = new String(temp, wantedCharset);
-				 * 
-				 * Assert.assertEquals(excpectedValue, actualValue.trim());
-				 */
+				long inputStreamSize = fsis.available();
 
 				actualValue = fsis.getFixedLengthString(fixedLength);
 
 				Assert.assertEquals(excpectedValue, actualValue.trim());
 
-				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				long numberOfReadBytes = inputStreamSize - fsis.available();
 				if (numberOfReadBytes != outputStreamSize) {
 					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
 							numberOfReadBytes, outputStreamSize);
@@ -2370,20 +2369,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
 						dataPacketBufferPool);
-				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
-
-				/*
-				 * byte temp[] = new byte[(int) outputStreamSize]; fsis.getBytes(temp);
-				 * actualValue = new String(temp, wantedCharset);
-				 * 
-				 * Assert.assertEquals(excpectedValue, actualValue.trim());
-				 */
+				long inputStreamSize = fsis.available();
 
 				actualValue = fsis.getFixedLengthString(fixedLength, wantedCharsetDecoder);
 
 				Assert.assertEquals(excpectedValue, actualValue.trim());
 
-				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				long numberOfReadBytes = inputStreamSize - fsis.available();
 				if (numberOfReadBytes != outputStreamSize) {
 					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
 							numberOfReadBytes, outputStreamSize);

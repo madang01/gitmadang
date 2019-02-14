@@ -15,6 +15,7 @@
 	<property name="appclient.main.class.name" value="main.AppClientMain" />
 	<property name="appclient.main.jar.name" value="CoddaAppClientRun.jar" />
 	<property name="core.all.jar.name" value="codda-core-all.jar" />
+	<property name="core.junitlib.jar.name" value="codda-core-junitlib.jar" />
 	<property name="java.complile.option.debug" value="on" />
 
 	<condition property="is.windows.yes">
@@ -85,9 +86,9 @@
 	<target name="copy.core" depends="exec.core, copy.core.only" />
 	
 	<target name="copy.core.only">
-	  <mkdir dir="${dir.corelib}/ex" />
+		<mkdir dir="${dir.corelib}/ex" />
 		<mkdir dir="${dir.corelib}/in" />
-		
+
 		<copy todir="${dir.corelib}/in" verbose="true" overwrite="true">
 			<fileset file="${dir.core.all.build}/dist/${core.all.jar.name}" />
 		</copy>
@@ -196,8 +197,9 @@
 				</fileset>
 				<fileset dir="${dir.main.lib}/ex">
 					<include name="**/*.jar" />
-				</fileset>
+				</fileset>				
 				<union refid="core.junitlib.jarlibs" />
+				<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
 				<fileset dir="${dir.test.lib}">
 					<include name="**/*.jar" />
 				</fileset>
@@ -211,13 +213,17 @@
 			<formatter type="xml" />
 			<classpath>
 				<fileset file="${dir.dist}/${appclient.main.jar.name}" />
-				<fileset dir="${dir.main.lib}/ex">
+				<fileset dir="${dir.corelib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
+				<fileset dir="${dir.main.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>				
+				<union refid="core.junitlib.jarlibs" />
+				<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
 				<fileset dir="${dir.test.lib}">
 					<include name="**/*.jar" />
 				</fileset>
-				<union refid="logback.jarlibs" />
 				<pathelement location="${dir.test.build}" />
 			</classpath>
 			<batchtest todir="${dir.report}">

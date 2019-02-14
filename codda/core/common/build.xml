@@ -57,18 +57,11 @@
 	</target>
 	
 	<target name="exec.logger" depends="exec.dos.core.logger" />	
-	
-	<target name="copy.core.logger" depends="exec.logger">
-		<mkdir dir="${dir.mainlib}/in" />
-		<mkdir dir="${dir.mainlib}/ex" />
-		<copy todir="${dir.mainlib}/in" verbose="true" overwrite="true">
-			<fileset file="${dir.logger.build}/dist/${core.logger.jar.name}" />
-		</copy>
-	</target>
-	
-	<target name="compile" depends="copy.core.logger">		
+			
+	<target name="compile" depends="exec.logger">		
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.mainsrc}" destdir="${dir.build}/main">
 			<classpath>
+				<fileset file="${dir.logger.build}/dist/${core.logger.jar.name}" />
 				<fileset dir="${dir.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
@@ -87,6 +80,7 @@
 				<archives>
 					<zips>
 						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+						<fileset file="${dir.logger.build}/dist/${core.logger.jar.name}" />
 					</zips>
 				</archives>
 			</restrict>

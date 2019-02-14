@@ -59,7 +59,6 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	protected int indexOfWorkBuffer;
 
 	private long numberOfBytesRemaining = -1;
-	private long inputStreamSize = 0;
 
 	public FreeSizeInputStream(int dataPacketBufferMaxCount, ArrayDeque<WrapBuffer> readableWrapBufferQueue,
 			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolIF dataPacketBufferPool) {
@@ -111,9 +110,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 			this.streamBufferList.add(byteBuffer);
 			numberOfBytesRemaining += byteBuffer.remaining();
-		}		
-		
-		inputStreamSize = numberOfBytesRemaining;
+		}
 
 		if (streamBufferList.isEmpty()) {
 			indexOfWorkBuffer = -1;
@@ -906,16 +903,6 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		return numberOfBytesRemaining;
 	}
 
-	private long getNumberOfReadBytes() {
-		/**
-		 * <pre>
-		 * 스트림을 구성하는 버퍼들의 각각의 상태가 중구난방이므로 
-		 * 처음 스트림을 구성할때 '읽을 수 있을 바이트수', 즉 '입력 스트림 크기'(=inputStreamSize)와 
-		 * '남은 바이트수'(=numberOfRemaingBytes) 의 차가 읽은 바이트 수가 된다.
-		 * </pre>
-		 */
-		return (inputStreamSize - numberOfBytesRemaining);
-	}
 
 	@Override
 	public long indexOf(byte[] searchBytes) {
@@ -985,7 +972,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		return -1;
 	}
-	
+	/*
 	public final int getIndexOfWorkBuffer() {
 		return indexOfWorkBuffer;
 	}
@@ -995,7 +982,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			return 0;
 		}
 		return workBuffer.position();
-	}
+	}*/
 
 	public CharsetDecoder getStreamCharsetDecoder() {
 		return streamCharsetDecoder;

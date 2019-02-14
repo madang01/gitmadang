@@ -103,10 +103,10 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
 	private void addBuffer() throws NoMoreDataPacketBufferException, BufferOverflowExceptionWithMessage {
-		/** FIXME! 남은 용량 없이 꽉 차서 들어와야 한다. */
+		/** WARNING! 신규 버퍼를 추가할때 작업 버퍼에 남은 용량은 없어야 한다, 이 규칙에 대한 방어 코드 */
 		if (workBuffer.hasRemaining()) {
-			String errorMessage = "the working buffer has a remaing data";
-			log.warn(errorMessage);
+			String errorMessage = "you want to add a new buffer but the working buffer has a remaing data";
+			log.error(errorMessage);
 			System.exit(1);
 		}
 

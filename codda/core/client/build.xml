@@ -74,7 +74,7 @@
 	
 	<target name="exec.common" depends="exec.dos.core.common" />	
 	
-	<target name="copy.common" depends="exec.common">
+	<!-- target name="copy.common" depends="exec.common">
 		<mkdir dir="${dir.mainlib}/in" />
 		<mkdir dir="${dir.mainlib}/ex" />
 		<copy todir="${dir.mainlib}/ex" verbose="true" overwrite="true">
@@ -83,12 +83,13 @@
 		<copy todir="${dir.testlib}" verbose="true" overwrite="true">
 			<fileset file="${dir.core.common.build}/dist/${core.junitlib.jar.name}" />
 		</copy>		
-	</target>
+	</target -->
 	
-	<target name="compile" depends="copy.common">		
+	<target name="compile" depends="exec.common">		
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.mainsrc}" destdir="${dir.build}/main">
 			<classpath>
 				<union refid="core.common.jarlibs" />
+				<fileset file="${dir.core.common.build}/dist/${core.common.jar.name}" />
 				<fileset dir="${dir.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
