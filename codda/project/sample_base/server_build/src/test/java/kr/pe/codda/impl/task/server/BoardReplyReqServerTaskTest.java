@@ -61,7 +61,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제");
-		boardWriteReq.setContent("내용::그림3 하나를 그리다");		
+		boardWriteReq.setContents("내용::그림3 하나를 그리다");		
 		boardWriteReq.setRequestedUserID("test01");
 		boardWriteReq.setIp("172.16.0.2");		
 		
@@ -103,7 +103,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 		boardReplyReq.setBoardID(boardWriteRes.getBoardID());
 		boardReplyReq.setParentBoardNo(boardWriteRes.getBoardNo());
 		boardReplyReq.setSubject("테스트 주제03-1");
-		boardReplyReq.setContent("내용::그림3-1하나를 그리다");		
+		boardReplyReq.setContents("내용::그림3-1하나를 그리다");		
 		boardReplyReq.setRequestedUserID("test01");
 		boardReplyReq.setIp("127.0.0.1");		
 		

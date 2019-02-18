@@ -63,7 +63,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제1234");
-		boardWriteReq.setContent("내용::그림 하나를 그리다, 하하호호");		
+		boardWriteReq.setContents("내용::그림 하나를 그리다, 하하호호");		
 		boardWriteReq.setRequestedUserID(userID);
 		boardWriteReq.setIp("172.16.0.1");
 		
@@ -114,7 +114,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(TEST_DBCP_NAME, boardDetailReq);
 			
 			assertEquals(boardWriteReq.getSubject(), boardDetailRes.getSubject());
-			assertEquals(boardWriteReq.getContent(), boardDetailRes.getContent());
+			assertEquals(boardWriteReq.getContents(), boardDetailRes.getContents());
 			assertEquals(boardWriteReq.getRequestedUserID(), boardDetailRes.getWriterID());
 			assertEquals(boardWriteReq.getIp(), boardDetailRes.getWriterIP());
 			

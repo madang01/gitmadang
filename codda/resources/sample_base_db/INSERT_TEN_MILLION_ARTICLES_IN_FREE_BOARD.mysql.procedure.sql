@@ -61,12 +61,10 @@ BEGIN
 			
             
 			/* 자유 게시판에 글 추가 */
-			INSERT INTO SB_BOARD_TB(board_id, board_no, group_no, group_sq, parent_no, depth, view_cnt, board_st)
-			VALUES(_BOARD_ID, _START_BOARD_NO, _GROUP_NO, _GROUP_SQ, _PARENT_NO, _DEPTH, _VIEW_CNT, _BOARD_STATE);
-            
-            
+			INSERT INTO SB_BOARD_TB(board_id, board_no, group_no, group_sq, parent_no, depth, view_cnt, board_st, next_attached_file_sq)
+			VALUES(_BOARD_ID, _START_BOARD_NO, _GROUP_NO, _GROUP_SQ, _PARENT_NO, _DEPTH, _VIEW_CNT, _BOARD_STATE, 0);
 			
-			INSERT INTO SB_BOARD_HISTORY_TB(board_id, board_no, history_sq, subject, content, modifier_id, ip, reg_dt)
+			INSERT INTO SB_BOARD_HISTORY_TB(board_id, board_no, history_sq, subject, contents, registrant_id, ip, reg_dt)
 			VALUES(_BOARD_ID, _START_BOARD_NO, _HISTORY_SQ, _SUBJECT, _CONTENT, _FIRST_WRITER_ID, _IP, now());
             
             iF MOD(_START_BOARD_NO, 10000) = 0 THEN 

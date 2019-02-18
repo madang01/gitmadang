@@ -32,7 +32,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTbRecord> implements Record8<UByte, UInteger, UByte, String, String, String, String, Timestamp> {
 
-    private static final long serialVersionUID = 1485327101;
+    private static final long serialVersionUID = -1479807589;
 
     /**
      * Setter for <code>sb_db.sb_board_history_tb.board_id</code>.
@@ -91,30 +91,30 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_history_tb.content</code>.
+     * Setter for <code>sb_db.sb_board_history_tb.contents</code>.
      */
-    public void setContent(String value) {
+    public void setContents(String value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_history_tb.content</code>.
+     * Getter for <code>sb_db.sb_board_history_tb.contents</code>.
      */
-    public String getContent() {
+    public String getContents() {
         return (String) get(4);
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_history_tb.modifier_id</code>. 작성자
+     * Setter for <code>sb_db.sb_board_history_tb.registrant_id</code>. 작성자
      */
-    public void setModifierId(String value) {
+    public void setRegistrantId(String value) {
         set(5, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_history_tb.modifier_id</code>. 작성자
+     * Getter for <code>sb_db.sb_board_history_tb.registrant_id</code>. 작성자
      */
-    public String getModifierId() {
+    public String getRegistrantId() {
         return (String) get(5);
     }
 
@@ -215,7 +215,7 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
      */
     @Override
     public Field<String> field5() {
-        return SbBoardHistoryTb.SB_BOARD_HISTORY_TB.CONTENT;
+        return SbBoardHistoryTb.SB_BOARD_HISTORY_TB.CONTENTS;
     }
 
     /**
@@ -223,7 +223,7 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
      */
     @Override
     public Field<String> field6() {
-        return SbBoardHistoryTb.SB_BOARD_HISTORY_TB.MODIFIER_ID;
+        return SbBoardHistoryTb.SB_BOARD_HISTORY_TB.REGISTRANT_ID;
     }
 
     /**
@@ -279,7 +279,7 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
      */
     @Override
     public String component5() {
-        return getContent();
+        return getContents();
     }
 
     /**
@@ -287,7 +287,7 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
      */
     @Override
     public String component6() {
-        return getModifierId();
+        return getRegistrantId();
     }
 
     /**
@@ -343,7 +343,7 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
      */
     @Override
     public String value5() {
-        return getContent();
+        return getContents();
     }
 
     /**
@@ -351,7 +351,7 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
      */
     @Override
     public String value6() {
-        return getModifierId();
+        return getRegistrantId();
     }
 
     /**
@@ -411,7 +411,7 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
      */
     @Override
     public SbBoardHistoryTbRecord value5(String value) {
-        setContent(value);
+        setContents(value);
         return this;
     }
 
@@ -420,7 +420,7 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
      */
     @Override
     public SbBoardHistoryTbRecord value6(String value) {
-        setModifierId(value);
+        setRegistrantId(value);
         return this;
     }
 
@@ -472,15 +472,15 @@ public class SbBoardHistoryTbRecord extends UpdatableRecordImpl<SbBoardHistoryTb
     /**
      * Create a detached, initialised SbBoardHistoryTbRecord
      */
-    public SbBoardHistoryTbRecord(UByte boardId, UInteger boardNo, UByte historySq, String subject, String content, String modifierId, String ip, Timestamp regDt) {
+    public SbBoardHistoryTbRecord(UByte boardId, UInteger boardNo, UByte historySq, String subject, String contents, String registrantId, String ip, Timestamp regDt) {
         super(SbBoardHistoryTb.SB_BOARD_HISTORY_TB);
 
         set(0, boardId);
         set(1, boardNo);
         set(2, historySq);
         set(3, subject);
-        set(4, content);
-        set(5, modifierId);
+        set(4, contents);
+        set(5, registrantId);
         set(6, ip);
         set(7, regDt);
     }

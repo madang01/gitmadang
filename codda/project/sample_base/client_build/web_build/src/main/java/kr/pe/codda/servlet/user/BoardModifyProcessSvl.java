@@ -114,7 +114,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		String paramBoardID = null;
 		String paramBoardNo = null;
 		String paramSubject = null;
-		String paramContent = null;
+		String paramContents = null;
 		String paramNextAttachedFileSeq = null;
 		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();
 		List<BoardModifyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardModifyReq.NewAttachedFile>();
@@ -169,7 +169,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 				} else if (formFieldName.equals("subject")) {
 					paramSubject = formFieldValue;
 				} else if (formFieldName.equals("content")) {
-					paramContent = formFieldValue;
+					paramContents = formFieldValue;
 				} else if (formFieldName.equals("nextAttachedFileSeq")) {
 					paramNextAttachedFileSeq = formFieldValue;
 				} else if (formFieldName.equals("oldAttachedFileSeq")) {
@@ -519,9 +519,9 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 
-		if (null == paramContent) {
+		if (null == paramContents) {
 			String errorMessage = "글 내용 값을 넣어주세요";
-			String debugMessage = "the web parameter 'content' is null";
+			String debugMessage = "the web parameter 'contents' is null";
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 
@@ -558,7 +558,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(boardNo);
 		boardModifyReq.setSubject(paramSubject);
-		boardModifyReq.setContent(paramContent);
+		boardModifyReq.setContents(paramContents);
 		boardModifyReq.setIp(req.getRemoteAddr());
 		boardModifyReq.setNextAttachedFileSeq(nextAttachedFileSeq);
 		boardModifyReq.setOldAttachedFileCnt(oldAttachedFileList.size());

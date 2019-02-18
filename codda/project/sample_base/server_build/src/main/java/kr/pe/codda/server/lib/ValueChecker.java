@@ -593,7 +593,7 @@ public class ValueChecker {
 	 * @param subject 게시판 내용
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
-	public static void checkValidContent(String content) throws IllegalArgumentException {
+	public static void checkValidContents(String content) throws IllegalArgumentException {
 		if (null == content) {
 			throw new IllegalArgumentException("the parameter content is null");
 		}
@@ -741,7 +741,7 @@ public class ValueChecker {
 			
 			String errorMessage = new StringBuilder("요청한 사용자[")
 					.append(requestedUserID)
-					.append("가 회원 테이블에 존재하지 않습니다").toString();				
+					.append("]가 회원 테이블에 존재하지 않습니다").toString();				
 			throw new ServerServiceException(errorMessage);
 		}
 		

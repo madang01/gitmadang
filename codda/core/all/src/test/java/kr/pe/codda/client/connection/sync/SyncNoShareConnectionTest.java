@@ -190,10 +190,4 @@ public class SyncNoShareConnectionTest extends AbstractJunitTest {
 			fail(errorMessage);
 		}
 	}
-
-	@Test
-	public void testSendAsynInputMessage() {
-		fail("not implments");
-	}
-
 }

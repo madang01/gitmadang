@@ -109,7 +109,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 
 		try {
-			ValueChecker.checkValidContent(boardModifyReq.getContent());
+			ValueChecker.checkValidContents(boardModifyReq.getContents());
 		} catch (RuntimeException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -268,7 +268,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 
 			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				Record1<String> firstWriterBoardRecord = create
-						.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
+						.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID)
 						.from(SB_BOARD_HISTORY_TB)
 						.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 						.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
@@ -287,7 +287,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				}
 
 				String firstWriterID = firstWriterBoardRecord
-						.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+						.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
 
 				if (!boardModifyReq.getRequestedUserID().equals(firstWriterID)) {
 					try {
@@ -406,9 +406,9 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, boardHistorySeq)
 					.set(SB_BOARD_HISTORY_TB.SUBJECT,
 							boardModifyReq.getSubject())
-					.set(SB_BOARD_HISTORY_TB.CONTENT,
-							boardModifyReq.getContent())
-					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID,
+					.set(SB_BOARD_HISTORY_TB.CONTENTS,
+							boardModifyReq.getContents())
+					.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID,
 							boardModifyReq.getRequestedUserID())
 					.set(SB_BOARD_HISTORY_TB.IP, boardModifyReq.getIp())
 					.set(SB_BOARD_HISTORY_TB.REG_DT,

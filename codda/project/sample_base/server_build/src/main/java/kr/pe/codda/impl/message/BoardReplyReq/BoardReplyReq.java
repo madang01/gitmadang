@@ -29,7 +29,7 @@ public class BoardReplyReq extends AbstractMessage {
 	private short boardID;
 	private long parentBoardNo;
 	private String subject;
-	private String content;
+	private String contents;
 	private String ip;
 	private short newAttachedFileCnt;
 
@@ -95,12 +95,12 @@ public class BoardReplyReq extends AbstractMessage {
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
-	public String getContent() {
-		return content;
+	public String getContents() {
+		return contents;
 	}
 
-	public void setContent(String content) {
-		this.content = content;
+	public void setContents(String contents) {
+		this.contents = contents;
 	}
 	public String getIp() {
 		return ip;
@@ -136,8 +136,8 @@ public class BoardReplyReq extends AbstractMessage {
 		builder.append(parentBoardNo);
 		builder.append(", subject=");
 		builder.append(subject);
-		builder.append(", content=");
-		builder.append(content);
+		builder.append(", contents=");
+		builder.append(contents);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append(", newAttachedFileCnt=");

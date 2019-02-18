@@ -109,7 +109,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			ValueChecker.checkValidRequestedUserState(conn, create, log, boardVoteReq.getRequestedUserID());	
 			
 			Record1<String> 
-			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
+			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID)
 			.from(SB_BOARD_HISTORY_TB)
 			.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
@@ -127,7 +127,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+			String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
 			
 			if (firstWriterID.equals(boardVoteReq.getRequestedUserID())) {
 				try {

@@ -121,22 +121,22 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 			DynamicClassCallException, BodyFormatException,
 			ServerTaskException, ServerTaskPermissionException {
 
-		// ClassLoader classloaderOfInputMessage =
-		// inputMessage.getClass().getClassLoader();
+		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;		
 
-		syncMessageMailbox.nextMailID();
-		inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox
-				.getMailboxID();
-		inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
+		synchronized (clientSC) {			
+			inputMessage.messageHeaderInfo.mailboxID = syncMessageMailbox
+					.getMailboxID();
+			inputMessage.messageHeaderInfo.mailID = syncMessageMailbox.getMailID();
 
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility
-				.buildReadableWrapBufferList(messageCodecManger,
-						messageProtocol, inputMessage);
+			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility
+					.buildReadableWrapBufferList(messageCodecManger,
+							messageProtocol, inputMessage);
 
-		addInputMessage(inputMessage, inputMessageWrapBufferQueue);
+			addInputMessage(inputMessage, inputMessageWrapBufferQueue);
 
-		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = syncMessageMailbox
-				.getSyncOutputMessage();
+			outputMessageWrapReadableMiddleObject = syncMessageMailbox
+					.getSyncOutputMessage();
+		}		
 
 		AbstractMessage outputMessage = ClientMessageUtility
 				.buildOutputMessage(messageCodecManger, messageProtocol,

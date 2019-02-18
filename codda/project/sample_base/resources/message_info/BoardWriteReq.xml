@@ -20,7 +20,7 @@
 <singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="boardID" type="unsigned byte" />
 <singleitem name="subject" type="us pascal string" />
-<singleitem name="content" type="us pascal string" />
+<singleitem name="contents" type="us pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 <singleitem name="newAttachedFileCnt" type="unsigned byte" />
 <array name="newAttachedFile" cnttype="reference" cntvalue="newAttachedFileCnt">

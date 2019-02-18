@@ -390,7 +390,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("삭제::제목");
-		boardWriteReq.setContent("삭제::내용");
+		boardWriteReq.setContents("삭제::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -438,7 +438,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		boardWriteReq.setSubject("블락::제목");
-		boardWriteReq.setContent("블락::내용");
+		boardWriteReq.setContents("블락::내용");
 		BoardWriteRes blockSateBoardWriteRes = null;
 		try {
 			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
@@ -475,7 +475,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		boardWriteReq.setSubject("정상::제목");
-		boardWriteReq.setContent("정상::내용");
+		boardWriteReq.setContents("정상::내용");
 		BoardWriteRes okSateBoardWriteRes = null;
 		try {
 			okSateBoardWriteRes = boardWriteReqServerTask.doWork(
@@ -547,7 +547,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("삭제::제목");
-		boardWriteReq.setContent("삭제::내용");
+		boardWriteReq.setContents("삭제::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -591,7 +591,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		boardWriteReq.setSubject("블락::제목");
-		boardWriteReq.setContent("블락::내용");
+		boardWriteReq.setContents("블락::내용");
 		BoardWriteRes blockSateBoardWriteRes = null;
 		try {
 			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
@@ -628,7 +628,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		boardWriteReq.setSubject("정상::제목");
-		boardWriteReq.setContent("정상::내용");
+		boardWriteReq.setContents("정상::내용");
 		@SuppressWarnings("unused")
 		BoardWriteRes okSateBoardWriteRes = null;
 		try {
@@ -934,7 +934,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("삭제::타인::제목");
-		boardWriteReq.setContent("삭제::타인::내용");
+		boardWriteReq.setContents("삭제::타인::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -997,7 +997,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("삭제::제목");
-		boardWriteReq.setContent("삭제::내용");
+		boardWriteReq.setContents("삭제::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -1072,7 +1072,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("삭제::제목");
-		boardWriteReq.setContent("삭제::내용");
+		boardWriteReq.setContents("삭제::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -1173,7 +1173,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -1291,7 +1291,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -1355,7 +1355,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -1440,7 +1440,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -2383,7 +2383,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("제목1");
-		boardWriteReq.setContent("내용1");
+		boardWriteReq.setContents("내용1");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -3102,7 +3102,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트 주제");
-		boardWriteReq.setContent("내용::그림2 하나를 그리다");
+		boardWriteReq.setContents("내용::그림2 하나를 그리다");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> newAttachedFileListForWrite = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -3150,8 +3150,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 			assertEquals("제목 비교", boardWriteReq.getSubject(),
 					boardDetailRes.getSubject());
-			assertEquals("내용 비교", boardWriteReq.getContent(),
-					boardDetailRes.getContent());
+			assertEquals("내용 비교", boardWriteReq.getContents(),
+					boardDetailRes.getContents());
 			assertEquals("작성자 아이디 비교", boardWriteReq.getRequestedUserID(),
 					boardDetailRes.getWriterID());
 			assertEquals("작성 아이피 주소 비교", boardWriteReq.getIp(),
@@ -3190,7 +3190,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("수정 테스트를 위한 최상위 본문글#1");
-		boardModifyReq.setContent("내용::수정 테스트를 위한 최상위 본문글#1");
+		boardModifyReq.setContents("내용::수정 테스트를 위한 최상위 본문글#1");
 		boardModifyReq.setIp("172.16.0.3");
 		boardModifyReq.setNextAttachedFileSeq(oldNextAttachedFileSeq);
 
@@ -3250,8 +3250,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 			assertEquals("제목 비교", boardModifyReq.getSubject(),
 					boardModifyReq.getSubject());
-			assertEquals("내용 비교", boardModifyReq.getContent(),
-					boardModifyReq.getContent());
+			assertEquals("내용 비교", boardModifyReq.getContents(),
+					boardModifyReq.getContents());
 			assertEquals("작성자 아이디 비교", boardWriteReq.getRequestedUserID(),
 					boardDetailRes.getWriterID());
 			assertEquals("작성 아이피 주소 비교", boardWriteReq.getIp(),
@@ -3314,7 +3314,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardReplyReq.setBoardID(BoardType.FREE.getBoardID());
 		boardReplyReq.setParentBoardNo(1);
 		boardReplyReq.setSubject("테스트 주제01-1");
-		boardReplyReq.setContent("내용::그림01-1하나를 그리다");
+		boardReplyReq.setContents("내용::그림01-1하나를 그리다");
 		boardReplyReq.setRequestedUserID(otherID);
 		boardReplyReq.setIp("127.0.0.1");
 
@@ -3386,7 +3386,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			boardWriteReq.setRequestedUserID(writerID);
 			boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 			boardWriteReq.setSubject("테스트 주제01");
-			boardWriteReq.setContent("내용::그림01 하나를 그리다");
+			boardWriteReq.setContents("내용::그림01 하나를 그리다");
 			boardWriteReq.setIp("172.16.0.1");
 
 			List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -3420,7 +3420,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardReplyReq.setBoardID(boardWriteRes.getBoardID());
 		boardReplyReq.setParentBoardNo(boardWriteRes.getBoardNo());
 		boardReplyReq.setSubject("테스트 주제01-1");
-		boardReplyReq.setContent("내용::그림01-1하나를 그리다");
+		boardReplyReq.setContents("내용::그림01-1하나를 그리다");
 		boardReplyReq.setRequestedUserID(otherID);
 		boardReplyReq.setIp("127.0.0.1");
 
@@ -3485,8 +3485,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 			assertEquals("댓글 제목 비교", boardReplyReq.getSubject(),
 					boardDetailRes.getSubject());
-			assertEquals("댓글 내용 비교", boardReplyReq.getContent(),
-					boardDetailRes.getContent());
+			assertEquals("댓글 내용 비교", boardReplyReq.getContents(),
+					boardDetailRes.getContents());
 			assertEquals("댓글 작성자 아이디 비교", boardReplyReq.getRequestedUserID(),
 					boardDetailRes.getWriterID());
 			assertEquals("댓글 작성자 아이피 주소 비교", boardReplyReq.getIp(),
@@ -3676,7 +3676,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardReplyReq.setBoardID(parentBoardTreeNode.getBoardID());
 		boardReplyReq.setParentBoardNo(parentBoardTreeNode.getBoardNo());
 		boardReplyReq.setSubject("제목::루트1_자식1_자식1_자식2");
-		boardReplyReq.setContent("내용::루트1_자식1_자식1_자식2");
+		boardReplyReq.setContents("내용::루트1_자식1_자식1_자식2");
 		boardReplyReq.setRequestedUserID("test01");
 		boardReplyReq.setIp("127.0.0.1");
 
@@ -3831,7 +3831,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setRequestedUserID("test01");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 1);
@@ -3899,7 +3899,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setRequestedUserID("test01");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 1);
@@ -3955,7 +3955,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setRequestedUserID("test01");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 5);
@@ -4010,7 +4010,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setRequestedUserID("test01");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 1);
@@ -4074,7 +4074,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID("test01");
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -4096,7 +4096,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 0);
 
@@ -4154,7 +4154,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -4201,7 +4201,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 0);
 
@@ -4257,7 +4257,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -4309,7 +4309,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 0);
 
@@ -4366,7 +4366,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -4390,7 +4390,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardReplyReq.setBoardID(boardWriteRes.getBoardID());
 		boardReplyReq.setParentBoardNo(boardWriteRes.getBoardNo());
 		boardReplyReq.setSubject("테스트 주제01-1");
-		boardReplyReq.setContent("내용::그림01-1하나를 그리다");
+		boardReplyReq.setContents("내용::그림01-1하나를 그리다");
 		boardReplyReq.setRequestedUserID(otherID);
 		boardReplyReq.setIp("127.0.0.1");
 
@@ -4453,7 +4453,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardReplyRes.getBoardID());
 		boardModifyReq.setBoardNo(boardReplyRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 0);
 
@@ -4501,7 +4501,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 255);
 
@@ -4568,7 +4568,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -4593,7 +4593,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 10);
 
@@ -4647,7 +4647,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 1);
 
@@ -4720,7 +4720,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -4745,7 +4745,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 0);
 
@@ -4812,7 +4812,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -4854,7 +4854,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 2);
 
@@ -4921,7 +4921,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -4963,7 +4963,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 2);
 
@@ -5038,7 +5038,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -5080,7 +5080,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 2);
 
@@ -5133,8 +5133,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		
 		assertEquals("제목 비교", boardModifyReq.getSubject(),
 				boardDetailRes.getSubject());
-		assertEquals("내용 비교", boardModifyReq.getContent(),
-				boardDetailRes.getContent());
+		assertEquals("내용 비교", boardModifyReq.getContents(),
+				boardDetailRes.getContents());
 		assertEquals("마지막 수정자 비교", boardModifyReq.getRequestedUserID(),
 				boardDetailRes.getLastModifierID());
 		
@@ -5166,7 +5166,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardWriteReq.setRequestedUserID(writerID);
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContent("차단::내용");
+		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
 
 		List<BoardWriteReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -5208,7 +5208,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
 		boardModifyReq.setIp("172.16.0.7");
 		boardModifyReq.setNextAttachedFileSeq((short) 2);
 
@@ -5261,8 +5261,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		
 		assertEquals("제목 비교", boardModifyReq.getSubject(),
 				boardDetailRes.getSubject());
-		assertEquals("내용 비교", boardModifyReq.getContent(),
-				boardDetailRes.getContent());
+		assertEquals("내용 비교", boardModifyReq.getContents(),
+				boardDetailRes.getContents());
 		assertEquals("마지막 수정자 비교", boardModifyReq.getRequestedUserID(),
 				boardDetailRes.getLastModifierID());
 		

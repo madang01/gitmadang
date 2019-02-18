@@ -53,7 +53,7 @@ public class BoardTree {
 		boardWriteReq.setRequestedUserID(rootBoardTreeNode.getWriterID());
 		boardWriteReq.setBoardID(rootBoardTreeNode.getBoardID());
 		boardWriteReq.setSubject(rootBoardTreeNode.getSubject());
-		boardWriteReq.setContent(rootBoardTreeNode.getContent());
+		boardWriteReq.setContents(rootBoardTreeNode.getContents());
 		boardWriteReq.setIp("172.16.0.1");
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
 		boardWriteReq.setNewAttachedFileCnt((short)attachedFileList.size());
@@ -104,7 +104,7 @@ public class BoardTree {
 		boardReplyReq.setBoardID(childBoardTreeNode.getBoardID());
 		boardReplyReq.setParentBoardNo(parentNo);
 		boardReplyReq.setSubject(childBoardTreeNode.getSubject());
-		boardReplyReq.setContent(childBoardTreeNode.getContent());		
+		boardReplyReq.setContents(childBoardTreeNode.getContents());		
 		boardReplyReq.setRequestedUserID(childBoardTreeNode.getWriterID());
 		boardReplyReq.setIp("127.0.0.1");		
 		
@@ -176,7 +176,7 @@ public class BoardTree {
 		
 		boardTreeNode.setWriterID(writerID);
 		boardTreeNode.setSubject(subject);
-		boardTreeNode.setContent(content);
+		boardTreeNode.setContents(content);
 		
 		return boardTreeNode;
 	}

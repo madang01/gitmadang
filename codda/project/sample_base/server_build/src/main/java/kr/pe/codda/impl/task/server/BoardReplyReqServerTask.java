@@ -112,7 +112,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		}
 
 		try {
-			ValueChecker.checkValidContent(boardReplyReq.getContent());
+			ValueChecker.checkValidContents(boardReplyReq.getContents());
 		} catch (IllegalArgumentException e) {			
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -312,8 +312,8 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 					.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
 					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, UByte.valueOf(0))
 					.set(SB_BOARD_HISTORY_TB.SUBJECT, boardReplyReq.getSubject())
-					.set(SB_BOARD_HISTORY_TB.CONTENT, boardReplyReq.getContent())
-					.set(SB_BOARD_HISTORY_TB.MODIFIER_ID, boardReplyReq.getRequestedUserID())
+					.set(SB_BOARD_HISTORY_TB.CONTENTS, boardReplyReq.getContents())
+					.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardReplyReq.getRequestedUserID())
 					.set(SB_BOARD_HISTORY_TB.IP, boardReplyReq.getIp())
 					.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
 

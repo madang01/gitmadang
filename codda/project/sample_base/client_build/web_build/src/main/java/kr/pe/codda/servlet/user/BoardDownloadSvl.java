@@ -183,9 +183,9 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager.getInstance()
 				.getRunningProjectConfiguration();
 		String mainProjectName = runningProjectConfiguration.getMainProjectName();
-		String sinnoriInstalledPathString = runningProjectConfiguration.getInstalledPathString();
+		String installedPathString = runningProjectConfiguration.getInstalledPathString();
 		String attachedFileFullName = new StringBuilder(WebRootBuildSystemPathSupporter
-				.getUserWebUploadPathString(sinnoriInstalledPathString, mainProjectName)).append(File.separator)
+				.getUserWebUploadPathString(installedPathString, mainProjectName)).append(File.separator)
 						.append(WebCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_PREFIX).append("_BoardID")
 						.append(boardID).append("_BoardNo")
 						.append(boardNo).append("Seq").append(attachedFileSeq)

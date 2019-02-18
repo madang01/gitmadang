@@ -129,7 +129,7 @@
 		var f = document.modifyInputFrm;
 		
 		f.subject.value = subjectDivNode.innerText;
-		f.content.value = cotentDivNode.innerText;
+		f.contents.value = cotentDivNode.innerText;
 		
 		$("#modifyInputModal").modal();
 	}
@@ -245,9 +245,9 @@
 			return false;
 		}
 
-		if ('' == f.content.value) {
+		if ('' == f.contents.value) {
 			alert("내용을 넣어 주세요.");
-			f.content.focus();
+			f.contents.focus();
 			return false;
 		}
 		
@@ -283,7 +283,7 @@
 		$('#modifyInputModal').modal('toggle');		
 		
 		g.subject.value = f.subject.value;
-		g.content.value = f.content.value;		
+		g.contents.value = f.contents.value;		
 		
 		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
 		= getSessionkey();
@@ -379,9 +379,9 @@
 			return false;
 		}
 
-		if ('' == f.content.value) {
+		if ('' == f.contents.value) {
 			alert("내용을 넣어 주세요.");
-			f.content.focus();
+			f.contents.focus();
 			return false;
 		}
 				
@@ -558,7 +558,7 @@
 		</div>
 		<div class="row">
 			<div class="col-sm-1" style="background-color:lavender;">내용</div>
-			<div class="col-sm-8" id="cotentDiv"><%=StringEscapeActorUtil.replace(boardDetailRes.getContent(), 
+			<div class="col-sm-8" id="cotentDiv"><%=StringEscapeActorUtil.replace(boardDetailRes.getContents(), 
 					STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4, STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 		</div>
 		<div class="row">
@@ -581,8 +581,8 @@
 						    <label for="subjectForModifyInputFrm">제목</label>
 						    <input type="text" id="subjectForModifyInputFrm" name="subject" class="form-control" placeholder="Enter subject" />
 						
-						    <label for="contentForModifyInputFrm">내용</label>
-						   <textarea name="content" id="contentForModifyInputFrm" class="form-control" placeholder="Enter content" rows="5"></textarea>
+						    <label for="contentsForModifyInputFrm">내용</label>
+						   <textarea name="contents" id="contentsForModifyInputFrm" class="form-control" placeholder="Enter content" rows="5"></textarea>
 						 </div>
 						<button type="submit" class="btn btn-default">저장</button>
 						<div class="btn-group">
@@ -623,8 +623,8 @@
 						    <label for="subjectForReplyInputFrm">제목</label>
 						    <input type="text" id="subjectForReplyInputFrm" name="subject" class="form-control" placeholder="Enter subject" />
 						
-						    <label for="contentForReplyInputFrm">내용</label>
-						   <textarea name="content" id="contentForReplyInputFrm" class="form-control" placeholder="Enter content" rows="5"></textarea>
+						    <label for="contentsForReplyInputFrm">내용</label>
+						   <textarea name="contents" id="contentsForReplyInputFrm" class="form-control" placeholder="Enter content" rows="5"></textarea>
 						 </div>
 						<button type="submit" class="btn btn-default">저장</button>
 						<div class="btn-group">

@@ -91,7 +91,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		String paramBoardID = null;
 		String paramParentBoardNo = null;
 		String paramSubject = null;
-		String paramContent = null;
+		String paramContents = null;
 		List<BoardReplyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardReplyReq.NewAttachedFile>();
 
 		// Create a factory for disk-based file items
@@ -142,8 +142,8 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 					paramParentBoardNo = formFieldValue;
 				} else if (formFieldName.equals("subject")) {
 					paramSubject = formFieldValue;
-				} else if (formFieldName.equals("content")) {
-					paramContent = formFieldValue;
+				} else if (formFieldName.equals("contents")) {
+					paramContents = formFieldValue;
 				} else {
 					log.warn("필요 없은 웹 파라미터 '{}' 전달 받음", formFieldName);
 				}
@@ -438,7 +438,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 
-		if (null == paramContent) {
+		if (null == paramContents) {
 			String errorMessage = "내용을 넣어 주세요";
 			String debugMessage = "the web parameter 'content' is null";
 
@@ -450,7 +450,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		boardReplyReq.setBoardID(boardID);
 		boardReplyReq.setParentBoardNo(parentBoardNo);
 		boardReplyReq.setSubject(paramSubject);
-		boardReplyReq.setContent(paramContent);
+		boardReplyReq.setContents(paramContents);
 		boardReplyReq.setIp(req.getRemoteAddr());
 		boardReplyReq.setNewAttachedFileCnt((short) newAttachedFileList.size());
 		boardReplyReq.setNewAttachedFileList(newAttachedFileList);

@@ -1,28 +1,25 @@
-package kr.pe.codda.client.connection.sync;
+package kr.pe.codda.client;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.client.AnyProjectConnectionPool;
-import kr.pe.codda.client.AnyProjectConnectionPoolIF;
+import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
+import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporter;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
-import kr.pe.codda.common.exception.ConnectionPoolException;
+import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.common.type.MessageProtocolType;
 import kr.pe.codda.common.type.ProjectType;
-import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
-import kr.pe.codda.impl.message.Empty.Empty;
+import kr.pe.codda.server.AnyProjectServer;
 
-public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
+public class AnyProjectConnectionPoolTest extends AbstractJunitTest {
 	
 	private ProjectPartConfiguration buildMainProjectPartConfiguration(String projectName,
 			String host, int port,
@@ -62,7 +59,7 @@ public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
 		int serverDataPacketBufferMaxCntPerMessage=50;
 		int serverDataPacketBufferSize=2048;
 		int serverDataPacketBufferPoolSize=1000;
-		int serverMaxClients = 100000;		
+		int serverMaxClients = 10;		
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
 		
@@ -99,23 +96,24 @@ public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
 		return projectPartConfigurationForTest;
 	}
 
-
 	@Test
-	public void testGetConnection_서버없이폴생성하여연결요구() {
+	public void testCreateAsynThreadSafeConnection_연결타입이_동기로_설정되어_NotSupportedException을던지는지검사() {
 		String testProjectName = "sample_test";
-		
-		String host = "localhost";
-		int port = 9295;
-		int clientConnectionCount = 2;
-		boolean clientDataPacketBufferIsDirect = false;
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
-		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.THB;
+		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.DHB;
+		boolean clientDataPacketBufferIsDirect = false;
+		String serverHost = null;
+		int serverPort; 
 		
-		int retryCount = 5;
+		// host = "172.30.1.16";
+		serverHost = "localhost";
+		serverPort = 9393;
+		
+		int clientConnectionCount = 0;
 		
 		try {
 			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
-					host,  port,
+					serverHost,  serverPort,
 					clientConnectionCount,
 					messageProtocolTypeForTest,
 					clientDataPacketBufferIsDirect,
@@ -131,8 +129,23 @@ public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
 			fail(errorMessage);
 		}
 		
+		log.info("{}", projectPartConfigurationForTest.getClientConnectionCount());
 		
-		Empty emptyReq = new Empty();
+		AnyProjectServer anyProjectServerForTest = null;
+		try {
+			String serverAPPINFClassPathString = ServerBuildSytemPathSupporter
+					.getServerAPPINFClassPathString(installedPath.getAbsolutePath(), 
+							mainProjectName);
+			String projectResourcesPathString = ProjectBuildSytemPathSupporter.getProjectResourcesDirectoryPathString(installedPath.getAbsolutePath(), mainProjectName);
+			
+			anyProjectServerForTest = new AnyProjectServer(serverAPPINFClassPathString,
+					projectResourcesPathString,
+					projectPartConfigurationForTest);
+			anyProjectServerForTest.startServer();
+		} catch (Exception e) {
+			log.warn("fail to start a server", e);
+			fail("fail to start a server");
+		}		
 		
 		AnyProjectConnectionPoolIF  anyProjectConnectionPool  = null;
 		
@@ -144,32 +157,13 @@ public class SyncNoShareConnectionPoolTest extends AbstractJunitTest {
 		}		
 		
 		try {
-			
-			long startTime = System.nanoTime();
-			
-			for (int i=0; i < retryCount; i++) {
-				anyProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), emptyReq);
-				
-				fail("no ConnectionPoolException");
-			}
-			
-			long endTime = System.nanoTime();
-			log.info("{} 회 평균시간[{}] microseconds", retryCount, TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
-		} catch(ConnectionPoolException e) {
-			String acutalErrorMessage = e.getMessage();
-			String expectedErrorMessage = "check server is alive or something is bad";
-			
-			assertEquals(expectedErrorMessage, acutalErrorMessage);
-			
+			anyProjectConnectionPool.createAsynThreadSafeConnection(serverHost, serverPort);			
+			fail("no NotSupportedException");
+		} catch (NotSupportedException e) {
 		} catch (Exception e) {
-			log.warn("unknown error", e);
-
-			String errorMessage = String.format(
-					"fail to get a output message::%s",
-					e.getMessage());
-
-			fail(errorMessage);
-		}
+			log.warn("expected NotSupportedException but unknown error", e);
+			fail("expected NotSupportedException but unknown error");
+		}	
 	}
 
 }

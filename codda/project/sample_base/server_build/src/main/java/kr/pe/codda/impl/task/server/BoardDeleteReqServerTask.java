@@ -216,10 +216,10 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			}			
 			
 			Record1<String> 
-			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
+			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID)
 			.from(SB_BOARD_HISTORY_TB)
 			.join(SB_MEMBER_TB)
-			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.MODIFIER_ID))
+			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.REGISTRANT_ID))
 			.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
 			.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0)))
@@ -236,7 +236,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String writerID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+			String writerID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
 			
 			if (! requestedUserID.equals(writerID)) {
 				try {

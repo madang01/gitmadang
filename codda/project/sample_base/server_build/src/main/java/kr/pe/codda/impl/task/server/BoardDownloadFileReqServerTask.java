@@ -161,7 +161,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 
 			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 
-				Record1<String> firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID)
+				Record1<String> firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID)
 						.from(SB_BOARD_HISTORY_TB).where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 						.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
 						.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0))).fetchOne();
@@ -177,7 +177,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 					throw new ServerServiceException(errorMessage);
 				}
 
-				String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+				String firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
 
 				if (!boardDownloadFileReq.getRequestedUserID().equals(firstWriterID)) {
 					try {

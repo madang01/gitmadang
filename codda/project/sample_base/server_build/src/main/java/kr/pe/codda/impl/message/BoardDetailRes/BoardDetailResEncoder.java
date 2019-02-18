@@ -116,9 +116,9 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "content"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "contents"
 			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, boardDetailRes.getContent() // itemValue
+			, boardDetailRes.getContents() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

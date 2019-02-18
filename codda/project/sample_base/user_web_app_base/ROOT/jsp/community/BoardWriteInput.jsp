@@ -63,9 +63,9 @@
 			return;
 		}
 
-		if ('' == f.content.value) {
+		if ('' == f.contents.value) {
 			alert("내용을 넣어 주세요.");
-			f.content.focus();
+			f.contents.focus();
 			return;
 		}
 		
@@ -91,7 +91,7 @@
 		
 		
 		g.subject.value = f.subject.value;
-		g.content.value = f.content.value;		
+		g.contents.value = f.contents.value;		
 		
 		
 		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
@@ -240,7 +240,7 @@
 				<input type="text" name="subject" id="subject" class="form-control" placeholder="Enter subject" />
 				<br>
 				<label for="content">내용</label>
-				<textarea name="content" id="content" class="form-control" placeholder="Enter content" rows="5"></textarea>
+				<textarea name="contents" id="contents" class="form-control" placeholder="Enter contents" rows="5"></textarea>
 				<br>
 				<div class="btn-group">
 					<input type="button" class="btn btn-default" onClick="save(); return;" value="저장" />
@@ -255,7 +255,7 @@
 			<div class="form-group">
 				<input type="hidden" name="boardID" value="<%= boardType.getBoardID() %>" />
 				<input type="hidden" name="subject" />
-				<input type="hidden" name="content" />
+				<input type="hidden" name="contents" />
 				<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 				<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />	
 				<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->

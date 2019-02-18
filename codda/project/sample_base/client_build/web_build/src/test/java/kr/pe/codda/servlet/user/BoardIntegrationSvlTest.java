@@ -1,5 +1,6 @@
 package kr.pe.codda.servlet.user;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,18 +12,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
@@ -31,18 +40,470 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
+import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.MockServletInputStream;
 import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.junit.Test;
-import org.mockito.ArgumentMatchers;
+import kr.pe.codda.weblib.exception.WebClientException;
+import nl.captcha.Captcha;
 
 public class BoardIntegrationSvlTest extends AbstractJunitTest {
 	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		AbstractJunitTest.setUpBeforeClass();
+		
+		class MembershipRequestMockBuilder {
+			public HttpServletRequest build(String userID, String pwd, String nickname, String pwdHint,
+					String pwdAnswer) {
+				Captcha captcha = new Captcha.Builder(200, 50).build();	
+				String captchaAnswer = captcha.getAnswer();
+				
+				String sessionKeyBase64 = null;
+				String ivBase64 = null;
+				String paramUserIDBase64 = null;
+				String paramPwdBase64 = null;
+				String paramNicknameBase64 = null;
+				String paramPwdHintBase64 = null;
+				String paramPwdAnswerBase64 = null;
+				String paramCaptchaAnswerBase64 = null;
+
+				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+
+				ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
+				ServerSessionkeyIF mainProjectServerSessionkey = null;
+				try {
+					mainProjectServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+				} catch (SymmetricException e2) {
+					fail("fail to get a intanace of ServerSessionkeyIF class");
+				}
+
+				ClientSessionKeyIF clientSessionKey = null;
+				try {
+					clientSessionKey = clientSessionKeyManager
+							.getNewClientSessionKey(mainProjectServerSessionkey.getDupPublicKeyBytes(), true);
+				} catch (SymmetricException e1) {
+					fail("fail to get a intanace of ClientSessionKeyIF class");
+				}
+
+				try {
+					sessionKeyBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes());
+					ivBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes());
+
+					if (null != userID) {
+						byte[] bytesOfUserID = userID.getBytes(CommonStaticFinalVars.CIPHER_CHARSET);
+						byte[] encryptedBytesOfUserID = clientSessionKey.getClientSymmetricKey().encrypt(bytesOfUserID);
+						paramUserIDBase64 = CommonStaticUtil.Base64Encoder.encodeToString(encryptedBytesOfUserID);
+					}
+
+					if (null != pwd) {
+						byte[] bytesOfPwd = pwd.getBytes(CommonStaticFinalVars.CIPHER_CHARSET);
+						byte[] encryptedBytesOfPwd = clientSessionKey.getClientSymmetricKey().encrypt(bytesOfPwd);
+						paramPwdBase64 = CommonStaticUtil.Base64Encoder.encodeToString(encryptedBytesOfPwd);
+					}
+
+					if (null != nickname) {
+						byte[] bytesOfNickname = nickname.getBytes(CommonStaticFinalVars.CIPHER_CHARSET);
+						byte[] encryptedBytesOfNickname = clientSessionKey.getClientSymmetricKey().encrypt(bytesOfNickname);
+						paramNicknameBase64 = CommonStaticUtil.Base64Encoder.encodeToString(encryptedBytesOfNickname);
+					}
+
+					if (null != pwdHint) {
+						byte[] bytesOfPwdHint = pwdHint.getBytes(CommonStaticFinalVars.CIPHER_CHARSET);
+						byte[] encryptedBytesOfPwdHint = clientSessionKey.getClientSymmetricKey().encrypt(bytesOfPwdHint);
+						paramPwdHintBase64 = CommonStaticUtil.Base64Encoder.encodeToString(encryptedBytesOfPwdHint);
+					}
+
+					if (null != pwdAnswer) {
+						byte[] bytesOfPwdAnswer = pwdAnswer.getBytes(CommonStaticFinalVars.CIPHER_CHARSET);
+						byte[] encryptedBytesOfPwdAnswer = clientSessionKey.getClientSymmetricKey().encrypt(bytesOfPwdAnswer);
+						paramPwdAnswerBase64 = CommonStaticUtil.Base64Encoder.encodeToString(encryptedBytesOfPwdAnswer);
+					}
+
+					if (null != captchaAnswer) {
+						byte[] bytesOfCaptchaAnswer = captchaAnswer.getBytes(CommonStaticFinalVars.CIPHER_CHARSET);
+						byte[] encryptedBytesOfCaptchaAnswer = clientSessionKey.getClientSymmetricKey().encrypt(bytesOfCaptchaAnswer);
+						paramCaptchaAnswerBase64 = CommonStaticUtil.Base64Encoder.encodeToString(encryptedBytesOfCaptchaAnswer);
+					}
+
+				} catch (Exception e) {
+					log.warn("파라미터 구성 실패", e);
+					fail("파라미터 구성 실패");
+				}
+				
+				HttpSession sessionMock = mock(HttpSession.class);
+				when(sessionMock.getAttribute(Captcha.NAME))
+						.thenReturn(captcha);
+
+				HttpServletRequest requestMock = mock(HttpServletRequest.class);
+				when(requestMock.getMethod()).thenReturn("POST");
+				when(requestMock.getSession()).thenReturn(sessionMock);
+				when(requestMock.getRequestURI()).thenReturn("/servlet/MembershipProcess");
+				when(requestMock.getRemoteHost()).thenReturn("");
+				when(requestMock.getRemoteAddr()).thenReturn("172.0.1.32");
+				when(requestMock.getRemoteUser()).thenReturn("");
+
+				/************* 파라미터 구성 시작 *************/
+				when(requestMock.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY))
+						.thenReturn(sessionKeyBase64);
+				when(requestMock.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV))
+						.thenReturn(ivBase64);
+				when(requestMock.getParameter("userID")).thenReturn(paramUserIDBase64);
+				when(requestMock.getParameter("pwd")).thenReturn(paramPwdBase64);
+				when(requestMock.getParameter("nickname")).thenReturn(paramNicknameBase64);
+				when(requestMock.getParameter("pwdHint")).thenReturn(paramPwdHintBase64);
+				when(requestMock.getParameter("pwdAnswer")).thenReturn(paramPwdAnswerBase64);
+				when(requestMock.getParameter("captchaAnswer")).thenReturn(paramCaptchaAnswerBase64);
+				/************* 파라미터 구성 종료 *************/
+
+				return requestMock;
+			}
+		}
+
+		HttpServletRequest requestMock = new MembershipRequestMockBuilder().build("test00", "test1234$", "별명00", "질문", "답변");
+		HttpServletResponse responseMock = mock(HttpServletResponse.class);
+
+		MembershipProcessSvl membershipProcessSvl = new MembershipProcessSvl();
+
+		try {
+			initServlet(membershipProcessSvl, "/servlet/UserSiteMembershipInput");
+		} catch (Exception e) {
+			log.warn("서블릿 초기화 실패", e);
+			fail("서블릿 초기화 실패");
+		}
+
+		MessageResultRes messageResultRes = null;
+		try {
+			messageResultRes = membershipProcessSvl.doWork(requestMock, responseMock);
+			
+			if (! messageResultRes.getIsSuccess()) {
+				assertEquals("중복 아이디 검사", "기존 회원과 중복되는 아이디[test00] 입니다", messageResultRes.getResultMessage());
+			}
+			
+		} catch (WebClientException e) {
+			log.warn("errmsg={}, debugmsg={}", e.getErrorMessage(), e.getDebugMessage());
+			fail("일반 회원 가입 서블릿 수행 실패");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("일반 회원 가입 서블릿 수행 실패");
+		}
+	}
+	
+	private static void initServlet(HttpServlet targetServlet, String menuGroupURL) throws Exception {
+		RequestDispatcher requestDispatcherMock = mock(RequestDispatcher.class);
+
+		ServletContext servletContextMock = mock(ServletContext.class);
+		when(servletContextMock.getRequestDispatcher(ArgumentMatchers.any(String.class)))
+				.thenReturn(requestDispatcherMock);
+
+		ServletConfig servletConfigMock = mock(ServletConfig.class);
+		when(servletConfigMock.getInitParameter(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL))
+				.thenReturn(menuGroupURL);
+		when(servletConfigMock.getServletContext()).thenReturn(servletContextMock);
+
+		targetServlet.init(servletConfigMock);
+	}
+	
+	private BoardWriteRes executeBoardWriteProcessSvl(String loginID, 
+			String paramBoardID, String paramSubject, String paramContents, List<File> attachedFileList) {
+		
+		class BoardWriteProcessRequestMockBuilder {
+			public HttpServletRequest build(String loginID, 
+					String paramBoardID, String paramSubject, String paramContents, List<File> attachedFileList) {
+				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager
+						.getInstance();
+				
+				ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
+				ServerSessionkeyIF mainProjectServerSessionkey = null;
+				try {
+					mainProjectServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+				} catch (SymmetricException e2) {
+					fail("fail to get a intanace of ServerSessionkeyIF class");
+				}
+				
+				ClientSessionKeyIF clientSessionKey = null;
+				try {
+					clientSessionKey = clientSessionKeyManager.getNewClientSessionKey(mainProjectServerSessionkey.getDupPublicKeyBytes(), true);
+				} catch (SymmetricException e1) {
+					fail("fail to get a intanace of ClientSessionKeyIF class");
+				}
+				
+				String sessionKeyBase64 = null;
+				String ivBase64 = null;	
+				try {
+					sessionKeyBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes());
+					ivBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes());
+				} catch (Exception e) {
+					log.warn("파라미터 구성 실패", e);
+					fail("파라미터 구성 실패");
+				}
+				
+				MultipartEntityBuilder writeBuilder = MultipartEntityBuilder.create();
+
+				writeBuilder.addTextBody(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY, 
+						sessionKeyBase64, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				writeBuilder.addTextBody(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV, 
+						ivBase64, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				writeBuilder.addTextBody("boardID", paramBoardID, 
+						ContentType.create("text/plain", "UTF-8"));				
+				
+				writeBuilder.addTextBody("subject", paramSubject, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				writeBuilder.addTextBody("contents", paramContents, 
+						ContentType.create("text/plain", "UTF-8"));	
+
+				for (File attachedFile : attachedFileList) {
+					byte[] contentsOfUploadFile = null;
+					try {
+						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(attachedFile, 10*1024*1024);
+					} catch (IOException e) {
+						fail("첨부 파일로 지정한 파일 읽기 실패");
+					}
+					
+					InputStream attachedFileInputStream = new ByteArrayInputStream(contentsOfUploadFile);
+					String mimeTypeOfUploadFile = null;
+					try {
+						mimeTypeOfUploadFile = URLConnection
+								.guessContentTypeFromStream(attachedFileInputStream);
+					} catch (IOException e) {
+						log.warn("입출력 에러가 발생하여 파일 유형 추출 실패, errmsg={}", e.getMessage());
+						fail("입출력 에러가 발생하여 파일 유형 추출 실패");
+					} finally {
+						try {
+							attachedFileInputStream.close();
+						} catch (IOException e) {
+						}
+					}
+					
+					if (null == mimeTypeOfUploadFile) {
+						fail("파일 유형을 알 수 없습니다");
+					}
+					
+					writeBuilder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), attachedFile.getName());
+				}		
+				
+				HttpEntity writeEntity = writeBuilder.build();
+
+		        ByteArrayOutputStream writeByteArrayOputStream = new ByteArrayOutputStream();
+		        try {
+					writeEntity.writeTo(writeByteArrayOputStream);
+				} catch (IOException e) {
+					log.warn("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패, errmsg={}", e.getMessage());
+					fail("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패");
+				}
+		        
+		        ByteArrayInputStream writeByteArrayInputStream = new ByteArrayInputStream(writeByteArrayOputStream.toByteArray());
+		        
+		        HttpSession sessionMock = mock(HttpSession.class);
+				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn(loginID);
+				
+				HttpServletRequest requestMock = mock(HttpServletRequest.class);
+				when(requestMock.getMethod()).thenReturn("POST");
+				when(requestMock.getContentType()).thenReturn(writeEntity.getContentType().getValue());
+		        when(requestMock.getContentLength()).thenReturn((int)writeEntity.getContentLength());
+		        try {
+					when(requestMock.getInputStream()).thenReturn(new MockServletInputStream(writeByteArrayInputStream));
+				} catch (IOException e) {
+					fail("dead code");
+				}
+				when(requestMock.getSession()).thenReturn(sessionMock);
+				when(requestMock.getRequestURI()).thenReturn("/servlet/BoardWriteProcess");
+				when(requestMock.getRemoteHost()).thenReturn("");
+				when(requestMock.getRemoteAddr()).thenReturn("172.0.1.32");
+				when(requestMock.getRemoteUser()).thenReturn("");
+
+				return requestMock;
+			}
+		}
+		
+		HttpServletRequest requestMock = new BoardWriteProcessRequestMockBuilder().build(loginID,
+				paramBoardID,
+				paramSubject, paramContents, attachedFileList);
+		HttpServletResponse responseMock = mock(HttpServletResponse.class);
+				
+				
+		BoardWriteProcessSvl boardWriteProcessSvl = new BoardWriteProcessSvl();
+		
+		try {
+			initServlet(boardWriteProcessSvl, "/servlet/BoardList");
+		} catch (Exception e) {
+			log.warn("서블릿 초기화 실패", e);
+			fail("서블릿 초기화 실패");
+		}
+		
+		BoardWriteRes boardWriteRes = null;
+		
+		try {
+			// boardWriteProcessSvl.service(requestMock, responseMock);			
+			boardWriteRes = boardWriteProcessSvl.doWork(requestMock, responseMock);
+			
+			// log.info(boardWriteRes.toString());
+		} catch (WebClientException e) {
+			log.warn("errmsg={}, debugmsg={}", e.getErrorMessage(), e.getDebugMessage());
+			fail("게시판 쓰기 서블릿 수행 실패");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("게시판 쓰기 서블릿 수행 실패");
+		}
+		
+		return boardWriteRes;
+	}
+	
+	
+	private BoardReplyRes execuateBoardReplyProcessSvl(String loginID, 
+			String paramBoardID, String paramParentBoardNo, String paramSubject, 
+			String paramContents, List<File> attachedFileList) {
+		
+		class BoardReplyProcessRequestMockBuilder {
+			public HttpServletRequest build(String loginID, 
+					String paramBoardID, String paramParentBoardNo, String paramSubject, 
+					String paramContents, List<File> attachedFileList) {
+				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager
+						.getInstance();
+				
+				ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
+				ServerSessionkeyIF mainProjectServerSessionkey = null;
+				try {
+					mainProjectServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+				} catch (SymmetricException e2) {
+					fail("fail to get a intanace of ServerSessionkeyIF class");
+				}
+				
+				ClientSessionKeyIF clientSessionKey = null;
+				try {
+					clientSessionKey = clientSessionKeyManager.getNewClientSessionKey(mainProjectServerSessionkey.getDupPublicKeyBytes(), true);
+				} catch (SymmetricException e1) {
+					fail("fail to get a intanace of ClientSessionKeyIF class");
+				}
+				
+				final String sessionKeyBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes());
+				final String ivBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes());
+				
+				MultipartEntityBuilder replyBuilder = MultipartEntityBuilder.create();
+
+				replyBuilder.addTextBody(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY, 
+						sessionKeyBase64, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				replyBuilder.addTextBody(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV, 
+						ivBase64, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				replyBuilder.addTextBody("boardID", paramBoardID, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				replyBuilder.addTextBody("parentBoardNo", paramParentBoardNo, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				replyBuilder.addTextBody("subject", paramSubject, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				replyBuilder.addTextBody("contents", paramContents, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				
+				for (File attachedFile : attachedFileList) {
+					byte[] contentsOfUploadFile = null;
+					try {
+						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(attachedFile, 10*1024*1024);
+					} catch (IOException e) {
+						fail("첨부 파일로 지정한 파일 읽기 실패");
+					}
+					
+					InputStream attachedFileInputStream = new ByteArrayInputStream(contentsOfUploadFile);
+					String mimeTypeOfUploadFile = null;
+					try {
+						mimeTypeOfUploadFile = URLConnection
+								.guessContentTypeFromStream(attachedFileInputStream);
+					} catch (IOException e) {
+						log.warn("입출력 에러가 발생하여 파일 유형 추출 실패, errmsg={}", e.getMessage());
+						fail("입출력 에러가 발생하여 파일 유형 추출 실패");
+					} finally {
+						try {
+							attachedFileInputStream.close();
+						} catch (IOException e) {
+						}
+					}
+					
+					if (null == mimeTypeOfUploadFile) {
+						fail("파일 유형을 알 수 없습니다");
+					}
+					
+					replyBuilder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), attachedFile.getName());
+				}
+				
+				
+				HttpEntity replyEntity = replyBuilder.build();
+				
+				ByteArrayOutputStream replyByteArrayOputStream = new ByteArrayOutputStream();
+		        try {
+		        	replyEntity.writeTo(replyByteArrayOputStream);
+				} catch (IOException e) {
+					log.warn("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패, errmsg={}", e.getMessage());
+					fail("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패");
+				}
+		        
+		        ByteArrayInputStream replyByteArrayInputStream = new ByteArrayInputStream(replyByteArrayOputStream.toByteArray());
+		        
+		        HttpSession sessionMock = mock(HttpSession.class);
+				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn(loginID);
+				
+		        HttpServletRequest requestMock = mock(HttpServletRequest.class);
+				when(requestMock.getMethod()).thenReturn("POST");
+				when(requestMock.getContentType()).thenReturn(replyEntity.getContentType().getValue());
+		        when(requestMock.getContentLength()).thenReturn((int)replyEntity.getContentLength());
+		        try {
+					when(requestMock.getInputStream()).thenReturn(new MockServletInputStream(replyByteArrayInputStream));
+				} catch (IOException e) {
+					fail("dead code");
+				}
+				when(requestMock.getSession()).thenReturn(sessionMock);
+				when(requestMock.getRequestURI()).thenReturn("/servlet/BoardReplyProcess");
+				when(requestMock.getRemoteHost()).thenReturn("");
+				when(requestMock.getRemoteAddr()).thenReturn("172.0.1.32");
+				when(requestMock.getRemoteUser()).thenReturn("");
+
+				return requestMock;
+			}
+		}
+		
+		HttpServletRequest requestMock = new BoardReplyProcessRequestMockBuilder().build(loginID,
+				paramBoardID,
+				paramParentBoardNo,
+				paramSubject, paramContents, attachedFileList);
+		HttpServletResponse responseMock = mock(HttpServletResponse.class);
+				
+		BoardReplyProcessSvl boardReplyProcessSvl = new BoardReplyProcessSvl();
+		
+		try {
+			initServlet(boardReplyProcessSvl, "/servlet/BoardList");
+		} catch (Exception e) {
+			log.warn("서블릿 초기화 실패", e);
+			fail("서블릿 초기화 실패");
+		}
+		
+		BoardReplyRes boardReplyRes = null;
+		
+		try {
+			boardReplyRes = boardReplyProcessSvl.doWork(requestMock, responseMock);
+			
+			// log.info(boardReplyRes.toString());
+		} catch (WebClientException e) {
+			log.warn("errmsg={}, debugmsg={}", e.getErrorMessage(), e.getDebugMessage());
+			fail("게시판 댓글 서블릿 수행 실패");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("게시판 댓글 서블릿 수행 실패");
+		}
+		
+		return boardReplyRes;
+	}
+
 	@Test
 	public void 게시글본문쓰기_정상() {
 		List<File> attachedFileList = new ArrayList<File>();
@@ -72,264 +533,12 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 			attachedFileList.add(writeUploadFile);
 		}		
 		
-		BoardWriteRes boardWriteRes = buildBoardWriteRes(attachedFileList);
+		BoardWriteRes boardWriteRes = executeBoardWriteProcessSvl("test00", 
+				String.valueOf(BoardType.FREE.getBoardID()), 
+				"본문제목::01", "본문내용::01", attachedFileList);
 		log.info(boardWriteRes.toString());
 	}
-	
-	private BoardWriteRes buildBoardWriteRes(List<File> attachedFileList) {
-		ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager
-				.getInstance();
-		
-		ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
-		ServerSessionkeyIF mainProjectServerSessionkey = null;
-		try {
-			mainProjectServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
-		} catch (SymmetricException e2) {
-			fail("fail to get a intanace of ServerSessionkeyIF class");
-		}
-		
-		ClientSessionKeyIF clientSessionKey = null;
-		try {
-			clientSessionKey = clientSessionKeyManager.getNewClientSessionKey(mainProjectServerSessionkey.getDupPublicKeyBytes(), true);
-		} catch (SymmetricException e1) {
-			fail("fail to get a intanace of ClientSessionKeyIF class");
-		}
-		
-		final String sessionKeyBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes());
-		final String ivBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes());
-		final String subject = "테스트주제1_그림";
-		final String content = "테스트내용1_한글사랑";
 
-		HashMap<String, String> writeParameterHash = new HashMap<String, String>();
-		writeParameterHash.put(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY, sessionKeyBase64);
-		writeParameterHash.put(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV, ivBase64);
-		writeParameterHash.put("boardID", String.valueOf(BoardType.FREE.getBoardID()));
-		writeParameterHash.put("subject", subject);
-		writeParameterHash.put("content", content);
-		
-		MultipartEntityBuilder writeBuilder = MultipartEntityBuilder.create();
-		for (String key : writeParameterHash.keySet()) {
-			writeBuilder.addTextBody(key, writeParameterHash.get(key), 
-					ContentType.create("text/plain", "UTF-8"));
-		}		
-
-		for (File attachedFile : attachedFileList) {
-			byte[] contentsOfUploadFile = null;
-			try {
-				contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(attachedFile, 10*1024*1024);
-			} catch (IOException e) {
-				fail("첨부 파일로 지정한 파일 읽기 실패");
-			}
-			
-			InputStream attachedFileInputStream = new ByteArrayInputStream(contentsOfUploadFile);
-			String mimeTypeOfUploadFile = null;
-			try {
-				mimeTypeOfUploadFile = URLConnection
-						.guessContentTypeFromStream(attachedFileInputStream);
-			} catch (IOException e) {
-				log.warn("입출력 에러가 발생하여 파일 유형 추출 실패, errmsg={}", e.getMessage());
-				fail("입출력 에러가 발생하여 파일 유형 추출 실패");
-			} finally {
-				try {
-					attachedFileInputStream.close();
-				} catch (IOException e) {
-				}
-			}
-			
-			if (null == mimeTypeOfUploadFile) {
-				fail("파일 유형을 알 수 없습니다");
-			}
-			
-			writeBuilder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), attachedFile.getName());
-		}		
-		
-		HttpEntity writeEntity = writeBuilder.build();
-
-        ByteArrayOutputStream writeByteArrayOputStream = new ByteArrayOutputStream();
-        try {
-			writeEntity.writeTo(writeByteArrayOputStream);
-		} catch (IOException e) {
-			log.warn("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패, errmsg={}", e.getMessage());
-			fail("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패");
-		}
-        
-        ByteArrayInputStream writeByteArrayInputStream = new ByteArrayInputStream(writeByteArrayOputStream.toByteArray());
-        
-        HttpSession sessionMock = mock(HttpSession.class);
-		when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn("test00");
-		
-		HttpServletRequest writeRequestMock = mock(HttpServletRequest.class);
-		when(writeRequestMock.getMethod()).thenReturn("POST");
-		when(writeRequestMock.getContentType()).thenReturn(writeEntity.getContentType().getValue());
-        when(writeRequestMock.getContentLength()).thenReturn((int)writeEntity.getContentLength());
-        try {
-			when(writeRequestMock.getInputStream()).thenReturn(new MockServletInputStream(writeByteArrayInputStream));
-		} catch (IOException e) {
-			fail("dead code");
-		}
-		when(writeRequestMock.getSession()).thenReturn(sessionMock);
-		when(writeRequestMock.getRequestURI()).thenReturn("/servlet/BoardWriteProcess");
-		when(writeRequestMock.getRemoteHost()).thenReturn("");
-		when(writeRequestMock.getRemoteAddr()).thenReturn("172.0.1.32");
-		when(writeRequestMock.getRemoteUser()).thenReturn("");
-		
-		HttpServletResponse responseMock = mock(HttpServletResponse.class);
-		
-		RequestDispatcher requestDispatcherMock = mock(RequestDispatcher.class);		
-		
-		ServletContext servletContextMock = mock(ServletContext.class);
-		when(servletContextMock.getRequestDispatcher(ArgumentMatchers.any(String.class)))
-		.thenReturn(requestDispatcherMock);		
-		
-		ServletConfig servletConfigMock = mock(ServletConfig.class);
-		when(servletConfigMock.getInitParameter(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL))
-		.thenReturn("/servlet/BoardList");		
-		when(servletConfigMock.getServletContext()).thenReturn(servletContextMock);
-				
-		BoardWriteProcessSvl boardWriteProcessSvl = new BoardWriteProcessSvl();
-		BoardWriteRes boardWriteRes = null;
-		
-		try {
-			boardWriteProcessSvl.init(servletConfigMock);
-			
-			boardWriteProcessSvl.service(writeRequestMock, responseMock);			
-			// boardWriteRes = boardWriteProcessSvl.doWork(writeRequestMock, responseMock);
-			
-			// log.info(boardWriteRes.toString());
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("게시판 쓰기 서블릿 수행 실패");
-		}
-		
-		return boardWriteRes;
-	}
-	
-	
-	private BoardReplyRes buildBoardReplyRes(long parentBoardNo, List<File >attachedFileList) {
-		ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager
-				.getInstance();
-		
-		ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
-		ServerSessionkeyIF mainProjectServerSessionkey = null;
-		try {
-			mainProjectServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
-		} catch (SymmetricException e2) {
-			fail("fail to get a intanace of ServerSessionkeyIF class");
-		}
-		
-		ClientSessionKeyIF clientSessionKey = null;
-		try {
-			clientSessionKey = clientSessionKeyManager.getNewClientSessionKey(mainProjectServerSessionkey.getDupPublicKeyBytes(), true);
-		} catch (SymmetricException e1) {
-			fail("fail to get a intanace of ClientSessionKeyIF class");
-		}
-		
-		final String sessionKeyBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes());
-		final String ivBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes());
-		
-		HashMap<String, String> replyParameterHash = new HashMap<String, String>();
-		replyParameterHash.put(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY, sessionKeyBase64);
-		replyParameterHash.put(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV, ivBase64);
-		replyParameterHash.put("boardID", String.valueOf(BoardType.FREE.getBoardID()));
-		replyParameterHash.put("subject", "댓글 주제01");
-		replyParameterHash.put("content", "댓글 내용01");
-		replyParameterHash.put("parentBoardNo", String.valueOf(parentBoardNo));
-		
-		MultipartEntityBuilder replyBuilder = MultipartEntityBuilder.create();
-		for (String key : replyParameterHash.keySet()) {
-			replyBuilder.addTextBody(key, replyParameterHash.get(key), 
-					ContentType.create("text/plain", "UTF-8"));
-		}
-		
-		for (File attachedFile : attachedFileList) {
-			byte[] contentsOfUploadFile = null;
-			try {
-				contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(attachedFile, 10*1024*1024);
-			} catch (IOException e) {
-				fail("첨부 파일로 지정한 파일 읽기 실패");
-			}
-			
-			InputStream attachedFileInputStream = new ByteArrayInputStream(contentsOfUploadFile);
-			String mimeTypeOfUploadFile = null;
-			try {
-				mimeTypeOfUploadFile = URLConnection
-						.guessContentTypeFromStream(attachedFileInputStream);
-			} catch (IOException e) {
-				log.warn("입출력 에러가 발생하여 파일 유형 추출 실패, errmsg={}", e.getMessage());
-				fail("입출력 에러가 발생하여 파일 유형 추출 실패");
-			} finally {
-				try {
-					attachedFileInputStream.close();
-				} catch (IOException e) {
-				}
-			}
-			
-			if (null == mimeTypeOfUploadFile) {
-				fail("파일 유형을 알 수 없습니다");
-			}
-			
-			replyBuilder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), attachedFile.getName());
-		}
-		
-		
-		HttpEntity replyEntity = replyBuilder.build();
-		
-		ByteArrayOutputStream replyByteArrayOputStream = new ByteArrayOutputStream();
-        try {
-        	replyEntity.writeTo(replyByteArrayOputStream);
-		} catch (IOException e) {
-			log.warn("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패, errmsg={}", e.getMessage());
-			fail("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패");
-		}
-        
-        ByteArrayInputStream replyByteArrayInputStream = new ByteArrayInputStream(replyByteArrayOputStream.toByteArray());
-        
-        HttpSession sessionMock = mock(HttpSession.class);
-		when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn("test00");
-		
-        HttpServletRequest replyRequestMock = mock(HttpServletRequest.class);
-		when(replyRequestMock.getMethod()).thenReturn("POST");
-		when(replyRequestMock.getContentType()).thenReturn(replyEntity.getContentType().getValue());
-        when(replyRequestMock.getContentLength()).thenReturn((int)replyEntity.getContentLength());
-        try {
-			when(replyRequestMock.getInputStream()).thenReturn(new MockServletInputStream(replyByteArrayInputStream));
-		} catch (IOException e) {
-			fail("dead code");
-		}
-		when(replyRequestMock.getSession()).thenReturn(sessionMock);
-		when(replyRequestMock.getRequestURI()).thenReturn("/servlet/BoardWriteProcess");
-		when(replyRequestMock.getRemoteHost()).thenReturn("");
-		when(replyRequestMock.getRemoteAddr()).thenReturn("172.0.1.32");
-		when(replyRequestMock.getRemoteUser()).thenReturn("");
-		
-		HttpServletResponse responseMock = mock(HttpServletResponse.class);
-		
-		RequestDispatcher requestDispatcherMock = mock(RequestDispatcher.class);		
-		
-		ServletContext servletContextMock = mock(ServletContext.class);
-		when(servletContextMock.getRequestDispatcher(ArgumentMatchers.any(String.class)))
-		.thenReturn(requestDispatcherMock);		
-		
-		ServletConfig servletConfigMock = mock(ServletConfig.class);
-		when(servletConfigMock.getInitParameter(WebCommonStaticFinalVars.SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL))
-		.thenReturn("/servlet/BoardList");		
-		when(servletConfigMock.getServletContext()).thenReturn(servletContextMock);
-		
-		BoardReplyProcessSvl boardReplyProcessSvl = new BoardReplyProcessSvl();
-		BoardReplyRes boardReplyRes = null;
-		
-		try {	
-			boardReplyProcessSvl.init(servletConfigMock);
-			boardReplyRes = boardReplyProcessSvl.doWork(replyRequestMock, responseMock);
-			
-			// log.info(boardReplyRes.toString());
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("게시판 댓글 서블릿 수행 실패");
-		}
-		
-		return boardReplyRes;
-	}
 	@Test
 	public void 게시글댓글_정상() {
 		List<File> attachedFileList = new ArrayList<File>();
@@ -354,7 +563,9 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		
 		attachedFileList.add(writeUploadFile);
 		
-		BoardWriteRes boardWriteRes = buildBoardWriteRes(attachedFileList);
+		BoardWriteRes boardWriteRes = executeBoardWriteProcessSvl("test00", 
+				String.valueOf(BoardType.FREE.getBoardID()), 
+				"본문제목::02", "본문내용::02", attachedFileList);
 		
 		attachedFileList.clear();
 		
@@ -378,8 +589,10 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		
 		attachedFileList.add(replyUploadFile);		
 		
-		BoardReplyRes boardReplyRes = buildBoardReplyRes(
-				boardWriteRes.getBoardNo(), attachedFileList);
+		BoardReplyRes boardReplyRes = execuateBoardReplyProcessSvl("test00",
+				String.valueOf(BoardType.FREE.getBoardID()),
+				String.valueOf(boardWriteRes.getBoardNo()), 
+				"댓글제목::02-01", "본문내용::02-01", attachedFileList);
 		
 		log.info(boardReplyRes.toString());		
 	}

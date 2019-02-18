@@ -36,7 +36,7 @@ public class BoardDetailRes extends AbstractMessage {
 	private String nickname;
 	private int votes;
 	private String subject;
-	private String content;
+	private String contents;
 	private String writerID;
 	private String writerIP;
 	private java.sql.Timestamp registeredDate;
@@ -168,12 +168,12 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
-	public String getContent() {
-		return content;
+	public String getContents() {
+		return contents;
 	}
 
-	public void setContent(String content) {
-		this.content = content;
+	public void setContents(String contents) {
+		this.contents = contents;
 	}
 	public String getWriterID() {
 		return writerID;
@@ -272,8 +272,8 @@ public class BoardDetailRes extends AbstractMessage {
 		builder.append(votes);
 		builder.append(", subject=");
 		builder.append(subject);
-		builder.append(", content=");
-		builder.append(content);
+		builder.append(", contents=");
+		builder.append(contents);
 		builder.append(", writerID=");
 		builder.append(writerID);
 		builder.append(", writerIP=");

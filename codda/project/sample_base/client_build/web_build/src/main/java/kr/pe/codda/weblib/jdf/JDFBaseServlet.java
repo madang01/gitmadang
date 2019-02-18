@@ -66,9 +66,9 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	public JDFBaseServlet() {
 		super();
 		
-		CoddaConfigurationManager sinnoriConfigurationManager = CoddaConfigurationManager.getInstance();		
+		CoddaConfigurationManager configurationManager = CoddaConfigurationManager.getInstance();		
 		
-		CommonPartConfiguration commonPart = sinnoriConfigurationManager
+		CommonPartConfiguration commonPart = configurationManager
 					.getRunningProjectConfiguration()
 					.getCommonPartConfiguration();
 		

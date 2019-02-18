@@ -206,13 +206,13 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			}	
 			
 			Record4<String, String, Timestamp, String> 
-			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.MODIFIER_ID, 
+			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID, 
 					SB_BOARD_HISTORY_TB.IP, 
 					SB_BOARD_HISTORY_TB.REG_DT,
 					SB_MEMBER_TB.NICKNAME)
 			.from(SB_BOARD_HISTORY_TB)
 			.join(SB_MEMBER_TB)
-			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.MODIFIER_ID))
+			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.REGISTRANT_ID))
 			.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
 			.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0)))
@@ -229,7 +229,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+			firstWriterID = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
 			firstWriterIP = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.IP);
 			firstRegisteredDate = firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
 			firstWriterNickname = firstWriterBoardRecord.getValue(SB_MEMBER_TB.NICKNAME);			
@@ -262,14 +262,14 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			}			
 				
 			Record6<String, String, String, String, Timestamp, String> lastlModifiedBoardHistoryRecord = create.select(SB_BOARD_HISTORY_TB.SUBJECT, 
-					SB_BOARD_HISTORY_TB.CONTENT,
-					SB_BOARD_HISTORY_TB.MODIFIER_ID,
+					SB_BOARD_HISTORY_TB.CONTENTS,
+					SB_BOARD_HISTORY_TB.REGISTRANT_ID,
 					SB_MEMBER_TB.NICKNAME,
 					SB_BOARD_HISTORY_TB.REG_DT,					
 					SB_BOARD_HISTORY_TB.IP)
 			.from(SB_BOARD_HISTORY_TB)
 			.join(SB_MEMBER_TB)
-			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.MODIFIER_ID))
+			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.REGISTRANT_ID))
 			.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
 			.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max())
@@ -278,8 +278,8 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo)))).fetchOne();	
 			
 			lastlModifiedSubject = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT);
-			lastModifiedContent = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.CONTENT);
-			lastModifierID =  lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.MODIFIER_ID);
+			lastModifiedContent = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.CONTENTS);
+			lastModifierID =  lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
 			lastModifierNickName = lastlModifiedBoardHistoryRecord.getValue(SB_MEMBER_TB.NICKNAME);
 			lastModifierIP = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.IP);
 			lastModifedDate = lastlModifiedBoardHistoryRecord.getValue(SB_BOARD_HISTORY_TB.REG_DT);
@@ -354,7 +354,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 		boardDetailRes.setRegisteredDate(firstRegisteredDate);
 		boardDetailRes.setNickname(firstWriterNickname);			
 		boardDetailRes.setSubject(lastlModifiedSubject);
-		boardDetailRes.setContent(lastModifiedContent);
+		boardDetailRes.setContents(lastModifiedContent);
 		
 		boardDetailRes.setLastModifierID(lastModifierID);
 		boardDetailRes.setLastModifierNickName(lastModifierNickName);

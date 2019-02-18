@@ -187,11 +187,6 @@ public class UserLoginProcessSvl extends AbstractServlet {
 		byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
 				.decode(paramPwdCipherBase64));
 
-		// String userId = new String(userIDBytes,
-		// CommonStaticFinalVars.CIPHER_CHARSET);
-		// String password = new String(passwordBytes,
-		// CommonStaticFinalVars.SINNORI_CIPHER_CHARSET);
-
 		// log.info("id=[{}], password=[{}]", userId, password);
 
 		// FIXME!

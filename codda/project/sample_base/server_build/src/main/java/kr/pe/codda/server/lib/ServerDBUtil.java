@@ -57,7 +57,7 @@ public abstract class ServerDBUtil {
 		    .withRenderMapping(new RenderMapping()
 		    .withSchemata(
 		        new MappedSchema().withInput(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME.toLowerCase())
-		                          .withOutput(ServerCommonStaticFinalVars.STREE_TEST_DBCP_NAME.toLowerCase())));
+		                          .withOutput(ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME.toLowerCase())));
 	
 
 	public static void initializeDBEnvoroment(String dbcpName) throws Exception {
@@ -384,7 +384,7 @@ public abstract class ServerDBUtil {
 	public static Settings getDBCPSettings(String dbcpName) {
 		if (dbcpName.equals(ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME)) {
 			return GENERAL_TEST_DBCP_SETTINGS;
-		} else if (dbcpName.equals(ServerCommonStaticFinalVars.STREE_TEST_DBCP_NAME)) {
+		} else if (dbcpName.equals(ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME)) {
 			return LOAD_TEST_DBCP_SETTINGS;
 		}
 		

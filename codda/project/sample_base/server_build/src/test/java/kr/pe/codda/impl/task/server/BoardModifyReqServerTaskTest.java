@@ -92,7 +92,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("수정 테스트를 위한 최상위 본문글");
-		boardWriteReq.setContent("내용::수정 테스트를 위한 최상위 본문글");		
+		boardWriteReq.setContents("내용::수정 테스트를 위한 최상위 본문글");		
 		boardWriteReq.setRequestedUserID("test01");
 		boardWriteReq.setIp("172.16.0.3");
 		
@@ -130,7 +130,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("수정 테스트를 위한 최상위 본문글#1");
-		boardModifyReq.setContent("내용::수정 테스트를 위한 최상위 본문글#1");	
+		boardModifyReq.setContents("내용::수정 테스트를 위한 최상위 본문글#1");	
 		boardModifyReq.setRequestedUserID(boardWriteReq.getRequestedUserID());
 		boardModifyReq.setIp("172.16.0.4");
 		
@@ -188,7 +188,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(TEST_DBCP_NAME, boardDetailReq);
 			
 			assertEquals(boardModifyReq.getSubject(), boardDetailRes.getSubject());
-			assertEquals(boardModifyReq.getContent(), boardDetailRes.getContent());
+			assertEquals(boardModifyReq.getContents(), boardDetailRes.getContents());
 			assertEquals(boardWriteReq.getRequestedUserID(), boardDetailRes.getWriterID());
 			assertEquals(boardModifyReq.getIp(), boardDetailRes.getLastModifierIP());			
 			
@@ -208,7 +208,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
 		boardWriteReq.setSubject("테스트를 위한 최상위 본문글");
-		boardWriteReq.setContent("테스트를 위한 최상위 본문글");		
+		boardWriteReq.setContents("테스트를 위한 최상위 본문글");		
 		boardWriteReq.setRequestedUserID("test01");
 		boardWriteReq.setIp("172.16.0.5");
 		
@@ -250,7 +250,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardReplyReq.setBoardID(boardWriteRes.getBoardID());
 		boardReplyReq.setParentBoardNo(boardWriteRes.getBoardNo());
 		boardReplyReq.setSubject("테스트 주제05-1");
-		boardReplyReq.setContent("내용::그림5-1하나를 그리다");		
+		boardReplyReq.setContents("내용::그림5-1하나를 그리다");		
 		boardReplyReq.setRequestedUserID("test02");
 		boardReplyReq.setIp("172.16.0.6");		
 		
@@ -299,7 +299,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardModifyReq.setBoardID(boardReplyReq.getBoardID());
 		boardModifyReq.setBoardNo(boardReplyRes.getBoardNo());
 		boardModifyReq.setSubject("테스트 주제05-1#1");
-		boardModifyReq.setContent("내용::그림5-1하나를 그리다#1");	
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");	
 		boardModifyReq.setRequestedUserID(boardReplyReq.getRequestedUserID());
 		boardModifyReq.setIp("172.16.0.7");
 		
@@ -358,7 +358,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(TEST_DBCP_NAME, boardDetailReq);
 			
 			assertEquals(boardModifyReq.getSubject(), boardDetailRes.getSubject());
-			assertEquals(boardModifyReq.getContent(), boardDetailRes.getContent());
+			assertEquals(boardModifyReq.getContents(), boardDetailRes.getContents());
 			assertEquals(boardReplyReq.getRequestedUserID(), boardDetailRes.getWriterID());
 			assertEquals(boardModifyReq.getIp(), boardDetailRes.getLastModifierIP());			
 			

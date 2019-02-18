@@ -28,7 +28,7 @@
 <singleitem name="nickname" type="ub pascal string" />
 <singleitem name="votes" type="integer" />
 <singleitem name="subject" type="us pascal string" />
-<singleitem name="content" type="si pascal string" />
+<singleitem name="contents" type="si pascal string" />
 <singleitem name="writerID" type="ub pascal string" />
 <singleitem name="writerIP" type="ub pascal string" />
 <singleitem name="registeredDate" type="java sql timestamp" />

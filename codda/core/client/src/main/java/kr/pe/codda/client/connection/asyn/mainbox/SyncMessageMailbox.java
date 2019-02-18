@@ -38,7 +38,7 @@ public final class SyncMessageMailbox {
 	private long socketTimeOut;
 
 	private int mailboxID;
-	private int mailID = Integer.MIN_VALUE;
+	private transient int mailID = Integer.MIN_VALUE;
 	private ReadableMiddleObjectWrapper outputMessageReadableMiddleObjectWrapper = null;
 
 	public SyncMessageMailbox(ConnectionIF conn, int mailboxID, long socketTimeOut) {
@@ -73,15 +73,16 @@ public final class SyncMessageMailbox {
 	 * private int getMailboxID() { return mailboxID; }
 	 */
 
-	public void nextMailID() {
-		synchronized (monitor) {
+	private void increaseMailID() {
+		// FIXME!
+		// log.info("call , mailID={}", mailID);
+		//synchronized (monitor) {
 			if (Integer.MAX_VALUE == mailID) {
 				mailID = Integer.MIN_VALUE;
 			} else {
 				mailID++;
 			}
-			outputMessageReadableMiddleObjectWrapper = null;
-		}
+		//}
 	}
 
 	public int getMailboxID() {
@@ -124,23 +125,33 @@ public final class SyncMessageMailbox {
 	}
 
 	public ReadableMiddleObjectWrapper getSyncOutputMessage() throws IOException, InterruptedException {
+		ReadableMiddleObjectWrapper returnObject = null;
 		synchronized (monitor) {
 			if (null == outputMessageReadableMiddleObjectWrapper) {
-				monitor.wait(socketTimeOut);
+				monitor.wait(socketTimeOut);				
 				if (null == outputMessageReadableMiddleObjectWrapper) {
-					if (!conn.isConnected()) {
+					
+					if (! conn.isConnected()) {
 						log.warn(
 								"this connection[{}] disconnected so the input message's mail[mailboxID={}, mailID={}] lost",
 								conn.hashCode(), mailboxID, mailID);
+						log.info("연결 끊어져서 mailID 증가, mailID={}", mailID);
+						increaseMailID();
 						throw new IOException("the connection has been disconnected");
 					}
 					
 					log.warn("this connection[{}] timeout occurred so the request mail[mailboxID={}, mailID={}] lost",
-							conn.hashCode(), mailboxID, mailID);					
+							conn.hashCode(), mailboxID, mailID);
+					
+					log.info("소켓 타임아웃으로 인한 mailID 증가, mailID={}", mailID);
+					increaseMailID();					
 					throw new SocketTimeoutException("socket timeout occurred");
-				}
+				}				
 			}
-			return outputMessageReadableMiddleObjectWrapper;
+			returnObject = outputMessageReadableMiddleObjectWrapper;			
+			increaseMailID();
+			outputMessageReadableMiddleObjectWrapper = null;
+			return returnObject;
 		}
 	}
 

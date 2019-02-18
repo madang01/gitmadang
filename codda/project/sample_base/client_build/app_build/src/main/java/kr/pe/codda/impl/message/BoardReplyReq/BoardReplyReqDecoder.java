@@ -67,9 +67,9 @@ public final class BoardReplyReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardReplyReq.setContent((String)
+		boardReplyReq.setContents((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "content" // itemName
+			, "contents" // itemName
 			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

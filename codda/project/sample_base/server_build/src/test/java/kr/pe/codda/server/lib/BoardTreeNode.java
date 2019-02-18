@@ -12,7 +12,7 @@ public class BoardTreeNode {
 	private short depth;
 	private String writerID;
 	private String subject;
-	private String content;
+	private String contents;
 	
 	private List<BoardTreeNode> childBoardTreeNodeList = new ArrayList<BoardTreeNode>();
 	
@@ -71,11 +71,11 @@ public class BoardTreeNode {
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
-	public String getContent() {
-		return content;
+	public String getContents() {
+		return contents;
 	}
-	public void setContent(String content) {
-		this.content = content;
+	public void setContents(String contents) {
+		this.contents = contents;
 	}
 	public String getWriterID() {
 		return writerID;
@@ -139,7 +139,7 @@ public class BoardTreeNode {
 		builder.append(", subject=");
 		builder.append(subject);
 		builder.append(", content=");
-		builder.append(content);
+		builder.append(contents);
 		builder.append(", childBoardTreeNodeList=");
 		builder.append(childBoardTreeNodeList);
 		builder.append("]");

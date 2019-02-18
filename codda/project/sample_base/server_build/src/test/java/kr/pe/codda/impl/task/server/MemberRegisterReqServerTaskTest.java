@@ -4,6 +4,9 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -16,12 +19,18 @@ import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
-
-import org.junit.Test;
+import kr.pe.codda.server.lib.ServerDBUtil;
 
 public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {	
-	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
-	// private final Base64.Decoder base64Decoder =  Base64.getDecoder();
+	// final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME;
+	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
+	
+	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		AbstractJunitTest.setUpBeforeClass();
+		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);
+	}
 	
 	@Test
 	public void testDoService_ok() {		
@@ -30,10 +39,9 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 		String nickname = "단위테스터용아이디";
 		String pwdHint = "힌트 그것이 알고싶다";
 		String pwdAnswer = "말이여 방구여";
-		
+		String ip = "127.0.0.1";
 		
 		ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
-		// serverSessionkeyManager.getMainProjectServerSessionkey().getDupPublicKeyBytes();
 		
 		ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
 		ClientSessionKeyIF clientSessionKey = null;
@@ -89,6 +97,7 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 		memberRegisterReq.setNicknameCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(nicknameCipherTextBytes));
 		memberRegisterReq.setHintCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(pwdHintCipherTextBytes));
 		memberRegisterReq.setAnswerCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(pwdAnswerCipherTextBytes));
+		memberRegisterReq.setIp(ip);
 		memberRegisterReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes()));
 		memberRegisterReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes()));
 	

@@ -59,9 +59,9 @@ public final class BoardWriteReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardWriteReq.setContent((String)
+		boardWriteReq.setContents((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "content" // itemName
+			, "contents" // itemName
 			, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

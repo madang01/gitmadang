@@ -41,7 +41,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbUserActionHistoryTb extends TableImpl<SbUserActionHistoryTbRecord> {
 
-    private static final long serialVersionUID = 1612107334;
+    private static final long serialVersionUID = 5381172;
 
     /**
      * The reference instance of <code>sb_db.sb_user_action_history_tb</code>
@@ -74,12 +74,12 @@ public class SbUserActionHistoryTb extends TableImpl<SbUserActionHistoryTbRecord
     /**
      * The column <code>sb_db.sb_user_action_history_tb.input_message</code>. 입력 메시지 내용
      */
-    public final TableField<SbUserActionHistoryTbRecord, String> INPUT_MESSAGE = createField("input_message", org.jooq.impl.SQLDataType.CLOB.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.CLOB)), this, "입력 메시지 내용");
+    public final TableField<SbUserActionHistoryTbRecord, String> INPUT_MESSAGE = createField("input_message", org.jooq.impl.SQLDataType.CLOB, this, "입력 메시지 내용");
 
     /**
      * The column <code>sb_db.sb_user_action_history_tb.reg_dt</code>.
      */
-    public final TableField<SbUserActionHistoryTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP.defaultValue(org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<SbUserActionHistoryTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
      * Create a <code>sb_db.sb_user_action_history_tb</code> table reference

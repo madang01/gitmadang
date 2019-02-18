@@ -125,9 +125,9 @@
 			return;
 		}		
 		
-		if (f.answer.value == '') {
+		if (f.captchaAnswer.value == '') {
 			alert("Captcha 답변을 넣어주세요.");
-			f.answer.focus();
+			f.captchaAnswer.focus();
 			return;
 		}					
 		
@@ -159,7 +159,7 @@
 		g.pwdHint.value = symmetricKeyObj.encrypt(f.pwdHint.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.pwdAnswer.value = symmetricKeyObj.encrypt(f.pwdAnswer.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 	
-		g.answer.value = symmetricKeyObj.encrypt(f.answer.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+		g.captchaAnswer.value = symmetricKeyObj.encrypt(f.captchaAnswer.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		
 		g.submit();
 		
@@ -220,7 +220,7 @@
 	<input type="hidden" name="nickname" />
 	<input type="hidden" name="pwdHint" />
 	<input type="hidden" name="pwdAnswer" />
-	<input type="hidden" name="answer" />
+	<input type="hidden" name="captchaAnswer" />
 </form>
 	<div class="container-fluid">
 		<h3>일반 회원 가입</h3>
@@ -260,7 +260,7 @@
 			</div>			
 			<div class="form-group">
 				<label for="answer">Captcha 답변</label>
-				<input type="text" id="answer" class="form-control" name="answer" maxlength="20" />
+				<input type="text" id="captchaAnswer" class="form-control" name="captchaAnswer" maxlength="20" />
 			</div>
 			<button type="submit" class="btn btn-default">가입</button>
 		</form>

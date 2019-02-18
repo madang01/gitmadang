@@ -67,9 +67,9 @@ public final class BoardReplyReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "content"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "contents"
 			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, boardReplyReq.getContent() // itemValue
+			, boardReplyReq.getContents() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

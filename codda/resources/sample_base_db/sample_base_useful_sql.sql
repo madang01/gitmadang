@@ -1,49 +1,39 @@
-select max(group_sq) from sb_board_tb
-where board_id = 1
-and parent_no = 1
-and group_sq < 2;
+select * from SB_SEQ_TB;
+
+select * from sb_member_tb;
+
+select * from sb_board_tb where board_id = 1;
+
+select * from sb_board_history_tb where board_id = 1;
+
+select * from sb_board_filelist_tb where board_id = 1;
+
+select * from sb_board_info_tb where board_id = 1;
+
+select count(*) from sb_board_tb where board_id = 1;
 
 
-select a.board_id, a.board_no, 
-a.group_no, a.group_sq, a.parent_no, a.depth, 
-a.board_st,
-b.subject, b.modifier_id, b.ip, b.reg_dt 
-from sb_board_tb a, sb_board_history_tb b
-where a.board_id=b.board_id and a.board_no=b.board_no
+
+select a.board_id, a.board_no, a.group_no, a.group_sq, a.parent_no, a.depth, a.view_cnt, a.board_st, a.next_attached_file_sq
+	from sb_board_tb as a 
+	inner join (select a.board_id, a.group_no, a.group_sq from sb_board_tb as a force INDEX (sb_board_idx1) where a.board_id = 1 and a.board_st = 'Y' order by board_id desc, group_no desc, group_sq desc limit 0, 20) as b
+	on a.board_id = b.board_id and a.group_no = b.group_no and a.group_sq = b.group_sq;
+
+
+select a.board_id, a.board_no, a.group_no, a.group_sq, a.parent_no, a.depth, a.view_cnt, a.board_st, a.next_attached_file_sq,
+b.subject, b.registrant_id as last_modifier_id, b.ip as last_modifier_ip, b.reg_dt as last_mod_dt,
+c.registrant_id as first_writer_id, c.ip as first_writer_ip, c.reg_dt as first_reg_dt
+from (select a.board_id, a.board_no, a.group_no, a.group_sq, a.parent_no, a.depth, a.view_cnt, a.board_st, a.next_attached_file_sq
+	from sb_board_tb as a 
+	inner join (select a.board_id, a.group_no, a.group_sq from sb_board_tb as a force INDEX (sb_board_idx1) where a.board_id = 1 and a.board_st = 'Y' order by board_id desc, group_no desc, group_sq desc limit 0, 20) as b
+	on a.board_id = b.board_id and a.group_no = b.group_no and a.group_sq = b.group_sq
+	) as a
+inner join sb_board_history_tb as b
+on a.board_id = b.board_id and a.board_no = b.board_no
+and b.history_sq = (select max(sb_board_history_tb.history_sq) 
+	from sb_board_history_tb where a.board_id = sb_board_history_tb.board_id
+    and a.board_no = sb_board_history_tb.board_no)
+inner join sb_board_history_tb as c
+on a.board_id = c.board_id and a.board_no = c.board_no
+and c.history_sq = 0
 order by a.group_no desc, a.group_sq desc;
-
-SELECT b.*
-FROM (
-	SELECT board_id, group_no, group_sq
-FROM SB_BOARD_TB 
-FORCE INDEX (sb_board_idx1)
-where board_id = 1 and board_st = 'Y'
-and group_no >= 0 and group_sq >= 0
-ORDER BY GROUP_NO desc, GROUP_SQ desc
-LIMIT 0, 20) a 
-inner join SB_BOARD_TB b 
-	on a.board_id = b.board_id
-	and a.group_no = b.group_no
-	and a.group_sq = b.group_sq
-order by b.group_no desc, b.group_sq desc
-;
-
-
-SELECT b.*
-FROM (
-	SELECT board_id, board_no
-FROM SB_BOARD_TB 
-FORCE INDEX (primary)
-WHERE BOARD_ID = 1 
-and board_no >= 0
-AND board_no=group_no
-and BOARD_ST = 'Y'
-ORDER BY board_no desc
-LIMIT 0, 20) a 
-inner join SB_BOARD_TB b 
-on a.board_id = b.board_id
-and a.board_no = b.board_no
-order by b.board_no desc
-;
-
-
