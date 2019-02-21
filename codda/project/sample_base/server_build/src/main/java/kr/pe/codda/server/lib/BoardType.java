@@ -1,18 +1,20 @@
 package kr.pe.codda.server.lib;
 
 public enum BoardType {
-	NOTICE((short)0, "공지"), FREE((short)1, "자유"), FAQ((short)2, "FAQ");
+	NOTICE(SequenceType.NOTICE_BOARD, "공지"), 
+	FREE(SequenceType.FREE_BOARD, "자유"), 
+	ISSUE(SequenceType.ISSUE_BOARD, "이슈");
 	
-	private short boardID;
+	private SequenceType sequenceType;
 	private String boardTypeName;
 	
-	private BoardType(short boardID, String boardTypeName) {
-		this.boardID = boardID;
+	private BoardType(SequenceType sequenceType, String boardTypeName) {
+		this.sequenceType = sequenceType;
 		this.boardTypeName = boardTypeName;
 	}
 	
 	public short getBoardID() {
-		return boardID;
+		return sequenceType.getSequenceID();
 	}
 	
 	public String getName() {
@@ -30,17 +32,23 @@ public enum BoardType {
 		throw new IllegalArgumentException("the parameter boardTypeValue["+boardTypeValue+"] is a element of BoardType set");
 	}
 	
-	public SequenceType toSequenceType() {
-		SequenceType boardSequenceType = null;
-		
-		if (BoardType.NOTICE.equals(this)) {
-			boardSequenceType = SequenceType.NOTICE_BOARD;
-		} else if (BoardType.FAQ.equals(this)) {
-			boardSequenceType = SequenceType.FAQ_BOARD;
-		} else {
-			boardSequenceType = SequenceType.FREE_BOARD;
+	public static String getSetString() {
+		StringBuilder setStringBuilder = new StringBuilder();
+		boolean isFirst = true;
+		for (BoardType boardType : BoardType.values()) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				setStringBuilder.append(", ");
+			}
+			setStringBuilder.append(boardType.getBoardID());
+			setStringBuilder.append(":");
+			setStringBuilder.append(boardType.getName());
 		}
-		
-		return boardSequenceType;
+		return setStringBuilder.toString();
+	}
+	
+	public SequenceType toSequenceType() {
+		return sequenceType;
 	}
 }

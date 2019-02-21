@@ -38,6 +38,7 @@ import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.util.CommonStaticUtil;
+import kr.pe.codda.impl.message.BoardModifyRes.BoardModifyRes;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -204,7 +205,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		targetServlet.init(servletConfigMock);
 	}
 	
-	private BoardWriteRes executeBoardWriteProcessSvl(String loginID, 
+	private BoardWriteRes executeBoardWriteProcessServlet(String loginID, 
 			String paramBoardID, String paramSubject, String paramContents, List<File> attachedFileList) {
 		
 		class BoardWriteProcessRequestMockBuilder {
@@ -355,7 +356,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 	}
 	
 	
-	private BoardReplyRes execuateBoardReplyProcessSvl(String loginID, 
+	private BoardReplyRes execuateBoardReplyProcessServlet(String loginID, 
 			String paramBoardID, String paramParentBoardNo, String paramSubject, 
 			String paramContents, List<File> attachedFileList) {
 		
@@ -504,6 +505,174 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		return boardReplyRes;
 	}
 
+	
+	
+	private BoardModifyRes executeBoardModifyProcessServlet(String loginID, 
+			String paramBoardID, String paramBoardNo, String paramSubject, String paramContents, 
+			String paramNextAttachedFileSeq,
+			List<Short> oldAttachedFileSeqList, List<File> newAttachedFileList) {
+		
+		class BoardModifyProcessRequestMockBuilder {
+			public HttpServletRequest build(String loginID, 
+					String paramBoardID, String paramBoardNo, String paramSubject, String paramContents, 
+					String paramNextAttachedFileSeq,
+					List<Short> oldAttachedFileSeqList, List<File> newAttachedFileList) {
+				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager
+						.getInstance();
+				
+				ClientSessionKeyManager clientSessionKeyManager = ClientSessionKeyManager.getInstance();
+				ServerSessionkeyIF mainProjectServerSessionkey = null;
+				try {
+					mainProjectServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+				} catch (SymmetricException e2) {
+					fail("fail to get a intanace of ServerSessionkeyIF class");
+				}
+				
+				ClientSessionKeyIF clientSessionKey = null;
+				try {
+					clientSessionKey = clientSessionKeyManager.getNewClientSessionKey(mainProjectServerSessionkey.getDupPublicKeyBytes(), true);
+				} catch (SymmetricException e1) {
+					fail("fail to get a intanace of ClientSessionKeyIF class");
+				}
+				
+				String sessionKeyBase64 = null;
+				String ivBase64 = null;	
+				try {
+					sessionKeyBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes());
+					ivBase64 = CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes());
+				} catch (Exception e) {
+					log.warn("파라미터 구성 실패", e);
+					fail("파라미터 구성 실패");
+				}
+				
+				MultipartEntityBuilder writeBuilder = MultipartEntityBuilder.create();
+
+				writeBuilder.addTextBody(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY, 
+						sessionKeyBase64, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				writeBuilder.addTextBody(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV, 
+						ivBase64, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				writeBuilder.addTextBody("boardID", paramBoardID, 
+						ContentType.create("text/plain", "UTF-8"));		
+				
+				writeBuilder.addTextBody("boardNo", paramBoardNo, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				writeBuilder.addTextBody("subject", paramSubject, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				writeBuilder.addTextBody("contents", paramContents, 
+						ContentType.create("text/plain", "UTF-8"));
+				
+				writeBuilder.addTextBody("nextAttachedFileSeq", paramNextAttachedFileSeq, 
+						ContentType.create("text/plain", "UTF-8"));				
+
+				for (short oldAttachedFileSeq : oldAttachedFileSeqList) {
+					writeBuilder.addTextBody("oldAttachedFileSeq", String.valueOf(oldAttachedFileSeq), 
+							ContentType.create("text/plain", "UTF-8"));
+				}
+
+				for (File newAttachedFile : newAttachedFileList) {
+					byte[] contentsOfUploadFile = null;
+					try {
+						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(newAttachedFile, 10*1024*1024);
+					} catch (IOException e) {
+						fail("첨부 파일로 지정한 파일 읽기 실패");
+					}
+					
+					InputStream attachedFileInputStream = new ByteArrayInputStream(contentsOfUploadFile);
+					String mimeTypeOfUploadFile = null;
+					try {
+						mimeTypeOfUploadFile = URLConnection
+								.guessContentTypeFromStream(attachedFileInputStream);
+					} catch (IOException e) {
+						log.warn("입출력 에러가 발생하여 파일 유형 추출 실패, errmsg={}", e.getMessage());
+						fail("입출력 에러가 발생하여 파일 유형 추출 실패");
+					} finally {
+						try {
+							attachedFileInputStream.close();
+						} catch (IOException e) {
+						}
+					}
+					
+					if (null == mimeTypeOfUploadFile) {
+						fail("파일 유형을 알 수 없습니다");
+					}
+					
+					writeBuilder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), newAttachedFile.getName());
+				}		
+				
+				HttpEntity writeEntity = writeBuilder.build();
+
+		        ByteArrayOutputStream writeByteArrayOputStream = new ByteArrayOutputStream();
+		        try {
+					writeEntity.writeTo(writeByteArrayOputStream);
+				} catch (IOException e) {
+					log.warn("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패, errmsg={}", e.getMessage());
+					fail("입출력 에러로 HttpEntity 의 내용을 출력 스트림에 쓰기  실패");
+				}
+		        
+		        ByteArrayInputStream writeByteArrayInputStream = new ByteArrayInputStream(writeByteArrayOputStream.toByteArray());
+		        
+		        HttpSession sessionMock = mock(HttpSession.class);
+				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn(loginID);
+				
+				HttpServletRequest requestMock = mock(HttpServletRequest.class);
+				when(requestMock.getMethod()).thenReturn("POST");
+				when(requestMock.getContentType()).thenReturn(writeEntity.getContentType().getValue());
+		        when(requestMock.getContentLength()).thenReturn((int)writeEntity.getContentLength());
+		        try {
+					when(requestMock.getInputStream()).thenReturn(new MockServletInputStream(writeByteArrayInputStream));
+				} catch (IOException e) {
+					fail("dead code");
+				}
+				when(requestMock.getSession()).thenReturn(sessionMock);
+				when(requestMock.getRequestURI()).thenReturn("/servlet/BoardWriteProcess");
+				when(requestMock.getRemoteHost()).thenReturn("");
+				when(requestMock.getRemoteAddr()).thenReturn("172.0.1.32");
+				when(requestMock.getRemoteUser()).thenReturn("");
+
+				return requestMock;
+			}
+		}
+		
+		HttpServletRequest requestMock = new BoardModifyProcessRequestMockBuilder().build(loginID,
+				paramBoardID, paramBoardNo,
+				paramSubject, paramContents, paramNextAttachedFileSeq, oldAttachedFileSeqList, newAttachedFileList);
+		HttpServletResponse responseMock = mock(HttpServletResponse.class);
+				
+				
+		BoardModifyProcessSvl boardModifyProcessSvl = new BoardModifyProcessSvl();
+		
+		try {
+			initServlet(boardModifyProcessSvl, "/servlet/BoardList");
+		} catch (Exception e) {
+			log.warn("서블릿 초기화 실패", e);
+			fail("서블릿 초기화 실패");
+		}
+		
+		BoardModifyRes boardModifyRes = null;
+		
+		try {
+			// boardWriteProcessSvl.service(requestMock, responseMock);			
+			boardModifyRes = boardModifyProcessSvl.doWork(requestMock, responseMock);
+			
+			// log.info(boardWriteRes.toString());
+		} catch (WebClientException e) {
+			log.warn("errmsg={}, debugmsg={}", e.getErrorMessage(), e.getDebugMessage());
+			fail("게시판 수정 서블릿 수행 실패");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("게시판 수정 서블릿 수행 실패");
+		}
+		
+		return boardModifyRes;
+	}
+	
+	
 	@Test
 	public void 게시글본문쓰기_정상() {
 		List<File> attachedFileList = new ArrayList<File>();
@@ -533,7 +702,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 			attachedFileList.add(writeUploadFile);
 		}		
 		
-		BoardWriteRes boardWriteRes = executeBoardWriteProcessSvl("test00", 
+		BoardWriteRes boardWriteRes = executeBoardWriteProcessServlet("test00", 
 				String.valueOf(BoardType.FREE.getBoardID()), 
 				"본문제목::01", "본문내용::01", attachedFileList);
 		log.info(boardWriteRes.toString());
@@ -563,7 +732,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		
 		attachedFileList.add(writeUploadFile);
 		
-		BoardWriteRes boardWriteRes = executeBoardWriteProcessSvl("test00", 
+		BoardWriteRes boardWriteRes = executeBoardWriteProcessServlet("test00", 
 				String.valueOf(BoardType.FREE.getBoardID()), 
 				"본문제목::02", "본문내용::02", attachedFileList);
 		
@@ -589,11 +758,81 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		
 		attachedFileList.add(replyUploadFile);		
 		
-		BoardReplyRes boardReplyRes = execuateBoardReplyProcessSvl("test00",
+		BoardReplyRes boardReplyRes = execuateBoardReplyProcessServlet("test00",
 				String.valueOf(BoardType.FREE.getBoardID()),
 				String.valueOf(boardWriteRes.getBoardNo()), 
 				"댓글제목::02-01", "본문내용::02-01", attachedFileList);
 		
 		log.info(boardReplyRes.toString());		
+	}
+	
+	@Test
+	public void 게시글수정_정상() {
+		List<File> attachedFileList = new ArrayList<File>();
+		
+		String[] attachedFileShortNames = {"sinnori_server_framework01.png", 
+				"sinnori_server_framework02.png"};
+		
+		for (String attachedFileShortName : attachedFileShortNames) {
+			String writeUploadFilePathString = new StringBuilder()
+			.append(WebRootBuildSystemPathSupporter.getUserWebRootPathString(installedPath.getAbsolutePath(), mainProjectName))
+			.append(File.separator)
+			.append("images")
+			.append(File.separator).append(attachedFileShortName).toString();
+			
+			File writeUploadFile = new File(writeUploadFilePathString);
+			
+			if (! writeUploadFile.exists()) {
+				log.warn("업로드할 대상 파일[{}]이 존재하지 않습니다", writeUploadFilePathString);
+				fail("업로드할 대상 파일이 존재하지 않습니다");
+			}
+			
+			if (! writeUploadFile.isFile()) {
+				log.warn("업로드할 대상 파일[{}]이 일반 파일이 아닙니다", writeUploadFilePathString);
+				fail("업로드할 대상 파일이 존재하지 않습니다");
+			}
+			
+			attachedFileList.add(writeUploadFile);
+		}		
+		
+		BoardWriteRes boardWriteRes = executeBoardWriteProcessServlet("test00", 
+				String.valueOf(BoardType.FREE.getBoardID()), 
+				"본문제목::03", "본문내용::03", attachedFileList);
+		
+		List<File> newAttachedFileList = new ArrayList<File>();
+		String[] newAttachedFileShortNames = {"sinnori_web_network_diagram.png"};
+		
+		for (String newAttachedFileShortName : newAttachedFileShortNames) {
+			String writeUploadFilePathString = new StringBuilder()
+			.append(WebRootBuildSystemPathSupporter.getUserWebRootPathString(installedPath.getAbsolutePath(), mainProjectName))
+			.append(File.separator)
+			.append("images")
+			.append(File.separator).append(newAttachedFileShortName).toString();
+			
+			File writeUploadFile = new File(writeUploadFilePathString);
+			
+			if (! writeUploadFile.exists()) {
+				log.warn("업로드할 대상 파일[{}]이 존재하지 않습니다", writeUploadFilePathString);
+				fail("업로드할 대상 파일이 존재하지 않습니다");
+			}
+			
+			if (! writeUploadFile.isFile()) {
+				log.warn("업로드할 대상 파일[{}]이 일반 파일이 아닙니다", writeUploadFilePathString);
+				fail("업로드할 대상 파일이 존재하지 않습니다");
+			}
+			
+			newAttachedFileList.add(writeUploadFile);
+		}	
+		
+		List<Short> oldAttachedFileSeqList = new ArrayList<Short>();
+		oldAttachedFileSeqList.add((short)1);		
+		
+		BoardModifyRes boardModifyRes = executeBoardModifyProcessServlet("test00", String.valueOf(BoardType.FREE.getBoardID()),
+				String.valueOf(boardWriteRes.getBoardNo()),
+				"본문제목::수정03", "본문내용::수정03", String.valueOf(attachedFileList.size()), 
+				oldAttachedFileSeqList, newAttachedFileList);
+		
+		log.info(boardModifyRes.toString());
+		
 	}
 }

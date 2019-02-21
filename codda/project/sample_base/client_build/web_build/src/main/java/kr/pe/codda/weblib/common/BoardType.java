@@ -1,7 +1,9 @@
 package kr.pe.codda.weblib.common;
 
 public enum BoardType {
-	NOTICE((short)0, "공지"), FREE((short)1, "자유"), FAQ((short)2, "FAQ");
+	NOTICE((short)1, "공지"), 
+	FREE((short)2, "자유"), 
+	ISSUE((short)3, "이슈");
 	
 	private short boardID;
 	private String boardTypeName;
@@ -45,4 +47,5 @@ public enum BoardType {
 		}
 		return setStringBuilder.toString();
 	}
+	
 }

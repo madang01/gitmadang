@@ -10,6 +10,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
+
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
 import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
@@ -30,10 +35,6 @@ import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.common.WebCommonStaticUtil;
 import kr.pe.codda.weblib.exception.WebClientException;
 import kr.pe.codda.weblib.jdf.AbstractMultipartServlet;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 /**
  * 
@@ -168,7 +169,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 					paramBoardNo = formFieldValue;
 				} else if (formFieldName.equals("subject")) {
 					paramSubject = formFieldValue;
-				} else if (formFieldName.equals("content")) {
+				} else if (formFieldName.equals("contents")) {
 					paramContents = formFieldValue;
 				} else if (formFieldName.equals("nextAttachedFileSeq")) {
 					paramNextAttachedFileSeq = formFieldValue;
@@ -610,56 +611,44 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 
 			File delectedAttachedFile = new File(delectedAttachedFilePathString);
 
-			String tempPathString = WebRootBuildSystemPathSupporter
+			String destFilePathString = new StringBuilder().append(WebRootBuildSystemPathSupporter
 					.getUserWebTempPathString(installedPathString,
-							mainProjectName);
-
-			File tempPath = new File(tempPathString);
-
-			String targetFilePathString = new StringBuilder(tempPathString)
+							mainProjectName))
 					.append(File.separator)
 					.append(shortFileNameOfDelectedAttachedFile).toString();
 
-			File targetFile = new File(targetFilePathString);
+			File destFile = new File(destFilePathString);
+			
 
-			if (!delectedAttachedFile.exists()) {
+			if (! delectedAttachedFile.exists()) {
 				log.warn("게시글의 삭제된 첨부 파일[{}] 이 존재하지 않습니다",
 						delectedAttachedFilePathString);
 				continue;
 			}
 
-			boolean result = false;
-
-			if (targetFile.exists()) {
-				result = targetFile.delete();
+			if (destFile.exists()) {
+				boolean result = destFile.delete();
 
 				if (result) {
 					log.warn(
 							"게시글의 삭제된 첨부 파일[{}] 이 이동할 임시 경로[{}]에 존재하여 임시 경로에 있는 파일 삭제하였습니다",
-							delectedAttachedFilePathString, tempPathString);
+							delectedAttachedFilePathString, destFilePathString);
 				} else {
 					log.warn(
 							"게시글의 삭제된 첨부 파일[{}] 이 이동할 임시 경로[{}]에 존재하여 임시 경로에 있는 파일 삭제 시도했지만 실패하였습니다",
-							delectedAttachedFilePathString, tempPathString);
+							delectedAttachedFilePathString, destFilePathString);
 
 					continue;
 				}
 			}
 
 			try {
-				result = delectedAttachedFile.renameTo(tempPath);
+				FileUtils.moveFile(delectedAttachedFile, destFile);
 			} catch (Exception e) {
 				log.warn(
 						"에러가 발생하여 게시글의 삭제된 첨부 파일[{}] 임시 디렉토리[{}]로 이동하는데 실패하였습니다, errmsg={}",
-						delectedAttachedFilePathString, tempPathString,
+						delectedAttachedFilePathString, destFilePathString,
 						e.getMessage());
-				continue;
-			}
-
-			if (!result) {
-				log.warn(
-						"알 수 없는 이유로 게시글의 삭제된 첨부 파일[{}] 임시 디렉토리[{}]로 이동하는데 실패하였습니다",
-						delectedAttachedFilePathString, tempPathString);
 				continue;
 			}
 		}

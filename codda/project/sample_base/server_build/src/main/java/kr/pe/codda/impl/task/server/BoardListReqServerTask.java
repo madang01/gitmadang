@@ -188,13 +188,15 @@ public class BoardListReqServerTask extends AbstractServerTask {
 									.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID))
 									.asField(SB_MEMBER_TB.NICKNAME.getName()),
 							c.REG_DT.as("first_reg_date"))
-					.from(mainTable).innerJoin(b).on(b.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
-					.and(b.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
-					.and(b.HISTORY_SQ.eq(create.select(b.HISTORY_SQ.max()).from(b)
+					.from(mainTable)
+					.innerJoin(c).on(c.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
+						.and(c.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
+						.and(c.HISTORY_SQ.eq(UByte.valueOf(0)))
+					.innerJoin(b).on(b.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
+						.and(b.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
+						.and(b.HISTORY_SQ.eq(create.select(b.HISTORY_SQ.max()).from(b)
 							.where(b.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
 							.and(b.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))))
-					.innerJoin(c).on(c.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
-					.and(c.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO))).and(c.HISTORY_SQ.eq(UByte.valueOf(0)))
 					.orderBy(mainTable.field(SB_BOARD_TB.GROUP_NO).desc(), mainTable.field(SB_BOARD_TB.GROUP_SQ).desc())
 					.fetch();
 

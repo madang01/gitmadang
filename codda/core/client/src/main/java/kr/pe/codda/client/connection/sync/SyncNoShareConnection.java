@@ -153,23 +153,28 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 					dataPacketBufferPool.putDataPacketBuffer(inputMessageWrapBuffer);
 				}
 
-				String errorMessage = new StringBuilder().append("fail to write a sequence of bytes to this channel[")
-						.append(clientSC.hashCode()).append("] because io error occured, errmsg=")
+				String errorMessage = new StringBuilder().append("the io error occurred while writing a input message[")
+						.append(inputMessage.toString())
+						.append("] to the socket[")
+						.append(clientSC.hashCode()).append("], errmsg=")
 						.append(e.getMessage()).toString();
-				log.warn(errorMessage, e);
 				close();
+				throw new IOException(errorMessage);
 			} catch (Exception e) {
 				dataPacketBufferPool.putDataPacketBuffer(inputMessageWrapBuffer);
 				while (!inputMessageWrapBufferQueue.isEmpty()) {
 					inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
 					dataPacketBufferPool.putDataPacketBuffer(inputMessageWrapBuffer);
 				}
-
-				String errorMessage = new StringBuilder().append("fail to write a sequence of bytes to this channel[")
-						.append(clientSC.hashCode()).append("] because unknown error occured, errmsg=")
+				
+				String errorMessage = new StringBuilder().append("the unknown error occurred while writing a input message[")
+						.append(inputMessage.toString())
+						.append("] to the socket[")
+						.append(clientSC.hashCode()).append("], errmsg=")
 						.append(e.getMessage()).toString();
 				log.warn(errorMessage, e);
 				close();
+				throw new IOException(errorMessage);
 			}
 		}
 
@@ -200,16 +205,14 @@ public final class SyncNoShareConnection implements SyncConnectionIF {
 			String errorMessage = new StringBuilder()
 					.append("the no more data packet buffer error occurred while reading the socket[")
 					.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
 			close();
 
-			throw e;
+			throw new NoMoreDataPacketBufferException(errorMessage);
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder().append("the io error occurred while reading the socket[")
-					.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
+					.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();			
 			close();
-			throw e;
+			throw new IOException(errorMessage);
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder().append("the unknown error occurred while reading the socket[")
 					.append(clientSC.hashCode()).append("], errmsg=").append(e.getMessage()).toString();
