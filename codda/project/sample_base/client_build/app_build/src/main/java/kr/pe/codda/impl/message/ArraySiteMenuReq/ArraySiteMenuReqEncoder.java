@@ -35,5 +35,17 @@ public final class ArraySiteMenuReqEncoder extends AbstractMessageEncoder {
 
 
 	private void encodeBody(ArraySiteMenuReq arraySiteMenuReq, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("ArraySiteMenuReq");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, arraySiteMenuReq.getRequestedUserID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

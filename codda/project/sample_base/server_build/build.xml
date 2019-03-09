@@ -35,6 +35,7 @@
 	</union>
 
 	<union id="core.common.jarlibs">
+		<fileset file="${dir.core.common.build}/lib/main/ex/gson-2.8.5.jar" />
 	</union>
 
 	<union id="core.server.jarlibs">

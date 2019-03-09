@@ -18,7 +18,6 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
 import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
-import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -80,10 +79,11 @@ public class BoardListReqServerTaskTest extends AbstractJunitTest {
 	public void testDoService_ok() {		
 		int pageNo = 1;
 		int pageSize = 20;
+		final short boardID = 3;
 		
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("guest");
-		boardListReq.setBoardID(BoardType.FREE.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 		

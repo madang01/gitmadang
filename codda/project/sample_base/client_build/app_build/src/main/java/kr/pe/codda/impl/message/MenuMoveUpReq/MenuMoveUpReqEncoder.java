@@ -39,6 +39,13 @@ public final class MenuMoveUpReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("MenuMoveUpReq");
 
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, menuMoveUpReq.getRequestedUserID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "menuNo"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 			, menuMoveUpReq.getMenuNo() // itemValue

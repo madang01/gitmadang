@@ -1,10 +1,6 @@
 package kr.pe.codda.weblib.sitemenu;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -13,16 +9,19 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
-import kr.pe.codda.common.config.CoddaConfiguration;
-import kr.pe.codda.common.config.CoddaConfigurationManager;
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.util.CommonStaticUtil;
+import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 
 /**
  * 사용자 사이트 메뉴 파트 문자열 파일에 대한 모니터 클래스
@@ -82,23 +81,15 @@ public class WebsiteMenuInfoFileWatcher extends Thread {
     		return;
     	}
     	
-    	FileInputStream fis = null;
-    	byte[] buffer = new byte[(int)workingFile.length()];
+    	
+    	byte[] buffer = null;
     	try {
-    		fis = new FileInputStream(workingFile);
-    		fis.read(buffer);
+    		buffer = CommonStaticUtil.readFileToByteArray(workingFile, 10*1024*1024L);
     		
     		log.info("'일반 사용자 웹사이트 메뉴 정보 파일' 읽기 완료");
     	} catch(Exception e) {
     		log.warn("'일반 사용자 웹사이트 메뉴 정보 파일' 읽기 실패", e);
     		return;
-    	} finally {
-    		if (null != fis) {
-    			try {
-    				fis.close();
-    			} catch(Exception e1) {
-    			}
-    		}
     	}
     	
     	String treeSiteMenuResJsonString = new String(buffer, CommonStaticFinalVars.SOURCE_FILE_CHARSET);

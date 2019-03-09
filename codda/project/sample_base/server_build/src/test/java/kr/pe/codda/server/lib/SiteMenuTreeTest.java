@@ -9,6 +9,15 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UInteger;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -17,16 +26,6 @@ import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.task.server.ArraySiteMenuReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class SiteMenuTreeTest extends AbstractJunitTest {
 	
@@ -137,7 +136,7 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 			
 			create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, UInteger.valueOf(1))
-			.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(SequenceType.MENU.getSequenceID())))
+			.where(SB_SEQ_TB.SQ_ID.eq(SequenceType.MENU.getSequenceID()))
 			.execute();			
 						
 			create.delete(SB_SITEMENU_TB).execute();			
@@ -355,7 +354,7 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 		
 		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
 		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
-		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
+		siteMenuTree.toDBRecord(TEST_DBCP_NAME);
 		
 		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
 		try {
@@ -634,7 +633,7 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 		
 		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
 		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
-		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
+		siteMenuTree.toDBRecord(TEST_DBCP_NAME);
 		
 		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
 		try {

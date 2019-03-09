@@ -39,6 +39,13 @@ public final class RootMenuAddReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("RootMenuAddReq");
 
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, rootMenuAddReq.getRequestedUserID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "menuName"
 			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, rootMenuAddReq.getMenuName() // itemValue

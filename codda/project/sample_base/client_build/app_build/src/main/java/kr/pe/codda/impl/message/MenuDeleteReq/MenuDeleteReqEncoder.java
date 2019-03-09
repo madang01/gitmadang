@@ -39,6 +39,13 @@ public final class MenuDeleteReqEncoder extends AbstractMessageEncoder {
 		pathStack.push("MenuDeleteReq");
 
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "requestedUserID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, menuDeleteReq.getRequestedUserID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "menuNo"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 			, menuDeleteReq.getMenuNo() // itemValue

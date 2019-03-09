@@ -491,7 +491,7 @@ public abstract class CommonStaticUtil {
 		return isValid;
 	}
 
-	public static byte[] readFileToByteArray(File sourceFile, int maxSize)
+	public static byte[] readFileToByteArray(File sourceFile, long maxSize)
 			throws IOException {
 		if (null == sourceFile) {
 			throw new IllegalArgumentException(

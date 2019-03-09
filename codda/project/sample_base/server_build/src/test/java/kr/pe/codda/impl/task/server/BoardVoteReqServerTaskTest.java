@@ -9,7 +9,6 @@ import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class BoardVoteReqServerTaskTest extends AbstractJunitTest {	
@@ -18,9 +17,10 @@ public class BoardVoteReqServerTaskTest extends AbstractJunitTest {
 		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
 		ToLetterCarrier toLetterCarrierMock = Mockito.mock(ToLetterCarrier.class);
 		
+		final short boardID = 3;
 		
 		BoardVoteReq inObj = new BoardVoteReq();
-		inObj.setBoardID(BoardType.FREE.getBoardID());
+		inObj.setBoardID(boardID);
 		inObj.setBoardNo(7);
 		inObj.setRequestedUserID("test02");
 		inObj.setIp("127.0.0.1");		

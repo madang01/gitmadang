@@ -35,6 +35,14 @@ public final class ChildMenuAddReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("ChildMenuAddReq");
 
+		childMenuAddReq.setRequestedUserID((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "requestedUserID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		childMenuAddReq.setParentNo((Long)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "parentNo" // itemName

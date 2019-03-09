@@ -18,6 +18,7 @@
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 목록 응답 메시지</desc>
 <singleitem name="boardID" type="unsigned byte" />
+<singleitem name="boardListType" type="byte" />
 <singleitem name="pageNo" type="unsigned short" />
 <singleitem name="pageSize" type="unsigned short" />
 <singleitem name="total" type="unsigned integer" />
@@ -29,10 +30,10 @@
 	<singleitem name="parentNo" type="unsigned integer" />	
 	<singleitem name="depth" type="unsigned byte" />
 	<singleitem name="writerID" type="ub pascal string" />
+	<singleitem name="writerNickname" type="ub pascal string" />
 	<singleitem name="viewCount" type="integer" />
 	<singleitem name="boardSate" type="ub pascal string" />
-	<singleitem name="registeredDate" type="java sql timestamp" />
-	<singleitem name="nickname" type="ub pascal string" />
+	<singleitem name="registeredDate" type="java sql timestamp" />	
 	<singleitem name="votes" type="integer" />
 	<singleitem name="subject" type="ub pascal string" />	
 	<singleitem name="lastModifiedDate" type="java sql timestamp" />	

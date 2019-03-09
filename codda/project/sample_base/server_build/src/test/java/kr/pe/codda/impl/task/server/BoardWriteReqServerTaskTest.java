@@ -14,7 +14,6 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
-import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -43,7 +42,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 					.append("] 입니다").toString();
 			String actualErrorMessag = e.getMessage();
 			
-			log.warn(actualErrorMessag, e);
+			// log.warn(actualErrorMessag, e);
 			
 			assertEquals(expectedErrorMessage, actualErrorMessag);
 		} catch (Exception e) {
@@ -53,9 +52,11 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testDoService_ok() {		
+	public void testDoService_ok() {
+		final short boardID = 3;
+		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContents("내용::그림2 하나를 그리다");		
 		boardWriteReq.setRequestedUserID("test01");
@@ -93,6 +94,8 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoService_자유게시판1천만레코드생성() {
+		final short boardID = 3;
+		
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
 		try {
 			boardWriteReqServerTask = new BoardWriteReqServerTask();
@@ -101,7 +104,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContents("내용::그림2 하나를 그리다");		
 		boardWriteReq.setRequestedUserID("test01");
@@ -111,6 +114,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		{
 			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
 			attachedFile.setAttachedFileName("임시첨부파일01.jpg");
+			attachedFile.setAttachedFileSize(2612);
 			
 			attachedFileList.add(attachedFile);
 		}
@@ -119,7 +123,7 @@ public class BoardWriteReqServerTaskTest extends AbstractJunitTest {
 		boardWriteReq.setNewAttachedFileList(attachedFileList);
 		
 		for (int i=1; i <= 10; i++) {
-			String str = new StringBuilder().append(BoardType.FREE.getName())
+			String str = new StringBuilder().append("계층형 게시판")
 					.append(i).toString();
 			boardWriteReq.setSubject(str);
 			boardWriteReq.setContents(str);

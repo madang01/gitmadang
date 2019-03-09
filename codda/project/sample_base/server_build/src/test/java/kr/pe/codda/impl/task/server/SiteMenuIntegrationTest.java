@@ -27,6 +27,7 @@ import kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes;
 import kr.pe.codda.impl.message.TreeSiteMenuReq.TreeSiteMenuReq;
 import kr.pe.codda.impl.message.TreeSiteMenuRes.TreeSiteMenuRes;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -61,12 +62,99 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();
-		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);		
+		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);
+
+		{
+			String userID = "admin";
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's',
+					(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
+					(byte) '$' };
+			String nickname = "단위테스터용어드민";
+			String pwdHint = "힌트 그것이 알고싶다";
+			String pwdAnswer = "힌트답변 말이여 방구여";
+			String ip = "127.0.0.1";
+
+			try {
+				ServerDBUtil.registerMember(TEST_DBCP_NAME,
+						MemberRoleType.ADMIN, userID, nickname, pwdHint,
+						pwdAnswer, passwordBytes, ip);
+			} catch (ServerServiceException e) {
+				String expectedErrorMessage = new StringBuilder(
+						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
+				String actualErrorMessag = e.getMessage();
+
+				// log.warn(actualErrorMessag, e);
+
+				assertEquals(expectedErrorMessage, actualErrorMessag);
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to create a test ID");
+			}
+		}
+
+		{
+			String userID = "test01";
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's',
+					(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
+					(byte) '$' };
+			String nickname = "단위테스터용아이디1";
+			String pwdHint = "힌트 그것이 알고싶다";
+			String pwdAnswer = "힌트답변 말이여 방구여";
+			String ip = "127.0.0.1";
+
+			try {
+				ServerDBUtil.registerMember(TEST_DBCP_NAME,
+						MemberRoleType.USER, userID, nickname, pwdHint,
+						pwdAnswer, passwordBytes, ip);
+			} catch (ServerServiceException e) {
+				String expectedErrorMessage = new StringBuilder(
+						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
+				String actualErrorMessag = e.getMessage();
+
+				// log.warn(actualErrorMessag, e);
+
+				assertEquals(expectedErrorMessage, actualErrorMessag);
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to create a test ID");
+			}
+		}
+
+		{
+			String userID = "test02";
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's',
+					(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
+					(byte) '$' };
+			String nickname = "단위테스터용아이디2";
+			String pwdHint = "힌트 그것이 알고싶다";
+			String pwdAnswer = "힌트답변 말이여 방구여";
+			String ip = "127.0.0.1";
+
+			try {
+				ServerDBUtil.registerMember(TEST_DBCP_NAME,
+						MemberRoleType.USER, userID, nickname, pwdHint,
+						pwdAnswer, passwordBytes, ip);
+			} catch (ServerServiceException e) {
+				String expectedErrorMessage = new StringBuilder(
+						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
+				String actualErrorMessag = e.getMessage();
+
+				// log.warn(actualErrorMessag, e);
+
+				assertEquals(expectedErrorMessage, actualErrorMessag);
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to create a test ID");
+			}
+		}
 	}
 	
 	@Before
 	public void setUp() {
-		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
+		UByte menuSequenceID = SequenceType.MENU.getSequenceID();
 		
 		
 		
@@ -92,7 +180,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			
 			create.delete(SB_SITEMENU_TB).execute();
 
-			conn.commit();	
+			conn.commit();
 			
 			// backupMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);
 
@@ -124,15 +212,47 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	public void tearDown(){
 		
 	} 
-		
+	
 	@Test
-	public void 초기상태일때빈목록조회테스트() {
+	public void 사이트메뉴배열형목록조회_일반인() {
+		String requestedUserIDForUser = "test01";
+		
 		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
 		try {
 			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
+		
+		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		arraySiteMenuReq.setRequestedUserID(requestedUserIDForUser);
+		
+		try {
+			arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
+			
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+
+			String expectedErrorMessage = "사용자 사이트의 배열형 메뉴 목록 조회 서비는 관리자 전용 서비스입니다";
+
+			assertEquals("관리자에 의해 차단된 글 삭제할때 경고 메시지인지 검사",
+					expectedErrorMessage, errorMessage);
+		} catch (Exception e) {
+			String errorMessage = "배열형 사이트 목록을 가져오는데 실패";
+
+			log.warn(errorMessage, e);
+
+			fail(errorMessage);
+		}
+		
+		
+	}
+	
+	@Test
+	public void 사이트메뉴계층형조회_일반인() {
+		String requestedUserIDForUser = "test01";
+		
 		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = null;
 		try {
 			treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
@@ -140,8 +260,44 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("dead code");
 		}
 		
+		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
+		treeSiteMenuReq.setRequestedUserID(requestedUserIDForUser);
+		try {
+			treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
+			
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+
+			String expectedErrorMessage = "사용자 사이트의 계층형 메뉴 조회 서비는 관리자 전용 서비스입니다";
+
+			assertEquals("관리자에 의해 차단된 글 삭제할때 경고 메시지인지 검사",
+					expectedErrorMessage, errorMessage);
+		} catch (Exception e) {
+			String errorMessage = "트리형 사이트 목록을 가져오는데 실패";
+
+			log.warn(errorMessage, e);
+
+			fail(errorMessage);
+		}
+	}
+		
+	@Test
+	public void 초기상태에서_사이트메뉴배열형목록조회와_계층형조회비교() {
+		String requestedUserIDForAdmin = "admin";
+		
+		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
+		try {
+			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		
+		
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		arraySiteMenuReq.setRequestedUserID(requestedUserIDForAdmin);
+		
 		try {
 			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 			
@@ -157,9 +313,15 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail(errorMessage);
 		}
 		
-		
+		TreeSiteMenuReqServerTask treeSiteMenuReqServerTask = null;
+		try {
+			treeSiteMenuReqServerTask = new TreeSiteMenuReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 		
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
+		treeSiteMenuReq.setRequestedUserID(requestedUserIDForAdmin);
 		try {
 			TreeSiteMenuRes treeSiteMenuRes = treeSiteMenuReqServerTask.doWork(TEST_DBCP_NAME, treeSiteMenuReq);
 			
@@ -179,6 +341,8 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 	@Test 
 	public void 메뉴이동테스트_상단이동후다시하단이동하여원복() {
+		String requestedUserIDForAdmin = "admin";
+		
 		/**
 		 * WARNING! 메뉴 이동 테스트 대상 메뉴는 메뉴 깊이 3을 갖는 '세션키 테스트' 와  'RSA 테스트' 이다.
 		 * 입력한 메뉴 순서는  '세션키 테스트' 이고 다음이 'RSA 테스트' 이다.
@@ -429,22 +593,23 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
-		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
-		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
+		SiteMenuTree virtualSiteMenuTree = virtualSiteMenuTreeBuilder.build();
+		virtualSiteMenuTree.toDBRecord(TEST_DBCP_NAME);
 		
 		// RSA 테스트
-		SiteMenuTreeNode sourceSiteMenuTreeNode = siteMenuTree.find("RSA 테스트");
+		SiteMenuTreeNode sourceSiteMenuTreeNode = virtualSiteMenuTree.find("RSA 테스트");
 		if (null == sourceSiteMenuTreeNode) {
 			fail("상단 이동할 대상 메뉴[RSA 테스트] 찾기 실패");
 		}
 		
-		SiteMenuTreeNode targetSiteMenuTreeNode = siteMenuTree.find("세션키 테스트");
+		SiteMenuTreeNode targetSiteMenuTreeNode = virtualSiteMenuTree.find("세션키 테스트");
 		
 		if (null == targetSiteMenuTreeNode) {
 			fail("상단 이동할 위치에 있는 메뉴[세션키 테스트] 찾기 실패");
 		}
 		
 		MenuMoveUpReq menuUpMoveReq = new MenuMoveUpReq();
+		menuUpMoveReq.setRequestedUserID(requestedUserIDForAdmin);
 		menuUpMoveReq.setMenuNo(sourceSiteMenuTreeNode.getMenuNo());
 		
 		try {
@@ -459,6 +624,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		arraySiteMenuReq.setRequestedUserID(requestedUserIDForAdmin);
 		ArraySiteMenuRes arraySiteMenuRes = null;
 		
 		try {
@@ -492,7 +658,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			} else if (menuName.equals("세션키_2단계_2")) {
 				assertEquals("메뉴 순서 비교", sourceSiteMenuTreeNode.getOrderSeq()+3, siteMenu.getOrderSeq());
 			} else {
-				SiteMenuTreeNode workingSiteMenuTreeNode = siteMenuTree.find(menuName);
+				SiteMenuTreeNode workingSiteMenuTreeNode = virtualSiteMenuTree.find(menuName);
 				if (null == workingSiteMenuTreeNode) {
 					fail("메뉴["+menuName+"] 찾기 실패");
 				}				
@@ -501,6 +667,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		MenuMoveDownReq menuDownMoveReq = new MenuMoveDownReq();
+		menuDownMoveReq.setRequestedUserID(requestedUserIDForAdmin);
 		menuDownMoveReq.setMenuNo(sourceSiteMenuTreeNode.getMenuNo());
 		
 		try {
@@ -526,7 +693,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		for (ArraySiteMenuRes.Menu siteMenu : arraySiteMenuRes.getMenuList()) {
 			String menuName = siteMenu.getMenuName();			
 			
-			SiteMenuTreeNode workingSiteMenuTreeNode = siteMenuTree.find(menuName);
+			SiteMenuTreeNode workingSiteMenuTreeNode = virtualSiteMenuTree.find(menuName);
 			if (null == workingSiteMenuTreeNode) {
 				fail("메뉴["+menuName+"] 찾기 실패");
 			}
@@ -536,6 +703,9 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	
 	@Test 
 	public void 메뉴이동테스트_하단이동후다시상단이동하여원복() {
+		String requestedUserIDForAdmin = "admin";
+		
+		
 		/**
 		 * WARNING! 메뉴 이동 테스트 대상 메뉴는 메뉴 깊이 3을 갖는 '세션키 테스트' 와  'RSA 테스트' 이다.
 		 * 입력한 메뉴 순서는  '세션키 테스트' 이고 다음이 'RSA 테스트' 이다.
@@ -784,21 +954,22 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
-		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
-		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
+		SiteMenuTree virtualSiteMenuTree = virtualSiteMenuTreeBuilder.build();
+		virtualSiteMenuTree.toDBRecord(TEST_DBCP_NAME);
 		
-		SiteMenuTreeNode sourceSiteMenuTreeNode = siteMenuTree.find("세션키 테스트");
+		SiteMenuTreeNode sourceSiteMenuTreeNode = virtualSiteMenuTree.find("세션키 테스트");
 		if (null == sourceSiteMenuTreeNode) {
 			fail("하단 이동할 대상 메뉴[세션키 테스트] 찾기 실패");
 		}
 		
-		SiteMenuTreeNode targetSiteMenuTreeNode = siteMenuTree.find("RSA 테스트");
+		SiteMenuTreeNode targetSiteMenuTreeNode = virtualSiteMenuTree.find("RSA 테스트");
 		
 		if (null == targetSiteMenuTreeNode) {
 			fail("하단 이동할 위치에 있는 메뉴[RSA 테스트] 찾기 실패");
 		}
 		
 		MenuMoveDownReq menuDownMoveReq = new MenuMoveDownReq();
+		menuDownMoveReq.setRequestedUserID(requestedUserIDForAdmin);
 		menuDownMoveReq.setMenuNo(sourceSiteMenuTreeNode.getMenuNo());
 		
 		try {
@@ -812,6 +983,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		arraySiteMenuReq.setRequestedUserID(requestedUserIDForAdmin);
 		ArraySiteMenuRes arraySiteMenuRes = null;
 		
 		try {
@@ -844,7 +1016,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			} else if (menuName.equals("세션키_2단계_2")) {
 				assertEquals("메뉴 순서 비교", targetSiteMenuTreeNode.getOrderSeq()+3, siteMenu.getOrderSeq());
 			} else {
-				SiteMenuTreeNode workingSiteMenuTreeNode = siteMenuTree.find(menuName);
+				SiteMenuTreeNode workingSiteMenuTreeNode = virtualSiteMenuTree.find(menuName);
 				if (null == workingSiteMenuTreeNode) {
 					fail("메뉴["+menuName+"] 찾기 실패");
 				}
@@ -853,6 +1025,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		MenuMoveUpReq menuUpMoveReq = new MenuMoveUpReq();
+		menuUpMoveReq.setRequestedUserID(requestedUserIDForAdmin);
 		menuUpMoveReq.setMenuNo(sourceSiteMenuTreeNode.getMenuNo());
 		
 		try {
@@ -878,7 +1051,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		for (ArraySiteMenuRes.Menu siteMenu : arraySiteMenuRes.getMenuList()) {
 			String menuName = siteMenu.getMenuName();			
 			
-			SiteMenuTreeNode workingSiteMenuTreeNode = siteMenuTree.find(menuName);
+			SiteMenuTreeNode workingSiteMenuTreeNode = virtualSiteMenuTree.find(menuName);
 			if (null == workingSiteMenuTreeNode) {
 				fail("메뉴["+menuName+"] 찾기 실패");
 			}
@@ -891,6 +1064,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		/*ch.qos.logback.classic.Logger logger = (Logger)LoggerFactory.getLogger("org.jooq");
 		Level oldLogLevel = logger.getLevel(); 
 		logger.setLevel(Level.OFF);*/
+		String requestedUserIDForAdmin = "admin";
 		
 		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
 		try {
@@ -901,6 +1075,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		for (int i=0; i < CommonStaticFinalVars.UNSIGNED_BYTE_MAX; i++) {
 			RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
+			rootMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 			rootMenuAddReq.setMenuName("temp"+i);
 			rootMenuAddReq.setLinkURL("/temp"+i);
 			try {
@@ -919,6 +1094,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
+		rootMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		rootMenuAddReq.setMenuName("temp255");
 		rootMenuAddReq.setLinkURL("/temp255");
 		try {
@@ -941,6 +1117,8 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	
 	@Test 
 	public void 자식메뉴추가테스트_255개초과() {
+		String requestedUserIDForAdmin = "admin";
+		
 		ch.qos.logback.classic.Logger logger = (Logger)LoggerFactory.getLogger("org.jooq");
 		Level oldLogLevel = logger.getLevel(); 
 		logger.setLevel(Level.OFF);
@@ -953,9 +1131,8 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		for (int i=0; (i+1) < CommonStaticFinalVars.UNSIGNED_BYTE_MAX; i++) {
-			
-			
 			RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
+			rootMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 			rootMenuAddReq.setMenuName("temp"+i);
 			rootMenuAddReq.setLinkURL("/temp"+i);
 			try {
@@ -973,6 +1150,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		logger.setLevel(oldLogLevel);
 		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
+		rootMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		rootMenuAddReq.setMenuName("temp254");
 		rootMenuAddReq.setLinkURL("/temp254");
 		
@@ -996,6 +1174,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		ChildMenuAddReq firstChildMenuAddReq = new ChildMenuAddReq();
+		firstChildMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		firstChildMenuAddReq.setParentNo(rootMenuAddRes.getMenuNo());
 		firstChildMenuAddReq.setMenuName("temp254_1");
 		firstChildMenuAddReq.setLinkURL("/temp254_1");
@@ -1020,6 +1199,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	
 	@Test 
 	public void 자식메뉴추가테스트_부모없음() {
+		String requestedUserIDForAdmin = "admin";
 		final long parentMenuNo = 10;
 		
 		ChildMenuAddReqServerTask childMenuAddReqServerTask = null;
@@ -1030,6 +1210,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		ChildMenuAddReq firstChildMenuAddReq = new ChildMenuAddReq();
+		firstChildMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		firstChildMenuAddReq.setParentNo(parentMenuNo);
 		firstChildMenuAddReq.setMenuName("tempNoParent_1");
 		firstChildMenuAddReq.setLinkURL("/tempNoParent_1");
@@ -1054,7 +1235,9 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	}
 	
 	@Test 
-	public void 메뉴삭제테스트_2개루트메뉴등록후1개만삭제한경우() {   
+	public void 메뉴삭제테스트_2개루트메뉴등록후1개만삭제한경우() { 
+		String requestedUserIDForAdmin = "admin";
+		
 		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
 		try {
 			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
@@ -1063,6 +1246,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		RootMenuAddReq rootMenuAddReqForDelete = new RootMenuAddReq();
+		rootMenuAddReqForDelete.setRequestedUserID(requestedUserIDForAdmin);
 		rootMenuAddReqForDelete.setMenuName("temp1");
 		rootMenuAddReqForDelete.setLinkURL("/temp01");
 		
@@ -1076,6 +1260,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		
 		
 		RootMenuAddReq rootMenuAddReqForSpace = new RootMenuAddReq();
+		rootMenuAddReqForSpace.setRequestedUserID(requestedUserIDForAdmin);
 		rootMenuAddReqForSpace.setMenuName("temp2");
 		rootMenuAddReqForSpace.setLinkURL("/temp02");
 		
@@ -1095,6 +1280,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
+		menuDeleteReq.setRequestedUserID(requestedUserIDForAdmin);
 		menuDeleteReq.setMenuNo(rootMenuAddResForDelete.getMenuNo());
 		
 		MessageResultRes messageResultRes = null;
@@ -1116,6 +1302,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("dead code");
 		}
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		arraySiteMenuReq.setRequestedUserID(requestedUserIDForAdmin);
 		try {
 			ArraySiteMenuRes arraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
 			
@@ -1142,7 +1329,9 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	 * 메뉴 테이블 초기 상태 즉 메뉴가 하나도 없는 상태에서 삭제 테스트
 	 */
 	@Test 
-	public void 메뉴삭제테스트_삭제할대상메뉴없는경우() {		
+	public void 메뉴삭제테스트_삭제할대상메뉴없는경우() {
+		String requestedUserIDForAdmin = "admin";
+		
 		MenuDeleteReqServerTask menuDeleteReqServerTask = null;
 		try {
 			menuDeleteReqServerTask = new MenuDeleteReqServerTask();
@@ -1151,6 +1340,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
+		menuDeleteReq.setRequestedUserID(requestedUserIDForAdmin);
 		menuDeleteReq.setMenuNo(10);
 		
 		try {
@@ -1171,7 +1361,9 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	}
 	
 	@Test 
-	public void 메뉴삭제테스트_자식이있는메뉴삭제할경우() {		
+	public void 메뉴삭제테스트_자식이있는메뉴삭제할경우() {	
+		String requestedUserIDForAdmin = "admin";
+		
 		RootMenuAddReqServerTask rootMenuAddReqServerTask = null;
 		try {
 			rootMenuAddReqServerTask = new RootMenuAddReqServerTask();
@@ -1180,6 +1372,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
+		rootMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		rootMenuAddReq.setMenuName("temp1");
 		rootMenuAddReq.setLinkURL("/temp01");
 		
@@ -1198,6 +1391,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 			fail("dead code");
 		}
 		ChildMenuAddReq childMenuAddReq = new ChildMenuAddReq();
+		childMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		childMenuAddReq.setParentNo(rootMenuAddRes.getMenuNo());
 		childMenuAddReq.setMenuName("temp1_1");
 		childMenuAddReq.setLinkURL("/temp01_1");
@@ -1218,6 +1412,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
+		menuDeleteReq.setRequestedUserID(requestedUserIDForAdmin);
 		menuDeleteReq.setMenuNo(rootMenuAddRes.getMenuNo());
 		
 		MessageResultRes messageResultRes = null;
@@ -1270,8 +1465,6 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 메뉴생성_2018년8월19일기준메뉴() {
-		// FIXME!
-		
 		class VirtualSiteMenuTreeBuilder implements VirtualSiteMenuTreeBuilderIF {
 
 			@Override
@@ -1451,7 +1644,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 		}
 		
 		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
-		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
-		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
+		SiteMenuTree virtualSiteMenuTree = virtualSiteMenuTreeBuilder.build();
+		virtualSiteMenuTree.toDBRecord(TEST_DBCP_NAME);
 	}
 }

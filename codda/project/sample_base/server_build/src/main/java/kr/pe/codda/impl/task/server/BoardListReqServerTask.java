@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record13;
+import org.jooq.Record2;
 import org.jooq.Record3;
 import org.jooq.Record8;
 import org.jooq.Result;
@@ -35,8 +36,8 @@ import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -94,13 +95,13 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			String errorMessage = "잘못된 게시판 식별자입니다";
 			throw new ServerServiceException(errorMessage);
 		}
-
-		final String requestedUserID = boardListReq.getRequestedUserID();
-
+				
 		final UByte boardID = UByte.valueOf(boardListReq.getBoardID());
+		
 		final int pageNo = boardListReq.getPageNo();
 		final int pageSize = boardListReq.getPageSize();
 		final int offset = (pageNo - 1) * pageSize;
+		byte boardListTypeValue;
 
 		int total = 0;
 		java.util.List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
@@ -114,12 +115,49 @@ public class BoardListReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log,
-					requestedUserID);
+			ValueChecker.checkValidRequestedUserState(conn, create, log,
+					boardListReq.getRequestedUserID());
 
-			MemberRoleType memberRoleTypeOfRequestedUserID = null;
+			/*
+			 * MemberRoleType memberRoleTypeOfRequestedUserID = null; try {
+			 * memberRoleTypeOfRequestedUserID =
+			 * MemberRoleType.valueOf(memberRoleOfRequestedUserID, false); } catch
+			 * (IllegalArgumentException e) { try { conn.rollback(); } catch (Exception e1)
+			 * { log.warn("fail to rollback"); }
+			 * 
+			 * String errorMessage = new
+			 * StringBuilder("게시판 목록 요청자[").append(requestedUserID).append("]의 멤버 구분[")
+			 * .append(memberRoleOfRequestedUserID).append("]이 잘못되었습니다").toString(); throw
+			 * new ServerServiceException(errorMessage); }
+			 */
+			
+			
+			
+			Record2<String, Byte> boardInforRecord = create
+					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE)
+					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).forUpdate().fetchOne();
+
+			if (null == boardInforRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.longValue())
+						.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+
+			@SuppressWarnings("unused")
+			String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
+			// byte boardReplyPolicyTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE);
+			// byte boardReplyPermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE);
+
+			BoardListType boardListType = null;
 			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
+				boardListType = BoardListType.valueOf(boardListTypeValue);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -127,52 +165,48 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시판 목록 요청자[").append(requestedUserID).append("]의 멤버 구분[")
-						.append(memberRoleOfRequestedUserID).append("]이 잘못되었습니다").toString();
+				String errorMessage = e.getMessage();
 				throw new ServerServiceException(errorMessage);
 			}
-
+			
+			total = create.select(SB_BOARD_INFO_TB.CNT).from(SB_BOARD_INFO_TB)
+					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
+			
+			SbBoardTb a = SB_BOARD_TB.as("a");
+			SbBoardHistoryTb b = SB_BOARD_HISTORY_TB.as("b");
+			SbBoardHistoryTb c = SB_BOARD_HISTORY_TB.as("c");
+			
 			Table<Record8<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String>> mainTable = null;
-
-			if (memberRoleTypeOfRequestedUserID.equals(MemberRoleType.ADMIN)) {
-				total = create.select(SB_BOARD_INFO_TB.ADMIN_TOTAL).from(SB_BOARD_INFO_TB)
-						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
-
-				SbBoardTb a = SB_BOARD_TB.as("a");
-
-				Table<Record3<UByte, UInteger, UShort>> b = create.select(a.BOARD_ID, a.GROUP_NO, a.GROUP_SQ)
-						.from(a.forceIndex("sb_board_idx1")).where(a.BOARD_ID.eq(boardID))
+			
+			if (BoardListType.TREE.equals(boardListType)) {
+				Table<Record3<UByte, UInteger, UShort>> d = create.select(a.BOARD_ID, a.GROUP_NO, a.GROUP_SQ)
+						.from(a.forceIndex("sb_board_idx1"))
+						.where(a.BOARD_ID.eq(boardID))
+						.and(a.BOARD_ST.eq(BoardStateType.OK.getValue()))
 						.orderBy(a.GROUP_NO.desc(), a.GROUP_SQ.desc())
 						.offset(offset).limit(pageSize).asTable("b");
 
 				mainTable = create
 						.select(a.BOARD_ID, a.BOARD_NO, a.GROUP_NO, a.GROUP_SQ, a.PARENT_NO, a.DEPTH, a.VIEW_CNT,
 								a.BOARD_ST)
-						.from(a).innerJoin(b).on(a.BOARD_ID.eq(b.field(SB_BOARD_TB.BOARD_ID)))
-						.and(a.GROUP_NO.eq(b.field(SB_BOARD_TB.GROUP_NO)))
-						.and(a.GROUP_SQ.eq(b.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");
-
+						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))
+						.and(a.GROUP_NO.eq(d.field(SB_BOARD_TB.GROUP_NO)))
+						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");
 			} else {
-				total = create.select(SB_BOARD_INFO_TB.USER_TOTAL).from(SB_BOARD_INFO_TB)
-						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
-
-				SbBoardTb a = SB_BOARD_TB.as("a");
-
-				Table<Record3<UByte, UInteger, UShort>> b = create.select(a.BOARD_ID, a.GROUP_NO, a.GROUP_SQ)
-						.from(a.forceIndex("sb_board_idx1")).where(a.BOARD_ID.eq(boardID))
-						.and(a.BOARD_ST.eq(BoardStateType.OK.getValue())).orderBy(a.GROUP_NO.desc(), a.GROUP_SQ.desc())
+				Table<Record2<UByte, UInteger>> d = create.select(a.BOARD_ID, a.BOARD_NO)
+						.from(a.forceIndex("primary")).where(a.BOARD_ID.eq(boardID))
+						.and(a.PARENT_NO.eq(UInteger.valueOf(0)))
+						.and(a.BOARD_ST.eq(BoardStateType.OK.getValue()))						
+						.orderBy(a.BOARD_NO.desc())
 						.offset(offset).limit(pageSize).asTable("b");
 
 				mainTable = create
 						.select(a.BOARD_ID, a.BOARD_NO, a.GROUP_NO, a.GROUP_SQ, a.PARENT_NO, a.DEPTH, a.VIEW_CNT,
 								a.BOARD_ST)
-						.from(a).innerJoin(b).on(a.BOARD_ID.eq(b.field(SB_BOARD_TB.BOARD_ID)))
-						.and(a.GROUP_NO.eq(b.field(SB_BOARD_TB.GROUP_NO)))
-						.and(a.GROUP_SQ.eq(b.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");
-			}
-
-			SbBoardHistoryTb b = SB_BOARD_HISTORY_TB.as("b");
-			SbBoardHistoryTb c = SB_BOARD_HISTORY_TB.as("c");
+						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))
+						.and(a.BOARD_NO.eq(d.field(SB_BOARD_TB.BOARD_NO)))
+						.asTable("a");
+			}			
 
 			Result<Record13<UInteger, UInteger, UShort, UInteger, UByte, Integer, String, Object, String, Timestamp, String, Object, Timestamp>> boardListResult = create
 					.select(mainTable.field(SB_BOARD_TB.BOARD_NO), mainTable.field(SB_BOARD_TB.GROUP_NO),
@@ -214,24 +248,10 @@ public class BoardListReqServerTask extends AbstractServerTask {
 				String firstWriterID = boardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
 				String firstWriterNickName = boardRecord.getValue(SB_MEMBER_TB.NICKNAME);
 				Timestamp firstRegisteredDate = boardRecord.getValue("first_reg_date", Timestamp.class);
-
-				Record3<String, Timestamp, String> firstBoardHistoryRecord = create
-						.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID, SB_BOARD_HISTORY_TB.REG_DT, SB_MEMBER_TB.NICKNAME)
-						.from(SB_BOARD_HISTORY_TB).join(SB_MEMBER_TB)
-						.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.REGISTRANT_ID))
-						.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
-						.and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0))).fetchOne();
-
-				if (null == firstBoardHistoryRecord) {
-					String debugErrorMessage = new StringBuilder("해당 게시판의 글[boardID=").append(boardID)
-							.append(", boardNo=").append(boardNo).append("]의 최초 작성자 정보가 존재 하지 않아 목록에서 제외하였습니다")
-							.toString();
-					log.warn(debugErrorMessage);
-
-					total--;
-					continue;
-				}
 				
+				if (null == subject) {
+					subject = "";
+				}
 
 				BoardListRes.Board board = new BoardListRes.Board();
 				board.setBoardNo(boardNo.longValue());
@@ -243,7 +263,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 				board.setViewCount(viewCount);
 				board.setBoardSate(nativeBoardState);
 				board.setRegisteredDate(firstRegisteredDate);
-				board.setNickname(firstWriterNickName);
+				board.setWriterNickname(firstWriterNickName);
 				board.setVotes(votes);
 				board.setSubject(subject);
 				board.setLastModifiedDate(lastModifiedDate);
@@ -276,6 +296,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 		}
 
 		BoardListRes boardListRes = new BoardListRes();
+		boardListRes.setBoardListType(boardListTypeValue);
 		boardListRes.setBoardID(boardID.shortValue());
 		boardListRes.setPageNo(pageNo);
 		boardListRes.setPageSize(pageSize);

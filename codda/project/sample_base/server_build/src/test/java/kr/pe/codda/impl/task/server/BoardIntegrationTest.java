@@ -5,7 +5,6 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
-import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -15,6 +14,19 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.jooq.DSLContext;
+import org.jooq.Record4;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -23,6 +35,8 @@ import kr.pe.codda.impl.message.BoardBlockReq.BoardBlockReq;
 import kr.pe.codda.impl.message.BoardDeleteReq.BoardDeleteReq;
 import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
+import kr.pe.codda.impl.message.BoardInfoAddReq.BoardInfoAddReq;
+import kr.pe.codda.impl.message.BoardInfoAddRes.BoardInfoAddRes;
 import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
 import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
 import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
@@ -34,30 +48,20 @@ import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.BoardListType;
+import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardTree;
 import kr.pe.codda.server.lib.BoardTreeNode;
-import kr.pe.codda.server.lib.BoardType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.MemberRoleType;
-import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.VirtualBoardTreeBuilderIF;
 
-import org.jooq.DSLContext;
-import org.jooq.Record2;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-import org.jooq.types.UShort;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 public class BoardIntegrationTest extends AbstractJunitTest {
 	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
+	private final static short boardID = 3;
 
 	// ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME
 
@@ -156,9 +160,6 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Before
 	public void setUp() {
-		UByte freeBoardSequenceID = UByte.valueOf(SequenceType.FREE_BOARD
-				.getSequenceID());
-
 		DataSource dataSource = null;
 		try {
 			dataSource = DBCPManager.getInstance().getBasicDataSource(
@@ -177,18 +178,18 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL,
 					ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 
-			create.update(SB_SEQ_TB)
-					.set(SB_SEQ_TB.SQ_VALUE, UInteger.valueOf(1))
-					.where(SB_SEQ_TB.SQ_ID.eq(freeBoardSequenceID)).execute();
-
 			create.delete(SB_BOARD_VOTE_TB).execute();
 			create.delete(SB_BOARD_FILELIST_TB).execute();
 			create.delete(SB_BOARD_HISTORY_TB).execute();
 			create.delete(SB_BOARD_TB).execute();
 
+			/** sample_base 프로젝에 예약된 0 ~ 3 까지의 게시판 식별자를 제외한 게시판 정보 삭제  */
+			create.delete(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.ge(UByte.valueOf(4)));
+			
 			create.update(SB_BOARD_INFO_TB)
-					.set(SB_BOARD_INFO_TB.ADMIN_TOTAL, 0)
-					.set(SB_BOARD_INFO_TB.USER_TOTAL, 0).execute();
+					.set(SB_BOARD_INFO_TB.CNT, 0)
+					.set(SB_BOARD_INFO_TB.TOTAL, 0)
+					.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
 
 			conn.commit();
 
@@ -237,35 +238,40 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL,
 					ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 
-			for (BoardType boardType : BoardType.values()) {
-				UByte boardID = UByte.valueOf(boardType.getBoardID());
-				int adminCount = create.selectCount().from(SB_BOARD_TB)
-						.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).fetchOne()
-						.value1();
-
-				int userCount = create
-						.selectCount()
+			Result<Record4<UByte, Byte, Integer, Integer>> boardInfoResult = create.select(SB_BOARD_INFO_TB.BOARD_ID, 
+					SB_BOARD_INFO_TB.LIST_TYPE,
+					SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.TOTAL)
+			.from(SB_BOARD_INFO_TB).orderBy(SB_BOARD_INFO_TB.BOARD_ID.asc())
+			.fetch();
+			
+			
+			for (Record4<UByte, Byte, Integer, Integer> boardInfoRecord : boardInfoResult) {
+				UByte boardID = boardInfoRecord.get(SB_BOARD_INFO_TB.BOARD_ID);
+				byte boardListTypeValue = boardInfoRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
+				int acutalTotal = boardInfoRecord.getValue(SB_BOARD_INFO_TB.TOTAL);
+				int actualCountOfList = boardInfoRecord.getValue(SB_BOARD_INFO_TB.CNT);
+				
+				BoardListType boardListType = BoardListType.valueOf(boardListTypeValue);	
+				
+				int expectedTotal = create.selectCount()
 						.from(SB_BOARD_TB)
-						.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-						.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK
-								.getValue())).fetchOne().value1();
-
-				Record2<Integer, Integer> boardInfoRecord = create
-						.select(SB_BOARD_INFO_TB.ADMIN_TOTAL,
-								SB_BOARD_INFO_TB.USER_TOTAL)
-						.from(SB_BOARD_INFO_TB)
-						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
-						.fetchOne();
-
-				int adminCountOfBoardInfoTable = boardInfoRecord
-						.getValue(SB_BOARD_INFO_TB.ADMIN_TOTAL);
-				int userCountOfBoardInfoTable = boardInfoRecord
-						.getValue(SB_BOARD_INFO_TB.USER_TOTAL);
-
-				assertEquals("어드민인 경우 게시판 전체 글 갯수 비교", adminCount,
-						adminCountOfBoardInfoTable);
-				assertEquals("유저인 경우 게시판 전체 글 갯수 비교", userCount,
-						userCountOfBoardInfoTable);
+						.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).fetchOne().value1();
+				
+				int expectedCountOfList = -1;
+				
+				if (BoardListType.TREE.equals(boardListType)) {
+					expectedCountOfList = create.selectCount().from(SB_BOARD_TB)
+							.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+							.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue())).fetchOne().value1();
+				} else {
+					expectedCountOfList = create.selectCount().from(SB_BOARD_TB)
+							.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+							.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue()))
+							.and(SB_BOARD_TB.PARENT_NO.eq(UInteger.valueOf(0))).fetchOne().value1();
+				}			
+				
+				assertEquals("전체 글 갯수 비교",  expectedTotal, acutalTotal);
+				assertEquals("목록 글 갯수 비교",  expectedCountOfList, actualCountOfList);
 			}
 
 			conn.commit();
@@ -295,13 +301,16 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 목록조회테스트_초기상태_게스트() {
+	public void 목록조회_본문으로만이루어진목록_초기상태() {
+		final short testBoardID = 4;
+		
+		
 		int pageNo = 1;
 		int pageSize = 20;
 
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("guest");
-		boardListReq.setBoardID(BoardType.FREE.getBoardID());
+		boardListReq.setBoardID(testBoardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 
@@ -334,195 +343,391 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 목록조회테스트_초기상태_어드민() {
-		int pageNo = 1;
-		int pageSize = 20;
-
-		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestedUserID("admin");
-		boardListReq.setBoardID(BoardType.FREE.getBoardID());
-		boardListReq.setPageNo(pageNo);
-		boardListReq.setPageSize(pageSize);
-
+	public void 게시판목록조회테스트_게시판목록유형전체_초기상태() {
+		String requestedUserIDForAdmin = "admin";
+		String requestedUserIDForUser = "guest";
+		
 		BoardListReqServerTask boardListReqServerTask = null;
 		try {
 			boardListReqServerTask = new BoardListReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
-
+		
+		BoardInfoAddReqServerTask boardInfoAddReqServerTask = null;
 		try {
-			BoardListRes acutalBoardListRes = boardListReqServerTask.doWork(
-					TEST_DBCP_NAME, boardListReq);
-			log.info(acutalBoardListRes.toString());
-
-			if (acutalBoardListRes.getTotal() != 0) {
-				fail("DB 초기 상태에에서 총 갯수가 0이 아닙니다");
+			boardInfoAddReqServerTask = new BoardInfoAddReqServerTask();
+		} catch (DynamicClassCallException e) {
+			fail("dead code");
+		}
+		
+		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
+		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
+		boardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
+		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
+		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
+		boardInfoAddReq.setBoardWritePermissionType(PermissionType.USER.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		
+		int pageNo = 1;
+		int pageSize = 20;
+		
+		for (BoardListType boardListType : BoardListType.values()) {
+			boardInfoAddReq.setBoardListType(boardListType.getValue());
+			
+			BoardInfoAddRes boardInfoAddRes = null;
+			
+			try {
+				boardInfoAddRes = boardInfoAddReqServerTask.doWork(TEST_DBCP_NAME, boardInfoAddReq);
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to execuate doTask");
 			}
 
-			if (acutalBoardListRes.getCnt() != 0) {
-				fail("DB 초기 상태에에서 총 갯수가 0이 아닙니다");
+			BoardListReq boardListReq = new BoardListReq();
+			boardListReq.setRequestedUserID(requestedUserIDForUser);
+			boardListReq.setBoardID(boardInfoAddRes.getBoardID());
+			boardListReq.setPageNo(pageNo);
+			boardListReq.setPageSize(pageSize);			
+
+			try {
+				BoardListRes acutalBoardListRes = boardListReqServerTask.doWork(
+						TEST_DBCP_NAME, boardListReq);
+				log.info(acutalBoardListRes.toString());
+
+				if (acutalBoardListRes.getTotal() != 0) {
+					fail("DB 초기 상태에에서 총 갯수가 0이 아닙니다");
+				}
+
+				if (acutalBoardListRes.getCnt() != 0) {
+					fail("DB 초기 상태에에서 총 갯수가 0이 아닙니다");
+				}			
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to execuate doTask");
 			}
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
 		}
 	}
 
 	@Test
-	public void 목록조회테스트_모든종류의게시글상태_게스트() {
-		String writerID = "test01";
-		String adminID = "admin";
+	public void 목록조회테스트_본문으로만이루어진목록_정상() {
+		String requestedUserIDForAdmin = "admin";
+		String requestedUserIDForUser = "guest";
+		
 		int pageNo = 1;
 		int pageSize = 20;
-
-		BoardWriteReqServerTask boardWriteReqServerTask = null;
-		try {
-			boardWriteReqServerTask = new BoardWriteReqServerTask();
-		} catch (DynamicClassCallException e2) {
-			fail("dead code");
-		}
-
-		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
-		boardWriteReq.setSubject("삭제::제목");
-		boardWriteReq.setContents("삭제::내용");
-		boardWriteReq.setIp("172.16.0.1");
-
-		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
-
-		boardWriteReq.setNewAttachedFileCnt((short) attachedFileList.size());
-		boardWriteReq.setNewAttachedFileList(attachedFileList);
-
-		BoardWriteRes deleteSateBoardWriteRes = null;
-		try {
-			deleteSateBoardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
-		try {
-			boardDeleteReqServerTask = new BoardDeleteReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
-		boardDeleteReq.setRequestedUserID(writerID);
-		boardDeleteReq.setBoardID(deleteSateBoardWriteRes.getBoardID());
-		boardDeleteReq.setBoardNo(deleteSateBoardWriteRes.getBoardNo());
-
-		try {
-			MessageResultRes messageResultRes = boardDeleteReqServerTask
-					.doWork(TEST_DBCP_NAME, boardDeleteReq);
-
-			if (!messageResultRes.getIsSuccess()) {
-				fail(messageResultRes.getResultMessage());
-			}
-
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		boardWriteReq.setSubject("블락::제목");
-		boardWriteReq.setContents("블락::내용");
-		BoardWriteRes blockSateBoardWriteRes = null;
-		try {
-			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		BoardBlockReqServerTask boardBlockReqServerTask = null;
-		try {
-			boardBlockReqServerTask = new BoardBlockReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-		BoardBlockReq boardBlockReq = new BoardBlockReq();
-		boardBlockReq.setRequestedUserID(adminID);
-		boardBlockReq.setBoardID(blockSateBoardWriteRes.getBoardID());
-		boardBlockReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
-
-		try {
-			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(
-					TEST_DBCP_NAME, boardBlockReq);
-			log.info(messageResultRes.toString());
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		boardWriteReq.setSubject("정상::제목");
-		boardWriteReq.setContents("정상::내용");
-		BoardWriteRes okSateBoardWriteRes = null;
-		try {
-			okSateBoardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestedUserID("guest");
-		boardListReq.setBoardID(BoardType.FREE.getBoardID());
-		boardListReq.setPageNo(pageNo);
-		boardListReq.setPageSize(pageSize);
-
+		
 		BoardListReqServerTask boardListReqServerTask = null;
 		try {
 			boardListReqServerTask = new BoardListReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
+		
+		BoardInfoAddReqServerTask boardInfoAddReqServerTask = null;
+		try {
+			boardInfoAddReqServerTask = new BoardInfoAddReqServerTask();
+		} catch (DynamicClassCallException e) {
+			fail("dead code");
+		}
+		
+		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
+		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
+		boardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
+		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
+		boardInfoAddReq.setBoardListType(BoardListType.ONLY_GROUP_ROOT.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
+		boardInfoAddReq.setBoardWritePermissionType(PermissionType.GUEST.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.GUEST.getValue());
+		
+		
+		BoardInfoAddRes boardInfoAddRes = null;
+		
+		try {
+			boardInfoAddRes = boardInfoAddReqServerTask.doWork(TEST_DBCP_NAME, boardInfoAddReq);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+				
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+			@Override
+			public BoardTree build(final short boardID) {
+				String writerID = "test01";
+				String otherID = "test02";
+
+				BoardTree boardTree = new BoardTree();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree
+							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
+									writerID, "루트1", "루트1");
+
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트1_자식1", "루트1_자식1");
+						{
+							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트1_자식1_자식1",
+											"루트1_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, otherID,
+												"루트1_자식1_자식1_자식1",
+												"루트1_자식1_자식1_자식1");
+								{
+									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식1_자식1_자식1_자식1",
+													"루트1_자식1_자식1_자식1_자식1");
+									root1Child1Child1Child1BoardTreeNode
+											.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+								}
+
+								root1Child1Child1BoardTreeNode
+										.addChildNode(root1Child1Child1Child1BoardTreeNode);
+							}
+
+							root1Child1BoardTreeNode
+									.addChildNode(root1Child1Child1BoardTreeNode);
+						}
+
+						root1BoardTreeNode
+								.addChildNode(root1Child1BoardTreeNode);
+					}
+
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, writerID, "루트1_자식2", "루트1_자식2");
+
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트1_자식2_자식1",
+											"루트1_자식2_자식1");
+							{
+								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식1",
+												"루트1_자식2_자식1_자식1");
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child1BoardTreeNode);
+							}
+
+							{
+								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식2",
+												"루트1_자식2_자식1_자식2");
+								{
+									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식2_자식1_자식2_자식1",
+													"루트1_자식2_자식3_자식2_자식1");
+									root1Child2Child1Child2BoardTreeNode
+											.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);
+								}
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child2BoardTreeNode);
+							}
+
+							{
+								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식3",
+												"루트1_자식2_자식1_자식3");
+								{
+									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식2_자식1_자식3_자식1",
+													"루트1_자식2_자식3_자식3_자식1");
+									root1Child2Child1Child3BoardTreeNode
+											.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);
+								}
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child3BoardTreeNode);
+							}
+
+							root1Child2BoardTreeNode
+									.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						root1BoardTreeNode
+								.addChildNode(root1Child2BoardTreeNode);
+					}
+
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트1_자식3", "루트1_자식3");
+						root1BoardTreeNode
+								.addChildNode(root1Child3BoardTreeNode);
+					}
+
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
+				}
+				
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree
+							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
+									writerID, "루트2", "루트2");
+
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트2_자식1", "루트2_자식1");
+						{
+							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트2_자식1_자식1",
+											"루트2_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, otherID,
+												"루트2_자식1_자식1_자식1",
+												"루트2_자식1_자식1_자식1");
+								{
+									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트2_자식1_자식1_자식1_자식1",
+													"루트2_자식1_자식1_자식1_자식1");
+									root1Child1Child1Child1BoardTreeNode
+											.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+								}
+
+								root1Child1Child1BoardTreeNode
+										.addChildNode(root1Child1Child1Child1BoardTreeNode);
+							}
+
+							root1Child1BoardTreeNode
+									.addChildNode(root1Child1Child1BoardTreeNode);
+						}
+
+						root1BoardTreeNode
+								.addChildNode(root1Child1BoardTreeNode);
+					}
+
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, writerID, "루트2_자식2", "루트2_자식2");
+
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트2_자식2_자식1",
+											"루트2_자식2_자식1");
+							{
+								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트2_자식2_자식1_자식1",
+												"루트2_자식2_자식1_자식1");
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child1BoardTreeNode);
+							}
+
+							{
+								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트2_자식2_자식1_자식2",
+												"루트2_자식2_자식1_자식2");
+								{
+									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트2_자식2_자식1_자식2_자식1",
+													"루트2_자식2_자식3_자식2_자식1");
+									root1Child2Child1Child2BoardTreeNode
+											.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);
+								}
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child2BoardTreeNode);
+							}
+
+							{
+								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트2_자식2_자식1_자식3",
+												"루트2_자식2_자식1_자식3");
+								{
+									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트2_자식2_자식1_자식3_자식1",
+													"루트2_자식2_자식3_자식3_자식1");
+									root1Child2Child1Child3BoardTreeNode
+											.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);
+								}
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child3BoardTreeNode);
+							}
+
+							root1Child2BoardTreeNode
+									.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						root1BoardTreeNode
+								.addChildNode(root1Child2BoardTreeNode);
+					}
+
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트2_자식3", "루트2_자식3");
+						root1BoardTreeNode
+								.addChildNode(root1Child3BoardTreeNode);
+					}
+
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
+				}
+
+				return boardTree;
+			}
+		}
+
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardInfoAddRes.getBoardID());
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
+
+		// BoardTreeNode parentBoardTreeNode = boardTree.find("루트1_자식1_자식1");
+		
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setRequestedUserID(requestedUserIDForUser);
+		boardListReq.setBoardID(boardInfoAddRes.getBoardID());
+		boardListReq.setPageNo(pageNo);
+		boardListReq.setPageSize(pageSize);			
 
 		try {
 			BoardListRes acutalBoardListRes = boardListReqServerTask.doWork(
 					TEST_DBCP_NAME, boardListReq);
 			log.info(acutalBoardListRes.toString());
 
-			if (acutalBoardListRes.getTotal() != 1) {
-				fail("DB 초기 상태에에서 총 갯수가 1이 아닙니다");
+			if (acutalBoardListRes.getTotal() != 2) {
+				fail("DB 초기 상태에에서 총 갯수가 2 가 아닙니다");
 			}
 
-			if (acutalBoardListRes.getCnt() != 1) {
-				fail("DB 초기 상태에에서 총 갯수가 1이 아닙니다");
-			}
-
-			BoardListRes.Board board = acutalBoardListRes.getBoardList().get(0);
-
-			assertEquals("게시판 번호 비교", okSateBoardWriteRes.getBoardNo(),
-					board.getBoardNo());
-			assertEquals("게시판 제목 비교", boardWriteReq.getSubject(),
-					board.getSubject());
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
+			if (acutalBoardListRes.getCnt() != 2) {
+				fail("DB 초기 상태에에서 총 갯수가 2 가 아닙니다");
+			}			
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
@@ -545,7 +750,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("삭제::제목");
 		boardWriteReq.setContents("삭제::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -644,7 +849,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID(adminID);
-		boardListReq.setBoardID(BoardType.FREE.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 
@@ -678,17 +883,14 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Test
 	public void 게시판목록_트리관련항목유효성검사() {
-		final BoardType boardType = BoardType.FREE;
 
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 
 				BoardTree boardTree = new BoardTree();
-
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree
 							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
@@ -815,7 +1017,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 
 		int pageNo = 1;
@@ -823,7 +1025,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("guest");
-		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 
@@ -898,7 +1100,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
 		boardDeleteReq.setRequestedUserID(writerID);
-		boardDeleteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardDeleteReq.setBoardID(boardID);
 		boardDeleteReq.setBoardNo(1);
 
 		try {
@@ -932,7 +1134,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("삭제::타인::제목");
 		boardWriteReq.setContents("삭제::타인::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -995,7 +1197,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("삭제::제목");
 		boardWriteReq.setContents("삭제::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -1070,7 +1272,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("삭제::제목");
 		boardWriteReq.setContents("삭제::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -1171,7 +1373,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -1256,7 +1458,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 		BoardBlockReq boardBlockReq = new BoardBlockReq();
 		boardBlockReq.setRequestedUserID(adminID);
-		boardBlockReq.setBoardID(BoardType.FREE.getBoardID());
+		boardBlockReq.setBoardID(boardID);
 		boardBlockReq.setBoardNo(1);
 
 		try {
@@ -1289,7 +1491,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -1353,7 +1555,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -1438,7 +1640,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -1500,17 +1702,14 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Test
 	public void 계획된_게시판_테스트_데이터_실사화_검증() {
-		final BoardType boardType = BoardType.FREE;
 
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 
 				BoardTree boardTree = new BoardTree();
-
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree
 							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
@@ -1637,7 +1836,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 
 		int pageNo = 1;
@@ -1645,7 +1844,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("guest");
-		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 
@@ -1710,17 +1909,14 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Test
 	public void 게시판차단_블락포함된블락() {
-		final BoardType boardType = BoardType.FREE;
 
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 
 				BoardTree boardTree = new BoardTree();
-
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree
 							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
@@ -1847,7 +2043,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 
 		BoardTreeNode firstBlockBoardTreeNode = boardTree
@@ -1929,7 +2125,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("admin");
-		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 
@@ -2035,17 +2231,13 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Test
 	public void 게시글차단_루트정상() {
-		final BoardType boardType = BoardType.FREE;
-
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 
 				BoardTree boardTree = new BoardTree();
-
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree
 							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
@@ -2172,7 +2364,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 
 		BoardTreeNode blockBoardTreeNode = boardTree.find("루트1_자식1_자식1_자식1");
@@ -2275,7 +2467,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("guest");
-		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 
@@ -2315,7 +2507,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 		BoardUnBlockReq boardUnBlockReq = new BoardUnBlockReq();
 		boardUnBlockReq.setRequestedUserID(writerID);
-		boardUnBlockReq.setBoardID(BoardType.FREE.getBoardID());
+		boardUnBlockReq.setBoardID(boardID);
 		boardUnBlockReq.setBoardNo(1);
 
 		try {
@@ -2347,7 +2539,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 		BoardUnBlockReq boardUnBlockReq = new BoardUnBlockReq();
 		boardUnBlockReq.setRequestedUserID(adminID);
-		boardUnBlockReq.setBoardID(BoardType.FREE.getBoardID());
+		boardUnBlockReq.setBoardID(boardID);
 		boardUnBlockReq.setBoardNo(1);
 
 		try {
@@ -2381,7 +2573,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("제목1");
 		boardWriteReq.setContents("내용1");
 		boardWriteReq.setIp("172.16.0.1");
@@ -2435,17 +2627,13 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Test
 	public void 게시판해제_블락포함된블락() {
-		final BoardType boardType = BoardType.FREE;
-
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 
 				BoardTree boardTree = new BoardTree();
-
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree
 							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
@@ -2572,7 +2760,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 
 		BoardTreeNode firstBlockBoardTreeNode = boardTree
@@ -2695,7 +2883,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("admin");
-		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 
@@ -2780,17 +2968,13 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Test
 	public void 게시판해제_정상() {
-		final BoardType boardType = BoardType.FREE;
-
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 
 				BoardTree boardTree = new BoardTree();
-
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree
 							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
@@ -2917,7 +3101,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 
 		BoardTreeNode blockBoardTreeNode = boardTree.find("루트1_자식2_자식1_자식3");
@@ -3100,7 +3284,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContents("내용::그림2 하나를 그리다");
 		boardWriteReq.setIp("172.16.0.1");
@@ -3153,13 +3337,10 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			assertEquals("내용 비교", boardWriteReq.getContents(),
 					boardDetailRes.getContents());
 			assertEquals("작성자 아이디 비교", boardWriteReq.getRequestedUserID(),
-					boardDetailRes.getWriterID());
-			assertEquals("작성 아이피 주소 비교", boardWriteReq.getIp(),
-					boardDetailRes.getWriterIP());
+					boardDetailRes.getFirstWriterID());
+			
 			assertEquals("최종 수정자 아이디 비교", boardWriteReq.getRequestedUserID(),
-					boardDetailRes.getLastModifierID());
-			assertEquals("최종 수정자 아이피 주소 비교", boardWriteReq.getIp(),
-					boardDetailRes.getLastModifierIP());
+					boardDetailRes.getLastModifierID());			
 			assertEquals("첨부 파일 갯수 비교", newAttachedFileListForWrite.size(),
 					boardDetailRes.getAttachedFileCnt());
 			assertEquals("다음 첨부 파일 시퀀스 비교", newAttachedFileListForWrite.size(),
@@ -3253,13 +3434,11 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			assertEquals("내용 비교", boardModifyReq.getContents(),
 					boardModifyReq.getContents());
 			assertEquals("작성자 아이디 비교", boardWriteReq.getRequestedUserID(),
-					boardDetailRes.getWriterID());
-			assertEquals("작성 아이피 주소 비교", boardWriteReq.getIp(),
-					boardDetailRes.getWriterIP());
+					boardDetailRes.getFirstWriterID());
+			
 			assertEquals("최종 수정자 아이디 비교", boardModifyReq.getRequestedUserID(),
 					boardDetailRes.getLastModifierID());
-			assertEquals("최종 수정자 아이피 주소 비교", boardModifyReq.getIp(),
-					boardDetailRes.getLastModifierIP());
+			
 
 			assertEquals("첨부 파일 갯수 비교", newAttachedFileListForWrite.size()
 					+ newAttachedFileListForModify.size(),
@@ -3311,7 +3490,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		String otherID = "test02";
 
 		BoardReplyReq boardReplyReq = new BoardReplyReq();
-		boardReplyReq.setBoardID(BoardType.FREE.getBoardID());
+		boardReplyReq.setBoardID(boardID);
 		boardReplyReq.setParentBoardNo(1);
 		boardReplyReq.setSubject("테스트 주제01-1");
 		boardReplyReq.setContents("내용::그림01-1하나를 그리다");
@@ -3384,7 +3563,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			}
 			BoardWriteReq boardWriteReq = new BoardWriteReq();
 			boardWriteReq.setRequestedUserID(writerID);
-			boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+			boardWriteReq.setBoardID(boardID);
 			boardWriteReq.setSubject("테스트 주제01");
 			boardWriteReq.setContents("내용::그림01 하나를 그리다");
 			boardWriteReq.setIp("172.16.0.1");
@@ -3488,9 +3667,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			assertEquals("댓글 내용 비교", boardReplyReq.getContents(),
 					boardDetailRes.getContents());
 			assertEquals("댓글 작성자 아이디 비교", boardReplyReq.getRequestedUserID(),
-					boardDetailRes.getWriterID());
-			assertEquals("댓글 작성자 아이피 주소 비교", boardReplyReq.getIp(),
-					boardDetailRes.getWriterIP());
+					boardDetailRes.getFirstWriterID());
+			
 			assertEquals("댓글 첨부 파일 갯수 비교",
 					boardReplyReq.getNewAttachedFileCnt(),
 					boardDetailRes.getAttachedFileCnt());
@@ -3519,17 +3697,13 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Test
 	public void 댓글등록_정상_중간() {
-		final BoardType boardType = BoardType.FREE;
-
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 
 				BoardTree boardTree = new BoardTree();
-
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree
 							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
@@ -3656,7 +3830,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 
 		BoardTreeNode parentBoardTreeNode = boardTree.find("루트1_자식1_자식1");
@@ -3713,7 +3887,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("guest");
-		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 
@@ -3828,7 +4002,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	@Test
 	public void 게시판수정_첨부파일최대등록갯수초과() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
-		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
+		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
 		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
@@ -3896,7 +4070,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	@Test
 	public void 게시판수정_잘못된신규첨부파일이름() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
-		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
+		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
 		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
@@ -3952,7 +4126,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	@Test
 	public void 게시판수정_중복된보존을원하는구파일시퀀스() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
-		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
+		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
 		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
@@ -4007,7 +4181,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	@Test
 	public void 게시판수정_보존을원하는구파일시퀀스가다음시퀀스번호보다큰경우() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
-		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
+		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
 		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
@@ -4072,7 +4246,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID("test01");
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -4152,7 +4326,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -4255,7 +4429,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -4364,7 +4538,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -4498,7 +4672,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	public void 게시판수정_새로운다음첨부파일시퀀스최대값초과() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
 		boardModifyReq.setRequestedUserID("test01");
-		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
+		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
 		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
@@ -4566,7 +4740,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -4644,7 +4818,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		String writerID = "test01";
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
 		boardModifyReq.setRequestedUserID(writerID);
-		boardModifyReq.setBoardID(BoardType.FREE.getBoardID());
+		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
 		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");
@@ -4718,7 +4892,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -4810,7 +4984,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -4919,7 +5093,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -5036,7 +5210,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
@@ -5164,7 +5338,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");

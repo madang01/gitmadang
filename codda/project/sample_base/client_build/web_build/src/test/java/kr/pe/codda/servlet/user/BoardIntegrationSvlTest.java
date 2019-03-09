@@ -206,11 +206,11 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 	}
 	
 	private BoardWriteRes executeBoardWriteProcessServlet(String loginID, 
-			String paramBoardID, String paramSubject, String paramContents, List<File> attachedFileList) {
+			String paramBoardID, String paramSubject, String paramContents, List<File> newAttachedFileList) {
 		
 		class BoardWriteProcessRequestMockBuilder {
 			public HttpServletRequest build(String loginID, 
-					String paramBoardID, String paramSubject, String paramContents, List<File> attachedFileList) {
+					String paramBoardID, String paramSubject, String paramContents, List<File> newAttachedFileList) {
 				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager
 						.getInstance();
 				
@@ -258,10 +258,10 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 				writeBuilder.addTextBody("contents", paramContents, 
 						ContentType.create("text/plain", "UTF-8"));	
 
-				for (File attachedFile : attachedFileList) {
+				for (File newAttachedFile : newAttachedFileList) {
 					byte[] contentsOfUploadFile = null;
 					try {
-						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(attachedFile, 10*1024*1024);
+						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(newAttachedFile, WebCommonStaticFinalVars.ATTACHED_FILE_MAX_SIZE);
 					} catch (IOException e) {
 						fail("첨부 파일로 지정한 파일 읽기 실패");
 					}
@@ -285,7 +285,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 						fail("파일 유형을 알 수 없습니다");
 					}
 					
-					writeBuilder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), attachedFile.getName());
+					writeBuilder.addBinaryBody("newAttachedFile", contentsOfUploadFile, ContentType.create(mimeTypeOfUploadFile), newAttachedFile.getName());
 				}		
 				
 				HttpEntity writeEntity = writeBuilder.build();
@@ -324,7 +324,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		
 		HttpServletRequest requestMock = new BoardWriteProcessRequestMockBuilder().build(loginID,
 				paramBoardID,
-				paramSubject, paramContents, attachedFileList);
+				paramSubject, paramContents, newAttachedFileList);
 		HttpServletResponse responseMock = mock(HttpServletResponse.class);
 				
 				
@@ -411,7 +411,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 				for (File attachedFile : attachedFileList) {
 					byte[] contentsOfUploadFile = null;
 					try {
-						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(attachedFile, 10*1024*1024);
+						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(attachedFile, WebCommonStaticFinalVars.ATTACHED_FILE_MAX_SIZE);
 					} catch (IOException e) {
 						fail("첨부 파일로 지정한 파일 읽기 실패");
 					}
@@ -578,7 +578,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 				for (File newAttachedFile : newAttachedFileList) {
 					byte[] contentsOfUploadFile = null;
 					try {
-						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(newAttachedFile, 10*1024*1024);
+						contentsOfUploadFile = CommonStaticUtil.readFileToByteArray(newAttachedFile, WebCommonStaticFinalVars.ATTACHED_FILE_MAX_SIZE);
 					} catch (IOException e) {
 						fail("첨부 파일로 지정한 파일 읽기 실패");
 					}

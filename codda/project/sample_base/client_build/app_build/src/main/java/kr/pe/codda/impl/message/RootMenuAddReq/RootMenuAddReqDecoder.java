@@ -35,6 +35,14 @@ public final class RootMenuAddReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("RootMenuAddReq");
 
+		rootMenuAddReq.setRequestedUserID((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "requestedUserID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		rootMenuAddReq.setMenuName((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "menuName" // itemName

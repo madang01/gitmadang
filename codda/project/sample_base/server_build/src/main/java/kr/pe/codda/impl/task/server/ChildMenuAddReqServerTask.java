@@ -7,6 +7,14 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Record3;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
@@ -16,19 +24,13 @@ import kr.pe.codda.impl.message.ChildMenuAddRes.ChildMenuAddRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
-
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Record3;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
 
 public class ChildMenuAddReqServerTask extends AbstractServerTask {
 	
@@ -77,7 +79,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(childMenuAddReq.toString());
 		
-		UByte menuSequenceID = UByte.valueOf(SequenceType.MENU.getSequenceID());
+		final UByte menuSequenceID = SequenceType.MENU.getSequenceID();
 		UInteger parentMenuNo = UInteger.valueOf(childMenuAddReq.getParentNo());
 		UInteger childMenuNo = null;
 		UByte newOrderSeq = null;
@@ -91,6 +93,36 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, childMenuAddReq.getRequestedUserID());
+			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
+			try {
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("알 수 없는 회원[")
+					.append(childMenuAddReq.getRequestedUserID())
+					.append("]의 역활[")
+					.append(memberRoleOfRequestedUserID)
+					.append("] 값입니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}	
+			
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "자식 메뉴 추가 서비스는 관리자 전용 서비스입니다";
+				throw new ServerServiceException(errorMessage);
+			}
 			
 			/** 자식 메뉴 추가에 따른 '메뉴 순서' 보장을 위한 lock */
 			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE)

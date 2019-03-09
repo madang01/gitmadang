@@ -1,7 +1,5 @@
 <%@page import="com.google.gson.Gson"%><%
 %><%@page import="java.util.List"%><%
-%><%@page import="java.util.ArrayList"%><%
-%><%@page import="java.sql.Timestamp"%><%
 %><%@page import="kr.pe.codda.weblib.common.BoardStateType"%><%
 %><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
 %><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
@@ -530,10 +528,10 @@
 			<div class="col-sm-1" style="background-color:lavender;">글번호</div>
 			<div class="col-sm-1"><%= boardDetailRes.getBoardNo() %></div>
 			<div class="col-sm-1" style="background-color:lavenderblush;">작성자</div>
-			<div class="col-sm-2"><%= StringEscapeActorUtil.replace(boardDetailRes.getNickname(), 
+			<div class="col-sm-2"><%= StringEscapeActorUtil.replace(boardDetailRes.getWriterNickname(), 
 					STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></div>	
 			<div class="col-sm-2" style="background-color:lavender;">작성일</div>	
-			<div class="col-sm-3"><%=boardDetailRes.getRegisteredDate()%></div>		
+			<div class="col-sm-2"><%=boardDetailRes.getRegisteredDate()%></div>		
 		</div>
 		<div class="row">
 			<div class="col-sm-1" class="col-sm-2" style="background-color:lavenderblush;">조회수</div>
@@ -541,15 +539,15 @@
 			<div class="col-sm-1" style="background-color:lavender;">추천수</div>
 			<div class="col-sm-2" id="voteTxt"><%=boardDetailRes.getVotes()%></div>
 			<div class="col-sm-2" class="col-sm-2" style="background-color:lavenderblush;">마지막 수정일</div>
-			<div class="col-sm-3" class="col-sm-2"><%=boardDetailRes.getLastModifiedDate()%></div>
+			<div class="col-sm-2" class="col-sm-2"><%=boardDetailRes.getLastModifiedDate()%></div>
 		</div>
 		<div class="row">
 			<div class="col-sm-1" style="background-color:lavender;">게시판 상태</div>
 			<div class="col-sm-1"><%=BoardStateType.valueOf(boardDetailRes.getBoardSate(), false).getName()%></div>
 			<div class="col-sm-1" class="col-sm-2" style="background-color:lavenderblush;">마지막 수정자</div>
 			<div class="col-sm-2" class="col-sm-2"><%=boardDetailRes.getLastModifierNickName()%></div>			
-			<div class="col-sm-2" style="background-color:lavender;">마지막 수정자 IP</div>
-			<div class="col-sm-3"><%=boardDetailRes.getLastModifierIP()%></div>
+			<div class="col-sm-2" style="background-color:lavender;"></div>
+			<div class="col-sm-2"></div>
 		</div>
 		<div class="row">
 			<div class="col-sm-1" class="col-sm-1" style="background-color:lavenderblush;">제목</div>

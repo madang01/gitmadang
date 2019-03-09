@@ -2,6 +2,7 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
+import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
 import java.sql.Connection;
@@ -11,6 +12,16 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.Record2;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -22,7 +33,6 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
@@ -30,16 +40,6 @@ import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
-
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.Record2;
-import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
 
 public class BoardModifyReqServerTask extends AbstractServerTask {
 	public BoardModifyReqServerTask() throws DynamicClassCallException {
@@ -93,13 +93,6 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			throws Exception {
 		// FIXME!
 		log.info(boardModifyReq.toString());
-
-		try {
-			BoardType.valueOf(boardModifyReq.getBoardID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = "잘못된 게시판 식별자입니다";
-			throw new ServerServiceException(errorMessage);
-		}
 
 		try {
 			ValueChecker.checkValidSubject(boardModifyReq.getSubject());
@@ -302,6 +295,27 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					throw new ServerServiceException(errorMessage);
 				}
 			}
+			
+			
+			Record1<String> boardInforRecord = create
+					.select(SB_BOARD_INFO_TB.BOARD_NAME)
+					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne();
+
+			if (null == boardInforRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.longValue())
+						.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+
+			// boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			
+			
 
 			Record2<String, UByte> boardRecord = create
 					.select(SB_BOARD_TB.BOARD_ST,

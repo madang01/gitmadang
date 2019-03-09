@@ -25,12 +25,22 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class ArraySiteMenuReq extends AbstractMessage {
+	private String requestedUserID;
 
+	public String getRequestedUserID() {
+		return requestedUserID;
+	}
+
+	public void setRequestedUserID(String requestedUserID) {
+		this.requestedUserID = requestedUserID;
+	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("arraySiteMenuReq[");
+		builder.append("requestedUserID=");
+		builder.append(requestedUserID);
 		builder.append("]");
 		return builder.toString();
 	}

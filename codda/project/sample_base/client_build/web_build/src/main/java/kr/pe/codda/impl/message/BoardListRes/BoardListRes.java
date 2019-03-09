@@ -26,6 +26,7 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class BoardListRes extends AbstractMessage {
 	private short boardID;
+	private byte boardListType;
 	private int pageNo;
 	private int pageSize;
 	private long total;
@@ -38,10 +39,10 @@ public class BoardListRes extends AbstractMessage {
 		private long parentNo;
 		private short depth;
 		private String writerID;
+		private String writerNickname;
 		private int viewCount;
 		private String boardSate;
 		private java.sql.Timestamp registeredDate;
-		private String nickname;
 		private int votes;
 		private String subject;
 		private java.sql.Timestamp lastModifiedDate;
@@ -88,6 +89,13 @@ public class BoardListRes extends AbstractMessage {
 		public void setWriterID(String writerID) {
 			this.writerID = writerID;
 		}
+		public String getWriterNickname() {
+			return writerNickname;
+		}
+
+		public void setWriterNickname(String writerNickname) {
+			this.writerNickname = writerNickname;
+		}
 		public int getViewCount() {
 			return viewCount;
 		}
@@ -108,13 +116,6 @@ public class BoardListRes extends AbstractMessage {
 
 		public void setRegisteredDate(java.sql.Timestamp registeredDate) {
 			this.registeredDate = registeredDate;
-		}
-		public String getNickname() {
-			return nickname;
-		}
-
-		public void setNickname(String nickname) {
-			this.nickname = nickname;
 		}
 		public int getVotes() {
 			return votes;
@@ -154,14 +155,14 @@ public class BoardListRes extends AbstractMessage {
 			builder.append(depth);
 			builder.append(", writerID=");
 			builder.append(writerID);
+			builder.append(", writerNickname=");
+			builder.append(writerNickname);
 			builder.append(", viewCount=");
 			builder.append(viewCount);
 			builder.append(", boardSate=");
 			builder.append(boardSate);
 			builder.append(", registeredDate=");
 			builder.append(registeredDate);
-			builder.append(", nickname=");
-			builder.append(nickname);
 			builder.append(", votes=");
 			builder.append(votes);
 			builder.append(", subject=");
@@ -181,6 +182,13 @@ public class BoardListRes extends AbstractMessage {
 
 	public void setBoardID(short boardID) {
 		this.boardID = boardID;
+	}
+	public byte getBoardListType() {
+		return boardListType;
+	}
+
+	public void setBoardListType(byte boardListType) {
+		this.boardListType = boardListType;
 	}
 	public int getPageNo() {
 		return pageNo;
@@ -224,6 +232,8 @@ public class BoardListRes extends AbstractMessage {
 		builder.append("boardListRes[");
 		builder.append("boardID=");
 		builder.append(boardID);
+		builder.append(", boardListType=");
+		builder.append(boardListType);
 		builder.append(", pageNo=");
 		builder.append(pageNo);
 		builder.append(", pageSize=");

@@ -14,6 +14,18 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
+import org.jooq.DSLContext;
+import org.jooq.Record4;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -26,18 +38,6 @@ import kr.pe.codda.impl.task.server.ArraySiteMenuReqServerTask;
 import kr.pe.codda.impl.task.server.BoardListReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
-import org.jooq.DSLContext;
-import org.jooq.Record2;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-import org.jooq.types.UShort;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 public class ServerDBUtilTest extends AbstractJunitTest {
 	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
 	
@@ -45,11 +45,6 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();
 		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);		
-	}
-	
-	@Before
-	public void setUp() {
-		// UByte freeBoardSequenceID = UByte.valueOf(SequenceType.FREE_BOARD.getSequenceID());
 		
 		{
 			String userID = "admin";
@@ -67,7 +62,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 						.append("] 입니다").toString();
 				String actualErrorMessag = e.getMessage();
 				
-				log.warn(actualErrorMessag, e);
+				//log.warn(actualErrorMessag, e);
 				
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
@@ -92,7 +87,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 						.append("] 입니다").toString();
 				String actualErrorMessag = e.getMessage();
 				
-				log.warn(actualErrorMessag, e);
+				//log.warn(actualErrorMessag, e);
 				
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
@@ -117,7 +112,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 						.append("] 입니다").toString();
 				String actualErrorMessag = e.getMessage();
 				
-				log.warn(actualErrorMessag, e);
+				//log.warn(actualErrorMessag, e);
 				
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
@@ -125,8 +120,93 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 				fail("fail to create a test ID");
 			}
 		}
+	}
+	
+	@After
+	public void tearDown(){		
 		
+		DataSource dataSource = null;
+		try {
+			dataSource = DBCPManager.getInstance()
+					.getBasicDataSource(TEST_DBCP_NAME);
+		} catch (DBCPDataSourceNotFoundException e) {
+			log.warn(e.getMessage(), e);
+			fail(e.getMessage());
+		}		
 		
+		Connection conn = null;
+		
+		try {
+			conn = dataSource.getConnection();
+			conn.setAutoCommit(false);
+
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
+			
+			Result<Record4<UByte, Byte, Integer, Integer>> boardInfoResult = create.select(SB_BOARD_INFO_TB.BOARD_ID, 
+					SB_BOARD_INFO_TB.LIST_TYPE,
+					SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.TOTAL)
+			.from(SB_BOARD_INFO_TB).orderBy(SB_BOARD_INFO_TB.BOARD_ID.asc())
+			.fetch();
+			
+			
+			for (Record4<UByte, Byte, Integer, Integer> boardInfoRecord : boardInfoResult) {
+				UByte boardID = boardInfoRecord.get(SB_BOARD_INFO_TB.BOARD_ID);
+				byte boardListTypeValue = boardInfoRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
+				int acutalTotal = boardInfoRecord.getValue(SB_BOARD_INFO_TB.TOTAL);
+				int actualCountOfList = boardInfoRecord.getValue(SB_BOARD_INFO_TB.CNT);
+				
+				BoardListType boardListType = BoardListType.valueOf(boardListTypeValue);				
+				int expectedTotal = create.selectCount()
+						.from(SB_BOARD_TB)
+						.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).fetchOne().value1();
+				
+				int expectedCountOfList = -1;
+				
+				if (BoardListType.TREE.equals(boardListType)) {
+					expectedCountOfList = create.selectCount().from(SB_BOARD_TB)
+							.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+							.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue())).fetchOne().value1();
+				} else {
+					expectedCountOfList = create.selectCount().from(SB_BOARD_TB)
+							.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+							.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue()))
+							.and(SB_BOARD_TB.PARENT_NO.eq(UInteger.valueOf(0))).fetchOne().value1();
+				}
+								
+				
+				
+				assertEquals("전체 글 갯수 비교",  expectedTotal, acutalTotal);
+				assertEquals("목록 글 갯수 비교",  expectedCountOfList, actualCountOfList);
+			}
+			
+			
+			conn.commit();
+			
+		} catch (Exception e) {
+
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+
+			log.warn(e.getMessage(), e);
+
+			fail(e.getMessage());
+		} finally {
+			if (null != conn) {
+				try {
+					conn.close();
+				} catch (Exception e) {
+					log.warn("fail to close the db connection", e);
+				}
+			}
+		}
+	}
+	
+	private void initMenuDB() {
 		DataSource dataSource = null;
 		try {
 			dataSource = DBCPManager.getInstance()
@@ -147,15 +227,6 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, UInteger.valueOf(1))
 			.execute();			
 			
-			create.delete(SB_BOARD_VOTE_TB).execute();
-			create.delete(SB_BOARD_FILELIST_TB).execute();
-			create.delete(SB_BOARD_HISTORY_TB).execute();
-			create.delete(SB_BOARD_TB).execute();
-			
-			create.update(SB_BOARD_INFO_TB)
-			.set(SB_BOARD_INFO_TB.ADMIN_TOTAL, 0)
-			.set(SB_BOARD_INFO_TB.USER_TOTAL, 0)
-			.execute();
 			
 			create.delete(SB_SITEMENU_TB).execute();			
 			
@@ -185,9 +256,8 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		}
 	}
 	
-	@After
-	public void tearDown(){		
-		
+	
+	private void initBoardDB() {
 		DataSource dataSource = null;
 		try {
 			dataSource = DBCPManager.getInstance()
@@ -205,28 +275,16 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 			
-			for (BoardType boardType : BoardType.values()) {
-				UByte boardID = UByte.valueOf(boardType.getBoardID());
-				int adminCount = create.selectCount()
-						.from(SB_BOARD_TB)
-						.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).fetchOne().value1();
-				
-				int userCount = create.selectCount().from(SB_BOARD_TB)
-				.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-				.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue())).fetchOne().value1();
-				
-				Record2<Integer, Integer>  boardInfoRecord = create.select(SB_BOARD_INFO_TB.ADMIN_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL)
-				.from(SB_BOARD_INFO_TB)
-				.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
-				.fetchOne();
-				
-				int adminCountOfBoardInfoTable = boardInfoRecord.getValue(SB_BOARD_INFO_TB.ADMIN_TOTAL);
-				int userCountOfBoardInfoTable = boardInfoRecord.getValue(SB_BOARD_INFO_TB.USER_TOTAL);
-				
-				assertEquals("어드민인 경우 게시판 전체 글 갯수 비교",  adminCount, adminCountOfBoardInfoTable);
-				assertEquals("유저인 경우 게시판 전체 글 갯수 비교",  userCount, userCountOfBoardInfoTable);
-			}
+			create.delete(SB_BOARD_VOTE_TB).execute();
+			create.delete(SB_BOARD_FILELIST_TB).execute();
+			create.delete(SB_BOARD_HISTORY_TB).execute();
+			create.delete(SB_BOARD_TB).execute();
 			
+			create.update(SB_BOARD_INFO_TB)
+			.set(SB_BOARD_INFO_TB.CNT, 0)
+			.set(SB_BOARD_INFO_TB.TOTAL, 0)
+			.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1))
+			.execute();						
 			
 			conn.commit();
 			
@@ -254,10 +312,19 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		}
 	}
 	
+	@Test
+	public void DB초기화테스트상태점검() {
+		/** 아무 동작 없이 상태 확인을 위한 테스트 메소드 */
+		
+		// initMenuDB();
+	}
 	
 	
 	@Test
 	public void testgetToOrderSeqOfRelativeRootMenu_트리끝위치얻기2가지방법비교() {
+		
+		initMenuDB();
+		
 		class VirtualSiteMenuTreeBuilder implements VirtualSiteMenuTreeBuilderIF {
 
 			@Override
@@ -437,8 +504,8 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		}
 		
 		VirtualSiteMenuTreeBuilderIF virtualSiteMenuTreeBuilder = new VirtualSiteMenuTreeBuilder();		
-		SiteMenuTree siteMenuTree = virtualSiteMenuTreeBuilder.build();
-		siteMenuTree.makeDBRecord(TEST_DBCP_NAME);
+		SiteMenuTree virtualSiteMenuTree = virtualSiteMenuTreeBuilder.build();
+		virtualSiteMenuTree.toDBRecord(TEST_DBCP_NAME);
 		
 		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
 		try {
@@ -518,17 +585,18 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 	@Test
 	public void testGetToGroupSeqOfRelativeRootBoard_트리끝위치얻기2가지방법비교() {
-		final BoardType boardType = BoardType.FREE;
+		initBoardDB();
+		
+		final short boardID = 3;
 		
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 				
 				BoardTree boardTree = new BoardTree();				
 				
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1", "루트1");
 					
@@ -594,7 +662,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		}
 		
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		
@@ -603,7 +671,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID("admin");
-		boardListReq.setBoardID(boardType.getBoardID());
+		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(pageSize);
 		
@@ -684,17 +752,18 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 	@Test
 	public void testGetToGroupSeqOfRelativeRootBoard_트리끝위치얻기방법2가지속도비교() {
-		final BoardType boardType = BoardType.FREE;
+		initBoardDB();
+		
+		final short boardID = 3;
 		
 		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
 			@Override
-			public BoardTree build(final BoardType boardType) {
+			public BoardTree build(final short boardID) {
 				String writerID = "test01";
 				String otherID = "test02";
 				
 				BoardTree boardTree = new BoardTree();				
 				
-				final short boardID = boardType.getBoardID();
 				{
 					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1", "루트1");
 					
@@ -760,7 +829,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		}
 		
 		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardType);
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 		
 		BoardTreeNode boardTreeNode = boardTree.find("루트1_자식2");
@@ -800,8 +869,9 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 				
 			afterTime = System.currentTimeMillis();
 			
-			log.info(new StringBuilder("직계 부모 이용한 트리 끝 위치 얻기").append(":end(elapsed=")
-					.append((afterTime - beforeTime)).append(")").toString());
+			log.info(new StringBuilder("직계 부모 이용한 트리 끝 위치 얻기 ")
+					.append(count).append(" 회 :end(elapsed=")
+					.append((afterTime - beforeTime)).append(" ms)").toString());
 			
 			beforeTime = System.currentTimeMillis();
 			for (int i=0;i < count; i++) {
@@ -814,8 +884,9 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			
 			afterTime = System.currentTimeMillis();
 			
-			log.info(new StringBuilder("트리 깊이를 이용한 트리 끝 위치 얻기").append(":end(elapsed=")
-					.append((afterTime - beforeTime)).append(")").toString());
+			log.info(new StringBuilder("트리 깊이를 이용한 트리 끝 위치 얻기 ")
+					.append(count).append(" 회:end(elapsed=")
+					.append((afterTime - beforeTime)).append(" ms)").toString());
 			
 			
 			

@@ -16,8 +16,10 @@ import kr.pe.codda.impl.message.TreeSiteMenuReq.TreeSiteMenuReq;
 import kr.pe.codda.impl.message.TreeSiteMenuRes.TreeSiteMenuRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -87,7 +89,35 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));			
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, treeSiteMenuReq.getRequestedUserID());	
+			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
+			try {
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("해당 게시글 요청자의 멤버 타입[")
+						.append(memberRoleOfRequestedUserID)
+						.append("]이 잘못되어있습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}	
+			
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "사용자 사이트의 계층형 메뉴 조회 서비는 관리자 전용 서비스입니다";
+				throw new ServerServiceException(errorMessage);
+			}
 			
 				
 			HashMap<UInteger, TreeSiteMenuRes.Menu> menuHash = new HashMap<UInteger, TreeSiteMenuRes.Menu>();

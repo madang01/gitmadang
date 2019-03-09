@@ -18,6 +18,9 @@
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 상세 조회 응답 메시지</desc>
 <singleitem name="boardID" type="unsigned byte" />
+<singleitem name="boardListType" type="byte" />
+<singleitem name="boardReplyPolicyType" type="byte" />
+<singleitem name="boardReplyPermssionType" type="byte" />
 <singleitem name="boardNo" type="unsigned integer" />
 <singleitem name="groupNo" type="unsigned integer" />
 <singleitem name="groupSeq" type="unsigned short" />
@@ -25,14 +28,12 @@
 <singleitem name="depth" type="unsigned byte" />
 <singleitem name="viewCount" type="integer" />
 <singleitem name="boardSate" type="ub pascal string" />
-<singleitem name="nickname" type="ub pascal string" />
 <singleitem name="votes" type="integer" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="contents" type="si pascal string" />
-<singleitem name="writerID" type="ub pascal string" />
-<singleitem name="writerIP" type="ub pascal string" />
-<singleitem name="registeredDate" type="java sql timestamp" />
-<singleitem name="lastModifierIP" type="ub pascal string" />
+<singleitem name="firstWriterID" type="ub pascal string" />
+<singleitem name="firstWriterNickname" type="ub pascal string" />
+<singleitem name="firstRegisteredDate" type="java sql timestamp" />
 <singleitem name="lastModifierID" type="ub pascal string" />
 <singleitem name="lastModifierNickName" type="ub pascal string" />
 <singleitem name="lastModifiedDate" type="java sql timestamp" />
@@ -42,5 +43,28 @@
 	<singleitem name="attachedFileSeq" type="unsigned byte" />	
 	<singleitem name="attachedFileName" type="us pascal string" />
 	<singleitem name="attachedFileSize" type="long" />
+</array>
+<singleitem name="childNodeCnt" type="integer" />
+<array name="childNode" cnttype="reference" cntvalue="childNodeCnt">
+	<singleitem name="boardNo" type="unsigned integer" />
+	<singleitem name="groupSeq" type="unsigned short" />
+	<singleitem name="parentNo" type="unsigned integer" />
+	<singleitem name="depth" type="unsigned byte" />		
+	<singleitem name="contents" type="si pascal string" />
+	<singleitem name="votes" type="integer" />
+	<singleitem name="boardSate" type="ub pascal string" />
+	<singleitem name="firstWriterID" type="ub pascal string" />
+	<singleitem name="firstWriterNickname" type="ub pascal string" />
+	<singleitem name="firstRegisteredDate" type="java sql timestamp" />
+	<singleitem name="lastModifierID" type="ub pascal string" />
+	<singleitem name="lastModifierNickName" type="ub pascal string" />
+	<singleitem name="lastModifiedDate" type="java sql timestamp" />
+	<singleitem name="nextAttachedFileSeq" type="unsigned byte" />
+	<singleitem name="attachedFileCnt" type="integer" />
+	<array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
+		<singleitem name="attachedFileSeq" type="unsigned byte" />	
+		<singleitem name="attachedFileName" type="us pascal string" />
+		<singleitem name="attachedFileSize" type="long" />
+	</array>
 </array>
 </message>

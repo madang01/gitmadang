@@ -289,20 +289,6 @@
 		<url-pattern>/servlet/JavaStringConverterProcess</url-pattern>
 	</servlet-mapping>
 	
-	<!-- 게시판 목록 -->
-	<servlet>
-		<servlet-name>BoardList</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.BoardListSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/BoardList</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>BoardList</servlet-name>
-		<url-pattern>/servlet/BoardList</url-pattern>
-	</servlet-mapping>
-
 	<!-- 게시글 추천 -->
 	<servlet>
 		<servlet-name>BoardVote</servlet-name>
@@ -316,6 +302,20 @@
 		<servlet-name>BoardVote</servlet-name>
 		<url-pattern>/servlet/BoardVote</url-pattern>
 	</servlet-mapping>
+	
+	<!-- 게시판 목록 -->
+	<servlet>
+		<servlet-name>BoardList</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.BoardListSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardList</servlet-name>
+		<url-pattern>/servlet/BoardList</url-pattern>
+	</servlet-mapping>	
 
 	<!-- 게시글 상세 -->
 	<servlet>
@@ -331,7 +331,7 @@
 		<url-pattern>/servlet/BoardDetail</url-pattern>
 	</servlet-mapping>
 
-	<!-- 최상위 글 입력 화면 -->
+	<!-- 본문글 입력 화면 -->
 	<servlet>
 		<servlet-name>BoardWriteInput</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.user.BoardWriteInputSvl</servlet-class>
@@ -345,7 +345,7 @@
 		<url-pattern>/servlet/BoardWriteInput</url-pattern>
 	</servlet-mapping>	
 	
-	<!-- 최상위 글 입력 처리 -->
+	<!-- 본문글 입력 처리 -->
 	<servlet>
 		<servlet-name>BoardWriteProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.user.BoardWriteProcessSvl</servlet-class>
@@ -414,10 +414,7 @@
 	<servlet-mapping>
 		<servlet-name>BoardDownload</servlet-name>
 		<url-pattern>/servlet/BoardDownload</url-pattern>
-	</servlet-mapping>
-	
-	
-	
+	</servlet-mapping>	
 	
 	<!-- Simple Captcha start -->
 	<servlet>

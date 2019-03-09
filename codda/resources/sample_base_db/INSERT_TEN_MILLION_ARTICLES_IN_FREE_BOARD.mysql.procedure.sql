@@ -21,6 +21,8 @@ BEGIN
 		ROLLBACK;        
 		SET RESULT = -1;  
 	END;
+	
+	
     
 	/* 트랜젝션 시작 */
 	START TRANSACTION;
@@ -42,10 +44,7 @@ BEGIN
 		/* 테스트위한 임의 아이피 주소 지정 */
 		SET _IP = "172.16.0.1";
 
-        
-        ALTER TABLE SB_BOARD_TB disable keys;
-		ALTER TABLE SB_BOARD_HISTORY_TB disable keys;
-		-- LOCK TABLES SB_BOARD_TB WRITE, SB_BOARD_HISTORY_TB WRITE;
+		SET FOREIGN_KEY_CHECKS=0;                
         
 		SELECT if (max(board_no) is null, 1, max(board_no)+1) INTO _START_BOARD_NO FROM SB_BOARD_TB WHERE board_id = _BOARD_ID;        
         -- select _START_BOARD_NO, _BOARD_ID, _GROUP_SQ, _PARENT_NO, _DEPTH, _BOARD_STATE, _HISTORY_SQ, _IP;
@@ -74,9 +73,8 @@ BEGIN
 			SET _START_BOARD_NO = _START_BOARD_NO + 1;
 		END WHILE;
 
-		ALTER TABLE SB_BOARD_TB enable keys;
-		ALTER TABLE SB_BOARD_HISTORY_TB enable keys;
-        -- UNLOCK TABLES;
+		SET FOREIGN_KEY_CHECKS=1;
+        
 	/* 커밋 */
 	COMMIT;
 	SET RESULT = 0;

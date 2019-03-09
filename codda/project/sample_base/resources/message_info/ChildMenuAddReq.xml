@@ -17,6 +17,7 @@
 <messageID>ChildMenuAddReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>자식 메뉴 추가 요청 메시지</desc>
+<singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="parentNo" type="unsigned integer" />
 <singleitem name="menuName" type="ub pascal string" />
 <singleitem name="linkURL" type="ub pascal string" />

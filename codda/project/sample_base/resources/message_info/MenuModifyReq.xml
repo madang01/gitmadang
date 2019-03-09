@@ -17,6 +17,7 @@
 <messageID>MenuModifyReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>메뉴 수정 요청 메시지</desc>
+<singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="menuNo" type="unsigned integer" />
 <singleitem name="menuName" type="ub pascal string" />
 <singleitem name="linkURL" type="ub pascal string" />

@@ -10,24 +10,6 @@ import java.util.HashSet;
 
 import javax.sql.DataSource;
 
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.DynamicClassCallException;
-import kr.pe.codda.common.exception.ServerServiceException;
-import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.impl.message.BoardUnBlockReq.BoardUnBlockReq;
-import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.BoardType;
-import kr.pe.codda.server.lib.JooqSqlUtil;
-import kr.pe.codda.server.lib.MemberRoleType;
-import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
-import kr.pe.codda.server.lib.ServerDBUtil;
-import kr.pe.codda.server.lib.ValueChecker;
-import kr.pe.codda.server.task.AbstractServerTask;
-import kr.pe.codda.server.task.ToLetterCarrier;
-
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.Record2;
@@ -39,6 +21,24 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
+
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
+import kr.pe.codda.common.exception.DynamicClassCallException;
+import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.message.BoardUnBlockReq.BoardUnBlockReq;
+import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.server.PersonalLoginManagerIF;
+import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.BoardListType;
+import kr.pe.codda.server.lib.BoardStateType;
+import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
+import kr.pe.codda.server.task.AbstractServerTask;
+import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class BoardUnBlockReqServerTask extends AbstractServerTask {
 	public BoardUnBlockReqServerTask() throws DynamicClassCallException {
@@ -84,13 +84,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 	public MessageResultRes doWork(String dbcpName, BoardUnBlockReq boardUnBlockReq)
 			throws Exception {
 
-		BoardType boardType = null;
-		try {
-			boardType = BoardType.valueOf(boardUnBlockReq.getBoardID());
-		} catch (IllegalArgumentException e) {			
-			String errorMessage = "잘못된 게시판 식별자입니다";
-			throw new ServerServiceException(errorMessage);
-		}
+	
 		
 		if (boardUnBlockReq.getBoardNo() < 0 || boardUnBlockReq.getBoardNo() > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 			String errorMessage = "게시판 번호가 unsigned integer type 의 최대값(=4294967295) 보다 큽니다";
@@ -105,6 +99,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 		String requestedUserID = boardUnBlockReq.getRequestedUserID();
 		UByte boardID = UByte.valueOf(boardUnBlockReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardUnBlockReq.getBoardNo());
+		String boardName = null;
 		
 
 		DataSource dataSource = DBCPManager.getInstance()
@@ -142,6 +137,40 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = "게시글 해제는 관리자 전용 서비스입니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			Record2<String, Byte> boardInforRecord = create
+					.select(SB_BOARD_INFO_TB.BOARD_NAME,
+							SB_BOARD_INFO_TB.LIST_TYPE)
+					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne();
+
+			if (null == boardInforRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.longValue())
+						.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+
+			boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			byte boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
+			
+			BoardListType boardListType = null;
+			try {
+				boardListType = BoardListType.valueOf(boardListTypeValue);
+			} catch (IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = e.getMessage();
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -405,12 +434,21 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 			.and(SB_BOARD_TB.BOARD_NO.in(unBlockBoardNoSet))
 			.execute();
-						
-			create.update(SB_BOARD_INFO_TB)
-			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.add(unBlockBoardNoSet.size()))
-			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
-			.execute();
 			
+			if (BoardListType.TREE.equals(boardListType)) {
+				// 계층형 목록일때 목록 갯수에 정상 상태에서 차단상태로된 모든 갯수 추가
+				create.update(SB_BOARD_INFO_TB)
+					.set(SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.CNT.add(unBlockBoardNoSet.size()))
+					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)) .execute();
+			} else {
+				// 그룹 루트만으로 이루어진 목록일때 그룹 루트에 대한 차단시에만 목록 갯수 1 추가
+				if (0L == parentNo.longValue()) {					 
+					create.update(SB_BOARD_INFO_TB)
+						.set(SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.CNT.add(1))
+						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
+					.execute();
+				}
+			}		
 			
 			create.insertInto(SB_USER_ACTION_HISTORY_TB)
 			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestedUserID)
@@ -447,10 +485,12 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 		messageResultRes.setTaskMessageID(boardUnBlockReq.getMessageID());
 		messageResultRes.setIsSuccess(true);
 		messageResultRes.setResultMessage(new StringBuilder()
-				.append(boardType.getName())
-				.append(" 게시판의 글[")
+				.append(boardName)
+				.append(" 게시판[")
+				.append(boardID)
+				.append("] 의 게시글[")
 				.append(boardNo.longValue())
-				.append("] 차단이 완료되었습니다").toString());
+				.append("]을 차단 해제하였습니다").toString());
 		
 		return messageResultRes;
 	}

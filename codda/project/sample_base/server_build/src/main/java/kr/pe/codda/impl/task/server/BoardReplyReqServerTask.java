@@ -4,13 +4,22 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_T
 import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
-import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.jooq.DSLContext;
+import org.jooq.Record1;
+import org.jooq.Record3;
+import org.jooq.Record5;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+import org.jooq.types.UShort;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -21,25 +30,17 @@ import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.BoardListType;
+import kr.pe.codda.server.lib.PermissionType;
+import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
-import kr.pe.codda.server.lib.SequenceType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
-
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.Record3;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
-import org.jooq.types.UShort;
 
 public class BoardReplyReqServerTask extends AbstractServerTask {
 
@@ -85,16 +86,6 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 	public BoardReplyRes doWork(String dbcpName, BoardReplyReq boardReplyReq) throws Exception {
 		// FIXME!
 		log.info(boardReplyReq.toString());
-
-		BoardType boardType = null;
-		try {
-			boardType = BoardType.valueOf(boardReplyReq.getBoardID());
-		} catch (IllegalArgumentException e) {			
-			String errorMessage = "잘못된 게시판 식별자입니다";
-			throw new ServerServiceException(errorMessage);
-		}
-
-		SequenceType boardSequenceType = boardType.toSequenceType();
 
 		try {
 			ValueChecker.checkValidParentBoardNo(boardReplyReq.getParentBoardNo());
@@ -178,7 +169,6 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		}
 
 		UByte boardID = UByte.valueOf(boardReplyReq.getBoardID());
-		UByte boardSequenceID = UByte.valueOf(boardSequenceType.getSequenceID());
 		UInteger parentBoardNo = UInteger.valueOf(boardReplyReq.getParentBoardNo());
 		UInteger boardNo = null;
 
@@ -192,39 +182,129 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			ValueChecker.checkValidRequestedUserState(conn, create, log, boardReplyReq.getRequestedUserID());
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, boardReplyReq.getRequestedUserID());
+			MemberRoleType memberRoleTypeOfRequestedUserID = null;
+			try {
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
+			} catch (IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = new StringBuilder("해당 게시글 차단 요청자의 멤버 타입[").append(memberRoleOfRequestedUserID)
+						.append("]이 잘못되어있습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
 			
-			Record boardSequenceRecord = create.select(SB_SEQ_TB.SQ_VALUE).from(SB_SEQ_TB)
-					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID)).forUpdate().fetchOne();
+			
+			Record5<String, Byte, Byte, Byte, UInteger> boardInforRecord = create
+					.select(SB_BOARD_INFO_TB.BOARD_NAME,
+							SB_BOARD_INFO_TB.LIST_TYPE,
+							SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
+							SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE,
+							SB_BOARD_INFO_TB.NEXT_BOARD_NO)
+					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).forUpdate().fetchOne();
 
-			if (null == boardSequenceRecord) {
+			if (null == boardInforRecord) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시판 번호로 사용할 게시판[").append(boardType.getName())
-						.append("] 시퀀스 식별자[").append(boardSequenceID).append("]의 시퀀스를 가져오는데 실패하였습니다").toString();
+				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.longValue())
+						.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 
-			boardNo = boardSequenceRecord.get(SB_SEQ_TB.SQ_VALUE);
-
-			int countOfUpdate = create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, SB_SEQ_TB.SQ_VALUE.add(1))
-					.where(SB_SEQ_TB.SQ_ID.eq(boardSequenceID)).execute();
-
-			if (0 == countOfUpdate) {
+			String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			byte boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
+			byte boardReplyPolicyTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE);
+			byte boardReplyPermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE);
+			boardNo = boardInforRecord.get(SB_BOARD_INFO_TB.NEXT_BOARD_NO);
+			
+			if (boardNo.longValue() == CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시판 시퀀스 식별자[").append(boardSequenceID)
-						.append("]의 시퀀스 갱신이 실패하였습니다").toString();
+				String errorMessage = new StringBuilder("지정한 게시판[").append(boardID.longValue())
+						.append("]은 최대 갯수까지 글이 등록되어 더 이상 글을 추가 할 수 없습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			BoardListType boardListType = null;
+			try {
+				boardListType = BoardListType.valueOf(boardListTypeValue);
+			} catch (IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = e.getMessage();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			
+			BoardReplyPolicyType boardReplyPolicyType = null;			
+			try {
+				boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardReplyPolicyTypeValue);
+			} catch (IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = e.getMessage();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			
+			PermissionType boardReplyPermissionType = null;
+
+			try {
+				boardReplyPermissionType = PermissionType.valueOf(boardReplyPermssionTypeValue);
+			} catch (IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = e.getMessage();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			if (BoardReplyPolicyType.NO_SUPPORTED.equals(boardReplyPolicyType)) {
+				// 댓글 미 지원				
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = new StringBuilder()
+						.append(boardName)
+						.append(" 게시판[")
+						.append(boardID)
+						.append("]은 댓글을 쓸 수 없습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			ServerDBUtil.checkServicePermission(conn, "게시판 댓글 등록 서비스", boardReplyPermissionType, memberRoleTypeOfRequestedUserID);
+						
+			
+			create.update(SB_BOARD_INFO_TB)
+			.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, SB_BOARD_INFO_TB.NEXT_BOARD_NO.add(1))
+			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
+			.execute();
 			
 			conn.commit();
 			
@@ -246,7 +326,25 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			UInteger groupNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_NO);
 			UShort groupSeqOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-			UByte nextAttachedFileSeq = UByte.valueOf(boardReplyReq.getNewAttachedFileCnt());			
+			UByte nextAttachedFileSeq = UByte.valueOf(boardReplyReq.getNewAttachedFileCnt());	
+			
+			if (BoardReplyPolicyType.ONLY_ROOT.equals(boardReplyPolicyType)) {
+				// 본문에만 댓글
+				if (0L != parentNoOfParentBoard.longValue()) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					
+					String errorMessage = new StringBuilder()
+							.append(boardName)
+							.append(" 게시판[")
+							.append(boardID)
+							.append("]은 본문에대한 댓글만이 허용되었습니다").toString();
+					throw new ServerServiceException(errorMessage);
+				}
+			}
 
 			/** 댓글은 부모가 속한 그룹의 순서를 조정하므로 그룹 전체에 대해서 동기화가 필요하기때문에 부모가 속한 그룹 최상위 글에 대해서 락을 건다 */
 			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
@@ -277,9 +375,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
 					.and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
-					.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq)).execute();
-			
-			
+					.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq)).execute();			
 
 			int boardInsertCount = create
 					.insertInto(SB_BOARD_TB, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO,
@@ -353,10 +449,22 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			create.update(SB_BOARD_INFO_TB)
-			.set(SB_BOARD_INFO_TB.ADMIN_TOTAL, SB_BOARD_INFO_TB.ADMIN_TOTAL.add(1))
-			.set(SB_BOARD_INFO_TB.USER_TOTAL, SB_BOARD_INFO_TB.USER_TOTAL.add(1))
-			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
+			if (BoardListType.TREE.equals(boardListType)) {
+				// 계층형 목록의 경우 댓글시 목록 갯수와 전체 글수 각각 1증가
+				create.update(SB_BOARD_INFO_TB)
+					.set(SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.CNT.add(1))
+					.set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
+				.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
+				.execute();
+			} else {
+				// 그룹 루트 목록의 경우 댓글시 전체 글수만 1 증가
+				create.update(SB_BOARD_INFO_TB)
+					.set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
+				.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
+				.execute();
+			}
+			  
+			 
 
 			conn.commit();
 			

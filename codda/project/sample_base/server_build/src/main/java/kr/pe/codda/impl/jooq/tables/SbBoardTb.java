@@ -42,7 +42,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = 1811033750;
+    private static final long serialVersionUID = -239925657;
 
     /**
      * The reference instance of <code>sb_db.sb_board_tb</code>
@@ -144,7 +144,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1, Indexes.SB_BOARD_TB_SB_BOARD_IDX2, Indexes.SB_BOARD_TB_SB_BOARD_IDX3);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1, Indexes.SB_BOARD_TB_SB_BOARD_IDX2);
     }
 
     /**

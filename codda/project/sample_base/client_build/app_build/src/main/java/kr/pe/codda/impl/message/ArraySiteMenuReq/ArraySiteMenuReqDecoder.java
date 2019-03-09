@@ -32,6 +32,18 @@ public final class ArraySiteMenuReqDecoder extends AbstractMessageDecoder {
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("ArraySiteMenuReq");
+
+		arraySiteMenuReq.setRequestedUserID((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "requestedUserID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		pathStack.pop();
 
 		return arraySiteMenuReq;
 	}

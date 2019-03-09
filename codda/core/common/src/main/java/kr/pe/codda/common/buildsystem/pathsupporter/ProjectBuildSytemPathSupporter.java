@@ -89,6 +89,8 @@ public abstract class ProjectBuildSytemPathSupporter {
 	}
 	
 	
+	
+	
 	/** logback config file path : [project resources path]/[logack log short file name] */
 	public static String getProjectLogbackConfigFilePathString(String installedPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(installedPathString, mainProjectName));
@@ -152,6 +154,14 @@ public abstract class ProjectBuildSytemPathSupporter {
 		StringBuilder strBuilder = new StringBuilder(getSessionKeyRSAKeypairPathString(installedPathString, mainProjectName));
 		strBuilder.append(File.separator);
 		strBuilder.append(CommonStaticFinalVars.PRIVATE_KEY_FILE_NAME);
+		return strBuilder.toString();
+	}
+	
+	/**  db initialization path : [project path]/resources/db_initialization  */
+	public static String getDBInitializationDirecotryPathString(String installedPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(installedPathString, mainProjectName))
+				.append(File.separator)
+				.append("db_initialization");
 		return strBuilder.toString();
 	}
 	

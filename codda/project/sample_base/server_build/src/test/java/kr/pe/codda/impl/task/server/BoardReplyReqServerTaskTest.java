@@ -16,7 +16,6 @@ import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
-import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -58,8 +57,10 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoService_ok() {
+		final short boardID = 3;
+		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContents("내용::그림3 하나를 그리다");		
 		boardWriteReq.setRequestedUserID("test01");
@@ -71,6 +72,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 			{
 				BoardWriteReq.NewAttachedFile newAttachedFile = new BoardWriteReq.NewAttachedFile();
 				newAttachedFile.setAttachedFileName("임시첨부파일01.jpg");
+				newAttachedFile.setAttachedFileSize(2017);
 				
 				newAttachedFileList.add(newAttachedFile);
 			}			
@@ -113,6 +115,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 			{
 				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
 				newAttachedFile.setAttachedFileName("임시첨부파일03_1.jpg");
+				newAttachedFile.setAttachedFileSize(2018);
 				
 				newAttachedFileList.add(newAttachedFile);
 			}
@@ -120,6 +123,7 @@ public class BoardReplyReqServerTaskTest extends AbstractJunitTest {
 			{
 				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
 				newAttachedFile.setAttachedFileName("임시첨부파일03_2.jpg");
+				newAttachedFile.setAttachedFileSize(2019);
 				
 				newAttachedFileList.add(newAttachedFile);
 			}

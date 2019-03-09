@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], ub variable length byte[], 
+					us variable length byte[], si variable length byte[]
+					java sql date, java sql timestamp, boolean
+	array counter type : reference 변수참조, direct 직접입력
+	direction : FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL
+	(1) FROM_NONE_TO_NONE : 메시지는 서버에서 클라이언트로 혹은 클라이언트에서 서버로 양쪽 모두에서 전송되지 않는다.
+	(2) FROM_SERVER_TO_CLINET : 메시지는 서버에서 클라이언트로만 전송된다.
+	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
+	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
+-->
+<message>
+<messageID>BoardGroupDetailRes</messageID>
+<direction>FROM_SERVER_TO_CLINET</direction>
+<desc>게시판 그룹 상세 조회 응답 메시지</desc>
+<singleitem name="boardID" type="unsigned byte" />
+<singleitem name="rootBoardNo" type="unsigned integer" />
+<singleitem name="rootViewCount" type="integer" />
+<singleitem name="rootBoardSate" type="ub pascal string" />
+<singleitem name="rootNickname" type="ub pascal string" />
+<singleitem name="rootVotes" type="integer" />
+<singleitem name="rootSubject" type="us pascal string" />
+<singleitem name="rootContents" type="si pascal string" />
+<singleitem name="rootWriterID" type="ub pascal string" />
+<singleitem name="rootRegisteredDate" type="java sql timestamp" />
+<singleitem name="rootLastModifierID" type="ub pascal string" />
+<singleitem name="rootLastModifierNickName" type="ub pascal string" />
+<singleitem name="rootLastModifiedDate" type="java sql timestamp" />
+<singleitem name="rootNextAttachedFileSeq" type="unsigned byte" />
+<singleitem name="rootAttachedFileCnt" type="integer" />
+<array name="rootAttachedFile" cnttype="reference" cntvalue="rootAttachedFileCnt">
+	<singleitem name="attachedFileSeq" type="unsigned byte" />	
+	<singleitem name="attachedFileName" type="us pascal string" />
+	<singleitem name="attachedFileSize" type="long" />
+</array>
+
+<singleitem name="cnt" type="integer" />
+<array name="childBoard" cnttype="reference" cntvalue="cnt">
+	<singleitem name="boardNo" type="unsigned integer" />
+	<singleitem name="groupNo" type="unsigned integer" />
+	<singleitem name="groupSeq" type="unsigned short" />
+	<singleitem name="parentNo" type="unsigned integer" />
+	<singleitem name="depth" type="unsigned byte" />
+	<singleitem name="writerID" type="ub pascal string" />
+	<singleitem name="writerNickname" type="ub pascal string" />
+	<singleitem name="viewCount" type="integer" />
+	<singleitem name="boardSate" type="ub pascal string" />
+	<singleitem name="registeredDate" type="java sql timestamp" />	
+	<singleitem name="votes" type="integer" />
+	<singleitem name="subject" type="ub pascal string" />
+	<singleitem name="lastModifiedDate" type="java sql timestamp" />
+	
+	<singleitem name="attachedFileCnt" type="integer" />
+	<array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
+		<singleitem name="attachedFileSeq" type="unsigned byte" />	
+		<singleitem name="attachedFileName" type="us pascal string" />
+		<singleitem name="attachedFileSize" type="long" />
+	</array>
+</array>
+</message>

@@ -48,7 +48,6 @@ public class Indexes {
     public static final Index SB_BOARD_TB_SB_BOARD_FK1_IDX = Indexes0.SB_BOARD_TB_SB_BOARD_FK1_IDX;
     public static final Index SB_BOARD_TB_SB_BOARD_IDX1 = Indexes0.SB_BOARD_TB_SB_BOARD_IDX1;
     public static final Index SB_BOARD_TB_SB_BOARD_IDX2 = Indexes0.SB_BOARD_TB_SB_BOARD_IDX2;
-    public static final Index SB_BOARD_TB_SB_BOARD_IDX3 = Indexes0.SB_BOARD_TB_SB_BOARD_IDX3;
     public static final Index SB_BOARD_VOTE_TB_PRIMARY = Indexes0.SB_BOARD_VOTE_TB_PRIMARY;
     public static final Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK1 = Indexes0.SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK1;
     public static final Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2 = Indexes0.SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2;
@@ -77,7 +76,6 @@ public class Indexes {
         public static Index SB_BOARD_TB_SB_BOARD_FK1_IDX = Internal.createIndex("sb_board_fk1_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID }, false);
         public static Index SB_BOARD_TB_SB_BOARD_IDX1 = Internal.createIndex("sb_board_idx1", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.GROUP_NO, SbBoardTb.SB_BOARD_TB.GROUP_SQ }, true);
         public static Index SB_BOARD_TB_SB_BOARD_IDX2 = Internal.createIndex("sb_board_idx2", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.PARENT_NO, SbBoardTb.SB_BOARD_TB.GROUP_SQ }, false);
-        public static Index SB_BOARD_TB_SB_BOARD_IDX3 = Internal.createIndex("sb_board_idx3", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.BOARD_ST }, false);
         public static Index SB_BOARD_VOTE_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO, SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID, SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_ID }, true);
         public static Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK1 = Internal.createIndex("sb_board_vote_fk1", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_ID, SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO }, false);
         public static Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2 = Internal.createIndex("sb_board_vote_fk2", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID }, false);

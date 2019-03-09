@@ -13,8 +13,10 @@ import kr.pe.codda.impl.message.MenuModifyReq.MenuModifyReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -83,6 +85,37 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, menuModifyReq.getRequestedUserID());
+			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
+			try {
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("알 수 없는 회원[")
+					.append(menuModifyReq.getRequestedUserID())
+					.append("]의 역활[")
+					.append(memberRoleOfRequestedUserID)
+					.append("] 값입니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}	
+			
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "메뉴 수정 서비스는 관리자 전용 서비스입니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
 			
 			Record2<String, String> menuRecord = create.select(SB_SITEMENU_TB.MENU_NM, SB_SITEMENU_TB.LINK_URL)
 			.from(SB_SITEMENU_TB)

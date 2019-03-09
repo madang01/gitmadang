@@ -10,6 +10,8 @@ select * from sb_board_filelist_tb where board_id = 1;
 
 select * from sb_board_info_tb where board_id = 1;
 
+select JSON_OBJECT("menu_no", menu_no, "parent_no", parent_no, "depth", depth, "order_sq", order_sq, "menu_nm", menu_nm, "link_url", link_url)  from sb_sitemenu_tb order by order_sq asc;
+
 select count(*) from sb_board_tb where board_id = 1;
 
 

@@ -24,6 +24,7 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
 import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
 
 
 /**
@@ -39,7 +40,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
 
-    private static final long serialVersionUID = -2072320112;
+    private static final long serialVersionUID = 495380529;
 
     /**
      * The reference instance of <code>sb_db.sb_board_info_tb</code>
@@ -56,9 +57,9 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
 
     /**
      * The column <code>sb_db.sb_board_info_tb.board_id</code>. 게시판 식별자,
-0 : 공지, 1:자유, 2:FAQ
+1 : 공지, 2:자유, 3:이슈
      */
-    public final TableField<SbBoardInfoTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시판 식별자,\n0 : 공지, 1:자유, 2:FAQ");
+    public final TableField<SbBoardInfoTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시판 식별자,\n1 : 공지, 2:자유, 3:이슈");
 
     /**
      * The column <code>sb_db.sb_board_info_tb.board_name</code>. 게시판 이름
@@ -71,14 +72,39 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
     public final TableField<SbBoardInfoTbRecord, String> BOARD_INFO = createField("board_info", org.jooq.impl.SQLDataType.CLOB, this, "게시판 설명");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.admin_total</code>. 어드민일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
+     * The column <code>sb_db.sb_board_info_tb.list_type</code>. 게시판 목록 형태, 0:그룹 루트로만 이루어진 목록, 1; 계층형 목록
      */
-    public final TableField<SbBoardInfoTbRecord, Integer> ADMIN_TOTAL = createField("admin_total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "어드민일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.");
+    public final TableField<SbBoardInfoTbRecord, Byte> LIST_TYPE = createField("list_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "게시판 목록 형태, 0:그룹 루트로만 이루어진 목록, 1; 계층형 목록");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.user_total</code>. 사용자일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.
+     * The column <code>sb_db.sb_board_info_tb.reply_policy_type</code>. 댓글 유형, 0:댓글없음, 1:본문글에만 댓글 허용, 2:본문및 댓글에 댓글 허용
      */
-    public final TableField<SbBoardInfoTbRecord, Integer> USER_TOTAL = createField("user_total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "사용자일때 게시판 글 전체 갯수, 참고 : 사용자는 삭제(board_st:'D')나 블락(board_st:'B')같은 비정상을 제외한 정상(board_st:'Y')적인 게시판만 접근 가능하지만 어드민은 모든 게시판에 대해서 접근 가능하다.");
+    public final TableField<SbBoardInfoTbRecord, Byte> REPLY_POLICY_TYPE = createField("reply_policy_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "댓글 유형, 0:댓글없음, 1:본문글에만 댓글 허용, 2:본문및 댓글에 댓글 허용");
+
+    /**
+     * The column <code>sb_db.sb_board_info_tb.write_permission_type</code>. 본문 쓰기 권한 유형, 0:어드민, 1:일반인
+     */
+    public final TableField<SbBoardInfoTbRecord, Byte> WRITE_PERMISSION_TYPE = createField("write_permission_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "본문 쓰기 권한 유형, 0:어드민, 1:일반인");
+
+    /**
+     * The column <code>sb_db.sb_board_info_tb.reply_permission_type</code>. 댓글 쓰기 권한 유형, 0:어드민, 1:일반인, 주) '댓글 쓰기 권한 유형'은 '상세 유형'에서 '0 댓글없음' 이 아닌 경우만 유효하다
+     */
+    public final TableField<SbBoardInfoTbRecord, Byte> REPLY_PERMISSION_TYPE = createField("reply_permission_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "댓글 쓰기 권한 유형, 0:어드민, 1:일반인, 주) '댓글 쓰기 권한 유형'은 '상세 유형'에서 '0 댓글없음' 이 아닌 경우만 유효하다");
+
+    /**
+     * The column <code>sb_db.sb_board_info_tb.cnt</code>. 게시판 목록 개수
+     */
+    public final TableField<SbBoardInfoTbRecord, Integer> CNT = createField("cnt", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "게시판 목록 개수");
+
+    /**
+     * The column <code>sb_db.sb_board_info_tb.total</code>. 게시판 글 전체 개수
+     */
+    public final TableField<SbBoardInfoTbRecord, Integer> TOTAL = createField("total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "게시판 글 전체 개수");
+
+    /**
+     * The column <code>sb_db.sb_board_info_tb.next_board_no</code>. 다음 게시판 번호
+     */
+    public final TableField<SbBoardInfoTbRecord, UInteger> NEXT_BOARD_NO = createField("next_board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "다음 게시판 번호");
 
     /**
      * Create a <code>sb_db.sb_board_info_tb</code> table reference

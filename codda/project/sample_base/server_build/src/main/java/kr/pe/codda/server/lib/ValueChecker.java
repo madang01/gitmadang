@@ -21,6 +21,7 @@ import io.netty.util.internal.logging.InternalLogger;
 
 import java.sql.Connection;
 
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
@@ -508,12 +509,20 @@ public class ValueChecker {
 	 * @param boardID 게시판 식별자
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
-	public static void checkValidBoardID(long boardID) throws IllegalArgumentException {		
+	public static void checkValidBoardID(short boardID) throws IllegalArgumentException {		
 		if (boardID < 0) {
 			String errorMessage = new StringBuilder("게시판 식별자 번호 값[")
 			.append(boardID).append("]은 0 보다 크거나 같아야 합니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}	
+		
+		if (boardID > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder("게시판 식별자 번호 값[")
+					.append(boardID).append("]이 unsigned byte 최대값[")
+					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
+					.append("]보다 큽니다").toString();
+					throw new IllegalArgumentException(errorMessage);
+		}
 	}	
 	
 	/**
@@ -536,9 +545,9 @@ public class ValueChecker {
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
 	public static void checkValidParentBoardNo(long parentBoardNo) throws IllegalArgumentException {		
-		if (parentBoardNo <= 0) {
+		if (parentBoardNo < 0) {
 			String errorMessage = new StringBuilder("부모 게시판 번호 값[")
-			.append(parentBoardNo).append("]은 0 보다 커야합니다").toString();
+			.append(parentBoardNo).append("]은 0 보다 크거나 같아야 합니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}	
 	}
@@ -725,7 +734,7 @@ public class ValueChecker {
 	 */
 	public static String checkValidRequestedUserState(Connection conn, DSLContext create, InternalLogger log, String requestedUserID) throws ServerServiceException {
 		if (requestedUserID.equals("guest")) {
-			return MemberRoleType.USER.getValue();
+			return MemberRoleType.GUEST.getValue();
 		}
 		
 		Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)

@@ -43,6 +43,14 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardListRes.setBoardListType((Byte)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "boardListType" // itemName
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardListRes.setPageNo((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "pageNo" // itemName
@@ -137,6 +145,14 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, board$2MiddleWritableObject));
 
+			board$2.setWriterNickname((String)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "writerNickname" // itemName
+				, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, board$2MiddleWritableObject));
+
 			board$2.setViewCount((Integer)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "viewCount" // itemName
@@ -157,14 +173,6 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "registeredDate" // itemName
 				, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
-				, -1 // itemSize
-				, null // nativeItemCharset
-				, board$2MiddleWritableObject));
-
-			board$2.setNickname((String)
-			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-				, "nickname" // itemName
-				, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
 				, board$2MiddleWritableObject));

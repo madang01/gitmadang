@@ -16,7 +16,6 @@ import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
-import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -59,9 +58,10 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 	@Test
 	public void testDoService_ok() {
 		String userID = "test01";
+		final short boardID = 3; 
 		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("테스트 주제1234");
 		boardWriteReq.setContents("내용::그림 하나를 그리다, 하하호호");		
 		boardWriteReq.setRequestedUserID(userID);
@@ -115,8 +115,7 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 			
 			assertEquals(boardWriteReq.getSubject(), boardDetailRes.getSubject());
 			assertEquals(boardWriteReq.getContents(), boardDetailRes.getContents());
-			assertEquals(boardWriteReq.getRequestedUserID(), boardDetailRes.getWriterID());
-			assertEquals(boardWriteReq.getIp(), boardDetailRes.getWriterIP());
+			assertEquals(boardWriteReq.getRequestedUserID(), boardDetailRes.getFirstWriterID());
 			
 			
 			assertEquals(boardWriteReq.getNewAttachedFileList().get(0).getAttachedFileName(), 

@@ -6,6 +6,9 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
@@ -17,13 +20,9 @@ import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
-import kr.pe.codda.server.lib.BoardType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME;
@@ -89,8 +88,10 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 
 	@Test
 	public void testDoService_최상위글_ok() {
+		final short boardID = 3;
+		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("수정 테스트를 위한 최상위 본문글");
 		boardWriteReq.setContents("내용::수정 테스트를 위한 최상위 본문글");		
 		boardWriteReq.setRequestedUserID("test01");
@@ -100,6 +101,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		{
 			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
 			attachedFile.setAttachedFileName("임시첨부파일01.jpg");
+			attachedFile.setAttachedFileSize(1025);
 			
 			newAttachedFileListForBoardWriteReq.add(attachedFile);
 		}
@@ -131,7 +133,8 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
 		boardModifyReq.setSubject("수정 테스트를 위한 최상위 본문글#1");
 		boardModifyReq.setContents("내용::수정 테스트를 위한 최상위 본문글#1");	
-		boardModifyReq.setRequestedUserID(boardWriteReq.getRequestedUserID());
+		boardModifyReq.setNextAttachedFileSeq((short)newAttachedFileListForBoardWriteReq.size());
+		boardModifyReq.setRequestedUserID(boardWriteReq.getRequestedUserID());		
 		boardModifyReq.setIp("172.16.0.4");
 		
 		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();		
@@ -189,8 +192,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			
 			assertEquals(boardModifyReq.getSubject(), boardDetailRes.getSubject());
 			assertEquals(boardModifyReq.getContents(), boardDetailRes.getContents());
-			assertEquals(boardWriteReq.getRequestedUserID(), boardDetailRes.getWriterID());
-			assertEquals(boardModifyReq.getIp(), boardDetailRes.getLastModifierIP());			
+			assertEquals(boardWriteReq.getRequestedUserID(), boardDetailRes.getFirstWriterID());
 			
 			
 			assertEquals(boardWriteReq.getNewAttachedFileList().get(0).getAttachedFileName(), 
@@ -205,8 +207,10 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoService_댓글_ok() {
+		final short boardID = 3;
+		
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setBoardID(BoardType.FREE.getBoardID());
+		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("테스트를 위한 최상위 본문글");
 		boardWriteReq.setContents("테스트를 위한 최상위 본문글");		
 		boardWriteReq.setRequestedUserID("test01");
@@ -217,6 +221,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			{
 				BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
 				attachedFile.setAttachedFileName("임시첨부파일01.jpg");
+				attachedFile.setAttachedFileSize(1027);
 				
 				newAttachedFileList.add(attachedFile);
 			}
@@ -252,7 +257,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardReplyReq.setSubject("테스트 주제05-1");
 		boardReplyReq.setContents("내용::그림5-1하나를 그리다");		
 		boardReplyReq.setRequestedUserID("test02");
-		boardReplyReq.setIp("172.16.0.6");		
+		boardReplyReq.setIp("172.16.0.6");
 		
 					
 		List<BoardReplyReq.NewAttachedFile> newAttachedFileListForReply = new ArrayList<BoardReplyReq.NewAttachedFile>();
@@ -260,6 +265,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		{
 			BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
 			newAttachedFile.setAttachedFileName("임시첨부파일03_1.jpg");
+			newAttachedFile.setAttachedFileSize(1028);
 			
 			newAttachedFileListForReply.add(newAttachedFile);
 		}
@@ -267,6 +273,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		{
 			BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
 			newAttachedFile.setAttachedFileName("임시첨부파일03_2.jpg");
+			newAttachedFile.setAttachedFileSize(1029);
 			
 			newAttachedFileListForReply.add(newAttachedFile);
 		}
@@ -302,6 +309,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");	
 		boardModifyReq.setRequestedUserID(boardReplyReq.getRequestedUserID());
 		boardModifyReq.setIp("172.16.0.7");
+		boardModifyReq.setNextAttachedFileSeq((short)newAttachedFileListForReply.size());
 		
 		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();		
 		{
@@ -359,8 +367,7 @@ public class BoardModifyReqServerTaskTest extends AbstractJunitTest {
 			
 			assertEquals(boardModifyReq.getSubject(), boardDetailRes.getSubject());
 			assertEquals(boardModifyReq.getContents(), boardDetailRes.getContents());
-			assertEquals(boardReplyReq.getRequestedUserID(), boardDetailRes.getWriterID());
-			assertEquals(boardModifyReq.getIp(), boardDetailRes.getLastModifierIP());			
+			assertEquals(boardReplyReq.getRequestedUserID(), boardDetailRes.getFirstWriterID());	
 			
 			
 			assertEquals(boardReplyReq.getNewAttachedFileList().get(0).getAttachedFileName(), 

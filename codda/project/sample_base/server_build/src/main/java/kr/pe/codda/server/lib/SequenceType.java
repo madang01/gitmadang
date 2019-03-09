@@ -1,31 +1,31 @@
 package kr.pe.codda.server.lib;
 
-public enum SequenceType {
-	MENU((short) 0, "메뉴에 사용되는 시퀀스"), 
-	NOTICE_BOARD((short) 1, "공지 게시판에 사용되는 시퀀스"), 
-	FREE_BOARD((short) 2, "자유 게시판에 사용되는 시퀀스"),
-	ISSUE_BOARD((short) 3, "이슈 게시판에 사용되는 시퀀스");
+import org.jooq.types.UByte;
 
-	private short sequenceID;
+public enum SequenceType {
+	MENU(UByte.valueOf(0), "메뉴에 사용되는 시퀀스");
+
+	private UByte sequenceID;
 	private String sequenceTypeName;
 
-	private SequenceType(short sequenceID, String sequenceTypeName) {
+	private SequenceType(UByte sequenceID, String sequenceTypeName) {
 		this.sequenceID = sequenceID;
 		this.sequenceTypeName = sequenceTypeName;
 	}
 
-	public short getSequenceID() {
+	public UByte getSequenceID() {
 		return sequenceID;
 	}
 
 	public String getName() {
+		
 		return sequenceTypeName;
 	}
 
-	public static SequenceType valueOf(short sequenceTypeID) {
+	public static SequenceType valueOf(UByte sequenceTypeID) {
 		SequenceType[] boradTypes = SequenceType.values();
 		for (SequenceType boardType : boradTypes) {
-			if (boardType.getSequenceID() == sequenceTypeID) {
+			if (boardType.getSequenceID().equals(sequenceTypeID)) {
 				return boardType;
 			}
 		}

@@ -47,8 +47,10 @@ public class SiteMenuTree {
 			SiteMenuTreeNode parentSiteMenuTreeNode,
 			SiteMenuTreeNode childSiteMenuTreeNode) {
 		// log.info("parnetMenu={}", parnetMenu.toString());
+		String requestedUserIDForAdmin = "admin";
 		
 		ChildMenuAddReq childMenuAddReq = new ChildMenuAddReq();
+		childMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		childMenuAddReq.setParentNo(parentSiteMenuTreeNode.getMenuNo());
 		childMenuAddReq.setMenuName(childSiteMenuTreeNode.getMenuName());
 		childMenuAddReq.setLinkURL(childSiteMenuTreeNode.getLinkURL());
@@ -85,9 +87,12 @@ public class SiteMenuTree {
 		}
 	}
 	
-	public void makeDBRecord(String workingDBName) {
+	public void toDBRecord(String workingDBName) {
+		String requestedUserIDForAdmin = "admin";
+		
 		for (SiteMenuTreeNode  rootSiteMenuTreeNode : rootSiteMenuNodeList) {
 			RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
+			rootMenuAddReq.setRequestedUserID(requestedUserIDForAdmin);
 			rootMenuAddReq.setMenuName(rootSiteMenuTreeNode.getMenuName());
 			rootMenuAddReq.setLinkURL(rootSiteMenuTreeNode.getLinkURL());
 

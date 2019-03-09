@@ -25,9 +25,17 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class RootMenuAddReq extends AbstractMessage {
+	private String requestedUserID;
 	private String menuName;
 	private String linkURL;
 
+	public String getRequestedUserID() {
+		return requestedUserID;
+	}
+
+	public void setRequestedUserID(String requestedUserID) {
+		this.requestedUserID = requestedUserID;
+	}
 	public String getMenuName() {
 		return menuName;
 	}
@@ -47,7 +55,9 @@ public class RootMenuAddReq extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("rootMenuAddReq[");
-		builder.append("menuName=");
+		builder.append("requestedUserID=");
+		builder.append(requestedUserID);
+		builder.append(", menuName=");
 		builder.append(menuName);
 		builder.append(", linkURL=");
 		builder.append(linkURL);

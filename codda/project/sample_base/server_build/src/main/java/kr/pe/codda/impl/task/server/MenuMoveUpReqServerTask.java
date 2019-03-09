@@ -8,19 +8,6 @@ import java.util.HashSet;
 
 import javax.sql.DataSource;
 
-import kr.pe.codda.common.exception.DynamicClassCallException;
-import kr.pe.codda.common.exception.ServerServiceException;
-import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.impl.message.MenuMoveUpReq.MenuMoveUpReq;
-import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.SequenceType;
-import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
-import kr.pe.codda.server.lib.ServerDBUtil;
-import kr.pe.codda.server.task.AbstractServerTask;
-import kr.pe.codda.server.task.ToLetterCarrier;
-
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
@@ -33,6 +20,21 @@ import org.jooq.exception.TooManyRowsException;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
+
+import kr.pe.codda.common.exception.DynamicClassCallException;
+import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.impl.message.MenuMoveUpReq.MenuMoveUpReq;
+import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.server.PersonalLoginManagerIF;
+import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.SequenceType;
+import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
+import kr.pe.codda.server.task.AbstractServerTask;
+import kr.pe.codda.server.task.ToLetterCarrier;
 
 public class MenuMoveUpReqServerTask extends AbstractServerTask {
 	public MenuMoveUpReqServerTask() throws DynamicClassCallException {
@@ -79,6 +81,7 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(menuMoveUpReq.toString());
 		
+		final UByte menuSequenceID = SequenceType.MENU.getSequenceID();
 		UInteger sourceMenuNo = UInteger.valueOf(menuMoveUpReq.getMenuNo());
 		UByte sourceOrderSeq = null;
 		UInteger targetMenuNo = null;
@@ -94,10 +97,40 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, menuMoveUpReq.getRequestedUserID());
+			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
+			try {
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("알 수 없는 회원[")
+					.append(menuMoveUpReq.getRequestedUserID())
+					.append("]의 역활[")
+					.append(memberRoleOfRequestedUserID)
+					.append("] 값입니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}	
+			
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "메뉴 상단 이동 서비스는 관리자 전용 서비스입니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
 			/** '메뉴 순서' 를 위한 lock */
 			Record menuSeqRecord = create.select(SB_SEQ_TB.SQ_VALUE)
 			.from(SB_SEQ_TB)
-			.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(SequenceType.MENU.getSequenceID())))
+			.where(SB_SEQ_TB.SQ_ID.eq(menuSequenceID))
 			.forUpdate().fetchOne();
 			
 			if (null == menuSeqRecord) {
@@ -108,7 +141,7 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("메뉴 시퀀스 식별자[")
-						.append(SequenceType.MENU.getSequenceID())
+						.append(menuSequenceID)
 						.append("]의 시퀀스를 가져오는데 실패하였습니다").toString();
 				// sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, menuUpMoveReq);
 				

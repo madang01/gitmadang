@@ -15,8 +15,10 @@ import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -90,6 +92,35 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			
+			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, arraySiteMenuReq.getRequestedUserID());	
+			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
+			try {
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("해당 게시글 요청자의 멤버 타입[")
+						.append(memberRoleOfRequestedUserID)
+						.append("]이 잘못되어있습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}	
+			
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "사용자 사이트의 배열형 메뉴 목록 조회 서비는 관리자 전용 서비스입니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
 			
 			Result<Record6<UInteger, UInteger, UByte, UByte, String, String>> menuListResult = create.select(SB_SITEMENU_TB.MENU_NO, 
 					SB_SITEMENU_TB.PARENT_NO, 

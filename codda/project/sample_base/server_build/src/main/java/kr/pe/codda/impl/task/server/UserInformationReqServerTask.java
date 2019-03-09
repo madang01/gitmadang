@@ -136,7 +136,7 @@ public class UserInformationReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+			if (MemberRoleType.USER.equals(memberRoleTypeOfRequestedUserID)) {
 				if (! requestedUserID.equals(targetUserID)) {
 					String errorMessage = "타인의 사용자 정보는 검색할 수 없습니다";
 					throw new ServerServiceException(errorMessage);

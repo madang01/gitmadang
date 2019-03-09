@@ -1,7 +1,7 @@
 package kr.pe.codda.server.lib;
 
 public enum MemberRoleType {
-	ADMIN("A", "관리자"), USER("M", "일반회원");
+	ADMIN("A", "관리자"), USER("M", "일반회원"), GUEST("G", "손님");
 	
 	private String memberRoleTypeValue;
 	private String memberRoleTypeName;

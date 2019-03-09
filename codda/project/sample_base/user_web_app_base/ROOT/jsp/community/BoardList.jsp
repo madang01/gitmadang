@@ -1,15 +1,4 @@
-<%@page import="java.sql.Timestamp"%><%
-%><%@page import="kr.pe.codda.weblib.common.BoardStateType"%><%
-%><%@page import="java.util.ArrayList"%><%
-%><%@page import="java.util.List"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
-%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
-%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.codda.weblib.common.BoardType"%><%
-%><%@ page import="kr.pe.codda.impl.message.BoardListRes.BoardListRes" %><%
-%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%
-	//String boardListResJsonString = new Gson().toJson(boardListRes);
+<%@page import="java.util.List"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%%><%@ page import="kr.pe.codda.weblib.common.BoardType"%><%%><%@ page import="kr.pe.codda.impl.message.BoardListRes.BoardListRes" %><%%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%%><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardTreeListRes" scope="request" /><%//String boardListResJsonString = new Gson().toJson(boardListRes);
 
 	/* {
 	String requestUserID = "guest";
@@ -46,8 +35,7 @@
 	
 	boardListRes.setCnt(boardList.size());
 	boardListRes.setBoardList(boardList);
-	} */
-%><!DOCTYPE html>
+	} */%><!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -118,9 +106,9 @@
 	
 		var g = document.goDetailForm;
 		g.boardNo.value = boardNo;
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64();
+		g.<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>.value = getSessionkeyBase64();
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);		
+		g.<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
 	}
 	
@@ -184,7 +172,7 @@
 		</div><%
 			List<BoardListRes.Board> boardList = boardListRes.getBoardList();
 			if (null == boardList || boardList.isEmpty()) {
-%>
+		%>
 		<div class="row">
 			<div class="col-sm-12" align="center">조회 결과가 없습니다</div>
 		</div><%
@@ -202,7 +190,7 @@
 					out.print("ㄴ");
 				}
 			%><a href="#" onClick="goDetailPage('<%=board.getBoardNo()%>')"><%=StringEscapeActorUtil.replace(board.getSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></a></div>
-			<div class="col-sm-2"><%=StringEscapeActorUtil.replace(board.getNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
+			<div class="col-sm-2"><%=StringEscapeActorUtil.replace(board.getWriterNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
 			<div class="col-sm-1"><%= board.getViewCount() %></div>
 			<div class="col-sm-1"><%= board.getVotes() %></div>
 			<div class="col-sm-2"><%= board.getRegisteredDate() %></div>
