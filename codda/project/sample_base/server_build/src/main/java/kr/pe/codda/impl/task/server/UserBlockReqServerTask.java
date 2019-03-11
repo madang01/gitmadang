@@ -8,6 +8,11 @@ import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
+import org.jooq.DSLContext;
+import org.jooq.Record2;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -18,16 +23,12 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
-
-import org.jooq.DSLContext;
-import org.jooq.Record2;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 
 public class UserBlockReqServerTask extends AbstractServerTask {
 
@@ -115,35 +116,8 @@ public class UserBlockReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);	
-			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
-			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
-			} catch(IllegalArgumentException e) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("알 수 없는 회원[")
-					.append(requestedUserID)
-					.append("]의 역활[")
-					.append(memberRoleOfRequestedUserID)
-					.append("] 값입니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}	
-			
-			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = "사용자 차단은 관리자 전용 서비스입니다";
-				throw new ServerServiceException(errorMessage);
-			}
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "사용자 차단 서비스", PermissionType.ADMIN, requestedUserID);
+						
 			
 			/** 차단 대상 회원 레코드 락 */
 			Record2<String, String> memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)

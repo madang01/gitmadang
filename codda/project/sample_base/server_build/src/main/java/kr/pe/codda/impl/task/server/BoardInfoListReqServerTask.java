@@ -24,7 +24,7 @@ import kr.pe.codda.impl.message.BoardInfoListRes.BoardInfoListRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -93,37 +93,7 @@ public class BoardInfoListReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log,
-					boardInfoListReq.getRequestedUserID());			
-			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
-			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
-			} catch(IllegalArgumentException e) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("알 수 없는 회원[")
-					.append(boardInfoListReq.getRequestedUserID())
-					.append("]의 역활[")
-					.append(memberRoleOfRequestedUserID)
-					.append("] 값입니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}	
-			
-			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = "게시판 정보 목록 조회 서비스는 관리자 전용 서비스입니다";
-				throw new ServerServiceException(errorMessage);
-			}
-			
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 정보 목록 조회 서비스", PermissionType.ADMIN, boardInfoListReq.getRequestedUserID());
 			
 			Result<Record10<UByte, String, String, Byte, Byte, Byte, Byte, Integer, Integer, UInteger>>  
 			boardInfoListResult = create.select(SB_BOARD_INFO_TB.BOARD_ID, SB_BOARD_INFO_TB.BOARD_NAME, 

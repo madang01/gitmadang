@@ -105,7 +105,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.USER, userID, nickname, pwdHint,
+						MemberRoleType.MEMBER, userID, nickname, pwdHint,
 						pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(
@@ -134,7 +134,7 @@ public class SiteMenuIntegrationTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.USER, userID, nickname, pwdHint,
+						MemberRoleType.MEMBER, userID, nickname, pwdHint,
 						pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(

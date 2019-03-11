@@ -1,36 +1,36 @@
 package kr.pe.codda.server.lib;
 
 public enum PermissionType {
-	ADMIN((byte)0, "관리자"), USER((byte)1, "일반인"), GUEST((byte)2, "손님");
+	ADMIN((byte)0, "관리자"), MEMBER((byte)1, "일반회원"), GUEST((byte)2, "손님");
 	
-	private byte boardWritePermissonTypeValue;
-	private String boardWritePermissonTypeName;
+	private byte permissonTypeValue;
+	private String permissonTypeName;
 	
 	private PermissionType(byte boardWritePermissonTypeValue, String boardWritePermissonTypeName) {
-		this.boardWritePermissonTypeValue = boardWritePermissonTypeValue;
-		this.boardWritePermissonTypeName = boardWritePermissonTypeName;
+		this.permissonTypeValue = boardWritePermissonTypeValue;
+		this.permissonTypeName = boardWritePermissonTypeName;
 	}
 	
 	public byte getValue() {
-		return boardWritePermissonTypeValue;
+		return permissonTypeValue;
 	}
 	
 	public String getName() {
-		return boardWritePermissonTypeName;
+		return permissonTypeName;
 	}
 	
-	public static PermissionType valueOf(byte boardWritePermissonTypeValue) {
+	public static PermissionType valueOf(byte permissonTypeValue) {
 		PermissionType[] boardWritePermissionTypes = PermissionType.values();
 		for (PermissionType boardWritePermissionType : boardWritePermissionTypes) {
-			if (boardWritePermissionType.getValue() == boardWritePermissonTypeValue) {
+			if (boardWritePermissionType.getValue() == permissonTypeValue) {
 				return boardWritePermissionType;
 			}
 		}
 		
 		String errorMessage = new StringBuilder()
-				.append("the parameter boardWritePermissonTypeValue[")
-				.append(boardWritePermissonTypeValue)
-				.append("] is a element of BoardWritePermissionType set").toString();
+				.append("the parameter permissonTypeValue[")
+				.append(permissonTypeValue)
+				.append("] is a element of permissonTypeValue set").toString();
 
 		throw new IllegalArgumentException(errorMessage);
 	}

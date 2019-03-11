@@ -1,25 +1,13 @@
 package kr.pe.codda.server.lib;
 
-import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.charset.Charset;
-import java.sql.Connection;
 
-import javax.sql.DataSource;
+import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
-import kr.pe.codda.common.exception.ServerServiceException;
-import kr.pe.codda.impl.message.UserBlockReq.UserBlockReq;
-import kr.pe.codda.impl.task.server.UserBlockReqServerTask;
-import kr.pe.codda.server.dbcp.DBCPManager;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.junit.Test;
 
 public class ValueCheckerTest extends AbstractJunitTest {
 	
@@ -326,161 +314,5 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		System.out.println("test case 3 = " + (t3_end - t3_start));
 	}*/
 	
-	@Test
-	public void testCheckValidRequestedUserState_회원테이블미존재사용자() {
-		final String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
-		
-		DataSource dataSource = null;
-		try {
-			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(TEST_DBCP_NAME);
-			
-			
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}		
-		
-		Connection conn = null;
-		
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-			
-			String requestedUserID = "testAA";
-			try {
-				try {
-					ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);
-				} catch(ServerServiceException e) {
-					String actualErrorMessag = e.getMessage();
-					
-					String expectedErrorMessage = new StringBuilder("요청한 사용자[")
-					.append(requestedUserID)
-					.append("가 회원 테이블에 존재하지 않습니다").toString();							
-					
-					assertEquals("회원테이블 미존재 점검", expectedErrorMessage, actualErrorMessag);
-				}
-			} finally {
-				conn.commit();
-			}
-		} catch (Exception e) {
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
-			log.warn(e.getMessage(), e);
-
-			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-	}
 	
-	@Test
-	public void testCheckValidRequestedUserState_회원상태가비정상상태() {
-		final String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;		
-		
-		DataSource dataSource = null;
-		try {
-			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}
-		Connection conn = null;
-		
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-			
-			final String requestedUserID = "test03";
-			
-			create.delete(SB_MEMBER_TB)
-			.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
-			.execute();
-			
-			conn.commit();
-			
-			
-			byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
-			String nickname = "단위테스터용아이디3";
-			String pwdHint = "힌트 그것이 알고싶다3";
-			String pwdAnswer = "힌트답변 말이여 방구여3";
-			String ip = "127.0.0.3";
-			
-			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, requestedUserID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
-			} catch (Exception e) {
-				log.warn("unknown error", e);
-				fail("fail to create a test ID");
-			}
-			
-			UserBlockReq userBlockReq = new UserBlockReq();
-			userBlockReq.setRequestedUserID("admin");
-			userBlockReq.setTargetUserID(requestedUserID);
-			
-			UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();
-			
-			try {
-				userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
-			} catch (Exception e)  {
-				log.warn("unknown error", e);
-				fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
-			}
-			
-			try {
-				ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);
-			} catch(ServerServiceException e) {
-				String actualErrorMessag = e.getMessage();
-				
-				String expectedErrorMessage = new StringBuilder("요청한 사용자[")
-				.append(requestedUserID)
-				.append("] 상태[")
-				.append(MemberStateType.BLOCK.getName())
-				.append("]가 정상이 아닙니다").toString();		
-				
-				assertEquals("회원 상태가 비정상일 경우 점검", expectedErrorMessage, actualErrorMessag);
-			} finally {
-				conn.commit();
-			}
-			
-		} catch (Exception e) {
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
-			log.warn(e.getMessage(), e);
-
-			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-	}
 }

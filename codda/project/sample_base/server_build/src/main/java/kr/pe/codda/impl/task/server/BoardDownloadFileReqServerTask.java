@@ -8,6 +8,13 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
+import org.jooq.DSLContext;
+import org.jooq.Record1;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -18,18 +25,11 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
-import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
-
-import org.jooq.DSLContext;
-import org.jooq.Record1;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
 
 public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 
@@ -89,23 +89,8 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log,
-					boardDownloadFileReq.getRequestedUserID());
-			MemberRoleType memberRoleTypeOfRequestedUserID = null;
-			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
-			} catch (IllegalArgumentException e) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = new StringBuilder("해당 게시글 상세 보기 요청자의 멤버 타입[")
-						.append(memberRoleOfRequestedUserID).append("]이 잘못되어있습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
+			
+			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 첨부 파일 다운로드 서비스", PermissionType.MEMBER, boardDownloadFileReq.getRequestedUserID());
 
 			Record1<String> boardRecord = create.select(SB_BOARD_TB.BOARD_ST).from(SB_BOARD_TB)
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).forUpdate()
@@ -160,7 +145,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			}
 
 			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
-
+				/** 관리자가 아닌 경우 최초 작성자 즉 소유자의 경우에만 다운 로드 허용  */
 				Record1<String> firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID)
 						.from(SB_BOARD_HISTORY_TB).where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
 						.and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))

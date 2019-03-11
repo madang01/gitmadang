@@ -1,13 +1,15 @@
 package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
+import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.sql.Connection;
+import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
+import org.jooq.Record1;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
@@ -19,13 +21,21 @@ import kr.pe.codda.impl.message.BoardInfoModifyReq.BoardInfoModifyReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.BoardReplyPolicyType;
+import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
+/**
+ * WARNING! 게시판 수정은 비용이 많이 드는 작업이므로 운영중에 사용하지 말것  
+ * 
+ * @author Won Jonghoon
+ *
+ */
 public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 
 	public BoardInfoModifyReqServerTask() throws DynamicClassCallException {
@@ -79,6 +89,33 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 		}
 		
 		UByte boardID = UByte.valueOf(boardInfoModifyReq.getBoardID());
+		byte boardReplyPolicyTypeValue = boardInfoModifyReq.getBoardReplyPolicyType();
+		byte boardWritePermissionTypeValue = boardInfoModifyReq.getBoardWritePermissionType();
+		byte boardReplyPermissionTypeValue = boardInfoModifyReq.getBoardReplyPermissionType();
+	
+		BoardReplyPolicyType boardReplyPolicyType = null;
+		try {
+			boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardReplyPolicyTypeValue);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = "게시판 댓글 유형 값이 잘못되었습니다";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		PermissionType boardWritePermissionType = null;
+		try {
+			boardWritePermissionType = PermissionType.valueOf(boardWritePermissionTypeValue);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = "게시판 본문 쓰기 권한 유형 값이 잘못되었습니다";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		PermissionType boardReplyPermissionType = null;
+		try {
+			boardReplyPermissionType = PermissionType.valueOf(boardReplyPermissionTypeValue);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = "게시판 댓글 쓰기 권한 값이 잘못되었습니다";
+			throw new ServerServiceException(errorMessage);
+		}
 		
 		
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
@@ -90,40 +127,13 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log,
-					boardInfoModifyReq.getRequestedUserID());			
-			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
-			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
-			} catch(IllegalArgumentException e) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("알 수 없는 회원[")
-					.append(boardInfoModifyReq.getRequestedUserID())
-					.append("]의 역활[")
-					.append(memberRoleOfRequestedUserID)
-					.append("] 값입니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}	
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 정보 수정 서비스", PermissionType.ADMIN, boardInfoModifyReq.getRequestedUserID());
 			
-			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = "게시판 정보 수정 서비스는 관리자 전용 서비스입니다";
-				throw new ServerServiceException(errorMessage);
-			}
 			
-			boolean isBoardInfoRecord = create.fetchExists(create.select().from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)));
-			
-			if (! isBoardInfoRecord) {
+			Record1<UByte> boardInfoRecord = create.select(SB_BOARD_INFO_TB.BOARD_ID).from(SB_BOARD_INFO_TB)
+			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne();
+
+			if (null == boardInfoRecord) {
 				try {
 					conn.rollback();
 				} catch (Exception e1) {
@@ -132,29 +142,16 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 				
 				String errorMessage = "지정한 게시판 식별자에 대한 게시판 정보가 존재하지 않습니다";
 				throw new ServerServiceException(errorMessage);
-			}
+			}			
 			
-			boolean isBoardRecord = create.fetchExists(create.select().from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID)));
-			
-			if (isBoardRecord) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = "수정를 원하는 게시판 식별자를 갖는 게시글이 존재하여 게시판 정보를 수정 할 수 없습니다";
-				throw new ServerServiceException(errorMessage);
-			}		
 			
 			int countOfUpdate = create.update(SB_BOARD_INFO_TB)
-			.set(SB_BOARD_INFO_TB.BOARD_NAME, boardInfoModifyReq.getBoardName())
-			.set(SB_BOARD_INFO_TB.BOARD_INFO, boardInfoModifyReq.getBoardInformation())
-			.set(SB_BOARD_INFO_TB.LIST_TYPE, boardInfoModifyReq.getBoardListType())
-			.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, boardInfoModifyReq.getBoardReplyPolicyType())
-			.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, boardInfoModifyReq.getBoardWritePermissionType())
-			.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, boardInfoModifyReq.getBoardReplyPermissionType())			
-			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();			
+						.set(SB_BOARD_INFO_TB.BOARD_NAME, boardInfoModifyReq.getBoardName())
+						.set(SB_BOARD_INFO_TB.BOARD_INFO, boardInfoModifyReq.getBoardInformation())
+						.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, boardReplyPolicyType.getValue())
+						.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, boardWritePermissionType.getValue())
+						.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, boardReplyPermissionType.getValue())
+						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();									
 			
 			if (0 == countOfUpdate) {
 				try {
@@ -169,6 +166,13 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 						.append("]를 수정하는데 실패하였습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			create.insertInto(SB_USER_ACTION_HISTORY_TB)
+			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, boardInfoModifyReq.getRequestedUserID())
+			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardInfoModifyReq.getMessageID())
+			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardInfoModifyReq.toString())
+			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
+			.execute();
 			
 			conn.commit();
 			

@@ -312,7 +312,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		ServerDBUtil.registerMember(dbcpName, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+		ServerDBUtil.registerMember(dbcpName, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(memberRegisterReq.getMessageID());

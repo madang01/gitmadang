@@ -7,6 +7,12 @@ import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
+import org.jooq.DSLContext;
+import org.jooq.Record9;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -16,17 +22,12 @@ import kr.pe.codda.impl.message.UserInformationRes.UserInformationRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
-
-import org.jooq.DSLContext;
-import org.jooq.Record9;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
 
 public class UserInformationReqServerTask extends AbstractServerTask {
 
@@ -119,24 +120,10 @@ public class UserInformationReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);	
-			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
-			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
-			} catch(IllegalArgumentException e) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("사용자 차단 해제 요청자의 멤버 타입[")
-						.append(memberRoleOfRequestedUserID)
-						.append("]이 잘못되어있습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
+			MemberRoleType  memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "사용자 정보 조회 서비스", PermissionType.MEMBER, requestedUserID);
 			
-			if (MemberRoleType.USER.equals(memberRoleTypeOfRequestedUserID)) {
+			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+				/** 관리자가 아닌 경우 본인 여부 확인 */
 				if (! requestedUserID.equals(targetUserID)) {
 					String errorMessage = "타인의 사용자 정보는 검색할 수 없습니다";
 					throw new ServerServiceException(errorMessage);

@@ -30,12 +30,18 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
-import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
+/**
+ * 게시글 삭제 서버 타스크, WARNING! 게시글 삭제는 오직 작성자 본인만이 가능하며 관리자라도 할 수 없다 
+ * 
+ * @author Won Jonghoon
+ *
+ */
 public class BoardDeleteReqServerTask extends AbstractServerTask {
 	public BoardDeleteReqServerTask() throws DynamicClassCallException {
 		super();
@@ -105,8 +111,8 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-			
-			ValueChecker.checkValidRequestedUserState(conn, create, log, requestedUserID);
+						
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 삭제 서비스", PermissionType.MEMBER, requestedUserID);
 			
 			Record2<String, Byte> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME,
@@ -120,7 +126,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.longValue())
+				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.shortValue())
 						.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -178,7 +184,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=")
-						.append(boardID.longValue())
+						.append(boardID.shortValue())
 						.append(", boardNo=").append(groupNo.longValue())
 						.append("] 이 존재하지 않습니다").toString();
 				throw new ServerServiceException(errorMessage);

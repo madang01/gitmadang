@@ -129,11 +129,11 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("회원 테이블에서 회원[")
-					.append(requestedUserID)
-					.append("]의 역활[")
-					.append(memberRoleOfRequestedUserID)
-					.append("] 값이 잘못 되어 있습니다").toString();
+				String errorMessage = new StringBuilder("요청자[")
+						.append(memberWithdrawReq.getRequestedUserID())
+						.append("]의 멤버 역활 유형[")
+						.append(memberRoleOfRequestedUserID)
+						.append("]이 잘못되어있습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
 			

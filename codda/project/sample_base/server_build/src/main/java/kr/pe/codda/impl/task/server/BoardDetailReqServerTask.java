@@ -43,9 +43,9 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
-import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -135,22 +135,8 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log,
-					boardDetailReq.getRequestedUserID());
-			MemberRoleType memberRoleTypeOfRequestedUserID = null;
-			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
-			} catch (IllegalArgumentException e) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = new StringBuilder("해당 게시글 상세 보기 요청자의 멤버 타입[").append(memberRoleOfRequestedUserID)
-						.append("]이 잘못되어있습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
+			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log,
+					"게시글 상세 조회 서비스", PermissionType.MEMBER, boardDetailReq.getRequestedUserID());
 
 			Record4<String, Byte, Byte, Byte> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
@@ -164,7 +150,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.longValue())
+				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.shortValue())
 						.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -258,7 +244,8 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			}
 
 			if (!BoardStateType.OK.equals(boardStateType)) {
-				if (MemberRoleType.USER.equals(memberRoleTypeOfRequestedUserID)) {
+				/** 게시판 상태가 비 정상인 경우 관리자에게만 허용된다 */
+				if (!MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 					try {
 						conn.rollback();
 					} catch (Exception e1) {
@@ -283,7 +270,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			}
 
 			if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType)) {
-				// 목록 형태가 본문로만 이루어진 경우에만 그룹에 속한 자식 노드 추가
+				/** 본문으로만 이루어진 목록의 상세 조회는 본문에 대한 댓글 모두 포함된다 */
 				if (0L != parentNo.longValue()) {
 					try {
 						conn.rollback();

@@ -38,6 +38,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -114,9 +115,8 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-
-			ValueChecker.checkValidRequestedUserState(conn, create, log,
-					boardListReq.getRequestedUserID());
+			
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 목록 조회 서비스", PermissionType.GUEST, boardListReq.getRequestedUserID());
 
 			/*
 			 * MemberRoleType memberRoleTypeOfRequestedUserID = null; try {
@@ -144,7 +144,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.longValue())
+				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.shortValue())
 						.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}

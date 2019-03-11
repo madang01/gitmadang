@@ -19,9 +19,9 @@ public abstract class JooqSqlUtil {
 	
 	public static Field<String> getFieldOfMemberTypeName(Field<String> memberTypeField) {
 		String sqlString = new StringBuilder("if ({0} = '")
-				.append(MemberRoleType.USER.getValue())
+				.append(MemberRoleType.MEMBER.getValue())
 				.append("', '")
-				.append(MemberRoleType.USER.getName())
+				.append(MemberRoleType.MEMBER.getName())
 				.append("', if ({0} = '")
 				.append(MemberRoleType.ADMIN.getValue())
 				.append("', '")

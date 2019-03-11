@@ -94,7 +94,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.USER, userID, nickname, pwdHint,
+						MemberRoleType.MEMBER, userID, nickname, pwdHint,
 						pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(
@@ -123,7 +123,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.USER, userID, nickname, pwdHint,
+						MemberRoleType.MEMBER, userID, nickname, pwdHint,
 						pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(
@@ -274,7 +274,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
-		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		
 		try {
@@ -305,7 +305,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		maxBoardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		maxBoardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		maxBoardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
-		maxBoardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		maxBoardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		DataSource dataSource = null;
 
@@ -333,7 +333,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 					.set(SB_BOARD_INFO_TB.LIST_TYPE, BoardListType.TREE.getValue())
 					.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, BoardReplyPolicyType.ALL.getValue())
 					.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, PermissionType.ADMIN.getValue())
-					.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, PermissionType.USER.getValue())
+					.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, PermissionType.MEMBER.getValue())
 					.set(SB_BOARD_INFO_TB.CNT, 0).set(SB_BOARD_INFO_TB.TOTAL, 0)
 					.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
 			
@@ -375,7 +375,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
-		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		
 		try {
@@ -415,7 +415,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
-		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		BoardInfoAddRes boardInfoAddRes = null;
 		
@@ -548,8 +548,8 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
-		boardInfoAddReq.setBoardWritePermissionType(PermissionType.USER.getValue());
-		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		BoardInfoAddRes boardInfoAddRes = null;
 		
@@ -637,8 +637,8 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setBoardInformation("게시판 식별자에 대응하는 게시판 정보 삭제용 레코드");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
-		boardInfoAddReq.setBoardWritePermissionType(PermissionType.USER.getValue());
-		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		BoardInfoAddRes boardInfoAddRes = null;
 		
@@ -716,10 +716,9 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoModifyReq.setBoardID((short)5);
 		boardInfoModifyReq.setBoardName("수정를 위한 게시판");
 		boardInfoModifyReq.setBoardInformation("수정용 게시판");
-		boardInfoModifyReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
-		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.USER.getValue());
-		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
+		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		try {
 			boardInfoModifyReqServerTask.doWork(TEST_DBCP_NAME, boardInfoModifyReq);
@@ -753,10 +752,9 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoModifyReq.setBoardID((short)5);
 		boardInfoModifyReq.setBoardName("수정를 위한 게시판");
 		boardInfoModifyReq.setBoardInformation("수정용 게시판");
-		boardInfoModifyReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
-		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.USER.getValue());
-		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
+		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		try {
 			boardInfoModifyReqServerTask.doWork(TEST_DBCP_NAME, boardInfoModifyReq);
@@ -773,10 +771,10 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 			fail("fail to execuate doTask");
 		}
 	}
+		
 	
 	@Test
-	public void 게시판정보수정_게시글존재() {		
-		String requestedUserIDForUser = "test01";
+	public void 게시판정보수정_정상() {
 		String requestedUserIDForAdmin = "admin";
 		
 		BoardInfoAddReqServerTask boardInfoAddReqServerTask = null;
@@ -792,102 +790,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setBoardInformation("수정전 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
-		boardInfoAddReq.setBoardWritePermissionType(PermissionType.USER.getValue());
-		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
-		
-		BoardInfoAddRes boardInfoAddRes = null;
-		
-		try {
-			boardInfoAddRes = boardInfoAddReqServerTask.doWork(TEST_DBCP_NAME, boardInfoAddReq);
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-		
-		BoardWriteReqServerTask boardWriteReqServerTask = null;
-		try {
-			boardWriteReqServerTask = new BoardWriteReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-
-		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestedUserID(requestedUserIDForUser);
-		boardWriteReq.setBoardID(boardInfoAddRes.getBoardID());
-		boardWriteReq.setSubject("제목");
-		boardWriteReq.setContents("내용");
-		boardWriteReq.setIp("172.16.0.1");
-
-		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
-
-		boardWriteReq.setNewAttachedFileCnt((short) attachedFileList.size());
-		boardWriteReq.setNewAttachedFileList(attachedFileList);
-
-		BoardWriteRes boardWriteRes = null;
-		try {
-			boardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-		
-		log.info(boardWriteRes.toString());
-		
-		BoardInfoModifyReqServerTask boardInfoModifyReqServerTask = null;
-		try {
-			boardInfoModifyReqServerTask = new BoardInfoModifyReqServerTask();
-		} catch (DynamicClassCallException e) {
-			fail("dead code");
-		}
-		
-		BoardInfoModifyReq boardInfoModifyReq = new BoardInfoModifyReq();
-		boardInfoModifyReq.setRequestedUserID(requestedUserIDForAdmin);
-		boardInfoModifyReq.setBoardID(boardInfoAddRes.getBoardID());
-		boardInfoModifyReq.setBoardName("수정완료후 게시판");
-		boardInfoModifyReq.setBoardInformation("수정완료후 게시판");
-		boardInfoModifyReq.setBoardListType(BoardListType.TREE.getValue());
-		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
-		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.USER.getValue());
-		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
-		
-		try {
-			boardInfoModifyReqServerTask.doWork(TEST_DBCP_NAME, boardInfoModifyReq);
-			fail("no ServerServiceException");
-		} catch (ServerServiceException e) {
-			String errorMessage = e.getMessage();
-
-			String expectedErrorMessage = "수정를 원하는 게시판 식별자를 갖는 게시글이 존재하여 게시판 정보를 수정 할 수 없습니다";
-
-			assertEquals("일반인 요청시 관리자 전용 서비스임을 알리며 거부하는지 검사", expectedErrorMessage,
-					errorMessage);
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}		
-	}
-	
-	@Test
-	public void 게시판정보수정_정산() {
-		String requestedUserIDForAdmin = "admin";
-		
-		BoardInfoAddReqServerTask boardInfoAddReqServerTask = null;
-		try {
-			boardInfoAddReqServerTask = new BoardInfoAddReqServerTask();
-		} catch (DynamicClassCallException e) {
-			fail("dead code");
-		}
-		
-		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
-		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
-		boardInfoAddReq.setBoardName("수정전 게시판");
-		boardInfoAddReq.setBoardInformation("수정전 게시판");
-		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
-		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
-		boardInfoAddReq.setBoardWritePermissionType(PermissionType.USER.getValue());
+		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
 		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.ADMIN.getValue());
 		
 		BoardInfoAddRes boardInfoAddRes = null;
@@ -911,10 +814,9 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoModifyReq.setBoardID(boardInfoAddRes.getBoardID());
 		boardInfoModifyReq.setBoardName("수정완료후 게시판");
 		boardInfoModifyReq.setBoardInformation("수정완료후 게시판");
-		boardInfoModifyReq.setBoardListType(BoardListType.ONLY_GROUP_ROOT.getValue());
 		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
 		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
-		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		try {
 			boardInfoModifyReqServerTask.doWork(TEST_DBCP_NAME, boardInfoModifyReq);
@@ -950,8 +852,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 				isSuccess = true;
 				
 				assertEquals("게시판 이름 비교",  boardInfoModifyReq.getBoardName(), boardInfo.getBoardName());
-				assertEquals("게시판 정보 비교",  boardInfoModifyReq.getBoardInformation(), boardInfo.getBoardInformation());
-				assertEquals("게시판 목록 유형 비교",  boardInfoModifyReq.getBoardListType(), boardInfo.getBoardListType());
+				assertEquals("게시판 정보 비교",  boardInfoModifyReq.getBoardInformation(), boardInfo.getBoardInformation());				
 				assertEquals("게시판 댓글 정책 유형 비교",  boardInfoModifyReq.getBoardReplyPolicyType(), boardInfo.getBoardReplyPolicyType());
 				assertEquals("게시판 본문 쓰기 권한 유형 비교",  boardInfoModifyReq.getBoardWritePermissionType(), boardInfo.getBoardWritePermissionType());
 				assertEquals("게시판 댓글 쓰기 권한 유형 비교",  boardInfoModifyReq.getBoardReplyPermissionType(), boardInfo.getBoardReplyPermissionType());

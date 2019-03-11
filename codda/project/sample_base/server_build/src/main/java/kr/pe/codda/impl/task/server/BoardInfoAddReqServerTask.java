@@ -22,10 +22,9 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
-import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
-import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -127,36 +126,7 @@ public class BoardInfoAddReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log,
-					boardInfoAddReq.getRequestedUserID());			
-			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
-			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
-			} catch(IllegalArgumentException e) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder("알 수 없는 회원[")
-					.append(boardInfoAddReq.getRequestedUserID())
-					.append("]의 역활[")
-					.append(memberRoleOfRequestedUserID)
-					.append("] 값입니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}	
-			
-			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = "게시판 정보 추가 서비스는 관리자 전용 서비스입니다";
-				throw new ServerServiceException(errorMessage);
-			}
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 정보 추가 서비스", PermissionType.ADMIN, boardInfoAddReq.getRequestedUserID());
 			
 			boardID = create.select(JooqSqlUtil.getIfField(SB_BOARD_INFO_TB.BOARD_ID.max(), 0, SB_BOARD_INFO_TB.BOARD_ID.max().add(1)))
 			.from(SB_BOARD_INFO_TB)

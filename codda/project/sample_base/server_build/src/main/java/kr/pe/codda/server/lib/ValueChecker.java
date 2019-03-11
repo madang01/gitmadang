@@ -16,17 +16,8 @@
  */
 package kr.pe.codda.server.lib;
 
-import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
-import io.netty.util.internal.logging.InternalLogger;
-
-import java.sql.Connection;
-
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.util.CommonStaticUtil;
-
-import org.jooq.DSLContext;
-import org.jooq.Record2;
 
 /**
  * 항목 검사기, 예를 들면 아이디, 비밀번호 같은 공통 항목에 대한 입력값 검사기
@@ -716,81 +707,6 @@ public class ValueChecker {
 		}		
 	}*/
 	
-	/**
-	 * <pre>
-	 * 요청한 사용자가 정상인지 검사를 수행하여 비정상시 예외를 던지고 '회원 역활'을 반환한다
-	 *  
-	 * WARNING! 파라미터 null 검사를 수행하지 않습니다 
-	 * 또한 아이디 'guest' 는 예약된 가상 아이디로써 회원 테이블에 존재 하지 않지만 
-	 * 손님을 뜻하는 아이디이다.  
-	 * </pre>
-	 * 
-	 * @param conn
-	 * @param create
-	 * @param log
-	 * @param requestedUserID 사용자 아이디
-	 * @throws ServerServiceException 비정상인 경우 던지는 예외, (1) 회원 테이블 미 존재 (2) 알 수 없는 회원 상태 값 (3) 회원 상태가 차단이나 탈퇴 즉 비정상일때
-	 * @return  회원 역활
-	 */
-	public static String checkValidRequestedUserState(Connection conn, DSLContext create, InternalLogger log, String requestedUserID) throws ServerServiceException {
-		if (requestedUserID.equals("guest")) {
-			return MemberRoleType.GUEST.getValue();
-		}
-		
-		Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)
-				.from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
-				.fetchOne();
-		
-		if (null == memberRecord) {
-			try {
-				conn.rollback();
-			} catch (Exception e) {
-				log.warn("fail to rollback");
-			}
-			
-			String errorMessage = new StringBuilder("요청한 사용자[")
-					.append(requestedUserID)
-					.append("]가 회원 테이블에 존재하지 않습니다").toString();				
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		String memeberStateOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.STATE);
-		
-		MemberStateType memberStateTypeOfRequestedUserID = null;
-		try {
-			memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memeberStateOfRequestedUserID, false);
-		} catch(IllegalArgumentException e) {
-			try {
-				conn.rollback();
-			} catch (Exception e1) {
-				log.warn("fail to rollback");
-			}
-			
-			String errorMessage = new StringBuilder("알 수 없는 회원[")
-				.append(requestedUserID)
-				.append("] 상태[")
-				.append(memeberStateOfRequestedUserID)
-				.append("] 값입니다").toString();
-			
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		if (! MemberStateType.OK.equals(memberStateTypeOfRequestedUserID)) {
-			try {
-				conn.rollback();
-			} catch (Exception e1) {
-				log.warn("fail to rollback");
-			}
-			
-			String errorMessage = new StringBuilder("요청한 사용자[")
-					.append(requestedUserID)
-					.append("] 상태[")
-					.append(memberStateTypeOfRequestedUserID.getName())
-					.append("]가 정상이 아닙니다").toString();				
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		return memberRecord.getValue(SB_MEMBER_TB.ROLE);
-	}
+	
 	
 }

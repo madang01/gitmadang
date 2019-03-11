@@ -71,7 +71,7 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -96,7 +96,7 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -198,7 +198,7 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 		String ip = "127.0.0.3";
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -221,7 +221,7 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 				
 				assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 				assertEquals("회원 상태 비교", MemberStateType.OK.getValue(),  userInformationRes.getState());
-				assertEquals("회원 역활 비교", MemberRoleType.USER.getValue(),  userInformationRes.getRole());
+				assertEquals("회원 역활 비교", MemberRoleType.MEMBER.getValue(),  userInformationRes.getRole());
 				assertEquals("비밀번호 분실시 힌트 비교", pwdHint,  userInformationRes.getPasswordHint());
 				assertEquals("비밀번호 분실시 답변 비교", pwdAnswer,  userInformationRes.getPasswordAnswer());
 				assertEquals("비밀번호 틀린 횟수 비교", 0,  userInformationRes.getPasswordFailedCount());
@@ -297,7 +297,7 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 		String ip = "127.0.0.3";		
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.USER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -320,7 +320,7 @@ public class UserInformationReqServerTaskTest extends AbstractJunitTest {
 				
 				assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 				assertEquals("회원 상태 비교", MemberStateType.OK.getValue(),  userInformationRes.getState());
-				assertEquals("회원 역활 비교", MemberRoleType.USER.getValue(),  userInformationRes.getRole());
+				assertEquals("회원 역활 비교", MemberRoleType.MEMBER.getValue(),  userInformationRes.getRole());
 				assertEquals("비밀번호 분실시 힌트 비교", pwdHint,  userInformationRes.getPasswordHint());
 				assertEquals("비밀번호 분실시 답변 비교", pwdAnswer,  userInformationRes.getPasswordAnswer());
 				assertEquals("비밀번호 틀린 횟수 비교", 0,  userInformationRes.getPasswordFailedCount());

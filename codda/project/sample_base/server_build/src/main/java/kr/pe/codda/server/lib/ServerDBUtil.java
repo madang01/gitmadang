@@ -39,7 +39,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
@@ -701,28 +700,147 @@ public abstract class ServerDBUtil {
 
 	}
 	
-	public static void checkServicePermission(Connection conn, String serverName, PermissionType servericePermissionType,
-			MemberRoleType memberRoleTypeOfRequestedUserID) throws ServerServiceException {
+	
+	/**
+	 * <pre>
+	 * 서비스 요청자가 지정한 서비스를 이용 가능한지 검사를 수행하며 
+	 * 요청자의 회원 역활 유형을 반환한다, 만약 이용 권한이 없다면 예외를 던진다
+	 * 서비스 이용 권한 유형으로는 (1) 관리자, (2) 일반회원, (3) 손님 이 있으며 
+	 * 이 값에 따라 아래와 같이 회원 역활 유형이 정해진다
+	 * - 서비스 이용 권한 유형에 따른 이용 가능한 회원 역활 유형 정리표 -
+	 * ----------------------------------------------
+	 * 서비스 이용 권한 유형	::	회원 역활 유형
+	 * ----------------------------------------------
+	 * 관리자			::	관리자
+	 * 일반회원			::	관리자, 일반회원
+	 * 손님			::	관리자, 일반회원, 손님
+	 * ----------------------------------------------
+	 * </pre> 
+	 * 
+	 * @param conn 연결 객체
+	 * @param create jooq DLSContext 객체
+	 * @param log 로그
+	 * @param serverName 서비스 이름
+	 * @param servericePermissionType 서비스 이용 권한 유형   
+	 * @param requestedUserID 서비스 요청자
+	 * @return 서비스 요청자의 회원 역활 유형
+	 * @throws ServerServiceException 서비스 이용 권한이 없거나 기타 에러 발생시 던지는 예외
+	 */
+	public static MemberRoleType checkUserAccessRights(Connection conn, DSLContext create, InternalLogger log, 
+			String serverName, PermissionType servericePermissionType,
+			String requestedUserID) throws ServerServiceException {
+		
+		MemberRoleType memberRoleTypeOfRequestedUserID = null;
+		
+		if (requestedUserID.equals("guest")) {
+			memberRoleTypeOfRequestedUserID = MemberRoleType.GUEST;
+		} else {
+			Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)
+					.from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
+					.fetchOne();
+			
+			if (null == memberRecord) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("서비스 요청자[")
+						.append(requestedUserID)
+						.append("]가 회원 테이블에 존재하지 않습니다").toString();				
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			String memeberStateOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.STATE);
+			MemberStateType memberStateTypeOfRequestedUserID = null;			
+			try {
+				memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memeberStateOfRequestedUserID, false);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("서비스 요청자[")
+					.append(requestedUserID)
+					.append("]의 회원 상태[")
+					.append(memeberStateOfRequestedUserID)
+					.append("] 값이 잘못되었습니다").toString();
+				
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			if (! MemberStateType.OK.equals(memberStateTypeOfRequestedUserID)) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("서비스 요청자[")
+						.append(requestedUserID)
+						.append("]의 회원 상태[")
+						.append(memberStateTypeOfRequestedUserID.getName())
+						.append("]가 정상이 아닙니다").toString();				
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			String memberRoleTypeValueOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.ROLE);
+			
+			try {
+				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleTypeValueOfRequestedUserID, false);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("서비스 요청자[")
+						.append(requestedUserID)
+						.append("]의 멤버 역활 유형[")
+						.append(memberRoleTypeValueOfRequestedUserID)
+						.append("]이 잘못되어있습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
+				/** WARNING! DB 에 저장된 멤버 역활 유형 값은 관리자와 일반사용자만 올 수 있습니다, 손님인 경우 경우 에러 처리합니다  */
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("서비스 요청자[")
+						.append(requestedUserID)
+						.append("]의 멤버 역활 유형[")
+						.append(memberRoleTypeValueOfRequestedUserID)
+						.append("]이 잘못되어있습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}			
+		}
+		
 		if (PermissionType.ADMIN.equals(servericePermissionType)) {				
 			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
-					InternalLogger log = InternalLoggerFactory.getInstance(ServerDBUtil.class);
 					log.warn("fail to rollback");
 				}
 
 				String errorMessage = new StringBuilder()
 						.append(serverName)
-						.append("는 관리자만이 이용 가능합니다").toString();
+						.append("는 관리자 전용 서비스입니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
-		} else if (PermissionType.USER.equals(servericePermissionType)) {
+		} else if (PermissionType.MEMBER.equals(servericePermissionType)) {
 			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
-					InternalLogger log = InternalLoggerFactory.getInstance(ServerDBUtil.class);
 					log.warn("fail to rollback");
 				}
 
@@ -732,5 +850,8 @@ public abstract class ServerDBUtil {
 				throw new ServerServiceException(errorMessage);
 			}
 		}
+		
+		return memberRoleTypeOfRequestedUserID;
 	}
+	
 }

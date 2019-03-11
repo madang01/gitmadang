@@ -30,7 +30,6 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
-import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -161,24 +160,6 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
-			String memberRoleOfRequestedUserID = ValueChecker.checkValidRequestedUserState(conn, create, log,
-					boardWriteReq.getRequestedUserID());
-			
-			MemberRoleType memberRoleTypeOfRequestedUserID = null;
-			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID, false);
-			} catch (IllegalArgumentException e) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = new StringBuilder("해당 게시글 차단 요청자의 멤버 타입[").append(memberRoleOfRequestedUserID)
-						.append("]이 잘못되어있습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
-
 			Record3<String, Byte, UInteger> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE,
 							SB_BOARD_INFO_TB.NEXT_BOARD_NO)
@@ -191,7 +172,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.longValue())
+				String errorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(boardID.shortValue())
 						.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -207,7 +188,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("지정한 게시판[").append(boardID.longValue())
+				String errorMessage = new StringBuilder("지정한 게시판[").append(boardID.shortValue())
 						.append("]은 최대 갯수까지 글이 등록되어 더 이상 글을 추가 할 수 없습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -227,7 +208,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			ServerDBUtil.checkServicePermission(conn, "게시판 본문 글 등록 서비스", boardWritePermissionType, memberRoleTypeOfRequestedUserID);
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 본문 글 등록 서비스", boardWritePermissionType, boardWriteReq.getRequestedUserID());
 			
 			create.update(SB_BOARD_INFO_TB)
 			.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, SB_BOARD_INFO_TB.NEXT_BOARD_NO.add(1))

@@ -67,14 +67,6 @@ public final class BoardInfoModifyReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardInfoModifyReq.setBoardListType((Byte)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "boardListType" // itemName
-			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
 		boardInfoModifyReq.setBoardReplyPolicyType((Byte)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardReplyPolicyType" // itemName

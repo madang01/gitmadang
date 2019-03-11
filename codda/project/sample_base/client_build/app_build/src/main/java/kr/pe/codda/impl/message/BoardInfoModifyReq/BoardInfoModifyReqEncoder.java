@@ -67,13 +67,6 @@ public final class BoardInfoModifyReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardListType"
-			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
-			, boardInfoModifyReq.getBoardListType() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardReplyPolicyType"
 			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 			, boardInfoModifyReq.getBoardReplyPolicyType() // itemValue

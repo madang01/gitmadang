@@ -53,8 +53,8 @@ import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.BoardTree;
 import kr.pe.codda.server.lib.BoardTreeNode;
-import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.VirtualBoardTreeBuilderIF;
@@ -111,7 +111,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.USER, userID, nickname, pwdHint,
+						MemberRoleType.MEMBER, userID, nickname, pwdHint,
 						pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(
@@ -140,7 +140,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.USER, userID, nickname, pwdHint,
+						MemberRoleType.MEMBER, userID, nickname, pwdHint,
 						pwdAnswer, passwordBytes, ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(
@@ -184,7 +184,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			create.delete(SB_BOARD_TB).execute();
 
 			/** sample_base 프로젝에 예약된 0 ~ 3 까지의 게시판 식별자를 제외한 게시판 정보 삭제  */
-			create.delete(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.ge(UByte.valueOf(4)));
+			create.delete(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.ge(UByte.valueOf(4))).execute();
 			
 			create.update(SB_BOARD_INFO_TB)
 					.set(SB_BOARD_INFO_TB.CNT, 0)
@@ -302,7 +302,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 	@Test
 	public void 목록조회_본문으로만이루어진목록_초기상태() {
-		final short testBoardID = 4;
+		final short testBoardID = 2;
 		
 		
 		int pageNo = 1;
@@ -345,7 +345,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	@Test
 	public void 게시판목록조회테스트_게시판목록유형전체_초기상태() {
 		String requestedUserIDForAdmin = "admin";
-		String requestedUserIDForUser = "guest";
+		String requestedUserIDForMember = "guest";
 		
 		BoardListReqServerTask boardListReqServerTask = null;
 		try {
@@ -367,8 +367,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
-		boardInfoAddReq.setBoardWritePermissionType(PermissionType.USER.getValue());
-		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.USER.getValue());
+		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
 		int pageNo = 1;
 		int pageSize = 20;
@@ -386,7 +386,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			}
 
 			BoardListReq boardListReq = new BoardListReq();
-			boardListReq.setRequestedUserID(requestedUserIDForUser);
+			boardListReq.setRequestedUserID(requestedUserIDForMember);
 			boardListReq.setBoardID(boardInfoAddRes.getBoardID());
 			boardListReq.setPageNo(pageNo);
 			boardListReq.setPageSize(pageSize);			
@@ -411,9 +411,9 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 목록조회테스트_본문으로만이루어진목록_정상() {
+	public void 본문으로만이루어진목록_정상() {
 		String requestedUserIDForAdmin = "admin";
-		String requestedUserIDForUser = "guest";
+		String requestedUserIDForMember = "guest";
 		
 		int pageNo = 1;
 		int pageSize = 20;
@@ -434,8 +434,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
-		boardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
-		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
+		boardInfoAddReq.setBoardName("단위테스트");
+		boardInfoAddReq.setBoardInformation("단위 테스트::본문으로이루어진 목록 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.ONLY_GROUP_ROOT.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.GUEST.getValue());
@@ -708,106 +708,17 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		BoardTree boardTree = virtualBoardTreeBuilder.build(boardInfoAddRes.getBoardID());
 		boardTree.makeDBRecord(TEST_DBCP_NAME);
 
-		// BoardTreeNode parentBoardTreeNode = boardTree.find("루트1_자식1_자식1");
+		BoardTreeNode blockBoardTreeNode = boardTree.find("루트1");
+
+		if (null == blockBoardTreeNode) {
+			fail("목표 게시글(제목:루트1) 찾기 실패");
+		}
+
 		
-		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestedUserID(requestedUserIDForUser);
-		boardListReq.setBoardID(boardInfoAddRes.getBoardID());
-		boardListReq.setPageNo(pageNo);
-		boardListReq.setPageSize(pageSize);			
-
-		try {
-			BoardListRes acutalBoardListRes = boardListReqServerTask.doWork(
-					TEST_DBCP_NAME, boardListReq);
-			log.info(acutalBoardListRes.toString());
-
-			if (acutalBoardListRes.getTotal() != 2) {
-				fail("DB 초기 상태에에서 총 갯수가 2 가 아닙니다");
-			}
-
-			if (acutalBoardListRes.getCnt() != 2) {
-				fail("DB 초기 상태에에서 총 갯수가 2 가 아닙니다");
-			}			
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-	}
-
-	@Test
-	public void 목록조회테스트_모든종류의게시글상태_어드민() {
-		String writerID = "test01";
-		String adminID = "admin";
-		int pageNo = 1;
-		int pageSize = 20;
-
-		BoardWriteReqServerTask boardWriteReqServerTask = null;
-		try {
-			boardWriteReqServerTask = new BoardWriteReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-
-		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(boardID);
-		boardWriteReq.setSubject("삭제::제목");
-		boardWriteReq.setContents("삭제::내용");
-		boardWriteReq.setIp("172.16.0.1");
-
-		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
-
-		boardWriteReq.setNewAttachedFileCnt((short) attachedFileList.size());
-		boardWriteReq.setNewAttachedFileList(attachedFileList);
-
-		BoardWriteRes deleteSateBoardWriteRes = null;
-		try {
-			deleteSateBoardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
-		try {
-			boardDeleteReqServerTask = new BoardDeleteReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
-		boardDeleteReq.setRequestedUserID(writerID);
-		boardDeleteReq.setBoardID(deleteSateBoardWriteRes.getBoardID());
-		boardDeleteReq.setBoardNo(deleteSateBoardWriteRes.getBoardNo());
-
-		try {
-			MessageResultRes messageResultRes = boardDeleteReqServerTask
-					.doWork(TEST_DBCP_NAME, boardDeleteReq);
-			log.info(messageResultRes.toString());
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		boardWriteReq.setSubject("블락::제목");
-		boardWriteReq.setContents("블락::내용");
-		BoardWriteRes blockSateBoardWriteRes = null;
-		try {
-			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
+		BoardBlockReq blcokBoardBlockReq = new BoardBlockReq();
+		blcokBoardBlockReq.setRequestedUserID(requestedUserIDForAdmin);
+		blcokBoardBlockReq.setBoardID(blockBoardTreeNode.getBoardID());
+		blcokBoardBlockReq.setBoardNo(blockBoardTreeNode.getBoardNo());
 
 		BoardBlockReqServerTask boardBlockReqServerTask = null;
 		try {
@@ -815,71 +726,397 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
-		BoardBlockReq boardBlockReq = new BoardBlockReq();
-		boardBlockReq.setRequestedUserID(adminID);
-		boardBlockReq.setBoardID(blockSateBoardWriteRes.getBoardID());
-		boardBlockReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
 
 		try {
 			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(
-					TEST_DBCP_NAME, boardBlockReq);
+					TEST_DBCP_NAME, blcokBoardBlockReq);
+
 			log.info(messageResultRes.toString());
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
+
+			if (!messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+
 		} catch (Exception e) {
-			log.warn("unknown error", e);
+			log.warn("fail to execuate doTask", e);
 			fail("fail to execuate doTask");
 		}
-
-		boardWriteReq.setSubject("정상::제목");
-		boardWriteReq.setContents("정상::내용");
-		@SuppressWarnings("unused")
-		BoardWriteRes okSateBoardWriteRes = null;
-		try {
-			okSateBoardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
+		
 		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestedUserID(adminID);
-		boardListReq.setBoardID(boardID);
+		boardListReq.setRequestedUserID(requestedUserIDForMember);
+		boardListReq.setBoardID(boardInfoAddRes.getBoardID());
 		boardListReq.setPageNo(pageNo);
-		boardListReq.setPageSize(pageSize);
+		boardListReq.setPageSize(pageSize);			
 
+		BoardListRes acutalBoardListRes = null;
+		try {
+			acutalBoardListRes = boardListReqServerTask.doWork(
+					TEST_DBCP_NAME, boardListReq);
+			// log.info(acutalBoardListRes.toString());						
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		assertEquals("본문으로만 이루어진 목록 갯수 비교",  1, acutalBoardListRes.getCnt());		
+				
+		for (BoardListRes.Board board : acutalBoardListRes.getBoardList()) {
+			if (0 != board.getParentNo()) {
+				fail("본문 글로만 이루어진 목록인데 댓글이 포함되었습니다");
+			}
+		}
+	}
+	
+	@Test
+	public void 계층형목록_정상() {
+		String requestedUserIDForAdmin = "admin";
+		String requestedUserIDForMember = "guest";
+		
+		int pageNo = 1;
+		int pageSize = 20;
+		
 		BoardListReqServerTask boardListReqServerTask = null;
 		try {
 			boardListReqServerTask = new BoardListReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
-
+		
+		BoardInfoAddReqServerTask boardInfoAddReqServerTask = null;
 		try {
-			BoardListRes acutalBoardListRes = boardListReqServerTask.doWork(
-					TEST_DBCP_NAME, boardListReq);
-			log.info(acutalBoardListRes.toString());
-
-			if (acutalBoardListRes.getTotal() != 3) {
-				fail("DB 초기 상태에에서 총 갯수가 3이 아닙니다");
-			}
-
-			if (acutalBoardListRes.getCnt() != 3) {
-				fail("DB 초기 상태에에서 총 갯수가 3이 아닙니다");
-			}
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
+			boardInfoAddReqServerTask = new BoardInfoAddReqServerTask();
+		} catch (DynamicClassCallException e) {
+			fail("dead code");
+		}
+		
+		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
+		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
+		boardInfoAddReq.setBoardName("계층형");
+		boardInfoAddReq.setBoardInformation("단위 테스트::계층형 게시판");
+		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
+		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
+		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());		
+		
+		BoardInfoAddRes boardInfoAddRes = null;
+		
+		try {
+			boardInfoAddRes = boardInfoAddReqServerTask.doWork(TEST_DBCP_NAME, boardInfoAddReq);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
 		}
+				
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+			@Override
+			public BoardTree build(final short boardID) {
+				String writerID = "test01";
+				String otherID = "test02";
+
+				BoardTree boardTree = new BoardTree();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree
+							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
+									writerID, "루트1", "루트1");
+
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트1_자식1", "루트1_자식1");
+						{
+							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트1_자식1_자식1",
+											"루트1_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, otherID,
+												"루트1_자식1_자식1_자식1",
+												"루트1_자식1_자식1_자식1");
+								{
+									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식1_자식1_자식1_자식1",
+													"루트1_자식1_자식1_자식1_자식1");
+									root1Child1Child1Child1BoardTreeNode
+											.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+								}
+
+								root1Child1Child1BoardTreeNode
+										.addChildNode(root1Child1Child1Child1BoardTreeNode);
+							}
+
+							root1Child1BoardTreeNode
+									.addChildNode(root1Child1Child1BoardTreeNode);
+						}
+
+						root1BoardTreeNode
+								.addChildNode(root1Child1BoardTreeNode);
+					}
+
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, writerID, "루트1_자식2", "루트1_자식2");
+
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트1_자식2_자식1",
+											"루트1_자식2_자식1");
+							{
+								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식1",
+												"루트1_자식2_자식1_자식1");
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child1BoardTreeNode);
+							}
+
+							{
+								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식2",
+												"루트1_자식2_자식1_자식2");
+								{
+									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식2_자식1_자식2_자식1",
+													"루트1_자식2_자식3_자식2_자식1");
+									root1Child2Child1Child2BoardTreeNode
+											.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);
+								}
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child2BoardTreeNode);
+							}
+
+							{
+								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식3",
+												"루트1_자식2_자식1_자식3");
+								{
+									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식2_자식1_자식3_자식1",
+													"루트1_자식2_자식3_자식3_자식1");
+									root1Child2Child1Child3BoardTreeNode
+											.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);
+								}
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child3BoardTreeNode);
+							}
+
+							root1Child2BoardTreeNode
+									.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						root1BoardTreeNode
+								.addChildNode(root1Child2BoardTreeNode);
+					}
+
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트1_자식3", "루트1_자식3");
+						root1BoardTreeNode
+								.addChildNode(root1Child3BoardTreeNode);
+					}
+
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
+				}
+				
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree
+							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
+									writerID, "루트2", "루트2");
+
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트2_자식1", "루트2_자식1");
+						{
+							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트2_자식1_자식1",
+											"루트2_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, otherID,
+												"루트2_자식1_자식1_자식1",
+												"루트2_자식1_자식1_자식1");
+								{
+									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트2_자식1_자식1_자식1_자식1",
+													"루트2_자식1_자식1_자식1_자식1");
+									root1Child1Child1Child1BoardTreeNode
+											.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+								}
+
+								root1Child1Child1BoardTreeNode
+										.addChildNode(root1Child1Child1Child1BoardTreeNode);
+							}
+
+							root1Child1BoardTreeNode
+									.addChildNode(root1Child1Child1BoardTreeNode);
+						}
+
+						root1BoardTreeNode
+								.addChildNode(root1Child1BoardTreeNode);
+					}
+
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, writerID, "루트2_자식2", "루트2_자식2");
+
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트2_자식2_자식1",
+											"루트2_자식2_자식1");
+							{
+								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트2_자식2_자식1_자식1",
+												"루트2_자식2_자식1_자식1");
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child1BoardTreeNode);
+							}
+
+							{
+								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트2_자식2_자식1_자식2",
+												"루트2_자식2_자식1_자식2");
+								{
+									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트2_자식2_자식1_자식2_자식1",
+													"루트2_자식2_자식3_자식2_자식1");
+									root1Child2Child1Child2BoardTreeNode
+											.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);
+								}
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child2BoardTreeNode);
+							}
+
+							{
+								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트2_자식2_자식1_자식3",
+												"루트2_자식2_자식1_자식3");
+								{
+									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트2_자식2_자식1_자식3_자식1",
+													"루트2_자식2_자식3_자식3_자식1");
+									root1Child2Child1Child3BoardTreeNode
+											.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);
+								}
+
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child3BoardTreeNode);
+							}
+
+							root1Child2BoardTreeNode
+									.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						root1BoardTreeNode
+								.addChildNode(root1Child2BoardTreeNode);
+					}
+
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트2_자식3", "루트2_자식3");
+						root1BoardTreeNode
+								.addChildNode(root1Child3BoardTreeNode);
+					}
+
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
+				}
+
+				return boardTree;
+			}
+		}
+
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardInfoAddRes.getBoardID());
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
+		
+		BoardTreeNode blockBoardTreeNode = boardTree.find("루트1");
+
+		if (null == blockBoardTreeNode) {
+			fail("목표 게시글(제목:루트1) 찾기 실패");
+		}
+
+		
+		BoardBlockReq blcokBoardBlockReq = new BoardBlockReq();
+		blcokBoardBlockReq.setRequestedUserID(requestedUserIDForAdmin);
+		blcokBoardBlockReq.setBoardID(blockBoardTreeNode.getBoardID());
+		blcokBoardBlockReq.setBoardNo(blockBoardTreeNode.getBoardNo());
+
+		BoardBlockReqServerTask boardBlockReqServerTask = null;
+		try {
+			boardBlockReqServerTask = new BoardBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+
+		try {
+			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(
+					TEST_DBCP_NAME, blcokBoardBlockReq);
+
+			log.info(messageResultRes.toString());
+
+			if (!messageResultRes.getIsSuccess()) {
+				fail(messageResultRes.getResultMessage());
+			}
+
+		} catch (Exception e) {
+			log.warn("fail to execuate doTask", e);
+			fail("fail to execuate doTask");
+		}
+		
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setRequestedUserID(requestedUserIDForMember);
+		boardListReq.setBoardID(boardInfoAddRes.getBoardID());
+		boardListReq.setPageNo(pageNo);
+		boardListReq.setPageSize(pageSize);			
+
+		BoardListRes acutalBoardListRes = null;
+		try {
+			acutalBoardListRes = boardListReqServerTask.doWork(
+					TEST_DBCP_NAME, boardListReq);
+			// log.info(acutalBoardListRes.toString());						
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+				
+		assertEquals("계층형 목록 갯수 비교",  boardTree.getTotal()/2, acutalBoardListRes.getCnt());
 	}
+	
 
 	@Test
 	public void 게시판목록_트리관련항목유효성검사() {
@@ -1089,8 +1326,8 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시글삭제_대상글없음() {
-		String writerID = "test01";
+	public void 게시글삭제_손님() {
+		String writerID = "guest";
 
 		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
 		try {
@@ -1110,9 +1347,76 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
 
-			String expectedErrorMessage = "1.해당 게시글이 존재 하지 않습니다";
+			String expectedErrorMessage = "게시글 삭제 서비스는 로그인 해야만 이용할 수 있습니다";
 
-			assertEquals("삭제 대상 글이 없을때  경고 메시지인지 검사", expectedErrorMessage,
+			assertEquals("손님이 삭제 요청할때의 경고 메시지 검사", expectedErrorMessage,
+					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	/**
+	 * 관리자라도 타인글은 삭제 할 수 없음, 삭제는 오직 본인글만 가능함.
+	 */
+	@Test
+	public void 게시글삭제_본인글아님_관리자() {
+		String writerID = "test01";
+		String adminID = "admin";
+
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setRequestedUserID(writerID);
+		boardWriteReq.setBoardID(boardID);
+		boardWriteReq.setSubject("삭제::타인::제목");
+		boardWriteReq.setContents("삭제::타인::내용");
+		boardWriteReq.setIp("172.16.0.1");
+
+		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
+
+		boardWriteReq.setNewAttachedFileCnt((short) attachedFileList.size());
+		boardWriteReq.setNewAttachedFileList(attachedFileList);
+
+		BoardWriteRes deleteSateBoardWriteRes = null;
+		try {
+			deleteSateBoardWriteRes = boardWriteReqServerTask.doWork(
+					TEST_DBCP_NAME, boardWriteReq);
+		} catch (ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+
+		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
+		try {
+			boardDeleteReqServerTask = new BoardDeleteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
+		boardDeleteReq.setRequestedUserID(adminID);
+		boardDeleteReq.setBoardID(deleteSateBoardWriteRes.getBoardID());
+		boardDeleteReq.setBoardNo(deleteSateBoardWriteRes.getBoardNo());
+
+		try {
+			boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);
+
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+
+			String expectedErrorMessage = "타인 글은 삭제 할 수 없습니다";
+
+			assertEquals("타인 글 삭제할때 경고 메시지인지 검사", expectedErrorMessage,
 					errorMessage);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
@@ -1121,7 +1425,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시글삭제_본인글아님() {
+	public void 게시글삭제_본인글아님_일반사용자() {
 		String writerID = "test01";
 		String otherID = "test02";
 
@@ -1177,6 +1481,73 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			String expectedErrorMessage = "타인 글은 삭제 할 수 없습니다";
 
 			assertEquals("타인 글 삭제할때 경고 메시지인지 검사", expectedErrorMessage,
+					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	@Test
+	public void 게시글삭제_잘못된게시판식별자() {
+		String requestedUserIDForMember = "test01";
+		short badBoardID = 7;
+		
+		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
+		try {
+			boardDeleteReqServerTask = new BoardDeleteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
+		boardDeleteReq.setRequestedUserID(requestedUserIDForMember);
+		boardDeleteReq.setBoardID(badBoardID);
+		boardDeleteReq.setBoardNo(1);
+
+		try {
+			boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);
+			
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+	
+			String expectedErrorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(badBoardID)
+					.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
+	
+			assertEquals("잘못된 게시판 식별자 검사",
+					expectedErrorMessage, errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+
+	@Test
+	public void 게시글삭제_대상글없음() {
+		String writerID = "test01";
+	
+		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
+		try {
+			boardDeleteReqServerTask = new BoardDeleteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
+		boardDeleteReq.setRequestedUserID(writerID);
+		boardDeleteReq.setBoardID(boardID);
+		boardDeleteReq.setBoardNo(1);
+	
+		try {
+			boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);
+	
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+	
+			String expectedErrorMessage = "1.해당 게시글이 존재 하지 않습니다";
+	
+			assertEquals("삭제 대상 글이 없을때의  경고 메시지인지 검사", expectedErrorMessage,
 					errorMessage);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
@@ -1253,6 +1624,93 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 			assertEquals("타인 글 삭제할때 경고 메시지인지 검사", expectedErrorMessage,
 					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+
+	@Test
+	public void 게시글삭제_차단된글() {
+		String writerID = "test01";
+		String adminID = "admin";
+	
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+	
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setRequestedUserID(writerID);
+		boardWriteReq.setBoardID(boardID);
+		boardWriteReq.setSubject("차단::제목");
+		boardWriteReq.setContents("차단::내용");
+		boardWriteReq.setIp("172.16.0.1");
+	
+		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
+	
+		boardWriteReq.setNewAttachedFileCnt((short) attachedFileList.size());
+		boardWriteReq.setNewAttachedFileList(attachedFileList);
+	
+		BoardWriteRes blockSateBoardWriteRes = null;
+		try {
+			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
+					TEST_DBCP_NAME, boardWriteReq);
+		} catch (ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	
+		BoardBlockReqServerTask boardBlockReqServerTask = null;
+		try {
+			boardBlockReqServerTask = new BoardBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardBlockReq boardBlockReq = new BoardBlockReq();
+		boardBlockReq.setRequestedUserID(adminID);
+		boardBlockReq.setBoardID(blockSateBoardWriteRes.getBoardID());
+		boardBlockReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
+	
+		try {
+			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(
+					TEST_DBCP_NAME, boardBlockReq);
+			log.info(messageResultRes.toString());
+		} catch (ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	
+		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
+		try {
+			boardDeleteReqServerTask = new BoardDeleteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
+		boardDeleteReq.setRequestedUserID(writerID);
+		boardDeleteReq.setBoardID(blockSateBoardWriteRes.getBoardID());
+		boardDeleteReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
+	
+		try {
+			boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);
+	
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+	
+			String expectedErrorMessage = "해당 게시글은 관리자에 의해 차단된 글입니다";
+	
+			assertEquals("관리자에 의해 차단된 글 삭제할때 경고 메시지인지 검사",
+					expectedErrorMessage, errorMessage);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
@@ -1360,29 +1818,29 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시글삭제_차단된글() {
-		String writerID = "test01";
-		String adminID = "admin";
-
+	public void 게시글차단_손님() {
+		String requestedUserIDForMember = "test01";
+		String requestedUserIDForGuest = "guest";
+		
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
 		try {
 			boardWriteReqServerTask = new BoardWriteReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
-
+	
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestedUserID(writerID);
+		boardWriteReq.setRequestedUserID(requestedUserIDForMember);
 		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("차단::제목");
 		boardWriteReq.setContents("차단::내용");
 		boardWriteReq.setIp("172.16.0.1");
-
+	
 		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
-
+	
 		boardWriteReq.setNewAttachedFileCnt((short) attachedFileList.size());
 		boardWriteReq.setNewAttachedFileList(attachedFileList);
-
+	
 		BoardWriteRes blockSateBoardWriteRes = null;
 		try {
 			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
@@ -1394,6 +1852,102 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
 		}
+	
+		BoardBlockReqServerTask boardBlockReqServerTask = null;
+		try {
+			boardBlockReqServerTask = new BoardBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardBlockReq boardBlockReq = new BoardBlockReq();
+		boardBlockReq.setRequestedUserID(requestedUserIDForGuest);
+		boardBlockReq.setBoardID(blockSateBoardWriteRes.getBoardID());
+		boardBlockReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
+	
+		try {
+			boardBlockReqServerTask.doWork(TEST_DBCP_NAME, boardBlockReq);
+	
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+	
+			String expectedErrorMessage = "게시글 차단 서비스는 관리자 전용 서비스입니다";
+	
+			assertEquals("게시글 차단 기능 호출자 관리자 여부 검사", expectedErrorMessage,
+					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	@Test
+	public void 게시글차단_일반유저() {
+		String writerID = "test01";
+	
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+	
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setRequestedUserID(writerID);
+		boardWriteReq.setBoardID(boardID);
+		boardWriteReq.setSubject("차단::제목");
+		boardWriteReq.setContents("차단::내용");
+		boardWriteReq.setIp("172.16.0.1");
+	
+		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
+	
+		boardWriteReq.setNewAttachedFileCnt((short) attachedFileList.size());
+		boardWriteReq.setNewAttachedFileList(attachedFileList);
+	
+		BoardWriteRes blockSateBoardWriteRes = null;
+		try {
+			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
+					TEST_DBCP_NAME, boardWriteReq);
+		} catch (ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	
+		BoardBlockReqServerTask boardBlockReqServerTask = null;
+		try {
+			boardBlockReqServerTask = new BoardBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardBlockReq boardBlockReq = new BoardBlockReq();
+		boardBlockReq.setRequestedUserID(writerID);
+		boardBlockReq.setBoardID(blockSateBoardWriteRes.getBoardID());
+		boardBlockReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
+	
+		try {
+			boardBlockReqServerTask.doWork(TEST_DBCP_NAME, boardBlockReq);
+	
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+	
+			String expectedErrorMessage = "게시글 차단 서비스는 관리자 전용 서비스입니다";
+	
+			assertEquals("게시글 차단 기능 호출자 관리자 여부 검사", expectedErrorMessage,
+					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+
+	@Test
+	public void 게시글차단_잘못된게시판식별자() {
+		String adminID = "admin";
+		short badBoardID = 7;
 
 		BoardBlockReqServerTask boardBlockReqServerTask = null;
 		try {
@@ -1403,49 +1957,27 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 		BoardBlockReq boardBlockReq = new BoardBlockReq();
 		boardBlockReq.setRequestedUserID(adminID);
-		boardBlockReq.setBoardID(blockSateBoardWriteRes.getBoardID());
-		boardBlockReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
+		boardBlockReq.setBoardID(badBoardID);
+		boardBlockReq.setBoardNo(1);
 
 		try {
-			MessageResultRes messageResultRes = boardBlockReqServerTask.doWork(
-					TEST_DBCP_NAME, boardBlockReq);
-			log.info(messageResultRes.toString());
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
-		try {
-			boardDeleteReqServerTask = new BoardDeleteReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
-		boardDeleteReq.setRequestedUserID(writerID);
-		boardDeleteReq.setBoardID(blockSateBoardWriteRes.getBoardID());
-		boardDeleteReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
-
-		try {
-			boardDeleteReqServerTask.doWork(TEST_DBCP_NAME, boardDeleteReq);
+			boardBlockReqServerTask.doWork(TEST_DBCP_NAME, boardBlockReq);
 
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
 
-			String expectedErrorMessage = "해당 게시글은 관리자에 의해 차단된 글입니다";
+			String expectedErrorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(badBoardID)
+					.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
 
-			assertEquals("관리자에 의해 차단된 글 삭제할때 경고 메시지인지 검사",
-					expectedErrorMessage, errorMessage);
+			assertEquals("잘못된 게시판 식별자 검사", expectedErrorMessage,
+					errorMessage);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
 		}
 	}
-
+	
 	@Test
 	public void 게시글차단_대상글없음() {
 		String adminID = "admin";
@@ -1477,69 +2009,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			fail("fail to execuate doTask");
 		}
 	}
-
-	@Test
-	public void 게시글차단_일반유저() {
-		String writerID = "test01";
-
-		BoardWriteReqServerTask boardWriteReqServerTask = null;
-		try {
-			boardWriteReqServerTask = new BoardWriteReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-
-		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestedUserID(writerID);
-		boardWriteReq.setBoardID(boardID);
-		boardWriteReq.setSubject("차단::제목");
-		boardWriteReq.setContents("차단::내용");
-		boardWriteReq.setIp("172.16.0.1");
-
-		List<BoardWriteReq.NewAttachedFile> attachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
-
-		boardWriteReq.setNewAttachedFileCnt((short) attachedFileList.size());
-		boardWriteReq.setNewAttachedFileList(attachedFileList);
-
-		BoardWriteRes blockSateBoardWriteRes = null;
-		try {
-			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		BoardBlockReqServerTask boardBlockReqServerTask = null;
-		try {
-			boardBlockReqServerTask = new BoardBlockReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-		BoardBlockReq boardBlockReq = new BoardBlockReq();
-		boardBlockReq.setRequestedUserID(writerID);
-		boardBlockReq.setBoardID(blockSateBoardWriteRes.getBoardID());
-		boardBlockReq.setBoardNo(blockSateBoardWriteRes.getBoardNo());
-
-		try {
-			boardBlockReqServerTask.doWork(TEST_DBCP_NAME, boardBlockReq);
-
-			fail("no ServerServiceException");
-		} catch (ServerServiceException e) {
-			String errorMessage = e.getMessage();
-
-			String expectedErrorMessage = "게시글 차단은 관리자 전용 서비스입니다";
-
-			assertEquals("게시글 차단 기능 호출자 관리자 여부 검사", expectedErrorMessage,
-					errorMessage);
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-	}
+	
 
 	@Test
 	public void 게시글차단_삭제된글차단() {
@@ -1697,213 +2167,6 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
-		}
-	}
-
-	@Test
-	public void 계획된_게시판_테스트_데이터_실사화_검증() {
-
-		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
-			@Override
-			public BoardTree build(final short boardID) {
-				String writerID = "test01";
-				String otherID = "test02";
-
-				BoardTree boardTree = new BoardTree();
-				{
-					BoardTreeNode root1BoardTreeNode = BoardTree
-							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
-									writerID, "루트1", "루트1");
-
-					{
-						BoardTreeNode root1Child1BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(
-										boardID, otherID, "루트1_자식1", "루트1_자식1");
-						{
-							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(
-											boardID, otherID, "루트1_자식1_자식1",
-											"루트1_자식1_자식1");
-							{
-								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree
-										.makeBoardTreeNodeWithoutTreeInfomation(
-												boardID, otherID,
-												"루트1_자식1_자식1_자식1",
-												"루트1_자식1_자식1_자식1");
-								{
-									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(
-													boardID, otherID,
-													"루트1_자식1_자식1_자식1_자식1",
-													"루트1_자식1_자식1_자식1_자식1");
-									root1Child1Child1Child1BoardTreeNode
-											.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
-								}
-
-								root1Child1Child1BoardTreeNode
-										.addChildNode(root1Child1Child1Child1BoardTreeNode);
-							}
-
-							root1Child1BoardTreeNode
-									.addChildNode(root1Child1Child1BoardTreeNode);
-						}
-
-						root1BoardTreeNode
-								.addChildNode(root1Child1BoardTreeNode);
-					}
-
-					{
-						BoardTreeNode root1Child2BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(
-										boardID, writerID, "루트1_자식2", "루트1_자식2");
-
-						{
-							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(
-											boardID, otherID, "루트1_자식2_자식1",
-											"루트1_자식2_자식1");
-							{
-								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree
-										.makeBoardTreeNodeWithoutTreeInfomation(
-												boardID, writerID,
-												"루트1_자식2_자식1_자식1",
-												"루트1_자식2_자식1_자식1");
-
-								root1Child2Child1BoardTreeNode
-										.addChildNode(root1Child2Child1Child1BoardTreeNode);
-							}
-
-							{
-								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree
-										.makeBoardTreeNodeWithoutTreeInfomation(
-												boardID, writerID,
-												"루트1_자식2_자식1_자식2",
-												"루트1_자식2_자식1_자식2");
-								{
-									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(
-													boardID, otherID,
-													"루트1_자식2_자식1_자식2_자식1",
-													"루트1_자식2_자식3_자식2_자식1");
-									root1Child2Child1Child2BoardTreeNode
-											.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);
-								}
-
-								root1Child2Child1BoardTreeNode
-										.addChildNode(root1Child2Child1Child2BoardTreeNode);
-							}
-
-							{
-								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree
-										.makeBoardTreeNodeWithoutTreeInfomation(
-												boardID, writerID,
-												"루트1_자식2_자식1_자식3",
-												"루트1_자식2_자식1_자식3");
-								{
-									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(
-													boardID, otherID,
-													"루트1_자식2_자식1_자식3_자식1",
-													"루트1_자식2_자식3_자식3_자식1");
-									root1Child2Child1Child3BoardTreeNode
-											.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);
-								}
-
-								root1Child2Child1BoardTreeNode
-										.addChildNode(root1Child2Child1Child3BoardTreeNode);
-							}
-
-							root1Child2BoardTreeNode
-									.addChildNode(root1Child2Child1BoardTreeNode);
-						}
-						root1BoardTreeNode
-								.addChildNode(root1Child2BoardTreeNode);
-					}
-
-					{
-						BoardTreeNode root1Child3BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(
-										boardID, otherID, "루트1_자식3", "루트1_자식3");
-						root1BoardTreeNode
-								.addChildNode(root1Child3BoardTreeNode);
-					}
-
-					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
-				}
-
-				return boardTree;
-			}
-		}
-
-		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
-		boardTree.makeDBRecord(TEST_DBCP_NAME);
-
-		int pageNo = 1;
-		int pageSize = boardTree.getHashSize();
-
-		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestedUserID("guest");
-		boardListReq.setBoardID(boardID);
-		boardListReq.setPageNo(pageNo);
-		boardListReq.setPageSize(pageSize);
-
-		BoardListReqServerTask boardListReqServerTask = null;
-		try {
-			boardListReqServerTask = new BoardListReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
-		BoardListRes firstBoardListRes = null;
-
-		try {
-			firstBoardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME,
-					boardListReq);
-
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		assertEquals("게시판 트리 노드 총 갯수와 게시판 레코드 총 갯수 비교", boardTree.getTotal(),
-				firstBoardListRes.getTotal());
-
-		assertEquals("게시판 트리 노드 총 갯수와 게시판 레코드 목록 갯수 비교", boardTree.getTotal(),
-				firstBoardListRes.getCnt());
-
-		java.util.List<BoardListRes.Board> firstBoardList = firstBoardListRes
-				.getBoardList();
-
-		for (BoardListRes.Board board : firstBoardList) {
-			BoardTreeNode boardTreeNode = boardTree.find(board.getSubject());
-			if (null == boardTreeNode) {
-				String errorMessage = new StringBuilder()
-						.append("this 'boardNoToBoardTreeNodeHash' map contains no mapping for the key(boardNo=")
-						.append(board.getBoardNo()).append(")").toString();
-
-				fail(errorMessage);
-			}
-
-			// log.info();
-
-			assertEquals("게시판 트리 노드의 그룹 번호와 게시판 레코드의 그룹 번호 비교",
-					boardTreeNode.getGroupNo(), board.getGroupNo());
-
-			assertEquals("게시판 트리 노드의 그룹 시퀀스와 게시판 레코드의 그룹 시퀀스 비교",
-					boardTreeNode.getGroupSeq(), board.getGroupSeq());
-
-			assertEquals("게시판 트리 노드의 부모번호와 게시판 레코드의 부모번호 비교",
-					boardTreeNode.getParentNo(), board.getParentNo());
-
-			assertEquals(
-					"게시판 트리 노드의 트리 깊이와 게시판 레코드의 트리 깊이 비교" + board.getBoardNo(),
-					boardTreeNode.getDepth(), board.getDepth());
-
-			assertEquals("게시판 트리 노드의 제목과 게시판 레코드의 제목 비교",
-					boardTreeNode.getSubject(), board.getSubject());
 		}
 	}
 
@@ -2496,6 +2759,39 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
+	public void 게시판해제_손님() {
+		String requestedUserIDForGuest = "guest";
+
+		BoardUnBlockReqServerTask boardUnBlockReqServerTask = null;
+		try {
+			boardUnBlockReqServerTask = new BoardUnBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardUnBlockReq boardUnBlockReq = new BoardUnBlockReq();
+		boardUnBlockReq.setRequestedUserID(requestedUserIDForGuest);
+		boardUnBlockReq.setBoardID(boardID);
+		boardUnBlockReq.setBoardNo(1);
+
+		try {
+			boardUnBlockReqServerTask.doWork(TEST_DBCP_NAME, boardUnBlockReq);
+
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+
+			String expectedErrorMessage = "게시글 차단 해제 서비스는 관리자 전용 서비스입니다";
+
+			assertEquals("게시글 해제 기능 호출자 관리자 여부 검사", expectedErrorMessage,
+					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	
+	@Test
 	public void 게시판해제_일반유저() {
 		String writerID = "test01";
 
@@ -2517,9 +2813,43 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
 
-			String expectedErrorMessage = "게시글 해제는 관리자 전용 서비스입니다";
+			String expectedErrorMessage = "게시글 차단 해제 서비스는 관리자 전용 서비스입니다";
 
 			assertEquals("게시글 해제 기능 호출자 관리자 여부 검사", expectedErrorMessage,
+					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	@Test
+	public void 게시판해제_잘못된게시판식별자() {
+		String adminID = "admin";
+		short badBoardID = 7;
+
+		BoardUnBlockReqServerTask boardUnBlockReqServerTask = null;
+		try {
+			boardUnBlockReqServerTask = new BoardUnBlockReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardUnBlockReq boardUnBlockReq = new BoardUnBlockReq();
+		boardUnBlockReq.setRequestedUserID(adminID);
+		boardUnBlockReq.setBoardID(badBoardID);
+		boardUnBlockReq.setBoardNo(1);
+
+		try {
+			boardUnBlockReqServerTask.doWork(TEST_DBCP_NAME, boardUnBlockReq);
+
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+
+			String expectedErrorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(badBoardID)
+					.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
+
+			assertEquals("해제 대상 글이 없을때  경고 메시지인지 검사", expectedErrorMessage,
 					errorMessage);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
@@ -3270,10 +3600,10 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			}
 		}
 	}
-
+	
 	@Test
-	public void 게시판최상위글등록및수정테스트() {
-		String writerID = "test01";
+	public void 본문글등록_손님() {
+		String requestedUserIDForGuest = "guest";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
 		try {
@@ -3283,7 +3613,109 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestedUserID(writerID);
+		boardWriteReq.setRequestedUserID(requestedUserIDForGuest);
+		boardWriteReq.setBoardID(boardID);
+		boardWriteReq.setSubject("테스트 주제");
+		boardWriteReq.setContents("내용::그림2 하나를 그리다");
+		boardWriteReq.setIp("172.16.0.1");
+
+		List<BoardWriteReq.NewAttachedFile> newAttachedFileListForWrite = new ArrayList<BoardWriteReq.NewAttachedFile>();
+		{
+			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
+			attachedFile.setAttachedFileName("임시첨부파일01.jpg");
+			attachedFile.setAttachedFileSize(1024);
+
+			newAttachedFileListForWrite.add(attachedFile);
+		}
+
+		boardWriteReq.setNewAttachedFileCnt((short) newAttachedFileListForWrite
+				.size());
+		boardWriteReq.setNewAttachedFileList(newAttachedFileListForWrite);
+
+		
+		try {
+			boardWriteReqServerTask.doWork(TEST_DBCP_NAME,
+					boardWriteReq);
+			
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+
+			String expectedErrorMessage = "게시판 본문 글 등록 서비스는 로그인 해야만 이용할 수 있습니다";
+
+			assertEquals("본문글 작성 서비스에 손님으로 접근할때 경고 메시지인지 검사", expectedErrorMessage,
+					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	@Test
+	public void 본문글등록_잘못된게시판식별자() {
+		String requestedUserIDForMember = "test01";
+		short badBoardID = 7;
+
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e2) {
+			fail("dead code");
+		}
+
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setRequestedUserID(requestedUserIDForMember);
+		boardWriteReq.setBoardID(badBoardID);
+		boardWriteReq.setSubject("테스트 주제");
+		boardWriteReq.setContents("내용::그림2 하나를 그리다");
+		boardWriteReq.setIp("172.16.0.1");
+
+		List<BoardWriteReq.NewAttachedFile> newAttachedFileListForWrite = new ArrayList<BoardWriteReq.NewAttachedFile>();
+		{
+			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
+			attachedFile.setAttachedFileName("임시첨부파일01.jpg");
+			attachedFile.setAttachedFileSize(1024);
+
+			newAttachedFileListForWrite.add(attachedFile);
+		}
+
+		boardWriteReq.setNewAttachedFileCnt((short) newAttachedFileListForWrite
+				.size());
+		boardWriteReq.setNewAttachedFileList(newAttachedFileListForWrite);
+
+		
+		try {
+			boardWriteReqServerTask.doWork(TEST_DBCP_NAME,
+					boardWriteReq);
+			
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
+
+			String expectedErrorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(badBoardID)
+					.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
+
+			assertEquals("본문글 작성시 잘못된 게시판 식별자일때 경고 메시지인지 검사", expectedErrorMessage,
+					errorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	@Test
+	public void 본문글등록_정상() {
+		String requestedUserIDForMember = "test01";
+
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e2) {
+			fail("dead code");
+		}
+
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setRequestedUserID(requestedUserIDForMember);
 		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setSubject("테스트 주제");
 		boardWriteReq.setContents("내용::그림2 하나를 그리다");
@@ -3317,7 +3749,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
 		boardDetailReq.setBoardID(boardWriteRes.getBoardID());
 		boardDetailReq.setBoardNo(boardWriteRes.getBoardNo());
-		boardDetailReq.setRequestedUserID("guest");
+		boardDetailReq.setRequestedUserID(requestedUserIDForMember);
 
 		BoardDetailReqServerTask boardDetailReqServerTask = null;
 		try {
@@ -3325,11 +3757,11 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
-		short oldNextAttachedFileSeq = 0;
+		
 		try {
 			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(
 					TEST_DBCP_NAME, boardDetailReq);
-			oldNextAttachedFileSeq = boardDetailRes.getNextAttachedFileSeq();
+			
 			log.info(boardDetailRes.toString());
 
 			assertEquals("제목 비교", boardWriteReq.getSubject(),
@@ -3365,122 +3797,126 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			log.warn("fail to execuate doTask", e);
 			fail("fail to execuate doTask");
 		}
+	}
+	
+	@Test
+	public void 댓글등록_손님() {
+		String requestedUserIDForGuest = "guest";
 
-		BoardModifyReq boardModifyReq = new BoardModifyReq();
-		boardModifyReq.setRequestedUserID(boardWriteReq.getRequestedUserID());
-		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
-		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
-		boardModifyReq.setSubject("수정 테스트를 위한 최상위 본문글#1");
-		boardModifyReq.setContents("내용::수정 테스트를 위한 최상위 본문글#1");
-		boardModifyReq.setIp("172.16.0.3");
-		boardModifyReq.setNextAttachedFileSeq(oldNextAttachedFileSeq);
+		BoardReplyReq boardReplyReq = new BoardReplyReq();
+		boardReplyReq.setBoardID(boardID);
+		boardReplyReq.setParentBoardNo(1);
+		boardReplyReq.setSubject("테스트 주제01-1");
+		boardReplyReq.setContents("내용::그림01-1하나를 그리다");
+		boardReplyReq.setRequestedUserID(requestedUserIDForGuest);
+		boardReplyReq.setIp("127.0.0.1");
 
-		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();
 		{
+			List<BoardReplyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardReplyReq.NewAttachedFile>();
+
 			{
-				for (int i = 0; i < newAttachedFileListForWrite.size(); i++) {
-					BoardModifyReq.OldAttachedFile oldAttachedFile = new BoardModifyReq.OldAttachedFile();
-					oldAttachedFile.setAttachedFileSeq((short) i);
-					oldAttachedFileList.add(oldAttachedFile);
-				}
+				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
+				newAttachedFile.setAttachedFileName("임시첨부파일01-1.jpg");
+				newAttachedFile.setAttachedFileSize(1024);
+
+				newAttachedFileList.add(newAttachedFile);
 			}
 
-			boardModifyReq.setOldAttachedFileCnt(oldAttachedFileList
+			{
+				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
+				newAttachedFile.setAttachedFileName("임시첨부파일01-2.jpg");
+				newAttachedFile.setAttachedFileSize(1025);
+
+				newAttachedFileList.add(newAttachedFile);
+			}
+
+			boardReplyReq.setNewAttachedFileCnt((short) newAttachedFileList
 					.size());
-			boardModifyReq.setOldAttachedFileList(oldAttachedFileList);
+			boardReplyReq.setNewAttachedFileList(newAttachedFileList);
 		}
 
-		List<BoardModifyReq.NewAttachedFile> newAttachedFileListForModify = new ArrayList<BoardModifyReq.NewAttachedFile>();
-		{
-
-			BoardModifyReq.NewAttachedFile newAttachedFile = new BoardModifyReq.NewAttachedFile();
-			newAttachedFile.setAttachedFileName("임시첨부파일02.jpg");
-			newAttachedFile.setAttachedFileSize(1024);
-
-			newAttachedFileListForModify.add(newAttachedFile);
-
-			boardModifyReq.setNewAttachedFileCnt(newAttachedFileListForModify
-					.size());
-			boardModifyReq.setNewAttachedFileList(newAttachedFileListForModify);
-		}
-
-		BoardModifyReqServerTask boardModifyReqServerTask = null;
+		BoardReplyReqServerTask boardReplyReqServerTask = null;
 		try {
-			boardModifyReqServerTask = new BoardModifyReqServerTask();
+			boardReplyReqServerTask = new BoardReplyReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
 
 		try {
-			BoardModifyRes boardModifyRes = boardModifyReqServerTask.doWork(
-					TEST_DBCP_NAME, boardModifyReq);
-			log.info(boardModifyRes.toString());
+			boardReplyReqServerTask.doWork(TEST_DBCP_NAME, boardReplyReq);
+
+			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
+			String errorMessage = e.getMessage();
+
+			String expectedErrorMessage = "게시판 댓글 등록 서비스는 로그인 해야만 이용할 수 있습니다";
+
+			assertEquals("댓글 작성시 손님으러 접근할때 경고 메시지인지 검사", expectedErrorMessage,
+					errorMessage);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
 		}
+	}
+	
+	@Test
+	public void 댓글등록_잘못된게시판식별자() {
+		String requestedUserIDForMember = "test01";
+		short badBoardID = 7;
+
+		BoardReplyReq boardReplyReq = new BoardReplyReq();
+		boardReplyReq.setBoardID(badBoardID);
+		boardReplyReq.setParentBoardNo(1);
+		boardReplyReq.setSubject("테스트 주제01-1");
+		boardReplyReq.setContents("내용::그림01-1하나를 그리다");
+		boardReplyReq.setRequestedUserID(requestedUserIDForMember);
+		boardReplyReq.setIp("127.0.0.1");
+
+		{
+			List<BoardReplyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardReplyReq.NewAttachedFile>();
+
+			{
+				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
+				newAttachedFile.setAttachedFileName("임시첨부파일01-1.jpg");
+				newAttachedFile.setAttachedFileSize(1024);
+
+				newAttachedFileList.add(newAttachedFile);
+			}
+
+			{
+				BoardReplyReq.NewAttachedFile newAttachedFile = new BoardReplyReq.NewAttachedFile();
+				newAttachedFile.setAttachedFileName("임시첨부파일01-2.jpg");
+				newAttachedFile.setAttachedFileSize(1025);
+
+				newAttachedFileList.add(newAttachedFile);
+			}
+
+			boardReplyReq.setNewAttachedFileCnt((short) newAttachedFileList
+					.size());
+			boardReplyReq.setNewAttachedFileList(newAttachedFileList);
+		}
+
+		BoardReplyReqServerTask boardReplyReqServerTask = null;
+		try {
+			boardReplyReqServerTask = new BoardReplyReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
 
 		try {
-			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(
-					TEST_DBCP_NAME, boardDetailReq);
+			boardReplyReqServerTask.doWork(TEST_DBCP_NAME, boardReplyReq);
 
-			log.info(boardDetailRes.toString());
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String errorMessage = e.getMessage();
 
-			assertEquals("제목 비교", boardModifyReq.getSubject(),
-					boardModifyReq.getSubject());
-			assertEquals("내용 비교", boardModifyReq.getContents(),
-					boardModifyReq.getContents());
-			assertEquals("작성자 아이디 비교", boardWriteReq.getRequestedUserID(),
-					boardDetailRes.getFirstWriterID());
-			
-			assertEquals("최종 수정자 아이디 비교", boardModifyReq.getRequestedUserID(),
-					boardDetailRes.getLastModifierID());
-			
+			String expectedErrorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(badBoardID)
+					.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
 
-			assertEquals("첨부 파일 갯수 비교", newAttachedFileListForWrite.size()
-					+ newAttachedFileListForModify.size(),
-					boardDetailRes.getAttachedFileCnt());
-			assertEquals("다음 첨부 파일 시퀀스 비교", oldNextAttachedFileSeq
-					+ newAttachedFileListForModify.size(),
-					boardDetailRes.getNextAttachedFileSeq());
-
-			List<BoardDetailRes.AttachedFile> actualAttachedFileList = boardDetailRes
-					.getAttachedFileList();
-			for (int i = 0; i < newAttachedFileListForWrite.size(); i++) {
-				BoardWriteReq.NewAttachedFile expectedAttachedFile = newAttachedFileListForWrite
-						.get(i);
-				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList
-						.get(i);
-
-				assertEquals(i + "번째 첨부 파일명 비교",
-						expectedAttachedFile.getAttachedFileName(),
-						acutalAttachedFile.getAttachedFileName());
-
-				assertEquals(i + "번째 첨부 파일의 순번 비교", i,
-						acutalAttachedFile.getAttachedFileSeq());
-			}
-
-			for (int i = 0; i < newAttachedFileListForModify.size(); i++) {
-				BoardModifyReq.NewAttachedFile expectedAttachedFile = newAttachedFileListForModify
-						.get(i);
-				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList
-						.get(i + newAttachedFileListForWrite.size());
-
-				assertEquals((i + newAttachedFileListForWrite.size())
-						+ "번째 첨부 파일명 비교",
-						expectedAttachedFile.getAttachedFileName(),
-						acutalAttachedFile.getAttachedFileName());
-
-				assertEquals((i + newAttachedFileListForWrite.size())
-						+ "번째 첨부 파일의 순번 비교",
-						i + newAttachedFileListForWrite.size(),
-						acutalAttachedFile.getAttachedFileSeq());
-			}
+			assertEquals("댓글 등록시 잘못된 게시판 식별자일때 경고 메시지인지 검사", expectedErrorMessage,
+					errorMessage);
 		} catch (Exception e) {
-			log.warn("fail to execuate doTask", e);
+			log.warn("unknown error", e);
 			fail("fail to execuate doTask");
 		}
 	}
@@ -3650,7 +4086,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
 		boardDetailReq.setBoardID(boardReplyRes.getBoardID());
 		boardDetailReq.setBoardNo(boardReplyRes.getBoardNo());
-		boardDetailReq.setRequestedUserID("guest");
+		boardDetailReq.setRequestedUserID(boardReplyReq.getRequestedUserID());
 
 		BoardDetailReqServerTask boardDetailReqServerTask = null;
 		try {
@@ -3998,10 +4434,113 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			fail("그룹 순위 변경에 영향 없는 글들중 최대 그룹 순서를 갖는 글 미 존재");
 		}
 	}
+	
+	@Test
+	public void 게시글수정_손님() {
+		String requestedUserIDForGuest = "guest";
+		
+		BoardModifyReq boardModifyReq = new BoardModifyReq();
+		boardModifyReq.setRequestedUserID(requestedUserIDForGuest);
+		boardModifyReq.setBoardID(boardID);
+		boardModifyReq.setBoardNo(1);
+		boardModifyReq.setSubject("테스트 주제05-1#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");		
+		boardModifyReq.setIp("172.16.0.7");
+		boardModifyReq.setNextAttachedFileSeq((short) 1);
+
+		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();
+		{
+			boardModifyReq.setOldAttachedFileCnt(oldAttachedFileList
+					.size());
+			boardModifyReq.setOldAttachedFileList(oldAttachedFileList);
+		}
+
+		List<BoardModifyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardModifyReq.NewAttachedFile>();
+		{	
+			boardModifyReq.setNewAttachedFileCnt(newAttachedFileList.size());
+			boardModifyReq.setNewAttachedFileList(newAttachedFileList);
+		}
+
+		BoardModifyReqServerTask boardModifyReqServerTask = null;
+		try {
+			boardModifyReqServerTask = new BoardModifyReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+
+		try {
+			boardModifyReqServerTask.doWork(TEST_DBCP_NAME, boardModifyReq);
+
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String acutalErrorMessage = e.getMessage();
+			String expectedErrorMessage = "게시글 수정 서비스는 로그인 해야만 이용할 수 있습니다";
+
+			assertEquals("첨부 파일 최대 등록 갯수 초과 검사", expectedErrorMessage,
+					acutalErrorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
+	
+	@Test
+	public void 게시글수정_잘못된게시판식별자() {
+		String requestedUserIDForMember = "test01";
+		short badBoardID = 7;
+		
+		BoardModifyReq boardModifyReq = new BoardModifyReq();
+		boardModifyReq.setRequestedUserID(requestedUserIDForMember);
+		boardModifyReq.setBoardID(badBoardID);
+		boardModifyReq.setBoardNo(1);
+		boardModifyReq.setSubject("테스트 주제05-1#1");
+		boardModifyReq.setContents("내용::그림5-1하나를 그리다#1");		
+		boardModifyReq.setIp("172.16.0.7");
+		boardModifyReq.setNextAttachedFileSeq((short) 1);
+
+		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();
+		{
+			boardModifyReq.setOldAttachedFileCnt(oldAttachedFileList
+					.size());
+			boardModifyReq.setOldAttachedFileList(oldAttachedFileList);
+		}
+
+		List<BoardModifyReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardModifyReq.NewAttachedFile>();
+		{	
+			boardModifyReq.setNewAttachedFileCnt(newAttachedFileList.size());
+			boardModifyReq.setNewAttachedFileList(newAttachedFileList);
+		}
+
+		BoardModifyReqServerTask boardModifyReqServerTask = null;
+		try {
+			boardModifyReqServerTask = new BoardModifyReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+
+		try {
+			boardModifyReqServerTask.doWork(TEST_DBCP_NAME, boardModifyReq);
+
+			fail("no ServerServiceException");
+		} catch (ServerServiceException e) {
+			String acutalErrorMessage = e.getMessage();
+			String expectedErrorMessage = new StringBuilder("입력 받은 게시판 식별자[").append(badBoardID)
+					.append("]가 게시판 정보 테이블에 존재하지  않습니다").toString();
+
+			assertEquals("첨부 파일 최대 등록 갯수 초과 검사", expectedErrorMessage,
+					acutalErrorMessage);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	}
 
 	@Test
-	public void 게시판수정_첨부파일최대등록갯수초과() {
+	public void 게시글수정_첨부파일최대등록갯수초과() {
+		String requestedUserIDForMebmer = "test01";
+		
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
+		boardModifyReq.setRequestedUserID(requestedUserIDForMebmer);
 		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
 		boardModifyReq.setSubject("테스트 주제05-1#1");
@@ -4068,7 +4607,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_잘못된신규첨부파일이름() {
+	public void 게시글수정_잘못된신규첨부파일이름() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
 		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
@@ -4124,7 +4663,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_중복된보존을원하는구파일시퀀스() {
+	public void 게시글수정_중복된보존을원하는구파일시퀀스() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
 		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
@@ -4179,7 +4718,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_보존을원하는구파일시퀀스가다음시퀀스번호보다큰경우() {
+	public void 게시글수정_보존을원하는구파일시퀀스가다음시퀀스번호보다큰경우() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
 		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(1);
@@ -4236,7 +4775,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_타인글() {
+	public void 게시글수정_타인글() {
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
 		try {
 			boardWriteReqServerTask = new BoardWriteReqServerTask();
@@ -4314,7 +4853,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_비정상상태_삭제() {
+	public void 게시글수정_비정상상태_삭제() {
 		String writerID = "test01";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
@@ -4417,7 +4956,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_비정상상태_차단() {
+	public void 게시글수정_비정상상태_차단() {
 		String writerID = "test01";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
@@ -4525,7 +5064,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_비정상상태_트리차단() {
+	public void 게시글수정_비정상상태_트리차단() {
 		String writerID = "test01";
 		String otherID = "test02";
 
@@ -4669,7 +5208,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_새로운다음첨부파일시퀀스최대값초과() {
+	public void 게시글수정_새로운다음첨부파일시퀀스최대값초과() {
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
 		boardModifyReq.setRequestedUserID("test01");
 		boardModifyReq.setBoardID(boardID);
@@ -4728,7 +5267,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_다음첨부파일시퀀스번호DB값과다름() {
+	public void 게시글수정_다음첨부파일시퀀스번호DB값과다름() {
 		String writerID = "test01";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
@@ -4814,7 +5353,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_구첨부파일시퀀스_중복() {
+	public void 게시글수정_구첨부파일시퀀스_중복() {
 		String writerID = "test01";
 		BoardModifyReq boardModifyReq = new BoardModifyReq();
 		boardModifyReq.setRequestedUserID(writerID);
@@ -4880,7 +5419,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_구첨부파일시퀀스_다음첨부파일시퀀보다큰경우() {
+	public void 게시글수정_구첨부파일시퀀스_다음첨부파일시퀀보다큰경우() {
 		String writerID = "test01";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
@@ -4972,7 +5511,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_구첨부파일시퀀스_첨부파일없는경우에DB와불일치() {
+	public void 게시글수정_구첨부파일시퀀스_첨부파일없는경우에DB와불일치() {
 		String writerID = "test01";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
@@ -5081,7 +5620,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_구첨부파일시퀀스_첨부파일있는경우DB불일치() {
+	public void 게시글수정_구첨부파일시퀀스_첨부파일있는경우DB불일치() {
 		String writerID = "test01";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
@@ -5198,8 +5737,9 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_정상_본인() {
+	public void 게시글수정_정상_본인() {
 		String writerID = "test01";
+		String otherID = "test02";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
 		try {
@@ -5289,7 +5829,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
 		boardDetailReq.setBoardID(boardWriteRes.getBoardID());
 		boardDetailReq.setBoardNo(boardWriteRes.getBoardNo());
-		boardDetailReq.setRequestedUserID(writerID);
+		boardDetailReq.setRequestedUserID(otherID);
 
 		BoardDetailReqServerTask boardDetailReqServerTask = null;
 		try {
@@ -5326,7 +5866,221 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 	}
 
 	@Test
-	public void 게시판수정_정상_관리자() {
+	public void 게시글수정_본문글대상_정상() {
+		String writerID = "test01";
+	
+		BoardWriteReqServerTask boardWriteReqServerTask = null;
+		try {
+			boardWriteReqServerTask = new BoardWriteReqServerTask();
+		} catch (DynamicClassCallException e2) {
+			fail("dead code");
+		}
+	
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setRequestedUserID(writerID);
+		boardWriteReq.setBoardID(boardID);
+		boardWriteReq.setSubject("테스트 주제");
+		boardWriteReq.setContents("내용::그림2 하나를 그리다");
+		boardWriteReq.setIp("172.16.0.1");
+	
+		List<BoardWriteReq.NewAttachedFile> newAttachedFileListForWrite = new ArrayList<BoardWriteReq.NewAttachedFile>();
+		{
+			BoardWriteReq.NewAttachedFile attachedFile = new BoardWriteReq.NewAttachedFile();
+			attachedFile.setAttachedFileName("임시첨부파일01.jpg");
+			attachedFile.setAttachedFileSize(1024);
+	
+			newAttachedFileListForWrite.add(attachedFile);
+		}
+	
+		boardWriteReq.setNewAttachedFileCnt((short) newAttachedFileListForWrite
+				.size());
+		boardWriteReq.setNewAttachedFileList(newAttachedFileListForWrite);
+	
+		BoardWriteRes boardWriteRes = null;
+		try {
+			boardWriteRes = boardWriteReqServerTask.doWork(TEST_DBCP_NAME,
+					boardWriteReq);
+		} catch (ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	
+		BoardDetailReq boardDetailReq = new BoardDetailReq();
+		boardDetailReq.setBoardID(boardWriteRes.getBoardID());
+		boardDetailReq.setBoardNo(boardWriteRes.getBoardNo());
+		boardDetailReq.setRequestedUserID(boardWriteReq.getRequestedUserID());
+	
+		BoardDetailReqServerTask boardDetailReqServerTask = null;
+		try {
+			boardDetailReqServerTask = new BoardDetailReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		short oldNextAttachedFileSeq = 0;
+		try {
+			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(
+					TEST_DBCP_NAME, boardDetailReq);
+			oldNextAttachedFileSeq = boardDetailRes.getNextAttachedFileSeq();
+			log.info(boardDetailRes.toString());
+	
+			assertEquals("제목 비교", boardWriteReq.getSubject(),
+					boardDetailRes.getSubject());
+			assertEquals("내용 비교", boardWriteReq.getContents(),
+					boardDetailRes.getContents());
+			assertEquals("작성자 아이디 비교", boardWriteReq.getRequestedUserID(),
+					boardDetailRes.getFirstWriterID());
+			
+			assertEquals("최종 수정자 아이디 비교", boardWriteReq.getRequestedUserID(),
+					boardDetailRes.getLastModifierID());			
+			assertEquals("첨부 파일 갯수 비교", newAttachedFileListForWrite.size(),
+					boardDetailRes.getAttachedFileCnt());
+			assertEquals("다음 첨부 파일 시퀀스 비교", newAttachedFileListForWrite.size(),
+					boardDetailRes.getNextAttachedFileSeq());
+	
+			List<BoardDetailRes.AttachedFile> actualAttachedFileList = boardDetailRes
+					.getAttachedFileList();
+			for (int i = 0; i < newAttachedFileListForWrite.size(); i++) {
+				BoardWriteReq.NewAttachedFile expectedAttachedFile = newAttachedFileListForWrite
+						.get(i);
+				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList
+						.get(i);
+	
+				assertEquals(i + "번째 첨부 파일명 비교",
+						expectedAttachedFile.getAttachedFileName(),
+						acutalAttachedFile.getAttachedFileName());
+	
+				assertEquals(i + "번째 첨부 파일의 순번 비교", i,
+						acutalAttachedFile.getAttachedFileSeq());
+			}
+		} catch (Exception e) {
+			log.warn("fail to execuate doTask", e);
+			fail("fail to execuate doTask");
+		}
+	
+		BoardModifyReq boardModifyReq = new BoardModifyReq();
+		boardModifyReq.setRequestedUserID(boardWriteReq.getRequestedUserID());
+		boardModifyReq.setBoardID(boardWriteRes.getBoardID());
+		boardModifyReq.setBoardNo(boardWriteRes.getBoardNo());
+		boardModifyReq.setSubject("수정 테스트를 위한 최상위 본문글#1");
+		boardModifyReq.setContents("내용::수정 테스트를 위한 최상위 본문글#1");
+		boardModifyReq.setIp("172.16.0.3");
+		boardModifyReq.setNextAttachedFileSeq(oldNextAttachedFileSeq);
+	
+		List<BoardModifyReq.OldAttachedFile> oldAttachedFileList = new ArrayList<BoardModifyReq.OldAttachedFile>();
+		{
+			{
+				for (int i = 0; i < newAttachedFileListForWrite.size(); i++) {
+					BoardModifyReq.OldAttachedFile oldAttachedFile = new BoardModifyReq.OldAttachedFile();
+					oldAttachedFile.setAttachedFileSeq((short) i);
+					oldAttachedFileList.add(oldAttachedFile);
+				}
+			}
+	
+			boardModifyReq.setOldAttachedFileCnt(oldAttachedFileList
+					.size());
+			boardModifyReq.setOldAttachedFileList(oldAttachedFileList);
+		}
+	
+		List<BoardModifyReq.NewAttachedFile> newAttachedFileListForModify = new ArrayList<BoardModifyReq.NewAttachedFile>();
+		{
+	
+			BoardModifyReq.NewAttachedFile newAttachedFile = new BoardModifyReq.NewAttachedFile();
+			newAttachedFile.setAttachedFileName("임시첨부파일02.jpg");
+			newAttachedFile.setAttachedFileSize(1024);
+	
+			newAttachedFileListForModify.add(newAttachedFile);
+	
+			boardModifyReq.setNewAttachedFileCnt(newAttachedFileListForModify
+					.size());
+			boardModifyReq.setNewAttachedFileList(newAttachedFileListForModify);
+		}
+	
+		BoardModifyReqServerTask boardModifyReqServerTask = null;
+		try {
+			boardModifyReqServerTask = new BoardModifyReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+	
+		try {
+			BoardModifyRes boardModifyRes = boardModifyReqServerTask.doWork(
+					TEST_DBCP_NAME, boardModifyReq);
+			log.info(boardModifyRes.toString());
+		} catch (ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	
+		try {
+			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(
+					TEST_DBCP_NAME, boardDetailReq);
+	
+			log.info(boardDetailRes.toString());
+	
+			assertEquals("제목 비교", boardModifyReq.getSubject(),
+					boardModifyReq.getSubject());
+			assertEquals("내용 비교", boardModifyReq.getContents(),
+					boardModifyReq.getContents());
+			assertEquals("작성자 아이디 비교", boardWriteReq.getRequestedUserID(),
+					boardDetailRes.getFirstWriterID());
+			
+			assertEquals("최종 수정자 아이디 비교", boardModifyReq.getRequestedUserID(),
+					boardDetailRes.getLastModifierID());
+			
+	
+			assertEquals("첨부 파일 갯수 비교", newAttachedFileListForWrite.size()
+					+ newAttachedFileListForModify.size(),
+					boardDetailRes.getAttachedFileCnt());
+			assertEquals("다음 첨부 파일 시퀀스 비교", oldNextAttachedFileSeq
+					+ newAttachedFileListForModify.size(),
+					boardDetailRes.getNextAttachedFileSeq());
+	
+			List<BoardDetailRes.AttachedFile> actualAttachedFileList = boardDetailRes
+					.getAttachedFileList();
+			for (int i = 0; i < newAttachedFileListForWrite.size(); i++) {
+				BoardWriteReq.NewAttachedFile expectedAttachedFile = newAttachedFileListForWrite
+						.get(i);
+				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList
+						.get(i);
+	
+				assertEquals(i + "번째 첨부 파일명 비교",
+						expectedAttachedFile.getAttachedFileName(),
+						acutalAttachedFile.getAttachedFileName());
+	
+				assertEquals(i + "번째 첨부 파일의 순번 비교", i,
+						acutalAttachedFile.getAttachedFileSeq());
+			}
+	
+			for (int i = 0; i < newAttachedFileListForModify.size(); i++) {
+				BoardModifyReq.NewAttachedFile expectedAttachedFile = newAttachedFileListForModify
+						.get(i);
+				BoardDetailRes.AttachedFile acutalAttachedFile = actualAttachedFileList
+						.get(i + newAttachedFileListForWrite.size());
+	
+				assertEquals((i + newAttachedFileListForWrite.size())
+						+ "번째 첨부 파일명 비교",
+						expectedAttachedFile.getAttachedFileName(),
+						acutalAttachedFile.getAttachedFileName());
+	
+				assertEquals((i + newAttachedFileListForWrite.size())
+						+ "번째 첨부 파일의 순번 비교",
+						i + newAttachedFileListForWrite.size(),
+						acutalAttachedFile.getAttachedFileSeq());
+			}
+		} catch (Exception e) {
+			log.warn("fail to execuate doTask", e);
+			fail("fail to execuate doTask");
+		}
+	}
+
+	@Test
+	public void 게시글수정_정상_관리자() {
 		String writerID = "test01";
 
 		BoardWriteReqServerTask boardWriteReqServerTask = null;
@@ -5450,6 +6204,213 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		
 		for (BoardDetailRes.AttachedFile attachedFile: actualAttachedFileList) {
 			assertEquals("수정후 남아 있는 첨부 파일 시퀀스 비교", 1, attachedFile.getAttachedFileSeq());
+		}
+	}
+
+	@Test
+	public void 계획된_게시판_테스트_데이터_실사화_검증() {
+	
+		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
+			@Override
+			public BoardTree build(final short boardID) {
+				String writerID = "test01";
+				String otherID = "test02";
+	
+				BoardTree boardTree = new BoardTree();
+				{
+					BoardTreeNode root1BoardTreeNode = BoardTree
+							.makeBoardTreeNodeWithoutTreeInfomation(boardID,
+									writerID, "루트1", "루트1");
+	
+					{
+						BoardTreeNode root1Child1BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트1_자식1", "루트1_자식1");
+						{
+							BoardTreeNode root1Child1Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트1_자식1_자식1",
+											"루트1_자식1_자식1");
+							{
+								BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, otherID,
+												"루트1_자식1_자식1_자식1",
+												"루트1_자식1_자식1_자식1");
+								{
+									BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식1_자식1_자식1_자식1",
+													"루트1_자식1_자식1_자식1_자식1");
+									root1Child1Child1Child1BoardTreeNode
+											.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
+								}
+	
+								root1Child1Child1BoardTreeNode
+										.addChildNode(root1Child1Child1Child1BoardTreeNode);
+							}
+	
+							root1Child1BoardTreeNode
+									.addChildNode(root1Child1Child1BoardTreeNode);
+						}
+	
+						root1BoardTreeNode
+								.addChildNode(root1Child1BoardTreeNode);
+					}
+	
+					{
+						BoardTreeNode root1Child2BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, writerID, "루트1_자식2", "루트1_자식2");
+	
+						{
+							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree
+									.makeBoardTreeNodeWithoutTreeInfomation(
+											boardID, otherID, "루트1_자식2_자식1",
+											"루트1_자식2_자식1");
+							{
+								BoardTreeNode root1Child2Child1Child1BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식1",
+												"루트1_자식2_자식1_자식1");
+	
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child1BoardTreeNode);
+							}
+	
+							{
+								BoardTreeNode root1Child2Child1Child2BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식2",
+												"루트1_자식2_자식1_자식2");
+								{
+									BoardTreeNode root1Child2Child1Child2Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식2_자식1_자식2_자식1",
+													"루트1_자식2_자식3_자식2_자식1");
+									root1Child2Child1Child2BoardTreeNode
+											.addChildNode(root1Child2Child1Child2Child1BoardTreeNode);
+								}
+	
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child2BoardTreeNode);
+							}
+	
+							{
+								BoardTreeNode root1Child2Child1Child3BoardTreeNode = BoardTree
+										.makeBoardTreeNodeWithoutTreeInfomation(
+												boardID, writerID,
+												"루트1_자식2_자식1_자식3",
+												"루트1_자식2_자식1_자식3");
+								{
+									BoardTreeNode root1Child2Child1Child3Child1BoardTreeNode = BoardTree
+											.makeBoardTreeNodeWithoutTreeInfomation(
+													boardID, otherID,
+													"루트1_자식2_자식1_자식3_자식1",
+													"루트1_자식2_자식3_자식3_자식1");
+									root1Child2Child1Child3BoardTreeNode
+											.addChildNode(root1Child2Child1Child3Child1BoardTreeNode);
+								}
+	
+								root1Child2Child1BoardTreeNode
+										.addChildNode(root1Child2Child1Child3BoardTreeNode);
+							}
+	
+							root1Child2BoardTreeNode
+									.addChildNode(root1Child2Child1BoardTreeNode);
+						}
+						root1BoardTreeNode
+								.addChildNode(root1Child2BoardTreeNode);
+					}
+	
+					{
+						BoardTreeNode root1Child3BoardTreeNode = BoardTree
+								.makeBoardTreeNodeWithoutTreeInfomation(
+										boardID, otherID, "루트1_자식3", "루트1_자식3");
+						root1BoardTreeNode
+								.addChildNode(root1Child3BoardTreeNode);
+					}
+	
+					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
+				}
+	
+				return boardTree;
+			}
+		}
+	
+		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
+		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
+		boardTree.makeDBRecord(TEST_DBCP_NAME);
+	
+		int pageNo = 1;
+		int pageSize = boardTree.getHashSize();
+	
+		BoardListReq boardListReq = new BoardListReq();
+		boardListReq.setRequestedUserID("guest");
+		boardListReq.setBoardID(boardID);
+		boardListReq.setPageNo(pageNo);
+		boardListReq.setPageSize(pageSize);
+	
+		BoardListReqServerTask boardListReqServerTask = null;
+		try {
+			boardListReqServerTask = new BoardListReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		BoardListRes firstBoardListRes = null;
+	
+		try {
+			firstBoardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME,
+					boardListReq);
+	
+		} catch (ServerServiceException e) {
+			log.warn(e.getMessage(), e);
+			fail("fail to execuate doTask");
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+	
+		assertEquals("게시판 트리 노드 총 갯수와 게시판 레코드 총 갯수 비교", boardTree.getTotal(),
+				firstBoardListRes.getTotal());
+	
+		assertEquals("게시판 트리 노드 총 갯수와 게시판 레코드 목록 갯수 비교", boardTree.getTotal(),
+				firstBoardListRes.getCnt());
+	
+		java.util.List<BoardListRes.Board> firstBoardList = firstBoardListRes
+				.getBoardList();
+	
+		for (BoardListRes.Board board : firstBoardList) {
+			BoardTreeNode boardTreeNode = boardTree.find(board.getSubject());
+			if (null == boardTreeNode) {
+				String errorMessage = new StringBuilder()
+						.append("this 'boardNoToBoardTreeNodeHash' map contains no mapping for the key(boardNo=")
+						.append(board.getBoardNo()).append(")").toString();
+	
+				fail(errorMessage);
+			}
+	
+			// log.info();
+	
+			assertEquals("게시판 트리 노드의 그룹 번호와 게시판 레코드의 그룹 번호 비교",
+					boardTreeNode.getGroupNo(), board.getGroupNo());
+	
+			assertEquals("게시판 트리 노드의 그룹 시퀀스와 게시판 레코드의 그룹 시퀀스 비교",
+					boardTreeNode.getGroupSeq(), board.getGroupSeq());
+	
+			assertEquals("게시판 트리 노드의 부모번호와 게시판 레코드의 부모번호 비교",
+					boardTreeNode.getParentNo(), board.getParentNo());
+	
+			assertEquals(
+					"게시판 트리 노드의 트리 깊이와 게시판 레코드의 트리 깊이 비교" + board.getBoardNo(),
+					boardTreeNode.getDepth(), board.getDepth());
+	
+			assertEquals("게시판 트리 노드의 제목과 게시판 레코드의 제목 비교",
+					boardTreeNode.getSubject(), board.getSubject());
 		}
 	}
 
