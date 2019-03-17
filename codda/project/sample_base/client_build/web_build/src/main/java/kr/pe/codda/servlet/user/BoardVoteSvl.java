@@ -9,7 +9,6 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
 
 /**
@@ -50,18 +49,6 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 			return;
 		}
 
-		try {
-			BoardType.valueOf(boardID);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = "알 수 없는 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder(
-					"the web parameter 'boardID'[").append(paramBoardID)
-					.append("] is not a element of set[")
-					.append(BoardType.getSetString()).append("]").toString();
-			log.warn(debugMessage);
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
 
 		if (null == paramBoardNo) {
 			String errorMessage = "게시판 번호를 입력해 주세요";

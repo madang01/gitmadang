@@ -1,11 +1,9 @@
-<%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%>
-<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
-<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%>
-<%@ page import="kr.pe.codda.weblib.sitemenu.AdminSiteMenuManger" %><%
+<%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><jsp:useBean id="userMessage" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="debugMessage" class="java.lang.String" scope="request" /><%
-	
+%><jsp:useBean id="debugMessage" class="java.lang.String" scope="request" /><%	
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -21,7 +19,7 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type='text/javascript'>
 	function init() {
-		if (parent != null) {
+		if (window.top != window.self) {
 			var userMessageNode = document.getElementById("userMessage");
 			
 			if (parent.errorMessageCallBack != null) {				
@@ -36,7 +34,7 @@
 </script>
 </head>
 <body>
-<%= getWebsiteMenuString(request) %>
+<%= getMenuNavbarString(request) %>
 	
 	<div class="container-fluid">
 		<h3>에러 내용</h3>
@@ -49,13 +47,17 @@
 			<div class="col-sm-11" id="userMessage"><%=StringEscapeActorUtil.replace(userMessage, 
 					STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
 					STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
-		</div>
+		</div><%
+	if (null != debugMessage) {
+%>
 		<div class="row">
 			<div class="col-sm-1">디버깅</div>
 			<div class="col-sm-11" id="debugMessage"><%=StringEscapeActorUtil.replace(debugMessage, 
 					STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
 					STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
 		</div>		
-	</div>
+	</div><%
+	}
+%>
 </body>
 </html>

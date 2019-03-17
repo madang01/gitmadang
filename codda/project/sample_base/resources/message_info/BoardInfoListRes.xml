@@ -21,7 +21,6 @@
 <array name="boardInfo" cnttype="reference" cntvalue="cnt">
 	<singleitem name="boardID" type="unsigned byte" />
 	<singleitem name="boardName" type="ub pascal string" />
-	<singleitem name="boardInformation" type="si pascal string" />
 	<singleitem name="boardListType" type="byte" />
 	<singleitem name="boardReplyPolicyType" type="byte" />
 	<singleitem name="boardWritePermissionType" type="byte" />

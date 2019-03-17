@@ -275,6 +275,20 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			if (MemberRoleType.GUEST.equals(memberRoleType)) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("손님으로 지정된 회원[")
+						.append(userID)
+						.append("]은 로그인 할 수 없습니다").toString();
+				
+				throw new ServerServiceException(errorMessage);
+			}
+			
 			MemberStateType memberStateType = null;
 			try {
 				memberStateType = MemberStateType.valueOf(memberState, false);

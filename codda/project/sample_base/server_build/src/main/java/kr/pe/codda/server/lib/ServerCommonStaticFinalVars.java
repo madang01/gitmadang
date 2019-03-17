@@ -35,7 +35,7 @@ public abstract class ServerCommonStaticFinalVars {
 	
 	
 	/** 별명 최소 문자수 */
-	public static final int MIN_NUMBER_OF_NICKNAME_CHARRACTERS = 4;
+	public static final int MIN_NUMBER_OF_NICKNAME_CHARRACTERS = 2;
 	/** 별명 최대 문자수 */
 	public static final int MAX_NUMBER_OF_NICKNAME_CHARRACTERS = 20;
 	

@@ -12,6 +12,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
+import org.jooq.InsertSetMoreStep;
 import org.jooq.Record3;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -23,6 +24,8 @@ import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.util.CommonStaticUtil;
+import kr.pe.codda.impl.jooq.tables.records.SbBoardTbRecord;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -30,6 +33,7 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -81,6 +85,11 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 	public BoardWriteRes doWork(String dbcpName, BoardWriteReq boardWriteReq) throws Exception {
 		// FIXME!
 		log.info(boardWriteReq.toString());
+		
+		if (null == boardWriteReq.getPwdHashBase64()) {
+			String errorMessage = "게시글에 대한 비밀번호를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
 
 		try {
 			ValueChecker.checkValidSubject(boardWriteReq.getSubject());
@@ -150,6 +159,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		UByte boardID = UByte.valueOf(boardWriteReq.getBoardID());
 		UByte nextAttachedFileSeq = UByte.valueOf(boardWriteReq.getNewAttachedFileCnt());
 		UInteger boardNo = null;
+		String pwdHashBase64 = boardWriteReq.getPwdHashBase64();
 
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
 
@@ -208,7 +218,51 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 본문 글 등록 서비스", boardWritePermissionType, boardWriteReq.getRequestedUserID());
+			MemberRoleType memberRoleType = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 본문 글 등록 서비스", boardWritePermissionType, boardWriteReq.getRequestedUserID());
+			
+			if (MemberRoleType.GUEST.equals(memberRoleType)) {
+				if (pwdHashBase64.isEmpty()) {
+					try {
+						conn.rollback();
+					} catch (Exception e1) {
+						log.warn("fail to rollback");
+					}
+
+					String errorMessage = "손님의 경우 반듯이 게시글에 대한 비밀번호를 입력해야 합니다";
+					throw new ServerServiceException(errorMessage);
+				}
+				
+				try {
+					CommonStaticUtil.Base64Decoder.decode(pwdHashBase64);
+				} catch(IllegalArgumentException e) {
+					try {
+						conn.rollback();
+					} catch (Exception e1) {
+						log.warn("fail to rollback");
+					}
+
+					String errorMessage = "게시글에 대한 비밀번호가 base64 인코딩 문자열이 아닙니다";
+					throw new ServerServiceException(errorMessage);
+				}
+			} else {
+				if (! pwdHashBase64.isEmpty()) {
+					try {
+						CommonStaticUtil.Base64Decoder.decode(pwdHashBase64);
+					} catch(IllegalArgumentException e) {
+						try {
+							conn.rollback();
+						} catch (Exception e1) {
+							log.warn("fail to rollback");
+						}
+
+						String errorMessage = "게시글에 대한 비밀번호가 base64 인코딩 문자열이 아닙니다";
+						throw new ServerServiceException(errorMessage);
+					}
+					
+				} else {
+					pwdHashBase64 = null;
+				}
+			}
 			
 			create.update(SB_BOARD_INFO_TB)
 			.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, SB_BOARD_INFO_TB.NEXT_BOARD_NO.add(1))
@@ -216,13 +270,26 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			.execute();
 
 			conn.commit();
+			
+			InsertSetMoreStep<SbBoardTbRecord> boardInsertSetMoreStep = null;
+			if (null == pwdHashBase64) {
+				boardInsertSetMoreStep = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
+				.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
+				.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0)).set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
+				.set(SB_BOARD_TB.DEPTH, UByte.valueOf(0)).set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
+				.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
+				.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, nextAttachedFileSeq);
+			} else {
+				boardInsertSetMoreStep = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
+				.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
+				.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0)).set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
+				.set(SB_BOARD_TB.DEPTH, UByte.valueOf(0)).set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
+				.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
+				.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, nextAttachedFileSeq)
+				.set(SB_BOARD_TB.PWD_BASE64, pwdHashBase64);
+			}
 
-			int boardInsertCount = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
-					.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
-					.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0)).set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
-					.set(SB_BOARD_TB.DEPTH, UByte.valueOf(0)).set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
-					.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
-					.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, nextAttachedFileSeq).execute();
+			int boardInsertCount = boardInsertSetMoreStep.execute();			
 
 			if (0 == boardInsertCount) {
 				try {

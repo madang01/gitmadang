@@ -28,7 +28,6 @@ public class BoardInfoModifyReq extends AbstractMessage {
 	private String requestedUserID;
 	private short boardID;
 	private String boardName;
-	private String boardInformation;
 	private byte boardReplyPolicyType;
 	private byte boardWritePermissionType;
 	private byte boardReplyPermissionType;
@@ -53,13 +52,6 @@ public class BoardInfoModifyReq extends AbstractMessage {
 
 	public void setBoardName(String boardName) {
 		this.boardName = boardName;
-	}
-	public String getBoardInformation() {
-		return boardInformation;
-	}
-
-	public void setBoardInformation(String boardInformation) {
-		this.boardInformation = boardInformation;
 	}
 	public byte getBoardReplyPolicyType() {
 		return boardReplyPolicyType;
@@ -93,8 +85,6 @@ public class BoardInfoModifyReq extends AbstractMessage {
 		builder.append(boardID);
 		builder.append(", boardName=");
 		builder.append(boardName);
-		builder.append(", boardInformation=");
-		builder.append(boardInformation);
 		builder.append(", boardReplyPolicyType=");
 		builder.append(boardReplyPolicyType);
 		builder.append(", boardWritePermissionType=");

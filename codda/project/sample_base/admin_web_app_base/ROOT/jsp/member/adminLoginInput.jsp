@@ -193,7 +193,7 @@
 </script>
 </head>
 <body>
-<%= getWebsiteMenuString(request) %>
+<%=getMenuNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h3>관리자 로그인</h3>

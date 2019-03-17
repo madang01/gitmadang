@@ -27,6 +27,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 public class BoardWriteReq extends AbstractMessage {
 	private String requestedUserID;
 	private short boardID;
+	private String pwdHashBase64;
 	private String subject;
 	private String contents;
 	private String ip;
@@ -80,6 +81,13 @@ public class BoardWriteReq extends AbstractMessage {
 	public void setBoardID(short boardID) {
 		this.boardID = boardID;
 	}
+	public String getPwdHashBase64() {
+		return pwdHashBase64;
+	}
+
+	public void setPwdHashBase64(String pwdHashBase64) {
+		this.pwdHashBase64 = pwdHashBase64;
+	}
 	public String getSubject() {
 		return subject;
 	}
@@ -124,6 +132,8 @@ public class BoardWriteReq extends AbstractMessage {
 		builder.append(requestedUserID);
 		builder.append(", boardID=");
 		builder.append(boardID);
+		builder.append(", pwdHashBase64=");
+		builder.append(pwdHashBase64);
 		builder.append(", subject=");
 		builder.append(subject);
 		builder.append(", contents=");

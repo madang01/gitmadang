@@ -14,6 +14,7 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 
+import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -86,16 +87,36 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
-		}
+		}		
 		
 		UByte boardID = UByte.valueOf(boardInfoModifyReq.getBoardID());
-		byte boardReplyPolicyTypeValue = boardInfoModifyReq.getBoardReplyPolicyType();
-		byte boardWritePermissionTypeValue = boardInfoModifyReq.getBoardWritePermissionType();
-		byte boardReplyPermissionTypeValue = boardInfoModifyReq.getBoardReplyPermissionType();
+		String boardName = boardInfoModifyReq.getBoardName();		
+		
+		if (null == boardName) {
+			String errorMessage = "게시판 이름을 넣어 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		boardName = boardName.trim();
+		
+		if (0 == boardName.length()) {
+			String errorMessage = "게시판 이름을 다시 넣어 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (boardName.length()  < 2) {
+			String errorMessage = "게시판 이름을 2 글자 이상 넣어 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (boardName.getBytes(CommonStaticFinalVars.DEFUALT_CHARSET).length > 30) {
+			String errorMessage = "게시판 이름의 바이트 배열 크기가 30을 넘습니다";
+			throw new ServerServiceException(errorMessage);
+		}
 	
 		BoardReplyPolicyType boardReplyPolicyType = null;
 		try {
-			boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardReplyPolicyTypeValue);
+			boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardInfoModifyReq.getBoardReplyPolicyType());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = "게시판 댓글 유형 값이 잘못되었습니다";
 			throw new ServerServiceException(errorMessage);
@@ -103,7 +124,7 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 		
 		PermissionType boardWritePermissionType = null;
 		try {
-			boardWritePermissionType = PermissionType.valueOf(boardWritePermissionTypeValue);
+			boardWritePermissionType = PermissionType.valueOf(boardInfoModifyReq.getBoardWritePermissionType());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = "게시판 본문 쓰기 권한 유형 값이 잘못되었습니다";
 			throw new ServerServiceException(errorMessage);
@@ -111,7 +132,7 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 		
 		PermissionType boardReplyPermissionType = null;
 		try {
-			boardReplyPermissionType = PermissionType.valueOf(boardReplyPermissionTypeValue);
+			boardReplyPermissionType = PermissionType.valueOf(boardInfoModifyReq.getBoardReplyPermissionType());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = "게시판 댓글 쓰기 권한 값이 잘못되었습니다";
 			throw new ServerServiceException(errorMessage);
@@ -146,8 +167,7 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 			
 			
 			int countOfUpdate = create.update(SB_BOARD_INFO_TB)
-						.set(SB_BOARD_INFO_TB.BOARD_NAME, boardInfoModifyReq.getBoardName())
-						.set(SB_BOARD_INFO_TB.BOARD_INFO, boardInfoModifyReq.getBoardInformation())
+						.set(SB_BOARD_INFO_TB.BOARD_NAME, boardName)
 						.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, boardReplyPolicyType.getValue())
 						.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, boardWritePermissionType.getValue())
 						.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, boardReplyPermissionType.getValue())

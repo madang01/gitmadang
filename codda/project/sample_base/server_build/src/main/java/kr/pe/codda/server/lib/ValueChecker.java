@@ -496,51 +496,61 @@ public class ValueChecker {
 	}
 
 	/**
-	 * 게시판 식별자 검사
+	 * 게시판 식별자 검사, 0 <= 게시판 식별자 <= unsigned byte max(=255)
 	 * @param boardID 게시판 식별자
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
 	public static void checkValidBoardID(short boardID) throws IllegalArgumentException {		
 		if (boardID < 0) {
-			String errorMessage = new StringBuilder("게시판 식별자 번호 값[")
-			.append(boardID).append("]은 0 보다 크거나 같아야 합니다").toString();
+			String errorMessage = new StringBuilder("게시판 식별자[")
+			.append(boardID).append("]가 0보다 작습니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}	
 		
 		if (boardID > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			String errorMessage = new StringBuilder("게시판 식별자 번호 값[")
-					.append(boardID).append("]이 unsigned byte 최대값[")
-					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
-					.append("]보다 큽니다").toString();
+			String errorMessage = new StringBuilder("게시판 식별자[")
+					.append(boardID).append("]가 unsigned byte 최대값 255 보다 큽니다").toString();
 					throw new IllegalArgumentException(errorMessage);
 		}
 	}	
 	
 	/**
-	 * 게시판 번호 검사
+	 * 게시판 번호 검사, 1 <= 게시판 번호 <= unsigned integer max(=4294967295)  
 	 * @param boardNo 게시판 번호
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
 	public static void checkValidBoardNo(long boardNo) throws IllegalArgumentException {		
 		if (boardNo <= 0) {
-			String errorMessage = new StringBuilder("게시판 번호 값[")
-			.append(boardNo).append("]은 0 보다 커야합니다").toString();
+			String errorMessage = new StringBuilder("게시판 번호[")
+			.append(boardNo).append("]가 0 보다 작습니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}	
+		
+		if (boardNo > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
+			String errorMessage = new StringBuilder("게시판 번호[")
+			.append(boardNo).append("]가 unsigned integer 최대값 4294967295 보다 큽니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
 	}
 	
 	
 	/**
-	 * 부모 게시판 번호 검사
+	 * 부모 게시판 번호 검사, 0 <= 부모 게시판 번호 <= unsigned integer max(=4294967295)
 	 * @param parentBoardNo 부모 게시판 번호
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
 	public static void checkValidParentBoardNo(long parentBoardNo) throws IllegalArgumentException {		
 		if (parentBoardNo < 0) {
-			String errorMessage = new StringBuilder("부모 게시판 번호 값[")
-			.append(parentBoardNo).append("]은 0 보다 크거나 같아야 합니다").toString();
+			String errorMessage = new StringBuilder("부모 게시판 번호[")
+			.append(parentBoardNo).append("]가 0 보다 작습니다").toString();
 			throw new IllegalArgumentException(errorMessage);
-		}	
+		}
+		
+		if (parentBoardNo > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
+			String errorMessage = new StringBuilder("부모 게시판 번호[")
+			.append(parentBoardNo).append("]가 unsigned integer 최대값 4294967295 보다 큽니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
 	}
 	
 	/**

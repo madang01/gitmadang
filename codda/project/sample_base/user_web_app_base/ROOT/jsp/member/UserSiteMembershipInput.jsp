@@ -211,7 +211,7 @@
 </script>
 </head>
 <body>
-<%=getWebsiteMenuString(request)%>
+<%=getMenuNavbarString(request)%>
 <form method="post" name="gofrm" action="/servlet/MembershipProcess" target="hiddenFrame">
 	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />

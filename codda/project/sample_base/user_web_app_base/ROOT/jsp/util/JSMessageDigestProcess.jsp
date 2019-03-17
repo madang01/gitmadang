@@ -32,7 +32,7 @@
 </script>
 </head>
 <body>
-<%=getWebsiteMenuString(request)%>
+<%=getMenuNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h3>CryptoJS 해시 알고리즘(=메세지 다이제스트) 테스트 - 결과</h3>

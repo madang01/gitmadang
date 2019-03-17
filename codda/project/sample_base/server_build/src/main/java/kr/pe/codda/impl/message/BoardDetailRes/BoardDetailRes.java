@@ -26,6 +26,7 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class BoardDetailRes extends AbstractMessage {
 	private short boardID;
+	private String boardName;
 	private byte boardListType;
 	private byte boardReplyPolicyType;
 	private byte boardReplyPermssionType;
@@ -46,6 +47,7 @@ public class BoardDetailRes extends AbstractMessage {
 	private String lastModifierNickName;
 	private java.sql.Timestamp lastModifiedDate;
 	private short nextAttachedFileSeq;
+	private boolean isBoardPassword;
 	private int attachedFileCnt;
 
 	public static class AttachedFile {
@@ -339,6 +341,13 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setBoardID(short boardID) {
 		this.boardID = boardID;
 	}
+	public String getBoardName() {
+		return boardName;
+	}
+
+	public void setBoardName(String boardName) {
+		this.boardName = boardName;
+	}
 	public byte getBoardListType() {
 		return boardListType;
 	}
@@ -479,6 +488,13 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setNextAttachedFileSeq(short nextAttachedFileSeq) {
 		this.nextAttachedFileSeq = nextAttachedFileSeq;
 	}
+	public boolean getIsBoardPassword() {
+		return isBoardPassword;
+	}
+
+	public void setIsBoardPassword(boolean isBoardPassword) {
+		this.isBoardPassword = isBoardPassword;
+	}
 	public int getAttachedFileCnt() {
 		return attachedFileCnt;
 	}
@@ -514,6 +530,8 @@ public class BoardDetailRes extends AbstractMessage {
 		builder.append("boardDetailRes[");
 		builder.append("boardID=");
 		builder.append(boardID);
+		builder.append(", boardName=");
+		builder.append(boardName);
 		builder.append(", boardListType=");
 		builder.append(boardListType);
 		builder.append(", boardReplyPolicyType=");
@@ -554,6 +572,8 @@ public class BoardDetailRes extends AbstractMessage {
 		builder.append(lastModifiedDate);
 		builder.append(", nextAttachedFileSeq=");
 		builder.append(nextAttachedFileSeq);
+		builder.append(", isBoardPassword=");
+		builder.append(isBoardPassword);
 		builder.append(", attachedFileCnt=");
 		builder.append(attachedFileCnt);
 

@@ -580,7 +580,7 @@
 </script>
 </head>
 <body>
-<%= getWebsiteMenuString(request) %>
+<%=getMenuNavbarString(request)%>
 <form name="moveMenuUpFrm" method="post" action="/servlet/MenuMoveUpProcess" target="hiddenFrame">
 	<input type="hidden" name="menuNo">
 </form>
@@ -607,6 +607,7 @@
 		</div>
 					 
 		<div id="resultMessageView"></div>
+		<br>
 		<div class="row">
 			<div class="col-sm-1">메뉴번호</div>
 			<div class="col-sm-1">부모번호</div>

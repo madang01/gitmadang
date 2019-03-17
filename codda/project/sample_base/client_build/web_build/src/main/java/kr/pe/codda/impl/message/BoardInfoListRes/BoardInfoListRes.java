@@ -30,7 +30,6 @@ public class BoardInfoListRes extends AbstractMessage {
 	public static class BoardInfo {
 		private short boardID;
 		private String boardName;
-		private String boardInformation;
 		private byte boardListType;
 		private byte boardReplyPolicyType;
 		private byte boardWritePermissionType;
@@ -52,13 +51,6 @@ public class BoardInfoListRes extends AbstractMessage {
 
 		public void setBoardName(String boardName) {
 			this.boardName = boardName;
-		}
-		public String getBoardInformation() {
-			return boardInformation;
-		}
-
-		public void setBoardInformation(String boardInformation) {
-			this.boardInformation = boardInformation;
 		}
 		public byte getBoardListType() {
 			return boardListType;
@@ -118,8 +110,6 @@ public class BoardInfoListRes extends AbstractMessage {
 			builder.append(boardID);
 			builder.append(", boardName=");
 			builder.append(boardName);
-			builder.append(", boardInformation=");
-			builder.append(boardInformation);
 			builder.append(", boardListType=");
 			builder.append(boardListType);
 			builder.append(", boardReplyPolicyType=");

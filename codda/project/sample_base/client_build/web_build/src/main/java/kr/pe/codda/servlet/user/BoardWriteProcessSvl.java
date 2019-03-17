@@ -4,35 +4,36 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+
 import kr.pe.codda.client.AnyProjectConnectionPoolIF;
 import kr.pe.codda.client.ConnectionPoolManager;
-import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.CommonStaticUtil;
+import kr.pe.codda.common.util.HexUtil;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.weblib.common.BoardType;
+import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.common.WebCommonStaticUtil;
 import kr.pe.codda.weblib.exception.WebClientException;
 import kr.pe.codda.weblib.jdf.AbstractMultipartServlet;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
@@ -40,21 +41,15 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
 	private String installedPathString = null;
 	private String mainProjectName = null;
-	private String userWebTempPathString = null;
-	private File userWebTempPath = null;
-
+	
 	public BoardWriteProcessSvl() {
 		super();
-
+		
 		CoddaConfiguration runningProjectConfiguration = CoddaConfigurationManager
 				.getInstance().getRunningProjectConfiguration();
 		mainProjectName = runningProjectConfiguration.getMainProjectName();
 		installedPathString = runningProjectConfiguration
 				.getInstalledPathString();
-		userWebTempPathString = WebRootBuildSystemPathSupporter
-				.getUserWebTempPathString(installedPathString, mainProjectName);
-
-		userWebTempPath = new File(userWebTempPathString);
 	}
 
 	@Override
@@ -89,31 +84,20 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 		String paramSessionKeyBase64 = null;
 		String paramIVBase64 = null;
 		String paramBoardID = null;
+		String paramPwdCipherBase64 = null;
 		String paramSubject = null;
 		String paramContents = null;
 		List<BoardWriteReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
 
-		// Create a factory for disk-based file items
-		DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
-
-		// Set factory constraints
-		diskFileItemFactory
-				.setSizeThreshold(WebCommonStaticFinalVars.APACHE_FILEUPLOAD_MAX_MEMORY_SIZE);
-
-		diskFileItemFactory.setRepository(userWebTempPath);
-
-		// Create a new file upload handler
-		ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-		// upload.setHeaderEncoding("UTF-8");
-		// log.info("upload.getHeaderEncoding={}", upload.getHeaderEncoding());
-		// log.info("req.getCharacterEncoding={}", req.getCharacterEncoding());
-
-		// Set overall request size constraint
-		upload.setSizeMax(WebCommonStaticFinalVars.TOTAL_ATTACHED_FILE_MAX_SIZE);
-		upload.setFileSizeMax(WebCommonStaticFinalVars.ATTACHED_FILE_MAX_SIZE);
-
-		// Parse the request
-		List<FileItem> fileItemList = upload.parseRequest(req);
+		/**
+		 * 참고) 공통단에서는 선택한 메뉴가 무엇인지를 정의합니다.
+		 * 게시판 관련 메뉴들은 게시판 식별자라는 파라미터 값을 알아야 메뉴가 무엇인지 정할 수 있습니다.
+		 * 멀티 파트 폼의 경우 입력 스트림 파싱하여 얻은 FileItem 목록을 통해서 파라미터 값을 얻어 올 수 있습니다. 
+		 * 그런데 입력 스트림 파싱은 입력 스트림을 소진시키기때문에 파싱한후 그 결과를 전달 받아 사용해야 합니다. 
+		 * 멤버 변수는 쓰레드 세이프 하지 않아 request 객체로 전달 받습니다. 
+		 */
+		@SuppressWarnings("unchecked")
+		List<FileItem> fileItemList = (List<FileItem>)req.getAttribute("fileItemList");
 
 		for (FileItem fileItem : fileItemList) {
 			/*
@@ -137,6 +121,8 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 					paramIVBase64 = formFieldValue;
 				} else if (formFieldName.equals("boardID")) {
 					paramBoardID = formFieldValue;
+				} else if (formFieldName.equals("pwd")) {
+					paramPwdCipherBase64 = formFieldValue;
 				} else if (formFieldName.equals("subject")) {
 					paramSubject = formFieldValue;
 				} else if (formFieldName.equals("contents")) {
@@ -369,35 +355,13 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY,
 				webServerSessionkey.getNewInstanceOfServerSymmetricKey(true,
 						sessionkeyBytes, ivBytes));
-
-		if (null == paramBoardID) {
-			String errorMessage = "게시판 식별자 값을 넣어 주세요";
-			String debugMessage = "the web parameter 'boardID' is null";
-
-			throw new WebClientException(errorMessage, debugMessage);
-		}
-
-		short boardID = 0;
+		
+		short boardID = -1;
 		try {
-			boardID = Short.parseShort(paramBoardID);
-		} catch (NumberFormatException nfe) {
-			String errorMessage = "잘못된 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder(
-					"the web parameter 'boardID'[").append(paramBoardID)
-					.append("] is not a short").toString();
-
-			throw new WebClientException(errorMessage, debugMessage);
-		}
-
-		try {
-			BoardType.valueOf(boardID);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = "알 수 없는 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder(
-					"the web parameter 'boardID'[").append(paramBoardID)
-					.append("] is not a element of set[")
-					.append(BoardType.getSetString()).append("]").toString();
-
+			boardID = ValueChecker.checkValidBoardID(paramBoardID);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			String debugMessage = null;
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 
@@ -407,17 +371,81 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
 			throw new WebClientException(errorMessage, debugMessage);
 		}
-
-		if (null == paramContents) {
-			String errorMessage = "글 내용 값을 넣어주세요";
-			String debugMessage = "the web parameter 'contents' is null";
-
+		
+		try {
+			ValueChecker.checkValidSubject(paramSubject);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			String debugMessage = null;
 			throw new WebClientException(errorMessage, debugMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidContents(paramContents);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			String debugMessage = null;
+			throw new WebClientException(errorMessage, debugMessage);
+		}
+		
+		String pwdHashBase64 = null;
+		if (null == paramPwdCipherBase64) {
+			pwdHashBase64 = "";
+		} else {
+			ServerSymmetricKeyIF webServerSymmetricKey = null;
+			try {
+				webServerSymmetricKey = webServerSessionkey
+						.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes,
+								ivBytes);
+			} catch (IllegalArgumentException e) {
+				String errorMessage = "웹 세션키 인스턴스 생성 실패";
+				log.warn(errorMessage, e);
+
+				String debugMessage = new StringBuilder("sessionkeyBytes=[")
+						.append(HexUtil.getHexStringFromByteArray(sessionkeyBytes))
+						.append("], ivBytes=[")
+						.append(HexUtil.getHexStringFromByteArray(ivBytes))
+						.append("]").toString();
+
+				throw new WebClientException(errorMessage, debugMessage);
+			} catch (SymmetricException e) {
+				String errorMessage = "웹 세션키 인스턴스 생성 실패";
+				log.warn(errorMessage, e);
+
+				String debugMessage = new StringBuilder("sessionkeyBytes=[")
+						.append(HexUtil.getHexStringFromByteArray(sessionkeyBytes))
+						.append("], ivBytes=[")
+						.append(HexUtil.getHexStringFromByteArray(ivBytes))
+						.append("]").toString();
+
+				throw new WebClientException(errorMessage, debugMessage);
+			}
+			
+			byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
+					.decode(paramPwdCipherBase64));
+			
+			MessageDigest md = null;
+			try {
+				md = MessageDigest.getInstance(WebCommonStaticFinalVars.BOARD_HASH_ALGORITHM);
+			} catch (NoSuchAlgorithmException e) {
+				String errorMessage = "fail to get a MessageDigest class instance";
+				log.warn(errorMessage, e);			
+				
+				String debugMessage = new StringBuilder("the 'algorithm'[")
+						.append(WebCommonStaticFinalVars.BOARD_HASH_ALGORITHM)
+						.append("], errmsg=")
+						.append(e.getMessage()).toString();
+				throw new WebClientException(errorMessage, debugMessage);
+			}
+			
+			md.update(passwordBytes);
+			pwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
 		}
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
 		boardWriteReq.setBoardID(boardID);
+		boardWriteReq.setPwdHashBase64(pwdHashBase64);
 		boardWriteReq.setSubject(paramSubject);
 		boardWriteReq.setContents(paramContents);
 		boardWriteReq.setIp(req.getRemoteAddr());
@@ -452,34 +480,37 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 
 		// log.info("본문글[{}] 등록이 완료되었습니다", boardWriteRes.toString());
 
-		int indexOfNewAttachedFileList = 0;
-		short newAttachedFileSeq = 0;
-		for (FileItem fileItem : fileItemList) {
-			if (! fileItem.isFormField()) {
-				String newAttachedFilePathString = WebCommonStaticUtil
-						.getAttachedFilePathString(installedPathString,
-								mainProjectName, boardID,
-								boardWriteRes.getBoardNo(), newAttachedFileSeq);
+		if (! fileItemList.isEmpty()) {
+			int indexOfNewAttachedFileList = 0;
+			short newAttachedFileSeq = 0;
+			
+			for (FileItem fileItem : fileItemList) {
+				if (! fileItem.isFormField()) {
+					String newAttachedFilePathString = WebCommonStaticUtil
+							.getAttachedFilePathString(installedPathString,
+									mainProjectName, boardID,
+									boardWriteRes.getBoardNo(), newAttachedFileSeq);
 
-				File newAttachedFile = new File(newAttachedFilePathString);
-				try {
-					fileItem.write(newAttachedFile);
-				} catch (Exception e) {
-					String errorMessage = new StringBuilder().append("본문 글[")
-							.append(boardWriteRes.toString())
-							.append("]의 임시로 저장된 신규 첨부 파일[index=")
-							.append(indexOfNewAttachedFileList)
-							.append(", fileName=").append(fileItem.getName())
-							.append(", size=").append(fileItem.getSize())
-							.append("]의 이름을 게시판 첨부 파일 이름 규칙에 맞도록 개명[")
-							.append(newAttachedFilePathString)
-							.append("] 하는데 실패하였습니다").toString();
+					File newAttachedFile = new File(newAttachedFilePathString);
+					try {
+						fileItem.write(newAttachedFile);
+					} catch (Exception e) {
+						String errorMessage = new StringBuilder().append("본문 글[")
+								.append(boardWriteRes.toString())
+								.append("]의 임시로 저장된 신규 첨부 파일[index=")
+								.append(indexOfNewAttachedFileList)
+								.append(", fileName=").append(fileItem.getName())
+								.append(", size=").append(fileItem.getSize())
+								.append("]의 이름을 게시판 첨부 파일 이름 규칙에 맞도록 개명[")
+								.append(newAttachedFilePathString)
+								.append("] 하는데 실패하였습니다").toString();
 
-					log.warn(errorMessage, e);
+						log.warn(errorMessage, e);
+					}
+
+					newAttachedFileSeq++;
+					indexOfNewAttachedFileList++;
 				}
-
-				newAttachedFileSeq++;
-				indexOfNewAttachedFileList++;
 			}
 		}
 

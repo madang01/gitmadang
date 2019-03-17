@@ -105,6 +105,7 @@ public class ChildMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
 		}
 		
 		ChildMenuAddReq childMenuAddReq = new ChildMenuAddReq();
+		childMenuAddReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
 		childMenuAddReq.setParentNo(nativeParentNo);
 		childMenuAddReq.setMenuName(paramMenuName);
 		childMenuAddReq.setLinkURL(paramLinkURL);

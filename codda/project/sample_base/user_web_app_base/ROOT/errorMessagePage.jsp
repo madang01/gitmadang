@@ -17,29 +17,24 @@
 <script src="/jquery/3.3.1/jquery.min.js"></script>
 <!-- Latest compiled JavaScript -->
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
-<script type="text/javascript">
-<!--
+<script type='text/javascript'>
 	function init() {
-		if (parent != null) {
+		 if (window.top != window.self) {			
 			var userMessageNode = document.getElementById("userMessage");
 			
-			if (parent.errorMessageCallBack != null) {
-				
-				
+			if (parent.errorMessageCallBack != null) {				
 				parent.errorMessageCallBack(userMessageNode.innerText);
 			} else {
 				alert(userMessageNode.innerText);
 			}
 		}
-	
 	}
 
-window.onload = init;
-//-->
+	window.onload = init;
 </script>
 </head>
 <body>
-<%= getWebsiteMenuString(request) %>
+<%= getMenuNavbarString(request) %>
 	
 	<div class="container-fluid">
 		<h3>에러 내용</h3>

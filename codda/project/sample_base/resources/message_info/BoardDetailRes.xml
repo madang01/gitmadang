@@ -18,6 +18,7 @@
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 상세 조회 응답 메시지</desc>
 <singleitem name="boardID" type="unsigned byte" />
+<singleitem name="boardName" type="ub pascal string" />
 <singleitem name="boardListType" type="byte" />
 <singleitem name="boardReplyPolicyType" type="byte" />
 <singleitem name="boardReplyPermssionType" type="byte" />
@@ -38,6 +39,7 @@
 <singleitem name="lastModifierNickName" type="ub pascal string" />
 <singleitem name="lastModifiedDate" type="java sql timestamp" />
 <singleitem name="nextAttachedFileSeq" type="unsigned byte" />
+<singleitem name="isBoardPassword" type="boolean" />
 <singleitem name="attachedFileCnt" type="integer" />
 <array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
 	<singleitem name="attachedFileSeq" type="unsigned byte" />	

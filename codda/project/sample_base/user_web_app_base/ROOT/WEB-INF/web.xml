@@ -330,20 +330,6 @@
 		<servlet-name>BoardDetail</servlet-name>
 		<url-pattern>/servlet/BoardDetail</url-pattern>
 	</servlet-mapping>
-
-	<!-- 본문글 입력 화면 -->
-	<servlet>
-		<servlet-name>BoardWriteInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.BoardWriteInputSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/BoardList</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>BoardWriteInput</servlet-name>
-		<url-pattern>/servlet/BoardWriteInput</url-pattern>
-	</servlet-mapping>	
 	
 	<!-- 본문글 입력 처리 -->
 	<servlet>

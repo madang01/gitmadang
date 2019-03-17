@@ -45,7 +45,7 @@
 </script>
 </head>
 <body>
-<%= getWebsiteMenuString(request) %>
+<%=getMenuNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h2>모든 데이터 타입 검사</h2>

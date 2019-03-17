@@ -270,7 +270,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForUser);
 		boardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
-		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
@@ -301,7 +300,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq maxBoardInfoAddReq = new BoardInfoAddReq();
 		maxBoardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		maxBoardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
-		maxBoardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
 		maxBoardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		maxBoardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		maxBoardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
@@ -329,7 +327,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 
 			create.insertInto(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(CommonStaticFinalVars.UNSIGNED_BYTE_MAX))
 					.set(SB_BOARD_INFO_TB.BOARD_NAME, "게시판 식별자 최대값 게시판")
-					.set(SB_BOARD_INFO_TB.BOARD_INFO, "단위테스트용으로 게시판 식별자 값이 최대값을 갖는 게시판")
 					.set(SB_BOARD_INFO_TB.LIST_TYPE, BoardListType.TREE.getValue())
 					.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, BoardReplyPolicyType.ALL.getValue())
 					.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, PermissionType.ADMIN.getValue())
@@ -371,7 +368,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
-		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
@@ -411,7 +407,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
-		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
@@ -452,7 +447,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 				isSuccess = true;
 				
 				assertEquals("게시판 이름 비교",  boardInfoAddReq.getBoardName(), boardInfo.getBoardName());
-				assertEquals("게시판 정보 비교",  boardInfoAddReq.getBoardInformation(), boardInfo.getBoardInformation());
 				assertEquals("게시판 목록 유형 비교",  boardInfoAddReq.getBoardListType(), boardInfo.getBoardListType());
 				assertEquals("게시판 댓글 정책 유형 비교",  boardInfoAddReq.getBoardReplyPolicyType(), boardInfo.getBoardReplyPolicyType());
 				assertEquals("게시판 본문 쓰기 권한 유형 비교",  boardInfoAddReq.getBoardWritePermissionType(), boardInfo.getBoardWritePermissionType());
@@ -545,7 +539,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
-		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
@@ -634,7 +627,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("삭제를 위한 게시판");
-		boardInfoAddReq.setBoardInformation("게시판 식별자에 대응하는 게시판 정보 삭제용 레코드");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
@@ -715,7 +707,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoModifyReq.setRequestedUserID(requestedUserIDForUser);
 		boardInfoModifyReq.setBoardID((short)5);
 		boardInfoModifyReq.setBoardName("수정를 위한 게시판");
-		boardInfoModifyReq.setBoardInformation("수정용 게시판");
 		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
 		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
@@ -751,7 +742,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoModifyReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoModifyReq.setBoardID((short)5);
 		boardInfoModifyReq.setBoardName("수정를 위한 게시판");
-		boardInfoModifyReq.setBoardInformation("수정용 게시판");
 		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
 		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
@@ -787,7 +777,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("수정전 게시판");
-		boardInfoAddReq.setBoardInformation("수정전 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
@@ -813,7 +802,6 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoModifyReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoModifyReq.setBoardID(boardInfoAddRes.getBoardID());
 		boardInfoModifyReq.setBoardName("수정완료후 게시판");
-		boardInfoModifyReq.setBoardInformation("수정완료후 게시판");
 		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
 		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
 		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
@@ -851,8 +839,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 			if (boardInfoAddRes.getBoardID() == boardID) {
 				isSuccess = true;
 				
-				assertEquals("게시판 이름 비교",  boardInfoModifyReq.getBoardName(), boardInfo.getBoardName());
-				assertEquals("게시판 정보 비교",  boardInfoModifyReq.getBoardInformation(), boardInfo.getBoardInformation());				
+				assertEquals("게시판 이름 비교",  boardInfoModifyReq.getBoardName(), boardInfo.getBoardName());				
 				assertEquals("게시판 댓글 정책 유형 비교",  boardInfoModifyReq.getBoardReplyPolicyType(), boardInfo.getBoardReplyPolicyType());
 				assertEquals("게시판 본문 쓰기 권한 유형 비교",  boardInfoModifyReq.getBoardWritePermissionType(), boardInfo.getBoardWritePermissionType());
 				assertEquals("게시판 댓글 쓰기 권한 유형 비교",  boardInfoModifyReq.getBoardReplyPermissionType(), boardInfo.getBoardReplyPermissionType());

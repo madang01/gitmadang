@@ -46,6 +46,13 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardName"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardDetailRes.getBoardName() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardListType"
 			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 			, boardDetailRes.getBoardListType() // itemValue
@@ -182,6 +189,13 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "nextAttachedFileSeq"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, boardDetailRes.getNextAttachedFileSeq() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "isBoardPassword"
+			, kr.pe.codda.common.type.SingleItemType.BOOLEAN // itemType
+			, boardDetailRes.getIsBoardPassword() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

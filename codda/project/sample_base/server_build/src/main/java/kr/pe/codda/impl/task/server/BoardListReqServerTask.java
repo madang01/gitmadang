@@ -97,13 +97,15 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 				
-		final UByte boardID = UByte.valueOf(boardListReq.getBoardID());
 		
+		
+		final UByte boardID = UByte.valueOf(boardListReq.getBoardID());		
+		byte boardListTypeValue;
+		byte boardWritePermissionTypeValue;
+		String boardName = null;
 		final int pageNo = boardListReq.getPageNo();
 		final int pageSize = boardListReq.getPageSize();
-		final int offset = (pageNo - 1) * pageSize;
-		byte boardListTypeValue;
-
+		final int offset = (pageNo - 1) * pageSize;		
 		int total = 0;
 		java.util.List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
 
@@ -133,8 +135,8 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			
 			
 			
-			Record2<String, Byte> boardInforRecord = create
-					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE)
+			Record3<String, Byte, Byte> boardInforRecord = create
+					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE)
 					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).forUpdate().fetchOne();
 
 			if (null == boardInforRecord) {
@@ -149,11 +151,12 @@ public class BoardListReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			@SuppressWarnings("unused")
-			String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			
+			boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
 			boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
+			boardWritePermissionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE);
 			// byte boardReplyPolicyTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE);
-			// byte boardReplyPermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE);
+			
 
 			BoardListType boardListType = null;
 			try {
@@ -168,6 +171,20 @@ public class BoardListReqServerTask extends AbstractServerTask {
 				String errorMessage = e.getMessage();
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			try {
+				PermissionType.valueOf(boardWritePermissionTypeValue);
+			} catch (IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+
+				String errorMessage = e.getMessage();
+				throw new ServerServiceException(errorMessage);
+			}
+			
 			
 			total = create.select(SB_BOARD_INFO_TB.CNT).from(SB_BOARD_INFO_TB)
 					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne(0, Integer.class);
@@ -296,8 +313,10 @@ public class BoardListReqServerTask extends AbstractServerTask {
 		}
 
 		BoardListRes boardListRes = new BoardListRes();
-		boardListRes.setBoardListType(boardListTypeValue);
 		boardListRes.setBoardID(boardID.shortValue());
+		boardListRes.setBoardName(boardName);
+		boardListRes.setBoardListType(boardListTypeValue);	
+		boardListRes.setBoardWritePermissionType(boardWritePermissionTypeValue);
 		boardListRes.setPageNo(pageNo);
 		boardListRes.setPageSize(pageSize);
 		boardListRes.setTotal(total);

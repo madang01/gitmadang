@@ -27,7 +27,7 @@
 </script>
 </head>
 <body>
-<%=adminSiteMenuManger.getSiteNavbarString(getGroupRequestURL(request), isAdminLoginedIn(request))%>	
+<%=adminSiteMenuManger.getMenuNavbarString(getGroupRequestURL(request), isAdminLoginedIn(request))%>	
 	<div class="container-fluid">
 		<h3>Test Page</h3>
 		<a href="/servlet/MenuModify?menuNo=60&menuName=테스트2&linkURL=/test2">메뉴60번 수정</a>

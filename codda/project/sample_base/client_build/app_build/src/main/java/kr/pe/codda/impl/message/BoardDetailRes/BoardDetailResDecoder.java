@@ -43,6 +43,14 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardDetailRes.setBoardName((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "boardName" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardDetailRes.setBoardListType((Byte)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardListType" // itemName
@@ -199,6 +207,14 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "nextAttachedFileSeq" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		boardDetailRes.setIsBoardPassword((java.lang.Boolean)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "isBoardPassword" // itemName
+			, kr.pe.codda.common.type.SingleItemType.BOOLEAN // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

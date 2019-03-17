@@ -1,5 +1,5 @@
 -- MySQL Workbench Synchronization
--- Generated: 2019-03-09 13:23
+-- Generated: 2019-03-15 16:17
 -- Model: New Model
 -- Version: 1.0
 -- Project: Name of the project
@@ -14,9 +14,8 @@ CREATE SCHEMA IF NOT EXISTS `SB_DB` DEFAULT CHARACTER SET utf8 ;
 CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_INFO_TB` (
   `board_id` TINYINT(3) UNSIGNED NOT NULL COMMENT '게시판 식별자,\n1 : 공지, 2:자유, 3:이슈',
   `board_name` VARCHAR(30) NULL DEFAULT NULL COMMENT '게시판 이름',
-  `board_info` TEXT NULL DEFAULT NULL COMMENT '게시판 설명',
-  `list_type` TINYINT(4) NOT NULL COMMENT '게시판 목록 유형, 0:그룹 루트로만 이루어진 목록, 1; 계층형 목록',
-  `reply_policy_type` TINYINT(4) NOT NULL COMMENT '댓글 정책 유형, 0:댓글없음, 1:본문글에만 댓글 허용, 2:본문및 댓글에 댓글 허용',
+  `list_type` TINYINT(4) NOT NULL COMMENT '게시판 목록 유형, 0:그룹 루트, 1; 계층',
+  `reply_policy_type` TINYINT(4) NOT NULL COMMENT '댓글 정책 유형, 0:댓글없음, 1:본문글에만, 2:본문및 댓글 모두',
   `write_permission_type` TINYINT(4) NOT NULL COMMENT '본문 쓰기 권한 유형, 0:어드민, 1:일반인, 2:손님',
   `reply_permission_type` TINYINT(4) NOT NULL COMMENT '댓글 쓰기 권한 유형, 0:어드민, 1:일반인, 2:손님, 주) \'댓글 쓰기 권한 유형\'은 \'상세 유형\'에서 \'0 댓글없음\' 이 아닌 경우만 유효하다',
   `cnt` INT(11) NOT NULL DEFAULT 0 COMMENT '게시판 목록 개수',
@@ -56,6 +55,7 @@ CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_TB` (
   `view_cnt` INT(11) NULL DEFAULT NULL COMMENT '조회수',
   `board_st` CHAR(1) NOT NULL COMMENT '게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글',
   `next_attached_file_sq` TINYINT(3) UNSIGNED NULL DEFAULT NULL COMMENT '다음 첨부 파일 시퀀스, 처음 0부터 시작',
+  `pwd_base64` VARCHAR(88) NULL DEFAULT NULL COMMENT '게시글 비밀번호, 손님의 경우 반듯이 게시글 비밀번호를 입력한다. 게시글 수정할때 이 값이 null  이 아니면 게시글 비밀번호를 입력한것으로 간주하여 값 일치한경우에만 수정을 허용한다',
   PRIMARY KEY (`board_id`, `board_no`),
   INDEX `sb_board_fk1_idx` (`board_id` ASC),
   INDEX `sb_board_idx1` (`board_id` ASC, `group_no` ASC, `group_sq` ASC),

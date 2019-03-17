@@ -29,11 +29,17 @@ import kr.pe.codda.common.protocol.SingleItemEncoderIF;
 public final class TreeSiteMenuReqEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
-		TreeSiteMenuReq treeSiteMenuReq = (TreeSiteMenuReq)messageObj;
+		TreeSiteMenuReq treeSiteMenuReq = (TreeSiteMenuReq)messageObj;		
 		encodeBody(treeSiteMenuReq, singleItemEncoder, writableMiddleObject);
 	}
 
 
-	private void encodeBody(TreeSiteMenuReq treeSiteMenuReq, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+	private void encodeBody(TreeSiteMenuReq treeSiteMenuReq, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {		
+		singleItemEncoder.putValueToWritableMiddleObject("TreeSiteMenuReq", "requestedUserID"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, treeSiteMenuReq.getRequestedUserID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
 	}
 }

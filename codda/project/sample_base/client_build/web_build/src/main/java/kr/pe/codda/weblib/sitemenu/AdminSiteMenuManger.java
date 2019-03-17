@@ -56,8 +56,8 @@ public class AdminSiteMenuManger {
 			TreeSiteMenuRes.Menu menu = new TreeSiteMenuRes.Menu();
 			menu.setMenuNo(3);
 			menu.setDepth((short)0);
-			menu.setMenuName("사용자별 메뉴 권한 설정");
-			menu.setLinkURL("/servlet/PagePermissionSetting");
+			menu.setMenuName("게시판 정보 관리자");
+			menu.setLinkURL("/servlet/BoardInfoManger");
 			menu.setChildMenuListSize(0);
 			menu.setChildMenuList(new java.util.ArrayList<TreeSiteMenuRes.Menu>());
 			
@@ -149,13 +149,13 @@ public class AdminSiteMenuManger {
 		return siteNavbarStringBuilder.toString();
 	}
 	
-	public String getSiteNavbarString(String menuGroupURL, boolean isLogin) {
+	public String getMenuNavbarString(String menuGroupURL, boolean isLogin) {
 		if (null == menuGroupURL) {
 			menuGroupURL = "/";
 		}
 		
 		final int tapStep = 1;
-		StringBuilder siteNavbarStringBuilder = new StringBuilder()
+		StringBuilder menuNavbarStringBuilder = new StringBuilder()
 				.append(getTabStrings(tapStep))
 				.append("<nav class=\"navbar navbar-default\">")
 				.append(CommonStaticFinalVars.NEWLINE)
@@ -195,16 +195,16 @@ public class AdminSiteMenuManger {
 		
 		
 		if (menuGroupURL.equals("/")) {
-			siteNavbarStringBuilder.append(getTabStrings(tapStep+4))
+			menuNavbarStringBuilder.append(getTabStrings(tapStep+4))
 			.append("<li class=\"active\"><a href=\"/\">Home</a></li>")				
 			.append(CommonStaticFinalVars.NEWLINE);
 		} else {
-			siteNavbarStringBuilder.append(getTabStrings(tapStep+4))
+			menuNavbarStringBuilder.append(getTabStrings(tapStep+4))
 			.append("<li><a href=\"/\">Home</a></li>")				
 			.append(CommonStaticFinalVars.NEWLINE);
 		}		
 				
-		siteNavbarStringBuilder.append(getSiteNavbarString(menuGroupURL, treeSiteMenuRes.getRootMenuList(), tapStep+4))				
+		menuNavbarStringBuilder.append(getSiteNavbarString(menuGroupURL, treeSiteMenuRes.getRootMenuList(), tapStep+4))				
 				.append(getTabStrings(tapStep+3))
 				.append("</ul>")				
 				.append(CommonStaticFinalVars.NEWLINE)
@@ -218,20 +218,20 @@ public class AdminSiteMenuManger {
 				.append(CommonStaticFinalVars.NEWLINE);				
 		
 		if (isLogin) {			
-			siteNavbarStringBuilder.append(getTabStrings(tapStep+4))
+			menuNavbarStringBuilder.append(getTabStrings(tapStep+4))
 			.append("<li><a href=\"")
 			.append("/jsp/member/logout.jsp")
 			.append("\"><span class=\"glyphicon glyphicon-log-out\"></span> logout</a></li>")
 			.append(CommonStaticFinalVars.NEWLINE);
 		} else {
-			siteNavbarStringBuilder.append(getTabStrings(tapStep+4))
+			menuNavbarStringBuilder.append(getTabStrings(tapStep+4))
 			.append("<li><a href=\"")
 			.append("/servlet/AdminLoginInput")
 			.append("\"><span class=\"glyphicon glyphicon-log-in\"></span> login</a></li>")
 			.append(CommonStaticFinalVars.NEWLINE);
 		}
 		
-		siteNavbarStringBuilder.append(getTabStrings(tapStep+3))
+		menuNavbarStringBuilder.append(getTabStrings(tapStep+3))
 		.append("</ul>")				
 		.append(CommonStaticFinalVars.NEWLINE)
 		.append(getTabStrings(tapStep+2))
@@ -244,6 +244,6 @@ public class AdminSiteMenuManger {
 		.append("</nav>")				
 		.append(CommonStaticFinalVars.NEWLINE);
 		
-		return siteNavbarStringBuilder.toString();
+		return menuNavbarStringBuilder.toString();
 	}
 }

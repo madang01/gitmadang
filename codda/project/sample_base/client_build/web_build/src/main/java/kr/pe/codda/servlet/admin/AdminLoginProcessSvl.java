@@ -262,6 +262,8 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		HttpSession httpSession = req.getSession();
 		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID, userId);
 		
+		
+		
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, 
 				webServerSymmetricKey);
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,

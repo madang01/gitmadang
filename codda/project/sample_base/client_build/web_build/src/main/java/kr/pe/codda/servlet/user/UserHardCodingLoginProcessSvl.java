@@ -13,6 +13,7 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.common.util.HexUtil;
+import kr.pe.codda.weblib.common.LoginedUserInformation;
 import kr.pe.codda.weblib.common.MemberRoleType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
@@ -221,8 +222,9 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 		}
 		
 		HttpSession httpSession = req.getSession();
-		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID, freePassUserInfo.getUserID());
-		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ROLE_TYPE, freePassUserInfo.getMemberType());
+		
+		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION,
+				new LoginedUserInformation(freePassUserInfo.getUserID(), freePassUserInfo.getMemberType()));
 				
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, 
 				webServerSymmetricKey);

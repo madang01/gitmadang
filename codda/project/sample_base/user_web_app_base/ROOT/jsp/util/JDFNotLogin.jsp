@@ -34,7 +34,7 @@
 </script>
 </head>
 <body>
-<%=getWebsiteMenuString(request)%>
+<%=getMenuNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h3>JDF 테스트 - 비 로그인</h3>

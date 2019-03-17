@@ -20,7 +20,6 @@
 <singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="boardID" type="unsigned byte" />
 <singleitem name="boardName" type="ub pascal string" />
-<singleitem name="boardInformation" type="si pascal string" />
 <singleitem name="boardReplyPolicyType" type="byte" />
 <singleitem name="boardWritePermissionType" type="byte" />
 <singleitem name="boardReplyPermissionType" type="byte" />

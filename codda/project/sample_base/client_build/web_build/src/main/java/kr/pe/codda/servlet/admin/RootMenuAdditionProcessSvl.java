@@ -43,6 +43,7 @@ public class RootMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
 		}
 		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
+		rootMenuAddReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
 		rootMenuAddReq.setMenuName(paramMenuName);
 		rootMenuAddReq.setLinkURL(paramLinkURL);
 		

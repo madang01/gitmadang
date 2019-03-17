@@ -8,7 +8,7 @@ public class AdminSiteMenuMangerTest {
 	public void test() {
 		AdminSiteMenuManger adminSiteMenuManger = AdminSiteMenuManger.getInstance();
 		
-		System.out.println(adminSiteMenuManger.getSiteNavbarString("/", true));
+		System.out.println(adminSiteMenuManger.getMenuNavbarString("/", true));
 	}
 
 }

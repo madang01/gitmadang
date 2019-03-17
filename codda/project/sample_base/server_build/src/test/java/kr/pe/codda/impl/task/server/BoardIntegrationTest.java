@@ -364,7 +364,6 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
-		boardInfoAddReq.setBoardInformation("단위 테스트에서 사용된 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
@@ -435,7 +434,6 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("단위테스트");
-		boardInfoAddReq.setBoardInformation("단위 테스트::본문으로이루어진 목록 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.ONLY_GROUP_ROOT.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.GUEST.getValue());
@@ -792,7 +790,6 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("계층형");
-		boardInfoAddReq.setBoardInformation("단위 테스트::계층형 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.ALL.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());

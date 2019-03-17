@@ -20,7 +20,7 @@
 	window.onload = init;
 </script>
 <body>
-	<%=getWebsiteMenuString(request)%>
+	<%=getMenuNavbarString(request)%>
 	<div class="container-fluid">
 		<h3>Codda HowTo</h3>
 		(1) 설치전 확인 사항

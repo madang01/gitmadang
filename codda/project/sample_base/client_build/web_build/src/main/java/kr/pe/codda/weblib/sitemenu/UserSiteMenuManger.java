@@ -189,7 +189,7 @@ public class UserSiteMenuManger {
 		return websiteMenuPartStringBuilder.toString();
 	}
 
-	public String getWebsiteMenuString(String menuGroupURL, boolean isLogin) {
+	public String getMenuNavbarString(String menuGroupURL, boolean isLogin) {
 		final int tapStep = 1;		
 
 		JsonArray rootMenuListJsonArray = websiteMenuPartStringFileWatcher
@@ -201,7 +201,7 @@ public class UserSiteMenuManger {
 			menuGroupURL = "/";
 		}
 
-		StringBuilder siteNavbarStringBuilder = new StringBuilder()
+		StringBuilder menuNavbarStringBuilder = new StringBuilder()
 				.append(getTabStrings(tapStep))
 				.append("<nav class=\"navbar navbar-default\">")
 				.append(CommonStaticFinalVars.NEWLINE)
@@ -240,16 +240,16 @@ public class UserSiteMenuManger {
 				.append(CommonStaticFinalVars.NEWLINE);
 
 		if (menuGroupURL.equals("/")) {
-			siteNavbarStringBuilder.append(getTabStrings(tapStep + 4))
+			menuNavbarStringBuilder.append(getTabStrings(tapStep + 4))
 					.append("<li class=\"active\"><a href=\"/\">Home</a></li>")
 					.append(CommonStaticFinalVars.NEWLINE);
 		} else {
-			siteNavbarStringBuilder.append(getTabStrings(tapStep + 4))
+			menuNavbarStringBuilder.append(getTabStrings(tapStep + 4))
 					.append("<li><a href=\"/\">Home</a></li>")
 					.append(CommonStaticFinalVars.NEWLINE);
 		}
 
-		siteNavbarStringBuilder
+		menuNavbarStringBuilder
 				.append(webisteMenuPartString)
 				.append(getTabStrings(tapStep + 3))
 				.append("</ul>")
@@ -264,14 +264,14 @@ public class UserSiteMenuManger {
 				.append(CommonStaticFinalVars.NEWLINE);
 
 		if (isLogin) {
-			siteNavbarStringBuilder
+			menuNavbarStringBuilder
 					.append(getTabStrings(tapStep + 4))
 					.append("<li><a href=\"")
 					.append("/jsp/member/logout.jsp")
 					.append("\"><span class=\"glyphicon glyphicon-log-out\"></span> logout</a></li>")
 					.append(CommonStaticFinalVars.NEWLINE);
 		} else {
-			siteNavbarStringBuilder
+			menuNavbarStringBuilder
 					.append(getTabStrings(tapStep + 4))
 					.append("<li><a href=\"")
 					.append("/servlet/UserLoginInput")
@@ -279,7 +279,7 @@ public class UserSiteMenuManger {
 					.append(CommonStaticFinalVars.NEWLINE);
 		}
 
-		siteNavbarStringBuilder.append(getTabStrings(tapStep + 3))
+		menuNavbarStringBuilder.append(getTabStrings(tapStep + 3))
 				.append("</ul>").append(CommonStaticFinalVars.NEWLINE)
 				.append(getTabStrings(tapStep + 2)).append("</div>")
 				.append(CommonStaticFinalVars.NEWLINE)
@@ -288,6 +288,6 @@ public class UserSiteMenuManger {
 				.append(getTabStrings(tapStep)).append("</nav>")
 				.append(CommonStaticFinalVars.NEWLINE);
 
-		return siteNavbarStringBuilder.toString();
+		return menuNavbarStringBuilder.toString();
 	}
 }

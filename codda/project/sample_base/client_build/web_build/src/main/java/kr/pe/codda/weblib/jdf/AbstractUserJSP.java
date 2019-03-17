@@ -11,7 +11,7 @@ public abstract class AbstractUserJSP extends AbstractJSP {
 	private UserSiteMenuManger userSiteMenuManger = UserSiteMenuManger.getInstance();
 
 	@Override
-	public String getWebsiteMenuString(HttpServletRequest request) {
-		return userSiteMenuManger.getWebsiteMenuString(getGroupRequestURL(request), isUserLoginedIn(request));
+	public String getMenuNavbarString(HttpServletRequest request) {
+		return userSiteMenuManger.getMenuNavbarString(getGroupRequestURL(request), isUserLoginedIn(request));
 	}
 }

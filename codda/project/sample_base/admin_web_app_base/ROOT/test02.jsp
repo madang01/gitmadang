@@ -41,7 +41,7 @@
 </script>
 </head>
 <body>
-<%=adminSiteMenuManger.getWebsiteMenuString(isAdminLoginedIn(request))%>	
+<%=adminSiteMenuManger.getMenuNavbarString(isAdminLoginedIn(request))%>	
 	<div class="container-fluid">
 		<h3>파라미터 보존 테스트::STEP2::login.jsp 역활</h3>
 		<form name="frm" action="test03.jsp" method="post">

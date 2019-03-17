@@ -12,6 +12,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
+import org.jooq.InsertOnDuplicateStep;
+import org.jooq.InsertSetMoreStep;
 import org.jooq.Record1;
 import org.jooq.Record3;
 import org.jooq.Record5;
@@ -25,6 +27,9 @@ import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.util.CommonStaticUtil;
+import kr.pe.codda.impl.jooq.tables.records.SbBoardHistoryTbRecord;
+import kr.pe.codda.impl.jooq.tables.records.SbBoardTbRecord;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -34,6 +39,7 @@ import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -63,7 +69,8 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			AbstractMessage inputMessage) throws Exception {
 
 		try {
-			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME, (BoardReplyReq) inputMessage);
+			AbstractMessage outputMessage = doWork(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME,
+					(BoardReplyReq) inputMessage);
 			toLetterCarrier.addSyncOutputMessage(outputMessage);
 		} catch (ServerServiceException e) {
 			String errorMessage = e.getMessage();
@@ -86,82 +93,71 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(boardReplyReq.toString());
 
-		try {
-			ValueChecker.checkValidParentBoardNo(boardReplyReq.getParentBoardNo());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
+		if (null == boardReplyReq.getPwdHashBase64()) {
+			String errorMessage = "게시글에 대한 비밀번호를 입력해 주세요";
 			throw new ServerServiceException(errorMessage);
-
 		}
 
 		try {
-			ValueChecker.checkValidSubject(boardReplyReq.getSubject());
-		} catch (IllegalArgumentException e) {			
+			ValueChecker.checkValidParentBoardNo(boardReplyReq.getParentBoardNo());
+		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			ValueChecker.checkValidContents(boardReplyReq.getContents());
-		} catch (IllegalArgumentException e) {			
+		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			ValueChecker.checkValidUserID(boardReplyReq.getRequestedUserID());
-		} catch (IllegalArgumentException e) {			
+		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			ValueChecker.checkValidIP(boardReplyReq.getIp());
-		} catch (IllegalArgumentException e) {			
+		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
-		
+
 		if (boardReplyReq.getNewAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
-					.append(boardReplyReq.getNewAttachedFileCnt())
-					.append("]가 unsgiend byte 최대값[")
-					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
-					.append("]을 초과하였습니다").toString();
+					.append(boardReplyReq.getNewAttachedFileCnt()).append("]가 unsgiend byte 최대값[")
+					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX).append("]을 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
-		
+
 		if (boardReplyReq.getNewAttachedFileCnt() > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
 			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
-					.append(boardReplyReq.getNewAttachedFileCnt())
-					.append("]가 첨부 파일 최대 갯수[")
-					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT)
-					.append("]를 초과하였습니다").toString();
+					.append(boardReplyReq.getNewAttachedFileCnt()).append("]가 첨부 파일 최대 갯수[")
+					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT).append("]를 초과하였습니다")
+					.toString();
 			throw new ServerServiceException(errorMessage);
 		}
-		
-		if (boardReplyReq.getNewAttachedFileCnt() > 0) {			
+
+		if (boardReplyReq.getNewAttachedFileCnt() > 0) {
 			int newAttachedFileCnt = boardReplyReq.getNewAttachedFileCnt();
 			List<BoardReplyReq.NewAttachedFile> newAttachedFileList = boardReplyReq.getNewAttachedFileList();
-			
-			for (int i=0; i < newAttachedFileCnt; i++) {
+
+			for (int i = 0; i < newAttachedFileCnt; i++) {
 				BoardReplyReq.NewAttachedFile newAttachedFile = newAttachedFileList.get(i);
 				try {
 					ValueChecker.checkValidFileName(newAttachedFile.getAttachedFileName());
 				} catch (IllegalArgumentException e) {
-					String errorMessage = new StringBuilder()
-							.append(i)
-							.append("번째 파일 이름 유효성 검사 에러 메시지::")
+					String errorMessage = new StringBuilder().append(i).append("번째 파일 이름 유효성 검사 에러 메시지::")
 							.append(e.getMessage()).toString();
 					throw new ServerServiceException(errorMessage);
 				}
-				
+
 				if (newAttachedFile.getAttachedFileSize() <= 0) {
-					String errorMessage = new StringBuilder()
-					.append(i)
-					.append("번째 파일[")
-					.append(newAttachedFile.getAttachedFileName())
-					.append("] 크기가 0보다 작거나 같습니다").toString();
+					String errorMessage = new StringBuilder().append(i).append("번째 파일[")
+							.append(newAttachedFile.getAttachedFileName()).append("] 크기가 0보다 작거나 같습니다").toString();
 					throw new ServerServiceException(errorMessage);
 				}
 			}
@@ -170,9 +166,9 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		UByte boardID = UByte.valueOf(boardReplyReq.getBoardID());
 		UInteger parentBoardNo = UInteger.valueOf(boardReplyReq.getParentBoardNo());
 		UInteger boardNo = null;
+		String pwdHashBase64 = boardReplyReq.getPwdHashBase64();
 
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
+		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
 
 		Connection conn = null;
 		try {
@@ -180,13 +176,10 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-			
+
 			Record5<String, Byte, Byte, Byte, UInteger> boardInforRecord = create
-					.select(SB_BOARD_INFO_TB.BOARD_NAME,
-							SB_BOARD_INFO_TB.LIST_TYPE,
-							SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
-							SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE,
-							SB_BOARD_INFO_TB.NEXT_BOARD_NO)
+					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
+							SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, SB_BOARD_INFO_TB.NEXT_BOARD_NO)
 					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).forUpdate().fetchOne();
 
 			if (null == boardInforRecord) {
@@ -206,7 +199,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			byte boardReplyPolicyTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE);
 			byte boardReplyPermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE);
 			boardNo = boardInforRecord.get(SB_BOARD_INFO_TB.NEXT_BOARD_NO);
-			
+
 			if (boardNo.longValue() == CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 				try {
 					conn.rollback();
@@ -218,7 +211,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 						.append("]은 최대 갯수까지 글이 등록되어 더 이상 글을 추가 할 수 없습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
-			
+
 			BoardListType boardListType = null;
 			try {
 				boardListType = BoardListType.valueOf(boardListTypeValue);
@@ -232,9 +225,23 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				String errorMessage = e.getMessage();
 				throw new ServerServiceException(errorMessage);
 			}
-			
-			
-			BoardReplyPolicyType boardReplyPolicyType = null;			
+
+			if (BoardListType.TREE.equals(boardListType)) {
+				try {
+					ValueChecker.checkValidSubject(boardReplyReq.getSubject());
+				} catch (IllegalArgumentException e) {
+					try {
+						conn.rollback();
+					} catch (Exception e1) {
+						log.warn("fail to rollback");
+					}
+
+					String errorMessage = e.getMessage();
+					throw new ServerServiceException(errorMessage);
+				}
+			}
+
+			BoardReplyPolicyType boardReplyPolicyType = null;
 			try {
 				boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardReplyPolicyTypeValue);
 			} catch (IllegalArgumentException e) {
@@ -247,8 +254,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				String errorMessage = e.getMessage();
 				throw new ServerServiceException(errorMessage);
 			}
-			
-			
+
 			PermissionType boardReplyPermissionType = null;
 
 			try {
@@ -263,53 +269,85 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				String errorMessage = e.getMessage();
 				throw new ServerServiceException(errorMessage);
 			}
-			
+
 			if (BoardReplyPolicyType.NO_SUPPORTED.equals(boardReplyPolicyType)) {
-				// 댓글 미 지원				
+				// 댓글 미 지원
 				try {
 					conn.rollback();
 				} catch (Exception e1) {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder()
-						.append(boardName)
-						.append(" 게시판[")
-						.append(boardID)
+				String errorMessage = new StringBuilder().append(boardName).append(" 게시판[").append(boardID)
 						.append("]은 댓글을 쓸 수 없습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
-			
-			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 댓글 등록 서비스", boardReplyPermissionType, boardReplyReq.getRequestedUserID());
-						
-			
-			create.update(SB_BOARD_INFO_TB)
-			.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, SB_BOARD_INFO_TB.NEXT_BOARD_NO.add(1))
-			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
-			.execute();
-			
-			conn.commit();
-			
-				
 
-			Record3<UInteger, UShort, UInteger> parentBoardRecord = create.select(SB_BOARD_TB.GROUP_NO, 
-					SB_BOARD_TB.GROUP_SQ,
-					SB_BOARD_TB.PARENT_NO)
-					.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(parentBoardNo)).fetchOne();
+			MemberRoleType memberRoleType = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 댓글 등록 서비스",
+					boardReplyPermissionType, boardReplyReq.getRequestedUserID());
+
+			if (MemberRoleType.GUEST.equals(memberRoleType)) {
+				if (pwdHashBase64.isEmpty()) {
+					try {
+						conn.rollback();
+					} catch (Exception e1) {
+						log.warn("fail to rollback");
+					}
+
+					String errorMessage = "손님의 경우 반듯이 게시글에 대한 비밀번호를 입력해야 합니다";
+					throw new ServerServiceException(errorMessage);
+				}
+
+				try {
+					CommonStaticUtil.Base64Decoder.decode(pwdHashBase64);
+				} catch (IllegalArgumentException e) {
+					try {
+						conn.rollback();
+					} catch (Exception e1) {
+						log.warn("fail to rollback");
+					}
+
+					String errorMessage = "게시글에 대한 비밀번호가 base64 인코딩 문자열이 아닙니다";
+					throw new ServerServiceException(errorMessage);
+				}
+			} else {
+				if (!pwdHashBase64.isEmpty()) {
+					try {
+						CommonStaticUtil.Base64Decoder.decode(pwdHashBase64);
+					} catch (IllegalArgumentException e) {
+						try {
+							conn.rollback();
+						} catch (Exception e1) {
+							log.warn("fail to rollback");
+						}
+
+						String errorMessage = "게시글에 대한 비밀번호가 base64 인코딩 문자열이 아닙니다";
+						throw new ServerServiceException(errorMessage);
+					}
+
+				}
+			}
+
+			create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, SB_BOARD_INFO_TB.NEXT_BOARD_NO.add(1))
+					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
+
+			conn.commit();
+
+			Record3<UInteger, UShort, UInteger> parentBoardRecord = create
+					.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO).from(SB_BOARD_TB)
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(parentBoardNo)).fetchOne();
 
 			if (null == parentBoardRecord) {
-				String errorMessage = new StringBuilder().append("부모글[")
-						.append(parentBoardNo)
-						.append("] 이 존재하지 않습니다").toString();
+				String errorMessage = new StringBuilder().append("부모글[").append(parentBoardNo).append("] 이 존재하지 않습니다")
+						.toString();
 				throw new ServerServiceException(errorMessage);
 			}
 
 			UInteger groupNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_NO);
 			UShort groupSeqOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-			UByte nextAttachedFileSeq = UByte.valueOf(boardReplyReq.getNewAttachedFileCnt());	
-			
+			UByte nextAttachedFileSeq = UByte.valueOf(boardReplyReq.getNewAttachedFileCnt());
+
 			if (BoardReplyPolicyType.ONLY_ROOT.equals(boardReplyPolicyType)) {
 				// 본문에만 댓글
 				if (0L != parentNoOfParentBoard.longValue()) {
@@ -318,21 +356,19 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 					} catch (Exception e) {
 						log.warn("fail to rollback");
 					}
-					
-					String errorMessage = new StringBuilder()
-							.append(boardName)
-							.append(" 게시판[")
-							.append(boardID)
+
+					String errorMessage = new StringBuilder().append(boardName).append(" 게시판[").append(boardID)
 							.append("]은 본문에대한 댓글만이 허용되었습니다").toString();
 					throw new ServerServiceException(errorMessage);
 				}
 			}
 
-			/** 댓글은 부모가 속한 그룹의 순서를 조정하므로 그룹 전체에 대해서 동기화가 필요하기때문에 부모가 속한 그룹 최상위 글에 대해서 락을 건다 */
-			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
-					.from(SB_BOARD_TB)
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(groupNoOfParentBoard)).forUpdate().fetchOne();
+			/**
+			 * 댓글은 부모가 속한 그룹의 순서를 조정하므로 그룹 전체에 대해서 동기화가 필요하기때문에 부모가 속한 그룹 최상위 글에 대해서 락을 건다
+			 */
+			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO).from(SB_BOARD_TB)
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(groupNoOfParentBoard))
+					.forUpdate().fetchOne();
 
 			if (null == rootBoardRecord) {
 				try {
@@ -341,40 +377,58 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=")
-						.append(boardID.shortValue())
-						.append(", boardNo=").append(groupNoOfParentBoard.longValue())
-						.append("] 이 존재하지 않습니다").toString();
+				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=").append(boardID.shortValue())
+						.append(", boardNo=").append(groupNoOfParentBoard.longValue()).append("] 이 존재하지 않습니다")
+						.toString();
 				throw new ServerServiceException(errorMessage);
 			}
-			
-			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupSeqOfParentBoard, parentNoOfParentBoard);
 
-			/*log.info("subject={}, toGroupSeq={}, parentBoardNo={}, groupNoOfParentBoard={}, groupSeqOfParentBoard={}, parentNoOfParentBoard={}", 
-					boardReplyReq.getSubject(), toGroupSeq, 
-					parentBoardNo, groupNoOfParentBoard, groupSeqOfParentBoard, parentNoOfParentBoard);*/
-			
+			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupSeqOfParentBoard,
+					parentNoOfParentBoard);
+
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
-					.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq)).execute();			
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
+					.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq)).execute();
 
-			int boardInsertCount = create
-					.insertInto(SB_BOARD_TB, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO,
-							SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH,
-							SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ)
-					.select(create
-							.select(SB_BOARD_TB.BOARD_ID, DSL.val(boardNo).as(SB_BOARD_TB.BOARD_NO),
-									SB_BOARD_TB.GROUP_NO, DSL.val(toGroupSeq).as(SB_BOARD_TB.GROUP_SQ),
-									DSL.inline(UInteger.valueOf(boardReplyReq.getParentBoardNo()))
-											.as(SB_BOARD_TB.PARENT_NO),
-									SB_BOARD_TB.DEPTH.add(1).as(SB_BOARD_TB.DEPTH),									
-									DSL.val(0).as(SB_BOARD_TB.VIEW_CNT),
-									DSL.val(BoardStateType.OK.getValue()).as(SB_BOARD_TB.BOARD_ST),
-									DSL.val(nextAttachedFileSeq).as(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ))
-							.from(SB_BOARD_TB)
-							.where(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardReplyReq.getParentBoardNo()))))
-					.execute();
+			InsertOnDuplicateStep<SbBoardTbRecord> boardInsertOnDuplicateStep = null;
+			if (pwdHashBase64.isEmpty()) {
+				boardInsertOnDuplicateStep = create
+						.insertInto(SB_BOARD_TB, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO,
+								SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH, SB_BOARD_TB.VIEW_CNT,
+								SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ)
+						.select(create
+								.select(SB_BOARD_TB.BOARD_ID, DSL.val(boardNo).as(SB_BOARD_TB.BOARD_NO),
+										SB_BOARD_TB.GROUP_NO, DSL.val(toGroupSeq).as(SB_BOARD_TB.GROUP_SQ),
+										DSL.val(UInteger.valueOf(boardReplyReq.getParentBoardNo())).as(
+												SB_BOARD_TB.PARENT_NO),
+										SB_BOARD_TB.DEPTH.add(1).as(SB_BOARD_TB.DEPTH),
+										DSL.val(0).as(SB_BOARD_TB.VIEW_CNT),
+										DSL.val(BoardStateType.OK.getValue()).as(SB_BOARD_TB.BOARD_ST),
+										DSL.val(nextAttachedFileSeq).as(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ))
+								.from(SB_BOARD_TB)
+								.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+								.and(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardReplyReq.getParentBoardNo()))));
+			} else {
+				boardInsertOnDuplicateStep = create
+						.insertInto(SB_BOARD_TB, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.GROUP_NO,
+								SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH, SB_BOARD_TB.VIEW_CNT,
+								SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, SB_BOARD_TB.PWD_BASE64)
+						.select(create
+								.select(SB_BOARD_TB.BOARD_ID, DSL.val(boardNo).as(SB_BOARD_TB.BOARD_NO),
+										SB_BOARD_TB.GROUP_NO, DSL.val(toGroupSeq).as(SB_BOARD_TB.GROUP_SQ),
+										DSL.val(UInteger.valueOf(boardReplyReq.getParentBoardNo())).as(
+												SB_BOARD_TB.PARENT_NO),
+										SB_BOARD_TB.DEPTH.add(1).as(SB_BOARD_TB.DEPTH),
+										DSL.val(0).as(SB_BOARD_TB.VIEW_CNT),
+										DSL.val(BoardStateType.OK.getValue()).as(SB_BOARD_TB.BOARD_ST),
+										DSL.val(nextAttachedFileSeq).as(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ),
+										DSL.val(pwdHashBase64).as(SB_BOARD_TB.PWD_BASE64))
+								.from(SB_BOARD_TB)
+								.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+								.and(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardReplyReq.getParentBoardNo()))));
+			}
+
+			int boardInsertCount = boardInsertOnDuplicateStep.execute();
 
 			if (0 == boardInsertCount) {
 				try {
@@ -386,14 +440,28 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			int boardHistoryInsertCount = create.insertInto(SB_BOARD_HISTORY_TB)
-					.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
-					.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, UByte.valueOf(0))
-					.set(SB_BOARD_HISTORY_TB.SUBJECT, boardReplyReq.getSubject())
-					.set(SB_BOARD_HISTORY_TB.CONTENTS, boardReplyReq.getContents())
-					.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardReplyReq.getRequestedUserID())
-					.set(SB_BOARD_HISTORY_TB.IP, boardReplyReq.getIp())
-					.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
+			InsertSetMoreStep<SbBoardHistoryTbRecord> boardHistoryInsertSetMoreStep = null;
+			if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType)) {
+				boardHistoryInsertSetMoreStep = create.insertInto(SB_BOARD_HISTORY_TB)
+						.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
+						.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, UByte.valueOf(0))
+						// .set(SB_BOARD_HISTORY_TB.SUBJECT, boardReplyReq.getSubject())
+						.set(SB_BOARD_HISTORY_TB.CONTENTS, boardReplyReq.getContents())
+						.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardReplyReq.getRequestedUserID())
+						.set(SB_BOARD_HISTORY_TB.IP, boardReplyReq.getIp())
+						.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class));
+			} else {
+				boardHistoryInsertSetMoreStep = create.insertInto(SB_BOARD_HISTORY_TB)
+						.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
+						.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, UByte.valueOf(0))
+						.set(SB_BOARD_HISTORY_TB.SUBJECT, boardReplyReq.getSubject())
+						.set(SB_BOARD_HISTORY_TB.CONTENTS, boardReplyReq.getContents())
+						.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardReplyReq.getRequestedUserID())
+						.set(SB_BOARD_HISTORY_TB.IP, boardReplyReq.getIp())
+						.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class));
+			}
+
+			int boardHistoryInsertCount = boardHistoryInsertSetMoreStep.execute();
 
 			if (0 == boardHistoryInsertCount) {
 				try {
@@ -405,15 +473,14 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			if (boardReplyReq.getNewAttachedFileCnt() > 0) {	
-				int attachedFileListIndex = 0;			
+			if (boardReplyReq.getNewAttachedFileCnt() > 0) {
+				int attachedFileListIndex = 0;
 				for (BoardReplyReq.NewAttachedFile newAttachedFile : boardReplyReq.getNewAttachedFileList()) {
 					int boardFileListInsertCount = create.insertInto(SB_BOARD_FILELIST_TB)
 							.set(SB_BOARD_FILELIST_TB.BOARD_ID, boardID).set(SB_BOARD_FILELIST_TB.BOARD_NO, boardNo)
 							.set(SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ, UByte.valueOf(attachedFileListIndex))
 							.set(SB_BOARD_FILELIST_TB.ATTACHED_FNAME, newAttachedFile.getAttachedFileName())
-							.set(SB_BOARD_FILELIST_TB.ATTACHED_FSIZE, newAttachedFile.getAttachedFileSize())
-							.execute();
+							.set(SB_BOARD_FILELIST_TB.ATTACHED_FSIZE, newAttachedFile.getAttachedFileSize()).execute();
 
 					if (0 == boardFileListInsertCount) {
 						try {
@@ -430,26 +497,20 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 					attachedFileListIndex++;
 				}
 			}
-			
+
 			if (BoardListType.TREE.equals(boardListType)) {
 				// 계층형 목록의 경우 댓글시 목록 갯수와 전체 글수 각각 1증가
-				create.update(SB_BOARD_INFO_TB)
-					.set(SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.CNT.add(1))
-					.set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
-				.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
-				.execute();
+				create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.CNT.add(1))
+						.set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
+						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
 			} else {
 				// 그룹 루트 목록의 경우 댓글시 전체 글수만 1 증가
-				create.update(SB_BOARD_INFO_TB)
-					.set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
-				.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
-				.execute();
+				create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
+						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
 			}
-			  
-			 
 
 			conn.commit();
-			
+
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -470,11 +531,11 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
-		
+
 		BoardReplyRes boardReplyRes = new BoardReplyRes();
 		boardReplyRes.setBoardID(boardID.shortValue());
 		boardReplyRes.setBoardNo(boardNo.longValue());
-		
+
 		return boardReplyRes;
 	}
 }

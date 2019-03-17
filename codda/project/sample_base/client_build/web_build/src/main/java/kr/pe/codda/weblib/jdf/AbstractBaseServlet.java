@@ -6,6 +6,8 @@ import javax.servlet.http.HttpSession;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.codda.weblib.common.LoginedUserInformation;
+import kr.pe.codda.weblib.common.MemberRoleType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 
 @SuppressWarnings("serial")
@@ -44,6 +46,8 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	
 	
 	
+	
+	
 	/**
 	 * @param req HttpServletRequest 객체
 	 * @return 어드민이 로그인했을 경우 '어드민 로그인 아이디'(={@link WebCommonStaticFinalVars#HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID} 로 저장된 HttpSession 의 값을 반환한다. 단 비 로그인시 손님 계정을 뜻하는 "guest" 를 반환한다.
@@ -66,21 +70,37 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	
 	public boolean isUserLoginedIn(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
-		Object userIDFromHttpSession = httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
-		if (null == userIDFromHttpSession) {
+		Object loginedUserInformationOfHttpSession = httpSession
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION);
+		if (null == loginedUserInformationOfHttpSession) {
 			return false;
 		}
 		return true;
 	}
 	
 	public boolean isUserLoginedIn(HttpSession httpSession) {
-		Object userIDFromHttpSession = httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
-		if (null == userIDFromHttpSession) {
+		Object loginedUserInformationOfHttpSession = httpSession
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION);
+		if (null == loginedUserInformationOfHttpSession) {
 			return false;
 		}
 		return true;
+	}
+	
+	public MemberRoleType getMemberRoleTypeFromHttpSession(HttpServletRequest req) {
+		HttpSession httpSession = req.getSession();
+		
+		Object loginedUserInformationOfHttpSession = httpSession
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION);
+		
+		if (null == loginedUserInformationOfHttpSession) {
+			return MemberRoleType.GUEST;
+		}
+		
+		LoginedUserInformation  loginedUserInformation= (LoginedUserInformation) loginedUserInformationOfHttpSession;
+		
+		
+		return loginedUserInformation.getMemberRoleType();
 	}
 	
 	/**
@@ -90,13 +110,16 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	public String getLoginedUserIDFromHttpSession(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		
-		Object userIDFromHttpSession = httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID);
-		if (null == userIDFromHttpSession) {
+		Object loginedUserInformationOfHttpSession = httpSession
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION);
+		
+		if (null == loginedUserInformationOfHttpSession) {
 			return "guest";
 		}
 		
-		String userID = (String) userIDFromHttpSession;
-		return userID;
+		LoginedUserInformation  loginedUserInformation= (LoginedUserInformation) loginedUserInformationOfHttpSession;
+		
+		return loginedUserInformation.getLoginedUserID();
 	}
 	
 	/**

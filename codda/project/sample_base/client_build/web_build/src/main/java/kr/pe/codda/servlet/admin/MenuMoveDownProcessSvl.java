@@ -71,6 +71,7 @@ public class MenuMoveDownProcessSvl extends AbstractAdminLoginServlet {
 		}
 		
 		MenuMoveDownReq menuMoveDownReq = new MenuMoveDownReq();
+		menuMoveDownReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
 		menuMoveDownReq.setMenuNo(nativeMenuNo);
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

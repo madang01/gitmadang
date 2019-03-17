@@ -19,7 +19,6 @@
 <desc>게시판 정보 추가 요청 메시지</desc>
 <singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="boardName" type="ub pascal string" />
-<singleitem name="boardInformation" type="si pascal string" />
 <singleitem name="boardListType" type="byte" />
 <singleitem name="boardReplyPolicyType" type="byte" />
 <singleitem name="boardWritePermissionType" type="byte" />

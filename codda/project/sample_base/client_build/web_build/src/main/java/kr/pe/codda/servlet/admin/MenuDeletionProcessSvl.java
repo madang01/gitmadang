@@ -74,6 +74,7 @@ public class MenuDeletionProcessSvl extends AbstractAdminLoginServlet {
 		
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
+		menuDeleteReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
 		menuDeleteReq.setMenuNo(nativeMenuNo);		
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

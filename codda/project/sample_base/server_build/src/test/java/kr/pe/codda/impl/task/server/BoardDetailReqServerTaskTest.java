@@ -127,4 +127,35 @@ public class BoardDetailReqServerTaskTest extends AbstractJunitTest {
 			fail("fail to execuate doTask");
 		}
 	}
+	
+	@Test
+	public void 테스트_하하둘둘() {
+		String userID = "test00";
+		final short boardID = 1; 
+		final short boardNo = 1;
+		
+				
+		BoardDetailReq boardDetailReq = new BoardDetailReq();
+		boardDetailReq.setBoardID(boardID);
+		boardDetailReq.setBoardNo(boardNo);
+		boardDetailReq.setRequestedUserID(userID);
+		
+		
+		BoardDetailReqServerTask boardDetailReqServerTask = null;
+		try {
+			boardDetailReqServerTask = new BoardDetailReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+
+		try {
+			BoardDetailRes boardDetailRes = boardDetailReqServerTask.doWork(TEST_DBCP_NAME, boardDetailReq);
+				
+			
+			log.info(boardDetailRes.toString());
+		} catch (Exception e) {
+			log.warn("fail to execuate doTask", e);
+			fail("fail to execuate doTask");
+		}
+	}
 }

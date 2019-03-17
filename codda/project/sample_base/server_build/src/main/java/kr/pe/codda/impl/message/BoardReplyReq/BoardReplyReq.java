@@ -28,6 +28,7 @@ public class BoardReplyReq extends AbstractMessage {
 	private String requestedUserID;
 	private short boardID;
 	private long parentBoardNo;
+	private String pwdHashBase64;
 	private String subject;
 	private String contents;
 	private String ip;
@@ -88,6 +89,13 @@ public class BoardReplyReq extends AbstractMessage {
 	public void setParentBoardNo(long parentBoardNo) {
 		this.parentBoardNo = parentBoardNo;
 	}
+	public String getPwdHashBase64() {
+		return pwdHashBase64;
+	}
+
+	public void setPwdHashBase64(String pwdHashBase64) {
+		this.pwdHashBase64 = pwdHashBase64;
+	}
 	public String getSubject() {
 		return subject;
 	}
@@ -134,6 +142,8 @@ public class BoardReplyReq extends AbstractMessage {
 		builder.append(boardID);
 		builder.append(", parentBoardNo=");
 		builder.append(parentBoardNo);
+		builder.append(", pwdHashBase64=");
+		builder.append(pwdHashBase64);
 		builder.append(", subject=");
 		builder.append(subject);
 		builder.append(", contents=");

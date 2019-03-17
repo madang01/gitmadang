@@ -20,6 +20,7 @@
   	  Welcome to Codda Admin
     </description>
   
+  	<!-- 관리자 로그인 입력 화면 -->
 	<servlet>
 		<servlet-name>AdminLoginInput</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.AdminLoginInputSvl</servlet-class>
@@ -33,6 +34,7 @@
 		<url-pattern>/servlet/AdminLoginInput</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 관리자 로그인 처리 -->
 	<servlet>
 		<servlet-name>AdminLoginProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.AdminLoginProcessSvl</servlet-class>
@@ -74,6 +76,7 @@
 		<url-pattern>/servlet/MembershipProcess</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 일반 사용자 사이트 메뉴 관리자 화면 -->
 	<servlet>
 		<servlet-name>MenuManagement</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.MenuManagementSvl</servlet-class>
@@ -87,6 +90,7 @@
 		<url-pattern>/servlet/MenuManagement</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 사이트 메뉴 수정 처리 -->
 	<servlet>
 		<servlet-name>MenuModificationProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.MenuModificationProcessSvl</servlet-class>
@@ -100,6 +104,7 @@
 		<url-pattern>/servlet/MenuModificationProcess</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 사이트 메뉴 삭제 처리 -->
 	<servlet>
 		<servlet-name>MenuDeletionProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.MenuDeletionProcessSvl</servlet-class>
@@ -113,6 +118,7 @@
 		<url-pattern>/servlet/MenuDeletionProcess</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 사이트 메뉴 상단 이동 처리 -->
 	<servlet>
 		<servlet-name>MenuMoveUpProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.MenuMoveUpProcessSvl</servlet-class>
@@ -126,6 +132,7 @@
 		<url-pattern>/servlet/MenuMoveUpProcess</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 사이트 메뉴 하단 이동 처리 -->
 	<servlet>
 		<servlet-name>MenuMoveDownProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.MenuMoveDownProcessSvl</servlet-class>
@@ -139,6 +146,7 @@
 		<url-pattern>/servlet/MenuMoveDownProcess</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 자식 사이트 메뉴 추가 처리 -->
 	<servlet>
 		<servlet-name>ChildMenuAdditionProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.ChildMenuAdditionProcessSvl</servlet-class>
@@ -152,6 +160,7 @@
 		<url-pattern>/servlet/ChildMenuAdditionProcess</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 루트 사이트 메뉴 추가 처리 -->
 	<servlet>
 		<servlet-name>RootMenuAdditionProcess</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.RootMenuAdditionProcessSvl</servlet-class>
@@ -165,6 +174,7 @@
 		<url-pattern>/servlet/RootMenuAdditionProcess</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 현재 사이트 메뉴 정보를 일반 사용자 사이트 메뉴 정보 파일에 저장 처리  -->
 	<servlet>
 		<servlet-name>UserWebsiteMenuInfoFileUpdater</servlet-name>
 		<servlet-class>kr.pe.codda.servlet.admin.UserWebsiteMenuInfoFileUpdaterSvl</servlet-class>
@@ -178,6 +188,76 @@
 		<url-pattern>/servlet/UserWebsiteMenuInfoFileUpdater</url-pattern>
 	</servlet-mapping>
 	
+	<!-- 게시판 정보 관리자 -->
+	<servlet>
+		<servlet-name>BoardInfoManger</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardInfoMangerSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardInfoManger</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardInfoManger</servlet-name>
+		<url-pattern>/servlet/BoardInfoManger</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 게시판 정보 등록 -->
+	<servlet>
+		<servlet-name>BoardInfoAdd</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardInfoAddSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardInfoManger</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardInfoAdd</servlet-name>
+		<url-pattern>/servlet/BoardInfoAdd</url-pattern>
+	</servlet-mapping>
+	
+	
+	<!-- 게시판 정보 삭제 -->
+	<servlet>
+		<servlet-name>BoardInfoDelete</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardInfoDeleteSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardInfoManger</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardInfoDelete</servlet-name>
+		<url-pattern>/servlet/BoardInfoDelete</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 게시판 정보 수정 -->
+	<servlet>
+		<servlet-name>BoardInfoModify</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardInfoModifySvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardInfoManger</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardInfoModify</servlet-name>
+		<url-pattern>/servlet/BoardInfoModify</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 사용자 게시글 관리자 -->
+	<servlet>
+		<servlet-name>UserPostsManger</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.UserPostsMangerSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/UserPostsManger</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserPostsManger</servlet-name>
+		<url-pattern>/servlet/UserPostsManger</url-pattern>
+	</servlet-mapping>
 
 	<!-- Simple Captcha start -->
 	<servlet>

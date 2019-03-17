@@ -22,6 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -31,6 +35,8 @@ import org.mockito.ArgumentMatchers;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
+import kr.pe.codda.common.config.CoddaConfiguration;
+import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.sessionkey.ClientSessionKeyIF;
@@ -43,7 +49,8 @@ import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.MockServletInputStream;
-import kr.pe.codda.weblib.common.BoardType;
+import kr.pe.codda.weblib.common.LoginedUserInformation;
+import kr.pe.codda.weblib.common.MemberRoleType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.exception.WebClientException;
 import nl.captcha.Captcha;
@@ -301,7 +308,8 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		        ByteArrayInputStream writeByteArrayInputStream = new ByteArrayInputStream(writeByteArrayOputStream.toByteArray());
 		        
 		        HttpSession sessionMock = mock(HttpSession.class);
-				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn(loginID);
+				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION))
+				.thenReturn(new LoginedUserInformation(loginID, MemberRoleType.USER));
 				
 				HttpServletRequest requestMock = mock(HttpServletRequest.class);
 				when(requestMock.getMethod()).thenReturn("POST");
@@ -317,6 +325,46 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 				when(requestMock.getRemoteHost()).thenReturn("");
 				when(requestMock.getRemoteAddr()).thenReturn("172.0.1.32");
 				when(requestMock.getRemoteUser()).thenReturn("");
+						
+				// Create a factory for disk-based file items
+				DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
+
+				// Set factory constraints
+				diskFileItemFactory.setSizeThreshold(WebCommonStaticFinalVars.APACHE_FILEUPLOAD_MAX_MEMORY_SIZE);
+				
+				CoddaConfigurationManager configurationManager = CoddaConfigurationManager.getInstance();
+				CoddaConfiguration runningProjectConfiguration = configurationManager.getRunningProjectConfiguration();
+				String mainProjectName = runningProjectConfiguration.getMainProjectName();
+				String installedPathString = runningProjectConfiguration.getInstalledPathString();
+				String userWebTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(installedPathString,
+						mainProjectName);
+				
+				diskFileItemFactory.setRepository(new File(userWebTempPathString));
+
+				// Create a new file upload handler
+				ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
+				// upload.setHeaderEncoding("UTF-8");
+				// log.info("upload.getHeaderEncoding={}", upload.getHeaderEncoding());
+				// log.info("req.getCharacterEncoding={}", req.getCharacterEncoding());
+
+				// Set overall request size constraint
+				upload.setSizeMax(WebCommonStaticFinalVars.TOTAL_ATTACHED_FILE_MAX_SIZE);
+				upload.setFileSizeMax(WebCommonStaticFinalVars.ATTACHED_FILE_MAX_SIZE);
+
+				// Parse the request
+				List<FileItem> fileItemList = null;
+				try {
+					/**
+					 * WARNING! 파싱은 request 가 가진  입력 스트림을 소진합니다, 하여 파싱후 그 결과를 전달해 주어야 합니다.
+					 * 이때 쓰레드 세이프 문제 때문에 변수 fileItemList 는 멤버 변수가 아닌 request 객체를 통해 전달합니다.
+					 */
+					fileItemList = upload.parseRequest(requestMock);					
+					when(requestMock.getAttribute("fileItemList")).thenReturn(fileItemList);
+				} catch (FileUploadException e) {
+					log.error("dead code", e);
+					System.exit(1);
+
+				}
 
 				return requestMock;
 			}
@@ -452,7 +500,8 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		        ByteArrayInputStream replyByteArrayInputStream = new ByteArrayInputStream(replyByteArrayOputStream.toByteArray());
 		        
 		        HttpSession sessionMock = mock(HttpSession.class);
-				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn(loginID);
+				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION))
+				.thenReturn(new LoginedUserInformation(loginID, MemberRoleType.USER));
 				
 		        HttpServletRequest requestMock = mock(HttpServletRequest.class);
 				when(requestMock.getMethod()).thenReturn("POST");
@@ -468,6 +517,46 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 				when(requestMock.getRemoteHost()).thenReturn("");
 				when(requestMock.getRemoteAddr()).thenReturn("172.0.1.32");
 				when(requestMock.getRemoteUser()).thenReturn("");
+				
+				// Create a factory for disk-based file items
+				DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
+
+				// Set factory constraints
+				diskFileItemFactory.setSizeThreshold(WebCommonStaticFinalVars.APACHE_FILEUPLOAD_MAX_MEMORY_SIZE);
+				
+				CoddaConfigurationManager configurationManager = CoddaConfigurationManager.getInstance();
+				CoddaConfiguration runningProjectConfiguration = configurationManager.getRunningProjectConfiguration();
+				String mainProjectName = runningProjectConfiguration.getMainProjectName();
+				String installedPathString = runningProjectConfiguration.getInstalledPathString();
+				String userWebTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(installedPathString,
+						mainProjectName);
+				
+				diskFileItemFactory.setRepository(new File(userWebTempPathString));
+
+				// Create a new file upload handler
+				ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
+				// upload.setHeaderEncoding("UTF-8");
+				// log.info("upload.getHeaderEncoding={}", upload.getHeaderEncoding());
+				// log.info("req.getCharacterEncoding={}", req.getCharacterEncoding());
+
+				// Set overall request size constraint
+				upload.setSizeMax(WebCommonStaticFinalVars.TOTAL_ATTACHED_FILE_MAX_SIZE);
+				upload.setFileSizeMax(WebCommonStaticFinalVars.ATTACHED_FILE_MAX_SIZE);
+
+				// Parse the request
+				List<FileItem> fileItemList = null;
+				try {
+					/**
+					 * WARNING! 파싱은 request 가 가진  입력 스트림을 소진합니다, 하여 파싱후 그 결과를 전달해 주어야 합니다.
+					 * 이때 쓰레드 세이프 문제 때문에 변수 fileItemList 는 멤버 변수가 아닌 request 객체를 통해 전달합니다.
+					 */
+					fileItemList = upload.parseRequest(requestMock);					
+					when(requestMock.getAttribute("fileItemList")).thenReturn(fileItemList);
+				} catch (FileUploadException e) {
+					log.error("dead code", e);
+					System.exit(1);
+
+				}
 
 				return requestMock;
 			}
@@ -618,7 +707,8 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		        ByteArrayInputStream writeByteArrayInputStream = new ByteArrayInputStream(writeByteArrayOputStream.toByteArray());
 		        
 		        HttpSession sessionMock = mock(HttpSession.class);
-				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID)).thenReturn(loginID);
+				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION))
+				.thenReturn(new LoginedUserInformation(loginID, MemberRoleType.USER));
 				
 				HttpServletRequest requestMock = mock(HttpServletRequest.class);
 				when(requestMock.getMethod()).thenReturn("POST");
@@ -634,6 +724,46 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 				when(requestMock.getRemoteHost()).thenReturn("");
 				when(requestMock.getRemoteAddr()).thenReturn("172.0.1.32");
 				when(requestMock.getRemoteUser()).thenReturn("");
+				
+				// Create a factory for disk-based file items
+				DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
+
+				// Set factory constraints
+				diskFileItemFactory.setSizeThreshold(WebCommonStaticFinalVars.APACHE_FILEUPLOAD_MAX_MEMORY_SIZE);
+				
+				CoddaConfigurationManager configurationManager = CoddaConfigurationManager.getInstance();
+				CoddaConfiguration runningProjectConfiguration = configurationManager.getRunningProjectConfiguration();
+				String mainProjectName = runningProjectConfiguration.getMainProjectName();
+				String installedPathString = runningProjectConfiguration.getInstalledPathString();
+				String userWebTempPathString = WebRootBuildSystemPathSupporter.getUserWebTempPathString(installedPathString,
+						mainProjectName);
+				
+				diskFileItemFactory.setRepository(new File(userWebTempPathString));
+
+				// Create a new file upload handler
+				ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
+				// upload.setHeaderEncoding("UTF-8");
+				// log.info("upload.getHeaderEncoding={}", upload.getHeaderEncoding());
+				// log.info("req.getCharacterEncoding={}", req.getCharacterEncoding());
+
+				// Set overall request size constraint
+				upload.setSizeMax(WebCommonStaticFinalVars.TOTAL_ATTACHED_FILE_MAX_SIZE);
+				upload.setFileSizeMax(WebCommonStaticFinalVars.ATTACHED_FILE_MAX_SIZE);
+
+				// Parse the request
+				List<FileItem> fileItemList = null;
+				try {
+					/**
+					 * WARNING! 파싱은 request 가 가진  입력 스트림을 소진합니다, 하여 파싱후 그 결과를 전달해 주어야 합니다.
+					 * 이때 쓰레드 세이프 문제 때문에 변수 fileItemList 는 멤버 변수가 아닌 request 객체를 통해 전달합니다.
+					 */
+					fileItemList = upload.parseRequest(requestMock);					
+					when(requestMock.getAttribute("fileItemList")).thenReturn(fileItemList);
+				} catch (FileUploadException e) {
+					log.error("dead code", e);
+					System.exit(1);
+
+				}
 
 				return requestMock;
 			}
@@ -702,8 +832,10 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 			attachedFileList.add(writeUploadFile);
 		}		
 		
+		String paramBoardID = "3";
+		
 		BoardWriteRes boardWriteRes = executeBoardWriteProcessServlet("test00", 
-				String.valueOf(BoardType.FREE.getBoardID()), 
+				paramBoardID, 
 				"본문제목::01", "본문내용::01", attachedFileList);
 		log.info(boardWriteRes.toString());
 	}
@@ -732,8 +864,10 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		
 		attachedFileList.add(writeUploadFile);
 		
+		String paramBoardID = "3";
+		
 		BoardWriteRes boardWriteRes = executeBoardWriteProcessServlet("test00", 
-				String.valueOf(BoardType.FREE.getBoardID()), 
+				paramBoardID, 
 				"본문제목::02", "본문내용::02", attachedFileList);
 		
 		attachedFileList.clear();
@@ -756,10 +890,12 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 			fail("업로드할 대상 파일이 존재하지 않습니다");
 		}		
 		
-		attachedFileList.add(replyUploadFile);		
+		attachedFileList.add(replyUploadFile);	
+		
+		
 		
 		BoardReplyRes boardReplyRes = execuateBoardReplyProcessServlet("test00",
-				String.valueOf(BoardType.FREE.getBoardID()),
+				paramBoardID,
 				String.valueOf(boardWriteRes.getBoardNo()), 
 				"댓글제목::02-01", "본문내용::02-01", attachedFileList);
 		
@@ -795,8 +931,10 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 			attachedFileList.add(writeUploadFile);
 		}		
 		
+		String paramBoardID = "3";
+		
 		BoardWriteRes boardWriteRes = executeBoardWriteProcessServlet("test00", 
-				String.valueOf(BoardType.FREE.getBoardID()), 
+				paramBoardID, 
 				"본문제목::03", "본문내용::03", attachedFileList);
 		
 		List<File> newAttachedFileList = new ArrayList<File>();
@@ -827,7 +965,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		List<Short> oldAttachedFileSeqList = new ArrayList<Short>();
 		oldAttachedFileSeqList.add((short)1);		
 		
-		BoardModifyRes boardModifyRes = executeBoardModifyProcessServlet("test00", String.valueOf(BoardType.FREE.getBoardID()),
+		BoardModifyRes boardModifyRes = executeBoardModifyProcessServlet("test00", paramBoardID,
 				String.valueOf(boardWriteRes.getBoardNo()),
 				"본문제목::수정03", "본문내용::수정03", String.valueOf(attachedFileList.size()), 
 				oldAttachedFileSeqList, newAttachedFileList);

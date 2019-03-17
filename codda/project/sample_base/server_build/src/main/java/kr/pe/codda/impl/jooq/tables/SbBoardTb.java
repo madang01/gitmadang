@@ -42,7 +42,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = -239925657;
+    private static final long serialVersionUID = -1419639934;
 
     /**
      * The reference instance of <code>sb_db.sb_board_tb</code>
@@ -103,6 +103,11 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     public final TableField<SbBoardTbRecord, UByte> NEXT_ATTACHED_FILE_SQ = createField("next_attached_file_sq", org.jooq.impl.SQLDataType.TINYINTUNSIGNED, this, "다음 첨부 파일 시퀀스, 처음 0부터 시작");
 
     /**
+     * The column <code>sb_db.sb_board_tb.pwd_base64</code>. 게시글 비밀번호, 손님의 경우 반듯이 게시글 비밀번호를 입력한다. 게시글 수정할때 이 값이 null  이 아니면 게시글 비밀번호를 입력한것으로 간주하여 값 일치한경우에만 수정을 허용한다
+     */
+    public final TableField<SbBoardTbRecord, String> PWD_BASE64 = createField("pwd_base64", org.jooq.impl.SQLDataType.VARCHAR(88), this, "게시글 비밀번호, 손님의 경우 반듯이 게시글 비밀번호를 입력한다. 게시글 수정할때 이 값이 null  이 아니면 게시글 비밀번호를 입력한것으로 간주하여 값 일치한경우에만 수정을 허용한다");
+
+    /**
      * Create a <code>sb_db.sb_board_tb</code> table reference
      */
     public SbBoardTb() {
@@ -160,7 +165,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<UniqueKey<SbBoardTbRecord>> getKeys() {
-        return Arrays.<UniqueKey<SbBoardTbRecord>>asList(Keys.KEY_SB_BOARD_TB_PRIMARY, Keys.KEY_SB_BOARD_TB_SB_BOARD_IDX1);
+        return Arrays.<UniqueKey<SbBoardTbRecord>>asList(Keys.KEY_SB_BOARD_TB_PRIMARY);
     }
 
     /**

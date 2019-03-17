@@ -30,7 +30,7 @@
 		<appender-ref ref="logfile"/>
 	</logger>
 	
-	<logger name="org.jooq" level="INFO">
+	<logger name="org.jooq" level="DEBUG">
 		<appender-ref ref="logfile"/>
 	</logger>
 </configuration>

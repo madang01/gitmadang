@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
 
-    private static final long serialVersionUID = 495380529;
+    private static final long serialVersionUID = -593935099;
 
     /**
      * The reference instance of <code>sb_db.sb_board_info_tb</code>
@@ -67,29 +67,24 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
     public final TableField<SbBoardInfoTbRecord, String> BOARD_NAME = createField("board_name", org.jooq.impl.SQLDataType.VARCHAR(30), this, "게시판 이름");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.board_info</code>. 게시판 설명
+     * The column <code>sb_db.sb_board_info_tb.list_type</code>. 게시판 목록 유형, 0:그룹 루트, 1; 계층
      */
-    public final TableField<SbBoardInfoTbRecord, String> BOARD_INFO = createField("board_info", org.jooq.impl.SQLDataType.CLOB, this, "게시판 설명");
+    public final TableField<SbBoardInfoTbRecord, Byte> LIST_TYPE = createField("list_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "게시판 목록 유형, 0:그룹 루트, 1; 계층");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.list_type</code>. 게시판 목록 형태, 0:그룹 루트로만 이루어진 목록, 1; 계층형 목록
+     * The column <code>sb_db.sb_board_info_tb.reply_policy_type</code>. 댓글 정책 유형, 0:댓글없음, 1:본문글에만, 2:본문및 댓글 모두
      */
-    public final TableField<SbBoardInfoTbRecord, Byte> LIST_TYPE = createField("list_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "게시판 목록 형태, 0:그룹 루트로만 이루어진 목록, 1; 계층형 목록");
+    public final TableField<SbBoardInfoTbRecord, Byte> REPLY_POLICY_TYPE = createField("reply_policy_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "댓글 정책 유형, 0:댓글없음, 1:본문글에만, 2:본문및 댓글 모두");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.reply_policy_type</code>. 댓글 유형, 0:댓글없음, 1:본문글에만 댓글 허용, 2:본문및 댓글에 댓글 허용
+     * The column <code>sb_db.sb_board_info_tb.write_permission_type</code>. 본문 쓰기 권한 유형, 0:어드민, 1:일반인, 2:손님
      */
-    public final TableField<SbBoardInfoTbRecord, Byte> REPLY_POLICY_TYPE = createField("reply_policy_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "댓글 유형, 0:댓글없음, 1:본문글에만 댓글 허용, 2:본문및 댓글에 댓글 허용");
+    public final TableField<SbBoardInfoTbRecord, Byte> WRITE_PERMISSION_TYPE = createField("write_permission_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "본문 쓰기 권한 유형, 0:어드민, 1:일반인, 2:손님");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.write_permission_type</code>. 본문 쓰기 권한 유형, 0:어드민, 1:일반인
+     * The column <code>sb_db.sb_board_info_tb.reply_permission_type</code>. 댓글 쓰기 권한 유형, 0:어드민, 1:일반인, 2:손님, 주) '댓글 쓰기 권한 유형'은 '상세 유형'에서 '0 댓글없음' 이 아닌 경우만 유효하다
      */
-    public final TableField<SbBoardInfoTbRecord, Byte> WRITE_PERMISSION_TYPE = createField("write_permission_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "본문 쓰기 권한 유형, 0:어드민, 1:일반인");
-
-    /**
-     * The column <code>sb_db.sb_board_info_tb.reply_permission_type</code>. 댓글 쓰기 권한 유형, 0:어드민, 1:일반인, 주) '댓글 쓰기 권한 유형'은 '상세 유형'에서 '0 댓글없음' 이 아닌 경우만 유효하다
-     */
-    public final TableField<SbBoardInfoTbRecord, Byte> REPLY_PERMISSION_TYPE = createField("reply_permission_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "댓글 쓰기 권한 유형, 0:어드민, 1:일반인, 주) '댓글 쓰기 권한 유형'은 '상세 유형'에서 '0 댓글없음' 이 아닌 경우만 유효하다");
+    public final TableField<SbBoardInfoTbRecord, Byte> REPLY_PERMISSION_TYPE = createField("reply_permission_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "댓글 쓰기 권한 유형, 0:어드민, 1:일반인, 2:손님, 주) '댓글 쓰기 권한 유형'은 '상세 유형'에서 '0 댓글없음' 이 아닌 경우만 유효하다");
 
     /**
      * The column <code>sb_db.sb_board_info_tb.cnt</code>. 게시판 목록 개수
@@ -102,9 +97,9 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
     public final TableField<SbBoardInfoTbRecord, Integer> TOTAL = createField("total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "게시판 글 전체 개수");
 
     /**
-     * The column <code>sb_db.sb_board_info_tb.next_board_no</code>. 다음 게시판 번호
+     * The column <code>sb_db.sb_board_info_tb.next_board_no</code>. 다음 게시판 번호, 본문의 부모 게시판 번호가 0 으로 예약되어 있어 1부터 시작
      */
-    public final TableField<SbBoardInfoTbRecord, UInteger> NEXT_BOARD_NO = createField("next_board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "다음 게시판 번호");
+    public final TableField<SbBoardInfoTbRecord, UInteger> NEXT_BOARD_NO = createField("next_board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).defaultValue(org.jooq.impl.DSL.inline("1", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "다음 게시판 번호, 본문의 부모 게시판 번호가 0 으로 예약되어 있어 1부터 시작");
 
     /**
      * Create a <code>sb_db.sb_board_info_tb</code> table reference

@@ -103,6 +103,7 @@ public class MenuModificationProcessSvl extends AbstractAdminLoginServlet {
 		
 		
 		MenuModifyReq menuModifyReq = new MenuModifyReq();
+		menuModifyReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
 		menuModifyReq.setMenuNo(nativeMenuNo);
 		menuModifyReq.setMenuName(paramMenuName);
 		menuModifyReq.setLinkURL(paramLinkURL);

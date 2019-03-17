@@ -17,10 +17,10 @@ import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record14;
-import org.jooq.Record16;
+import org.jooq.Record17;
 import org.jooq.Record3;
 import org.jooq.Record4;
-import org.jooq.Record8;
+import org.jooq.Record9;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.Table;
@@ -102,6 +102,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 		UByte boardID = UByte.valueOf(boardDetailReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardDetailReq.getBoardNo());
 
+		String boardName = null;
 		byte boardListTypeValue;
 		byte boardReplyPolicyTypeValue;
 		byte boardReplyPermssionTypeValue;
@@ -113,6 +114,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 		int oldViewCount = 0;
 		String boardState = null;
 		UByte nextAttachedFileSeq = null;
+		boolean isBoardPassword = false;
 		int votes = 0;
 		String firstWriterID = null;
 		Timestamp firstRegisteredDate = null;
@@ -135,9 +137,6 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
-			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log,
-					"게시글 상세 조회 서비스", PermissionType.MEMBER, boardDetailReq.getRequestedUserID());
-
 			Record4<String, Byte, Byte, Byte> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
 							SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE)
@@ -155,8 +154,8 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
-			boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
+			boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);			
 			boardReplyPolicyTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE);
 			boardReplyPermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE);
 
@@ -173,13 +172,18 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				String errorMessage = e.getMessage();
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			
+			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log,
+					"게시글 상세 조회 서비스", PermissionType.GUEST, boardDetailReq.getRequestedUserID());
 
 			SbBoardHistoryTb b = SB_BOARD_HISTORY_TB.as("b");
 			SbBoardHistoryTb c = SB_BOARD_HISTORY_TB.as("c");
 
-			Record16<UInteger, UShort, UInteger, UByte, Integer, String, UByte, Object, String, String, Timestamp, String, Object, Timestamp, String, Object> mainBoardRecord = create
+			Record17<UInteger, UShort, UInteger, UByte, Integer, String, UByte, String, Object, String, String, Timestamp, String, Object, Timestamp, String, Object> mainBoardRecord = create
 					.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH,
 							SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ,
+							SB_BOARD_TB.PWD_BASE64,
 							create.selectCount().from(SB_BOARD_VOTE_TB)
 									.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(SB_BOARD_TB.BOARD_ID))
 									.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(SB_BOARD_TB.BOARD_NO)).asField("votes"),
@@ -197,7 +201,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					.and(b.HISTORY_SQ.eq(create.select(b.HISTORY_SQ.max()).from(b)
 							.where(b.BOARD_ID.eq(SB_BOARD_TB.field(SB_BOARD_TB.BOARD_ID)))
 							.and(b.BOARD_NO.eq(SB_BOARD_TB.field(SB_BOARD_TB.BOARD_NO)))))
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).forUpdate()
+					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo))					
 					.fetchOne();
 
 			if (null == mainBoardRecord) {
@@ -218,6 +222,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			oldViewCount = mainBoardRecord.get(SB_BOARD_TB.VIEW_CNT);
 			boardState = mainBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 			nextAttachedFileSeq = mainBoardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
+			String boardPwdBase64 = mainBoardRecord.get(SB_BOARD_TB.PWD_BASE64);
 			votes = mainBoardRecord.get("votes", Integer.class);
 			subject = mainBoardRecord.get(SB_BOARD_HISTORY_TB.SUBJECT);
 			contents = mainBoardRecord.get(SB_BOARD_HISTORY_TB.CONTENTS);
@@ -227,6 +232,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			firstRegisteredDate = mainBoardRecord.get("first_registered_date", Timestamp.class);
 			firstWriterID = mainBoardRecord.get("first_writer_id", String.class);
 			firstWriterNickname = mainBoardRecord.get("first_writer_nickname", String.class);
+			
 
 			BoardStateType boardStateType = null;
 			try {
@@ -268,9 +274,12 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					throw new ServerServiceException(errorMessage);
 				}
 			}
+			
+			/** 게시글 비밀번호 유무 */			
+			isBoardPassword = (null != boardPwdBase64);
 
 			if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType)) {
-				/** 본문으로만 이루어진 목록의 상세 조회는 본문에 대한 댓글 모두 포함된다 */
+				/** 본문으로만 이루어진 목록의 상세 조회는 본문에 대한 상세 조회만 허용 된다 */
 				if (0L != parentNo.longValue()) {
 					try {
 						conn.rollback();
@@ -285,17 +294,18 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				}
 
 				SbBoardTb a = SB_BOARD_TB.as("a");
-
+				
 				Table<Record3<UByte, UInteger, UShort>> d = create.select(a.BOARD_ID, a.GROUP_NO, a.GROUP_SQ)
 						.from(a.forceIndex("sb_board_idx1")).where(a.BOARD_ID.eq(boardID)).and(a.GROUP_NO.eq(groupNo))
-						.and(a.BOARD_NO.notEqual(boardNo)).asTable("d");
+						.and(a.BOARD_NO.notEqual(boardNo))
+						.asTable("d");
 
-				Table<Record8<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String>> mainTable = create
+				Table<Record9<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String, UByte>> mainTable = create
 						.select(a.BOARD_ID, a.BOARD_NO, a.GROUP_NO, a.GROUP_SQ, a.PARENT_NO, a.DEPTH, a.VIEW_CNT,
-								a.BOARD_ST)
+								a.BOARD_ST, a.NEXT_ATTACHED_FILE_SQ)
 						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))
 						.and(a.GROUP_NO.eq(d.field(SB_BOARD_TB.GROUP_NO)))
-						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");
+						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");				
 
 				Result<Record14<UInteger, UShort, UInteger, UByte, String, UByte, Object, String, Timestamp, String, Object, Timestamp, String, Object>> childBoardResult = create
 						.select(mainTable.field(SB_BOARD_TB.BOARD_NO), mainTable.field(SB_BOARD_TB.GROUP_SQ),
@@ -303,9 +313,9 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 								mainTable.field(SB_BOARD_TB.BOARD_ST),
 								mainTable.field(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ),
 								create.selectCount().from(SB_BOARD_VOTE_TB)
-										.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
-										.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
-										.asField("votes"),
+								.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
+								.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
+								.asField("votes"),
 								b.CONTENTS, b.REG_DT.as("last_modified_date"), b.REGISTRANT_ID.as("last_modifier_id"),
 								create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
 										.where(SB_MEMBER_TB.USER_ID.eq(b.REGISTRANT_ID))
@@ -432,9 +442,11 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 
 		BoardDetailRes boardDetailRes = new BoardDetailRes();
 		boardDetailRes.setBoardID(boardDetailReq.getBoardID());
+		boardDetailRes.setBoardName(boardName);
 		boardDetailRes.setBoardListType(boardListTypeValue);
 		boardDetailRes.setBoardReplyPolicyType(boardReplyPolicyTypeValue);
 		boardDetailRes.setBoardReplyPermssionType(boardReplyPermssionTypeValue);
+		boardDetailRes.setIsBoardPassword(isBoardPassword);
 
 		boardDetailRes.setBoardNo(boardDetailReq.getBoardNo());
 		boardDetailRes.setGroupNo(groupNo.longValue());

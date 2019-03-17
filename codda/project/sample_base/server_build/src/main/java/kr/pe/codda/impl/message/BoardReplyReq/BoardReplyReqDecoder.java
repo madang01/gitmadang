@@ -59,6 +59,14 @@ public final class BoardReplyReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardReplyReq.setPwdHashBase64((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "pwdHashBase64" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardReplyReq.setSubject((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "subject" // itemName

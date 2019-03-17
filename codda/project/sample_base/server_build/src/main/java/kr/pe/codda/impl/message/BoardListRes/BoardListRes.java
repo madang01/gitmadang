@@ -26,7 +26,9 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class BoardListRes extends AbstractMessage {
 	private short boardID;
+	private String boardName;
 	private byte boardListType;
+	private byte boardWritePermissionType;
 	private int pageNo;
 	private int pageSize;
 	private long total;
@@ -183,12 +185,26 @@ public class BoardListRes extends AbstractMessage {
 	public void setBoardID(short boardID) {
 		this.boardID = boardID;
 	}
+	public String getBoardName() {
+		return boardName;
+	}
+
+	public void setBoardName(String boardName) {
+		this.boardName = boardName;
+	}
 	public byte getBoardListType() {
 		return boardListType;
 	}
 
 	public void setBoardListType(byte boardListType) {
 		this.boardListType = boardListType;
+	}
+	public byte getBoardWritePermissionType() {
+		return boardWritePermissionType;
+	}
+
+	public void setBoardWritePermissionType(byte boardWritePermissionType) {
+		this.boardWritePermissionType = boardWritePermissionType;
 	}
 	public int getPageNo() {
 		return pageNo;
@@ -232,8 +248,12 @@ public class BoardListRes extends AbstractMessage {
 		builder.append("boardListRes[");
 		builder.append("boardID=");
 		builder.append(boardID);
+		builder.append(", boardName=");
+		builder.append(boardName);
 		builder.append(", boardListType=");
 		builder.append(boardListType);
+		builder.append(", boardWritePermissionType=");
+		builder.append(boardWritePermissionType);
 		builder.append(", pageNo=");
 		builder.append(pageNo);
 		builder.append(", pageSize=");

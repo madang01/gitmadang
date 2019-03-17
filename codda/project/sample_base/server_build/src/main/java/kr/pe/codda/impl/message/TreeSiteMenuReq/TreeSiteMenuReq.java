@@ -25,6 +25,7 @@ import kr.pe.codda.common.message.AbstractMessage;
  *
  */
 public class TreeSiteMenuReq extends AbstractMessage {
+
 	private String requestedUserID;
 
 	public String getRequestedUserID() {

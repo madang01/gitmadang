@@ -50,7 +50,7 @@ String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보�
 </script>
 </head>
 <body>
-<%=getWebsiteMenuString(request)%>
+<%=getMenuNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h2>RSA 암/복호화 테스트 - 입력</h2>

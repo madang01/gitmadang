@@ -21,7 +21,6 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.codda.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.weblib.common.BoardType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
 
@@ -56,15 +55,6 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 			return;
 		}
 
-		try {
-			BoardType.valueOf(boardID);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = "알 수 없는 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder("the web parameter 'boardID'[").append(paramBoardID)
-					.append("] is not a element of set[").append(BoardType.getSetString()).append("]").toString();
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}		
 
 		if (null == paramBoardNo) {
 			String errorMessage = "게시판 번호 값을 넣어 주세요";

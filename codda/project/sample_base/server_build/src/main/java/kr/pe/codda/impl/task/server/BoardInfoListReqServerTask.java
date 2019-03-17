@@ -9,7 +9,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
-import org.jooq.Record10;
+import org.jooq.Record9;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -95,9 +95,9 @@ public class BoardInfoListReqServerTask extends AbstractServerTask {
 			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 정보 목록 조회 서비스", PermissionType.ADMIN, boardInfoListReq.getRequestedUserID());
 			
-			Result<Record10<UByte, String, String, Byte, Byte, Byte, Byte, Integer, Integer, UInteger>>  
-			boardInfoListResult = create.select(SB_BOARD_INFO_TB.BOARD_ID, SB_BOARD_INFO_TB.BOARD_NAME, 
-					SB_BOARD_INFO_TB.BOARD_INFO,
+			Result<Record9<UByte, String, Byte, Byte, Byte, Byte, Integer, Integer, UInteger>>  
+			boardInfoListResult = create.select(SB_BOARD_INFO_TB.BOARD_ID, 
+					SB_BOARD_INFO_TB.BOARD_NAME,
 					SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
 					SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE,
 					SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE,
@@ -105,10 +105,9 @@ public class BoardInfoListReqServerTask extends AbstractServerTask {
 					SB_BOARD_INFO_TB.NEXT_BOARD_NO)
 			.from(SB_BOARD_INFO_TB).fetch();
 			
-			for (Record10<UByte, String, String, Byte, Byte, Byte, Byte, Integer, Integer, UInteger> boardInfoRecord : boardInfoListResult) {
+			for (Record9<UByte, String, Byte, Byte, Byte, Byte, Integer, Integer, UInteger> boardInfoRecord : boardInfoListResult) {
 				UByte boardID = boardInfoRecord.get(SB_BOARD_INFO_TB.BOARD_ID);
 				String boardName = boardInfoRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
-				String boardInformation = boardInfoRecord.get(SB_BOARD_INFO_TB.BOARD_INFO);
 				byte boardListTypeValue = boardInfoRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
 				byte boardReplyPolicyTypeValue = boardInfoRecord.get(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE);
 				byte boardWritePermissionTypeValue = boardInfoRecord.get(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE);
@@ -120,7 +119,6 @@ public class BoardInfoListReqServerTask extends AbstractServerTask {
 				BoardInfoListRes.BoardInfo boardInfo = new BoardInfoListRes.BoardInfo();
 				boardInfo.setBoardID(boardID.shortValue());
 				boardInfo.setBoardName(boardName);
-				boardInfo.setBoardInformation(boardInformation);
 				boardInfo.setBoardListType(boardListTypeValue);
 				boardInfo.setBoardReplyPolicyType(boardReplyPolicyTypeValue);
 				boardInfo.setBoardWritePermissionType(boardWritePermissionTypeValue);

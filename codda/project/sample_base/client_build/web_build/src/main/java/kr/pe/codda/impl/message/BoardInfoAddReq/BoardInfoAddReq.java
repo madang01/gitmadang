@@ -27,7 +27,6 @@ import kr.pe.codda.common.message.AbstractMessage;
 public class BoardInfoAddReq extends AbstractMessage {
 	private String requestedUserID;
 	private String boardName;
-	private String boardInformation;
 	private byte boardListType;
 	private byte boardReplyPolicyType;
 	private byte boardWritePermissionType;
@@ -46,13 +45,6 @@ public class BoardInfoAddReq extends AbstractMessage {
 
 	public void setBoardName(String boardName) {
 		this.boardName = boardName;
-	}
-	public String getBoardInformation() {
-		return boardInformation;
-	}
-
-	public void setBoardInformation(String boardInformation) {
-		this.boardInformation = boardInformation;
 	}
 	public byte getBoardListType() {
 		return boardListType;
@@ -91,8 +83,6 @@ public class BoardInfoAddReq extends AbstractMessage {
 		builder.append(requestedUserID);
 		builder.append(", boardName=");
 		builder.append(boardName);
-		builder.append(", boardInformation=");
-		builder.append(boardInformation);
 		builder.append(", boardListType=");
 		builder.append(boardListType);
 		builder.append(", boardReplyPolicyType=");

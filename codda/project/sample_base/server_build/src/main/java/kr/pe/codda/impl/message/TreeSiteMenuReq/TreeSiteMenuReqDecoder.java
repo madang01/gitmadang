@@ -32,6 +32,14 @@ public final class TreeSiteMenuReqDecoder extends AbstractMessageDecoder {
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
+		
+		treeSiteMenuReq.setRequestedUserID((String)
+		singleItemDecoder.getValueFromReadableMiddleObject("TreeSiteMenuReq"
+			, "requestedUserID" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		return treeSiteMenuReq;
 	}

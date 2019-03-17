@@ -64,7 +64,6 @@ public class Keys {
     public static final UniqueKey<SbBoardHistoryTbRecord> KEY_SB_BOARD_HISTORY_TB_PRIMARY = UniqueKeys0.KEY_SB_BOARD_HISTORY_TB_PRIMARY;
     public static final UniqueKey<SbBoardInfoTbRecord> KEY_SB_BOARD_INFO_TB_PRIMARY = UniqueKeys0.KEY_SB_BOARD_INFO_TB_PRIMARY;
     public static final UniqueKey<SbBoardTbRecord> KEY_SB_BOARD_TB_PRIMARY = UniqueKeys0.KEY_SB_BOARD_TB_PRIMARY;
-    public static final UniqueKey<SbBoardTbRecord> KEY_SB_BOARD_TB_SB_BOARD_IDX1 = UniqueKeys0.KEY_SB_BOARD_TB_SB_BOARD_IDX1;
     public static final UniqueKey<SbBoardVoteTbRecord> KEY_SB_BOARD_VOTE_TB_PRIMARY = UniqueKeys0.KEY_SB_BOARD_VOTE_TB_PRIMARY;
     public static final UniqueKey<SbGroupInfoTbRecord> KEY_SB_GROUP_INFO_TB_PRIMARY = UniqueKeys0.KEY_SB_GROUP_INFO_TB_PRIMARY;
     public static final UniqueKey<SbGroupTbRecord> KEY_SB_GROUP_TB_PRIMARY = UniqueKeys0.KEY_SB_GROUP_TB_PRIMARY;
@@ -100,7 +99,6 @@ public class Keys {
         public static final UniqueKey<SbBoardHistoryTbRecord> KEY_SB_BOARD_HISTORY_TB_PRIMARY = Internal.createUniqueKey(SbBoardHistoryTb.SB_BOARD_HISTORY_TB, "KEY_sb_board_history_tb_PRIMARY", SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_ID, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_NO, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.HISTORY_SQ);
         public static final UniqueKey<SbBoardInfoTbRecord> KEY_SB_BOARD_INFO_TB_PRIMARY = Internal.createUniqueKey(SbBoardInfoTb.SB_BOARD_INFO_TB, "KEY_sb_board_info_tb_PRIMARY", SbBoardInfoTb.SB_BOARD_INFO_TB.BOARD_ID);
         public static final UniqueKey<SbBoardTbRecord> KEY_SB_BOARD_TB_PRIMARY = Internal.createUniqueKey(SbBoardTb.SB_BOARD_TB, "KEY_sb_board_tb_PRIMARY", SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.BOARD_NO);
-        public static final UniqueKey<SbBoardTbRecord> KEY_SB_BOARD_TB_SB_BOARD_IDX1 = Internal.createUniqueKey(SbBoardTb.SB_BOARD_TB, "KEY_sb_board_tb_sb_board_idx1", SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.GROUP_NO, SbBoardTb.SB_BOARD_TB.GROUP_SQ);
         public static final UniqueKey<SbBoardVoteTbRecord> KEY_SB_BOARD_VOTE_TB_PRIMARY = Internal.createUniqueKey(SbBoardVoteTb.SB_BOARD_VOTE_TB, "KEY_sb_board_vote_tb_PRIMARY", SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO, SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID, SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_ID);
         public static final UniqueKey<SbGroupInfoTbRecord> KEY_SB_GROUP_INFO_TB_PRIMARY = Internal.createUniqueKey(SbGroupInfoTb.SB_GROUP_INFO_TB, "KEY_sb_group_info_tb_PRIMARY", SbGroupInfoTb.SB_GROUP_INFO_TB.GROUP_ID);
         public static final UniqueKey<SbGroupTbRecord> KEY_SB_GROUP_TB_PRIMARY = Internal.createUniqueKey(SbGroupTb.SB_GROUP_TB, "KEY_sb_group_tb_PRIMARY", SbGroupTb.SB_GROUP_TB.GROUP_ID, SbGroupTb.SB_GROUP_TB.USER_ID);

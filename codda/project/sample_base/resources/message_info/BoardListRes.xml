@@ -18,7 +18,9 @@
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 목록 응답 메시지</desc>
 <singleitem name="boardID" type="unsigned byte" />
+<singleitem name="boardName" type="ub pascal string" />
 <singleitem name="boardListType" type="byte" />
+<singleitem name="boardWritePermissionType" type="byte" />
 <singleitem name="pageNo" type="unsigned short" />
 <singleitem name="pageSize" type="unsigned short" />
 <singleitem name="total" type="unsigned integer" />

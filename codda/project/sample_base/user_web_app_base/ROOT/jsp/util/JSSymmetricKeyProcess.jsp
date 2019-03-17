@@ -32,7 +32,7 @@
 </script>
 </head>
 <body>
-<%=getWebsiteMenuString(request)%>
+<%=getMenuNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h3>CryptoJS 대칭키 테스트 - 결과</h3>

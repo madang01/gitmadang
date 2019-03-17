@@ -102,6 +102,8 @@ public class UserWebsiteMenuInfoFileUpdaterSvl extends
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager
 				.getInstance().getMainProjectConnectionPool();
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
+		treeSiteMenuReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		
 		TreeSiteMenuRes treeSiteMenuRes = null;
 
 		AbstractMessage outputMessage = mainProjectConnectionPool

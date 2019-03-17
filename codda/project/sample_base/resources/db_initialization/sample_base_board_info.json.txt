@@ -1,6 +1,6 @@
 {notice:"프로그램 내부적으로 게시판 식별자는 0부터 시작하여 하나씩 증가하기때문에 이곳의 게시판 식별자도 그 규칙에 따라 값을 지정하였습니다", 
-"boardInfomationList":[{boardID:0,boardName:"공지",boardInfomation:"공지 게시판",listType:0,replyPolicyType:0,writePermissionType:0,replyPermissionType:0},
-	{boardID:1,boardName:"자유",boardInfomation:"자유 게시판",listType:0,replyPolicyType:1,writePermissionType:1,replyPermissionType:1},
-	{boardID:2,boardName:"이슈",boardInfomation:"이슈 게시판",listType:0,replyPolicyType:2,writePermissionType:1,replyPermissionType:1},
-	{boardID:3,boardName:"계층형",boardInfomation:"계층형 게시판",listType:1,replyPolicyType:2,writePermissionType:1,replyPermissionType:1}
+"boardInfomationList":[{boardID:0,boardName:"공지",listType:0,replyPolicyType:0,writePermissionType:0,replyPermissionType:0},
+	{boardID:1,boardName:"자유",listType:0,replyPolicyType:1,writePermissionType:1,replyPermissionType:1},
+	{boardID:2,boardName:"이슈",listType:0,replyPolicyType:2,writePermissionType:1,replyPermissionType:1},
+	{boardID:3,boardName:"계층형",listType:1,replyPolicyType:2,writePermissionType:2,replyPermissionType:2}
 ]}

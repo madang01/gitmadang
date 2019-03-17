@@ -43,9 +43,25 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardListRes.setBoardName((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "boardName" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardListRes.setBoardListType((Byte)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardListType" // itemName
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		boardListRes.setBoardWritePermissionType((Byte)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "boardWritePermissionType" // itemName
 			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

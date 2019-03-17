@@ -4,6 +4,9 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String USER_WEBSITE_TITLE = "Codda Home";
 	public static final String ADMIN_WEBSITE_TITLE = "Codda Admin";
 	
+	public static final String BOARD_HASH_ALGORITHM = "SHA-256";
+	
+	
 	//public static final String PARAMETER_KEY_NAME_OF_REQUEST_TYPE = "requestType";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY = "sessionkeyBase64";
 	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY_IV = "ivBase64";	
@@ -15,8 +18,9 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING = "modulusHexString";
 		
 	
-	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID = "userID";
-	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ROLE_TYPE = "memberRoleType";
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION = "userLoginRes";
+	// public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID = "userID";
+	// public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ROLE_TYPE = "memberRoleType";
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID = "adminID";
 	public static final String HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY = "clientSessionKey";
 	
@@ -80,4 +84,34 @@ public abstract class WebCommonStaticFinalVars {
 	
 	public static final String USER_WEBSITE_MENU_INFO_FILE = "userWebsiteMenuInfo.txt";
 	public static final int USER_WEBSITE_MENU_INFO_FILE_MAX_SIZE= 1*1024*1024;
+	
+	
+	/** 사용자 아이디 최소 문자수 */
+	public static final int MIN_NUMBER_OF_USER_ID_CHARRACTERS = 4;
+	/** 사용자 아이디 최대 문자수 */
+	public static final int MAX_NUMBER_OF_USER_ID_CHARRACTERS = 15;
+	
+	/** 패스워드 최소 문자수 */
+	public static final int MIN_NUMBER_OF_PASSWRORD_CHARRACTERS = 8;
+	/** 패스워드 최대 문자수 */
+	public static final int MAX_NUMBER_OF_PASSWRORD_CHARRACTERS = 15;
+	
+	/** 별명 최소 문자수 */
+	public static final int MIN_NUMBER_OF_NICKNAME_CHARRACTERS = 2;
+	/** 별명 최대 문자수 */
+	public static final int MAX_NUMBER_OF_NICKNAME_CHARRACTERS = 20;
+	
+	/** 비밀번호 힌트 최소 문자수 혹은 비밀번호 답변 최소 문자수, Warning! 유효성 검사할때 최소 글자수를 2로 강제하므로 2 미만 변경은 동작하지 않음 */
+	public static final int MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS = 2;
+	/** 비밀번호 힌트 최대 문자수 혹은 비밀번호 답변 최대 문자수 */
+	public static final int MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS = 30;
+	
+	public static final int MIN_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS = 2;
+	public static final int MAX_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS = 30;
+	
+	/** 게시판 주제 최소 문자수 */
+	public static final int MIN_NUMBER_OF_SUBJECT_CHARRACTERS = 2;
+	
+	/** 게시판 내용 최소 문자수 */
+	public static final int MIN_NUMBER_OF_CONTENTS_CHARRACTERS = 2;
 }

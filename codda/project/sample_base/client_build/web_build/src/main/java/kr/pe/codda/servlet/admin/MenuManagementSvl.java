@@ -21,6 +21,7 @@ public class MenuManagementSvl extends AbstractAdminLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
+		menuListReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		

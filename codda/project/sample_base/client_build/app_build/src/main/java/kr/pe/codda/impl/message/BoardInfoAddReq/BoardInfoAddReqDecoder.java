@@ -51,14 +51,6 @@ public final class BoardInfoAddReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardInfoAddReq.setBoardInformation((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "boardInformation" // itemName
-			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
 		boardInfoAddReq.setBoardListType((Byte)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardListType" // itemName

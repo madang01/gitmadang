@@ -43,7 +43,7 @@
 		var g = document.gofrm;
 		
 		var regexID = /^[A-Za-z][A-Za-z0-9]{3,14}$/;
-		var regexPwd = /^[A-Za-z0-9\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{8,50}$/;
+		var regexPwd = /^[A-Za-z0-9\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{<%= WebCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS %>,<%= WebCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS %>}$/;
 		var regexPwdAlpha = /.*[A-Za-z]{1,}.*/;
 		var regexPwdDigit = /.*[0-9]{1,}.*/;
 		//var regexPwdPunct = /.*[\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{1,}.*/;
@@ -85,7 +85,7 @@
 		*/	
 
 		if (!regexPwd.test(f.pwd.value)) {
-			alert("비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 8자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
+			alert("비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 <%= WebCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS %>자, 최대 <%= WebCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS %>자로 구성됩니다. 다시 입력해 주세요.");
 			f.pwd.value = '';
 			f.pwd.focus();
 			return;
@@ -113,7 +113,7 @@
 		}		
 				
 		
-		var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
+		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);
 		var privateKeyBase64 = CryptoJS.enc.Base64.stringify(privateKey);
 		
 		var rsa = new RSAKey();
@@ -193,7 +193,7 @@
 </script>
 </head>
 <body>
-<%=getWebsiteMenuString(request)%>
+<%=getMenuNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h3>사용자 로그인</h3>

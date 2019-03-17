@@ -40,7 +40,7 @@
 </script>
 </head>
 <body>
-<%= getWebsiteMenuString(request) %>
+<%=getMenuNavbarString(request)%>
 	
 	<div class="container-fluid">
 		<h2>에코 테스트</h2>

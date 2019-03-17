@@ -1,7 +1,7 @@
 package kr.pe.codda.server.lib;
 
 public enum BoardListType {
-	ONLY_GROUP_ROOT((byte)0, "그룹루트목록"), TREE((byte)1, "계층목록");
+	ONLY_GROUP_ROOT((byte)0, "그룹루트"), TREE((byte)1, "계층");
 	
 	private byte boardListTypeValue;
 	private String boardListTypeName;
