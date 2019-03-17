@@ -5,7 +5,7 @@ public class Line2BrStringReplacementActor implements AbstractStringReplacementA
 
 	@Override
 	public String replace(String str) {
-		String ret = str.replaceAll("\r\n|\n|\r|\u0085|\u2028|\u2029", "<br/>");
+		String ret = str.replaceAll("\r\n|\n|\r|\u0085|\u2028|\u2029", "<br>");
 		return ret;
 	}
 }

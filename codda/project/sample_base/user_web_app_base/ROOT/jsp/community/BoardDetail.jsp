@@ -60,7 +60,7 @@
 	
 	boolean isUserLoginedIn = isUserLoginedIn(request);
 	boolean isTitle =  (BoardListType.TREE.equals(boardListType) || boardDetailRes.getParentNo() == 0);
-	boolean isBoardPassword = boardDetailRes.getIsBoardPassword();
+	// boolean isBoardPassword = boardDetailRes.getIsBoardPassword();
 		
 	List<BoardDetailRes.AttachedFile> detailAttachedFileList = boardDetailRes.getAttachedFileList();
 	
@@ -76,16 +76,16 @@
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
 <style>
-textarea {
-  /* margin:0px 0px; this is redundant anyways since its specified below*/
-  padding-top:10px;
-  padding-bottom:25px; /* increased! */
-  /* height:16px; */
-  /* line-height:16px; */
-  width:100%; /* changed from 96 to 100% */
-  display:block;
-  /* margin:0px auto; not needed since i have width 100% now */
-}
+	textarea {
+	  /* margin:0px 0px; this is redundant anyways since its specified below*/
+	  padding-top:10px;
+	  padding-bottom:25px; /* increased! */
+	  /* height:16px; */
+	  /* line-height:16px; */
+	  width:100%; /* changed from 96 to 100% */
+	  display:block;
+	  /* margin:0px auto; not needed since i have width 100% now */
+	}
 </style>
 <!-- jQuery library -->
 <script src="/jquery/3.3.1/jquery.min.js"></script>
@@ -116,13 +116,7 @@ textarea {
 	var seqForNewAttachedFileDivOfModifyInputFrm = 0;
 	var seqForNewAttachedFileDivOfReplyInputFrm = 0;
 	
-	function expandTextarea(id) {
-	    document.getElementById(id).addEventListener('keyup', function() {
-	        this.style.overflow = 'hidden';
-	        this.style.height = 0;
-	        this.style.height = this.scrollHeight + 'px';
-	    }, false);
-	}
+	
 
 	
 	
@@ -142,46 +136,48 @@ textarea {
 		return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
 	}	
 	
-	function activeModifyInputScreen() {
-		var subjectDivNode = document.getElementById('subjectDiv');
-		var cotentDivNode = document.getElementById('cotentDiv');
+	function showModifyPart() {
+		var subjectDivInViewPartForBoardNode = document.getElementById('subjectDivInViewPartForBoard');
+		var cotentDivInViewPartForBoardNode = document.getElementById('cotentDivInViewPartForBoard');
 		
 		restoreAttachedFileListForBoardModify();
 		
-		var newFileListDivNode = document.getElementById('newFileListDivForBoardModify');		
+		var newFileListDivNode = document.getElementById('newFileListDivInModifyPartForBoard');		
 		
 		/** remove all child nodes of newFileListDivNode node */
 		while(newFileListDivNode.hasChildNodes()) {
 			newFileListDivNode.removeChild(newFileListDivNode.firstChild);
 		}
 		
-		var f = document.modifyInputFrm;<%
+		var f = document.modifyInputFrmForBoard;<%
 
 	if (isTitle) {
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("		");
-		out.write("f.subject.value = subjectDivNode.innerText;");
+		out.write("f.subject.value = subjectDivInViewPartForBoardNode.innerText;");
 	} 
 %>
-		f.contents.value = cotentDivNode.innerText;
+		f.contents.value = cotentDivInViewPartForBoardNode.innerText;
 		
 		//$("#modifyInputModal").modal();
 
-		var detailPartViewObj = document.getElementById('detailPartView');	
-		var detailReplyPartViewObj = document.getElementById('detailReplyPartView');
-		var modifyPartViewObj = document.getElementById('modifyPartView');
+		var modifyPartForBoardObj = document.getElementById('modifyPartForBoard');		
+		modifyPartForBoardObj.style.display = "block";
 		
-		detailPartViewObj.style.display = "none";
-		detailReplyPartViewObj.style.display = "none";
-		modifyPartViewObj.style.display = "block";
+		hideReplyPart();
+	}
+	
+	function hideModifyPart() {
+		var modifyPartForBoardObj = document.getElementById('modifyPartForBoard');
+		modifyPartForBoardObj.style.display = "none";
 	}
 	
 	function addNewAttachFileForBoardModify() {		
 		var prefixOfNewChildDiv = 'modifyInputAttachedFileRowDiv';		
 
-		var newFileListDivNode = document.getElementById('newFileListDivForBoardModify');		
-		var oldFileListDivNode = document.getElementById('oldFileListDivForBoardModify');
+		var newFileListDivNode = document.getElementById('newFileListDivInModifyPartForBoard');		
+		var oldFileListDivNode = document.getElementById('oldFileListDivInModifyPartForBoard');
 		
 		var uploadFileCnt = oldFileListDivNode.childNodes.length + newFileListDivNode.childNodes.length;
 		
@@ -232,15 +228,15 @@ textarea {
 	}
 		
 	function removeNewAttachFileForModifyInputFrm(selectedDivID) {
-		var newFileListDivNode = document.getElementById('newFileListDivForBoardModify');		
+		var newFileListDivNode = document.getElementById('newFileListDivInModifyPartForBoard');		
 		var selectedDivNode = document.getElementById(selectedDivID);
 		newFileListDivNode.removeChild(selectedDivNode);
 	}
 	
 	function restoreAttachedFileListForBoardModify() {		
-		var oldFileListDivNode = document.getElementById('oldFileListDivForBoardModify');		
+		var oldFileListDivNode = document.getElementById('oldFileListDivInModifyPartForBoard');		
 		
-		/** remove all child nodes of oldFileListDivForBoardModify node */
+		/** remove all child nodes of oldFileListDivInModifyPartForBoard node */
 		while(oldFileListDivNode.hasChildNodes()) {
 			oldFileListDivNode.removeChild(oldFileListDivNode.firstChild);
 		}
@@ -274,13 +270,13 @@ textarea {
 	}
 	
 	function deleteOldAttachedFile(oldAttachedFileRowDivID) {
-		var d = document.getElementById('oldFileListDivForBoardModify');		
+		var d = document.getElementById('oldFileListDivInModifyPartForBoard');		
 		var deleteTagetDiv = document.getElementById(oldAttachedFileRowDivID);
 		d.removeChild(deleteTagetDiv);
 	}
 
-	function modify() {			
-		var f = document.modifyInputFrm;<% 
+	function modify(isBoardPassword) {			
+		var f = document.modifyInputFrmForBoard;<% 
 	if (isTitle) {
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write(CommonStaticFinalVars.NEWLINE);
@@ -294,7 +290,7 @@ textarea {
 		out.write("f.subject.focus();");
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("			");
-		out.write("return false;");
+		out.write("return;");
 		out.write("		");
 		out.write("}");
 	} 
@@ -303,59 +299,56 @@ textarea {
 		if ('' == f.contents.value) {
 			alert("내용을 넣어 주세요.");
 			f.contents.focus();
-			return false;
-		}<%
-
-	if (isBoardPassword) {
-%>
-
-		if (f.pwd.value == '') {
-			alert("비밀번호를 넣어주세요.");
-			f.pwd.focus();
-			return false;
+			return;
 		}
 		
-		if (!regexPwd.test(f.pwd.value)) {
-			alert("게시글 비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 8자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
-			f.pwd.value = '';
-			f.pwd.focus();
-			return false;
-		}
-		
-		if (!regexPwdAlpha.test(f.pwd.value)) {
-			alert("게시글 비밀번호는 최소 영문 1자가 포함되어야 합니다. 다시 입력해 주세요.");
-			f.pwd.value = '';
-			f.pwd.focus();
-			return false;
+		if (isBoardPassword) {
+			if (f.pwd.value == '') {
+				alert("비밀번호를 넣어주세요.");
+				f.pwd.focus();
+				return;
+			}
+			
+			if (!regexPwd.test(f.pwd.value)) {
+				alert("게시글 비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 8자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
+				f.pwd.value = '';
+				f.pwd.focus();
+				return;
+			}
+			
+			if (!regexPwdAlpha.test(f.pwd.value)) {
+				alert("게시글 비밀번호는 최소 영문 1자가 포함되어야 합니다. 다시 입력해 주세요.");
+				f.pwd.value = '';
+				f.pwd.focus();
+				return;
+			}
+
+			if (!regexPwdDigit.test(f.pwd.value)) {
+				alert("게시글 비밀번호는 최소 숫자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
+				f.pwd.value = '';
+				f.pwd.focus();
+				return;
+			}
+
+			if (!regexPwdPunct.test(f.pwd.value)) {
+				alert("게시글 비밀번호는 최소 특수문자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
+				f.pwd.value = '';
+				f.pwd.focus();
+				return;
+			}
 		}
 
-		if (!regexPwdDigit.test(f.pwd.value)) {
-			alert("게시글 비밀번호는 최소 숫자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
-			f.pwd.value = '';
-			f.pwd.focus();
-			return false;
-		}
-
-		if (!regexPwdPunct.test(f.pwd.value)) {
-			alert("게시글 비밀번호는 최소 특수문자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
-			f.pwd.value = '';
-			f.pwd.focus();
-			return false;
-		}<%
-	}
-%>
-
-		var newFileListDivNode = document.getElementById('newFileListDivForBoardModify');		
-		var oldFileListDivNode = document.getElementById('oldFileListDivForBoardModify');
+		var newFileListDivNode = document.getElementById('newFileListDivInModifyPartForBoard');		
+		var oldFileListDivNode = document.getElementById('oldFileListDivInModifyPartForBoard');
 		
 		var uploadFileCnt = oldFileListDivNode.childNodes.length + newFileListDivNode.childNodes.length;
 			
 		if (uploadFileCnt > uploadFileMaxCnt) {
 			alert("업로드 할 수 있는 파일 갯수는 최대["+uploadFileMaxCnt+"] 까지 입니다.");
-			return false;
+			return;
 		}
 		
-		var g = document.modofyProcessFrm;
+		var g = document.modofyProcessFrmForBoard;
 		
 		for (var i=0; i < newFileListDivNode.childNodes.length; i++) {				
 			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
@@ -363,12 +356,12 @@ textarea {
 			if (1 == newFileListDivNode.childNodes.length) {
 				if (g.newAttachedFile.value == '') {
 					alert("첨부 파일을 선택하세요");
-					return false;
+					return;
 				}
 			} else {
 				if (g.newAttachedFile[i].value == '') {
 					alert(fileInput.getAttribute("title")+"을 선택하세요");
-					return false;
+					return;
 				}
 			}			
 		}
@@ -403,21 +396,16 @@ textarea {
 		out.write("g.subject.value = f.subject.value;");
 	} 
 %>				
-		g.contents.value = f.contents.value;<%
-	
-	if (isBoardPassword) {
-		out.write(CommonStaticFinalVars.NEWLINE);
-		out.write("		");
-		out.write("var symmetricKeyObj = CryptoJS.");
-		out.write(WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME);
-		out.write(CommonStaticFinalVars.NEWLINE);
-		out.write("		");
-		out.write("g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });");
-	}
-%>
+		g.contents.value = f.contents.value;
+
+		if (isBoardPassword) {
+			var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
+			g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+		}
+
 		g.submit();		
 		
-		return false;	
+		return;	
 	}
 	
 	function callBackForBoardModifyProcess(boardModifyRes) {
@@ -425,8 +413,8 @@ textarea {
 		document.location.reload();
 	}
 		
-	function activeReplyInputScreen() {
-		var newFileListDivNode = document.getElementById('newFileListDivForDetailBoardReply');		
+	function showReplyPart() {
+		var newFileListDivNode = document.getElementById('newFileListDivInReplyPartForBoard');		
 		
 		/** remove all child nodes of newFileListDivNode node */
 		while(newFileListDivNode.hasChildNodes()) {
@@ -434,20 +422,22 @@ textarea {
 		}
 		
 		// $("#replyInputModal").modal();
+			
+		var replyPartForBoardObj = document.getElementById('replyPartForBoard');		
+		replyPartForBoardObj.style.display = "block";
 		
-		var detailPartViewObj = document.getElementById('detailPartView');	
-		var detailReplyPartViewObj = document.getElementById('detailReplyPartView');
-		var modifyPartViewObj = document.getElementById('modifyPartView');
-		
-		detailPartViewObj.style.display = "block";
-		detailReplyPartViewObj.style.display = "block";
-		modifyPartViewObj.style.display = "none";
+		hideModifyPart();
+	}
+	
+	function hideReplyPart() {
+		var replyPartForBoardObj = document.getElementById('replyPartForBoard');
+		replyPartForBoardObj.style.display = "none";
 	}
 	
 	function addNewAttachFileForDetailBoardReply() {			
 		var prefixOfNewChildDiv = 'replyInputAttachedFileRowDiv';		
 
-		var newFileListDiv = document.getElementById('newFileListDivForDetailBoardReply');	
+		var newFileListDiv = document.getElementById('newFileListDivInReplyPartForBoard');	
 		
 		var uploadFileCnt = newFileListDiv.childNodes.length; 
 		if (uploadFileCnt >= uploadFileMaxCnt) {
@@ -498,13 +488,13 @@ textarea {
 	}
 		
 	function removeNewAttachFileForReplyInputFrm(divIDName) {
-		var d = document.getElementById('newFileListDivForDetailBoardReply');		
+		var d = document.getElementById('newFileListDivInReplyPartForBoard');		
 		var deleteTagetDiv = document.getElementById(divIDName);
 		d.removeChild(deleteTagetDiv);
 	}
 	
 	function reply() {
-		var f = document.detailReplyInputFrm;<%
+		var f = document.replyInputFrmForBoard;<%
 		
 	if (isTitle) {
 		out.write(CommonStaticFinalVars.NEWLINE);
@@ -519,7 +509,7 @@ textarea {
 		out.write("f.subject.focus();");
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("			");
-		out.write("return false;");
+		out.write("return;");
 		out.write("		");
 		out.write("}");
 	} 
@@ -528,7 +518,7 @@ textarea {
 		if ('' == f.contents.value) {
 			alert("내용을 넣어 주세요.");
 			f.contents.focus();
-			return false;
+			return;
 		}<%	
 
 	if (! isUserLoginedIn) {
@@ -537,48 +527,48 @@ textarea {
 		if (f.pwd.value == '') {
 			alert("비밀번호를 넣어주세요.");
 			f.pwd.focus();
-			return false;
+			return;
 		}
 
 		if (!regexPwd.test(f.pwd.value)) {
 			alert("게시글 비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 8자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
 			f.pwd.value = '';
 			f.pwd.focus();
-			return false;
+			return;
 		}
 		
 		if (!regexPwdAlpha.test(f.pwd.value)) {
 			alert("게시글 비밀번호는 최소 영문 1자가 포함되어야 합니다. 다시 입력해 주세요.");
 			f.pwd.value = '';
 			f.pwd.focus();
-			return false;
+			return;
 		}
 
 		if (!regexPwdDigit.test(f.pwd.value)) {
 			alert("게시글 비밀번호는 최소 숫자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
 			f.pwd.value = '';
 			f.pwd.focus();
-			return false;
+			return;
 		}
 
 		if (!regexPwdPunct.test(f.pwd.value)) {
 			alert("게시글 비밀번호는 최소 특수문자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
 			f.pwd.value = '';
 			f.pwd.focus();
-			return false;
+			return;
 		}<%
 	}
 %>
 				
-		var newFileListDivNode = document.getElementById('newFileListDivForDetailBoardReply');		
+		var newFileListDivNode = document.getElementById('newFileListDivInReplyPartForBoard');		
 		var uploadFileCnt = newFileListDivNode.childNodes.length;	
 		
 		if (uploadFileCnt > uploadFileMaxCnt) {
 			alert("업로드 할 수 있는 파일 갯수는 최대["+uploadFileMaxCnt+"] 까지 입니다.");
-			return false;
+			return;
 		}
 		
-		var g = document.detailReplyProcessFrm;
+		var g = document.replyProcessFrmForBoard;
 		
 		for (var i=0; i < newFileListDivNode.childNodes.length; i++) {				
 			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
@@ -586,12 +576,12 @@ textarea {
 			if (1 == newFileListDivNode.childNodes.length) {
 				if (g.newAttachedFile.value == '') {
 					alert("첨부 파일을 선택하세요");
-					return false;
+					return;
 				}
 			} else {
 				if (g.newAttachedFile[i].value == '') {
 					alert(fileInput.getAttribute("title")+"을 선택하세요");
-					return false;
+					return;
 				}
 			}			
 		}
@@ -637,8 +627,6 @@ textarea {
 	}
 %>
 		g.submit();
-		
-		return false;
 	}
 	
 	function callBackForBoardReplyProcess(boardWriteResObj) {
@@ -674,7 +662,7 @@ textarea {
 	function makeDetailAttachedFileList() {		
 		var detailAttachedFileListDivNode = document.getElementById('detailAttachedFileListDiv');		
 		
-		/** remove all child nodes of oldFileListDivForBoardModify node */
+		/** remove all child nodes of oldFileListDivInModifyPartForBoard node */
 		while(detailAttachedFileListDivNode.hasChildNodes()) {
 			detailAttachedFileListDivNode.removeChild(detailAttachedFileListDivNode.firstChild);
 		}
@@ -702,17 +690,7 @@ textarea {
 			detailAttachedFileListDivNode.appendChild(oldAttachedFileRowDivNode)
 		}		
 	}
-	
-	function activeDetailScreen() {
-		var detailPartViewObj = document.getElementById('detailPartView');	
-		var detailReplyPartViewObj = document.getElementById('detailReplyPartView');
-		var modifyPartViewObj = document.getElementById('modifyPartView');
 		
-		detailPartViewObj.style.display = "block";
-		detailReplyPartViewObj.style.display = "none";
-		modifyPartViewObj.style.display = "none";
-	}
-	
 	function clickHiddenFrameButton(thisObj) {		
 		var hiddenFrameObj = document.getElementById("hiddenFrame");
 		
@@ -723,6 +701,14 @@ textarea {
 			thisObj.innerText = "Show Hidden Frame";
 			hiddenFrameObj.style.display = "none";
 		}
+	}
+	
+	function expandTextarea(id) {
+	    document.getElementById(id).addEventListener('keyup', function() {
+	        this.style.overflow = 'hidden';
+	        this.style.height = 0;
+	        this.style.height = this.scrollHeight + 'px';
+	    }, false);
 	}
 	
 	function init() {
@@ -736,8 +722,8 @@ textarea {
 		makeDetailAttachedFileList();
 		restoreAttachedFileListForBoardModify();
 		
-		expandTextarea('contentsForDetailBoardModify');
-		expandTextarea('contentsForDetailBoardReply');
+		expandTextarea('contentsInModifyPartForBoard');
+		expandTextarea('contentsInReplyPartForBoard');
 	}
 
 	window.onload=init;
@@ -780,13 +766,13 @@ textarea {
 		/** 댓글 버튼 유무는 댓글 정책 유형이 본문과 댓글 모두인 경우와 본문에만 허용되는 경우로 결정된다 */
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("					");
-		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"activeReplyInputScreen()\">댓글</button>");				
+		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"showReplyPart()\">댓글</button>");				
 	}
 	
 	if (boardDetailRes.getFirstWriterID().equals(getLoginedUserIDFromHttpSession(request))) {
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("					");
-		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"activeModifyInputScreen()\">수정</button>");
+		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"showModifyPart()\">수정</button>");
 	}
 
 	if (isUserLoginedIn) {
@@ -800,7 +786,7 @@ textarea {
 				</div>
 				<div id="resultMessageView"></div>
 				<br>
-				<div id="detailPartView">
+				<div id="viewPartForBoard">
 					<div class="row">
 						<div class="col-sm-1" style="background-color:lavender;">글번호</div>
 						<div class="col-sm-1"><%= boardDetailRes.getBoardNo() %></div>								
@@ -820,14 +806,14 @@ textarea {
 					</div>
 					<div class="row">
 						<div class="col-sm-1" style="background-color:lavender;">제목</div>
-						<div class="col-sm-4" class="col-sm-11" id="subjectDiv"><p><%=StringEscapeActorUtil.replace(boardDetailRes.getSubject(), 
+						<div class="col-sm-4" class="col-sm-11" id="subjectDivInViewPartForBoard"><p><%=StringEscapeActorUtil.replace(boardDetailRes.getSubject(), 
 								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></p></div>
 						<div class="col-sm-1" class="col-sm-1" style="background-color:lavender;">조회수</div>
 						<div class="col-sm-1" id="voteTxt"><%=boardDetailRes.getViewCount()%></div>
 					</div>
 					<div class="row">
 						<div class="col-sm-1" style="background-color:lavender;">내용</div>
-						<div class="col-sm-6" id="cotentDiv"><p><%=StringEscapeActorUtil.replace(boardDetailRes.getContents(), 
+						<div class="col-sm-6" id="cotentDivInViewPartForBoard"><p><%=StringEscapeActorUtil.replace(boardDetailRes.getContents(), 
 								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4, STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></p></div>
 					</div>
 					<div class="row">
@@ -836,34 +822,34 @@ textarea {
 					</div>
 				</div>
 			
-				<div id="detailReplyPartView" style="display:none">
+				<div id="replyPartForBoard" style="display:none">
 					<h4>댓글 입력 화면</h4>
-					<form name="detailReplyInputFrm" method="post" onSubmit="return reply();">							
+					<form name="replyInputFrmForBoard" method="post" onSubmit="return false;">							
 						<div class="form-group"><%
 	if (isTitle) { 
 %>
-							<label for="subjectForDetailBoardReply">제목</label>
-							<input type="text" id="subjectForDetailBoardReply" name="subject" class="form-control" placeholder="Enter subject" /><%
+							<label for="subjectInReplyPartForBoard">제목</label>
+							<input type="text" id="subjectInReplyPartForBoard" name="subject" class="form-control" placeholder="Enter subject" /><%
 		}
 %>
 					
-							<label for="contentsForDetailBoardReply">내용</label>
-							<textarea name="contents" id="contentsForDetailBoardReply" class="form-control" placeholder="Enter content" rows="5"></textarea><%
+							<label for="contentsInReplyPartForBoard">내용</label>
+							<textarea name="contents" id="contentsInReplyPartForBoard" class="form-control" placeholder="Enter content" rows="5"></textarea><%
 	if (! isUserLoginedIn) {
 %>
-							<br>
-							<label for="content">게시글 비밀번호</label>
-							<input type="password" class="form-control" placeholder="Enter password" name="pwd" /><%		
+							<label for="pwdInReplyPartForBoard">게시글 비밀번호</label>
+							<input type="password" id="pwdInReplyPartForBoard" class="form-control" placeholder="Enter password" name="pwd" /><%		
 	}
 %>
 						</div>
-						<button type="submit" class="btn btn-default">저장</button>
-						<div class="btn-group">
-							<input type="button" class="btn btn-default" onClick="addNewAttachFileForDetailBoardReply()" value="첨부 파일 추가" />
-							<input type="button" class="btn btn-default" onClick="activeDetailScreen();" value="닫기" />			
-						</div>				
-					</form>	
-					<form name=detailReplyProcessFrm target=hiddenFrame method="post" action="/servlet/BoardReplyProcess" enctype="multipart/form-data">
+					</form>						
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" onClick="reply();">저장</button>
+						<input type="button" class="btn btn-default" onClick="addNewAttachFileForDetailBoardReply();" value="첨부 파일 추가" />
+						<input type="button" class="btn btn-default" onClick="hideReplyPart();" value="닫기" />			
+					</div>				
+						
+					<form name="replyProcessFrmForBoard" target="hiddenFrame" method="post" action="/servlet/BoardReplyProcess" enctype="multipart/form-data">
 						<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
 						<input type="hidden" name="parentBoardNo" value="<%=boardDetailRes.getBoardNo()%>" /><%
 
@@ -878,41 +864,41 @@ textarea {
 						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" /> 
 						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 						<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
-						<div id="newFileListDivForDetailBoardReply"></div>
+						<div id="newFileListDivInReplyPartForBoard"></div>
 					</form>	
 				</div>
-				<div id="modifyPartView" style="display:none">
+				<div id="modifyPartForBoard" style="display:none">
 					<h4>게시글 수정 화면</h4>
-					<form name="modifyInputFrm" method="post" onSubmit="return modify();">							
+					<form name="modifyInputFrmForBoard" method="post" onSubmit="return false;">							
 						 <div class="form-group"><%
 	if (isTitle) {
 %>
-				    		<label for="subjectForDetailBoardModify">제목</label>
-				    		<input type="text" id="subjectForDetailBoardModify" name="subject" class="form-control" placeholder="Enter subject" /><%
+				    		<label for="subjectInModifyPartForBoard">제목</label>
+				    		<input type="text" id="subjectInModifyPartForBoard" name="subject" class="form-control" placeholder="Enter subject" /><%
 	}
 %>				
-				    		<label for="contentsForDetailBoardModify">내용</label>
-							<textarea name="contents" id="contentsForDetailBoardModify" class="form-control" placeholder="Enter content"></textarea><%
-	if (isBoardPassword) {
+				    		<label for="contentsInModifyPartForBoard">내용</label>
+							<textarea name="contents" id="contentsInModifyPartForBoard" class="form-control" placeholder="Enter content"></textarea><%
+	if (boardDetailRes.getIsBoardPassword()) {
 %>
-							<br>
-							<label for="content">게시글 비밀번호</label>
-							<input type="password" class="form-control" placeholder="Enter password" name="pwd" value="test1234%"/><%		
+							<label for="pwdInMoidfyPartForBoard">게시글 비밀번호</label>
+							<input type="password" id="pwdInMoidfyPartForBoard" class="form-control" placeholder="Enter password" name="pwd" /><%		
 	}
 %>
 				 		</div>
-						<button type="submit" class="btn btn-default">저장</button>
-						<div class="btn-group">
-							<input type="button" class="btn btn-default" onClick="restoreAttachedFileListForBoardModify()" value="기존 첨부 파일 목록 복구" />	
-							<input type="button" class="btn btn-default" onClick="addNewAttachFileForBoardModify()" value="신규 첨부 파일 추가" />
-							<input type="button" class="btn btn-default" onClick="activeDetailScreen();" value="닫기" />									
-						</div>
 					</form>	
-					<form name=modofyProcessFrm target=hiddenFrame method="post" action="/servlet/BoardModifyProcess" enctype="multipart/form-data">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" onClick="modify(<%= boardDetailRes.getIsBoardPassword() %>)">저장</button>
+						<input type="button" class="btn btn-default" onClick="restoreAttachedFileListForBoardModify()" value="기존 첨부 파일 목록 복구" />	
+						<input type="button" class="btn btn-default" onClick="addNewAttachFileForBoardModify()" value="신규 첨부 파일 추가" />
+						<input type="button" class="btn btn-default" onClick="hideModifyPart();" value="닫기" />									
+					</div>
+						
+					<form name=modofyProcessFrmForBoard target=hiddenFrame method="post" action="/servlet/BoardModifyProcess" enctype="multipart/form-data">
 						<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
 						<input type="hidden" name="boardNo" value="<%=boardDetailRes.getBoardNo()%>" /><%
 
-	if (isBoardPassword) {
+	if (boardDetailRes.getIsBoardPassword()) {
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("			");
 		out.write("<input type=\"hidden\" name=\"pwd\" />");
@@ -924,8 +910,8 @@ textarea {
 						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 						<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
-						<div id="oldFileListDivForBoardModify"></div>
-						<div id="newFileListDivForBoardModify"></div>
+						<div id="oldFileListDivInModifyPartForBoard"></div>
+						<div id="newFileListDivInModifyPartForBoard"></div>
 					</form>	
 				</div>
 			</div>			
@@ -957,14 +943,15 @@ textarea {
 							<div class="col-sm-1" style="background-color:lavender;">추천수</div>
 							<div class="col-sm-1"><%= childNode.getVotes() %></div>
 							<div class="col-sm-2" style="background-color:lavender;">게시판 상태</div>		
-							<div class="col-sm-1"><%=BoardStateType.valueOf(childNode.getBoardSate(), false).getName()%></div>					
+							<div class="col-sm-1"><%= BoardStateType.valueOf(childNode.getBoardSate(), false).getName() %></div>					
 							<div class="col-sm-2" style="background-color:lavender;">마지막 수정일</div>
 							<div class="col-sm-2"><%= childNode.getLastModifiedDate() %></div>
 						</div>
 						<div class="row">
 							<div class="col-sm-1" style="background-color:lavender;">내용</div>
-							<div class="col-sm-11"><%= StringEscapeActorUtil.replace(childNode.getContents(), 
-									StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></div>
+							<div class="col-sm-11"><p><%= StringEscapeActorUtil.replace(childNode.getContents(), 
+									StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+									StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></p></div>
 						</div>
 						
 					</div><%	

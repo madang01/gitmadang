@@ -59,6 +59,18 @@
 <title><%=WebCommonStaticFinalVars.USER_WEBSITE_TITLE%></title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="/bootstrap/3.3.7/css/bootstrap.css">
+<style>
+	textarea {
+	  /* margin:0px 0px; this is redundant anyways since its specified below*/
+	  padding-top:10px;
+	  padding-bottom:25px; /* increased! */
+	  /* height:16px; */
+	  /* line-height:16px; */
+	  width:100%; /* changed from 96 to 100% */
+	  display:block;
+	  /* margin:0px auto; not needed since i have width 100% now */
+	}
+</style>
 <!-- jQuery library -->
 <script src="/jquery/3.3.1/jquery.min.js"></script>
 <!-- Latest compiled JavaScript -->
@@ -99,7 +111,7 @@
 	
 	
 	function save() {		
-		var f = document.frm;		
+		var f = document.writeInputFrm;		
 		
 		if ('' == f.subject.value) {
 			alert("제목을 넣어 주세요.");
@@ -155,7 +167,7 @@
 	}
 %>
 
-		var g = document.writefrm;		
+		var g = document.writeProcessFrm;		
 		var sourceNewFileListDivNode = document.getElementById('sourceNewFileListDiv');	
 			
 		for (var i=0; i < sourceNewFileListDivNode.childNodes.length; i++) {				
@@ -285,20 +297,14 @@
 		return attachedFileRowDiv;
 	}
 	
-	function acitveWritePage() {
-		var listPartViewObj = document.getElementById('listPartView');	
-		var writePartViewObj = document.getElementById('writePartView');
-		
-		listPartViewObj.style.display = "none";
-		writePartViewObj.style.display = "block";
+	function showWritePart() {	
+		var writePartObj = document.getElementById('writePart');
+		writePartObj.style.display = "block";
 	}
 	
-	function activeListPage() {
-		var listPartViewObj = document.getElementById('listPartView');	
-		var writePartViewObj = document.getElementById('writePartView');
-		
-		listPartViewObj.style.display = "block";
-		writePartViewObj.style.display = "none";
+	function closeWritePart() {	
+		var writePartObj = document.getElementById('writePart');
+		writePartObj.style.display = "none";
 	}
 		
 	function removeNewAttachFile(divIdName) {
@@ -329,7 +335,7 @@
 		    return;
 		}
 	
-		var g = document.listfrm;
+		var g = document.listwriteInputFrm;
 		g.pageNo.value = pageNo;
 		g.sessionkeyBase64.value = getSessionkeyBase64();
 		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
@@ -348,8 +354,17 @@
 			hiddenFrameObj.style.display = "none";
 		}
 	}
+	
+	function expandTextarea(id) {
+	    document.getElementById(id).addEventListener('keyup', function() {
+	        this.style.overflow = 'hidden';
+	        this.style.height = 0;
+	        this.style.height = this.scrollHeight + 'px';
+	    }, false);
+	}
 
 	function init() {
+		expandTextarea('contentsInWritePart');
 	}
 	
 	window.onload = init;
@@ -369,7 +384,7 @@
 <input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 </form>
 
-<form name=listfrm method="post" action="/servlet/BoardList">
+<form name=listwriteInputFrm method="post" action="/servlet/BoardList">
 <input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />
 <input type="hidden" name="pageNo" />
 <input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
@@ -384,47 +399,47 @@
 	if (PermissionType.MEMBER.equals(boardWritePermissionType)) {
 		if (isUserLoginedIn) {
 %>
-			<button type="button" class="btn btn-primary btn-sm" onClick="acitveWritePage();">글 작성하기</button><%
+					<button type="button" class="btn btn-primary btn-sm" onClick="showWritePart();">글 작성하기</button><%
 		}
 	} else if (PermissionType.ADMIN.equals(boardWritePermissionType)) {
 		MemberRoleType memberRoleType = getMemberRoleTypeFromHttpSession(request);
 		if (MemberRoleType.ADMIN.equals(memberRoleType)) {
 %>
-			<button type="button" class="btn btn-primary btn-sm" onClick="acitveWritePage();">글 작성하기</button><%			
+					<button type="button" class="btn btn-primary btn-sm" onClick="showWritePart();">글 작성하기</button><%			
 		}
 	} else {
 		/** 손님 허용 */
 %>
-			<button type="button" class="btn btn-primary btn-sm" onClick="acitveWritePage();">글 작성하기</button><%
+					<button type="button" class="btn btn-primary btn-sm" onClick="showWritePart();">글 작성하기</button><%
 	}
 %>
-			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>
-		</div>			 
-		<div id="resultMessageView"></div>
-		<br>
-		<div id="listPartView">
-			<div class="row">
-				<div class="col-sm-1" style="background-color:lavender;">번호</div>
-				<div class="col-sm-3" style="background-color:lavender;">제목</div>
-				<div class="col-sm-2" style="background-color:lavender;">작성자</div>
-				<div class="col-sm-1" style="background-color:lavender;">조회수</div>
-				<div class="col-sm-1" style="background-color:lavender;">추천수</div>
-				<div class="col-sm-2" style="background-color:lavender;">최초 작성일</div>
-				<div class="col-sm-2" style="background-color:lavender;">마지막 수정일</div>
-			</div><%
+					<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>
+				</div>			 
+				<div id="resultMessageView"></div>
+				<br>
+				<div id="listPartView">
+					<div class="row">
+						<div class="col-sm-1" style="background-color:lavender;">번호</div>
+						<div class="col-sm-3" style="background-color:lavender;">제목</div>
+						<div class="col-sm-2" style="background-color:lavender;">작성자</div>
+						<div class="col-sm-1" style="background-color:lavender;">조회수</div>
+						<div class="col-sm-1" style="background-color:lavender;">추천수</div>
+						<div class="col-sm-2" style="background-color:lavender;">최초 작성일</div>
+						<div class="col-sm-2" style="background-color:lavender;">마지막 수정일</div>
+					</div><%
 			List<BoardListRes.Board> boardList = boardListRes.getBoardList();
 			if (null == boardList || boardList.isEmpty()) {
 		%>
-			<div class="row">
-				<div class="col-sm-12" align="center">조회 결과가 없습니다</div>
-			</div><%
+					<div class="row">
+						<div class="col-sm-12" align="center">조회 결과가 없습니다</div>
+					</div><%
 			} else {
 				for (BoardListRes.Board board : boardList) {
 					int depth = board.getDepth();
 		%>
-			<div class="row">
-				<div class="col-sm-1"><%=board.getBoardNo()%></div>
-				<div class="col-sm-3"><%
+					<div class="row">
+						<div class="col-sm-1"><%=board.getBoardNo()%></div>
+						<div class="col-sm-3"><%
 				if (depth > 0) {
 					for (int i=0; i < depth; i++) {
 						out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -432,12 +447,12 @@
 					out.print("ㄴ");
 				}
 %><a href="#" onClick="goDetailPage('<%=board.getBoardNo()%>')"><%=StringEscapeActorUtil.replace(board.getSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></a></div>
-				<div class="col-sm-2"><%=StringEscapeActorUtil.replace(board.getWriterNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
-				<div class="col-sm-1"><%= board.getViewCount() %></div>
-				<div class="col-sm-1"><%= board.getVotes() %></div>
-				<div class="col-sm-2"><%= board.getRegisteredDate() %></div>
-				<div class="col-sm-2"><%= board.getLastModifiedDate() %></div>
-			</div><%
+						<div class="col-sm-2"><%=StringEscapeActorUtil.replace(board.getWriterNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
+						<div class="col-sm-1"><%= board.getViewCount() %></div>
+						<div class="col-sm-1"><%= board.getVotes() %></div>
+						<div class="col-sm-2"><%= board.getRegisteredDate() %></div>
+						<div class="col-sm-2"><%= board.getLastModifiedDate() %></div>
+					</div><%
 		}
 	}
 
@@ -452,14 +467,14 @@
 				(boardListRes.getTotal() + pageSize - 1) / pageSize);
 
 %>
-			<ul class="pagination pagination-sm"><%
+					<ul class="pagination pagination-sm"><%
 
 		if (startPageNo > 1) {
 %>
-				<li class="previous"><a href="#" onClick="goListPage('<%= startPageNo-1 %>')">이전</a></li><%
+						<li class="previous"><a href="#" onClick="goListPage('<%= startPageNo-1 %>')">이전</a></li><%
 		} else {
 %>
-				<li class="disabled previous"><a href="#">이전</a></li><%			
+						<li class="disabled previous"><a href="#">이전</a></li><%			
 		}
 
 		for (int i=0; i < WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE; i++) {
@@ -468,74 +483,67 @@
 
 			if (workingPageNo == pageNo) {
 %>
-				<li class="active"><a href="#"><%= workingPageNo %></a></li><%
+						<li class="active"><a href="#"><%= workingPageNo %></a></li><%
 			} else {
 %>
-				<li><a href="#" onClick="goListPage('<%= workingPageNo %>')"><%= workingPageNo %></a></li><%
+						<li><a href="#" onClick="goListPage('<%= workingPageNo %>')"><%= workingPageNo %></a></li><%
 			}				
 		}
 		
 		if (startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE <= endPageNo) {
 %>
-				<li class="next"><a href="#" onClick="goListPage('<%=startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE%>')">다음</a></li><%
+						<li class="next"><a href="#" onClick="goListPage('<%=startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE%>')">다음</a></li><%
 		} else {
 %>
-				<li class="disabled next"><a href="#">다음</a></li><%
+						<li class="disabled next"><a href="#">다음</a></li><%
 		}
 %>
-			</ul><%		
+					</ul><%		
 	}
 %>	
-		</div>
-		<div id="writePartView" style="display:none">
-			<form name="frm" enctype="multipart/form-data" method="post" action="/servlet/BoardWriteProcess" onsubmit="return false;">
-			<div class="form-group">	
-				<label for="subject">제목</label>
-				<input type="text" name="subject" class="form-control" placeholder="Enter subject" />
-				<br>
-				<label for="content">내용</label>
-				<textarea name="contents" class="form-control" placeholder="Enter contents" rows="5"></textarea><%
-	if (! isUserLoginedIn) {
-%>
-				<br>
-				<label for="content">게시글 비밀번호</label>
-				<input type="password" class="form-control" placeholder="Enter password" name="pwd"><%		
-	}
-%>
-				<br>
-				<div class="btn-group">
-					<input type="button" class="btn btn-default" onClick="save();" value="저장" />
-					<input type="button" class="btn btn-default" onClick="activeListPage();" value="목록으로" />
-					<input type="button" class="btn btn-default" onClick="addNewAttachFile();" value="첨부 파일 추가" />
 				</div>
-				<br>
-				<br>							
-			</div>
-		</form>
-		<form name="writefrm" enctype="multipart/form-data" method="post" target="hiddenFrame" action="/servlet/BoardWriteProcess">
-			<div class="form-group">
-				<input type="hidden" name="boardID" value="<%= boardListRes.getBoardID() %>" />
-				<input type="hidden" name="subject" />
-				<input type="hidden" name="contents" /><%
+				<div id="writePart" style="display:none">
+					<form name="writeInputFrm" enctype="multipart/form-data" method="post" action="/servlet/BoardWriteProcess" onsubmit="return false;">
+						<div class="form-group">	
+							<label for="subject">제목</label>
+							<input type="text" name="subject" class="form-control" placeholder="Enter subject" />
+							<label for="content">내용</label>
+							<textarea name="contents" id="contentsInWritePart" class="form-control" placeholder="Enter contents" rows="5"></textarea><%
 	if (! isUserLoginedIn) {
 %>
-				<input type="hidden" name="pwd" /><%
+							<label for="content">게시글 비밀번호</label>
+							<input type="password" class="form-control" placeholder="Enter password" name="pwd"><%		
 	}
 %>
-				<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-				<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />					
-				<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
-				<div id="sourceNewFileListDiv"></div>
-			</div>
-		</form>
+														
+						</div>
+					</form>
+					<div class="btn-group">
+						<input type="button" class="btn btn-default" onClick="save();" value="저장" />					
+						<input type="button" class="btn btn-default" onClick="addNewAttachFile();" value="첨부 파일 추가" />
+						<input type="button" class="btn btn-default" onClick="closeWritePart();" value="닫기" />
+					</div>
+					<form name="writeProcessFrm" enctype="multipart/form-data" method="post" target="hiddenFrame" action="/servlet/BoardWriteProcess">
+						<div class="form-group">
+							<input type="hidden" name="boardID" value="<%= boardListRes.getBoardID() %>" />
+							<input type="hidden" name="subject" />
+							<input type="hidden" name="contents" /><%
+	if (! isUserLoginedIn) {
+%>
+							<input type="hidden" name="pwd" /><%
+	}
+%>
+							<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+							<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />					
+							<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
+							<div id="sourceNewFileListDiv"></div>
+						</div>
+					</form>				
+				</div>
+				<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>		
+			</div>			
 		</div>
-			</div>
-		</div>
-	
-				
-		
-	</div>	
-	<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
+	</div>
 </div>
 </body>
 </html>
