@@ -383,6 +383,13 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 					, null // nativeItemCharset
 					, childNode$2MiddleWritableObject);
 
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "isBoardPassword"
+					, kr.pe.codda.common.type.SingleItemType.BOOLEAN // itemType
+					, childNode$2.getIsBoardPassword() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, childNode$2MiddleWritableObject);
+
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileCnt"
 					, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
 					, childNode$2.getAttachedFileCnt() // itemValue

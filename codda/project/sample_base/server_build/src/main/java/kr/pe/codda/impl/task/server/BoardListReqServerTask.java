@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record13;
-import org.jooq.Record2;
 import org.jooq.Record3;
 import org.jooq.Record8;
 import org.jooq.Result;
@@ -93,10 +92,17 @@ public class BoardListReqServerTask extends AbstractServerTask {
 		try {
 			ValueChecker.checkValidBoardID(boardListReq.getBoardID());
 		} catch (IllegalArgumentException e) {
-			String errorMessage = "잘못된 게시판 식별자입니다";
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
-				
+		
+		
+		try {
+			ValueChecker.checkValidPageNoAndPageSize(boardListReq.getPageNo(), boardListReq.getPageSize());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}				
 		
 		
 		final UByte boardID = UByte.valueOf(boardListReq.getBoardID());		
@@ -210,8 +216,8 @@ public class BoardListReqServerTask extends AbstractServerTask {
 						.and(a.GROUP_NO.eq(d.field(SB_BOARD_TB.GROUP_NO)))
 						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");
 			} else {
-				Table<Record2<UByte, UInteger>> d = create.select(a.BOARD_ID, a.BOARD_NO)
-						.from(a.forceIndex("primary")).where(a.BOARD_ID.eq(boardID))
+				Table<Record3<UByte, UInteger, UInteger>> d = create.select(a.BOARD_ID, a.PARENT_NO, a.BOARD_NO)
+						.from(a.forceIndex("sb_board_idx2")).where(a.BOARD_ID.eq(boardID))
 						.and(a.PARENT_NO.eq(UInteger.valueOf(0)))
 						.and(a.BOARD_ST.eq(BoardStateType.OK.getValue()))						
 						.orderBy(a.BOARD_NO.desc())
@@ -221,6 +227,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 						.select(a.BOARD_ID, a.BOARD_NO, a.GROUP_NO, a.GROUP_SQ, a.PARENT_NO, a.DEPTH, a.VIEW_CNT,
 								a.BOARD_ST)
 						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))
+						.and(a.PARENT_NO.eq(d.field(SB_BOARD_TB.PARENT_NO)))
 						.and(a.BOARD_NO.eq(d.field(SB_BOARD_TB.BOARD_NO)))
 						.asTable("a");
 			}			

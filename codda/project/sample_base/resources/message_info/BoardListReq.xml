@@ -19,6 +19,6 @@
 <desc>게시판 목록 요청 메시지</desc>
 <singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="boardID" type="unsigned byte" />
-<singleitem name="pageNo" type="unsigned short" />
+<singleitem name="pageNo" type="integer" />
 <singleitem name="pageSize" type="unsigned short" />
 </message>

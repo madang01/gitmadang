@@ -164,35 +164,44 @@
 </script>
 </head>
 <body>
-<%= getMenuNavbarString(request) %>
-<form name="addBoardInfoFrm" method="post" action="/servlet/BoardInfoAdd" target="hiddenFrame">
-	<input type="hidden" name="boardName">
-	<input type="hidden" name="boardListType">
-	<input type="hidden" name="boardReplyPolicyType">
-	<input type="hidden" name="boardWritePermissionType">
-	<input type="hidden" name="boardReplyPermissionType">
-</form>
-<form name="deleteBoardInfoFrm" method="post" action="/servlet/BoardInfoDelete" target="hiddenFrame">
-	<input type="hidden" name="boardID">
-</form>
-<form name="modifyBoardInfoFrm" method="post" action="/servlet/BoardInfoModify" target="hiddenFrame">
-	<input type="hidden" name="boardID">
-	<input type="hidden" name="boardName">
-	<input type="hidden" name="boardReplyPolicyType">
-	<input type="hidden" name="boardWritePermissionType">
-	<input type="hidden" name="boardReplyPermissionType">
-</form>
-	<div class="container-fluid">
-		<h3>게시판 정보 관리자 화면</h3>	
-		<div class="btn-group">			
-			<button type="button" class="btn btn-primary btn-sm" onClick="showAddBoardInfoModal()">Add Root</button>
-			<button type="button" class="btn btn-primary btn-sm" onClick="reload();">Reload</button>				
-			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>				
-		</div>					 
-		<div id="resultMessageView"></div>
-		<br>
-		<form name="frm">
-			<div class="form-group"><%
+	<div class=header>
+		<div class="container">
+		<%=getMenuNavbarString(request)%>
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>게시판 정보 관리자 화면</h4></div>
+				<div class="panel-body">
+					<form name="addBoardInfoFrm" method="post" action="/servlet/BoardInfoAdd" target="hiddenFrame">
+						<input type="hidden" name="boardName">
+						<input type="hidden" name="boardListType">
+						<input type="hidden" name="boardReplyPolicyType">
+						<input type="hidden" name="boardWritePermissionType">
+						<input type="hidden" name="boardReplyPermissionType">
+					</form>
+					<form name="deleteBoardInfoFrm" method="post" action="/servlet/BoardInfoDelete" target="hiddenFrame">
+						<input type="hidden" name="boardID">
+					</form>
+					<form name="modifyBoardInfoFrm" method="post" action="/servlet/BoardInfoModify" target="hiddenFrame">
+						<input type="hidden" name="boardID">
+						<input type="hidden" name="boardName">
+						<input type="hidden" name="boardReplyPolicyType">
+						<input type="hidden" name="boardWritePermissionType">
+						<input type="hidden" name="boardReplyPermissionType">
+					</form>
+					<div class="btn-group">			
+						<button type="button" class="btn btn-primary btn-sm" onClick="showAddBoardInfoModal()">Add Root</button>
+						<button type="button" class="btn btn-primary btn-sm" onClick="reload();">Reload</button>				
+						<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>				
+					</div>					 
+					<div id="resultMessageView"></div>
+					<br>
+					<form name="frm">
+						<div class="form-group">
+							<table class="table table-striped">
+								<tbody><%
 	boolean forBackgroupColor = false;
 	for (BoardInfoListRes.BoardInfo board : boardInfoListRes.getBoardInfoList()) {
 		short boardID = board.getBoardID();
@@ -214,13 +223,13 @@
 					.append("이 있습니다").toString();
 			
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("				<div class=\"row\">");
+			out.write("				<tr>");
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("				<div class=\"alert alert-warning\">");
+			out.write("				<td class=\"alert alert-warning\">");
 			out.write(errorMessage);
-			out.write("</div>");
+			out.write("</td>");
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("</div>");
+			out.write("</tr>");
 			continue;
 		}
 		
@@ -236,13 +245,13 @@
 					.append("이 있습니다").toString();
 			
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("				<div class=\"row\">");
+			out.write("				<tr>");
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("				<div class=\"alert alert-warning\">");
+			out.write("				<td class=\"alert alert-warning\">");
 			out.write(errorMessage);
-			out.write("</div>");
+			out.write("</td>");
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("</div>");
+			out.write("</tr>");
 			continue;
 		}
 		
@@ -258,13 +267,13 @@
 					.append("이 있습니다").toString();
 			
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("				<div class=\"row\">");
+			out.write("				<tr>");
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("				<div class=\"alert alert-warning\">");
+			out.write("				<td class=\"alert alert-warning\">");
 			out.write(errorMessage);
-			out.write("</div>");
+			out.write("</td>");
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("</div>");
+			out.write("</tr>");
 			continue;
 		}
 		
@@ -280,29 +289,26 @@
 					.append("이 있습니다").toString();
 			
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("				<div class=\"row\">");
+			out.write("				<tr>");
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("				<div class=\"alert alert-warning\">");
+			out.write("				<td class=\"alert alert-warning\">");
 			out.write(errorMessage);
-			out.write("</div>");
+			out.write("</td>");
 			out.write(CommonStaticFinalVars.NEWLINE);
-			out.write("</div>");
+			out.write("</tr>");
 			continue;
 		}
-%>		
-				<div class="row">
-					<div class="col-sm-1" style="background-color:lavender;">게시판 식별자 :</div>
-					<div class="col-sm-1" style="background-color:lavenderblush;"><%= boardID %></div>
-				
-					<div class="col-sm-1" style="background-color:lavender;">게시판 이름 :</div>
-					<div class="col-sm-2" style="background-color:lavenderblush;">
-						<input type="text" class="form-control" id="boardName<%=boardID %>" maxlength="30" value="<%= boardName %>">
-					</div>
-					<div class="col-sm-1" style="background-color:lavender;">게시판 목록 유형 :</div>			
-					<div class="col-sm-1" style="background-color:lavenderblush;"><%= boardListType.getName() %></div>
-				
-					<div class="col-sm-1" style="background-color:lavender;">본문 쓰기 권한 :</div>
-					<div class="col-sm-2" style="background-color:lavenderblush;"><%
+%>
+							<tr>
+								<td><strong>게시판 식별자</strong></td>
+								<td><%= boardID %></td>
+							
+								<td><strong>게시판 이름</strong></td>
+								<td>
+									<input type="text" class="form-control" id="boardName<%=boardID %>" maxlength="30" value="<%= boardName %>">
+								</td>
+								<td><strong>본문 쓰기 권한</strong></td>
+								<td><%
 		for (PermissionType permissionType  : PermissionType.values()) {
 			out.write(CommonStaticFinalVars.NEWLINE);
 			out.write("						");
@@ -319,11 +325,13 @@
 			out.write("</label>");
 		}
 %>
-					</div>			
-				</div>
-				<div class="row">				
-					<div class="col-sm-1" style="background-color:lavender;">댓글 정책 :</div>
-					<div class="col-sm-3" style="background-color:lavenderblush;"><%
+								</td>	
+								<td><strong>게시판 목록 유형</strong></td>			
+								<td><%= boardListType.getName() %></td>		
+							</tr>
+							<tr>				
+								<td><strong>댓글 정책</strong></td>
+								<td colspan="3"><%
 		for (BoardReplyPolicyType boardReplyPolicyTypeOfSet  : BoardReplyPolicyType.values()) {
 			out.write(CommonStaticFinalVars.NEWLINE);
 			out.write("						");
@@ -340,10 +348,10 @@
 			out.write("</label>");
 		}
 %>
-					</div>				
-				
-					<div class="col-sm-1" style="background-color:lavender;">댓글 쓰기 권한 :</div>
-					<div class="col-sm-2" style="background-color:lavenderblush;"><%
+								</td>				
+							
+								<td><strong>댓글 쓰기 권한</strong></td>
+								<td><%
 		for (PermissionType permissionType  : PermissionType.values()) {
 			out.write(CommonStaticFinalVars.NEWLINE);
 			out.write("						");
@@ -360,37 +368,38 @@
 			out.write("</label>");				
 		}
 %>
-					</div>
-
-					<div class="col-sm-1" style="background-color:lavender;">기능</div>
-					<div class="col-sm-2 btn-group">				
-						<button type="button" class="btn btn-primary btn-sm" onClick="deleteBoardInfo(<%= boardID %>)">delete</button>
-						<button type="button" class="btn btn-primary btn-sm" onClick="modifyBoardInfo(<%= boardID %>)">modify</button>				
-					</div>	
-				</div><%
+								</td>
+			
+								<td><strong>기능</strong></td>
+								<td>				
+									<button type="button" class="btn btn-primary btn-sm" onClick="deleteBoardInfo(<%= boardID %>)">delete</button>
+									<button type="button" class="btn btn-primary btn-sm" onClick="modifyBoardInfo(<%= boardID %>)">modify</button>				
+								</td>	
+							</tr><%
 	}
-%>
-			</div>
-		</form>
-		
-		<!-- Root Menu Modal -->
-		<div class="modal fade" id="addBoardInfoModal" role="dialog">
-			<div class="modal-dialog">			
-				<!-- Modal content-->
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4 class="modal-title">게시판 정보 추가 화면</h4>
-					</div>
-					<div class="modal-body">
-						<form name="addBoardInfoFrmOfModal" method="post" class="form-inline" onSubmit="return goAddBoardInfoFrm(this);" action="/">							
-							 <div class="form-group">
-							 	<div class="row">
-							    	<label for="menuNameForRootMenu">게시판 이름</label>
-							    	<input type="text" name="boardName" />
-							 	</div>
-							 	<div class="row">
-							 		<label for="linkURLForRootMenu">게시판 목록 유형</label><%
+%>								</tbody>
+							</table>
+						</div>
+					</form>
+					
+					<!-- Root Menu Modal -->
+					<div class="modal fade" id="addBoardInfoModal" role="dialog">
+						<div class="modal-dialog">			
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">게시판 정보 추가 화면</h4>
+								</div>
+								<div class="modal-body">
+									<form name="addBoardInfoFrmOfModal" method="post" class="form-inline" onSubmit="return goAddBoardInfoFrm(this);" action="/">							
+										 <div class="form-group">
+										 	<div class="row">
+										    	<label for="menuNameForRootMenu">게시판 이름</label>
+										    	<input type="text" name="boardName" />
+										 	</div>
+										 	<div class="row">
+										 		<label for="linkURLForRootMenu">게시판 목록 유형</label><%
 		for (BoardListType boardListType  : BoardListType.values()) {
 			out.write(CommonStaticFinalVars.NEWLINE);
 			out.write("								    ");
@@ -405,9 +414,9 @@
 			out.write("</label>");
 		}
 %>
-							 	</div>
-							 	<div class="row">
-							 		<label for="linkURLForRootMenu">댓글 정책 유형</label><%
+										 	</div>
+										 	<div class="row">
+										 		<label for="linkURLForRootMenu">댓글 정책 유형</label><%
 		for (BoardReplyPolicyType boardReplyPolicyType  : BoardReplyPolicyType.values()) {
 			out.write(CommonStaticFinalVars.NEWLINE);
 			out.write("								    ");
@@ -422,9 +431,9 @@
 			out.write("</label>");
 		}
 %>
-							 	</div>
-							 	<div class="row">
-							 		<label for="linkURLForRootMenu">본문 쓰기 권한 유형</label><%
+										 	</div>
+										 	<div class="row">
+										 		<label for="linkURLForRootMenu">본문 쓰기 권한 유형</label><%
 		for (PermissionType permissionType  : PermissionType.values()) {
 			out.write(CommonStaticFinalVars.NEWLINE);
 			out.write("								    ");
@@ -439,9 +448,9 @@
 			out.write("</label>");
 		}
 %>
-							 	</div>
-							 	<div class="row">
-							 		<label for="linkURLForRootMenu">댓글 쓰기 권한 유형</label><%
+										 	</div>
+										 	<div class="row">
+										 		<label for="linkURLForRootMenu">댓글 쓰기 권한 유형</label><%
 		for (PermissionType permissionType  : PermissionType.values()) {
 			out.write(CommonStaticFinalVars.NEWLINE);
 			out.write("								    ");
@@ -456,19 +465,21 @@
 			out.write("</label>");
 		}
 %>
-							 	</div>							 
-								<button type="submit" class="btn btn-default">추가</button>
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					</div>
-				</div>			
+										 	</div>							 
+											<button type="submit" class="btn btn-default">추가</button>
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								</div>
+							</div>			
+						</div>
+					</div>					
+					<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
+				</div>
 			</div>
 		</div>
-		
-		<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
 	</div>
 <body>
 </html>

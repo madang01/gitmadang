@@ -9,6 +9,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
 
 /**
@@ -17,7 +18,7 @@ import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
  * 
  */
 @SuppressWarnings("serial")
-public class BoardVoteSvl extends AbstractLoginServlet {
+public class BoardVoteProcessSvl extends AbstractLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -28,56 +29,23 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		String paramBoardNo = req.getParameter("boardNo");
 		/**************** 파라미터 종료 *******************/
 
-		if (null == paramBoardID) {
-			String errorMessage = "게시판 식별자 값을 넣어 주세요";
-			String debugMessage = "the web parameter 'boardID' is null";
-			log.warn(debugMessage);
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
-
-		short boardID = 0;
+		short boardID = -1;
 		try {
-			boardID = Short.parseShort(paramBoardID);
-		} catch (NumberFormatException nfe) {
-			String errorMessage = "잘못된 게시판 식별자 입니다";
-			String debugMessage = new StringBuilder(
-					"the web parameter 'boardID'[").append(paramBoardID)
-					.append("] is not a short").toString();
-			log.warn(debugMessage);
+			boardID = ValueChecker.checkValidBoardID(paramBoardID);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 
-
-		if (null == paramBoardNo) {
-			String errorMessage = "게시판 번호를 입력해 주세요";
-			String debugMessage = "the web parameter 'boardNo' is null";
-			log.warn(debugMessage);
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
 
 		long boardNo = 0L;
 		try {
-			boardNo = Long.parseLong(paramBoardNo);
-		} catch (NumberFormatException nfe) {
-			String errorMessage = "잘못된 게시판 번호입니다";
-			String debugMessage = new StringBuilder(
-					"the web parameter \"boardN\"'s value[")
-					.append(paramBoardNo).append("] is a Long").toString();
-			log.warn(debugMessage);
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
-
-		if (boardNo <= 0) {
-			String errorMessage = "게시판 번호 값은 0 보다 커야합니다.";
-			String debugMessage = new StringBuilder(
-					"the web parameter \"boardN\"'s value[")
-					.append(paramBoardNo)
-					.append("] is less than or equal to zero").toString();
-			log.warn(debugMessage);
+			boardNo = ValueChecker.checkValidBoardNo(paramBoardNo);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
@@ -97,10 +65,12 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		if (!(outputMessage instanceof MessageResultRes)) {
 
 			String errorMessage = "게시판 추천이 실패했습니다";
-			String debugMessage = String.format(
-					"입력 메시지[%s]에 대한 비 정상 출력 메시지[%s] 도착",
-					boardVoteReq.getMessageID(), outputMessage.toString());
-
+			String debugMessage = new StringBuilder("입력 메시지[")
+					.append(boardVoteReq.getMessageID())
+					.append("]에 대한 비 정상 출력 메시지[")
+					.append(outputMessage.toString())
+					.append("] 도착").toString();
+			
 			log.error(debugMessage);
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -115,7 +85,8 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 			return;
 		}
 
-		printJspPage(req, res, "/jsp/community/BoardVote.jsp");
+		req.setAttribute("boardNo", paramBoardNo);
+		printJspPage(req, res, "/jsp/community/BoardVoteProcess.jsp");
 		return;
 	}
 

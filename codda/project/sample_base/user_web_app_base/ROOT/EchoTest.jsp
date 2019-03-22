@@ -1,12 +1,12 @@
-<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%>
-<%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%>
-<%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%>
-<%@page import="kr.pe.codda.client.ConnectionPoolManager"%>
-<%@page import="kr.pe.codda.client.AnyProjectConnectionPoolIF"%>
-<%@page import="kr.pe.codda.weblib.htmlstring.HtmlStringUtil"%>
-<%@page import="kr.pe.codda.common.message.AbstractMessage"%>
-<%@page import="kr.pe.codda.impl.message.Echo.Echo"%>
-<%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+<%@page import="kr.pe.codda.impl.classloader.ClientMessageCodecManger"%><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
+%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
+%><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%
+%><%@page import="kr.pe.codda.client.ConnectionPoolManager"%><%
+%><%@page import="kr.pe.codda.client.AnyProjectConnectionPoolIF"%><%
+%><%@page import="kr.pe.codda.common.message.AbstractMessage"%><%
+%><%@page import="kr.pe.codda.impl.message.Echo.Echo"%><%
+%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 	String errorMessage = null;
 	long erraseTime = 0;
 	boolean isSuccess=false;
@@ -21,7 +21,7 @@
 	echoInObj.setRandomInt(random.nextInt());
 	echoInObj.setStartTime(new java.util.Date().getTime());
 	
-	AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(echoInObj);
+	AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), echoInObj);
 	
 	boolean isSame = false;
 	
@@ -67,9 +67,16 @@
 </script>
 </head>
 <body>
-<%=getMenuNavbarString(request)%>
-<div class="container-fluid">
-		<h2>에코 테스트</h2><%
+	<div class=header>
+		<div class="container">
+<%= getMenuNavbarString(request) %>
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading">에코 테스트</div>
+				<div class="panel-body"><%
 			if (null != errorMessage) {
 		%><%=StringEscapeActorUtil.replace(errorMessage, 
 		STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
@@ -111,6 +118,10 @@
 </div><%
 	}
 %>
+					 
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

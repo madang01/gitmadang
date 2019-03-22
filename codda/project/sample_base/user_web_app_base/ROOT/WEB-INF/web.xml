@@ -289,20 +289,6 @@
 		<url-pattern>/servlet/JavaStringConverterProcess</url-pattern>
 	</servlet-mapping>
 	
-	<!-- 게시글 추천 -->
-	<servlet>
-		<servlet-name>BoardVote</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.BoardVoteSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/BoardList</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>BoardVote</servlet-name>
-		<url-pattern>/servlet/BoardVote</url-pattern>
-	</servlet-mapping>
-	
 	<!-- 게시판 목록 -->
 	<servlet>
 		<servlet-name>BoardList</servlet-name>
@@ -386,6 +372,48 @@
 	<servlet-mapping>
 		<servlet-name>BoardModifyProcess</servlet-name>
 		<url-pattern>/servlet/BoardModifyProcess</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 게시글 수정 이력 조회 -->
+	<servlet>
+		<servlet-name>BoardChangeHistory</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.BoardChangeHistorySvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardChangeHistory</servlet-name>
+		<url-pattern>/servlet/BoardChangeHistory</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 게시글 추천 -->
+	<servlet>
+		<servlet-name>BoardVote</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.BoardVoteProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardVote</servlet-name>
+		<url-pattern>/servlet/BoardVoteProcess</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 게시글 삭제 처리 -->
+	<servlet>
+		<servlet-name>BoardDeleteProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.BoardDeleteProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardDeleteProcess</servlet-name>
+		<url-pattern>/servlet/BoardDeleteProcess</url-pattern>
 	</servlet-mapping>
 
 	<!-- 첨부 파일 내려받기 -->

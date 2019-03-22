@@ -80,6 +80,20 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		log.info(boardVoteReq.toString());	
 		
 		try {
+			ValueChecker.checkValidBoardID(boardVoteReq.getBoardID());
+		} catch(RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidBoardNo(boardVoteReq.getBoardNo());
+		} catch(RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
 			ValueChecker.checkValidUserID(boardVoteReq.getRequestedUserID());
 		} catch(RuntimeException e) {
 			String errorMessage = e.getMessage();
@@ -138,7 +152,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("자신의 글[")
-						.append(boardVoteReq.getBoardNo())
+						.append(boardNo)
 						.append("]은 본인 스스로 추천할 수 없습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -161,7 +175,8 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			}
 			
 			int countOfInsert = create.insertInto(SB_BOARD_VOTE_TB)
-			.set(SB_BOARD_VOTE_TB.BOARD_NO, UInteger.valueOf(boardVoteReq.getBoardNo()))
+					.set(SB_BOARD_VOTE_TB.BOARD_ID, boardID)
+			.set(SB_BOARD_VOTE_TB.BOARD_NO, boardNo)
 			.set(SB_BOARD_VOTE_TB.USER_ID, boardVoteReq.getRequestedUserID())
 			.set(SB_BOARD_VOTE_TB.IP, boardVoteReq.getIp())
 			.set(SB_BOARD_VOTE_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))

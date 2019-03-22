@@ -1,5 +1,6 @@
 <%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+	request.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL, "/jsp/doc/CoddaHowTo.jsp");
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -20,14 +21,24 @@
 	window.onload = init;
 </script>
 <body>
-	<%=getMenuNavbarString(request)%>
-	<div class="container-fluid">
-		<h3>Codda HowTo</h3>
-		(1) 설치전 확인 사항
-	    (2) git download
-		(3) codda-helper.jar 이용 설치 디렉토리에 맞춘 환경 설정
-		(4) ant 실행
-		(5) eclipse 환경 구축
+	<div class=header>
+		<div class="container">
+		<%=getMenuNavbarString(request)%>
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>Codda HowTo</h4></div>
+				<div class="panel-body">
+					<article style="white-space:pre-line;">(1) 설치전 확인 사항
+	(2) git download
+	(3) codda-helper.jar 이용 설치 디렉토리에 맞춘 환경 설정
+	(4) ant 실행
+	(5) eclipse 환경 구축</article>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

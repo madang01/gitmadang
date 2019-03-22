@@ -12,10 +12,10 @@ import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.codda.weblib.jdf.AbstractSessionKeyServlet;
+import kr.pe.codda.weblib.jdf.AbstractServlet;
 
 @SuppressWarnings("serial")
-public class BoardListSvl extends AbstractSessionKeyServlet {
+public class BoardListSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -34,27 +34,24 @@ public class BoardListSvl extends AbstractSessionKeyServlet {
 			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}
+		}		
 		
-		int pageNo = 1;
+		int pageNo = -1;
 		try {
-			pageNo = ValueChecker.checkValidPageNo(paramPageNo);
+			pageNo = ValueChecker.checkValidPageNoAndPageSize(paramPageNo, WebCommonStaticFinalVars.WEBSITE_BOARD_LIST_SIZE_PER_PAGE);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-		
-		// int pageSize = 20;		
+				
 		
 		BoardListReq boardListReq = new BoardListReq();
 		boardListReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
 		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(WebCommonStaticFinalVars.WEBSITE_BOARD_LIST_SIZE_PER_PAGE);
-		// boardListReq.setPageOffset((pageNo - 1) * WebCommonStaticFinalVars.WEBSITE_BOARD_LIST_SIZE_PER_PAGE);
-		// boardListReq.setPageLength(WebCommonStaticFinalVars.WEBSITE_BOARD_LIST_SIZE_PER_PAGE);
 				
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), boardListReq);

@@ -193,48 +193,57 @@
 </script>
 </head>
 <body>
-<%=getMenuNavbarString(request)%>
-	
-	<div class="container-fluid">
-		<h3>관리자 로그인</h3>
-		<div id="resultMessageView"></div>
-		<div class="btn-group">
-			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
+	<div class=header>
+		<div class="container">
+		<%=getMenuNavbarString(request)%>
 		</div>
-		<form method="post" name="gofrm" target="hiddenFrame" action="/servlet/AdminLoginProcess">
-			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
-			<input type="hidden" name="userID" />
-			<input type="hidden" name="pwd" />
-		</form>
-		<form method="post" name="successURLfrm" action="<%= requestURI %>">
-			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-			<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" /><%
-	Enumeration<String> parmEnum = request.getParameterNames();
-	while(parmEnum.hasMoreElements()) {
-		String parmKey = parmEnum.nextElement();
-		String parmValue = request.getParameter(parmKey);
-				
-		if (parmKey.equals(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY) ||
-			parmKey.equals(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)) {
-			continue;
-		}
-%>
-			<textarea style="visibility:hidden;" name="<%= StringEscapeUtils.escapeHtml4(parmKey) %>"><%= StringEscapeUtils.escapeHtml4(parmValue) %></textarea><%
-			}
-		%>
-		</form><br>
-		<form method="post" name="frm" onsubmit="submitGoFormIfValid(); return false;">
-			<div class="form-group">
-				<label for="userID">관리자 아이디:</label>
-				<input type="text" class="form-control" id="userID" placeholder="Enter admin's id" name="userID">
-				<br>
-				<label for="pwd">비빌번호:</label>
-				<input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
-			</div>
-			<button type="submit" class="btn btn-default">Submit</button>		
-		</form>
 	</div>
-	<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>관리자 로그인</h4></div>
+				<div class="panel-body">
+					<div id="resultMessageView"></div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
+					</div>
+					<form method="post" name="gofrm" target="hiddenFrame" action="/servlet/AdminLoginProcess">
+						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
+						<input type="hidden" name="userID" />
+						<input type="hidden" name="pwd" />
+					</form>
+					<form method="post" name="successURLfrm" action="<%= requestURI %>">
+						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" /><%
+				Enumeration<String> parmEnum = request.getParameterNames();
+				while(parmEnum.hasMoreElements()) {
+					String parmKey = parmEnum.nextElement();
+					String parmValue = request.getParameter(parmKey);
+							
+					if (parmKey.equals(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY) ||
+						parmKey.equals(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV)) {
+						continue;
+					}
+			%>
+						<textarea style="visibility:hidden;" name="<%= StringEscapeUtils.escapeHtml4(parmKey) %>"><%= StringEscapeUtils.escapeHtml4(parmValue) %></textarea><%
+						}
+					%>
+					</form><br>
+					<form method="post" name="frm" onsubmit="submitGoFormIfValid(); return false;">
+						<div class="form-group">
+							<label for="userID">관리자 아이디:</label>
+							<input type="text" class="form-control" id="userID" placeholder="Enter admin's id" name="userID">
+							<br>
+							<label for="pwd">비빌번호:</label>
+							<input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
+						</div>
+						<button type="submit" class="btn btn-default">Submit</button>		
+					</form>
+					<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>	
 </body>
 </html>

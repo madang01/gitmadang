@@ -404,6 +404,14 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, childNode$2MiddleWritableObject));
 
+			childNode$2.setIsBoardPassword((java.lang.Boolean)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "isBoardPassword" // itemName
+				, kr.pe.codda.common.type.SingleItemType.BOOLEAN // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, childNode$2MiddleWritableObject));
+
 			childNode$2.setAttachedFileCnt((Integer)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "attachedFileCnt" // itemName

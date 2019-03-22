@@ -16,11 +16,11 @@ import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record14;
+import org.jooq.Record10;
+import org.jooq.Record15;
 import org.jooq.Record17;
 import org.jooq.Record3;
 import org.jooq.Record4;
-import org.jooq.Record9;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.Table;
@@ -29,7 +29,6 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -46,6 +45,7 @@ import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -92,12 +92,28 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 	public BoardDetailRes doWork(String dbcpName, BoardDetailReq boardDetailReq) throws Exception {
 		// FIXME!
 		log.info(boardDetailReq.toString());
-
-		if (boardDetailReq.getBoardNo() < 0
-				|| boardDetailReq.getBoardNo() > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
-			String errorMessage = "unsinged integer 를 벗어난 게시판 번호입니다";
+		
+		try {
+			ValueChecker.checkValidRequestedUserID(boardDetailReq.getRequestedUserID());
+		} catch(RuntimeException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+
+		try {
+			ValueChecker.checkValidBoardID(boardDetailReq.getBoardID());
+		} catch(RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidBoardNo(boardDetailReq.getBoardNo());
+		} catch(RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
 
 		UByte boardID = UByte.valueOf(boardDetailReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardDetailReq.getBoardNo());
@@ -140,7 +156,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			Record4<String, Byte, Byte, Byte> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
 							SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE)
-					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).forUpdate().fetchOne();
+					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne();
 
 			if (null == boardInforRecord) {
 				try {
@@ -300,18 +316,19 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 						.and(a.BOARD_NO.notEqual(boardNo))
 						.asTable("d");
 
-				Table<Record9<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String, UByte>> mainTable = create
+				Table<Record10<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String, UByte, String>> mainTable = create
 						.select(a.BOARD_ID, a.BOARD_NO, a.GROUP_NO, a.GROUP_SQ, a.PARENT_NO, a.DEPTH, a.VIEW_CNT,
-								a.BOARD_ST, a.NEXT_ATTACHED_FILE_SQ)
+								a.BOARD_ST, a.NEXT_ATTACHED_FILE_SQ, a.PWD_BASE64)
 						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))
 						.and(a.GROUP_NO.eq(d.field(SB_BOARD_TB.GROUP_NO)))
 						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");				
 
-				Result<Record14<UInteger, UShort, UInteger, UByte, String, UByte, Object, String, Timestamp, String, Object, Timestamp, String, Object>> childBoardResult = create
+				Result<Record15<UInteger, UShort, UInteger, UByte, String, UByte, String, Object, String, Timestamp, String, Object, Timestamp, String, Object>> childBoardResult = create
 						.select(mainTable.field(SB_BOARD_TB.BOARD_NO), mainTable.field(SB_BOARD_TB.GROUP_SQ),
 								mainTable.field(SB_BOARD_TB.PARENT_NO), mainTable.field(SB_BOARD_TB.DEPTH),
 								mainTable.field(SB_BOARD_TB.BOARD_ST),
 								mainTable.field(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ),
+								mainTable.field(SB_BOARD_TB.PWD_BASE64),
 								create.selectCount().from(SB_BOARD_VOTE_TB)
 								.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
 								.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
@@ -343,6 +360,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					UByte childDepth = childBoardRecord.get(SB_BOARD_TB.DEPTH);
 					String childBoardState = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 					UByte childNextAttachedFileSeq = childBoardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
+					String childPasswordBase64 = childBoardRecord.getValue(SB_BOARD_TB.PWD_BASE64);
 					int childVotes = childBoardRecord.get("votes", Integer.class);
 					String childContents = childBoardRecord.get(SB_BOARD_HISTORY_TB.CONTENTS);
 					Timestamp childLastModifedDate = childBoardRecord.get("last_modified_date", Timestamp.class);
@@ -351,6 +369,8 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					Timestamp childFirstRegisteredDate = childBoardRecord.get("first_registered_date", Timestamp.class);
 					String childFirstWriterID = childBoardRecord.get("first_writer_id", String.class);
 					String childFirstWriterNickname = childBoardRecord.get("first_writer_nickname", String.class);
+					
+					boolean childIsBoardPassword = (null != childPasswordBase64);
 
 					BoardDetailRes.ChildNode childNode = new BoardDetailRes.ChildNode();
 					childNode.setBoardNo(childBoardNo.longValue());
@@ -367,12 +387,13 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					childNode.setLastModifierNickName(childLastModifierNickName);
 					childNode.setLastModifiedDate(childLastModifedDate);
 					childNode.setNextAttachedFileSeq(childNextAttachedFileSeq.shortValue());
+					childNode.setIsBoardPassword(childIsBoardPassword);
 
 					List<BoardDetailRes.ChildNode.AttachedFile> childAttachedFileList = new ArrayList<BoardDetailRes.ChildNode.AttachedFile>();
 
 					Result<Record> attachFileListRecord = create.select().from(SB_BOARD_FILELIST_TB)
 							.where(SB_BOARD_FILELIST_TB.BOARD_ID.eq(boardID))
-							.and(SB_BOARD_FILELIST_TB.BOARD_NO.eq(boardNo)).fetch();
+							.and(SB_BOARD_FILELIST_TB.BOARD_NO.eq(childBoardNo)).fetch();
 
 					for (Record attachFileRecord : attachFileListRecord) {
 						BoardDetailRes.ChildNode.AttachedFile attachedFile = new BoardDetailRes.ChildNode.AttachedFile();

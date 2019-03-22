@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.Record2;
-import org.jooq.Record3;
+import org.jooq.Record4;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
@@ -187,9 +187,9 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			Record3<UShort, UInteger, String> 
+			Record4<UShort, UInteger, UByte, String> 
 			boardRecord = create.select(SB_BOARD_TB.GROUP_SQ, 
-					SB_BOARD_TB.PARENT_NO,
+					SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH,
 					SB_BOARD_TB.BOARD_ST)
 					.from(SB_BOARD_TB)					
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
@@ -210,7 +210,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			
 			UShort groupSeq = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-			// UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
+			UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
 			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);			
 			
 			BoardStateType boardStateType = null;
@@ -250,7 +250,8 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			}
 			
 			UShort fromGroupSeq = groupSeq;
-			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupSeq, parentNo);
+			// UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupSeq, parentNo);
+			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNo, groupSeq, depth);
 			
 			int updateCount = create.update(SB_BOARD_TB)
 			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.BLOCK.getValue())

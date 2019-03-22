@@ -50,39 +50,47 @@
 </script>
 </head>
 <body>
-<%=getMenuNavbarString(request)%>
-	
-	<div class="container-fluid">
-		<h2>JDF 테스트 - 세션키</h2>
- 
-<div class="row">
-	<div class="col-sm-12" style="background-color:lavender;"><h4>설명</h4></div>
-</div>
-<div class="row">
-	<div class="col-sm-12"> 이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
-일반 사용자용 사이트에서 세션키가 필요한 서블릿은 AbstractSessionKeyServlet 를 상속 받습니다.<br>
-AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요구하며<br/>
-세션키 운영에 필요한 파라미터가 없다면 파라미터 값들을 보존하며 세션키에 해당하는 파라미터 값들을 자동적으로 가져오는 페이지를 통해 가져옵니다.<br/>
-자동으로 가져올때 만약 HTML5 sessionStorage 에 세션키 운영에 필요한 값이 없다면 생성합니다.<br/>
-주) 파라미터 값들을 보존할때 암호화를 하지 않습니다.<br/>
-일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
-이 페이지는 일반 사용자 사이트의 세션키가 필요한 페이지로써 JDFSessionKeyTestSvl.java + JDFSessionKeyTest.jsp 로 구성되어있습니다.</div>
-</div>
-
-<div class="row">
-	<div class="col-sm-12">&nbsp;</div>
-</div>
-
-<div class="row">
-	<div class="col-sm-6" style="background-color:lavender;"><h4>원문</h4></div>
-	<div class="col-sm-6" style="background-color:lavenderblush;"><h4>복호문</h4></div>
-</div>
-<div class="row">
-	<div class="col-sm-6" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(orignalMessage, 
-			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
-	<div class="col-sm-6" style="background-color:lavenderblush;" id="idTxtResultMessage"></div>
-</div>
+	<div class=header>
+		<div class="container">
+		<%=getMenuNavbarString(request)%>
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>JDF 테스트 - 세션키</h4></div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-sm-12" style="background-color:lavender;"><h4>설명</h4></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12"> 이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
+					일반 사용자용 사이트에서 세션키가 필요한 서블릿은 AbstractSessionKeyServlet 를 상속 받습니다.<br>
+					AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요구하며<br/>
+					세션키 운영에 필요한 파라미터가 없다면 파라미터 값들을 보존하며 세션키에 해당하는 파라미터 값들을 자동적으로 가져오는 페이지를 통해 가져옵니다.<br/>
+					자동으로 가져올때 만약 HTML5 sessionStorage 에 세션키 운영에 필요한 값이 없다면 생성합니다.<br/>
+					주) 파라미터 값들을 보존할때 암호화를 하지 않습니다.<br/>
+					일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
+					이 페이지는 일반 사용자 사이트의 세션키가 필요한 페이지로써 JDFSessionKeyTestSvl.java + JDFSessionKeyTest.jsp 로 구성되어있습니다.</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-12">&nbsp;</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-6" style="background-color:lavender;"><h4>원문</h4></div>
+						<div class="col-sm-6" style="background-color:lavenderblush;"><h4>복호문</h4></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(orignalMessage, 
+								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+								STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
+						<div class="col-sm-6" style="background-color:lavenderblush;" id="idTxtResultMessage"></div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

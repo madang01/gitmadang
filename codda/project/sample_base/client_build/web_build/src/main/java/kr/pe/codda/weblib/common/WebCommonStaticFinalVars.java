@@ -79,7 +79,7 @@ public abstract class WebCommonStaticFinalVars {
 	
 	public static final short UPLOAD_FILENAME_SEQ_TYPE_ID = 1;
 	
-	public static final char[] FILENAME_FORBIDDEN_CHARS = {'/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
+	public static final char[] FILENAME_FORBIDDEN_CHARS = {'&', '/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
 	
 	
 	public static final String USER_WEBSITE_MENU_INFO_FILE = "userWebsiteMenuInfo.txt";
@@ -114,4 +114,9 @@ public abstract class WebCommonStaticFinalVars {
 	
 	/** 게시판 내용 최소 문자수 */
 	public static final int MIN_NUMBER_OF_CONTENTS_CHARRACTERS = 2;
+	
+	/** 게시판 이름 최소 문자수 */
+	public static final int MIN_NUMBER_OF_BOARDNAME_CHARRACTERS = 2;
+	/** 게시판 이름 최대 문자수 */
+	public static final int MAX_NUMBER_OF_BOARDNAME_CHARRACTERS = 10;
 }

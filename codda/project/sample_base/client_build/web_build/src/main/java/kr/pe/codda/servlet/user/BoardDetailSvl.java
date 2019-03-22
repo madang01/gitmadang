@@ -11,10 +11,10 @@ import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.ValueChecker;
-import kr.pe.codda.weblib.jdf.AbstractSessionKeyServlet;
+import kr.pe.codda.weblib.jdf.AbstractServlet;
 
 @SuppressWarnings("serial")
-public class BoardDetailSvl extends AbstractSessionKeyServlet {
+public class BoardDetailSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -23,7 +23,6 @@ public class BoardDetailSvl extends AbstractSessionKeyServlet {
 		/**************** 파라미터 시작 *******************/
 		String paramBoardID = req.getParameter("boardID");
 		String paramBoardNo = req.getParameter("boardNo");
-		String paramPageNo = req.getParameter("pageNo");
 		/**************** 파라미터 종료 *******************/
 		
 		short boardID = -1;
@@ -84,7 +83,6 @@ public class BoardDetailSvl extends AbstractSessionKeyServlet {
 		
 		
 		BoardDetailRes boardDetailRes = (BoardDetailRes)outputMessage;
-		req.setAttribute("paramPageNo", paramPageNo);
 		req.setAttribute("boardDetailRes", boardDetailRes);		
 		
 		printJspPage(req, res, "/jsp/community/BoardDetail.jsp");

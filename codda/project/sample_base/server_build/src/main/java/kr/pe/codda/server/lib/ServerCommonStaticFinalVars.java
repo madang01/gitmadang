@@ -45,10 +45,15 @@ public abstract class ServerCommonStaticFinalVars {
 	/** 게시판 내용 최소 문자수 */
 	public static final int MIN_NUMBER_OF_CONTENTS_CHARRACTERS = 2;
 	
+	/** 게시판 제목 최소 문자수 */
+	public static final int MIN_NUMBER_OF_BOARDNAME_CHARRACTERS = 2;	
+	/** 게시판 제목 최대 문자수 */
+	public static final int MAX_NUMBER_OF_BOARDNAME_CHARRACTERS = 10;
+	
 	/** 업로드 파일명 최소 문자수 */
 	public static final int MIN_NUMBER_OF_UPLOAD_FILENAME_CHARRACTERS = 1;
 	/** 업로드 파일명 최대 문자수 */
 	public static final int MAX_NUMBER_OF_UPLOAD_FILENAME_CHARRACTERS = 80;
 	
-	public static final char[] FILENAME_FORBIDDEN_CHARS = {'/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
+	public static final char[] FILENAME_FORBIDDEN_CHARS = {'&', '/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
 }

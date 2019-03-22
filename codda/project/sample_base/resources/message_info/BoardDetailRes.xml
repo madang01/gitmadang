@@ -62,6 +62,7 @@
 	<singleitem name="lastModifierNickName" type="ub pascal string" />
 	<singleitem name="lastModifiedDate" type="java sql timestamp" />
 	<singleitem name="nextAttachedFileSeq" type="unsigned byte" />
+	<singleitem name="isBoardPassword" type="boolean" />
 	<singleitem name="attachedFileCnt" type="integer" />
 	<array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
 		<singleitem name="attachedFileSeq" type="unsigned byte" />	

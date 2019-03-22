@@ -1,5 +1,5 @@
 -- MySQL Workbench Synchronization
--- Generated: 2019-03-15 16:17
+-- Generated: 2019-03-19 23:09
 -- Model: New Model
 -- Version: 1.0
 -- Project: Name of the project
@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_TB` (
   `pwd_base64` VARCHAR(88) NULL DEFAULT NULL COMMENT '게시글 비밀번호, 손님의 경우 반듯이 게시글 비밀번호를 입력한다. 게시글 수정할때 이 값이 null  이 아니면 게시글 비밀번호를 입력한것으로 간주하여 값 일치한경우에만 수정을 허용한다',
   PRIMARY KEY (`board_id`, `board_no`),
   INDEX `sb_board_fk1_idx` (`board_id` ASC),
-  INDEX `sb_board_idx1` (`board_id` ASC, `group_no` ASC, `group_sq` ASC),
-  INDEX `sb_board_idx2` (`board_id` ASC, `parent_no` ASC, `group_sq` ASC),
+  UNIQUE INDEX `sb_board_idx1` (`board_id` ASC, `group_no` ASC, `group_sq` ASC),
+  INDEX `sb_board_idx2` (`board_id` ASC, `parent_no` ASC, `board_no` ASC),
   CONSTRAINT `sb_board_fk1`
     FOREIGN KEY (`board_id`)
     REFERENCES `SB_DB`.`SB_BOARD_INFO_TB` (`board_id`)

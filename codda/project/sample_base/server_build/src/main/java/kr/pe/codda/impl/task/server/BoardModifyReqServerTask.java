@@ -429,16 +429,29 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, UByte.valueOf(newNextAttachedFileSeq))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).execute();
 
-			UByte boardHistorySeq = create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max().add(1)).from(SB_BOARD_HISTORY_TB)
+			UByte oldBoardHistorySeq = create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ.max()).from(SB_BOARD_HISTORY_TB)
 					.where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
 					.fetchOne().value1();
+			
+			if (oldBoardHistorySeq.shortValue() == CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = "수정 가능한 최대 횟수(255회)까지 수정하여 더 이상 수정할 수 없습니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			UByte newBoardHistorySeq = UByte.valueOf(oldBoardHistorySeq.shortValue()+1);
 
 			InsertSetMoreStep<SbBoardHistoryTbRecord> boardHistoryInsertSetMoreStep = null;
 
 			if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType) && (parenetNo.longValue() != 0L)) {
 				boardHistoryInsertSetMoreStep = create.insertInto(SB_BOARD_HISTORY_TB)
 						.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
-						.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, boardHistorySeq)
+						.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, newBoardHistorySeq)
 						// .set(SB_BOARD_HISTORY_TB.SUBJECT, boardModifyReq.getSubject())
 						.set(SB_BOARD_HISTORY_TB.CONTENTS, boardModifyReq.getContents())
 						.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardModifyReq.getRequestedUserID())
@@ -447,7 +460,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			} else {
 				boardHistoryInsertSetMoreStep = create.insertInto(SB_BOARD_HISTORY_TB)
 						.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
-						.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, boardHistorySeq)
+						.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, newBoardHistorySeq)
 						.set(SB_BOARD_HISTORY_TB.SUBJECT, boardModifyReq.getSubject())
 						.set(SB_BOARD_HISTORY_TB.CONTENTS, boardModifyReq.getContents())
 						.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardModifyReq.getRequestedUserID())

@@ -41,36 +41,43 @@
 </script>
 </head>
 <body>
-<%=getMenuNavbarString(request)%>
-	
-	<div class="container-fluid">
-		<h2>자바 문자열 변환 도구 - 결과</h2>
- 
-<div class="row">
-	<div class="col-sm-12" style="background-color:lavender;"><h4>설명</h4></div>
-</div>
-<div class="row">
-	<div class="col-sm-12"> 이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
-일반 사용자용 사이트에서 JDF 기본 서블릿은 AbstractServlet 를 상속 받습니다.<br>
-일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
-이 페이지는 일반 사용자 사이트의 JDF 기본 페이지로써 JavaStringConverterSvl.java + JavaStringConverterResult.jsp 로 구성되어있습니다.</div>
-</div>
-
-<div class="well well-sm">&nbsp;</div>
-
-<div class="row">
-	<div class="col-sm-1" style="background-color:lavenderblush;">원본</div>
-	<div class="col-sm-11" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(sourceString, 
-			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
-</div>
-<div class="row">
-	<div class="col-sm-1" style="background-color:lavenderblush;">결과</div>
-	<div class="col-sm-11" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(targetString, 
-			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
-</div>
-
+	<div class=header>
+		<div class="container">
+		<%=getMenuNavbarString(request)%>
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>자바 문자열 변환 도구 - 결과</h4></div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-sm-12" style="background-color:lavender;"><h4>설명</h4></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12"> 이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
+					일반 사용자용 사이트에서 JDF 기본 서블릿은 AbstractServlet 를 상속 받습니다.<br>
+					일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
+					이 페이지는 일반 사용자 사이트의 JDF 기본 페이지로써 JavaStringConverterSvl.java + JavaStringConverterResult.jsp 로 구성되어있습니다.</div>
+					</div>
+					
+					<div class="well well-sm">&nbsp;</div>
+					
+					<div class="row">
+						<div class="col-sm-1" style="background-color:lavenderblush;">원본</div>
+						<div class="col-sm-11" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(sourceString, 
+								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+								STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-1" style="background-color:lavenderblush;">결과</div>
+						<div class="col-sm-11" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(targetString, 
+								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+								STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

@@ -32,40 +32,49 @@
 </script>
 </head>
 <body>
-<%=getMenuNavbarString(request)%>
-	
-	<div class="container-fluid">
-		<h3>RSA 암/복호화 테스트 - 결과</h3>
-<div class="row">
-	<div class="col-sm-12" style="background-color:lavender;"><h4>설명</h4></div>
-</div>
-<div class="row">
-	<div class="col-sm-12"> 이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
-일반 사용자용 사이트에서 JDF 기본 서블릿은 AbstractServlet 를 상속 받습니다.<br>
-일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
-이 페이지는 일반 사용자 사이트의 JDF 기본 페이지로써 JSRSATestSvl.java + JSRSATestResult.jsp 로 구성되어있습니다.</div>
-</div>
-
-<div class="row">
-	<div class="col-sm-12">&nbsp;</div>
-</div>
-
-<div class="row">
-	<div class="col-sm-6" style="background-color:lavender;">원문</div>
-	<div class="col-sm-6" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(orignalPlainText, 
-			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
-</div>
-<div class="row">
-	<div class="col-sm-6" style="background-color:lavenderblush;">복호문</div>
-	<div class="col-sm-6" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(decryptedText, 
-			STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-			STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
-</div>
-<div class="row">
-	<div class="col-sm-6" style="background-color:lavender;">비교결과</div>
-	<div class="col-sm-6" style="background-color:lavender;"><%= isSame %></div>
-</div>
+	<div class=header>
+		<div class="container">
+		<%=getMenuNavbarString(request)%>
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>RSA 암/복호화 테스트 - 결과</h4></div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-sm-12" style="background-color:lavender;"><h4>설명</h4></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12"> 이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
+					일반 사용자용 사이트에서 JDF 기본 서블릿은 AbstractServlet 를 상속 받습니다.<br>
+					일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
+					이 페이지는 일반 사용자 사이트의 JDF 기본 페이지로써 JSRSATestSvl.java + JSRSATestResult.jsp 로 구성되어있습니다.</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-12">&nbsp;</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-6" style="background-color:lavender;">원문</div>
+						<div class="col-sm-6" style="background-color:lavender;"><%=StringEscapeActorUtil.replace(orignalPlainText, 
+								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+								STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6" style="background-color:lavenderblush;">복호문</div>
+						<div class="col-sm-6" style="background-color:lavenderblush;"><%=StringEscapeActorUtil.replace(decryptedText, 
+								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
+								STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6" style="background-color:lavender;">비교결과</div>
+						<div class="col-sm-6" style="background-color:lavender;"><%= isSame %></div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

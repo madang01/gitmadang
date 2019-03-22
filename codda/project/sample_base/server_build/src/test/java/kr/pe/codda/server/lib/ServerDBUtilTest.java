@@ -1,10 +1,7 @@
 package kr.pe.codda.server.lib;
 
-import static kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
@@ -22,7 +19,6 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
-import org.jooq.types.UShort;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,11 +29,8 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
-import kr.pe.codda.impl.message.BoardListReq.BoardListReq;
-import kr.pe.codda.impl.message.BoardListRes.BoardListRes;
 import kr.pe.codda.impl.message.UserBlockReq.UserBlockReq;
 import kr.pe.codda.impl.task.server.ArraySiteMenuReqServerTask;
-import kr.pe.codda.impl.task.server.BoardListReqServerTask;
 import kr.pe.codda.impl.task.server.UserBlockReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
@@ -249,57 +242,40 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			}
 		}
 	}
-
-	private void initBoardDB() {
-		DataSource dataSource = null;
-		try {
-			dataSource = DBCPManager.getInstance().getBasicDataSource(TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}
-
-		Connection conn = null;
-
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-
-			create.delete(SB_BOARD_VOTE_TB).execute();
-			create.delete(SB_BOARD_FILELIST_TB).execute();
-			create.delete(SB_BOARD_HISTORY_TB).execute();
-			create.delete(SB_BOARD_TB).execute();
-
-			create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.CNT, 0).set(SB_BOARD_INFO_TB.TOTAL, 0)
-					.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
-
-			conn.commit();
-
-		} catch (Exception e) {
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
-			log.warn(e.getMessage(), e);
-
-			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-	}
+	/*
+	 * private void initBoardDB() { DataSource dataSource = null; try { dataSource =
+	 * DBCPManager.getInstance().getBasicDataSource(TEST_DBCP_NAME); } catch
+	 * (DBCPDataSourceNotFoundException e) { log.warn(e.getMessage(), e);
+	 * fail(e.getMessage()); }
+	 * 
+	 * Connection conn = null;
+	 * 
+	 * try { conn = dataSource.getConnection(); conn.setAutoCommit(false);
+	 * 
+	 * DSLContext create = DSL.using(conn, SQLDialect.MYSQL,
+	 * ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
+	 * 
+	 * create.delete(SB_BOARD_VOTE_TB).execute();
+	 * create.delete(SB_BOARD_FILELIST_TB).execute();
+	 * create.delete(SB_BOARD_HISTORY_TB).execute();
+	 * create.delete(SB_BOARD_TB).execute();
+	 * 
+	 * create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.CNT,
+	 * 0).set(SB_BOARD_INFO_TB.TOTAL, 0) .set(SB_BOARD_INFO_TB.NEXT_BOARD_NO,
+	 * UInteger.valueOf(1)).execute();
+	 * 
+	 * conn.commit();
+	 * 
+	 * } catch (Exception e) {
+	 * 
+	 * if (null != conn) { try { conn.rollback(); } catch (Exception e1) {
+	 * log.warn("fail to rollback"); } }
+	 * 
+	 * log.warn(e.getMessage(), e);
+	 * 
+	 * fail(e.getMessage()); } finally { if (null != conn) { try { conn.close(); }
+	 * catch (Exception e) { log.warn("fail to close the db connection", e); } } } }
+	 */
 
 	@Test
 	public void DB초기화테스트상태점검() {
@@ -568,372 +544,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		}
 	}
 
-	@Test
-	public void testGetToGroupSeqOfRelativeRootBoard_트리끝위치얻기2가지방법비교() {
-		initBoardDB();
-
-		final short boardID = 3;
-
-		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
-			@Override
-			public BoardTree build(final short boardID) {
-				String writerID = "test01";
-				String otherID = "test02";
-
-				BoardTree boardTree = new BoardTree();
-
-				{
-					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID,
-							writerID, "루트1", "루트1");
-
-					{
-						BoardTreeNode root1Child1BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1", "루트1_자식1");
-						{
-							BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1",
-											"루트1_자식1_자식1_자식1");
-							{
-								BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree
-										.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1_자식1",
-												"루트1_자식1_자식1_자식1_자식1");
-								root1Child1Child1Child1BoardTreeNode
-										.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
-							}
-							root1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1BoardTreeNode);
-						}
-
-						root1BoardTreeNode.addChildNode(root1Child1BoardTreeNode);
-					}
-
-					{
-						BoardTreeNode root1Child2BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2", "루트1_자식2");
-						{
-							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1",
-											"루트1_자식2_자식1");
-
-							root1Child2BoardTreeNode.addChildNode(root1Child2Child1BoardTreeNode);
-						}
-						{
-							BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식2",
-											"루트1_자식2_자식2");
-							root1Child2BoardTreeNode.addChildNode(root1Child2Child2BoardTreeNode);
-						}
-
-						{
-							BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식3",
-											"루트1_자식2_자식3");
-							{
-								BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree
-										.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식3_자식1",
-												"루트1_자식2_자식3_자식1");
-								{
-									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID,
-													"루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
-									root1Child2Child3Child1BoardTreeNode
-											.addChildNode(root1Child2Child3Child1Child1BoardTreeNode);
-								}
-								{
-									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID,
-													"루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
-									root1Child2Child3Child1BoardTreeNode
-											.addChildNode(root1Child2Child3Child1Child2BoardTreeNode);
-								}
-								{
-									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID,
-													"루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
-									root1Child2Child3Child1BoardTreeNode
-											.addChildNode(root1Child2Child3Child1Child3BoardTreeNode);
-								}
-								root1Child2Child3BoardTreeNode.addChildNode(root1Child2Child3Child1BoardTreeNode);
-							}
-							root1Child2BoardTreeNode.addChildNode(root1Child2Child3BoardTreeNode);
-						}
-						root1BoardTreeNode.addChildNode(root1Child2BoardTreeNode);
-					}
-
-					{
-						BoardTreeNode root1Child3BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식3", "루트1_자식3");
-						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
-					}
-
-					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
-				}
-
-				return boardTree;
-			}
-		}
-
-		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
-		boardTree.makeDBRecord(TEST_DBCP_NAME);
-
-		int pageNo = 1;
-		int pageSize = boardTree.getHashSize();
-
-		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestedUserID("admin");
-		boardListReq.setBoardID(boardID);
-		boardListReq.setPageNo(pageNo);
-		boardListReq.setPageSize(pageSize);
-
-		BoardListReqServerTask boardListReqServerTask = null;
-		try {
-			boardListReqServerTask = new BoardListReqServerTask();
-		} catch (DynamicClassCallException e2) {
-			fail("dead code");
-		}
-		BoardListRes boardListRes = null;
-
-		try {
-			boardListRes = boardListReqServerTask.doWork(TEST_DBCP_NAME, boardListReq);
-
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
-		} catch (Exception e) {
-			log.warn("unknown error", e);
-			fail("fail to execuate doTask");
-		}
-
-		DataSource dataSource = null;
-
-		try {
-			dataSource = DBCPManager.getInstance().getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
-		} catch (Exception e) {
-			log.warn("", e);
-			fail("fail to get a instance of DataSource class");
-		}
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-
-			for (BoardListRes.Board board : boardListRes.getBoardList()) {
-
-				UShort expectedFromGroupSq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create,
-						UByte.valueOf(boardListRes.getBoardID()), UInteger.valueOf(board.getGroupNo()),
-						UShort.valueOf(board.getGroupSeq()), UByte.valueOf(board.getDepth()));
-
-				UShort acutalFromGroupSq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create,
-						UByte.valueOf(boardListRes.getBoardID()), UShort.valueOf(board.getGroupSeq()),
-						UInteger.valueOf(board.getParentNo()));
-
-				assertEquals("트리의 마지막 그룹시퀀스를 얻는 방법 2가지(첫번째 depth이용한방법, 두번째 직계조상이용방법) 비교", expectedFromGroupSq,
-						acutalFromGroupSq);
-			}
-
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			fail("에러 발생::errmsg=" + e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-	}
-
-	@Test
-	public void testGetToGroupSeqOfRelativeRootBoard_트리끝위치얻기방법2가지속도비교() {
-		initBoardDB();
-
-		final short boardID = 3;
-
-		class VirtualBoardTreeBuilder implements VirtualBoardTreeBuilderIF {
-			@Override
-			public BoardTree build(final short boardID) {
-				String writerID = "test01";
-				String otherID = "test02";
-
-				BoardTree boardTree = new BoardTree();
-
-				{
-					BoardTreeNode root1BoardTreeNode = BoardTree.makeBoardTreeNodeWithoutTreeInfomation(boardID,
-							writerID, "루트1", "루트1");
-
-					{
-						BoardTreeNode root1Child1BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1", "루트1_자식1");
-						{
-							BoardTreeNode root1Child1Child1Child1BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1",
-											"루트1_자식1_자식1_자식1");
-							{
-								BoardTreeNode root1Child1Child1Child1Child1BoardTreeNode = BoardTree
-										.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식1_자식1_자식1_자식1",
-												"루트1_자식1_자식1_자식1_자식1");
-								root1Child1Child1Child1BoardTreeNode
-										.addChildNode(root1Child1Child1Child1Child1BoardTreeNode);
-							}
-							root1Child1BoardTreeNode.addChildNode(root1Child1Child1Child1BoardTreeNode);
-						}
-
-						root1BoardTreeNode.addChildNode(root1Child1BoardTreeNode);
-					}
-
-					{
-						BoardTreeNode root1Child2BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2", "루트1_자식2");
-						{
-							BoardTreeNode root1Child2Child1BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식1",
-											"루트1_자식2_자식1");
-
-							root1Child2BoardTreeNode.addChildNode(root1Child2Child1BoardTreeNode);
-						}
-						{
-							BoardTreeNode root1Child2Child2BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식2",
-											"루트1_자식2_자식2");
-							root1Child2BoardTreeNode.addChildNode(root1Child2Child2BoardTreeNode);
-						}
-
-						{
-							BoardTreeNode root1Child2Child3BoardTreeNode = BoardTree
-									.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식2_자식3",
-											"루트1_자식2_자식3");
-							{
-								BoardTreeNode root1Child2Child3Child1BoardTreeNode = BoardTree
-										.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID, "루트1_자식2_자식3_자식1",
-												"루트1_자식2_자식3_자식1");
-								{
-									BoardTreeNode root1Child2Child3Child1Child1BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID,
-													"루트1_자식2_자식3_자식1_자식1", "루트1_자식2_자식3_자식1_자식1");
-									root1Child2Child3Child1BoardTreeNode
-											.addChildNode(root1Child2Child3Child1Child1BoardTreeNode);
-								}
-								{
-									BoardTreeNode root1Child2Child3Child1Child2BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(boardID, writerID,
-													"루트1_자식2_자식3_자식1_자식2", "루트1_자식2_자식3_자식1_자식2");
-									root1Child2Child3Child1BoardTreeNode
-											.addChildNode(root1Child2Child3Child1Child2BoardTreeNode);
-								}
-								{
-									BoardTreeNode root1Child2Child3Child1Child3BoardTreeNode = BoardTree
-											.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID,
-													"루트1_자식2_자식3_자식1_자식3", "루트1_자식2_자식3_자식1_자식3");
-									root1Child2Child3Child1BoardTreeNode
-											.addChildNode(root1Child2Child3Child1Child3BoardTreeNode);
-								}
-								root1Child2Child3BoardTreeNode.addChildNode(root1Child2Child3Child1BoardTreeNode);
-							}
-							root1Child2BoardTreeNode.addChildNode(root1Child2Child3BoardTreeNode);
-						}
-						root1BoardTreeNode.addChildNode(root1Child2BoardTreeNode);
-					}
-
-					{
-						BoardTreeNode root1Child3BoardTreeNode = BoardTree
-								.makeBoardTreeNodeWithoutTreeInfomation(boardID, otherID, "루트1_자식3", "루트1_자식3");
-						root1BoardTreeNode.addChildNode(root1Child3BoardTreeNode);
-					}
-
-					boardTree.addRootBoardTreeNode(root1BoardTreeNode);
-				}
-
-				return boardTree;
-			}
-		}
-
-		VirtualBoardTreeBuilderIF virtualBoardTreeBuilder = new VirtualBoardTreeBuilder();
-		BoardTree boardTree = virtualBoardTreeBuilder.build(boardID);
-		boardTree.makeDBRecord(TEST_DBCP_NAME);
-
-		BoardTreeNode boardTreeNode = boardTree.find("루트1_자식2");
-
-		if (null == boardTreeNode) {
-			fail("속도 비교를 위한 대상 글(제목:루트1_자식2) 찾기 실패");
-		}
-
-		DataSource dataSource = null;
-
-		try {
-			dataSource = DBCPManager.getInstance().getBasicDataSource(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME);
-		} catch (Exception e) {
-			log.warn("", e);
-			fail("fail to get a instance of DataSource class");
-		}
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-
-			int count = 10000;
-
-			long beforeTime = 0, afterTime = 0;
-
-			beforeTime = System.currentTimeMillis();
-			for (int i = 0; i < count; i++) {
-				ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, UByte.valueOf(boardTreeNode.getBoardID()),
-						UShort.valueOf(boardTreeNode.getGroupSeq()), UInteger.valueOf(boardTreeNode.getParentNo()));
-			}
-
-			afterTime = System.currentTimeMillis();
-
-			log.info(new StringBuilder("직계 부모 이용한 트리 끝 위치 얻기 ").append(count).append(" 회 :end(elapsed=")
-					.append((afterTime - beforeTime)).append(" ms)").toString());
-
-			beforeTime = System.currentTimeMillis();
-			for (int i = 0; i < count; i++) {
-				ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, UByte.valueOf(boardTreeNode.getBoardID()),
-						UInteger.valueOf(boardTreeNode.getGroupNo()), UShort.valueOf(boardTreeNode.getGroupSeq()),
-						UByte.valueOf(boardTreeNode.getDepth()));
-			}
-
-			afterTime = System.currentTimeMillis();
-
-			log.info(new StringBuilder("트리 깊이를 이용한 트리 끝 위치 얻기 ").append(count).append(" 회:end(elapsed=")
-					.append((afterTime - beforeTime)).append(" ms)").toString());
-
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			fail("에러 발생::errmsg=" + e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-	}
+	
 
 	@Test
 	public void testCheckUserAccessRights_회원테이블미존재사용자() {

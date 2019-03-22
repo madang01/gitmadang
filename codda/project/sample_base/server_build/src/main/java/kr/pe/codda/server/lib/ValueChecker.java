@@ -376,7 +376,7 @@ public class ValueChecker {
 			}
 		}
 		
-		if (pwdHintChars.length > 0 && (pwdHintChars[0] == ' ' || pwdHintChars[pwdHintChars.length -1 ] == ' ')) {
+		if (pwdHintChars.length > 0 && (' ' == pwdHintChars[0] || ' ' == pwdHintChars[pwdHintChars.length -1 ])) {
 			String errorMessage = new StringBuilder("비밀번호 분실시 힌트는 앞뒤로 공백없이 한줄로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
 					.append("자 최대 ")
@@ -385,36 +385,16 @@ public class ValueChecker {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		// System.out.println("pwdHint=["+pwdHint+"]");
-		
-		/*String regexMinMax = new StringBuilder("^[a-zA-Z0-9가-힣\\s]{")
-				.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-				.append(",")
-				.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-				.append("}$").toString();
-		
-		// System.out.println("regexPwdHint=["+regexPwdHint+"]");
-		
-		boolean isValid = pwdHint.matches(regexMinMax);
-		if (!isValid) {			
-			String errorMessage = new StringBuilder("비밀번호 분실 힌트는 한글, 영문, 숫자 조합으로 최소 ")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자 최대 ")
-					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자를 요구합니다").toString();
-			throw new IllegalArgumentException(errorMessage);
+		for (char c : pwdHintChars) {
+			if (! CommonStaticUtil.isFullHangul(c) && ' ' != c && ! Character.isAlphabetic(c) && ! Character.isDigit(c)) {
+				String errorMessage = new StringBuilder("비밀번호 분실시 힌트는 공백 포함 한글(가-힣), 영문, 숫자 조합으로 최소 ")
+						.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
+						.append("자 최대 ")
+						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
+						.append("자를 요구합니다").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
 		}
-		
-		String regexTrim = new StringBuilder("^[a-zA-Z0-9가-힣]{1}[a-zA-Z0-9가-힣\\s]*[a-zA-Z0-9가-힣]{1}$").toString();
-		isValid = pwdHint.matches(regexTrim);
-		if (!isValid) {			
-			String errorMessage = new StringBuilder("비밀번호 분실 힌트는 앞뒤로 공백없이 한글, 영문, 숫자 조합으로 최소 ")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자 최대 ")
-					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자를 요구합니다").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}*/
 	}
 		
 	/**
@@ -426,33 +406,6 @@ public class ValueChecker {
 		if (null == pwdAnswer) {
 			throw new IllegalArgumentException("파라미터 비밀번호 분실시 답변 값이 null 입니다");
 		}
-		
-		/*String regexMinMax = new StringBuilder("^[a-zA-Z0-9가-힣\\s]{")
-				.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-				.append(",")
-				.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-				.append("}$").toString();
-				
-		boolean isValid = pwdAnswer.matches(regexMinMax);
-		if (!isValid) {			
-			String errorMessage = new StringBuilder("비밀번호 분실 답변은 한글, 영문, 숫자, 공백문자 조합으로 최소 ")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자 최대 ")
-					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자를 요구합니다").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		String regexTrim = new StringBuilder("^[a-zA-Z0-9가-힣]{1}[a-zA-Z0-9가-힣\\s]*[a-zA-Z0-9가-힣]{1}$").toString();
-		isValid = pwdAnswer.matches(regexTrim);
-		if (!isValid) {			
-			String errorMessage = new StringBuilder("비밀번호 분실 답변은 앞뒤로 공백없이 한글, 영문, 숫자 조합으로 최소 ")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자 최대 ")
-					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
-					.append("자를 요구합니다").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}*/
 		
 		char[] pwdAnswerChars = pwdAnswer.toCharArray();
 		
@@ -474,25 +427,25 @@ public class ValueChecker {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		for (char c : pwdAnswerChars) {
-			if (CommonStaticUtil.isLineSeparator(c)) {
-				String errorMessage = new StringBuilder("비밀번호 분실시 답변은 한줄으며 최소 ")
-						.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
-						.append("자 최대 ")
-						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
-						.append("자를 요구합니다").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-		}
-		
-		if (pwdAnswerChars.length > 0 && (pwdAnswerChars[0] == ' ' || pwdAnswerChars[pwdAnswerChars.length -1 ] == ' ')) {
-			String errorMessage = new StringBuilder("비밀번호 분실시 답변의 앞뒤로 공백없이 한줄로 최소 ")
+		if (pwdAnswerChars.length > 0 && (' ' == pwdAnswerChars[0] || ' ' == pwdAnswerChars[pwdAnswerChars.length -1 ])) {
+			String errorMessage = new StringBuilder("비밀번호 분실시 답변은 앞뒤로 공백없이 한줄로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
 					.append("자를 요구합니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		for (char c : pwdAnswerChars) {
+			if (! CommonStaticUtil.isFullHangul(c) && ' ' != c && ! Character.isAlphabetic(c) && ! Character.isDigit(c)) {
+				String errorMessage = new StringBuilder("비밀번호 분실시 답변은 공백 포함 한글(가-힣), 영문, 숫자 조합으로 최소 ")
+						.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
+						.append("자 최대 ")
+						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_ANSWER_CHARRACTERS)
+						.append("자를 요구합니다").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+		}		
 	}
 
 	/**
@@ -533,6 +486,41 @@ public class ValueChecker {
 		}
 	}
 	
+	/**
+	 * 페이지 번호와 페이지 크기를 검사한다. 페이지 번호는 페이지 크기에 따라 최대 값이 정해지기때문에 두개 항목을 동시에 검사한다. 
+	 * @param pageNo 페이지 번호, 1 <= 페이지 번호 <= ((Integer.MAX / 페이지 크기) + 1) 
+	 * @param pageSize 페이지 크기(=페이지당 최대 게시글 수), 1<= 페이지 크기 <= unsigned short max(=65535) 
+	 * @throws IllegalArgumentException
+	 */
+	public static void checkValidPageNoAndPageSize(int pageNo, int pageSize) throws IllegalArgumentException {		
+		if (pageSize <= 0) {
+			String errorMessage = new StringBuilder("페이지 크기[")
+			.append(pageSize).append("]가 0보다 작거나 같습니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}	
+		
+		if (pageSize > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+			String errorMessage = new StringBuilder("페이지 크기[")
+					.append(pageSize).append("]가 unsigned short 최대값 65535  보다 큽니다").toString();
+					throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (pageNo < 1) {
+			String errorMessage = new StringBuilder("페이지 번호[")
+			.append(pageNo).append("]가 1보다 작습니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}	
+		
+		int maxPageNo = (Integer.MAX_VALUE  / pageSize) + 1;
+		
+		if (pageNo > maxPageNo) {
+			String errorMessage = new StringBuilder("페이지 번호[")
+					.append(pageNo).append("]가 최대값[")
+					.append(maxPageNo)
+					.append("] 보다 큽니다").toString();
+					throw new IllegalArgumentException(errorMessage);
+		}
+	}	
 	
 	/**
 	 * 부모 게시판 번호 검사, 0 <= 부모 게시판 번호 <= unsigned integer max(=4294967295)
@@ -562,16 +550,6 @@ public class ValueChecker {
 		if (null == subject) {
 			throw new IllegalArgumentException("the parameter subject is null");
 		}
-		
-		
-
-		/*Pattern r = Pattern.compile("\r\n|\n|\r|\u0085|\u2028|\u2029");
-		
-		Matcher match = r.matcher(subject);
-		
-		if (match.find()) {
-			throw new IllegalArgumentException("게시판 제목에는 개행 문자를 넣을 수 없습니다");
-		}*/
 		
 		char[] subjectChars = subject.toCharArray();
 		
@@ -647,17 +625,16 @@ public class ValueChecker {
 		}
 		
 		char[] fileNameChars = fileName.toCharArray();
-		
-		/*if (fileNameChars.length > 0 && (Character.isWhitespace(fileNameChars[0]) || Character.isWhitespace(fileNameChars[fileNameChars.length-1]))) {
-			String errorMessage = new StringBuilder().append("this string is a string with leading and trailing whitespace").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}	*/
-		
-		// char prevChar = ' ';
+				
 		for (int i=0; i < fileNameChars.length; i++) {
 			char workingChar = fileNameChars[i];
 			
-			if (Character.isWhitespace(workingChar)) {
+			if (CommonStaticUtil.isLineSeparator(workingChar)) {
+				String errorMessage = new StringBuilder("첨부 파일명[")
+						.append(fileName)
+						.append("]에 개행 문자가 존재합니다").toString();
+				throw new IllegalArgumentException(errorMessage);
+			} else if (Character.isWhitespace(workingChar)) {
 				String errorMessage = new StringBuilder("첨부 파일명[")
 						.append(fileName)
 						.append("]에 공백 문자가 존재합니다").toString();
@@ -684,39 +661,47 @@ public class ValueChecker {
 		}	
 	}
 	
-	
-	
-	/*public static void checkNoTrimString(String str) throws IllegalArgumentException {
-		if (null == str) {
-			throw new IllegalArgumentException("the parameter str is null");
-		}
-				
-		boolean isValid = false;
-		
-		String regexPrefixSpace = "^\\s.*$"; 
-		isValid = str.matches(regexPrefixSpace);
-		if (!isValid) {	
-			String errorMessage = "공백으로 시작하는 문자열입니다";
-			throw new IllegalArgumentException(errorMessage);
+	public static void checkValidBoardName(String boardName) throws IllegalArgumentException {
+		if (null == boardName) {
+			throw new IllegalArgumentException("the parameter boardName is null");
 		}
 		
-		String regexSuffixSpace = "^.*\\s$"; 
-		isValid = str.matches(regexSuffixSpace);
-		if (!isValid) {	
-			String errorMessage = "공백으로 끝나는 문자열입니다";
-			throw new IllegalArgumentException(errorMessage);
-		}
+		char[] boardNameChars = boardName.toCharArray();
 		
-		char[] strChars = str.toCharArray();
-		
-		if (strChars.length > 0 && (Character.isWhitespace(strChars[0]) || Character.isWhitespace(strChars[strChars.length-1]))) {
-			String errorMessage = new StringBuilder().append("the parameter str[")
-					.append(str)
-					.append("] is a string with leading and trailing whitespace").toString();
+		if (boardNameChars.length < ServerCommonStaticFinalVars.MIN_NUMBER_OF_BOARDNAME_CHARRACTERS) {
+			String errorMessage = new StringBuilder("게시판 이름[")
+					.append(boardName)
+					.append("]의 글자수가 최소 글자 수[")
+					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_BOARDNAME_CHARRACTERS)
+					.append("] 보다 작습니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}		
-	}*/
-	
-	
-	
+		
+		if (boardNameChars.length > ServerCommonStaticFinalVars.MAX_NUMBER_OF_BOARDNAME_CHARRACTERS) {
+			String errorMessage = new StringBuilder("게시판 이름[")
+					.append(boardName)
+					.append("]의 글자 수[")
+					.append(boardNameChars.length)
+					.append("]가 최대 글자 수[")
+					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_BOARDNAME_CHARRACTERS)
+					.append("] 보다 큽니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (boardNameChars.length > 0 && (' ' == boardNameChars[0] || ' ' == boardNameChars[boardNameChars.length-1])) {
+			String errorMessage = "게시판 이름은 앞 혹은 뒤에 공백 문자가 올 수 없습니다";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		for (char c : boardNameChars) {
+			if (! CommonStaticUtil.isFullHangul(c) && ' ' != c && ! Character.isAlphabetic(c) && ! Character.isDigit(c)) {
+				String errorMessage = new StringBuilder("게시판 이름은 공백 포함 한글(가-힣), 영문, 숫자 조합으로 최소 ")
+						.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_BOARDNAME_CHARRACTERS)
+						.append("자 최대 ")
+						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_BOARDNAME_CHARRACTERS)
+						.append("자를 요구합니다").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+		}
+	}
 }

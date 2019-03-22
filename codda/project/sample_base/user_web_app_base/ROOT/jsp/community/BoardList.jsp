@@ -1,7 +1,8 @@
-<%@page import="kr.pe.codda.weblib.common.MemberRoleType"%>
-<%@page import="kr.pe.codda.weblib.common.PermissionType"%>
-<%@page import="kr.pe.codda.weblib.common.BoardListType"%>
-<%@page import="java.util.List"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
+<%@page import="kr.pe.codda.common.etc.CommonStaticFinalVars"%><%
+%><%@page import="kr.pe.codda.weblib.common.MemberRoleType"%><%
+%><%@page import="kr.pe.codda.weblib.common.PermissionType"%><%
+%><%@page import="kr.pe.codda.weblib.common.BoardListType"%><%
+%><%@page import="java.util.List"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%%><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%%><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.codda.impl.message.BoardListRes.BoardListRes" %><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%
@@ -43,6 +44,8 @@
 	boardListRes.setCnt(boardList.size());
 	boardListRes.setBoardList(boardList);
 	} */	
+	
+	
 	
 	
 	BoardListType boardListType = BoardListType.valueOf(boardListRes.getBoardListType());		
@@ -88,7 +91,7 @@
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type='text/javascript'>
 	var rsa = new RSAKey();
-	rsa.setPublic("<%=getModulusHexString(request)%>", "10001");
+	
 
 	function getSessionkeyBase64() {
 		var privateKey;
@@ -315,26 +318,22 @@
 	
 	
 	function goDetailPage(boardNo) {
-		if(typeof(sessionStorage) == "undefined") {
-		    alert("Sorry! No HTML5 sessionStorage support..");
-		    return;
-		}
-	
-		var g = document.detailFrm;
-		g.boardNo.value = boardNo;
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64();
-		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);		
-		g.submit();
+		var detailPageURL = "/servlet/BoardDetail?boardID=<%= boardListRes.getBoardID() %>&boardNo="+boardNo;<%
+	if (BoardListType.TREE.equals(boardListType)) {
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("		");
+		out.write("window.open(detailPageURL, \"\", \"width=800,height=600\");");
+	} else {
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("		");
+		out.write("document.location.href = detailPageURL;");
+	}
+%>
+		
 	}
 	
 	
 	function goListPage(pageNo) {
-		if(typeof(sessionStorage) == "undefined") {
-		    alert("Sorry! No HTML5 sessionStorage support..");
-		    return;
-		}
-	
 		var g = document.listwriteInputFrm;
 		g.pageNo.value = pageNo;
 		g.sessionkeyBase64.value = getSessionkeyBase64();
@@ -364,6 +363,13 @@
 	}
 
 	function init() {
+		if(typeof(sessionStorage) == "undefined") {
+		    alert("Sorry! No HTML5 sessionStorage support..");
+		    document.location.href = "/";
+		    return;
+		}
+		
+		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
 		expandTextarea('contentsInWritePart');
 	}
 	
@@ -376,13 +382,6 @@
 <%= getMenuNavbarString(request) %>
 	</div>
 </div>
-<form name=detailFrm method="post" action="/servlet/BoardDetail">
-<input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />
-<input type="hidden" name="boardNo" />
-<input type="hidden" name="pageNo" value="<%= boardListRes.getPageNo() %>" />
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
-</form>
 
 <form name=listwriteInputFrm method="post" action="/servlet/BoardList">
 <input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />

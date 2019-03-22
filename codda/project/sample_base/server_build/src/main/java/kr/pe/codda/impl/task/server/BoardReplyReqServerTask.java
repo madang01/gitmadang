@@ -16,8 +16,10 @@ import org.jooq.InsertOnDuplicateStep;
 import org.jooq.InsertSetMoreStep;
 import org.jooq.Record1;
 import org.jooq.Record3;
+import org.jooq.Record4;
 import org.jooq.Record5;
 import org.jooq.SQLDialect;
+import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
@@ -333,8 +335,8 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 
 			conn.commit();
 
-			Record3<UInteger, UShort, UInteger> parentBoardRecord = create
-					.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO).from(SB_BOARD_TB)
+			Record4<UInteger, UShort, UInteger, UByte> parentBoardRecord = create
+					.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH).from(SB_BOARD_TB)
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(parentBoardNo)).fetchOne();
 
 			if (null == parentBoardRecord) {
@@ -346,6 +348,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			UInteger groupNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_NO);
 			UShort groupSeqOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNoOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
+			UByte depthOfParentBoard = parentBoardRecord.getValue(SB_BOARD_TB.DEPTH);
 			UByte nextAttachedFileSeq = UByte.valueOf(boardReplyReq.getNewAttachedFileCnt());
 
 			if (BoardReplyPolicyType.ONLY_ROOT.equals(boardReplyPolicyType)) {
@@ -383,12 +386,31 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
+			/*
 			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupSeqOfParentBoard,
 					parentNoOfParentBoard);
-
+					*/
+			
+			UShort toGroupSeq = ServerDBUtil.getToGroupSeqOfRelativeRootBoard(create, boardID, groupNoOfParentBoard, groupSeqOfParentBoard, depthOfParentBoard);
+			
+			
+			Table<Record3<UByte, UInteger, UShort>>  b = create.select(SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ)
+			.from(SB_BOARD_TB.forceIndex("sb_board_idx1"))
+			.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+			.and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
+			.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq))
+			.orderBy(SB_BOARD_TB.GROUP_SQ.desc()).asTable("b");
+			
+			create.update(SB_BOARD_TB.innerJoin(b).on(SB_BOARD_TB.BOARD_ID.eq(b.field(SB_BOARD_TB.BOARD_ID)))
+					.and(SB_BOARD_TB.GROUP_NO.eq(b.field(SB_BOARD_TB.GROUP_NO)))
+					.and(SB_BOARD_TB.GROUP_SQ.eq(b.field(SB_BOARD_TB.GROUP_SQ))))
+			.set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1)).execute();			
+			
+			/*
 			create.update(SB_BOARD_TB).set(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.GROUP_SQ.add(1))
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.GROUP_NO.eq(groupNoOfParentBoard))
 					.and(SB_BOARD_TB.GROUP_SQ.ge(toGroupSeq)).execute();
+			*/
 
 			InsertOnDuplicateStep<SbBoardTbRecord> boardInsertOnDuplicateStep = null;
 			if (pwdHashBase64.isEmpty()) {

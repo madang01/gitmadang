@@ -110,6 +110,7 @@ public class BoardDetailRes extends AbstractMessage {
 		private String lastModifierNickName;
 		private java.sql.Timestamp lastModifiedDate;
 		private short nextAttachedFileSeq;
+		private boolean isBoardPassword;
 		private int attachedFileCnt;
 
 		public static class AttachedFile {
@@ -254,6 +255,13 @@ public class BoardDetailRes extends AbstractMessage {
 		public void setNextAttachedFileSeq(short nextAttachedFileSeq) {
 			this.nextAttachedFileSeq = nextAttachedFileSeq;
 		}
+		public boolean getIsBoardPassword() {
+			return isBoardPassword;
+		}
+
+		public void setIsBoardPassword(boolean isBoardPassword) {
+			this.isBoardPassword = isBoardPassword;
+		}
 		public int getAttachedFileCnt() {
 			return attachedFileCnt;
 		}
@@ -301,6 +309,8 @@ public class BoardDetailRes extends AbstractMessage {
 			builder.append(lastModifiedDate);
 			builder.append(", nextAttachedFileSeq=");
 			builder.append(nextAttachedFileSeq);
+			builder.append(", isBoardPassword=");
+			builder.append(isBoardPassword);
 			builder.append(", attachedFileCnt=");
 			builder.append(attachedFileCnt);
 

@@ -12,9 +12,10 @@
 	{"depth": 1, "menu_nm": "메세지 다이제스트(MD) 테스트", "menu_no": 12, "link_url": "/servlet/JSMessageDigestInput", "order_sq": 11, "parent_no": 7},
 	{"depth": 1, "menu_nm": "대칭키 테스트", "menu_no": 13, "link_url": "/servlet/JSSymmetricKeyInput", "order_sq": 12, "parent_no": 7},
 	{"depth": 1, "menu_nm": "에코 테스트", "menu_no": 14, "link_url": "/servlet/Echo", "order_sq": 13, "parent_no": 7},
-	{"depth": 1, "menu_nm": "모든 데이터 타입 검증", "menu_no": 15, "link_url": "/servlet/UserLoginInput", "order_sq": 14, "parent_no": 7},
+	{"depth": 1, "menu_nm": "모든 데이터 타입 검증", "menu_no": 15, "link_url": "/servlet/AllItemType", "order_sq": 14, "parent_no": 7},
 	{"depth": 1, "menu_nm": "자바 문자열 변환 도구", "menu_no": 16, "link_url": "/servlet/JavaStringConverterInput", "order_sq": 15, "parent_no": 7},
-	{"depth": 0, "menu_nm": "회원", "menu_no": 17, "link_url": "/jsp/member/body.jsp", "order_sq": 16, "parent_no": 0},
-	{"depth": 1, "menu_nm": "로그인", "menu_no": 18, "link_url": "/servlet/UserLoginInput", "order_sq": 17, "parent_no": 17},
-	{"depth": 1, "menu_nm": "회원 가입", "menu_no": 19, "link_url": "/servlet/UserSiteMembershipInput", "order_sq": 18, "parent_no": 17}
+	{"depth": 1, "menu_nm": "자바 GC 호출자", "menu_no": 20, "link_url": "/servlet/JavaGCCaller", "order_sq": 16, "parent_no": 7},
+	{"depth": 0, "menu_nm": "회원", "menu_no": 17, "link_url": "/jsp/member/body.jsp", "order_sq": 17, "parent_no": 0},
+	{"depth": 1, "menu_nm": "로그인", "menu_no": 18, "link_url": "/servlet/UserLoginInput", "order_sq": 18, "parent_no": 17},
+	{"depth": 1, "menu_nm": "회원 가입", "menu_no": 19, "link_url": "/servlet/UserSiteMembershipInput", "order_sq": 19, "parent_no": 17}
 ]}

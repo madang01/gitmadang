@@ -262,25 +262,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				String errorMessage = "해당 게시글 트리는 관리자에 의해 차된되었습니다";
 				throw new ServerServiceException(errorMessage);
 			}			
-			/*
-			 * Record1<String> firstWriterBoardRecord =
-			 * create.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID) .from(SB_BOARD_HISTORY_TB)
-			 * .join(SB_MEMBER_TB)
-			 * .on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_HISTORY_TB.REGISTRANT_ID))
-			 * .where(SB_BOARD_HISTORY_TB.BOARD_ID.eq(boardID))
-			 * .and(SB_BOARD_HISTORY_TB.BOARD_NO.eq(boardNo))
-			 * .and(SB_BOARD_HISTORY_TB.HISTORY_SQ.eq(UByte.valueOf(0))) .fetchOne();
-			 * 
-			 * if (null == firstWriterBoardRecord) { try { conn.rollback(); } catch
-			 * (Exception e) { log.warn("fail to rollback"); }
-			 * 
-			 * String errorMessage = new
-			 * StringBuilder("해당 게시글의 최초 작성자 정보가 존재 하지 않습니다").toString(); throw new
-			 * ServerServiceException(errorMessage); }
-			 * 
-			 * String writerID =
-			 * firstWriterBoardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
-			 */
+			
 			
 			if (! requestedUserID.equals(firstWriterID)) {
 				try {

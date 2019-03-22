@@ -211,61 +211,71 @@
 </script>
 </head>
 <body>
-<%=getMenuNavbarString(request)%>
-<form method="post" name="gofrm" action="/servlet/MembershipProcess" target="hiddenFrame">
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
-	<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
-	<input type="hidden" name="userID" />
-	<input type="hidden" name="pwd" />
-	<input type="hidden" name="nickname" />
-	<input type="hidden" name="pwdHint" />
-	<input type="hidden" name="pwdAnswer" />
-	<input type="hidden" name="captchaAnswer" />
-</form>
-	<div class="container-fluid">
-		<h3>일반 회원 가입</h3>
-		<div id="resultMessageView"></div>
-		<div class="btn-group">
-			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
+	<div class=header>
+		<div class="container">
+<%= getMenuNavbarString(request) %>
 		</div>
-		<form method="post" name="frm" onsubmit="submitGoFormIfValid(); return false;">
-			<div class="form-group">
-				<label for="userID">아이디</label>
-				<input type="text" id="userID" class="form-control" name="userID" maxlength="15">
-			</div>
-			<div class="form-group">
-				<label for="pwd">비빌번호</label>
-				<input type="password" id="pwd" class="form-control" name="pwd" maxlength="15">
-			</div>
-			<div class="form-group">
-				<label for="pwdconfirm">비빌번호 확인</label>
-				<input type="password" id="pwdconfirm" class="form-control" name="pwdconfirm" maxlength="15">
-			</div>
-			<div class="form-group">
-				<label for="nickname">별명</label>
-				<input type="text" id="nickname" class="form-control" name="nickname" maxlength="20">
-			</div>			
-			<div class="form-group">
-				<label for="pwdHint">비밀 번호 분실시 답변 힌트</label>
-				<input type="text" id="pwdHint" class="form-control" name="pwdHint" maxlength="30">
-			</div>
-			<div class="form-group">
-				<label for="pwdAnswer">비밀 번호 분실시 답변</label>
-				<textarea id="pwdAnswer" class="form-control" name="pwdAnswer" rows="5" cols="30"></textarea>
-			</div>
-			<div class="form-group">
-				<label for="captchaImage">Captcha 이미지</label>
-				<img id="captchaImage" class="img-thumbnail" src="/servlet/stickyImg" alt="Captcha Image" />
-				<a href="#" onClick="reloadCaptcha()" style="curso:pointer"><span class="glyphicon glyphicon-refresh"></span></a>
-			</div>			
-			<div class="form-group">
-				<label for="answer">Captcha 답변</label>
-				<input type="text" id="captchaAnswer" class="form-control" name="captchaAnswer" maxlength="20" />
-			</div>
-			<button type="submit" class="btn btn-default">가입</button>
-		</form>
 	</div>
-	<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>Codda HowTo</h4></div>
+				<div class="panel-body">
+					<form method="post" name="gofrm" action="/servlet/MembershipProcess" target="hiddenFrame">
+						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
+						<input type="hidden" name="userID" />
+						<input type="hidden" name="pwd" />
+						<input type="hidden" name="nickname" />
+						<input type="hidden" name="pwdHint" />
+						<input type="hidden" name="pwdAnswer" />
+						<input type="hidden" name="captchaAnswer" />
+					</form>
+					<div id="resultMessageView"></div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
+					</div>
+					<form method="post" name="frm" onsubmit="submitGoFormIfValid(); return false;">
+						<div class="form-group">
+							<label for="userID">아이디</label>
+							<input type="text" id="userID" class="form-control" name="userID" maxlength="15">
+						</div>
+						<div class="form-group">
+							<label for="pwd">비빌번호</label>
+							<input type="password" id="pwd" class="form-control" name="pwd" maxlength="15">
+						</div>
+						<div class="form-group">
+							<label for="pwdconfirm">비빌번호 확인</label>
+							<input type="password" id="pwdconfirm" class="form-control" name="pwdconfirm" maxlength="15">
+						</div>
+						<div class="form-group">
+							<label for="nickname">별명</label>
+							<input type="text" id="nickname" class="form-control" name="nickname" maxlength="20">
+						</div>			
+						<div class="form-group">
+							<label for="pwdHint">비밀 번호 분실시 답변 힌트</label>
+							<input type="text" id="pwdHint" class="form-control" name="pwdHint" maxlength="30">
+						</div>
+						<div class="form-group">
+							<label for="pwdAnswer">비밀 번호 분실시 답변</label>
+							<textarea id="pwdAnswer" class="form-control" name="pwdAnswer" rows="5" cols="30"></textarea>
+						</div>
+						<div class="form-group">
+							<label for="captchaImage">Captcha 이미지</label>
+							<img id="captchaImage" class="img-thumbnail" src="/servlet/stickyImg" alt="Captcha Image" />
+							<a href="#" onClick="reloadCaptcha()" style="curso:pointer"><span class="glyphicon glyphicon-refresh"></span></a>
+						</div>			
+						<div class="form-group">
+							<label for="answer">Captcha 답변</label>
+							<input type="text" id="captchaAnswer" class="form-control" name="captchaAnswer" maxlength="20" />
+						</div>
+						<button type="submit" class="btn btn-default">가입</button>
+					</form>
+					<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>	
 </body>
 </html>
 

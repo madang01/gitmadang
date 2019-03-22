@@ -54,7 +54,7 @@ public final class BoardListReqDecoder extends AbstractMessageDecoder {
 		boardListReq.setPageNo((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "pageNo" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
+			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

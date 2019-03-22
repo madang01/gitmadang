@@ -34,14 +34,23 @@
 </script>
 </head>
 <body>
-<%=getMenuNavbarString(request)%>
-	
-	<div class="container-fluid">
-		<h3>JDF 테스트 - 비 로그인</h3>
-  이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.<br><br>
-모든 서블릿은 JDF 기본 상속 서블릿 AbstractServlet 를 상속 받습니다.<br>	
-일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.<br><br>	
-이 페이지는 일반 사용자 사이트의 비 로그인 페이지로써 JDFNotLoginTestSvl.java + JDFNotLoginTest.jsp 로 구성되어있습니다.
+	<div class=header>
+		<div class="container">
+		<%=getMenuNavbarString(request)%>
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>JDF 테스트 - 비 로그인</h4></div>
+				<div class="panel-body">
+					<article><p>이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC Model 2 를 따릅니다.</p>
+					<p>모든 서블릿은 JDF 기본 상속 서블릿 AbstractServlet 를 상속 받습니다.</p>
+					<p>일반 사용자용 사이트용 jsp 페이지는 AbstractUserJSP 를 상속 받고 어드민 사이트용 jsp 페이지는 AbstractAdminJSP 를 상속 받습니다.</p>
+					<p>이 페이지는 일반 사용자 사이트의 비 로그인 페이지로써 JDFNotLoginTestSvl.java + JDFNotLoginTest.jsp 로 구성되어있습니다.</p></article>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

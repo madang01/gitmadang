@@ -54,7 +54,7 @@ public final class BoardListReqEncoder extends AbstractMessageEncoder {
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageNo"
-			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
+			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
 			, boardListReq.getPageNo() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset

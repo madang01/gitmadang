@@ -78,7 +78,7 @@
 	function makeTextTypeColDivOfList(classAttributeValue, colText) {
 		var colDiv = document.createElement("div");
 		colDiv.className = classAttributeValue;
-		colDiv.innerText = colText;
+		colDiv.innerHTML = colText;
 		
 		return colDiv;
 	}
@@ -226,16 +226,27 @@
 		
 		var rowDiv = document.createElement("div");
 		rowDiv.className = "row";		
-			
-		rowDiv.appendChild(makeTextTypeColDivOfList("col-sm-1", menuListResJsonObj.menuList[rowIndex].menuNo));
+		
+		
+		// menuListResJsonObj.menuList[rowIndex].depth);
+		var menuNoStr = "";
+		
+		for (var i=0; i < menuListResJsonObj.menuList[rowIndex].depth; i++) {
+			menuNoStr += "&nbsp;&nbsp;&nbsp;&nbsp;";
+		}	
+		
+		
+		menuNoStr += menuListResJsonObj.menuList[rowIndex].menuNo;
+		
+		rowDiv.appendChild(makeTextTypeColDivOfList("col-sm-1", menuNoStr));
 		rowDiv.appendChild(makeTextTypeColDivOfList("col-sm-1", menuListResJsonObj.menuList[rowIndex].parentNo));
-		rowDiv.appendChild(makeTextTypeColDivOfList("col-sm-1", menuListResJsonObj.menuList[rowIndex].depth));
+		//rowDiv.appendChild(makeTextTypeColDivOfList("col-sm-1", menuListResJsonObj.menuList[rowIndex].depth));
 		rowDiv.appendChild(makeTextTypeColDivOfList("col-sm-1", menuListResJsonObj.menuList[rowIndex].orderSeq));
 				
 		rowDiv.appendChild(makeInputTextTypeColDivOfList("col-sm-2", "menuName" + rowIndex, 80, menuListResJsonObj.menuList[rowIndex].menuName));			
 		rowDiv.appendChild(makeInputTextTypeColDivOfList("col-sm-3", "linkURL" + rowIndex, 80, menuListResJsonObj.menuList[rowIndex].linkURL));	
 		
-		rowDiv.appendChild(makeFuncColDivOfList("col-sm-3 btn-group", makeFuncColButtonList(rowIndex)));
+		rowDiv.appendChild(makeFuncColDivOfList("col-sm-4 btn-group", makeFuncColButtonList(rowIndex)));
 		
 		formGroupDiv.appendChild(rowDiv);
 		
@@ -580,109 +591,119 @@
 </script>
 </head>
 <body>
-<%=getMenuNavbarString(request)%>
-<form name="moveMenuUpFrm" method="post" action="/servlet/MenuMoveUpProcess" target="hiddenFrame">
-	<input type="hidden" name="menuNo">
-</form>
-<form name="moveMenuDownFrm" method="post" action="/servlet/MenuMoveDownProcess" target="hiddenFrame">
-	<input type="hidden" name="menuNo">
-</form>
-<form name="modifyMenuFrm" method="post" action="/servlet/MenuModificationProcess" target="hiddenFrame">
-	<input type="hidden" name="menuNo">
-	<input type="hidden" name="menuName">
-	<input type="hidden" name="linkURL">
-</form>
-<form name="deleteMenuFrm" method="post" action="/servlet/MenuDeletionProcess" target="hiddenFrame">
-	<input type="hidden" name="menuNo">
-</form>
-<form name="updateUserWebsiteMenuInfoFileFrm" method="post" action="/servlet/UserWebsiteMenuInfoFileUpdater" target="hiddenFrame">
-</form>
-	<div class="container-fluid">
-		<h3>메뉴 관리</h3>		
-		<div class="btn-group">
-			<button type="button" class="btn btn-primary btn-sm" onClick="addRootMenu()">Add Root</button>
-			<button type="button" class="btn btn-primary btn-sm" onClick="reload();">Reload</button>
-			<button type="button" class="btn btn-primary btn-sm" onClick="updateUserWebsiteMenuInfoFile();">Update User Website Menu Info File</button>	
-			<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>				
+	<div class=header>
+		<div class="container">
+		<%=getMenuNavbarString(request)%>
 		</div>
-					 
-		<div id="resultMessageView"></div>
-		<br>
-		<div class="row">
-			<div class="col-sm-1">메뉴번호</div>
-			<div class="col-sm-1">부모번호</div>
-			<div class="col-sm-1">깊이</div>
-			<div class="col-sm-1">순서</div>
-			<div class="col-sm-2">메뉴이름</div>			
-			<div class="col-sm-3">URL</div>
-			<div class="col-sm-3">기능</div>
-		</div>
-		<form name="frm" onSubmit="return false">
-			<div id="listView">
-			</div>	
-		</form>
-		<!-- Child Menu Modal -->
-		<div class="modal fade" id="childMenuModal" role="dialog">
-			<div class="modal-dialog">			
-				<!-- Modal content-->
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4 class="modal-title">자식 메뉴 추가 화면</h4>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h4>일반 사용자 사이트 메뉴 관리</h4></div>
+				<div class="panel-body">
+					<form name="moveMenuUpFrm" method="post" action="/servlet/MenuMoveUpProcess" target="hiddenFrame">
+						<input type="hidden" name="menuNo">
+					</form>
+					<form name="moveMenuDownFrm" method="post" action="/servlet/MenuMoveDownProcess" target="hiddenFrame">
+						<input type="hidden" name="menuNo">
+					</form>
+					<form name="modifyMenuFrm" method="post" action="/servlet/MenuModificationProcess" target="hiddenFrame">
+						<input type="hidden" name="menuNo">
+						<input type="hidden" name="menuName">
+						<input type="hidden" name="linkURL">
+					</form>
+					<form name="deleteMenuFrm" method="post" action="/servlet/MenuDeletionProcess" target="hiddenFrame">
+						<input type="hidden" name="menuNo">
+					</form>
+					<form name="updateUserWebsiteMenuInfoFileFrm" method="post" action="/servlet/UserWebsiteMenuInfoFileUpdater" target="hiddenFrame">
+					</form>
+					<div class="btn-group">
+						<button type="button" class="btn btn-primary btn-sm" onClick="addRootMenu()">Add Root</button>
+						<button type="button" class="btn btn-primary btn-sm" onClick="reload();">Reload</button>
+						<button type="button" class="btn btn-primary btn-sm" onClick="updateUserWebsiteMenuInfoFile();">Update User Website Menu Info File</button>	
+						<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>				
 					</div>
-					<div class="modal-body">
-						<form name="addChildMenuFrm" method="post" class="form-inline" onSubmit="$('#childMenuModal').modal('toggle'); return true;" action="/servlet/ChildMenuAdditionProcess" target="hiddenFrame">
-							<div class="form-group">
-							    <label class="sr-only" for="parentNoForChildMenu">부모 메뉴번호</label>
-							    <input type="hidden" id="parentNoForChildMenu" name="parentNo" />
-							 </div>
-							 <div class="form-group">
-							    <label for="menuNameForChildMenu">자식 메뉴명</label>
-							    <input type="text" id="menuNameForChildMenu" name="menuName" />
-							 </div>
-							 <div class="form-group">
-							    <label for="linkURLForChildMenu">URL</label>
-							    <input type="text" id="linkURLForChildMenu" name="linkURL" />
-							 </div>
-							<button type="submit" class="btn btn-default">추가</button>
-						</form>
+								 
+					<div id="resultMessageView"></div>
+					<br>
+					<div class="row">
+						<div class="col-sm-1">메뉴번호</div>
+						<div class="col-sm-1">부모번호</div>
+						<!-- div class="col-sm-1">깊이</div -->
+						<div class="col-sm-1">순서</div>
+						<div class="col-sm-2">메뉴이름</div>			
+						<div class="col-sm-3">URL</div>
+						<div class="col-sm-4">기능</div>
 					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<form name="frm" onSubmit="return false">
+						<div id="listView">
+						</div>	
+					</form>
+					<!-- Child Menu Modal -->
+					<div class="modal fade" id="childMenuModal" role="dialog">
+						<div class="modal-dialog">			
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">자식 메뉴 추가 화면</h4>
+								</div>
+								<div class="modal-body">
+									<form name="addChildMenuFrm" method="post" class="form-inline" onSubmit="$('#childMenuModal').modal('toggle'); return true;" action="/servlet/ChildMenuAdditionProcess" target="hiddenFrame">
+										<div class="form-group">
+										    <label class="sr-only" for="parentNoForChildMenu">부모 메뉴번호</label>
+										    <input type="hidden" id="parentNoForChildMenu" name="parentNo" />
+										 </div>
+										 <div class="form-group">
+										    <label for="menuNameForChildMenu">자식 메뉴명</label>
+										    <input type="text" id="menuNameForChildMenu" name="menuName" />
+										 </div>
+										 <div class="form-group">
+										    <label for="linkURLForChildMenu">URL</label>
+										    <input type="text" id="linkURLForChildMenu" name="linkURL" />
+										 </div>
+										<button type="submit" class="btn btn-default">추가</button>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								</div>
+							</div>			
+						</div>
 					</div>
-				</div>			
+					
+					<!-- Root Menu Modal -->
+					<div class="modal fade" id="rootMenuModal" role="dialog">
+						<div class="modal-dialog">			
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">루트 메뉴 추가 화면</h4>
+								</div>
+								<div class="modal-body">
+									<form name="addRootMenuFrm" method="post" class="form-inline" onSubmit="$('#rootMenuModal').modal('toggle'); return true;" action="/servlet/RootMenuAdditionProcess" target="hiddenFrame">							
+										 <div class="form-group">
+										    <label for="menuNameForRootMenu">메뉴명</label>
+										    <input type="text" id="menuNameForRootMenu" name="menuName" />
+										 </div>
+										 <div class="form-group">
+										    <label for="linkURLForRootMenu">URL</label>
+										    <input type="text" id="linkURLForRootMenu" name="linkURL" />
+										 </div>
+										<button type="submit" class="btn btn-default">추가</button>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								</div>
+							</div>			
+						</div>
+					</div>
+					<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
+				</div>
 			</div>
 		</div>
-		
-		<!-- Root Menu Modal -->
-		<div class="modal fade" id="rootMenuModal" role="dialog">
-			<div class="modal-dialog">			
-				<!-- Modal content-->
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4 class="modal-title">루트 메뉴 추가 화면</h4>
-					</div>
-					<div class="modal-body">
-						<form name="addRootMenuFrm" method="post" class="form-inline" onSubmit="$('#rootMenuModal').modal('toggle'); return true;" action="/servlet/RootMenuAdditionProcess" target="hiddenFrame">							
-							 <div class="form-group">
-							    <label for="menuNameForRootMenu">메뉴명</label>
-							    <input type="text" id="menuNameForRootMenu" name="menuName" />
-							 </div>
-							 <div class="form-group">
-							    <label for="linkURLForRootMenu">URL</label>
-							    <input type="text" id="linkURLForRootMenu" name="linkURL" />
-							 </div>
-							<button type="submit" class="btn btn-default">추가</button>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					</div>
-				</div>			
-			</div>
-		</div>
-		<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
 	</div>
 </body>
 </html>

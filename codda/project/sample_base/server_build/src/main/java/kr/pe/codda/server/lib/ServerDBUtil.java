@@ -659,42 +659,6 @@ public abstract class ServerDBUtil {
 		return toGroupSeq;
 	}
 
-	public static UShort getToGroupSeqOfRelativeRootBoard(DSLContext create, UByte boardID, UShort groupSq,
-			UInteger directParentNo) throws ServerServiceException {
-
-		while (true) {
-			if (0 == directParentNo.longValue()) {
-				return UShort.valueOf(0);
-			}
-
-			// .forceIndex("sb_board_idx2")
-			Record1<UShort> toGroupSeqRecord = create.select(SB_BOARD_TB.GROUP_SQ.max().add(1).as("toGroupSeq"))
-					.from(SB_BOARD_TB.forceIndex("sb_board_idx2")).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.PARENT_NO.eq(directParentNo)).and(SB_BOARD_TB.GROUP_SQ.lt(groupSq)).fetchOne();
-
-			if (null == toGroupSeqRecord.getValue("toGroupSeq")) {
-				Record1<UInteger> parnetBoardRecord = create.select(SB_BOARD_TB.PARENT_NO).from(SB_BOARD_TB)
-						.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(directParentNo))
-						.fetchOne();
-
-				if (null == parnetBoardRecord) {
-					String errorMessage = new StringBuilder().append("직계 조상 게시글[boardID=").append(boardID)
-							.append(", boardNo=").append(directParentNo).append("]이 없습니다").toString();
-					throw new ServerServiceException(errorMessage);
-				}
-
-				directParentNo = parnetBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-
-				continue;
-			}
-
-			UShort toGroupSeq = toGroupSeqRecord.getValue("toGroupSeq", UShort.class);
-
-			return toGroupSeq;
-		}
-
-	}
-	
 	public static MemberRoleType getValidMemberRoleType(Connection conn, DSLContext create, InternalLogger log, 
 			String requestedUserID) throws ServerServiceException {
 		if (null == requestedUserID) {

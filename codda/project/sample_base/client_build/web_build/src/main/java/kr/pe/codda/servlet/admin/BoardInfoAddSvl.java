@@ -13,6 +13,7 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardListType;
 import kr.pe.codda.weblib.common.BoardReplyPolicyType;
 import kr.pe.codda.weblib.common.PermissionType;
+import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
 public class BoardInfoAddSvl extends AbstractAdminLoginServlet {
@@ -29,14 +30,15 @@ public class BoardInfoAddSvl extends AbstractAdminLoginServlet {
 		String paramBoardWritePermissionType = req.getParameter("boardWritePermissionType");
 		String paramBoardReplyPermissionType = req.getParameter("boardReplyPermissionType");
 		/**************** 파라미터 종료 *******************/
-		
-		if (null == paramBoardName) {
-			String errorMessage = "게시판 이름을 입력해 주세요";
+
+		try {
+			ValueChecker.checkValidBoardName(paramBoardName);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			String debugMessage = null;
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-		
 		
 		if (null == paramBoardListType) {
 			String errorMessage = "게시판 목록 유형을 입력해 주세요";

@@ -9,7 +9,6 @@
 %><%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%
 %><%@ page import="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" %><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><jsp:useBean id="paramPageNo" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="boardDetailRes" class="kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes" scope="request" /><%
 	// FIXME!
 	/* boardDetailRes.setBoardID(BoardType.FREE.getBoardID());
@@ -53,6 +52,8 @@
 		boardDetailRes.setAttachedFileList(attachedFileList);
 	}	 */
 	
+	
+	
 	BoardListType boardListType = BoardListType.valueOf(boardDetailRes.getBoardListType());
 	BoardReplyPolicyType boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardDetailRes.getBoardReplyPolicyType());	
 	PermissionType boardReplyPermissionType = PermissionType.valueOf(boardDetailRes.getBoardReplyPermssionType());		
@@ -64,7 +65,7 @@
 	// List<BoardDetailRes.AttachedFile> detailAttachedFileList = boardDetailRes.getAttachedFileList();
 	
 	// String detailAttachedFileListJsonString = (null == boardDetailRes.getAttachedFileList()) ? "[]" : new Gson().toJson(boardDetailRes.getAttachedFileList());
-	
+	boolean isFirst = true;
 %><!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -304,7 +305,7 @@
 			}
 		}		
 				
-		var newFileListDivNode = document.getElementById('newAttahcedFileList');		
+		var newFileListDivNode = document.getElementById('newAttachedFileList');		
 		var uploadFileCnt = newFileListDivNode.childNodes.length;	
 		
 		if (uploadFileCnt > uploadFileMaxCnt) {
@@ -365,13 +366,45 @@
 		g.submit();
 	}
 	
-	function callBackForBoardReplyProcess(boardWriteResObj) {
-		alert("댓글["+boardWriteResObj.boardNo+"] 등록이 완료되었습니다");
-		goList();
+	function callBackForBoardReplyProcess(boardWriteResObj) {		
+		alert("댓글["+boardWriteResObj.boardNo+"] 등록이 완료되었습니다");<%		
+		
+		if (BoardListType.TREE.equals(boardListType)) {
+			out.write(CommonStaticFinalVars.NEWLINE);
+			out.write("		");
+			out.write("if (opener != undefined) { opener.document.location.reload(); self.close(); }");
+		} else {
+			out.write(CommonStaticFinalVars.NEWLINE);
+			out.write("		");
+			out.write("document.location.reload();");
+		}
+%>		
 	}
 	
-	function goVote() {	
+	function goDelete(boardNo) {	
+		var g = document.deleteFrm;
+		g.boardNo.value = boardNo;
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
+		= getSessionkey();
+		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
+		g.submit();
+	}
+	
+	function callBackForBoardDeleteProcess(boardNo) {
+		var resultMessageDiv = document.getElementById("resultMessage");
+		
+		resultMessageDiv.setAttribute("class", "alert alert-success");
+		resultMessageDiv.innerHTML = "<strong>Success!</strong> 게시글[" + boardNo+ "] 삭제가 완료되었습니다";
+		
+		alert(resultMessageDiv.innerText);
+		
+		document.location.reload();
+	}	
+	
+	function goVote(boardNo) {	
 		var g = document.voteFrm;
+		g.boardNo.value = boardNo;
 		g.<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>.value 
 		= getSessionkey();
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
@@ -379,18 +412,38 @@
 		g.submit();
 	}
 	
-	function callBackForBoardVote() {
-		alert("게시글 추천이 완료되었습니다");
-		document.location.reload();
-	}	
+	function callBackForBoardVoteProcess(boardNo) {
+		var resultMessageDiv = document.getElementById("resultMessage");
+		
+		resultMessageDiv.setAttribute("class", "alert alert-success");
+		resultMessageDiv.innerHTML = "<strong>Success!</strong> 게시글[" + boardNo+ "] 추천이 완료되었습니다";
+		
+		var voteDiv = document.getElementById("voteOfBoard"+boardNo);
+		
+		var numberOfVote = parseInt(voteDiv.innerText, 10);
+		
+		numberOfVote++;
+		
+		voteDiv.innerText = "" + numberOfVote; 
+		
+		// voteOfBoard
+		// document.location.reload();
+	}
+	
+	function goBoardChangeHistory(boardNo) {
+		var g = document.boardChangeHistoryFrm;
+		g.boardNo.value = boardNo;		
+		g.submit();
+	}
 	
 	function goList() {	
 		var g = document.goListFrm;		
 		g.submit();
 	}
 	
-	function downloadFile(attachedFileSeq) {
+	function downloadFile(boardNo, attachedFileSeq) {
 		var g = document.goDownloadFrm;
+		g.boardNo.value = boardNo;
 		g.attachedFileSeq.value = attachedFileSeq;
 		g.submit();
 	}
@@ -411,7 +464,11 @@
 	    document.getElementById(id).addEventListener('keyup', function() {
 	        this.style.overflow = 'hidden';
 	        this.style.height = 0;
-	        this.style.height = this.scrollHeight + 'px';
+	        if (this.scrollHeight < 100) {
+	        	this.style.height = '100px';
+	        } else {
+	        	this.style.height = this.scrollHeight + 'px';
+	        }
 	    }, false);
 	}
 	
@@ -420,6 +477,12 @@
 	function hideEditScreen() {
 		if (null != currentEditScreenDiv) {
 			currentEditScreenDiv.style.display = "none";
+			
+			/** remove all child nodes of targetDiv node */
+			while(currentEditScreenDiv.hasChildNodes()) {
+				currentEditScreenDiv.removeChild(currentEditScreenDiv.firstChild);
+			}
+			
 			currentEditScreenDiv = null;
 		}
 	}
@@ -434,7 +497,7 @@
 		}
 		
 		if (null != currentEditScreenDiv) {
-			currentEditScreenDiv.style.display = "none";
+			hideEditScreen();
 		}
 		
 		currentEditScreenDiv = targetDiv;
@@ -485,7 +548,7 @@
 		
 		var contentsLabelNode = document.createElement("label");
 		contentsLabelNode.setAttribute("for", "contentsInEditor");
-		contentsLabelNode.appendChild(subjetLabelTextNode);
+		contentsLabelNode.appendChild(contentsLabelTextNode);
 		
 		var contentsInputNode = document.createElement("textarea");		
 		contentsInputNode.setAttribute("name", "contents");
@@ -493,8 +556,6 @@
 		contentsInputNode.setAttribute("class", "form-control");
 		contentsInputNode.setAttribute("placeholder", "Enter contents");		
 		contentsInputNode.setAttribute("rows", "5");
-		
-		
 		
 		inputFormDiv.appendChild(contentsLabelNode);
 		inputFormDiv.appendChild(contentsInputNode);
@@ -569,11 +630,6 @@
 		parentBoardNoHiddenNode.setAttribute("name", "parentBoardNo");
 		parentBoardNoHiddenNode.setAttribute("value", boardNo);
 		
-
-		var subjectHiddenNode = document.createElement("input");
-		subjectHiddenNode.setAttribute("type", "hidden");
-		subjectHiddenNode.setAttribute("name", "subject");
-		
 		var contentsHiddenNode = document.createElement("input");
 		contentsHiddenNode.setAttribute("type", "hidden");
 		contentsHiddenNode.setAttribute("name", "contents");
@@ -592,7 +648,13 @@
 		
 		processFormNode.appendChild(boardIDHiddenNode);
 		processFormNode.appendChild(parentBoardNoHiddenNode);
-		processFormNode.appendChild(subjectHiddenNode);
+		if (isSubject) {
+			var subjectHiddenNode = document.createElement("input");
+			subjectHiddenNode.setAttribute("type", "hidden");
+			subjectHiddenNode.setAttribute("name", "subject");
+			
+			processFormNode.appendChild(subjectHiddenNode);
+		}
 		processFormNode.appendChild(contentsHiddenNode);		
 		processFormNode.appendChild(sessionkeyHiddenNode);		
 		processFormNode.appendChild(ivHiddenNode);
@@ -606,7 +668,9 @@
 			processFormNode.appendChild(passwordHiddenNode);
 		}		
 		
-		targetDiv.appendChild(processFormNode);		
+		targetDiv.appendChild(processFormNode);
+		
+		expandTextarea('contentsInEditor');
 	}
 	
 	function showMoidfyEditScreen(boardID, boardNo, nextAttachedFileSeq, isSubject, isPassword) {
@@ -619,7 +683,7 @@
 		}
 		
 		if (null != currentEditScreenDiv) {
-			currentEditScreenDiv.style.display = "none";
+			hideEditScreen();
 		}
 		
 		currentEditScreenDiv = targetDiv;
@@ -648,7 +712,7 @@
 		
 		inputFormDiv.appendChild(newAttachedFileRowSeqHiddenNode);
 		
-		if (isSubject) {
+		if (isSubject) {			
 			var subjetLabelTextNode = document.createTextNode("제목");
 			
 			var subjectLabelNode = document.createElement("label");
@@ -670,7 +734,7 @@
 		
 		var contentsLabelNode = document.createElement("label");
 		contentsLabelNode.setAttribute("for", "contentsInEditor");
-		contentsLabelNode.appendChild(subjetLabelTextNode);
+		contentsLabelNode.appendChild(contentsLabelTextNode);
 		
 		var contentsInputNode = document.createElement("textarea");		
 		contentsInputNode.setAttribute("name", "contents");
@@ -762,12 +826,7 @@
 		nextAttachedFileSeqHiddenNode.setAttribute("type", "hidden");
 		nextAttachedFileSeqHiddenNode.setAttribute("name", "nextAttachedFileSeq");
 		nextAttachedFileSeqHiddenNode.setAttribute("value", nextAttachedFileSeq);
-		
-
-		var subjectHiddenNode = document.createElement("input");
-		subjectHiddenNode.setAttribute("type", "hidden");
-		subjectHiddenNode.setAttribute("name", "subject");
-		
+				
 		var contentsHiddenNode = document.createElement("input");
 		contentsHiddenNode.setAttribute("type", "hidden");
 		contentsHiddenNode.setAttribute("name", "contents");
@@ -790,7 +849,13 @@
 		processFormNode.appendChild(boardIDHiddenNode);
 		processFormNode.appendChild(boardNoHiddenNode);
 		processFormNode.appendChild(nextAttachedFileSeqHiddenNode);
-		processFormNode.appendChild(subjectHiddenNode);
+		if (isSubject) {
+			var subjectHiddenNode = document.createElement("input");
+			subjectHiddenNode.setAttribute("type", "hidden");
+			subjectHiddenNode.setAttribute("name", "subject");
+			
+			processFormNode.appendChild(subjectHiddenNode);
+		}
 		processFormNode.appendChild(contentsHiddenNode);		
 		processFormNode.appendChild(sessionkeyHiddenNode);		
 		processFormNode.appendChild(ivHiddenNode);		
@@ -805,16 +870,19 @@
 			processFormNode.appendChild(passwordHiddenNode);
 		}		
 		
-		targetDiv.appendChild(processFormNode);	
-		
-		var subjectDiv = document.getElementById("subjectOfBoard"+boardNo+"InViewScreen");
-		var contentsDiv = document.getElementById("contentsOfBoard"+boardNo+"InViewScreen");
+		targetDiv.appendChild(processFormNode);
 				
 		var f = document.modifyInputFrm;
-		f.subject.value = subjectDiv.innerText;
+		
+		if (isSubject) {
+			var subjectDiv = document.getElementById("subjectOfBoard"+boardNo+"InViewScreen");
+			f.subject.value = subjectDiv.innerText;
+		}
+		var contentsDiv = document.getElementById("contentsOfBoard"+boardNo+"InViewScreen");
 		f.contents.value = contentsDiv.innerText;
 		
 		restoreOldAttachedFileList(boardNo);
+		expandTextarea('contentsInEditor');
 	}
 	
 	function addNewAttachedFile(f) {		
@@ -904,7 +972,7 @@
 
 			var oldAttachedFileHiddenInputNode = document.createElement("INPUT");
 			oldAttachedFileHiddenInputNode.setAttribute("type", "hidden");	
-			oldAttachedFileHiddenInputNode.setAttribute("name", "oldAttachSeq");
+			oldAttachedFileHiddenInputNode.setAttribute("name", "oldAttachedFileSeq");
 			oldAttachedFileHiddenInputNode.setAttribute("value", oldAttachedFileListJosnObj[i].attachedFileSeq);			
 			
 			var fileNameTextNode = document.createTextNode(oldAttachedFileListJosnObj[i].attachedFileName+" ");
@@ -929,39 +997,6 @@
 		oldAttachedFileListDiv.removeChild(deleteTagetDiv);
 	}
 	
-	function showOldAttachedFileList(boardNo) {		
-		var targetDiv = document.getElementById('oldFileListOfBoard'+boardNo+'InViewScreen');
-		var oldAttachedFileListJosnObj = JSON.parse(document.getElementById('oldAttachedFileListJosnStringOfBoard'+boardNo+'InViewScreen').value);
-
-		/** remove all child nodes of oldFileListInModifyPartForBoard node */
-		while(targetDiv.hasChildNodes()) {
-			targetDiv.removeChild(targetDiv.firstChild);
-		}
-		
-		for (var i=0; i < oldAttachedFileListJosnObj.length; i++) {
-			var oldAttachedFileRowDivNode = document.createElement("div");
-			oldAttachedFileRowDivNode.setAttribute("class", "row");
-			
-			var oldAttachedFileColDivNode = document.createElement("div");
-			oldAttachedFileColDivNode.setAttribute("class", "col-*-*");
-						
-			var fileNameTextNode = document.createTextNode(oldAttachedFileListJosnObj[i].attachedFileName+" ");
-						
-			var downloadButtonNode = document.createElement("INPUT");
-			downloadButtonNode.setAttribute("type", "button");
-			downloadButtonNode.setAttribute("value", "다운로드");
-			downloadButtonNode.setAttribute("title", "download file(attachedFileSeq:"+oldAttachedFileListJosnObj[i].attachedFileSeq+", fileName:"+ oldAttachedFileListJosnObj[i].attachedFileName + ")");
-			downloadButtonNode.setAttribute("onclick", "downloadFile("+oldAttachedFileListJosnObj[i].attachedFileSeq+")");			
-						
-			oldAttachedFileColDivNode.appendChild(fileNameTextNode);
-			oldAttachedFileColDivNode.appendChild(downloadButtonNode);
-			
-			oldAttachedFileRowDivNode.appendChild(oldAttachedFileColDivNode);
-			
-			targetDiv.appendChild(oldAttachedFileRowDivNode)
-		}		
-	}
-	
 	function init() {
 		if(typeof(sessionStorage) == "undefined") {
 		    alert("Sorry! No HTML5 sessionStorage support..");
@@ -969,18 +1004,6 @@
 		}
 		
 		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
-		
-		// makeDetailAttachedFileList();
-		// restoreAttachedFileListForBoardModify();
-		
-		// expandTextarea('contentsInModifyPartForBoard');
-		// expandTextarea('contentsInReplyPartForBoard');
-		
-		showOldAttachedFileList(<%= boardDetailRes.getBoardNo() %>);
-		
-		// showReplyEditScreen(<%= boardDetailRes.getBoardID() %>, <%= boardDetailRes.getBoardNo() %>, <%= (BoardListType.TREE.equals(boardListType) || boardDetailRes.getParentNo() == 0) %>, <%= ! isUserLoginedIn %>);
-		
-		// showMoidfyEditScreen(<%= boardDetailRes.getBoardID() %>, <%= boardDetailRes.getBoardNo() %>, <%= boardDetailRes.getNextAttachedFileSeq() %>, <%= (BoardListType.TREE.equals(boardListType) || boardDetailRes.getParentNo() == 0) %>, <%= boardDetailRes.getIsBoardPassword() %>);
 	}
 
 	window.onload=init;
@@ -988,27 +1011,39 @@
 </script>
 </head>
 <body>
-<div class=header>
-	<div class="container">
-<%= getMenuNavbarString(request) %>
-	</div>
-</div>
-
-	<form name=voteFrm target=hiddenFrame method="post" action="/servlet/BoardVote">
+	<div class=header>
+		<div class="container"> <%
+	if (BoardReplyPolicyType.ONLY_ROOT.equals(boardReplyPolicyType)) {
+		out.write(getMenuNavbarString(request));
+	}
+%></div>
+	</div>	
+	<form name=goListFrm method="get" action="/servlet/BoardList">
+		<input type="hidden" name="boardID" value="<%= boardDetailRes.getBoardID() %>" />
+	</form>
+	
+	<form name=deleteFrm target=hiddenFrame method="post" action="/servlet/BoardDeleteProcess">
 		<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
-		<input type="hidden" name="boardNo" value="<%=boardDetailRes.getBoardNo()%>" />
+		<input type="hidden" name="boardNo" />
 		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
 		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
 	</form>
 	
-	<form name=goListFrm method="post" action="/servlet/BoardList">
+	<form name=voteFrm target=hiddenFrame method="post" action="/servlet/BoardVoteProcess">
+		<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
+		<input type="hidden" name="boardNo" />
+		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
+	</form>
+	
+	<form name=boardChangeHistoryFrm method="get" action="/servlet/BoardChangeHistory">
 		<input type="hidden" name="boardID" value="<%= boardDetailRes.getBoardID() %>" />
-		<input type="hidden" name="pageNo" value="<%= paramPageNo %>" />
+		<input type="hidden" name="boardNo" />
 	</form>
 	
 	<form name=goDownloadFrm target="hiddenFrame" method="post" action="/servlet/BoardDownload">
 		<input type="hidden" name="boardID" value="<%=boardDetailRes.getBoardID()%>" />
-		<input type="hidden" name="boardNo" value="<%=boardDetailRes.getBoardNo()%>" />
+		<input type="hidden" name="boardNo" />
 		<input type="hidden" name="attachedFileSeq" />
 	</form>
 <div class="content">
@@ -1050,57 +1085,100 @@
 		out.write(", ");
 		out.write(String.valueOf(boardDetailRes.getIsBoardPassword()));
 		out.write(")\">수정</button>");
+		
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("						  				");
+		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goDelete(");
+		out.write(String.valueOf(boardDetailRes.getBoardNo()));
+		out.write(")\">삭제</button>");
 	}
 
 	if (isUserLoginedIn) {
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("					");
-		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goVote()\">추천</button>");
+		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goVote(");
+		out.write(String.valueOf(boardDetailRes.getBoardNo()));
+		out.write(")\">추천</button>");
 	}
 %>
-					<button type="button" class="btn btn-primary btn-sm" onClick="goList()">목록으로</button>
+					<button type="button" class="btn btn-primary btn-sm" onClick="goBoardChangeHistory(<%= boardDetailRes.getBoardNo() %>)">수정 이력 조회</button><%
+	if (BoardReplyPolicyType.ONLY_ROOT.equals(boardReplyPolicyType)) {
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("					");
+		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goList()\">목록으로</button>");
+	}
+%>
 					<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>
 				</div>
-				<div id="resultMessageView"></div>
+				<div id="resultMessage"></div>
 				<br>
-				<div id="viewScreenForBoard<%= boardDetailRes.getBoardNo() %>">
-					<div class="row">
-						<div class="col-sm-1" style="background-color:lavender;">글번호</div>
-						<div class="col-sm-1"><%= boardDetailRes.getBoardNo() %></div>								
-						<div class="col-sm-2" style="background-color:lavender;">작성자</div>
-						<div class="col-sm-1"><%= StringEscapeActorUtil.replace(boardDetailRes.getFirstWriterNickname(), 
-								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></div>
-						<div class="col-sm-2" style="background-color:lavender;">최초 작성일</div>	
-						<div class="col-sm-2"><%=boardDetailRes.getFirstRegisteredDate()%></div>							
-					</div>
-					<div class="row">				
-						<div class="col-sm-1" style="background-color:lavender;">추천수</div>
-						<div class="col-sm-1" id="voteTxt"><%=boardDetailRes.getVotes()%></div>
-						<div class="col-sm-2" style="background-color:lavender;">게시판 상태</div>
-						<div class="col-sm-1"><%=BoardStateType.valueOf(boardDetailRes.getBoardSate(), false).getName()%></div>
-						<div class="col-sm-2" class="col-sm-2" style="background-color:lavender;">마지막 수정일</div>
-						<div class="col-sm-2" class="col-sm-2"><%=boardDetailRes.getLastModifiedDate()%></div>				
-					</div>
-					<div class="row">
-						<div class="col-sm-1" style="background-color:lavender;">제목</div>
-						<div class="col-sm-4" class="col-sm-11" id="subjectOfBoard<%= boardDetailRes.getBoardNo() %>InViewScreen"><p><%=StringEscapeActorUtil.replace(boardDetailRes.getSubject(), 
-								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></p></div>
-						<div class="col-sm-1" class="col-sm-1" style="background-color:lavender;">조회수</div>
-						<div class="col-sm-1" id="voteTxt"><%= boardDetailRes.getViewCount() %></div>
-					</div>
-					<div class="row">
-						<div class="col-sm-1" style="background-color:lavender;">내용</div>
-						<div class="col-sm-6" id="contentsOfBoard<%= boardDetailRes.getBoardNo() %>InViewScreen"><p><%=StringEscapeActorUtil.replace(boardDetailRes.getContents(), 
-								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4, STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></p></div>
-					</div>
-					<div class="row">
-						<div class="col-sm-1" style="background-color:lavender;">점부파일</div>
-						<div class="col-sm-8" id="oldFileListOfBoard<%= boardDetailRes.getBoardNo() %>InViewScreen"></div>
-					</div>
+				<div id="viewScreenOfBoard<%= boardDetailRes.getBoardNo() %>">
 					<input type="hidden" id="oldAttachedFileListJosnStringOfBoard<%= boardDetailRes.getBoardNo() %>InViewScreen"  value="<%= StringEscapeActorUtil
 					.replace((null == boardDetailRes.getAttachedFileList()) ? "[]" : new Gson().toJson(boardDetailRes.getAttachedFileList()), 
 							StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %>" />
-							
+					<table class="table">
+						<thead>
+							<tr>
+								<th>글번호</th>
+								<th><%= boardDetailRes.getBoardNo() %></th>
+						    	<th>작성자</th>
+						    	<th><%= StringEscapeActorUtil.replace(boardDetailRes.getFirstWriterNickname(), 
+								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></th>
+						    	<th>최초 작성일</th>
+						    	<th><%=boardDetailRes.getFirstRegisteredDate()%></th>
+						  	</tr>
+						  	<tr>
+								<th>추천수</th>
+								<th id="voteOfBoard<%= boardDetailRes.getBoardNo() %>"><%= boardDetailRes.getVotes() %></th>
+						    	<th>게시판 상태</th>
+						    	<th><%=BoardStateType.valueOf(boardDetailRes.getBoardSate(), false).getName()%></th>
+						    	<th>마지막 수정일</th>
+						    	<th><%=boardDetailRes.getLastModifiedDate()%></th>
+						  	</tr>
+						  	<tr>
+						  		<th>제목</th>
+						  		<th colspan="5" id="subjectOfBoard<%= boardDetailRes.getBoardNo() %>InViewScreen"><%=StringEscapeActorUtil.replace(boardDetailRes.getSubject(), 
+								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></th>
+						  	</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="6">
+									<article id="contentsOfBoard<%= boardDetailRes.getBoardNo() %>InViewScreen" style="white-space:pre-wrap;"><%=StringEscapeActorUtil.replace(boardDetailRes.getContents(), 
+										STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4, STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></article>
+								</td>
+							</tr>
+							<tr>
+								<td><b>첨부 파일</b></td>
+								<td colspan="5" id="oldFileListOfBoard<%= boardDetailRes.getBoardNo() %>InViewScreen"><%
+	
+	isFirst = true;
+	for (BoardDetailRes.AttachedFile oldAttachedFile : boardDetailRes.getAttachedFileList()) {
+		if (isFirst) {
+			isFirst = false;
+		} else {
+			out.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+		}
+		out.write("<a style=\"text-decoration: underline;\" title=\"다운로드 ");
+		out.write(StringEscapeActorUtil.replace(oldAttachedFile.getAttachedFileName(), 
+				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
+		out.write("(seq:");
+		out.write(String.valueOf(oldAttachedFile.getAttachedFileSeq()));
+		out.write(", size:");
+		out.write(String.valueOf(oldAttachedFile.getAttachedFileSize()));
+		out.write(")\" onClick=\"downloadFile(");
+		out.write(String.valueOf(boardDetailRes.getBoardNo()));
+		out.write(", ");
+		out.write(String.valueOf(oldAttachedFile.getAttachedFileSeq()));
+		out.write(")\">");
+		out.write(StringEscapeActorUtil.replace(oldAttachedFile.getAttachedFileName(), 
+				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
+		out.write("</a>");
+	}
+%></td>
+							</tr>
+						</tbody>
+					</table>			
 					<div id="editScreenOfBoard<%= boardDetailRes.getBoardNo() %>" style="display:block"></div>		
 				</div>	
 			</div>			
@@ -1111,42 +1189,136 @@
 		
 		<div class="panel panel-default">
 			<div class="panel-heading">댓글</div>
-			<div class="panel-body">
-				<div id="childListPartView"><%
+			<div class="panel-body"><%
 		for (BoardDetailRes.ChildNode childNode :  boardDetailRes.getChildNodeList()) {
 %>
-					<div id="board<%= childNode.getBoardNo() %>PartView">
-						<div class="row">
-							<div class="col-sm-1" style="background-color:lavender;">번호</div>
-							<div class="col-sm-1"><%= childNode.getBoardNo() %></div>					
-							
-							<div class="col-sm-2" style="background-color:lavender;">작성자</div>
-							<div class="col-sm-1"><%= StringEscapeActorUtil.replace(childNode.getFirstWriterNickname(), 
-									StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></div>
-							
-							<div class="col-sm-2" style="background-color:lavender;">최초 작성일</div>
-							<div class="col-sm-2"><%= childNode.getFirstRegisteredDate() %></div>
-							
-						</div>
-						<div class="row">
-							<div class="col-sm-1" style="background-color:lavender;">추천수</div>
-							<div class="col-sm-1"><%= childNode.getVotes() %></div>
-							<div class="col-sm-2" style="background-color:lavender;">게시판 상태</div>		
-							<div class="col-sm-1"><%= BoardStateType.valueOf(childNode.getBoardSate(), false).getName() %></div>					
-							<div class="col-sm-2" style="background-color:lavender;">마지막 수정일</div>
-							<div class="col-sm-2"><%= childNode.getLastModifiedDate() %></div>
-						</div>
-						<div class="row">
-							<div class="col-sm-1" style="background-color:lavender;">내용</div>
-							<div class="col-sm-11"><p><%= StringEscapeActorUtil.replace(childNode.getContents(), 
-									StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,
-									StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR) %></p></div>
-						</div>
-						
-					</div><%
-		}
+				<div id="viewScreenOfBoard<%= childNode.getBoardNo() %>">
+					<input type="hidden" id="oldAttachedFileListJosnStringOfBoard<%= childNode.getBoardNo() %>InViewScreen"  value="<%= StringEscapeActorUtil
+					.replace((null == childNode.getAttachedFileList()) ? "[]" : new Gson().toJson(childNode.getAttachedFileList()), 
+							StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %>" />
+					<table class="table">
+						<thead>
+							<tr>
+								<th>글번호</th>
+								<th><%= childNode.getBoardNo() %></th>
+						    	<th>작성자</th>
+						    	<th><%= StringEscapeActorUtil.replace(childNode.getFirstWriterNickname(), 
+								STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></th>
+						    	<th>최초 작성일</th>
+						    	<th><%=childNode.getFirstRegisteredDate()%></th>
+						  	</tr>
+						  	<tr>
+								<th>추천수</th>
+								<th id="voteOfBoard<%= childNode.getBoardNo() %>"><%= childNode.getVotes() %></th>
+						    	<th>게시판 상태</th>
+						    	<th><%=BoardStateType.valueOf(childNode.getBoardSate(), false).getName()%></th>
+						    	<th>마지막 수정일</th>
+						    	<th><%=childNode.getLastModifiedDate()%></th>
+						  	</tr>
+						  	<tr>
+						  		<th>기능</th>
+						  		<th colspan="5">
+						  			<div class="btn-group"><%
+
+			if (BoardReplyPolicyType.ALL.equals(boardReplyPolicyType) ||
+					(BoardReplyPolicyType.ONLY_ROOT.equals(boardReplyPolicyType) && (0 == childNode.getParentNo()))) {
+				/** 댓글 버튼 유무는 댓글 정책 유형이 본문과 댓글 모두인 경우와 본문에만 허용되는 경우로 결정된다 */
+				out.write(CommonStaticFinalVars.NEWLINE);
+				out.write("						  				");
+				
+				
+				out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"showReplyEditScreen(");
+				out.write(String.valueOf(boardDetailRes.getBoardID()));
+				out.write(", ");
+				out.write(String.valueOf(childNode.getBoardNo()));
+				out.write(", ");
+				out.write(String.valueOf(BoardListType.TREE.equals(boardListType) || childNode.getParentNo() == 0));
+				out.write(", ");
+				out.write(String.valueOf(! isUserLoginedIn));
+				out.write(")\">댓글</button>");				
+			}
+			
+			if (childNode.getFirstWriterID().equals(getLoginedUserIDFromHttpSession(request))) {
+				out.write(CommonStaticFinalVars.NEWLINE);
+				out.write("						  				");
+				out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"showMoidfyEditScreen(");
+				out.write(String.valueOf(boardDetailRes.getBoardID()));
+				out.write(", ");		
+				out.write(String.valueOf(childNode.getBoardNo()));
+				out.write(", ");		
+				out.write(String.valueOf(childNode.getNextAttachedFileSeq()));		
+				out.write(", ");		
+				out.write(String.valueOf(BoardListType.TREE.equals(boardListType) || childNode.getParentNo() == 0));
+				out.write(", ");
+				out.write(String.valueOf(childNode.getIsBoardPassword()));
+				out.write(")\">수정</button>");
+				
+				
+				out.write(CommonStaticFinalVars.NEWLINE);
+				out.write("						  				");
+				out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goDelete(");
+				out.write(String.valueOf(childNode.getBoardNo()));
+				out.write(")\">삭제</button>");
+				
+			}
+		
+			if (isUserLoginedIn) {
+				out.write(CommonStaticFinalVars.NEWLINE);
+				out.write("						  				");
+				out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goVote(");
+				out.write(String.valueOf(childNode.getBoardNo()));
+				out.write(")\">추천</button>");
+			}
 %>
-				</div>
+										<button type="button" class="btn btn-primary btn-sm" onClick="goBoardChangeHistory(<%= childNode.getBoardNo() %>)">수정 이력 조회</button>
+									</div>
+						  		</th>
+						  	</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="6">
+									<article id="contentsOfBoard<%= childNode.getBoardNo() %>InViewScreen" style="white-space:pre-wrap;"><%=StringEscapeActorUtil.replace(childNode.getContents(), 
+										STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4, STRING_REPLACEMENT_ACTOR_TYPE.LINE2BR)%></article>
+								</td>
+							</tr>
+							<tr>
+								<td><b>첨부 파일</b></td>
+								<td colspan="5" id="oldFileListOfBoard<%= childNode.getBoardNo() %>InViewScreen"><%
+			
+			isFirst = true;
+			for (BoardDetailRes.ChildNode.AttachedFile oldAttachedFile : childNode.getAttachedFileList()) {
+				if (isFirst) {
+					isFirst = false;
+				} else {
+					out.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+				}
+				
+				out.write("<a style=\"text-decoration: underline;\" title=\"다운로드 ");
+				out.write(StringEscapeActorUtil.replace(oldAttachedFile.getAttachedFileName(), 
+						STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
+				out.write("(seq:");
+				out.write(String.valueOf(oldAttachedFile.getAttachedFileSeq()));
+				out.write(", size:");
+				out.write(String.valueOf(oldAttachedFile.getAttachedFileSize()));
+				out.write(")\" onClick=\"downloadFile(");
+				out.write(String.valueOf(childNode.getBoardNo()));
+				out.write(", ");
+				out.write(String.valueOf(oldAttachedFile.getAttachedFileSeq()));
+				out.write(")\">");
+				out.write(StringEscapeActorUtil.replace(oldAttachedFile.getAttachedFileName(), 
+						STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
+				out.write("</a>");
+			}
+%></td>
+								
+							</tr>
+						</tbody>
+					</table>			
+					<div id="editScreenOfBoard<%= childNode.getBoardNo() %>" style="display:block"></div>		
+				</div><%
+		}
+%>			
 			</div>
 		</div><%
 	}
