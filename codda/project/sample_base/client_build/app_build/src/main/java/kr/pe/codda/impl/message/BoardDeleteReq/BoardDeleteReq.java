@@ -28,6 +28,7 @@ public class BoardDeleteReq extends AbstractMessage {
 	private String requestedUserID;
 	private short boardID;
 	private long boardNo;
+	private String pwdHashBase64;
 	private String ip;
 
 	public String getRequestedUserID() {
@@ -51,6 +52,13 @@ public class BoardDeleteReq extends AbstractMessage {
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
 	}
+	public String getPwdHashBase64() {
+		return pwdHashBase64;
+	}
+
+	public void setPwdHashBase64(String pwdHashBase64) {
+		this.pwdHashBase64 = pwdHashBase64;
+	}
 	public String getIp() {
 		return ip;
 	}
@@ -69,6 +77,8 @@ public class BoardDeleteReq extends AbstractMessage {
 		builder.append(boardID);
 		builder.append(", boardNo=");
 		builder.append(boardNo);
+		builder.append(", pwdHashBase64=");
+		builder.append(pwdHashBase64);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append("]");

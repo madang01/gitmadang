@@ -29,6 +29,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.common.WebCommonStaticUtil;
@@ -64,9 +65,11 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 
+			AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+			
 			log.warn("{}, userID={}, ip={}",
 					(null == debugMessage) ? errorMessage : debugMessage,
-					getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
+							accessedUserformation.getUserID(), req.getRemoteAddr());
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -441,9 +444,11 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 			md.update(passwordBytes);
 			pwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
 		}
+		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
-		boardWriteReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
+		boardWriteReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardWriteReq.setBoardID(boardID);
 		boardWriteReq.setPwdHashBase64(pwdHashBase64);
 		boardWriteReq.setSubject(paramSubject);

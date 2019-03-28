@@ -29,8 +29,12 @@ public class ValueChecker {
 		if (null == title) {
 			throw new IllegalArgumentException("the parameter title is null");
 		}
+		
 		if (null == userID) {
-			throw new IllegalArgumentException("the parameter userID is null");
+			String errorMessage = new StringBuilder(title)
+					.append(" 아이디를 넣어주세요").toString();
+			
+			throw new IllegalArgumentException(errorMessage);
 		}		
 		
 		char[] userIDChars = userID.toCharArray();
@@ -145,6 +149,15 @@ public class ValueChecker {
 	public static void checkValidUnBlockUserID(String userID) throws IllegalArgumentException {
 		checkValidUserID("차단 해제할 사용자", userID);
 	}
+	
+	public static void checkValidActivtyTargetUserID(String userID) throws IllegalArgumentException {		
+		checkValidUserID("개인 활동 내역 대상 사용자", userID);
+	}
+	
+	public static void checkValidPersonalInformationTargetUserID(String userID) throws IllegalArgumentException {		
+		checkValidUserID("개인 정보 조회 대상 사용자", userID);
+	}
+		
 	
 	/**
 	 * 비밀번호에 대한 입력값 검사를 수행한다.
@@ -700,6 +713,23 @@ public class ValueChecker {
 						.append("자 최대 ")
 						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_BOARDNAME_CHARRACTERS)
 						.append("자를 요구합니다").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+		}
+	}
+	
+	/**
+	 * WARNING!) 파라미터 null 체크 없음
+	 *  
+	 * @param boardPasswordHashBase64
+	 * @throws IllegalArgumentException
+	 */
+	public static void checkValidBoardPasswordHashBase64(String boardPasswordHashBase64) throws IllegalArgumentException {
+		if (null != boardPasswordHashBase64) {
+			try {
+				CommonStaticUtil.Base64Decoder.decode(boardPasswordHashBase64);
+			} catch(IllegalArgumentException e) {
+				String errorMessage = "베이스64(base64)로 인코딩한 게시글 비밀번호 해쉬가 잘못되었습니다";
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}

@@ -9,14 +9,16 @@ import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Record1;
 import org.jooq.Record13;
 import org.jooq.Record3;
-import org.jooq.Record8;
+import org.jooq.Record4;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.Table;
@@ -80,7 +82,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 
 			log.warn(errorMessage, e);
 
-			sendErrorOutputMessage("회원 가입이 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("게시글 목록 조회가 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -197,109 +199,126 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			
 			SbBoardTb a = SB_BOARD_TB.as("a");
 			SbBoardHistoryTb b = SB_BOARD_HISTORY_TB.as("b");
-			SbBoardHistoryTb c = SB_BOARD_HISTORY_TB.as("c");
+			SbBoardHistoryTb c = SB_BOARD_HISTORY_TB.as("c");			
 			
-			Table<Record8<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String>> mainTable = null;
+			HashSet<UInteger> boardNoSet = new HashSet<UInteger>(); 
 			
 			if (BoardListType.TREE.equals(boardListType)) {
-				Table<Record3<UByte, UInteger, UShort>> d = create.select(a.BOARD_ID, a.GROUP_NO, a.GROUP_SQ)
+				Table<Record4<UByte, UInteger, UShort, Byte>> d = create.select(a.BOARD_ID, a.GROUP_NO, a.GROUP_SQ, a.BOARD_ST)
 						.from(a.forceIndex("sb_board_idx1"))
 						.where(a.BOARD_ID.eq(boardID))
 						.and(a.BOARD_ST.eq(BoardStateType.OK.getValue()))
 						.orderBy(a.GROUP_NO.desc(), a.GROUP_SQ.desc())
 						.offset(offset).limit(pageSize).asTable("b");
 
-				mainTable = create
-						.select(a.BOARD_ID, a.BOARD_NO, a.GROUP_NO, a.GROUP_SQ, a.PARENT_NO, a.DEPTH, a.VIEW_CNT,
-								a.BOARD_ST)
-						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))
+				Result<Record1<UInteger>> boardResult = create
+						.select(a.BOARD_NO)
+						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))						
 						.and(a.GROUP_NO.eq(d.field(SB_BOARD_TB.GROUP_NO)))
-						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");
+						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ)))
+						.and(a.BOARD_ST.eq(d.field(SB_BOARD_TB.BOARD_ST))).fetch();
+				
+				for (Record1<UInteger> boardRecord : boardResult) {
+					UInteger boardNo = boardRecord.get(SB_BOARD_TB.BOARD_NO);
+					boardNoSet.add(boardNo);
+				}
+				
+				
 			} else {
-				Table<Record3<UByte, UInteger, UInteger>> d = create.select(a.BOARD_ID, a.PARENT_NO, a.BOARD_NO)
-						.from(a.forceIndex("sb_board_idx2")).where(a.BOARD_ID.eq(boardID))
-						.and(a.PARENT_NO.eq(UInteger.valueOf(0)))
+				Table<Record4<UByte, UInteger, UInteger, Byte>> d = create.select(a.BOARD_ID, a.PARENT_NO, a.BOARD_NO, a.BOARD_ST)
+						.from(a.forceIndex("sb_board_idx2"))
+						.where(a.BOARD_ID.eq(boardID))
+						.and(a.PARENT_NO.eq(UInteger.valueOf(0)))						
 						.and(a.BOARD_ST.eq(BoardStateType.OK.getValue()))						
 						.orderBy(a.BOARD_NO.desc())
 						.offset(offset).limit(pageSize).asTable("b");
 
-				mainTable = create
-						.select(a.BOARD_ID, a.BOARD_NO, a.GROUP_NO, a.GROUP_SQ, a.PARENT_NO, a.DEPTH, a.VIEW_CNT,
-								a.BOARD_ST)
+				Result<Record1<UInteger>> boardResult = create
+						.select(a.BOARD_NO)
 						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))
 						.and(a.PARENT_NO.eq(d.field(SB_BOARD_TB.PARENT_NO)))
 						.and(a.BOARD_NO.eq(d.field(SB_BOARD_TB.BOARD_NO)))
-						.asTable("a");
-			}			
-
-			Result<Record13<UInteger, UInteger, UShort, UInteger, UByte, Integer, String, Object, String, Timestamp, String, Object, Timestamp>> boardListResult = create
-					.select(mainTable.field(SB_BOARD_TB.BOARD_NO), mainTable.field(SB_BOARD_TB.GROUP_NO),
-							mainTable.field(SB_BOARD_TB.GROUP_SQ), mainTable.field(SB_BOARD_TB.PARENT_NO),
-							mainTable.field(SB_BOARD_TB.DEPTH), mainTable.field(SB_BOARD_TB.VIEW_CNT),
-							mainTable.field(SB_BOARD_TB.BOARD_ST),
-							create.selectCount().from(SB_BOARD_VOTE_TB)
-									.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
-									.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
-									.asField("votes"),
-							b.SUBJECT, b.REG_DT.as("last_mod_date"), c.REGISTRANT_ID,
-							create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
-									.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID))
-									.asField(SB_MEMBER_TB.NICKNAME.getName()),
-							c.REG_DT.as("first_reg_date"))
-					.from(mainTable)
-					.innerJoin(c).on(c.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
-						.and(c.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
-						.and(c.HISTORY_SQ.eq(UByte.valueOf(0)))
-					.innerJoin(b).on(b.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
-						.and(b.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
-						.and(b.HISTORY_SQ.eq(create.select(b.HISTORY_SQ.max()).from(b)
-							.where(b.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
-							.and(b.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))))
-					.orderBy(mainTable.field(SB_BOARD_TB.GROUP_NO).desc(), mainTable.field(SB_BOARD_TB.GROUP_SQ).desc())
-					.fetch();
-
-			for (Record boardRecord : boardListResult) {
-				UInteger boardNo = boardRecord.getValue(SB_BOARD_TB.BOARD_NO);
-				UInteger groupNo = boardRecord.getValue(SB_BOARD_TB.GROUP_NO);
-				UShort groupSequence = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
-				UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-				UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
-				int viewCount = boardRecord.getValue(SB_BOARD_TB.VIEW_CNT);
-				String nativeBoardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
-				int votes = boardRecord.getValue("votes", Integer.class);
-				String subject = boardRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT);
-				Timestamp lastModifiedDate = boardRecord.getValue("last_mod_date", Timestamp.class);
-				String firstWriterID = boardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
-				String firstWriterNickName = boardRecord.getValue(SB_MEMBER_TB.NICKNAME);
-				Timestamp firstRegisteredDate = boardRecord.getValue("first_reg_date", Timestamp.class);
+						.and(a.BOARD_ST.eq(d.field(SB_BOARD_TB.BOARD_ST))).fetch();
 				
-				if (null == subject) {
-					subject = "";
+				for (Record1<UInteger> boardRecord : boardResult) {
+					UInteger boardNo = boardRecord.get(SB_BOARD_TB.BOARD_NO);
+					boardNoSet.add(boardNo);
 				}
-
-				BoardListRes.Board board = new BoardListRes.Board();
-				board.setBoardNo(boardNo.longValue());
-				board.setGroupNo(groupNo.longValue());
-				board.setGroupSeq(groupSequence.intValue());
-				board.setParentNo(parentNo.longValue());
-				board.setDepth(depth.shortValue());
-				board.setWriterID(firstWriterID);
-				board.setViewCount(viewCount);
-				board.setBoardSate(nativeBoardState);
-				board.setRegisteredDate(firstRegisteredDate);
-				board.setWriterNickname(firstWriterNickName);
-				board.setVotes(votes);
-				board.setSubject(subject);
-				board.setLastModifiedDate(lastModifiedDate);
-
-				// log.info(board.toString());
-				boardList.add(board);
+				
 			}
+			
+			if (! boardNoSet.isEmpty()) {
+				Result<Record13<UInteger, UInteger, UShort, UInteger, UByte, Integer, Byte, Object, String, Timestamp, String, Object, Timestamp>> boardResult = null;
+				boardResult = create
+						.select(a.field(SB_BOARD_TB.BOARD_NO), a.field(SB_BOARD_TB.GROUP_NO),
+								a.field(SB_BOARD_TB.GROUP_SQ), a.field(SB_BOARD_TB.PARENT_NO),
+								a.field(SB_BOARD_TB.DEPTH), a.field(SB_BOARD_TB.VIEW_CNT),
+								a.field(SB_BOARD_TB.BOARD_ST),
+								create.selectCount().from(SB_BOARD_VOTE_TB)
+										.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(a.field(SB_BOARD_TB.BOARD_ID)))
+										.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(a.field(SB_BOARD_TB.BOARD_NO)))
+										.asField("votes"),
+								b.SUBJECT, b.REG_DT.as("last_mod_date"), c.REGISTRANT_ID,
+								create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
+										.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID))
+										.asField(SB_MEMBER_TB.NICKNAME.getName()),
+								c.REG_DT.as("first_reg_date"))
+						.from(a)
+						.innerJoin(c).on(c.BOARD_ID.eq(a.field(SB_BOARD_TB.BOARD_ID)))
+							.and(c.BOARD_NO.eq(a.field(SB_BOARD_TB.BOARD_NO)))
+							.and(c.HISTORY_SQ.eq(UByte.valueOf(0)))
+						.innerJoin(b).on(b.BOARD_ID.eq(a.field(SB_BOARD_TB.BOARD_ID)))
+							.and(b.BOARD_NO.eq(a.field(SB_BOARD_TB.BOARD_NO)))
+							.and(b.HISTORY_SQ.eq(create.select(b.HISTORY_SQ.max()).from(b)
+								.where(b.BOARD_ID.eq(a.field(SB_BOARD_TB.BOARD_ID)))
+								.and(b.BOARD_NO.eq(a.field(SB_BOARD_TB.BOARD_NO)))))
+						.where(a.BOARD_ID.eq(boardID))
+						.and(a.BOARD_NO.in(boardNoSet))
+						.orderBy(a.field(SB_BOARD_TB.GROUP_NO).desc(), a.field(SB_BOARD_TB.GROUP_SQ).desc())
+						.fetch();			
+
+				for (Record boardRecord : boardResult) {
+					UInteger boardNo = boardRecord.getValue(SB_BOARD_TB.BOARD_NO);
+					UInteger groupNo = boardRecord.getValue(SB_BOARD_TB.GROUP_NO);
+					UShort groupSequence = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
+					UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
+					UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
+					int viewCount = boardRecord.getValue(SB_BOARD_TB.VIEW_CNT);
+					byte boardStateValue = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+					int votes = boardRecord.getValue("votes", Integer.class);
+					String subject = boardRecord.getValue(SB_BOARD_HISTORY_TB.SUBJECT);
+					Timestamp lastModifiedDate = boardRecord.getValue("last_mod_date", Timestamp.class);
+					String firstWriterID = boardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
+					String firstWriterNickName = boardRecord.getValue(SB_MEMBER_TB.NICKNAME);
+					Timestamp firstRegisteredDate = boardRecord.getValue("first_reg_date", Timestamp.class);
+					
+					if (null == subject) {
+						subject = "";
+					}
+
+					BoardListRes.Board board = new BoardListRes.Board();
+					board.setBoardNo(boardNo.longValue());
+					board.setGroupNo(groupNo.longValue());
+					board.setGroupSeq(groupSequence.intValue());
+					board.setParentNo(parentNo.longValue());
+					board.setDepth(depth.shortValue());
+					board.setWriterID(firstWriterID);
+					board.setViewCount(viewCount);
+					board.setBoardSate(boardStateValue);
+					board.setRegisteredDate(firstRegisteredDate);
+					board.setWriterNickname(firstWriterNickName);
+					board.setVotes(votes);
+					board.setSubject(subject);
+					board.setLastModifiedDate(lastModifiedDate);
+
+					// log.info(board.toString());
+					boardList.add(board);
+				}
+			}			
 
 			conn.commit();
 
 		} catch (Exception e) {
-
 			if (null != conn) {
 				try {
 					conn.rollback();
@@ -307,7 +326,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
-
+			
 			throw e;
 		} finally {
 			if (null != conn) {

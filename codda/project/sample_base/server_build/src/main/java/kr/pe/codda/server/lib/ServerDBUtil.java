@@ -2,10 +2,11 @@ package kr.pe.codda.server.lib;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
+import static kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
+import static kr.pe.codda.impl.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
 import static kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
-import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -13,6 +14,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -39,6 +41,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.buildsystem.pathsupporter.ProjectBuildSytemPathSupporter;
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
@@ -305,7 +308,8 @@ public abstract class ServerDBUtil {
 						.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, boardReplyPolictyType)
 						.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, boardWritePermissionType)
 						.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, boardReplyPermissionType)
-						.set(SB_BOARD_INFO_TB.CNT, 0).set(SB_BOARD_INFO_TB.TOTAL, 0)
+						.set(SB_BOARD_INFO_TB.CNT, 0L)
+						.set(SB_BOARD_INFO_TB.TOTAL, 0L)
 						.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
 
 				if (0 == countOfInsert) {
@@ -395,8 +399,9 @@ public abstract class ServerDBUtil {
 	 * @throws Exception
 	 */
 	public static void registerMember(String dbcpName, MemberRoleType memberRoleType, String userID, String nickname,
-			String pwdHint, String pwdAnswer, byte[] passwordBytes, String ip) throws Exception {
-		Logger log = LoggerFactory.getLogger(ServerDBUtil.class);
+			String pwdHint, String pwdAnswer, byte[] passwordBytes, String ip, Timestamp registeredDate) throws Exception {		
+		InternalLogger log = InternalLoggerFactory.getInstance(ServerDBUtil.class);
+		
 
 		if (null == memberRoleType) {
 			String errorMessage = "the parameter memberRoleType is null";
@@ -497,13 +502,10 @@ public abstract class ServerDBUtil {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			String inputMessage = new StringBuilder().append("회원 가입 신청 아이디[").append(userID).append("], 회원 종류[")
+			String logText = new StringBuilder().append("회원 가입 신청 아이디[").append(userID).append("], 회원 종류[")
 					.append(memberRoleType.getName()).append("], ip[").append(ip).append("]").toString();
-
-			create.insertInto(SB_USER_ACTION_HISTORY_TB).set(SB_USER_ACTION_HISTORY_TB.USER_ID, userID)
-					.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, "MemberRegisterReq")
-					.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, inputMessage)
-					.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
+			
+			insertSiteLog(conn, create, log, userID, logText, registeredDate);
 
 			try {
 				conn.commit();
@@ -521,8 +523,6 @@ public abstract class ServerDBUtil {
 					log.warn("fail to rollback");
 				}
 			}
-
-			log.warn("unknown error", e);
 
 			throw e;
 		} finally {
@@ -659,83 +659,65 @@ public abstract class ServerDBUtil {
 		return toGroupSeq;
 	}
 
-	public static MemberRoleType getValidMemberRoleType(Connection conn, DSLContext create, InternalLogger log, 
-			String requestedUserID) throws ServerServiceException {
-		if (null == requestedUserID) {
-			try {
-				conn.rollback();
-			} catch (Exception e) {
-				log.warn("fail to rollback");
-			}
-
-			String errorMessage = "서비스 요청자를 입력해 주세요";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		MemberRoleType memberRoleTypeOfRequestedUserID = null;
-
-		Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE).from(SB_MEMBER_TB)
-				.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID)).fetchOne();
-
-		if (null == memberRecord) {
-			try {
-				conn.rollback();
-			} catch (Exception e) {
-				log.warn("fail to rollback");
-			}
-
-			String errorMessage = new StringBuilder("서비스 요청자[").append(requestedUserID).append("]가 회원 테이블에 존재하지 않습니다")
-					.toString();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		String memeberStateOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.STATE);
-		MemberStateType memberStateTypeOfRequestedUserID = null;
-		try {
-			memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memeberStateOfRequestedUserID, false);
-		} catch (IllegalArgumentException e) {
-			try {
-				conn.rollback();
-			} catch (Exception e1) {
-				log.warn("fail to rollback");
-			}
-
-			String errorMessage = new StringBuilder("서비스 요청자[").append(requestedUserID).append("]의 회원 상태[")
-					.append(memeberStateOfRequestedUserID).append("] 값이 잘못되었습니다").toString();
-
-			throw new ServerServiceException(errorMessage);
-		}
-
-		if (! MemberStateType.OK.equals(memberStateTypeOfRequestedUserID)) {
-			try {
-				conn.rollback();
-			} catch (Exception e1) {
-				log.warn("fail to rollback");
-			}
-
-			String errorMessage = new StringBuilder("서비스 요청자[").append(requestedUserID).append("]의 회원 상태[")
-					.append(memberStateTypeOfRequestedUserID.getName()).append("]가 정상이 아닙니다").toString();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		String memberRoleTypeValueOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.ROLE);
-
-		try {
-			memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleTypeValueOfRequestedUserID, false);
-		} catch (IllegalArgumentException e) {
-			try {
-				conn.rollback();
-			} catch (Exception e1) {
-				log.warn("fail to rollback");
-			}
-
-			String errorMessage = new StringBuilder("서비스 요청자[").append(requestedUserID).append("]의 멤버 역활 유형[")
-					.append(memberRoleTypeValueOfRequestedUserID).append("]이 잘못되어있습니다").toString();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		return memberRoleTypeOfRequestedUserID;
-	}
+	/*
+	 * public static MemberRoleType getValidMemberRoleType(Connection conn,
+	 * DSLContext create, InternalLogger log, String requestedUserID) throws
+	 * ServerServiceException { if (null == requestedUserID) { try {
+	 * conn.rollback(); } catch (Exception e) { log.warn("fail to rollback"); }
+	 * 
+	 * String errorMessage = "서비스 요청자를 입력해 주세요"; throw new
+	 * ServerServiceException(errorMessage); }
+	 * 
+	 * MemberRoleType memberRoleTypeOfRequestedUserID = null;
+	 * 
+	 * Record2<Byte, Byte> memberRecord = create.select(SB_MEMBER_TB.STATE,
+	 * SB_MEMBER_TB.ROLE).from(SB_MEMBER_TB)
+	 * .where(SB_MEMBER_TB.USER_ID.eq(requestedUserID)).fetchOne();
+	 * 
+	 * if (null == memberRecord) { try { conn.rollback(); } catch (Exception e) {
+	 * log.warn("fail to rollback"); }
+	 * 
+	 * String errorMessage = new StringBuilder("서비스 요청자[").append(requestedUserID).
+	 * append("]가 회원 테이블에 존재하지 않습니다") .toString(); throw new
+	 * ServerServiceException(errorMessage); }
+	 * 
+	 * byte memeberStateOfRequestedUserID =
+	 * memberRecord.getValue(SB_MEMBER_TB.STATE); MemberStateType
+	 * memberStateTypeOfRequestedUserID = null; try {
+	 * memberStateTypeOfRequestedUserID =
+	 * MemberStateType.valueOf(memeberStateOfRequestedUserID); } catch
+	 * (IllegalArgumentException e) { try { conn.rollback(); } catch (Exception e1)
+	 * { log.warn("fail to rollback"); }
+	 * 
+	 * String errorMessage = new
+	 * StringBuilder("서비스 요청자[").append(requestedUserID).append("]의 회원 상태[")
+	 * .append(memeberStateOfRequestedUserID).append("] 값이 잘못되었습니다").toString();
+	 * 
+	 * throw new ServerServiceException(errorMessage); }
+	 * 
+	 * if (! MemberStateType.OK.equals(memberStateTypeOfRequestedUserID)) { try {
+	 * conn.rollback(); } catch (Exception e1) { log.warn("fail to rollback"); }
+	 * 
+	 * String errorMessage = new
+	 * StringBuilder("서비스 요청자[").append(requestedUserID).append("]의 회원 상태[")
+	 * .append(memberStateTypeOfRequestedUserID.getName()).append("]가 정상이 아닙니다").
+	 * toString(); throw new ServerServiceException(errorMessage); }
+	 * 
+	 * byte memberRoleTypeValueOfRequestedUserID =
+	 * memberRecord.getValue(SB_MEMBER_TB.ROLE);
+	 * 
+	 * try { memberRoleTypeOfRequestedUserID =
+	 * MemberRoleType.valueOf(memberRoleTypeValueOfRequestedUserID); } catch
+	 * (IllegalArgumentException e) { try { conn.rollback(); } catch (Exception e1)
+	 * { log.warn("fail to rollback"); }
+	 * 
+	 * String errorMessage = new
+	 * StringBuilder("서비스 요청자[").append(requestedUserID).append("]의 멤버 역활 유형[")
+	 * .append(memberRoleTypeValueOfRequestedUserID).append("]이 잘못되어있습니다").toString(
+	 * ); throw new ServerServiceException(errorMessage); }
+	 * 
+	 * return memberRoleTypeOfRequestedUserID; }
+	 */
 
 	/**
 	 * <pre>
@@ -756,14 +738,14 @@ public abstract class ServerDBUtil {
 	 * @param conn                    연결 객체
 	 * @param create                  jooq DLSContext 객체
 	 * @param log                     로그
-	 * @param serverName              서비스 이름
-	 * @param servericePermissionType 서비스 이용 권한 유형
+	 * @param serviceName              서비스 이름
+	 * @param servicePermissionType 서비스 이용 권한 유형
 	 * @param requestedUserID         서비스 요청자
 	 * @return 서비스 요청자의 회원 역활 유형
 	 * @throws ServerServiceException 서비스 이용 권한이 없거나 기타 에러 발생시 던지는 예외
 	 */
 	public static MemberRoleType checkUserAccessRights(Connection conn, DSLContext create, InternalLogger log,
-			String serverName, PermissionType servericePermissionType, String requestedUserID)
+			String serviceName, PermissionType servicePermissionType, String requestedUserID)
 			throws ServerServiceException {
 
 		if (null == requestedUserID) {
@@ -779,7 +761,7 @@ public abstract class ServerDBUtil {
 
 		
 
-		Record2<String, String> memberRecord = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE).from(SB_MEMBER_TB)
+		Record2<Byte, Byte> memberRecord = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE).from(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID)).fetchOne();
 
 		if (null == memberRecord) {
@@ -794,10 +776,10 @@ public abstract class ServerDBUtil {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		String memeberStateOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.STATE);
+		byte memeberStateOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.STATE);
 		MemberStateType memberStateTypeOfRequestedUserID = null;
 		try {
-			memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memeberStateOfRequestedUserID, false);
+			memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memeberStateOfRequestedUserID);
 		} catch (IllegalArgumentException e) {
 			try {
 				conn.rollback();
@@ -824,11 +806,11 @@ public abstract class ServerDBUtil {
 		}
 
 		
-		String memberRoleTypeValueOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.ROLE);
+		byte memberRoleTypeValueOfRequestedUserID = memberRecord.getValue(SB_MEMBER_TB.ROLE);
 
 		MemberRoleType memberRoleTypeOfRequestedUserID = null;
 		try {
-			memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleTypeValueOfRequestedUserID, false);
+			memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleTypeValueOfRequestedUserID);
 		} catch (IllegalArgumentException e) {
 			try {
 				conn.rollback();
@@ -842,7 +824,7 @@ public abstract class ServerDBUtil {
 		}
 
 		
-		if (PermissionType.ADMIN.equals(servericePermissionType)) {
+		if (PermissionType.ADMIN.equals(servicePermissionType)) {
 			if (!MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				try {
 					conn.rollback();
@@ -850,10 +832,10 @@ public abstract class ServerDBUtil {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder().append(serverName).append("는 관리자 전용 서비스입니다").toString();
+				String errorMessage = new StringBuilder().append(serviceName).append("는 관리자 전용 서비스입니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
-		} else if (PermissionType.MEMBER.equals(servericePermissionType)) {
+		} else if (PermissionType.MEMBER.equals(servicePermissionType)) {
 			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
 				try {
 					conn.rollback();
@@ -861,12 +843,67 @@ public abstract class ServerDBUtil {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder().append(serverName).append("는 로그인 해야만 이용할 수 있습니다").toString();
+				String errorMessage = new StringBuilder().append(serviceName).append("는 로그인 해야만 이용할 수 있습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 		}
 
 		return memberRoleTypeOfRequestedUserID;
+	}
+
+	public static void insertSiteLog(Connection conn, DSLContext create, InternalLogger log, String userID, 
+			String logText, Timestamp registeredDate) throws Exception {
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		String yyyyMMdd = sdf.format(registeredDate);
+		
+		/** '일별 로그 순번' 동기화를 위해 락을 건다 */
+		create.select(SB_SEQ_TB.SQ_ID).from(SB_SEQ_TB)
+		.where(SB_SEQ_TB.SQ_ID.eq(SequenceType.SITE_LOG_LOCK.getSequenceID()))
+		.forUpdate();
+		
+		UInteger dayLogSeq = create.select(DSL.field("if ({0} is null, {1}, {2})", 
+				UInteger.class, SB_SITE_LOG_TB.DAY_LOG_SQ.max(), UInteger.valueOf(0), 
+				SB_SITE_LOG_TB.DAY_LOG_SQ.max().add(1)))
+		.from(SB_SITE_LOG_TB)
+		.where(SB_SITE_LOG_TB.YYYYMMDD.eq(yyyyMMdd)).fetchOne().value1();
+		
+		create.insertInto(SB_SITE_LOG_TB)
+		.set(SB_SITE_LOG_TB.YYYYMMDD, yyyyMMdd)
+		.set(SB_SITE_LOG_TB.DAY_LOG_SQ, dayLogSeq)
+		.set(SB_SITE_LOG_TB.USER_ID, userID)		
+		.set(SB_SITE_LOG_TB.LOG_TXT, logText)		
+		.set(SB_SITE_LOG_TB.REG_DT, registeredDate).execute();
+	}
+	
+	
+	public static void insertMemberActivityHistory(Connection conn, DSLContext create, InternalLogger log,
+			String userID, 
+			MemberRoleType memberRoleType, MemberActivityType memberActivityType, UByte boardID, UInteger boardNo,
+			Timestamp registeredDate) throws Exception {
+		
+		if (MemberRoleType.GUEST.equals(memberRoleType)) {
+			/** 손님은 활동 이력 저장을 하지 않는다 */
+			return;
+		}
+		
+		/** '회원 이력 순번' 동기화를 위해 락을 건다 */
+		create.select(SB_MEMBER_TB.USER_ID).from(SB_MEMBER_TB)
+		.where(SB_MEMBER_TB.USER_ID.eq(userID))
+		.forUpdate();
+		
+		Long activitySeq = create.select(DSL.field("if ({0} is null, {1}, {2})", 
+				Long.class, SB_MEMBER_ACTIVITY_HISTORY_TB.ACTIVITY_SQ.max(), 
+				0, SB_MEMBER_ACTIVITY_HISTORY_TB.ACTIVITY_SQ.max().add(1))).from(SB_MEMBER_ACTIVITY_HISTORY_TB)
+				.where(SB_MEMBER_ACTIVITY_HISTORY_TB.USER_ID.eq(userID)).fetchOne().value1();
+		
+		create.insertInto(SB_MEMBER_ACTIVITY_HISTORY_TB)
+		.set(SB_MEMBER_ACTIVITY_HISTORY_TB.USER_ID, userID)
+		.set(SB_MEMBER_ACTIVITY_HISTORY_TB.ACTIVITY_SQ, activitySeq)
+		.set(SB_MEMBER_ACTIVITY_HISTORY_TB.BOARD_ID, boardID)
+		.set(SB_MEMBER_ACTIVITY_HISTORY_TB.BOARD_NO, boardNo)
+		.set(SB_MEMBER_ACTIVITY_HISTORY_TB.ACTIVITY_TYPE, memberActivityType.getValue())
+		.set(SB_MEMBER_ACTIVITY_HISTORY_TB.REG_DT, registeredDate).execute();
 	}
 
 }

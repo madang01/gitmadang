@@ -1,16 +1,16 @@
 package kr.pe.codda.weblib.common;
 
 public enum MemberStateType {
-	OK("Y", "정상"), BLOCK("B", "블락"), WITHDRAWAL("W", "탈퇴");
+	OK((byte)'Y', "정상"), BLOCK((byte)'B', "블락"), WITHDRAWAL((byte)'W', "탈퇴");
 	
-	private String memberStateTypeValue;
+	private byte memberStateTypeValue;
 	private String memberStateTypeName;
 	
-	private MemberStateType(String memberStateTypeValue, String memberStateTypeName) {
+	private MemberStateType(byte memberStateTypeValue, String memberStateTypeName) {
 		this.memberStateTypeValue = memberStateTypeValue;
 		this.memberStateTypeName = memberStateTypeName;
 	}
-	public String getValue() {
+	public byte getValue() {
 		return memberStateTypeValue;
 	}
 	
@@ -18,18 +18,11 @@ public enum MemberStateType {
 		return memberStateTypeName;
 	}
 	
-	public static MemberStateType valueOf(String memberStateTypeValue, boolean isSuper) {
-		if (null == memberStateTypeValue) {
-			throw new IllegalArgumentException("the parameter memberStateTypeValue is null");
-		}
-		
-		if (isSuper) {
-			return valueOf(memberStateTypeValue);
-		}
+	public static MemberStateType valueOf(byte memberStateTypeValue) {		
 		
 		MemberStateType[] memeberStateTypes = MemberStateType.values();
 		for (MemberStateType memeberStateType : memeberStateTypes) {
-			if (memeberStateType.getValue().equals(memberStateTypeValue)) {
+			if (memeberStateType.getValue() == memberStateTypeValue) {
 				return memeberStateType;
 			}
 		}	

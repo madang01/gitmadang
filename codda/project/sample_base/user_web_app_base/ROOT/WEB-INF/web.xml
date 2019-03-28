@@ -415,6 +415,48 @@
 		<servlet-name>BoardDeleteProcess</servlet-name>
 		<url-pattern>/servlet/BoardDeleteProcess</url-pattern>
 	</servlet-mapping>
+	
+	<!-- 게시글 차단 처리 -->
+	<servlet>
+		<servlet-name>BoardBlockProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.BoardBlockProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/BoardList</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardBlockProcess</servlet-name>
+		<url-pattern>/servlet/BoardBlockProcess</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 개인 정보 조회 -->
+	<servlet>
+		<servlet-name>PersonalInformation</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.PersonalInformationSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/PersonalInformation</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PersonalInformation</servlet-name>
+		<url-pattern>/servlet/PersonalInformation</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 개인 활동 이력 -->
+	<servlet>
+		<servlet-name>PersonalActivityHistory</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.PersonalActivityHistorySvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/PersonalInformation</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PersonalActivityHistory</servlet-name>
+		<url-pattern>/servlet/PersonalActivityHistory</url-pattern>
+	</servlet-mapping>
 
 	<!-- 첨부 파일 내려받기 -->
 	<servlet>

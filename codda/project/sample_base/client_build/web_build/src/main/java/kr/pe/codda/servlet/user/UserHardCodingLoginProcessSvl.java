@@ -13,7 +13,7 @@ import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.common.util.HexUtil;
-import kr.pe.codda.weblib.common.LoginedUserInformation;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.MemberRoleType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
@@ -22,19 +22,25 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 	
 	class FreePassUserInfo {
 		private String userID = null;
+		private String userName = null;
 		private String password = null;
 		private MemberRoleType memberType = null;
 		
-		public FreePassUserInfo(String userID, String password,
-				MemberRoleType memberType) {
+		public FreePassUserInfo(String userID, String userName, 
+				String password, MemberRoleType memberType) {
 			super();
 			this.userID = userID;
+			this.userName = userName;
 			this.password = password;
 			this.memberType = memberType;
 		}
 
 		public String getUserID() {
 			return userID;
+		}
+		
+		public String getUserName() {
+			return userName;
 		}
 
 		public String getPassword() {
@@ -53,9 +59,9 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 	public UserHardCodingLoginProcessSvl() {
 		freePassUserInfoHash = new HashMap<String, FreePassUserInfo>();
 		
-		freePassUserInfoHash.put("admin", new FreePassUserInfo("admin", "test1234$", MemberRoleType.ADMIN));
-		freePassUserInfoHash.put("test01", new FreePassUserInfo("test01", "test1234$", MemberRoleType.USER));
-		freePassUserInfoHash.put("test02", new FreePassUserInfo("test02", "test1234$", MemberRoleType.USER));
+		freePassUserInfoHash.put("admin", new FreePassUserInfo("admin", "관리자", "test1234$", MemberRoleType.ADMIN));
+		freePassUserInfoHash.put("test01", new FreePassUserInfo("test01", "테스터1", "test1234$", MemberRoleType.MEMBER));
+		freePassUserInfoHash.put("test02", new FreePassUserInfo("test02", "테스터2", "test1234$", MemberRoleType.MEMBER));
 	}
 
 	@Override
@@ -224,7 +230,8 @@ public class UserHardCodingLoginProcessSvl extends AbstractServlet {
 		HttpSession httpSession = req.getSession();
 		
 		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION,
-				new LoginedUserInformation(freePassUserInfo.getUserID(), freePassUserInfo.getMemberType()));
+				new AccessedUserInformation(true, freePassUserInfo.getUserID(), freePassUserInfo.getUserName(),
+						freePassUserInfo.getMemberType()));
 				
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, 
 				webServerSymmetricKey);

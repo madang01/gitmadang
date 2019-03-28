@@ -87,7 +87,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			
 			log.warn(errorMessage, e);			
 			
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("사용자 로그인이 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -191,6 +191,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
+		String nickname = null;
 		MemberRoleType memberRoleType = null;
 		
 		DataSource dataSource = DBCPManager.getInstance()
@@ -226,6 +227,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			*/
 			
 			Record resultOfMember = create.select(
+					SB_MEMBER_TB.NICKNAME,
 					SB_MEMBER_TB.ROLE,
 					SB_MEMBER_TB.STATE,
 					SB_MEMBER_TB.PWD_FAIL_CNT,
@@ -248,15 +250,16 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String memberRole = resultOfMember.get(SB_MEMBER_TB.ROLE);
-			String memberState = resultOfMember.get(SB_MEMBER_TB.STATE);
+			nickname = resultOfMember.get(SB_MEMBER_TB.NICKNAME);
+			byte memberRole = resultOfMember.get(SB_MEMBER_TB.ROLE);
+			byte memberState = resultOfMember.get(SB_MEMBER_TB.STATE);
 			short pwdFailedCount = resultOfMember.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
 			String pwdMDBase64 =  resultOfMember.get(SB_MEMBER_TB.PWD_BASE64);
 			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);
 			
 			
 			try {
-				memberRoleType = MemberRoleType.valueOf(memberRole, false);
+				memberRoleType = MemberRoleType.valueOf(memberRole);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -291,7 +294,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			
 			MemberStateType memberStateType = null;
 			try {
-				memberStateType = MemberStateType.valueOf(memberState, false);
+				memberStateType = MemberStateType.valueOf(memberState);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -412,6 +415,11 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 			}
 			
 			
+			if (MemberRoleType.ADMIN.equals(memberRoleType)) {
+				ServerDBUtil.insertSiteLog(conn, create, log, userID, "관리자 로그인", 
+						new java.sql.Timestamp(System.currentTimeMillis()));
+			}
+			
 			conn.commit();
 			
 		} catch (ServerServiceException e) {
@@ -438,6 +446,7 @@ public class UserLoginReqServerTask extends AbstractServerTask {
 		
 		UserLoginRes userLoginRes = new UserLoginRes();
 		userLoginRes.setUserID(userID);
+		userLoginRes.setUserName(nickname);
 		userLoginRes.setMemberRole(memberRoleType.getValue());
 
 		return userLoginRes;

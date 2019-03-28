@@ -59,6 +59,14 @@ public final class BoardDeleteReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardDeleteReq.setPwdHashBase64((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "pwdHashBase64" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardDeleteReq.setIp((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "ip" // itemName

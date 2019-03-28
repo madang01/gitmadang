@@ -10,6 +10,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardInfoListReq.BoardInfoListReq;
 import kr.pe.codda.impl.message.BoardInfoListRes.BoardInfoListRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
 public class BoardInfoMangerSvl extends AbstractAdminLoginServlet {
@@ -21,7 +22,9 @@ public class BoardInfoMangerSvl extends AbstractAdminLoginServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		
 		BoardInfoListReq boardInfoListReq = new BoardInfoListReq();
-		boardInfoListReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);		
+		boardInfoListReq.setRequestedUserID(accessedUserformation.getUserID());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), boardInfoListReq);

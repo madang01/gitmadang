@@ -36,7 +36,7 @@ public class BoardDetailRes extends AbstractMessage {
 	private long parentNo;
 	private short depth;
 	private int viewCount;
-	private String boardSate;
+	private byte boardSate;
 	private int votes;
 	private String subject;
 	private String contents;
@@ -102,7 +102,7 @@ public class BoardDetailRes extends AbstractMessage {
 		private short depth;
 		private String contents;
 		private int votes;
-		private String boardSate;
+		private byte boardSate;
 		private String firstWriterID;
 		private String firstWriterNickname;
 		private java.sql.Timestamp firstRegisteredDate;
@@ -199,11 +199,11 @@ public class BoardDetailRes extends AbstractMessage {
 		public void setVotes(int votes) {
 			this.votes = votes;
 		}
-		public String getBoardSate() {
+		public byte getBoardSate() {
 			return boardSate;
 		}
 
-		public void setBoardSate(String boardSate) {
+		public void setBoardSate(byte boardSate) {
 			this.boardSate = boardSate;
 		}
 		public String getFirstWriterID() {
@@ -421,11 +421,11 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setViewCount(int viewCount) {
 		this.viewCount = viewCount;
 	}
-	public String getBoardSate() {
+	public byte getBoardSate() {
 		return boardSate;
 	}
 
-	public void setBoardSate(String boardSate) {
+	public void setBoardSate(byte boardSate) {
 		this.boardSate = boardSate;
 	}
 	public int getVotes() {

@@ -1,10 +1,8 @@
 package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
-import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
@@ -20,7 +18,6 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.UserUnBlockReq.UserUnBlockReq;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.PermissionType;
@@ -67,7 +64,7 @@ public class UserUnBlockReqServerTask extends AbstractServerTask {
 			
 			log.warn(errorMessage, e);
 						
-			sendErrorOutputMessage("게시글 가져오는데 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("사용자에 대한 차단을 해제하는데 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -120,7 +117,7 @@ public class UserUnBlockReqServerTask extends AbstractServerTask {
 			
 			
 			/** 차단 해제 대상 회원 레코드 락 */
-			Record2<String, String> memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)
+			Record2<Byte, Byte> memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)
 			.from(SB_MEMBER_TB)
 			.where(SB_MEMBER_TB.USER_ID.eq(targetUserID))
 			.forUpdate()
@@ -139,10 +136,10 @@ public class UserUnBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String memberRoleOfTargetUserID = memberRecordOfTargetUserID.getValue(SB_MEMBER_TB.ROLE);
+			byte memberRoleOfTargetUserID = memberRecordOfTargetUserID.getValue(SB_MEMBER_TB.ROLE);
 			MemberRoleType  memberRoleTypeOfTargetUserID = null;
 			try {
-				memberRoleTypeOfTargetUserID = MemberRoleType.valueOf(memberRoleOfTargetUserID, false);
+				memberRoleTypeOfTargetUserID = MemberRoleType.valueOf(memberRoleOfTargetUserID);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -169,10 +166,10 @@ public class UserUnBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			String memeberStateOfTargetUserID = memberRecordOfTargetUserID.getValue(SB_MEMBER_TB.STATE);
+			byte memeberStateOfTargetUserID = memberRecordOfTargetUserID.getValue(SB_MEMBER_TB.STATE);
 			MemberStateType memberStateTypeOfTargetUserID = null;
 			try {
-				memberStateTypeOfTargetUserID = MemberStateType.valueOf(memeberStateOfTargetUserID, false);
+				memberStateTypeOfTargetUserID = MemberStateType.valueOf(memeberStateOfTargetUserID);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -208,12 +205,9 @@ public class UserUnBlockReqServerTask extends AbstractServerTask {
 			.where(SB_MEMBER_TB.USER_ID.eq(targetUserID))
 			.execute();
 			
-			create.insertInto(SB_USER_ACTION_HISTORY_TB)
-			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestedUserID)
-			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, userUnBlockReq.getMessageID())
-			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, userUnBlockReq.toString())
-			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-			.execute();
+			
+			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, userUnBlockReq.toString(), 
+					new java.sql.Timestamp(System.currentTimeMillis()));
 			
 			conn.commit();			
 

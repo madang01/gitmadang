@@ -117,7 +117,7 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardSate"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 			, boardDetailRes.getBoardSate() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
@@ -328,7 +328,7 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 					, childNode$2MiddleWritableObject);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardSate"
-					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+					, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 					, childNode$2.getBoardSate() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset

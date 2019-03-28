@@ -19,8 +19,8 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type='text/javascript'>
 	function init() {
-		if (parent != null && parent.membershipProcessOKCallBack != null) {
-			parent.membershipProcessOKCallBack();
+		if (parent != null && parent.callBackForMembershipProcess != null) {
+			parent.callBackForMembershipProcess();
 		} else {
 			alert("parent.membershipProcessOKCallBack 이 존재하지 않습니다");
 		}

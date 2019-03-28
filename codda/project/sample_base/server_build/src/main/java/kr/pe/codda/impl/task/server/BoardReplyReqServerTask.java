@@ -40,7 +40,7 @@ import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.MemberActivityType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
@@ -95,14 +95,16 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(boardReplyReq.toString());
 
-		if (null == boardReplyReq.getPwdHashBase64()) {
-			String errorMessage = "게시글에 대한 비밀번호를 입력해 주세요";
-			throw new ServerServiceException(errorMessage);
-		}
-
 		try {
 			ValueChecker.checkValidParentBoardNo(boardReplyReq.getParentBoardNo());
 		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidBoardPasswordHashBase64(boardReplyReq.getPwdHashBase64());
+		} catch (RuntimeException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
@@ -169,6 +171,9 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 		UInteger parentBoardNo = UInteger.valueOf(boardReplyReq.getParentBoardNo());
 		UInteger boardNo = null;
 		String pwdHashBase64 = boardReplyReq.getPwdHashBase64();
+		if (null == pwdHashBase64) {
+			pwdHashBase64 = "";
+		}
 
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
 
@@ -179,6 +184,9 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
+			/**
+			 * '게시판 식별자 정보'(SB_BOARD_INFO_TB) 테이블에는 '다음 게시판 번호'가 있어 락을 건후 1 증가 시키고 가져온 값은 '게시판 번호'로 사용한다
+			 */
 			Record5<String, Byte, Byte, Byte, UInteger> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
 							SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, SB_BOARD_INFO_TB.NEXT_BOARD_NO)
@@ -285,10 +293,10 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			MemberRoleType memberRoleType = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 댓글 등록 서비스",
+			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 댓글 등록 서비스",
 					boardReplyPermissionType, boardReplyReq.getRequestedUserID());
 
-			if (MemberRoleType.GUEST.equals(memberRoleType)) {
+			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
 				if (pwdHashBase64.isEmpty()) {
 					try {
 						conn.rollback();
@@ -332,9 +340,10 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 
 			create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, SB_BOARD_INFO_TB.NEXT_BOARD_NO.add(1))
 					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
-
+			
 			conn.commit();
 
+			
 			Record4<UInteger, UShort, UInteger, UByte> parentBoardRecord = create
 					.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH).from(SB_BOARD_TB)
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(parentBoardNo)).fetchOne();
@@ -461,6 +470,8 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				String errorMessage = "댓글 저장하는데 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			Timestamp registeredDate = new java.sql.Timestamp(System.currentTimeMillis());
 
 			InsertSetMoreStep<SbBoardHistoryTbRecord> boardHistoryInsertSetMoreStep = null;
 			if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType)) {
@@ -471,7 +482,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 						.set(SB_BOARD_HISTORY_TB.CONTENTS, boardReplyReq.getContents())
 						.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardReplyReq.getRequestedUserID())
 						.set(SB_BOARD_HISTORY_TB.IP, boardReplyReq.getIp())
-						.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class));
+						.set(SB_BOARD_HISTORY_TB.REG_DT, registeredDate);
 			} else {
 				boardHistoryInsertSetMoreStep = create.insertInto(SB_BOARD_HISTORY_TB)
 						.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
@@ -480,7 +491,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 						.set(SB_BOARD_HISTORY_TB.CONTENTS, boardReplyReq.getContents())
 						.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardReplyReq.getRequestedUserID())
 						.set(SB_BOARD_HISTORY_TB.IP, boardReplyReq.getIp())
-						.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class));
+						.set(SB_BOARD_HISTORY_TB.REG_DT, registeredDate);
 			}
 
 			int boardHistoryInsertCount = boardHistoryInsertSetMoreStep.execute();
@@ -530,7 +541,12 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 				create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
 						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
 			}
-
+			
+			
+			ServerDBUtil.insertMemberActivityHistory(conn, create, log, boardReplyReq.getRequestedUserID(),
+					memberRoleTypeOfRequestedUserID, MemberActivityType.REPLY, boardID, boardNo,
+					registeredDate);
+			
 			conn.commit();
 
 		} catch (ServerServiceException e) {
@@ -543,6 +559,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

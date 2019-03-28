@@ -2,10 +2,8 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
-import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.util.HashSet;
 
 import javax.sql.DataSource;
@@ -32,7 +30,6 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -74,7 +71,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 
 			log.warn(errorMessage, e);
 
-			sendErrorOutputMessage("게시글 가져오는데 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("게시글 차단 해제하는데 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -175,7 +172,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			Record4<UShort, UInteger, UByte, String> boardRecord = create
+			Record4<UShort, UInteger, UByte, Byte> boardRecord = create
 					.select(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH, SB_BOARD_TB.BOARD_ST)
 					.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
 					.fetchOne();
@@ -194,11 +191,11 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			UShort groupSeq = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
 			UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
-			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			byte boardStateValue = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(boardState, false);
+				boardStateType = BoardStateType.valueOf(boardStateValue);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -206,7 +203,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시글의 상태 값[").append(boardState).append("]이 잘못되었습니다")
+				String errorMessage = new StringBuilder("게시글의 상태 값[").append(boardStateValue).append("]이 잘못되었습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -230,7 +227,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				 * 게시글 차단은 게시판 트리 하단부터 상단으로 올라가며 수행되며 게시글 차단 해제는 게시글 차단 역순 즉 상단부터 하단 순으로 수행된다.
 				 * 하여 게시글 차단 해제는 오직 직계 부모 노드중 게시판 상태가 정상인 경우에만 수행될 수 있다.
 				 */
-				Record2<UInteger, String> directParentBoardRecord = create
+				Record2<UInteger, Byte> directParentBoardRecord = create
 						.select(SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.BOARD_ST).from(SB_BOARD_TB)
 						.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(directParentNo))
 						.fetchOne();
@@ -248,11 +245,11 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				}
 
 				UInteger parentNoOfDirectParentNo = directParentBoardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-				String directParentBoardState = directParentBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+				byte directParentBoardStateValue = directParentBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 
 				BoardStateType directParentBoardStateType = null;
 				try {
-					directParentBoardStateType = BoardStateType.valueOf(directParentBoardState, false);
+					directParentBoardStateType = BoardStateType.valueOf(directParentBoardStateValue);
 				} catch (IllegalArgumentException e) {
 					try {
 						conn.rollback();
@@ -262,7 +259,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 
 					String errorMessage = new StringBuilder("직계 조상 게시글[boardID=").append(boardID.shortValue())
 							.append(", boardNo=").append(directParentNo.longValue()).append("] 의 상태 값[")
-							.append(directParentBoardState).append("] 이 잘못되었습니다").toString();
+							.append(directParentBoardStateValue).append("] 이 잘못되었습니다").toString();
 					throw new ServerServiceException(errorMessage);
 				}
 
@@ -289,17 +286,35 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 
 			// int fromGroupSeq = groupSeq.intValue() - 1;
 
-			Result<Record3<UInteger, UByte, String>> childBoardResult = create
+			Result<Record3<UInteger, UByte, Byte>> childBoardResult = create
 					.select(SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.DEPTH, SB_BOARD_TB.BOARD_ST).from(SB_BOARD_TB)
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.GROUP_NO.eq(groupNo))
 					.and(SB_BOARD_TB.GROUP_SQ.lt(groupSeq)).orderBy(SB_BOARD_TB.GROUP_SQ.desc()).fetch();
 
 			while (childBoardResult.isNotEmpty()) {
-				Record3<UInteger, UByte, String> childBoardRecord = childBoardResult.remove(0);
+				Record3<UInteger, UByte, Byte> childBoardRecord = childBoardResult.remove(0);
 
 				UInteger childBoardNo = childBoardRecord.getValue(SB_BOARD_TB.BOARD_NO);
 				UByte childDepth = childBoardRecord.getValue(SB_BOARD_TB.DEPTH);
-				String childBoardState = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+				byte childBoardState = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+				
+				
+				BoardStateType childBoardStateType = null;
+				try {
+					childBoardStateType = BoardStateType.valueOf(childBoardState);
+				} catch (IllegalArgumentException e) {
+					try {
+						conn.rollback();
+					} catch (Exception e1) {
+						log.warn("fail to rollback", e1);
+					}
+
+					String errorMessage = new StringBuilder("차단 해제 트리에 속한 게시글[boardID=").append(boardID.shortValue())
+							.append(", boardNo=").append(childBoardNo.longValue()).append("] 의 상태 값[")
+							.append(childBoardState).append("] 이 잘못되었습니다").toString();
+					throw new ServerServiceException(errorMessage);
+				}
+				
 
 				/*
 				 * log.info("1.boardNo={}, depth={}, boardState={}, target depth={}",
@@ -310,7 +325,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					break;
 				}
 
-				if (BoardStateType.BLOCK.getValue().equals(childBoardState)) {
+				if (BoardStateType.BLOCK.equals(childBoardStateType)) {
 					/**
 					 * INFO! 차단 해제 대상 글에 대한 차단 사유와 하위 경로상 글의 차단 사유가 다르다고 판단하기때문에 하위 경로상 글은 차단 해제에서
 					 * 제외한다.
@@ -336,7 +351,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 
 						childBoardResult.remove(0);
 
-						if (BoardStateType.OK.getValue().equals(childBoardState)) {
+						if (BoardStateType.OK.equals(childBoardStateType)) {
 							log.warn("1.게시판 트리 점검 필요, childBoardNo={}, {}", childBoardNo, boardUnBlockReq.toString());
 
 							try {
@@ -348,7 +363,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 							throw new ServerServiceException(errorMessage);
 						}
 					}
-				} else if (BoardStateType.OK.getValue().equals(childBoardState)) {
+				} else if (BoardStateType.OK.equals(childBoardStateType)) {
 					log.warn("2.게시판 트리 점검 필요, childBoardNo={}, {}", childBoardNo, boardUnBlockReq.toString());
 
 					try {
@@ -358,7 +373,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					}
 					String errorMessage = "게시판 트리 점검 필요";
 					throw new ServerServiceException(errorMessage);
-				} else if (BoardStateType.TREEBLOCK.getValue().equals(childBoardState)) {
+				} else if (BoardStateType.TREEBLOCK.equals(childBoardStateType)) {
 					unBlockBoardNoSet.add(childBoardNo.longValue());
 				}
 			}
@@ -378,11 +393,10 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 							.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
 				}
 			}
-
-			create.insertInto(SB_USER_ACTION_HISTORY_TB).set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestedUserID)
-					.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardUnBlockReq.getMessageID())
-					.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardUnBlockReq.toString())
-					.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
+			
+			
+			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, boardUnBlockReq.toString(), 
+					new java.sql.Timestamp(System.currentTimeMillis()));
 
 			conn.commit();
 
@@ -396,6 +410,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

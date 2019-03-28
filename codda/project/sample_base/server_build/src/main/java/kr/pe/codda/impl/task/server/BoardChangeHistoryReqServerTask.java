@@ -217,6 +217,7 @@ public class BoardChangeHistoryReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

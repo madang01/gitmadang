@@ -243,7 +243,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			
 		} catch (ServerServiceException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Exception e) {	
 			if (null != conn) {
 				try {
 					conn.rollback();
@@ -252,8 +252,6 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			log.warn("unknown error", e);			
-						
 			throw e;
 		} finally {
 			if (null != conn) {

@@ -177,10 +177,10 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, board$2MiddleWritableObject));
 
-			board$2.setBoardSate((String)
+			board$2.setBoardSate((Byte)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "boardSate" // itemName
-				, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+				, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
 				, board$2MiddleWritableObject));

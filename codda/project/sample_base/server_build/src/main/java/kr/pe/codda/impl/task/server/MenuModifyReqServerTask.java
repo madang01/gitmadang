@@ -63,7 +63,7 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 			
 			log.warn(errorMessage, e);
 						
-			sendErrorOutputMessage("메뉴 수정이 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("메뉴 수정하는데 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -150,8 +150,6 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
-			
-			log.warn("unknown error", e);
 			
 			throw e;
 

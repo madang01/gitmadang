@@ -42,7 +42,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = -1419639934;
+    private static final long serialVersionUID = -1290355278;
 
     /**
      * The reference instance of <code>sb_db.sb_board_tb</code>
@@ -93,9 +93,9 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     public final TableField<SbBoardTbRecord, Integer> VIEW_CNT = createField("view_cnt", org.jooq.impl.SQLDataType.INTEGER, this, "조회수");
 
     /**
-     * The column <code>sb_db.sb_board_tb.board_st</code>. 게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
+     * The column <code>sb_db.sb_board_tb.board_st</code>. 게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글,  SELECT char(ascii('Y') using ascii);
      */
-    public final TableField<SbBoardTbRecord, String> BOARD_ST = createField("board_st", org.jooq.impl.SQLDataType.CHAR(1).nullable(false), this, "게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글");
+    public final TableField<SbBoardTbRecord, Byte> BOARD_ST = createField("board_st", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글,  SELECT char(ascii('Y') using ascii);");
 
     /**
      * The column <code>sb_db.sb_board_tb.next_attached_file_sq</code>. 다음 첨부 파일 시퀀스, 처음 0부터 시작

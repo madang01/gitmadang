@@ -1,7 +1,6 @@
 package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
-import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -9,6 +8,13 @@ import java.sql.Connection;
 import java.text.SimpleDateFormat;
 
 import javax.sql.DataSource;
+
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
@@ -24,13 +30,6 @@ import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class UserIntegrationTest extends AbstractJunitTest {
 	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
@@ -49,7 +48,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, 
+						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -74,7 +74,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, 
+						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -99,7 +100,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			String ip = "127.0.0.1";
 			
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, 
+						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
@@ -118,49 +120,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Before
 	public void setUp() {
-		DataSource dataSource = null;
-		try {
-			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}		
 		
-		Connection conn = null;
-		
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-			
-			create.delete(SB_USER_ACTION_HISTORY_TB).execute();
-			
-			conn.commit();
-			
-		} catch (Exception e) {
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
-			log.warn(e.getMessage(), e);
-
-			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
 	}
 	
 	@Test
@@ -173,7 +133,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String ip = "127.0.0.3";
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
@@ -242,7 +202,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
@@ -311,7 +271,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -408,7 +368,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -591,7 +551,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -679,7 +639,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -815,7 +775,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -1013,7 +973,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 	
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -1100,7 +1060,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -1191,7 +1151,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -1376,7 +1336,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -1484,7 +1444,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");

@@ -2,10 +2,8 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
-import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
@@ -29,7 +27,6 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -72,7 +69,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			
 			log.warn(errorMessage, e);
 						
-			sendErrorOutputMessage("게시글 가져오는데 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("게시글 차단이 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -187,7 +184,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			Record4<UShort, UInteger, UByte, String> 
+			Record4<UShort, UInteger, UByte, Byte> 
 			boardRecord = create.select(SB_BOARD_TB.GROUP_SQ, 
 					SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH,
 					SB_BOARD_TB.BOARD_ST)
@@ -211,11 +208,11 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 			UShort groupSeq = boardRecord.getValue(SB_BOARD_TB.GROUP_SQ);
 			UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
 			UByte depth = boardRecord.getValue(SB_BOARD_TB.DEPTH);
-			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);			
+			byte boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);			
 			
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(boardState, false);
+				boardStateType = BoardStateType.valueOf(boardState);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -285,12 +282,8 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			create.insertInto(SB_USER_ACTION_HISTORY_TB)
-			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestedUserID)
-			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardBlockReq.getMessageID())
-			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardBlockReq.toString())
-			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-			.execute();
+			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, boardBlockReq.toString(), 
+					new java.sql.Timestamp(System.currentTimeMillis()));
 			
 			conn.commit();			
 
@@ -305,6 +298,7 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

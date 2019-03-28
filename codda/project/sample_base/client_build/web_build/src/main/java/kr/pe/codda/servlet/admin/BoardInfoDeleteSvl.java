@@ -10,6 +10,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardInfoDeleteReq.BoardInfoDeleteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
 public class BoardInfoDeleteSvl extends AbstractAdminLoginServlet {
@@ -57,8 +58,10 @@ public class BoardInfoDeleteSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		
 		BoardInfoDeleteReq boardInfoDeleteReq = new BoardInfoDeleteReq();
-		boardInfoDeleteReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		boardInfoDeleteReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardInfoDeleteReq.setBoardID(boardID);
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

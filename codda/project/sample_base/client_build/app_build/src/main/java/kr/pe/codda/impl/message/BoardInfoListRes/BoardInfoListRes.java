@@ -34,8 +34,8 @@ public class BoardInfoListRes extends AbstractMessage {
 		private byte boardReplyPolicyType;
 		private byte boardWritePermissionType;
 		private byte boardReplyPermissionType;
-		private int cnt;
-		private int total;
+		private long cnt;
+		private long total;
 		private long nextBoardNo;
 
 		public short getBoardID() {
@@ -80,18 +80,18 @@ public class BoardInfoListRes extends AbstractMessage {
 		public void setBoardReplyPermissionType(byte boardReplyPermissionType) {
 			this.boardReplyPermissionType = boardReplyPermissionType;
 		}
-		public int getCnt() {
+		public long getCnt() {
 			return cnt;
 		}
 
-		public void setCnt(int cnt) {
+		public void setCnt(long cnt) {
 			this.cnt = cnt;
 		}
-		public int getTotal() {
+		public long getTotal() {
 			return total;
 		}
 
-		public void setTotal(int total) {
+		public void setTotal(long total) {
 			this.total = total;
 		}
 		public long getNextBoardNo() {

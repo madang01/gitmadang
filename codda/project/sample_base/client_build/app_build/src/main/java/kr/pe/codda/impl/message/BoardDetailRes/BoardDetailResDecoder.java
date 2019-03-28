@@ -123,10 +123,10 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDetailRes.setBoardSate((String)
+		boardDetailRes.setBoardSate((Byte)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardSate" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
@@ -340,10 +340,10 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, childNode$2MiddleWritableObject));
 
-			childNode$2.setBoardSate((String)
+			childNode$2.setBoardSate((Byte)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "boardSate" // itemName
-				, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+				, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
 				, childNode$2MiddleWritableObject));

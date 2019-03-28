@@ -45,10 +45,11 @@ public class BoardListSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-				
+		
+		// AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 		
 		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
+		boardListReq.setRequestedUserID(getAccessedUserInformation(req).getUserID());
 		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(WebCommonStaticFinalVars.WEBSITE_BOARD_LIST_SIZE_PER_PAGE);

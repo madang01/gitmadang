@@ -15,12 +15,11 @@ import kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardInfoTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardVoteTb;
-import kr.pe.codda.impl.jooq.tables.SbGroupInfoTb;
-import kr.pe.codda.impl.jooq.tables.SbGroupTb;
+import kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
+import kr.pe.codda.impl.jooq.tables.SbSiteLogTb;
 import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
-import kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb;
 
 import org.jooq.Catalog;
 import org.jooq.Table;
@@ -40,7 +39,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = 751711966;
+    private static final long serialVersionUID = 242615327;
 
     /**
      * The reference instance of <code>sb_db</code>
@@ -73,14 +72,9 @@ public class SbDb extends SchemaImpl {
     public final SbBoardVoteTb SB_BOARD_VOTE_TB = kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
 
     /**
-     * The table <code>sb_db.sb_group_info_tb</code>.
+     * The table <code>sb_db.sb_member_activity_history_tb</code>.
      */
-    public final SbGroupInfoTb SB_GROUP_INFO_TB = kr.pe.codda.impl.jooq.tables.SbGroupInfoTb.SB_GROUP_INFO_TB;
-
-    /**
-     * The table <code>sb_db.sb_group_tb</code>.
-     */
-    public final SbGroupTb SB_GROUP_TB = kr.pe.codda.impl.jooq.tables.SbGroupTb.SB_GROUP_TB;
+    public final SbMemberActivityHistoryTb SB_MEMBER_ACTIVITY_HISTORY_TB = kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB;
 
     /**
      * The table <code>sb_db.sb_member_tb</code>.
@@ -93,14 +87,14 @@ public class SbDb extends SchemaImpl {
     public final SbSeqTb SB_SEQ_TB = kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
     /**
+     * The table <code>sb_db.sb_site_log_tb</code>.
+     */
+    public final SbSiteLogTb SB_SITE_LOG_TB = kr.pe.codda.impl.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
+
+    /**
      * The table <code>sb_db.sb_sitemenu_tb</code>.
      */
     public final SbSitemenuTb SB_SITEMENU_TB = kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
-
-    /**
-     * The table <code>sb_db.sb_user_action_history_tb</code>.
-     */
-    public final SbUserActionHistoryTb SB_USER_ACTION_HISTORY_TB = kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
     /**
      * No further instances allowed
@@ -132,11 +126,10 @@ public class SbDb extends SchemaImpl {
             SbBoardInfoTb.SB_BOARD_INFO_TB,
             SbBoardTb.SB_BOARD_TB,
             SbBoardVoteTb.SB_BOARD_VOTE_TB,
-            SbGroupInfoTb.SB_GROUP_INFO_TB,
-            SbGroupTb.SB_GROUP_TB,
+            SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB,
             SbMemberTb.SB_MEMBER_TB,
             SbSeqTb.SB_SEQ_TB,
-            SbSitemenuTb.SB_SITEMENU_TB,
-            SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB);
+            SbSiteLogTb.SB_SITE_LOG_TB,
+            SbSitemenuTb.SB_SITEMENU_TB);
     }
 }

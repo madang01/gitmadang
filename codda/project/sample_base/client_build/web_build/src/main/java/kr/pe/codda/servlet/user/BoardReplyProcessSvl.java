@@ -29,6 +29,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.common.WebCommonStaticUtil;
@@ -63,10 +64,12 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		} catch (WebClientException e) {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
+			
+			AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 
 			log.warn("{}, userID={}, ip={}",
 					(null == debugMessage) ? errorMessage : debugMessage,
-					getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
+							accessedUserformation.getUserID(), req.getRemoteAddr());
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -455,8 +458,10 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			pwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
 		}
 
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		
 		BoardReplyReq boardReplyReq = new BoardReplyReq();
-		boardReplyReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
+		boardReplyReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardReplyReq.setBoardID(boardID);
 		boardReplyReq.setPwdHashBase64(pwdHashBase64);
 		boardReplyReq.setParentBoardNo(parentBoardNo);

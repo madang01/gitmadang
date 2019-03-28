@@ -38,6 +38,7 @@ import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -89,17 +90,29 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(boardModifyReq.toString());
 
-		
-
 		try {
-			ValueChecker.checkValidContents(boardModifyReq.getContents());
+			ValueChecker.checkValidRequestedUserID(boardModifyReq.getRequestedUserID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidBoardNo(boardModifyReq.getBoardNo());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidBoardPasswordHashBase64(boardModifyReq.getPwdHashBase64());
 		} catch (RuntimeException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
-			ValueChecker.checkValidWriterID(boardModifyReq.getRequestedUserID());
+			ValueChecker.checkValidContents(boardModifyReq.getContents());
 		} catch (RuntimeException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -111,6 +124,8 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+			
 
 		if (boardModifyReq.getOldAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder().append("기존 첨부 파일들중 남은 갯수[")
@@ -200,8 +215,8 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 
-			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.getValidMemberRoleType(conn, create, log,
-					boardModifyReq.getRequestedUserID());
+			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log,
+					"게시판 수정 서비스", PermissionType.GUEST, boardModifyReq.getRequestedUserID());
 
 			Record1<Byte> boardInforRecord = create.select(SB_BOARD_INFO_TB.LIST_TYPE).from(SB_BOARD_INFO_TB)
 					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne();
@@ -283,7 +298,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 
 			// boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
 
-			Record4<UInteger, String, UByte, String> boardRecord = create
+			Record4<UInteger, Byte, UByte, String> boardRecord = create
 					.select(SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ,
 							SB_BOARD_TB.PWD_BASE64)
 					.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
@@ -301,7 +316,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 
 			UInteger parenetNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			byte boardStateValue = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 			UByte nextAttachedFileSeq = boardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
 			String dbPwdHashBase64 = boardRecord.getValue(SB_BOARD_TB.PWD_BASE64);
 
@@ -322,7 +337,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(boardState, false);
+				boardStateType = BoardStateType.valueOf(boardStateValue);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -330,7 +345,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시글의 DB 상태 값[").append(boardState).append("]이 잘못되었습니다")
+				String errorMessage = new StringBuilder("게시글의 DB 상태 값[").append(boardStateValue).append("]이 잘못되었습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -373,7 +388,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
-				/** 손님 자신이 수정 요청한 경우 설정한 비밀번호가 없다면 에러 처리 */
+				/** 손님 자신이 수정 요청한 경우 설정한 비밀번호가 없다면 수정 불가 */
 				if (null == dbPwdHashBase64) {
 					try {
 						conn.rollback();
@@ -387,9 +402,11 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				}
 			}
 
-			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID) && (null != dbPwdHashBase64)) {
+			if ((null != dbPwdHashBase64)  && ! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				/** 관리자가 아닌 경우 설정한 비밀번호가 있다면 게시글 비밀번호 일치 검사 */
-				if (null == boardModifyReq.getPwdHashBase64()) {
+				String pwdHashBase64 = boardModifyReq.getPwdHashBase64();
+				
+				if (null == pwdHashBase64) {
 					try {
 						conn.rollback();
 					} catch (Exception e) {
@@ -399,9 +416,6 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					String errorMessage = "게시글에 대한 비밀번호를 입력해 주세요";
 					throw new ServerServiceException(errorMessage);
 				}
-				
-				
-				String pwdHashBase64 = boardModifyReq.getPwdHashBase64();
 
 				if (pwdHashBase64.isEmpty()) {
 					try {
@@ -566,7 +580,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
-
+			
 			throw e;
 		} finally {
 			if (null != conn) {

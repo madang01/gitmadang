@@ -171,13 +171,20 @@
 		
 		resultMessageView.setAttribute("class", "alert alert-warning");
 		resultMessageView.innerHTML = "<strong>Warning!</strong> " + errorMessage;
+		
+		var f = document.frm;
+		f.reset();
 	}
 	
-	function membershipProcessOKCallBack() {
+	function callBackForMembershipProcess() {
 		var resultMessageView = document.getElementById("resultMessageView");
 		
 		resultMessageView.setAttribute("class", "alert alert-success");
 		resultMessageView.innerHTML = "<strong>Success!</strong> "+document.frm.userID.value+" 님 회원 등록이 성공하였습니다.";
+		
+		alert(resultMessageView.innerText);
+		
+		document.location.href = "/";
 	}
 	
 	function reloadCaptcha() {

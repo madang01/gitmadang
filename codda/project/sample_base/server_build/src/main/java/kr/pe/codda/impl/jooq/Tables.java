@@ -11,12 +11,11 @@ import kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardInfoTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardVoteTb;
-import kr.pe.codda.impl.jooq.tables.SbGroupInfoTb;
-import kr.pe.codda.impl.jooq.tables.SbGroupTb;
+import kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
+import kr.pe.codda.impl.jooq.tables.SbSiteLogTb;
 import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
-import kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb;
 
 
 /**
@@ -58,14 +57,9 @@ public class Tables {
     public static final SbBoardVoteTb SB_BOARD_VOTE_TB = kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
 
     /**
-     * The table <code>sb_db.sb_group_info_tb</code>.
+     * The table <code>sb_db.sb_member_activity_history_tb</code>.
      */
-    public static final SbGroupInfoTb SB_GROUP_INFO_TB = kr.pe.codda.impl.jooq.tables.SbGroupInfoTb.SB_GROUP_INFO_TB;
-
-    /**
-     * The table <code>sb_db.sb_group_tb</code>.
-     */
-    public static final SbGroupTb SB_GROUP_TB = kr.pe.codda.impl.jooq.tables.SbGroupTb.SB_GROUP_TB;
+    public static final SbMemberActivityHistoryTb SB_MEMBER_ACTIVITY_HISTORY_TB = kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB;
 
     /**
      * The table <code>sb_db.sb_member_tb</code>.
@@ -78,12 +72,12 @@ public class Tables {
     public static final SbSeqTb SB_SEQ_TB = kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
     /**
+     * The table <code>sb_db.sb_site_log_tb</code>.
+     */
+    public static final SbSiteLogTb SB_SITE_LOG_TB = kr.pe.codda.impl.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
+
+    /**
      * The table <code>sb_db.sb_sitemenu_tb</code>.
      */
     public static final SbSitemenuTb SB_SITEMENU_TB = kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
-
-    /**
-     * The table <code>sb_db.sb_user_action_history_tb</code>.
-     */
-    public static final SbUserActionHistoryTb SB_USER_ACTION_HISTORY_TB = kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 }

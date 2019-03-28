@@ -49,8 +49,8 @@ import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.MockServletInputStream;
-import kr.pe.codda.weblib.common.LoginedUserInformation;
 import kr.pe.codda.weblib.common.MemberRoleType;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.exception.WebClientException;
 import nl.captcha.Captcha;
@@ -309,7 +309,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		        
 		        HttpSession sessionMock = mock(HttpSession.class);
 				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION))
-				.thenReturn(new LoginedUserInformation(loginID, MemberRoleType.USER));
+				.thenReturn(new AccessedUserInformation(true, loginID, "테스터", MemberRoleType.MEMBER));
 				
 				HttpServletRequest requestMock = mock(HttpServletRequest.class);
 				when(requestMock.getMethod()).thenReturn("POST");
@@ -501,7 +501,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		        
 		        HttpSession sessionMock = mock(HttpSession.class);
 				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION))
-				.thenReturn(new LoginedUserInformation(loginID, MemberRoleType.USER));
+				.thenReturn(new AccessedUserInformation(true, loginID, "테스터", MemberRoleType.MEMBER));
 				
 		        HttpServletRequest requestMock = mock(HttpServletRequest.class);
 				when(requestMock.getMethod()).thenReturn("POST");
@@ -708,7 +708,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		        
 		        HttpSession sessionMock = mock(HttpSession.class);
 				when(sessionMock.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION))
-				.thenReturn(new LoginedUserInformation(loginID, MemberRoleType.USER));
+				.thenReturn(new AccessedUserInformation(true, loginID, "테스터", MemberRoleType.MEMBER));
 				
 				HttpServletRequest requestMock = mock(HttpServletRequest.class);
 				when(requestMock.getMethod()).thenReturn("POST");

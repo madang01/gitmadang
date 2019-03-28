@@ -70,7 +70,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 			
 			log.warn(errorMessage, e);
 						
-			sendErrorOutputMessage("메뉴 목록 조회가 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("배형형 메뉴 조회가 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -131,9 +131,7 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 				} catch (Exception e1) {
 					log.warn("fail to rollback");
 				}
-			}
-			
-			// log.warn("unknown error", e);			
+			}		
 			
 			throw e;
 		} finally {

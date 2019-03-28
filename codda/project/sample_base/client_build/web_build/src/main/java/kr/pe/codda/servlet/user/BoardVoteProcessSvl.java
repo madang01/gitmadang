@@ -9,6 +9,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
 
@@ -49,9 +50,11 @@ public class BoardVoteProcessSvl extends AbstractLoginServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
+		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 
 		BoardVoteReq boardVoteReq = new BoardVoteReq();
-		boardVoteReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
+		boardVoteReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardVoteReq.setBoardID(boardID);
 		boardVoteReq.setBoardNo(boardNo);
 		boardVoteReq.setIp(req.getRemoteAddr());

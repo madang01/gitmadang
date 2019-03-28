@@ -84,7 +84,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 
 			log.warn(errorMessage, e);
 
-			sendErrorOutputMessage("게시글 가져오는데 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("게시글 상세 조회가 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -128,7 +128,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 		UInteger parentNo = null;
 		UByte depth = null;
 		int oldViewCount = 0;
-		String boardState = null;
+		byte boardState;
 		UByte nextAttachedFileSeq = null;
 		boolean isBoardPassword = false;
 		int votes = 0;
@@ -196,7 +196,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			SbBoardHistoryTb b = SB_BOARD_HISTORY_TB.as("b");
 			SbBoardHistoryTb c = SB_BOARD_HISTORY_TB.as("c");
 
-			Record17<UInteger, UShort, UInteger, UByte, Integer, String, UByte, String, Object, String, String, Timestamp, String, Object, Timestamp, String, Object> mainBoardRecord = create
+			Record17<UInteger, UShort, UInteger, UByte, Integer, Byte, UByte, String, Object, String, String, Timestamp, String, Object, Timestamp, String, Object> mainBoardRecord = create
 					.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH,
 							SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ,
 							SB_BOARD_TB.PWD_BASE64,
@@ -252,7 +252,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(boardState, false);
+				boardStateType = BoardStateType.valueOf(boardState);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -312,18 +312,21 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				SbBoardTb a = SB_BOARD_TB.as("a");
 				
 				Table<Record3<UByte, UInteger, UShort>> d = create.select(a.BOARD_ID, a.GROUP_NO, a.GROUP_SQ)
-						.from(a.forceIndex("sb_board_idx1")).where(a.BOARD_ID.eq(boardID)).and(a.GROUP_NO.eq(groupNo))
+						.from(a.forceIndex("sb_board_idx1"))
+						.where(a.BOARD_ID.eq(boardID))
+						.and(a.BOARD_ST.eq(BoardStateType.OK.getValue()))
+						.and(a.GROUP_NO.eq(groupNo))						
 						.and(a.BOARD_NO.notEqual(boardNo))
 						.asTable("d");
 
-				Table<Record10<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, String, UByte, String>> mainTable = create
+				Table<Record10<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, Byte, UByte, String>> mainTable = create
 						.select(a.BOARD_ID, a.BOARD_NO, a.GROUP_NO, a.GROUP_SQ, a.PARENT_NO, a.DEPTH, a.VIEW_CNT,
 								a.BOARD_ST, a.NEXT_ATTACHED_FILE_SQ, a.PWD_BASE64)
 						.from(a).innerJoin(d).on(a.BOARD_ID.eq(d.field(SB_BOARD_TB.BOARD_ID)))
 						.and(a.GROUP_NO.eq(d.field(SB_BOARD_TB.GROUP_NO)))
 						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");				
 
-				Result<Record15<UInteger, UShort, UInteger, UByte, String, UByte, String, Object, String, Timestamp, String, Object, Timestamp, String, Object>> childBoardResult = create
+				Result<Record15<UInteger, UShort, UInteger, UByte, Byte, UByte, String, Object, String, Timestamp, String, Object, Timestamp, String, Object>> childBoardResult = create
 						.select(mainTable.field(SB_BOARD_TB.BOARD_NO), mainTable.field(SB_BOARD_TB.GROUP_SQ),
 								mainTable.field(SB_BOARD_TB.PARENT_NO), mainTable.field(SB_BOARD_TB.DEPTH),
 								mainTable.field(SB_BOARD_TB.BOARD_ST),
@@ -349,8 +352,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 						.and(b.HISTORY_SQ.eq(create.select(b.HISTORY_SQ.max()).from(b)
 								.where(b.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
 								.and(b.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))))
-						.orderBy(mainTable.field(SB_BOARD_TB.GROUP_NO).desc(),
-								mainTable.field(SB_BOARD_TB.GROUP_SQ).desc())
+						.orderBy(mainTable.field(SB_BOARD_TB.GROUP_SQ).desc())
 						.fetch();
 
 				for (Record childBoardRecord : childBoardResult) {
@@ -358,7 +360,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					UShort childGroupSeq = childBoardRecord.get(SB_BOARD_TB.GROUP_SQ);
 					UInteger childParentNo = childBoardRecord.get(SB_BOARD_TB.PARENT_NO);
 					UByte childDepth = childBoardRecord.get(SB_BOARD_TB.DEPTH);
-					String childBoardState = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+					byte childBoardState = childBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 					UByte childNextAttachedFileSeq = childBoardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
 					String childPasswordBase64 = childBoardRecord.getValue(SB_BOARD_TB.PWD_BASE64);
 					int childVotes = childBoardRecord.get("votes", Integer.class);
@@ -450,6 +452,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

@@ -10,6 +10,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardChangeHistoryReq.BoardChangeHistoryReq;
 import kr.pe.codda.impl.message.BoardChangeHistoryRes.BoardChangeHistoryRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
@@ -46,10 +47,11 @@ public class BoardChangeHistorySvl extends AbstractServlet {
 			return;
 		}
 		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 		
 		
 		BoardChangeHistoryReq boardChangeHistoryReq = new BoardChangeHistoryReq();
-		boardChangeHistoryReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
+		boardChangeHistoryReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardChangeHistoryReq.setBoardID(boardID);
 		boardChangeHistoryReq.setBoardNo(boardNo);
 				

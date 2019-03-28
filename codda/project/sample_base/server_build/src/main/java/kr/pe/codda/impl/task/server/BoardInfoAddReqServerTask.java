@@ -83,29 +83,13 @@ public class BoardInfoAddReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		String boardName = boardInfoAddReq.getBoardName();
 		
-		if (null == boardName) {
-			String errorMessage = "게시판 이름을 넣어 주세요";
+		try {
+			ValueChecker.checkValidBoardName(boardInfoAddReq.getBoardName());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
-		}
-		
-		boardName = boardName.trim();
-		
-		if (0 == boardName.length()) {
-			String errorMessage = "게시판 이름을 다시 넣어 주세요";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		if (boardName.length()  < 2) {
-			String errorMessage = "게시판 이름을 2 글자 이상 넣어 주세요";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		if (boardName.getBytes(CommonStaticFinalVars.DEFUALT_CHARSET).length > 30) {
-			String errorMessage = "게시판 이름의 바이트 배열 크기가 30을 넘습니다";
-			throw new ServerServiceException(errorMessage);
-		}
+		}		
 		
 		BoardListType boardListType = null;
 		try {
@@ -168,13 +152,13 @@ public class BoardInfoAddReqServerTask extends AbstractServerTask {
 			}
 			
 			int countOfInsert = create.insertInto(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(boardID))
-			.set(SB_BOARD_INFO_TB.BOARD_NAME, boardName)
+			.set(SB_BOARD_INFO_TB.BOARD_NAME, boardInfoAddReq.getBoardName())
 			.set(SB_BOARD_INFO_TB.LIST_TYPE, boardListType.getValue())
 			.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, boardReplyPolicyType.getValue())
 			.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, boardWritePermissionType.getValue())
 			.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, boardReplyPermissionType.getValue())
-			.set(SB_BOARD_INFO_TB.CNT, 0)
-			.set(SB_BOARD_INFO_TB.TOTAL, 0)
+			.set(SB_BOARD_INFO_TB.CNT, 0L)
+			.set(SB_BOARD_INFO_TB.TOTAL, 0L)
 			.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
 			
 			if (0 == countOfInsert) {
@@ -184,6 +168,7 @@ public class BoardInfoAddReqServerTask extends AbstractServerTask {
 						.append(", 게시판이름:").append(boardInfoAddReq.getBoardName()).append("] 삽입 실패").toString();
 				throw new Exception(errorMessage);
 			}
+						
 			
 			conn.commit();
 			
@@ -197,6 +182,7 @@ public class BoardInfoAddReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

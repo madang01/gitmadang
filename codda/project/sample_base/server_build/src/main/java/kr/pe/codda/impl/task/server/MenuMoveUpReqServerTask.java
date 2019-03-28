@@ -298,9 +298,7 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 				} catch (Exception e1) {
 					log.warn("fail to rollback");
 				}
-			}
-			
-			log.warn("unknown error", e);			
+			}		
 			
 			throw e;
 		} finally {

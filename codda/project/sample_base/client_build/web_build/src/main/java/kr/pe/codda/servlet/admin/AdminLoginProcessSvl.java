@@ -18,9 +18,12 @@ import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.common.util.HexUtil;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
-import kr.pe.codda.impl.message.AdminLoginReq.AdminLoginReq;
 import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.impl.message.UserLoginReq.UserLoginReq;
+import kr.pe.codda.impl.message.UserLoginRes.UserLoginRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
+import kr.pe.codda.weblib.common.MemberRoleType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
@@ -229,38 +232,76 @@ public class AdminLoginProcessSvl extends AbstractServlet {
 		byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();
 		byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
 		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
-		AdminLoginReq adminLoginReq = new AdminLoginReq();
+		UserLoginReq userLoginReq = new UserLoginReq();
 
-		adminLoginReq.setIdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIDBytes)));
-		adminLoginReq.setPwdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
-		adminLoginReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
-		adminLoginReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));			
+		userLoginReq.setIdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIDBytes)));
+		userLoginReq.setPwdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
+		userLoginReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
+		userLoginReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));			
 
-		AbstractMessage loginOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), adminLoginReq);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), userLoginReq);
 		
-		if (!(loginOutputMessage instanceof MessageResultRes)) {
+		if (!(outputMessage instanceof UserLoginRes)) {
+			
+			if ((outputMessage instanceof MessageResultRes)) {
+				MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
+
+				printErrorMessagePage(req, res, messageResultRes.getResultMessage(), null);
+				return;
+			}
+			
 			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
 			String debugMessage = new StringBuilder("입력 메시지[")
-					.append(adminLoginReq.getMessageID())
+					.append(userLoginReq.getMessageID())
 					.append("]에 대한 비 정상 출력 메시지[")
-					.append(loginOutputMessage.toString())
+					.append(outputMessage.toString())
 					.append("] 도착").toString();
 			
 			log.error(debugMessage);
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}		
+		}				
 		
-		MessageResultRes messageResultRes = (MessageResultRes) loginOutputMessage;
-		if (! messageResultRes.getIsSuccess()) {
-			String debugMessage = null;
-			printErrorMessagePage(req, res, messageResultRes.getResultMessage(), debugMessage);
+		UserLoginRes userLoginRes = (UserLoginRes) outputMessage;
+		
+		
+		MemberRoleType memberRoleType = null;
+
+		try {
+			memberRoleType = MemberRoleType.valueOf(userLoginRes.getMemberRole());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = "일반 유저 로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
+			String debugMessage = new StringBuilder("사용자[")
+					.append(userLoginRes.getUserID())
+					.append("]의 멤버 종류[")
+					.append(userLoginRes.getMemberRole())
+					.append("] 가 잘못되었습니다").toString();
+
+			log.error(debugMessage);
+
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
+		if (! MemberRoleType.ADMIN.equals(memberRoleType)) {
+			String errorMessage = "관리자 로그인이 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
+			String debugMessage = new StringBuilder("입력한 회원[아이디=")
+					.append(userLoginRes.getUserID())
+					.append(", 역활=")
+					.append(memberRoleType.getName())
+					.append("]은 관리자가 아닙니다").toString();
+
+			log.error(debugMessage);
+
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		
 		HttpSession httpSession = req.getSession();
-		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID, userId);
+		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION,
+				new AccessedUserInformation(true, userId, userLoginRes.getUserName(), memberRoleType));
 		
 		
 		

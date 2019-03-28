@@ -21,6 +21,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.codda.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.exception.WebClientException;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
@@ -44,9 +45,12 @@ public class MembershipProcessSvl extends AbstractServlet {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			String userID = (null == accessedUserformation) ? "guest" : accessedUserformation.getUserID();	
+			
 			log.warn("{}, userID={}, ip={}",
 					(null == debugMessage) ? errorMessage : debugMessage,
-					getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
+							userID, req.getRemoteAddr());
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
@@ -217,7 +221,15 @@ public class MembershipProcessSvl extends AbstractServlet {
 		
 		HttpSession httpSession = req.getSession();
 		Captcha captcha = (Captcha) httpSession.getAttribute(Captcha.NAME);
-		if (!captcha.isCorrect(captchaAnswer)) {
+		
+		if (null == captcha) {
+			String errorMessage = "캡차(Captcha) 세션 값이 없습니다. 페이지를 재 로딩하여 다시 시도해 주세요";			
+			String debugMessage = null;
+			
+			throw new WebClientException(errorMessage, debugMessage);
+		}
+		
+		if (! captcha.isCorrect(captchaAnswer)) {
 			String errorMessage = "입력한 Captcha 값이 틀렸습니다.";
 			
 			String debugMessage = new StringBuilder()

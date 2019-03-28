@@ -28,7 +28,7 @@
 <singleitem name="parentNo" type="unsigned integer" />
 <singleitem name="depth" type="unsigned byte" />
 <singleitem name="viewCount" type="integer" />
-<singleitem name="boardSate" type="ub pascal string" />
+<singleitem name="boardSate" type="byte" />
 <singleitem name="votes" type="integer" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="contents" type="si pascal string" />
@@ -54,7 +54,7 @@
 	<singleitem name="depth" type="unsigned byte" />		
 	<singleitem name="contents" type="si pascal string" />
 	<singleitem name="votes" type="integer" />
-	<singleitem name="boardSate" type="ub pascal string" />
+	<singleitem name="boardSate" type="byte" />
 	<singleitem name="firstWriterID" type="ub pascal string" />
 	<singleitem name="firstWriterNickname" type="ub pascal string" />
 	<singleitem name="firstRegisteredDate" type="java sql timestamp" />

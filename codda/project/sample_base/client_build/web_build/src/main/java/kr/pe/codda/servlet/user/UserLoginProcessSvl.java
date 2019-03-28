@@ -21,7 +21,7 @@ import kr.pe.codda.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.UserLoginReq.UserLoginReq;
 import kr.pe.codda.impl.message.UserLoginRes.UserLoginRes;
-import kr.pe.codda.weblib.common.LoginedUserInformation;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.MemberRoleType;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
@@ -229,18 +229,22 @@ public class UserLoginProcessSvl extends AbstractServlet {
 		AbstractMessage outputMessage = mainProjectConnectionPool
 				.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), userLoginReq);
 
-		if ((outputMessage instanceof MessageResultRes)) {
-			MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
-
-			printErrorMessagePage(req, res, messageResultRes.getResultMessage(), null);
-			return;
-		}
-
 		if (!(outputMessage instanceof UserLoginRes)) {
-			String errorMessage = "일반 유저 로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
-			String debugMessage = new StringBuilder("입력 메시지[").append(userLoginReq.getMessageID())
-					.append("]에 대한 비 정상 출력 메시지[").append(outputMessage.toString()).append("] 도착").toString();
+			
+			if ((outputMessage instanceof MessageResultRes)) {
+				MessageResultRes messageResultRes = (MessageResultRes) outputMessage;
 
+				printErrorMessagePage(req, res, messageResultRes.getResultMessage(), null);
+				return;
+			}
+			
+			String errorMessage = "로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
+			String debugMessage = new StringBuilder("입력 메시지[")
+					.append(userLoginReq.getMessageID())
+					.append("]에 대한 비 정상 출력 메시지[")
+					.append(outputMessage.toString())
+					.append("] 도착").toString();
+			
 			log.error(debugMessage);
 
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
@@ -249,10 +253,10 @@ public class UserLoginProcessSvl extends AbstractServlet {
 
 		UserLoginRes userLoginRes = (UserLoginRes) outputMessage;
 
-		MemberRoleType memberRoleType = MemberRoleType.USER;
+		MemberRoleType memberRoleType = null;
 
 		try {
-			memberRoleType = MemberRoleType.valueOf(userLoginRes.getMemberRole(), false);
+			memberRoleType = MemberRoleType.valueOf(userLoginRes.getMemberRole());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = "일반 유저 로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
 			String debugMessage = new StringBuilder("사용자[")
@@ -266,10 +270,22 @@ public class UserLoginProcessSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
+		
+		if (MemberRoleType.GUEST.equals(memberRoleType)) {
+			String errorMessage = "일반 유저 로그인 실패했습니다. 상세한 내용은 에러 로그를 참고하세요.";
+			String debugMessage = new StringBuilder("특수 사용자[")
+					.append(userLoginRes.getUserID())
+					.append("]는 손님으로 로그인 할 수 없습니다").toString();
+
+			log.error(debugMessage);
+
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
 
 		HttpSession httpSession = req.getSession();
 		httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION,
-				new LoginedUserInformation(userLoginRes.getUserID(), memberRoleType));
+				new AccessedUserInformation(true, userLoginRes.getUserID(), userLoginRes.getUserName(), memberRoleType));
 		/*
 		 * httpSession .setAttribute(
 		 * WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID,

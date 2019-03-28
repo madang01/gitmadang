@@ -10,6 +10,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
 import kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
 public class RootMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
@@ -42,8 +43,10 @@ public class RootMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
-		rootMenuAddReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		rootMenuAddReq.setRequestedUserID(accessedUserformation.getUserID());
 		rootMenuAddReq.setMenuName(paramMenuName);
 		rootMenuAddReq.setLinkURL(paramLinkURL);
 		

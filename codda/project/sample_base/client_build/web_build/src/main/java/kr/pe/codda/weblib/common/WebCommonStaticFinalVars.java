@@ -19,9 +19,6 @@ public abstract class WebCommonStaticFinalVars {
 		
 	
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION = "userLoginRes";
-	// public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ID = "userID";
-	// public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_ROLE_TYPE = "memberRoleType";
-	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_ADMIN_ID = "adminID";
 	public static final String HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY = "clientSessionKey";
 	
 	//public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION = "loginRequestPageInformation";
@@ -119,4 +116,6 @@ public abstract class WebCommonStaticFinalVars {
 	public static final int MIN_NUMBER_OF_BOARDNAME_CHARRACTERS = 2;
 	/** 게시판 이름 최대 문자수 */
 	public static final int MAX_NUMBER_OF_BOARDNAME_CHARRACTERS = 10;
+	
+	public static final AccessedUserInformation GUEST_USER_SESSION_INFORMATION = new AccessedUserInformation(false, "guest", "손님", MemberRoleType.GUEST);
 }

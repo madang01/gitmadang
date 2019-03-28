@@ -3,7 +3,7 @@ package kr.pe.codda.server.lib;
 import org.jooq.types.UByte;
 
 public enum SequenceType {
-	MENU(UByte.valueOf(0), "메뉴에 사용되는 시퀀스");
+	MENU(UByte.valueOf(0), "메뉴에 사용되는 시퀀스"), SITE_LOG_LOCK(UByte.valueOf(1), "SB_SITE_LOG_TB 테이블 락에 사용되는 시퀀스");
 
 	private UByte sequenceID;
 	private String sequenceTypeName;

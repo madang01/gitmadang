@@ -92,7 +92,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 첨부 파일 다운로드 서비스", PermissionType.MEMBER, boardDownloadFileReq.getRequestedUserID());
 
-			Record1<String> boardRecord = create.select(SB_BOARD_TB.BOARD_ST).from(SB_BOARD_TB)
+			Record1<Byte> boardRecord = create.select(SB_BOARD_TB.BOARD_ST).from(SB_BOARD_TB)
 					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).forUpdate()
 					.fetchOne();
 
@@ -107,11 +107,11 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			String nativeBoardStateType = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			byte boardStateTypeValue = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(nativeBoardStateType, false);
+				boardStateType = BoardStateType.valueOf(boardStateTypeValue);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -119,7 +119,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("게시글의 상태 값[").append(nativeBoardStateType).append("]이 잘못되었습니다")
+				String errorMessage = new StringBuilder("게시글의 상태 값[").append(boardStateTypeValue).append("]이 잘못되었습니다")
 						.toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -204,6 +204,7 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

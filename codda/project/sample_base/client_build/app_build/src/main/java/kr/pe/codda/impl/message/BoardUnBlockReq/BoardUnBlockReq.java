@@ -28,6 +28,7 @@ public class BoardUnBlockReq extends AbstractMessage {
 	private String requestedUserID;
 	private short boardID;
 	private long boardNo;
+	private String ip;
 
 	public String getRequestedUserID() {
 		return requestedUserID;
@@ -50,6 +51,13 @@ public class BoardUnBlockReq extends AbstractMessage {
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
 	}
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 
 	@Override
 	public String toString() {
@@ -61,6 +69,8 @@ public class BoardUnBlockReq extends AbstractMessage {
 		builder.append(boardID);
 		builder.append(", boardNo=");
 		builder.append(boardNo);
+		builder.append(", ip=");
+		builder.append(ip);
 		builder.append("]");
 		return builder.toString();
 	}

@@ -34,7 +34,7 @@
 	<singleitem name="writerID" type="ub pascal string" />
 	<singleitem name="writerNickname" type="ub pascal string" />
 	<singleitem name="viewCount" type="integer" />
-	<singleitem name="boardSate" type="ub pascal string" />
+	<singleitem name="boardSate" type="byte" />
 	<singleitem name="registeredDate" type="java sql timestamp" />	
 	<singleitem name="votes" type="integer" />
 	<singleitem name="subject" type="ub pascal string" />	

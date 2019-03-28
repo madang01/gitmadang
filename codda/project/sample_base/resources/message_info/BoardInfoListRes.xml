@@ -25,8 +25,8 @@
 	<singleitem name="boardReplyPolicyType" type="byte" />
 	<singleitem name="boardWritePermissionType" type="byte" />
 	<singleitem name="boardReplyPermissionType" type="byte" />
-	<singleitem name="cnt" type="integer" />
-	<singleitem name="total" type="integer" />
+	<singleitem name="cnt" type="long" />
+	<singleitem name="total" type="long" />
 	<singleitem name="nextBoardNo" type="unsigned integer" />
 </array>
 </message>

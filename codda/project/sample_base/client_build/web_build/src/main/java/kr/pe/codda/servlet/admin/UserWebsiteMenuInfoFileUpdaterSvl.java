@@ -17,6 +17,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.TreeSiteMenuReq.TreeSiteMenuReq;
 import kr.pe.codda.impl.message.TreeSiteMenuRes.TreeSiteMenuRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
@@ -101,8 +102,11 @@ public class UserWebsiteMenuInfoFileUpdaterSvl extends
 
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager
 				.getInstance().getMainProjectConnectionPool();
+		
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
-		treeSiteMenuReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		treeSiteMenuReq.setRequestedUserID(accessedUserformation.getUserID());
 		
 		TreeSiteMenuRes treeSiteMenuRes = null;
 

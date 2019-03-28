@@ -257,8 +257,6 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 				}
 			}
 
-			log.warn("unknown error", e);
-
 			throw e;
 		} finally {
 			if (null != conn) {

@@ -34,7 +34,7 @@ public class ServerMain {
 				try {
 				ServerDBUtil.registerMember(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME,
 						MemberRoleType.ADMIN, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip);
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 				} catch (ServerServiceException e) {
 					String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 							.append(userID)
@@ -63,7 +63,7 @@ public class ServerMain {
 				try {
 				ServerDBUtil.registerMember(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME,
 						MemberRoleType.GUEST, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip);
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 				} catch (ServerServiceException e) {
 					String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 							.append(userID)

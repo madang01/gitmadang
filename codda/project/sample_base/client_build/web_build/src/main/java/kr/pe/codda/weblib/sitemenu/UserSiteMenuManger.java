@@ -4,6 +4,7 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -189,7 +190,7 @@ public class UserSiteMenuManger {
 		return websiteMenuPartStringBuilder.toString();
 	}
 
-	public String getMenuNavbarString(String menuGroupURL, boolean isLogin) {
+	public String getMenuNavbarString(String menuGroupURL, boolean isLogin, String userName) {
 		final int tapStep = 1;		
 
 		JsonArray rootMenuListJsonArray = websiteMenuPartStringFileWatcher
@@ -200,6 +201,8 @@ public class UserSiteMenuManger {
 		if (null == menuGroupURL) {
 			menuGroupURL = "/";
 		}
+		
+		// userName = ;
 
 		StringBuilder menuNavbarStringBuilder = new StringBuilder()
 				.append(getTabStrings(tapStep))
@@ -248,7 +251,7 @@ public class UserSiteMenuManger {
 					.append("<li><a href=\"/\">Home</a></li>")
 					.append(CommonStaticFinalVars.NEWLINE);
 		}
-
+		
 		menuNavbarStringBuilder
 				.append(webisteMenuPartString)
 				.append(getTabStrings(tapStep + 3))
@@ -268,6 +271,9 @@ public class UserSiteMenuManger {
 					.append(getTabStrings(tapStep + 4))
 					.append("<li><a href=\"")
 					.append("/jsp/member/logout.jsp")
+					.append("\" title=\"")
+					.append(StringEscapeActorUtil.replace(userName,
+							StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4))
 					.append("\"><span class=\"glyphicon glyphicon-log-out\"></span> logout</a></li>")
 					.append(CommonStaticFinalVars.NEWLINE);
 		} else {

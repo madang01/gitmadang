@@ -12,6 +12,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
 public class MenuManagementSvl extends AbstractAdminLoginServlet {
@@ -20,8 +21,10 @@ public class MenuManagementSvl extends AbstractAdminLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		
 		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
-		menuListReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		menuListReq.setRequestedUserID(accessedUserformation.getUserID());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		

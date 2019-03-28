@@ -26,7 +26,8 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class UserLoginRes extends AbstractMessage {
 	private String userID;
-	private String memberRole;
+	private String userName;
+	private byte memberRole;
 
 	public String getUserID() {
 		return userID;
@@ -35,11 +36,18 @@ public class UserLoginRes extends AbstractMessage {
 	public void setUserID(String userID) {
 		this.userID = userID;
 	}
-	public String getMemberRole() {
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public byte getMemberRole() {
 		return memberRole;
 	}
 
-	public void setMemberRole(String memberRole) {
+	public void setMemberRole(byte memberRole) {
 		this.memberRole = memberRole;
 	}
 
@@ -49,6 +57,8 @@ public class UserLoginRes extends AbstractMessage {
 		builder.append("userLoginRes[");
 		builder.append("userID=");
 		builder.append(userID);
+		builder.append(", userName=");
+		builder.append(userName);
 		builder.append(", memberRole=");
 		builder.append(memberRole);
 		builder.append("]");

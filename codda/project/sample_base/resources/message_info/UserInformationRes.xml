@@ -16,8 +16,8 @@
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>사용자 정보 응답 메시지</desc>
 <singleitem name="nickname" type="si pascal string"/>
-<singleitem name="state" type="ub pascal string"/>
-<singleitem name="role" type="ub pascal string"/>
+<singleitem name="state" type="byte"/>
+<singleitem name="role" type="byte"/>
 <singleitem name="passwordHint" type="si pascal string"/>
 <singleitem name="passwordAnswer" type="si pascal string"/>
 <singleitem name="passwordFailedCount" type="unsigned byte"/>

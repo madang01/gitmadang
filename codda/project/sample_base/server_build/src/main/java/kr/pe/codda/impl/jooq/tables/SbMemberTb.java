@@ -40,7 +40,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
 
-    private static final long serialVersionUID = 1239923857;
+    private static final long serialVersionUID = -1482323047;
 
     /**
      * The reference instance of <code>sb_db.sb_member_tb</code>
@@ -76,14 +76,14 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     public final TableField<SbMemberTbRecord, String> PWD_SALT_BASE64 = createField("pwd_salt_base64", org.jooq.impl.SQLDataType.VARCHAR(12), this, "비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값");
 
     /**
-     * The column <code>sb_db.sb_member_tb.role</code>. 회원 역할, A:관리자, M:일반회원
+     * The column <code>sb_db.sb_member_tb.role</code>. 회원 역할, A:관리자, M:일반회원, SELECT char(ascii('A') using ascii);
      */
-    public final TableField<SbMemberTbRecord, String> ROLE = createField("role", org.jooq.impl.SQLDataType.CHAR(1).nullable(false), this, "회원 역할, A:관리자, M:일반회원");
+    public final TableField<SbMemberTbRecord, Byte> ROLE = createField("role", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "회원 역할, A:관리자, M:일반회원, SELECT char(ascii('A') using ascii);");
 
     /**
-     * The column <code>sb_db.sb_member_tb.state</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴
+     * The column <code>sb_db.sb_member_tb.state</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴, SELECT char(ascii('Y') using ascii);
      */
-    public final TableField<SbMemberTbRecord, String> STATE = createField("state", org.jooq.impl.SQLDataType.CHAR(1).nullable(false), this, "회원 상태, Y : 정상, B:블락, W:탈퇴");
+    public final TableField<SbMemberTbRecord, Byte> STATE = createField("state", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "회원 상태, Y : 정상, B:블락, W:탈퇴, SELECT char(ascii('Y') using ascii);");
 
     /**
      * The column <code>sb_db.sb_member_tb.pwd_hint</code>. 비밀번호 힌트, 비밀번호 분실시 답변 유도용 사용자한테 보여주는 힌트

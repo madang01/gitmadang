@@ -112,14 +112,14 @@ public final class BoardInfoListResEncoder extends AbstractMessageEncoder {
 					, boardInfo$2MiddleWritableObject);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "cnt"
-					, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
+					, kr.pe.codda.common.type.SingleItemType.LONG // itemType
 					, boardInfo$2.getCnt() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, boardInfo$2MiddleWritableObject);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "total"
-					, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
+					, kr.pe.codda.common.type.SingleItemType.LONG // itemType
 					, boardInfo$2.getTotal() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset

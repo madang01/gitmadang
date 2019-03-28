@@ -1,10 +1,8 @@
 package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
-import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
@@ -23,7 +21,6 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardReplyPolicyType;
-import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -186,14 +183,7 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 						.append("]를 수정하는데 실패하였습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
-			
-			create.insertInto(SB_USER_ACTION_HISTORY_TB)
-			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, boardInfoModifyReq.getRequestedUserID())
-			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardInfoModifyReq.getMessageID())
-			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardInfoModifyReq.toString())
-			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-			.execute();
-			
+						
 			conn.commit();
 			
 		} catch (ServerServiceException e) {
@@ -206,6 +196,7 @@ public class BoardInfoModifyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

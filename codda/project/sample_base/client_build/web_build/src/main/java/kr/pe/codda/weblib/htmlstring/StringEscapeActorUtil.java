@@ -25,6 +25,10 @@ public class StringEscapeActorUtil {
 	public static String replace(String sourceString, 
 			STRING_REPLACEMENT_ACTOR_TYPE ... stringReplacementActorTypeList) {
 		
+		if (null == sourceString) {
+			return "";
+		}
+		
 		String resultString = sourceString;
 		for (STRING_REPLACEMENT_ACTOR_TYPE stringReplacementActorType : stringReplacementActorTypeList) {
 						

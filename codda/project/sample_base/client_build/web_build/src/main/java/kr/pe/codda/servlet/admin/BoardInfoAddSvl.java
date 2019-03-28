@@ -12,6 +12,7 @@ import kr.pe.codda.impl.message.BoardInfoAddRes.BoardInfoAddRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.BoardListType;
 import kr.pe.codda.weblib.common.BoardReplyPolicyType;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.PermissionType;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
@@ -122,8 +123,11 @@ public class BoardInfoAddSvl extends AbstractAdminLoginServlet {
 			return;
 		}		
 		
+		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		
 		BoardInfoAddReq boardInfoAddReq = new BoardInfoAddReq();
-		boardInfoAddReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		boardInfoAddReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardInfoAddReq.setBoardName(paramBoardName);
 		boardInfoAddReq.setBoardListType(boardListType.getValue());
 		boardInfoAddReq.setBoardReplyPolicyType(boardReplyPolicyType.getValue());

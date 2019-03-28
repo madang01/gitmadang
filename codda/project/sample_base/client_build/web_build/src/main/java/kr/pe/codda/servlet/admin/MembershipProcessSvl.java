@@ -43,7 +43,7 @@ public class MembershipProcessSvl extends AbstractServlet {
 		String paramNickname = req.getParameter("nickname");
 		String paramPwdHint = req.getParameter("pwdHint");
 		String paramPwdAnswer = req.getParameter("pwdAnswer");
-		String paramCaptchaAnswer = req.getParameter("answer");
+		String paramCaptchaAnswer = req.getParameter("captchaAnswer");
 		/**************** 파라미터 종료 *******************/
 
 		log.info(

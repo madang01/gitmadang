@@ -20,5 +20,6 @@
 <singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="boardID" type="unsigned byte" />
 <singleitem name="boardNo" type="unsigned integer" />
+<singleitem name="pwdHashBase64" type="ub pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 </message>

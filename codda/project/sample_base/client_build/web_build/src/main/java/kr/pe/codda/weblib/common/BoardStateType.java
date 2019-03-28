@@ -7,17 +7,17 @@ package kr.pe.codda.weblib.common;
  *
  */
 public enum BoardStateType {
-	OK("Y", "정상"), BLOCK("B", "블락"), DELETE("D", "삭제"), TREEBLOCK("T", "트리블락");
+	OK((byte)'Y', "정상"), BLOCK((byte)'B', "블락"), DELETE((byte)'D', "삭제"), TREEBLOCK((byte)'T', "트리블락");
 	
-	private String boardStateTypeValue;
+	private byte boardStateTypeValue;
 	private String boardStateTypeName;
 	
-	private BoardStateType(String boardStateTypeValue, String boardStateTypeName) {
+	private BoardStateType(byte boardStateTypeValue, String boardStateTypeName) {
 		this.boardStateTypeValue = boardStateTypeValue;
 		this.boardStateTypeName = boardStateTypeName;
 	}
 	
-	public String getValue() {
+	public byte getValue() {
 		return boardStateTypeValue;
 	}
 	
@@ -25,18 +25,12 @@ public enum BoardStateType {
 		return boardStateTypeName;
 	}
 	
-	public static BoardStateType valueOf(String boardStateTypeValue, boolean isSuper) {
-		if (null == boardStateTypeValue) {
-			throw new IllegalArgumentException("the parameter boardStateTypeValue is null");
-		}
+	public static BoardStateType valueOf(byte boardStateTypeValue) {
 		
-		if (isSuper) {
-			return valueOf(boardStateTypeValue);
-		}
 		
 		BoardStateType[] deleteFlags = BoardStateType.values();
 		for (BoardStateType deleteFlag : deleteFlags) {
-			if (deleteFlag.getValue().equals(boardStateTypeValue)) {
+			if (deleteFlag.getValue() == boardStateTypeValue) {
 				return deleteFlag;
 			}
 		}

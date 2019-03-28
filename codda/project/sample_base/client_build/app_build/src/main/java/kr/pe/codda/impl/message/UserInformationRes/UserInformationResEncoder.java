@@ -47,14 +47,14 @@ public final class UserInformationResEncoder extends AbstractMessageEncoder {
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "state"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 			, userInformationRes.getState() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "role"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 			, userInformationRes.getRole() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset

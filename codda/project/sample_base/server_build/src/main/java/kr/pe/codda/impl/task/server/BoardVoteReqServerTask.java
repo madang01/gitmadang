@@ -22,7 +22,8 @@ import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.MemberActivityType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -70,7 +71,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			
 			log.warn(errorMessage, e);
 						
-			sendErrorOutputMessage("3. 게시글에 대한 추천이 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("게시글을 추천하는데  실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -121,7 +122,8 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 추천 서비스", PermissionType.MEMBER, boardVoteReq.getRequestedUserID());
+			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 추천 서비스", PermissionType.MEMBER, boardVoteReq.getRequestedUserID());
+			
 			
 			Record1<String> 
 			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID)
@@ -174,12 +176,14 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			Timestamp registeredDate = new java.sql.Timestamp(System.currentTimeMillis());
+			
 			int countOfInsert = create.insertInto(SB_BOARD_VOTE_TB)
 					.set(SB_BOARD_VOTE_TB.BOARD_ID, boardID)
 			.set(SB_BOARD_VOTE_TB.BOARD_NO, boardNo)
 			.set(SB_BOARD_VOTE_TB.USER_ID, boardVoteReq.getRequestedUserID())
 			.set(SB_BOARD_VOTE_TB.IP, boardVoteReq.getIp())
-			.set(SB_BOARD_VOTE_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
+			.set(SB_BOARD_VOTE_TB.REG_DT, registeredDate)
 			.execute();
 			
 			if (0 == countOfInsert) {
@@ -191,11 +195,12 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 				
 				String errorMessage = "해당 글에 대한 추천이 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
-			}			
+			}
+			
+			ServerDBUtil.insertMemberActivityHistory(conn, create, log, boardVoteReq.getRequestedUserID(), 
+					memberRoleTypeOfRequestedUserID, MemberActivityType.VOTE, boardID, boardNo, registeredDate);
 			
 			conn.commit();			
-			
-			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -206,9 +211,8 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
-
+			
 			throw e;
-
 		} finally {
 			if (null != conn) {
 				try {

@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
 
-    private static final long serialVersionUID = -593935099;
+    private static final long serialVersionUID = -467000463;
 
     /**
      * The reference instance of <code>sb_db.sb_board_info_tb</code>
@@ -89,12 +89,12 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
     /**
      * The column <code>sb_db.sb_board_info_tb.cnt</code>. 게시판 목록 개수
      */
-    public final TableField<SbBoardInfoTbRecord, Integer> CNT = createField("cnt", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "게시판 목록 개수");
+    public final TableField<SbBoardInfoTbRecord, Long> CNT = createField("cnt", org.jooq.impl.SQLDataType.BIGINT.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.BIGINT)), this, "게시판 목록 개수");
 
     /**
      * The column <code>sb_db.sb_board_info_tb.total</code>. 게시판 글 전체 개수
      */
-    public final TableField<SbBoardInfoTbRecord, Integer> TOTAL = createField("total", org.jooq.impl.SQLDataType.INTEGER.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGER)), this, "게시판 글 전체 개수");
+    public final TableField<SbBoardInfoTbRecord, Long> TOTAL = createField("total", org.jooq.impl.SQLDataType.BIGINT.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.BIGINT)), this, "게시판 글 전체 개수");
 
     /**
      * The column <code>sb_db.sb_board_info_tb.next_board_no</code>. 다음 게시판 번호, 본문의 부모 게시판 번호가 0 으로 예약되어 있어 1부터 시작

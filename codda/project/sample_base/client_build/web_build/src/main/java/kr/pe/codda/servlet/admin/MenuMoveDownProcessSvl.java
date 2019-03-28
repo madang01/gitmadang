@@ -10,6 +10,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.MenuMoveDownReq.MenuMoveDownReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
 public class MenuMoveDownProcessSvl extends AbstractAdminLoginServlet {
@@ -70,8 +71,10 @@ public class MenuMoveDownProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		
 		MenuMoveDownReq menuMoveDownReq = new MenuMoveDownReq();
-		menuMoveDownReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		menuMoveDownReq.setRequestedUserID(accessedUserformation.getUserID());
 		menuMoveDownReq.setMenuNo(nativeMenuNo);
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

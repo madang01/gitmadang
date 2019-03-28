@@ -76,50 +76,65 @@
 						<div class="col-sm-12">&nbsp;</div>
 					</div><%
 	String firstWriteID = null;
+	
 	for (BoardChangeHistoryRes.BoardChangeHistory boardChangeHistory : boardChangeHistoryRes.getBoardChangeHistoryList()) {
+		
+%>
+
+					<table class="table">
+						<thead><%
 		if (0 == boardChangeHistory.getHistorySeq()) {
 			firstWriteID = boardChangeHistory.getWriterID();
 %>
-					<div class="row">
-						<div class="col-sm-2" style="background-color:lavender;">게시판 번호(#순번)</div>
-						<div class="col-sm-1"><%= boardChangeHistoryRes.getBoardNo() %>(#<%= boardChangeHistory.getHistorySeq() %>)</div>
-						<div class="col-sm-2" style="background-color:lavender;">최초 작성일</div>
-						<div class="col-sm-2"><%= boardChangeHistory.getRegisteredDate() %></div>
-						<div class="col-sm-2" style="background-color:lavender;">최초 작성자</div>
-						<div class="col-sm-2"><%= boardChangeHistory.getWriterNickname() %></div>						
-					</div><%			
+					
+							<tr>
+								<th>게시판 번호(#순번)</th>
+								<th><%= boardChangeHistoryRes.getBoardNo() %>(#<%= boardChangeHistory.getHistorySeq() %>)</th>
+								<th>최초 작성일</th>
+								<th><%= boardChangeHistory.getRegisteredDate() %></th>
+								<th>최초 작성자</th>
+								<th><%= boardChangeHistory.getWriterNickname() %></th>						
+							</tr><%			
 		} else {
+			
 %>
-					<div class="row">
-						<div class="col-sm-2" style="background-color:lavender;">게시판 번호(#순번)</div>
-						<div class="col-sm-1"><%= boardChangeHistoryRes.getBoardNo() %>(#<%= boardChangeHistory.getHistorySeq() %>)</div>						
-						<div class="col-sm-1" style="background-color:lavender;">수정일</div>
-						<div class="col-sm-2"><%= boardChangeHistory.getRegisteredDate() %></div><%
-			if (! boardChangeHistory.getWriterID().equals(firstWriteID)) {		
+							<tr>
+								<th>게시판 번호(#순번)</th>
+								<th><%= boardChangeHistoryRes.getBoardNo() %>(#<%= boardChangeHistory.getHistorySeq() %>)</th>						
+								<th>수정일</th>
+								<th><%= boardChangeHistory.getRegisteredDate() %></th><%
+					if (! boardChangeHistory.getWriterID().equals(firstWriteID)) {		
 %>
-						<div class="col-sm-1" style="background-color:lavender;">수정자</div>
-						<div class="col-sm-2"><%= boardChangeHistory.getWriterNickname() %></div><%
-			}
-%>						
-					</div><%
+								<th>수정자</th>
+								<th><%= boardChangeHistory.getWriterNickname() %></th><%
+					} else {
+%>
+								<th>&nbsp;</th>
+								<th>&nbsp;</th><%
+					}
+%>
+							</tr><%
 		}			
 					
 					
 		if (isSubject) {
 %>
-					<div class="row">
-						<div class="col-sm-1" style="background-color:lavender;">제목</div>
-						<div class="col-sm-11"><article><%= StringEscapeActorUtil.replace(boardChangeHistory.getSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></article></div>						
-					</div><%
+							<tr>
+								<th>제목</th>
+								<th colspan="5"><%= StringEscapeActorUtil.replace(boardChangeHistory.getSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></th>						
+							</tr><%
 		}
 %>
-					<div class="row">
-						<div class="col-sm-1" style="background-color:lavender;">내용</div>
-						<div class="col-sm-11"><article style="white-space:pre-wrap;"><%= StringEscapeActorUtil.replace(boardChangeHistory.getContents(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></article></div>						
-					</div><%
+						</thead>
+						<tbody>					
+							<tr>
+								<td colspan="5" style="white-space:pre-wrap;"><%= StringEscapeActorUtil.replace(boardChangeHistory.getContents(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4) %></td>						
+							</tr><%
 	}
 %>
-				</div>
+						</tbody>
+					</table>
+				</div>					
 			</div>
 		</div>
 	</div>

@@ -2,17 +2,17 @@ package kr.pe.codda.weblib.common;
 
 
 public enum MemberRoleType {
-	ADMIN("A", "관리자"), USER("M", "일반회원"), GUEST("G", "손님");;
+	ADMIN((byte)'A', "관리자"), MEMBER((byte)'M', "일반회원"), GUEST((byte)'G', "손님");
 	
-	private String memberRoleTypeValue;
+	private byte memberRoleTypeValue;
 	private String memberRoleTypeName;
 	
-	private MemberRoleType(String memberRoleTypeValue, String memberRoleTypeName) {
+	private MemberRoleType(byte memberRoleTypeValue, String memberRoleTypeName) {
 		this.memberRoleTypeValue = memberRoleTypeValue;
 		this.memberRoleTypeName = memberRoleTypeName;
 	}
 	
-	public String getValue() {
+	public byte getValue() {
 		return memberRoleTypeValue;
 	}	
 	
@@ -20,18 +20,11 @@ public enum MemberRoleType {
 		return memberRoleTypeName;
 	}
 	
-	public static MemberRoleType valueOf(String nativeMemberRoleTypeValue, boolean isSuper) {
-		if (null == nativeMemberRoleTypeValue) {
-			throw new IllegalArgumentException("the parameter nativeMemberRoleTypeValue is null");
-		}
-		
-		if (isSuper) {
-			return valueOf(nativeMemberRoleTypeValue);
-		}
+	public static MemberRoleType valueOf(byte nativeMemberRoleTypeValue) {		
 		
 		MemberRoleType[] memberTypes = MemberRoleType.values();
 		for (MemberRoleType memberType : memberTypes) {
-			if (memberType.getValue().equals(nativeMemberRoleTypeValue)) {
+			if (memberType.getValue() == nativeMemberRoleTypeValue) {
 				return memberType;
 			}
 		}	

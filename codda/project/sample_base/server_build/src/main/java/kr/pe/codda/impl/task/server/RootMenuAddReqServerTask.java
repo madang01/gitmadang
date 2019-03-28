@@ -182,8 +182,6 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				}
 			}
 
-			log.warn("unknown error", e);
-
 			throw e;
 		} finally {
 			if (null != conn) {

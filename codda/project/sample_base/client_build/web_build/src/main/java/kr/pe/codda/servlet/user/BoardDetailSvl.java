@@ -10,6 +10,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
@@ -45,9 +46,10 @@ public class BoardDetailSvl extends AbstractServlet {
 			return;
 		}
 		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 		
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
-		boardDetailReq.setRequestedUserID(getLoginedUserIDFromHttpSession(req));
+		boardDetailReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardDetailReq.setBoardID(boardID);
 		boardDetailReq.setBoardNo(boardNo);
 		

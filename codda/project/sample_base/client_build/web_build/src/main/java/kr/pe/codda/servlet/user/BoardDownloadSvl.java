@@ -21,6 +21,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.codda.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
 
@@ -36,6 +37,8 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		String paramBoardNo = req.getParameter("boardNo");
 		String paramAttachedFileSeq = req.getParameter("attachedFileSeq");
 		/**************** 파라미터 종료 *******************/
+		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요.";
@@ -86,7 +89,8 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		
 		if (null == paramAttachedFileSeq) {
 			String errorMessage = "첨부 파일 순번를 넣어주세요.";
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
+			
+			log.warn("{}, userId={}, ip={}", errorMessage, accessedUserformation.getUserID(), req.getRemoteAddr());
 			
 			printBoardProcessFailureCallBackPage(req, res, errorMessage);
 			return;
@@ -98,7 +102,8 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		}catch (NumberFormatException nfe) {
 			String errorMessage = new StringBuilder("자바 short 타입 변수인 첨부 파일 순번 값[")
 			.append(paramAttachedFileSeq).append("]이 잘못되었습니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
+			
+			log.warn("{}, userId={}, ip={}", errorMessage, accessedUserformation.getUserID(), req.getRemoteAddr());
 			
 			printBoardProcessFailureCallBackPage(req, res, errorMessage);
 			return;
@@ -107,7 +112,8 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		if (attachedFileSeq < 0) {
 			String errorMessage = new StringBuilder("첨부 파일 순번 값[")
 			.append(paramAttachedFileSeq).append("]은 0 보다 작거나 커야합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
+			
+			log.warn("{}, userId={}, ip={}", errorMessage, accessedUserformation.getUserID(), req.getRemoteAddr());
 			
 			printBoardProcessFailureCallBackPage(req, res, errorMessage);
 			return;
@@ -118,7 +124,8 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 			.append(paramAttachedFileSeq).append("]은 ")
 			.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
 			.append(" 값 보다 작거나 같아야 합니다.").toString();
-			log.warn("{}, userId={}, ip={}", errorMessage, getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
+			
+			log.warn("{}, userId={}, ip={}", errorMessage, accessedUserformation.getUserID(), req.getRemoteAddr());
 			
 			printBoardProcessFailureCallBackPage(req, res, errorMessage);
 			return;
@@ -131,7 +138,7 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		boardDownloadFileReq.setAttachedFileSeq(attachedFileSeq);
 		
 		// FIXME!
-		log.debug("inObj={},  userId={}, ip={}", boardDownloadFileReq.toString(), getLoginedUserIDFromHttpSession(req), req.getRemoteAddr());
+		log.debug("inObj={},  userId={}, ip={}", boardDownloadFileReq.toString(), accessedUserformation.getUserID(), req.getRemoteAddr());
 		
 	
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

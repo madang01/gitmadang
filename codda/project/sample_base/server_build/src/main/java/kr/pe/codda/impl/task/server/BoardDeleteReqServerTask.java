@@ -3,23 +3,20 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
-import static kr.pe.codda.impl.jooq.tables.SbUserActionHistoryTb.SB_USER_ACTION_HISTORY_TB;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.Record2;
-import org.jooq.Record3;
+import org.jooq.Record4;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -29,10 +26,12 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.MemberActivityType;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -78,24 +77,43 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			
 			log.warn(errorMessage, e);
 						
-			sendErrorOutputMessage("게시글 가져오는데 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("게시글 삭제가 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
 
 	public MessageResultRes doWork(String dbcpName, BoardDeleteReq boardDeleteReq)
 			throws Exception {
-
-		if (null == boardDeleteReq.getRequestedUserID()) {
-			String errorMessage = "요청한 사용자 아이디를 넣어주세요";
+		
+		try {
+			ValueChecker.checkValidRequestedUserID(boardDeleteReq.getRequestedUserID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		
-		if (boardDeleteReq.getBoardNo() < 0 || boardDeleteReq.getBoardNo() > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
-			String errorMessage = "게시판 번호가 unsigned integer type 의 최대값(=4294967295) 보다 큽니다";
+		try {
+			ValueChecker.checkValidBoardNo(boardDeleteReq.getBoardNo());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		try {
+			ValueChecker.checkValidBoardPasswordHashBase64(boardDeleteReq.getPwdHashBase64());
+		} catch (RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}	
+		
+		try {
+			ValueChecker.checkValidIP(boardDeleteReq.getIp());
+		} catch (RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		
 		String requestedUserID = boardDeleteReq.getRequestedUserID();
 		UByte boardID = UByte.valueOf(boardDeleteReq.getBoardID());
@@ -112,7 +130,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 						
-			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 삭제 서비스", PermissionType.MEMBER, requestedUserID);
+			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 삭제 서비스", PermissionType.GUEST, requestedUserID);
 			
 			Record2<String, Byte> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME,
@@ -191,7 +209,9 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			}
 			
 			/** 최상위 그룹 레코드에 대한 락 획득후 게시판 상태 얻기 */
-			Record3<UInteger, String, String>  boardRecord = create.select(SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.BOARD_ST,
+			Record4<String, UInteger, Byte, String>  boardRecord = create.select(SB_BOARD_TB.PWD_BASE64,
+					SB_BOARD_TB.PARENT_NO, 
+					SB_BOARD_TB.BOARD_ST,
 					SB_BOARD_HISTORY_TB.REGISTRANT_ID)
 			.from(SB_BOARD_TB)
 			.innerJoin(SB_BOARD_HISTORY_TB)
@@ -213,14 +233,15 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			String dbPwdHashBase64 = boardRecord.getValue(SB_BOARD_TB.PWD_BASE64);
 			UInteger parentNo = boardRecord.getValue(SB_BOARD_TB.PARENT_NO);
-			String boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			byte boardState = boardRecord.getValue(SB_BOARD_TB.BOARD_ST);
 			String firstWriterID = boardRecord.getValue(SB_BOARD_HISTORY_TB.REGISTRANT_ID);
 			
 			
 			BoardStateType boardStateType = null;
 			try {
-				boardStateType = BoardStateType.valueOf(boardState, false);
+				boardStateType = BoardStateType.valueOf(boardState);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -275,6 +296,59 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
+				/** 손님 자신이 삭제 요청한 경우 설정한 비밀번호가 없다면 삭제 불가 */
+				if (null == dbPwdHashBase64) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+
+					String errorMessage = "손님으로 작성한 게시글의 비밀번호가 없습니다";
+
+					throw new ServerServiceException(errorMessage);
+				}
+			}
+			
+			if ((null != dbPwdHashBase64) && ! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+				/** 관리자가 아닌 경우 설정한 비밀번호가 있다면 게시글 비밀번호 일치 검사 */
+				String pwdHashBase64 = boardDeleteReq.getPwdHashBase64();
+				
+				if (null == pwdHashBase64) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					
+					String errorMessage = "게시글에 대한 비밀번호를 입력해 주세요";
+					throw new ServerServiceException(errorMessage);
+				}
+
+				if (pwdHashBase64.isEmpty()) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					
+					String errorMessage = "설정한 게시글 비밀 번호가 존재합니다, 게시글 비밀번호를 입력해 주세요";
+					throw new ServerServiceException(errorMessage);
+				}
+
+				if (! dbPwdHashBase64.equals(pwdHashBase64)) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					
+					String errorMessage = "설정한 게시글 비밀 번호가 일치하지 않습니다";
+					throw new ServerServiceException(errorMessage);
+				}
+			}
+			
 			
 			create.update(SB_BOARD_TB)
 			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.DELETE.getValue())
@@ -296,15 +370,13 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 					.execute();
 				}
-			}			 
+			}
 			
-			create.insertInto(SB_USER_ACTION_HISTORY_TB)
-			.set(SB_USER_ACTION_HISTORY_TB.USER_ID, requestedUserID)
-			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE_ID, boardDeleteReq.getMessageID())
-			.set(SB_USER_ACTION_HISTORY_TB.INPUT_MESSAGE, boardDeleteReq.toString())
-			.set(SB_USER_ACTION_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-			.execute();
 			
+			ServerDBUtil.insertMemberActivityHistory(conn, create, log, boardDeleteReq.getRequestedUserID(), 
+					memberRoleTypeOfRequestedUserID, MemberActivityType.DELETE, boardID, boardNo,
+					new java.sql.Timestamp(System.currentTimeMillis()));
+						
 			conn.commit();			
 
 			
@@ -318,6 +390,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

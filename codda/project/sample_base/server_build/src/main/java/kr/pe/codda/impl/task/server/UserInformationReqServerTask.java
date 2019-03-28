@@ -101,8 +101,8 @@ public class UserInformationReqServerTask extends AbstractServerTask {
 		}
 		
 		String nickname = null;
-		String memeberState = null;
-		String role = null;
+		byte memeberState;
+		byte role;
 		String passwordHint = null;
 		String passwordAnswer = null;
 		UByte passwordFailedCount = null;
@@ -130,7 +130,7 @@ public class UserInformationReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			Record9<String, String, String, String, String, UByte, String, Timestamp, Timestamp> 
+			Record9<String, Byte, Byte, String, String, UByte, String, Timestamp, Timestamp> 
 			memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.NICKNAME,
 					SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE,
 					SB_MEMBER_TB.PWD_HINT,

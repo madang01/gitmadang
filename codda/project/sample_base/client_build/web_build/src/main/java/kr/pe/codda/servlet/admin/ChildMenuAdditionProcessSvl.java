@@ -11,6 +11,7 @@ import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.ChildMenuAddReq.ChildMenuAddReq;
 import kr.pe.codda.impl.message.ChildMenuAddRes.ChildMenuAddRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
 public class ChildMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
@@ -104,8 +105,10 @@ public class ChildMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		
 		ChildMenuAddReq childMenuAddReq = new ChildMenuAddReq();
-		childMenuAddReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		childMenuAddReq.setRequestedUserID(accessedUserformation.getUserID());
 		childMenuAddReq.setParentNo(nativeParentNo);
 		childMenuAddReq.setMenuName(paramMenuName);
 		childMenuAddReq.setLinkURL(paramLinkURL);

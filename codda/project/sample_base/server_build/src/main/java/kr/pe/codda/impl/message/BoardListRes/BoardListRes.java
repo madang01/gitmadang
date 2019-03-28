@@ -43,7 +43,7 @@ public class BoardListRes extends AbstractMessage {
 		private String writerID;
 		private String writerNickname;
 		private int viewCount;
-		private String boardSate;
+		private byte boardSate;
 		private java.sql.Timestamp registeredDate;
 		private int votes;
 		private String subject;
@@ -105,11 +105,11 @@ public class BoardListRes extends AbstractMessage {
 		public void setViewCount(int viewCount) {
 			this.viewCount = viewCount;
 		}
-		public String getBoardSate() {
+		public byte getBoardSate() {
 			return boardSate;
 		}
 
-		public void setBoardSate(String boardSate) {
+		public void setBoardSate(byte boardSate) {
 			this.boardSate = boardSate;
 		}
 		public java.sql.Timestamp getRegisteredDate() {

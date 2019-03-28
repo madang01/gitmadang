@@ -133,6 +133,7 @@ public class BoardInfoDeleteReqServerTask extends AbstractServerTask {
 						.append("]를 삭제하는데 실패하였습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
+			
 
 			conn.commit();
 
@@ -146,6 +147,7 @@ public class BoardInfoDeleteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {

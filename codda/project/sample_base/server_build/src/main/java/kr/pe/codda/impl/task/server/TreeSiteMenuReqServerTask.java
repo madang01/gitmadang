@@ -69,7 +69,7 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 			
 			log.warn(errorMessage, e);
 						
-			sendErrorOutputMessage("메뉴 목록 조회가 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("트리형 메뉴 조회가 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -163,9 +163,7 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 				} catch (Exception e1) {
 					log.warn("fail to rollback");
 				}
-			}
-			
-			// log.warn("unknown error", e);			
+			}		
 			
 			throw e;
 		} finally {

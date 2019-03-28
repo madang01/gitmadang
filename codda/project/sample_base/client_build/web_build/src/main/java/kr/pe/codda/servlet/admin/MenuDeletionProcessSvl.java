@@ -10,6 +10,7 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.MenuDeleteReq.MenuDeleteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.jdf.AbstractAdminLoginServlet;
 
 public class MenuDeletionProcessSvl extends AbstractAdminLoginServlet {
@@ -72,9 +73,10 @@ public class MenuDeletionProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
-		menuDeleteReq.setRequestedUserID(getLoginedAdminIDFromHttpSession(req));
+		menuDeleteReq.setRequestedUserID(accessedUserformation.getUserID());
 		menuDeleteReq.setMenuNo(nativeMenuNo);		
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

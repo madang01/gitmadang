@@ -26,8 +26,8 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class UserInformationRes extends AbstractMessage {
 	private String nickname;
-	private String state;
-	private String role;
+	private byte state;
+	private byte role;
 	private String passwordHint;
 	private String passwordAnswer;
 	private short passwordFailedCount;
@@ -42,18 +42,18 @@ public class UserInformationRes extends AbstractMessage {
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-	public String getState() {
+	public byte getState() {
 		return state;
 	}
 
-	public void setState(String state) {
+	public void setState(byte state) {
 		this.state = state;
 	}
-	public String getRole() {
+	public byte getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(byte role) {
 		this.role = role;
 	}
 	public String getPasswordHint() {

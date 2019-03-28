@@ -5,6 +5,7 @@ import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
+import static kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -47,6 +48,8 @@ import kr.pe.codda.impl.message.BoardUnBlockReq.BoardUnBlockReq;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.impl.message.PersonalActivityHistoryReq.PersonalActivityHistoryReq;
+import kr.pe.codda.impl.message.PersonalActivityHistoryRes.PersonalActivityHistoryRes;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardReplyPolicyType;
@@ -61,6 +64,8 @@ import kr.pe.codda.server.lib.VirtualBoardTreeBuilderIF;
 
 public class BoardIntegrationTest extends AbstractJunitTest {
 	private final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
+			// ServerCommonStaticFinalVars.LOAD_TEST_DBCP_NAME;
+			// ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
 	private final static short boardID = 3;
 
 	// ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME
@@ -83,7 +88,36 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
 						MemberRoleType.ADMIN, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip);
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			} catch (ServerServiceException e) {
+				String expectedErrorMessage = new StringBuilder(
+						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
+				String actualErrorMessag = e.getMessage();
+
+				// log.warn(actualErrorMessag, e);
+
+				assertEquals(expectedErrorMessage, actualErrorMessag);
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to create a test ID");
+			}
+		}
+		
+		{
+			String userID = "guest";
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's',
+					(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
+					(byte) '$' };
+			String nickname = "손님";
+			String pwdHint = "힌트 그것이 알고싶다";
+			String pwdAnswer = "힌트답변 말이여 방구여";
+			String ip = "127.0.0.1";
+
+			try {
+				ServerDBUtil.registerMember(TEST_DBCP_NAME,
+						MemberRoleType.GUEST, userID, nickname, pwdHint,
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(
 						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
@@ -112,7 +146,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
 						MemberRoleType.MEMBER, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip);
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(
 						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
@@ -141,7 +175,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME,
 						MemberRoleType.MEMBER, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip);
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder(
 						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
@@ -177,18 +211,19 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL,
 					ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-
+		
+			create.delete(SB_MEMBER_ACTIVITY_HISTORY_TB).execute();
 			create.delete(SB_BOARD_VOTE_TB).execute();
 			create.delete(SB_BOARD_FILELIST_TB).execute();
 			create.delete(SB_BOARD_HISTORY_TB).execute();
 			create.delete(SB_BOARD_TB).execute();
-
+		 
 			/** sample_base 프로젝에 예약된 0 ~ 3 까지의 게시판 식별자를 제외한 게시판 정보 삭제  */
 			create.delete(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.ge(UByte.valueOf(4))).execute();
 			
 			create.update(SB_BOARD_INFO_TB)
-					.set(SB_BOARD_INFO_TB.CNT, 0)
-					.set(SB_BOARD_INFO_TB.TOTAL, 0)
+					.set(SB_BOARD_INFO_TB.CNT, 0L)
+					.set(SB_BOARD_INFO_TB.TOTAL, 0L)
 					.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
 
 			conn.commit();
@@ -238,18 +273,18 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL,
 					ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 
-			Result<Record4<UByte, Byte, Integer, Integer>> boardInfoResult = create.select(SB_BOARD_INFO_TB.BOARD_ID, 
+			Result<Record4<UByte, Byte, Long, Long>> boardInfoResult = create.select(SB_BOARD_INFO_TB.BOARD_ID, 
 					SB_BOARD_INFO_TB.LIST_TYPE,
 					SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.TOTAL)
 			.from(SB_BOARD_INFO_TB).orderBy(SB_BOARD_INFO_TB.BOARD_ID.asc())
 			.fetch();
 			
 			
-			for (Record4<UByte, Byte, Integer, Integer> boardInfoRecord : boardInfoResult) {
+			for (Record4<UByte, Byte, Long, Long> boardInfoRecord : boardInfoResult) {
 				UByte boardID = boardInfoRecord.get(SB_BOARD_INFO_TB.BOARD_ID);
 				byte boardListTypeValue = boardInfoRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
-				int acutalTotal = boardInfoRecord.getValue(SB_BOARD_INFO_TB.TOTAL);
-				int actualCountOfList = boardInfoRecord.getValue(SB_BOARD_INFO_TB.CNT);
+				long acutalTotal = boardInfoRecord.getValue(SB_BOARD_INFO_TB.TOTAL);
+				long actualCountOfList = boardInfoRecord.getValue(SB_BOARD_INFO_TB.CNT);
 				
 				BoardListType boardListType = BoardListType.valueOf(boardListTypeValue);	
 				
@@ -277,15 +312,6 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 			conn.commit();
 
 		} catch (Exception e) {
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
 			log.warn(e.getMessage(), e);
 
 			fail(e.getMessage());
@@ -298,6 +324,33 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 				}
 			}
 		}
+	}
+	
+	@Test
+	public void 개인활동이력조회_테스트() {
+		PersonalActivityHistoryReq personalActivityHistoryReq = new PersonalActivityHistoryReq();
+		personalActivityHistoryReq.setRequestedUserID("guest");
+		personalActivityHistoryReq.setTargetUserID("test01");
+		personalActivityHistoryReq.setPageNo(1);
+		personalActivityHistoryReq.setPageSize(20);
+		
+		PersonalActivityHistoryReqServerTask  personalActivityHistoryReqServerTask = null;
+		try {
+			personalActivityHistoryReqServerTask = new PersonalActivityHistoryReqServerTask();
+		} catch (DynamicClassCallException e1) {
+			fail("dead code");
+		}
+		
+		PersonalActivityHistoryRes personalActivityHistoryRes = null;
+		
+		try {
+			personalActivityHistoryRes = personalActivityHistoryReqServerTask.doWork(TEST_DBCP_NAME, personalActivityHistoryReq);
+		} catch (Exception e) {
+			log.warn("unknown error", e);
+			fail("fail to execuate doTask");
+		}
+		
+		log.info(personalActivityHistoryRes.toString());
 	}
 
 	@Test
@@ -2410,7 +2463,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		for (BoardListRes.Board board : boardListRes.getBoardList()) {
-			String boardState = board.getBoardSate();
+			byte boardState = board.getBoardSate();
 			int groupSeq = board.getGroupSeq();
 
 			if (firstBlockBoardTreeNode.getGroupSeq() == groupSeq) {
@@ -2465,7 +2518,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		for (BoardListRes.Board board : boardListRes.getBoardList()) {
-			String boardState = board.getBoardSate();
+			byte boardState = board.getBoardSate();
 			int groupSeq = board.getGroupSeq();
 
 			if (firstBlockBoardTreeNode.getGroupSeq() == groupSeq) {
@@ -3235,7 +3288,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		for (BoardListRes.Board board : boardListRes.getBoardList()) {
-			String boardState = board.getBoardSate();
+			byte boardState = board.getBoardSate();
 			int groupSeq = board.getGroupSeq();
 
 			if (firstBlockBoardTreeNode.getGroupSeq() == groupSeq) {
@@ -3280,7 +3333,7 @@ public class BoardIntegrationTest extends AbstractJunitTest {
 		}
 
 		for (BoardListRes.Board board : boardListRes.getBoardList()) {
-			String boardState = board.getBoardSate();
+			byte boardState = board.getBoardSate();
 			int groupSeq = board.getGroupSeq();
 
 			if (deleteBoardTreeNode.getGroupSeq() == groupSeq) {

@@ -2,6 +2,7 @@ package kr.pe.codda.weblib.jdf;
 
 import javax.servlet.http.HttpServletRequest;
 
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.sitemenu.UserSiteMenuManger;
 
 public abstract class AbstractUserJSP extends AbstractJSP {
@@ -11,7 +12,10 @@ public abstract class AbstractUserJSP extends AbstractJSP {
 	private UserSiteMenuManger userSiteMenuManger = UserSiteMenuManger.getInstance();
 
 	@Override
-	public String getMenuNavbarString(HttpServletRequest request) {
-		return userSiteMenuManger.getMenuNavbarString(getGroupRequestURL(request), isUserLoginedIn(request));
+	public String getMenuNavbarString(HttpServletRequest req) {
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+
+		return userSiteMenuManger.getMenuNavbarString(getGroupRequestURL(req), accessedUserformation.isLoginedIn(),
+				accessedUserformation.getUserName());
 	}
 }

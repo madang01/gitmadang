@@ -53,7 +53,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer,
-						passwordBytes, ip);
+						passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
@@ -79,7 +79,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer,
-						passwordBytes, ip);
+						passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
@@ -105,7 +105,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer,
-						passwordBytes, ip);
+						passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
@@ -140,16 +140,16 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
 
-			Result<Record4<UByte, Byte, Integer, Integer>> boardInfoResult = create
+			Result<Record4<UByte, Byte, Long, Long>> boardInfoResult = create
 					.select(SB_BOARD_INFO_TB.BOARD_ID, SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.CNT,
 							SB_BOARD_INFO_TB.TOTAL)
 					.from(SB_BOARD_INFO_TB).orderBy(SB_BOARD_INFO_TB.BOARD_ID.asc()).fetch();
 
-			for (Record4<UByte, Byte, Integer, Integer> boardInfoRecord : boardInfoResult) {
+			for (Record4<UByte, Byte, Long, Long> boardInfoRecord : boardInfoResult) {
 				UByte boardID = boardInfoRecord.get(SB_BOARD_INFO_TB.BOARD_ID);
 				byte boardListTypeValue = boardInfoRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
-				int acutalTotal = boardInfoRecord.getValue(SB_BOARD_INFO_TB.TOTAL);
-				int actualCountOfList = boardInfoRecord.getValue(SB_BOARD_INFO_TB.CNT);
+				long acutalTotal = boardInfoRecord.getValue(SB_BOARD_INFO_TB.TOTAL);
+				long actualCountOfList = boardInfoRecord.getValue(SB_BOARD_INFO_TB.CNT);
 
 				BoardListType boardListType = BoardListType.valueOf(boardListTypeValue);
 				int expectedTotal = create.selectCount().from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID))
@@ -641,7 +641,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, requestedUserID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip);
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");
@@ -732,13 +732,14 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, requestedUserID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip);
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");
 			}
 
-			create.update(SB_MEMBER_TB).set(SB_MEMBER_TB.ROLE, "K").where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
+			create.update(SB_MEMBER_TB)
+			.set(SB_MEMBER_TB.ROLE, (byte)'K').where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
 					.execute();
 
 			try {
@@ -813,7 +814,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			try {
 				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.GUEST, requestedUserID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip);
+						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");

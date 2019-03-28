@@ -175,7 +175,7 @@ public final class BoardListResEncoder extends AbstractMessageEncoder {
 					, board$2MiddleWritableObject);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardSate"
-					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+					, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 					, board$2.getBoardSate() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset

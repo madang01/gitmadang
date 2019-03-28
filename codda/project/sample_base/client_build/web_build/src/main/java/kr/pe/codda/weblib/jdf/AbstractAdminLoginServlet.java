@@ -6,13 +6,17 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 
 @SuppressWarnings("serial")
 public abstract class AbstractAdminLoginServlet extends AbstractSessionKeyServlet {	
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
-		if (! isAdminLoginedIn(req)) {
+		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		
+		if (! accessedUserformation.isAdmin()) {
 			String requestURI = req.getRequestURI();
 						
 			ServerSessionkeyIF webServerSessionkey  = null;

@@ -1,5 +1,5 @@
 <%@page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars"%><%
-%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><jsp:useBean id="boardNo" class="java.lang.String" scope="request" /><%
 
 %><!DOCTYPE html>
@@ -11,7 +11,7 @@
     function init() {
     	parent.callBackForBoardDeleteProcess(<%= boardNo %>);	
     }
-    
+
     window.onload=init;
 </script>
 </head>

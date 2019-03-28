@@ -64,9 +64,9 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 					.append(", inObj=")
 					.append(inputMessage.toString()).toString();
 			
-			log.warn(errorMessage, e);			
-			
-			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, inputMessage);
+			log.warn(errorMessage, e);
+
+			sendErrorOutputMessage("메뉴 삭제하는데 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -168,17 +168,13 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.sub(1))
 			.where(SB_SITEMENU_TB.ORDER_SQ.gt(deleteMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ)))
 			.execute();
+						
 			
 			try {
 				conn.commit();
 			} catch (Exception e) {
 				log.warn("fail to commit");
 			}
-			
-			
-			
-			
-			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -190,11 +186,7 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			log.warn("unknown error", e);
-			
-			String errorMessage = "메뉴 수정이 실패하였습니다";
-			throw new ServerServiceException(errorMessage);
-
+			throw e;
 		} finally {
 			if (null != conn) {
 				try {

@@ -311,8 +311,10 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			String errorMessage = "비밀번호 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
 			throw new ServerServiceException(errorMessage);
 		}
-
-		ServerDBUtil.registerMember(dbcpName, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip);
+		
+		
+		ServerDBUtil.registerMember(dbcpName, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip,
+				new java.sql.Timestamp(System.currentTimeMillis()));
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(memberRegisterReq.getMessageID());

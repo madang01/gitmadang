@@ -32,7 +32,7 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
-import kr.pe.codda.server.lib.JooqSqlUtil;
+import kr.pe.codda.server.lib.MemberActivityType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
@@ -77,7 +77,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 
 			log.warn(errorMessage, e);
 
-			sendErrorOutputMessage("게시판 본문 글 등록이 실패하였습니다", toLetterCarrier, inputMessage);
+			sendErrorOutputMessage("게시판 본문 글 작성하는데 실패하였습니다", toLetterCarrier, inputMessage);
 			return;
 		}
 	}
@@ -86,10 +86,20 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(boardWriteReq.toString());
 		
-		if (null == boardWriteReq.getPwdHashBase64()) {
-			String errorMessage = "게시글에 대한 비밀번호를 입력해 주세요";
+		try {
+			ValueChecker.checkValidRequestedUserID(boardWriteReq.getRequestedUserID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		try {
+			ValueChecker.checkValidBoardPasswordHashBase64(boardWriteReq.getPwdHashBase64());
+		} catch (RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+	
 
 		try {
 			ValueChecker.checkValidSubject(boardWriteReq.getSubject());
@@ -160,6 +170,10 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		UByte nextAttachedFileSeq = UByte.valueOf(boardWriteReq.getNewAttachedFileCnt());
 		UInteger boardNo = null;
 		String pwdHashBase64 = boardWriteReq.getPwdHashBase64();
+		
+		if (null == pwdHashBase64) {
+			pwdHashBase64 = "";
+		}
 
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
 
@@ -169,7 +183,12 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			
+			
 
+			/**
+			 * '게시판 식별자 정보'(SB_BOARD_INFO_TB) 테이블에는 '다음 게시판 번호'가 있어 락을 건후 1 증가 시키고 가져온 값은 '게시판 번호'로 사용한다
+			 */
 			Record3<String, Byte, UInteger> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE,
 							SB_BOARD_INFO_TB.NEXT_BOARD_NO)
@@ -218,9 +237,9 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			MemberRoleType memberRoleType = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 본문 글 등록 서비스", boardWritePermissionType, boardWriteReq.getRequestedUserID());
+			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 본문 글 등록 서비스", boardWritePermissionType, boardWriteReq.getRequestedUserID());
 			
-			if (MemberRoleType.GUEST.equals(memberRoleType)) {
+			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
 				if (pwdHashBase64.isEmpty()) {
 					try {
 						conn.rollback();
@@ -259,8 +278,6 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 						throw new ServerServiceException(errorMessage);
 					}
 					
-				} else {
-					pwdHashBase64 = null;
 				}
 			}
 			
@@ -268,11 +285,11 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, SB_BOARD_INFO_TB.NEXT_BOARD_NO.add(1))
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 			.execute();
-
+			
 			conn.commit();
 			
 			InsertSetMoreStep<SbBoardTbRecord> boardInsertSetMoreStep = null;
-			if (null == pwdHashBase64) {
+			if (pwdHashBase64.isEmpty()) {
 				boardInsertSetMoreStep = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
 				.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
 				.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0)).set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
@@ -300,6 +317,8 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				String errorMessage = "게시판 본문 글 등록이 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			Timestamp registeredDate = new java.sql.Timestamp(System.currentTimeMillis());
 
 			int boardHistoryInsertCount = create.insertInto(SB_BOARD_HISTORY_TB)
 					.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
@@ -308,7 +327,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					.set(SB_BOARD_HISTORY_TB.CONTENTS, boardWriteReq.getContents())
 					.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardWriteReq.getRequestedUserID())
 					.set(SB_BOARD_HISTORY_TB.IP, boardWriteReq.getIp())
-					.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
+					.set(SB_BOARD_HISTORY_TB.REG_DT, registeredDate).execute();
 
 			if (0 == boardHistoryInsertCount) {
 				try {
@@ -350,6 +369,9 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.CNT.add(1))
 					.set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
 					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
+			
+			ServerDBUtil.insertMemberActivityHistory(conn, create, log, boardWriteReq.getRequestedUserID(), 
+					memberRoleTypeOfRequestedUserID, MemberActivityType.WRITE, boardID, boardNo, registeredDate);
 
 			conn.commit();
 
@@ -358,7 +380,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 
 		} catch (ServerServiceException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Exception e) {	
 			if (null != conn) {
 				try {
 					conn.rollback();
@@ -366,6 +388,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {
