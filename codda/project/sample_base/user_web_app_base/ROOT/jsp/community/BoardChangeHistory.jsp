@@ -52,8 +52,11 @@
 </head>
 <body>
 	<div class=header>
-		<div class="container">
-<%= getMenuNavbarString(request) %>
+		<div class="container"><%
+	if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType)) {
+		out.write(getMenuNavbarString(request));
+	}
+%>
 		</div>
 	</div>
 	<form name=detailFrm method="get" action="/servlet/BoardDetail">

@@ -90,11 +90,11 @@
 	}
 	
 	function callBackForBoadInfoAddition(boardID) {
-		var resultMessageView = document.getElementById("resultMessageView");
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 게시판 정보["+boardID+"]를 추가 하였습니다";
+		var resultMessage = document.getElementById("resultMessage");
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> 게시판 정보["+boardID+"]를 추가 하였습니다";
 		
-		alert(resultMessageView.innerText);
+		alert(resultMessage.innerText);
 		reload();
 	}
 
@@ -105,11 +105,11 @@
 	}
 	
 	function callBackForBoadInfoDeletion(boardID) {
-		var resultMessageView = document.getElementById("resultMessageView");
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 게시판 정보["+boardID+"]를 삭제 하였습니다";
+		var resultMessage = document.getElementById("resultMessage");
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> 게시판 정보["+boardID+"]를 삭제 하였습니다";
 		
-		alert(resultMessageView.innerText);
+		alert(resultMessage.innerText);
 		reload();
 	}
 	
@@ -137,9 +137,9 @@
 	}
 	
 	function callBackForBoadInfoModification(boardID) {
-		var resultMessageView = document.getElementById("resultMessageView");
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 게시판 정보["+boardID+"]를 수정 하였습니다";
+		var resultMessage = document.getElementById("resultMessage");
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> 게시판 정보["+boardID+"]를 수정 하였습니다";
 	}
 
 	function reload() {
@@ -196,7 +196,7 @@
 						<button type="button" class="btn btn-primary btn-sm" onClick="reload();">Reload</button>				
 						<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>				
 					</div>					 
-					<div id="resultMessageView"></div>
+					<div id="resultMessage"></div>
 					<br>
 					<form name="frm">
 						<div class="form-group">

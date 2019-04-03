@@ -3,23 +3,32 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.sql.Connection;
+import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
-import org.jooq.Record2;
+import org.jooq.Record6;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
+import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
+import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.message.MemberWithdrawReq.MemberWithdrawReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
+import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
+import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 import kr.pe.codda.server.lib.ValueChecker;
@@ -42,6 +51,7 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 		messageResultRes.setResultMessage(errorMessage);
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
+	
 	
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
@@ -70,12 +80,14 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 	
 	public MessageResultRes doWork(String dbcpName, MemberWithdrawReq memberWithdrawReq)
 			throws Exception {
+		// FIXME!
+		log.info(memberWithdrawReq.toString());
+				
 		String requestedUserID = memberWithdrawReq.getRequestedUserID();
-		
-		if (null == requestedUserID) {
-			String errorMessage = "요청한 사용자 아이디를 넣어주세요";
-			throw new ServerServiceException(errorMessage);
-		}
+		String pwdCipherBase64 = memberWithdrawReq.getPwdCipherBase64();
+		String sessionKeyBase64 = memberWithdrawReq.getSessionKeyBase64();
+		String ivBase64 = memberWithdrawReq.getIvBase64();
+		String ip = memberWithdrawReq.getIp();
 		
 		try {
 			ValueChecker.checkValidRequestedUserID(requestedUserID);
@@ -83,6 +95,113 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		if (null == pwdCipherBase64) {
+			String errorMessage = "비밀번호를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (null == sessionKeyBase64) {
+			String errorMessage = "세션키를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+
+		if (null == ivBase64) {
+			String errorMessage = "세션키 소금값을 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		if (null == ip) {
+			String errorMessage = "IP 주소를 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidIP(ip);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		byte[] pwdCipherBytes = null;
+		byte[] sessionKeyBytes = null;
+		byte[] ivBytes = null;
+		
+		
+		try {
+			pwdCipherBytes = CommonStaticUtil.Base64Decoder.decode(pwdCipherBase64);
+		} catch (Exception e) {
+			String errorMessage = "비밀번호 암호문은 베이스64로 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			sessionKeyBytes = CommonStaticUtil.Base64Decoder.decode(sessionKeyBase64);
+		} catch (Exception e) {
+			String errorMessage = "세션키는 베이스64로 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
+		}
+
+		try {
+			ivBytes = CommonStaticUtil.Base64Decoder.decode(ivBase64);
+		} catch (Exception e) {
+			String errorMessage = "세션키 소금값은 베이스64로 인코딩되지 않았습니다";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		ServerSymmetricKeyIF serverSymmetricKey = null;
+		try {
+			ServerSessionkeyIF serverSessionkey = ServerSessionkeyManager.getInstance()
+					.getMainProjectServerSessionkey();
+			serverSymmetricKey = serverSessionkey.getNewInstanceOfServerSymmetricKey(sessionKeyBytes, ivBytes);
+		} catch (IllegalArgumentException e) {
+			String debugMessage = new StringBuilder().append("잘못된 파라미터로 인한 대칭키 생성 실패, ")
+					.append(memberWithdrawReq.toString()).toString();
+
+			log.warn(debugMessage, e);
+
+			String errorMessage = "대칭키 생성 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
+		} catch (SymmetricException e) {
+			String debugMessage = new StringBuilder().append("알수 없는 이유로 대칭키 생성 실패, ")
+					.append(memberWithdrawReq.toString()).toString();
+
+			log.warn(debugMessage, e);
+
+			String errorMessage = "대칭키 생성 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		
+		byte[] passwordBytes = null;
+		try {
+			passwordBytes = serverSymmetricKey.decrypt(pwdCipherBytes);
+		} catch (IllegalArgumentException e) {
+			String debugMessage = new StringBuilder().append("잘못된 파라미터로 인한 비밀번호 복호화 실패, ")
+					.append(memberWithdrawReq.toString()).toString();
+
+			log.warn(debugMessage, e);
+
+			String errorMessage = "비밀번호 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
+		} catch (SymmetricException e) {
+			String debugMessage = new StringBuilder().append("알 수 없는 에러로 인한 비밀번호 복호화 실패, ")
+					.append(memberWithdrawReq.toString()).toString();
+
+			log.warn(debugMessage, e);
+
+			String errorMessage = "비밀번호 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidLoginPwd(passwordBytes);
+		} catch(IllegalArgumentException e) {			
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		String nickname = null;
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -96,29 +215,42 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 			
 			
 			/** 탈퇴 대상 회원 레코드 락 */
-			Record2<Byte, Byte> memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)
+			Record6<String, Byte, Byte, UByte, String, String> memberRecordOfRequestedUserID = create.select(
+					SB_MEMBER_TB.NICKNAME,
+					SB_MEMBER_TB.ROLE,
+					SB_MEMBER_TB.STATE,
+					SB_MEMBER_TB.PWD_FAIL_CNT,
+					SB_MEMBER_TB.PWD_BASE64,
+					SB_MEMBER_TB.PWD_SALT_BASE64)
 			.from(SB_MEMBER_TB)
 			.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
 			.forUpdate()
 			.fetchOne();
 			
-			if (null == memberRecordOfTargetUserID) {
+			if (null == memberRecordOfRequestedUserID) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("탈퇴 대상 사용자[")
+				String errorMessage = new StringBuilder("회원 탈퇴 요청자[")
 						.append(requestedUserID)
-						.append("] 가 회원 테이블에 존재하지 않습니다").toString();				
+						.append("]가 회원 테이블에 존재하지 않습니다").toString();				
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			byte memberRoleOfRequestedUserID = memberRecordOfTargetUserID.getValue(SB_MEMBER_TB.ROLE);
-			MemberRoleType  memberRoleTypeOfRequestedUserID = null;
+			nickname = memberRecordOfRequestedUserID.getValue(SB_MEMBER_TB.NICKNAME);
+			byte memberRole = memberRecordOfRequestedUserID.getValue(SB_MEMBER_TB.ROLE);
+			byte memberState = memberRecordOfRequestedUserID.get(SB_MEMBER_TB.STATE);
+			short pwdFailedCount = memberRecordOfRequestedUserID.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
+			String pwdBase64 =  memberRecordOfRequestedUserID.get(SB_MEMBER_TB.PWD_BASE64);
+			String pwdSaltBase64 = memberRecordOfRequestedUserID.get(SB_MEMBER_TB.PWD_SALT_BASE64);
+			
+			
+			MemberRoleType  memberRoleType = null;
 			try {
-				memberRoleTypeOfRequestedUserID = MemberRoleType.valueOf(memberRoleOfRequestedUserID);
+				memberRoleType = MemberRoleType.valueOf(memberRole);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -126,29 +258,32 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("요청자[")
+				String errorMessage = new StringBuilder("회원 탈퇴 요청자[")
 						.append(memberWithdrawReq.getRequestedUserID())
 						.append("]의 멤버 역활 유형[")
-						.append(memberRoleOfRequestedUserID)
+						.append(memberRole)
 						.append("]이 잘못되어있습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}	
 			
-			if (MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+			if (! MemberRoleType.MEMBER.equals(memberRoleType)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "관리자 아이디는 탈퇴 할 수 없습니다";
+				String errorMessage = new StringBuilder()
+						.append( "회원 탈퇴는 회원만이 가능합니다, 회원 탈퇴 요청자는 ")
+						.append(memberRoleType.getName())
+						.append(" 입니다").toString();
 				throw new ServerServiceException(errorMessage);
-			}
+			}	
 			
-			byte memeberStateOfRequestedUserID = memberRecordOfTargetUserID.getValue(SB_MEMBER_TB.STATE);
+			
 			MemberStateType memberStateTypeOfRequestedUserID = null;
 			try {
-				memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memeberStateOfRequestedUserID);
+				memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memberState);
 			} catch(IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -156,11 +291,11 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = new StringBuilder("회원 테이블에서 회원[")
+				String errorMessage = new StringBuilder("회원 탈퇴 요청자[")
 						.append(requestedUserID)
 						.append("]의 상태[")
-						.append(memeberStateOfRequestedUserID)
-						.append("] 값이 잘못 되어 있습니다").toString();
+						.append(memberState)
+						.append("]가 잘못 되어 있습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -179,17 +314,63 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			
+			if (ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES <= pwdFailedCount) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("최대 비밀번호 실패 횟수[")
+						.append(ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES)
+						.append("] 이상으로 비밀번호가 틀려 탈퇴하실 수 없습니다, 관리자를 통해 비밀번호 초기화를 해 주세요").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			byte[] pwdSaltBytes = CommonStaticUtil.Base64Decoder.decode(pwdSaltBase64);			
+			
+			PasswordPairOfMemberTable passwordPairOfMemberTable = ServerDBUtil.toPasswordPairOfMemberTable(passwordBytes, pwdSaltBytes);
+			
+			if (! pwdBase64.equals(passwordPairOfMemberTable.getPasswordBase64())) {
+				/*
+				update SB_MEMBER_TB set pwd_fail_cnt=#{pwdFailCount}, mod_dt=sysdate() where user_id=#{userId} and member_gb=1 and member_st=0
+				*/				
+				int countOfPwdFailedCountUpdate = create.update(SB_MEMBER_TB)
+					.set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(pwdFailedCount+1))
+					.set(SB_MEMBER_TB.LAST_MOD_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
+					.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
+				.execute();
+				
+				if (0  == countOfPwdFailedCountUpdate) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					
+					String errorMessage = "비밀 번호 실패 횟수 갱신이 실패하였습니다";
+					throw new ServerServiceException(errorMessage);
+				}
+				
+				conn.commit();
+				
+				String errorMessage = "비밀 번호가 틀렸습니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
 			create.update(SB_MEMBER_TB)
 			.set(SB_MEMBER_TB.STATE, MemberStateType.WITHDRAWAL.getValue())
 			.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
 			.execute();
 			
 			
-			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, memberWithdrawReq.toString(), 
+			conn.commit();
+			
+			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, "회원 탈퇴 완료", 
 					new java.sql.Timestamp(System.currentTimeMillis()));
 			
 			conn.commit();
-			
 			
 		} catch (ServerServiceException e) {
 			throw e;
@@ -213,13 +394,14 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 			}
 		}
 		
+		String successResultMessage = new StringBuilder()
+				.append(nickname)
+				.append("님의 회원 탈퇴 처리가 완료되었습니다").toString();
+		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(memberWithdrawReq.getMessageID());
 		messageResultRes.setIsSuccess(true);
-		messageResultRes.setResultMessage(new StringBuilder()
-				.append("아이디 [")
-				.append(memberWithdrawReq.getRequestedUserID())
-				.append("] 님께서 회원 탈퇴하셨습니다").toString());
+		messageResultRes.setResultMessage(successResultMessage);
 		
 		return messageResultRes;
 	}

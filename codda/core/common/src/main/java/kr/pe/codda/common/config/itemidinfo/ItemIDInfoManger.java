@@ -154,7 +154,7 @@ public class ItemIDInfoManger {
 
 		/** Common start */
 		try {
-			itemID = ItemIDDefiner.CommonPartItemIDDefiner.JDF_USER_LOGIN_PAGE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.JDF_MEMBER_LOGIN_PAGE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.COMMON,

@@ -31,7 +31,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSiteLogTbRecord extends UpdatableRecordImpl<SbSiteLogTbRecord> implements Record5<String, UInteger, String, String, Timestamp> {
 
-    private static final long serialVersionUID = -1780511242;
+    private static final long serialVersionUID = -877946620;
 
     /**
      * Setter for <code>sb_db.sb_site_log_tb.yyyymmdd</code>. 로그 날짜, yyyyMMdd 형태의 8자리 년월일 문자
@@ -76,14 +76,14 @@ public class SbSiteLogTbRecord extends UpdatableRecordImpl<SbSiteLogTbRecord> im
     }
 
     /**
-     * Setter for <code>sb_db.sb_site_log_tb.log_txt</code>. 로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제, (7) 관리자 로그인
+     * Setter for <code>sb_db.sb_site_log_tb.log_txt</code>. 로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제,  (7) 관리자 로그인
      */
     public void setLogTxt(String value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_site_log_tb.log_txt</code>. 로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제, (7) 관리자 로그인
+     * Getter for <code>sb_db.sb_site_log_tb.log_txt</code>. 로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제,  (7) 관리자 로그인
      */
     public String getLogTxt() {
         return (String) get(3);

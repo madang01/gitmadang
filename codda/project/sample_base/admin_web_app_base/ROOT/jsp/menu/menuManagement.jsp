@@ -281,12 +281,12 @@
 	}
 	
 	function callBackForMenuModificationProcess() {
-		var resultMessageView = document.getElementById("resultMessageView");
+		var resultMessage = document.getElementById("resultMessage");
 		var rowIndex = __rowIndex;			
 		var g = document.modifyMenuFrm;
 		
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 지정한  메뉴[메뉴번호:" + g.menuNo.value + ", 변경전 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "] 수정이 성공하였습니다";			
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> 지정한  메뉴[메뉴번호:" + g.menuNo.value + ", 변경전 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "] 수정이 성공하였습니다";			
 		
 		menuListResJsonObj.menuList[rowIndex].menuName = g.menuName.value;
 		menuListResJsonObj.menuList[rowIndex].linkURL = g.linkURL.value;		
@@ -312,18 +312,18 @@
 			g.submit();
 		} else {
 			txt = "You pressed Cancel!";
-			resultMessageView.setAttribute("class", "alert alert-info");
-			resultMessageView.innerHTML = "지정한  메뉴[메뉴번호:"+ menuNo + ", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName+"] 삭제를 취소했습니다";
+			resultMessage.setAttribute("class", "alert alert-info");
+			resultMessage.innerHTML = "지정한  메뉴[메뉴번호:"+ menuNo + ", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName+"] 삭제를 취소했습니다";
 		}
 	}
 	
 	function callBackForMenuDeletionProcess() {
-		var resultMessageView = document.getElementById("resultMessageView");
+		var resultMessage = document.getElementById("resultMessage");
 		var rowIndex = __rowIndex;			
 		var g = document.deleteMenuFrm;
 		
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 지정한  메뉴[메뉴번호:" + g.menuNo.value + ", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "]를 삭제 했습니다";			
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> 지정한  메뉴[메뉴번호:" + g.menuNo.value + ", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "]를 삭제 했습니다";			
 		
 		
 		for (var i=rowIndex+1; i < menuListResJsonObj.cnt; i++) {
@@ -352,12 +352,12 @@
 	
 	function callBackForMenuMoveUpProcess() {
 		var g = document.moveMenuUpFrm;
-		var resultMessageView = document.getElementById("resultMessageView");
+		var resultMessage = document.getElementById("resultMessage");
 		
 		var sourceRowIndex = __rowIndex;
 		
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> " + "지정한 메뉴[메뉴번호:" + g.menuNo.value + ", 메뉴명:" + menuListResJsonObj.menuList[sourceRowIndex].menuName + "]의 상단 이동이 성공하였습니다";
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> " + "지정한 메뉴[메뉴번호:" + g.menuNo.value + ", 메뉴명:" + menuListResJsonObj.menuList[sourceRowIndex].menuName + "]의 상단 이동이 성공하였습니다";
 		
 		var sourceMenu = menuListResJsonObj.menuList[sourceRowIndex];
 		
@@ -415,12 +415,12 @@
 	
 	function callBackForMenuMoveDownProcess() {
 		var g = document.moveMenuDownFrm;
-		var resultMessageView = document.getElementById("resultMessageView");
+		var resultMessage = document.getElementById("resultMessage");
 		
 		var rowIndex = __rowIndex;			
 		
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> " + "지정한 메뉴[메뉴번호:" + g.menuNo.value +", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "] 하단 이동이 성공하였습니다";
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> " + "지정한 메뉴[메뉴번호:" + g.menuNo.value +", 메뉴명:" + menuListResJsonObj.menuList[rowIndex].menuName + "] 하단 이동이 성공하였습니다";
 		
 		var sourceMenu = menuListResJsonObj.menuList[rowIndex];
 		
@@ -478,13 +478,13 @@
 	
 	
 	function callBackForChildMenuAdditionProcess(childMenuAddRes) {
-		var resultMessageView = document.getElementById("resultMessageView");
+		var resultMessage = document.getElementById("resultMessage");
 		var rowIndex = __rowIndex;
 		var parentMenu = menuListResJsonObj.menuList[rowIndex];
 		var g = document.addChildMenuFrm;
 		
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 부모 메뉴["+parentMenu.menuNo+"]에 자식 메뉴["+childMenuAddRes.menuNo+"]를 추가했습니다";
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> 부모 메뉴["+parentMenu.menuNo+"]에 자식 메뉴["+childMenuAddRes.menuNo+"]를 추가했습니다";
 				
 		var childMenu = {};
 		childMenu.menuNo = childMenuAddRes.menuNo;
@@ -520,13 +520,13 @@
 	}
 	
 	function callBackForRootMenuAdditionProcess(rootMenuAddRes) {
-		var resultMessageView = document.getElementById("resultMessageView");
+		var resultMessage = document.getElementById("resultMessage");
 		var rowIndex = __rowIndex;
 		var parentMenu = menuListResJsonObj.menuList[rowIndex];
 		var g = document.addRootMenuFrm;
 		
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 루트 메뉴[메뉴번호:"+rootMenuAddRes.menuNo+", 메뉴명:"+g.menuName.value+"]를 추가했습니다";
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> 루트 메뉴[메뉴번호:"+rootMenuAddRes.menuNo+", 메뉴명:"+g.menuName.value+"]를 추가했습니다";
 				
 		var rootMenu = {};
 		rootMenu.menuNo = rootMenuAddRes.menuNo;
@@ -554,17 +554,17 @@
 	}
 	
 	function callBackForUserWebsiteMenuInfoFileUpdater() {
-		var resultMessageView = document.getElementById("resultMessageView");
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> 일반 사용자 사이트의 메뉴 정보 파일을 갱신하였습니다";
+		var resultMessage = document.getElementById("resultMessage");
+		resultMessage.setAttribute("class", "alert alert-success");
+		resultMessage.innerHTML = "<strong>Success!</strong> 일반 사용자 사이트의 메뉴 정보 파일을 갱신하였습니다";
 	}
 	
-	function errorMessageCallBack(errorMessage) {
-		var resultMessageView = document.getElementById("resultMessageView");
+	function callBackForErrorMessage(errorMessage) {
+		var resultMessage = document.getElementById("resultMessage");
 		
-		// resultMessageView.setAttribute("class", "alert alert-warning fade in");
-		resultMessageView.setAttribute("class", "alert alert-warning");
-		resultMessageView.innerHTML = "<strong>Warning!</strong> " + errorMessage;
+		// resultMessage.setAttribute("class", "alert alert-warning fade in");
+		resultMessage.setAttribute("class", "alert alert-warning");
+		resultMessage.innerHTML = "<strong>Warning!</strong> " + errorMessage;
 	}
 	
 	function reload() {
@@ -624,7 +624,7 @@
 						<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>				
 					</div>
 								 
-					<div id="resultMessageView"></div>
+					<div id="resultMessage"></div>
 					<br>
 					<div class="row">
 						<div class="col-sm-1">메뉴번호</div>

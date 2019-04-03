@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSiteLogTb extends TableImpl<SbSiteLogTbRecord> {
 
-    private static final long serialVersionUID = 2030058001;
+    private static final long serialVersionUID = -1460426795;
 
     /**
      * The reference instance of <code>sb_db.sb_site_log_tb</code>
@@ -71,9 +71,9 @@ public class SbSiteLogTb extends TableImpl<SbSiteLogTbRecord> {
     public final TableField<SbSiteLogTbRecord, String> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.VARCHAR(20), this, "사용자 아이디");
 
     /**
-     * The column <code>sb_db.sb_site_log_tb.log_txt</code>. 로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제, (7) 관리자 로그인
+     * The column <code>sb_db.sb_site_log_tb.log_txt</code>. 로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제,  (7) 관리자 로그인
      */
-    public final TableField<SbSiteLogTbRecord, String> LOG_TXT = createField("log_txt", org.jooq.impl.SQLDataType.CLOB, this, "로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제, (7) 관리자 로그인");
+    public final TableField<SbSiteLogTbRecord, String> LOG_TXT = createField("log_txt", org.jooq.impl.SQLDataType.CLOB, this, "로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제,  (7) 관리자 로그인");
 
     /**
      * The column <code>sb_db.sb_site_log_tb.reg_dt</code>.

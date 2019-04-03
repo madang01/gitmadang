@@ -1,5 +1,7 @@
-<%@page import="kr.pe.codda.weblib.common.MemberActivityType"%>
-<%@page import="kr.pe.codda.weblib.common.AccessedUserInformation"%><%
+<%@page import="kr.pe.codda.common.etc.CommonStaticFinalVars"%><%
+%><%@page import="kr.pe.codda.weblib.common.WebCommonStaticUtil"%><%
+%><%@page import="kr.pe.codda.weblib.common.MemberActivityType"%><%
+%><%@page import="kr.pe.codda.weblib.common.AccessedUserInformation"%><%
 %><%@page import="kr.pe.codda.weblib.common.BoardListType"%><%	
 %><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE"%><%
 %><%@page import="kr.pe.codda.weblib.htmlstring.StringEscapeActorUtil"%><%
@@ -35,6 +37,23 @@
 
 <script src="/js/common.js"></script>
 <script type='text/javascript'>
+	var rsa = new RSAKey();
+	
+	function goPersonalInformation(targetUserID, pageNo) {
+		document.location.href = "/servlet/PersonalInformation?targetUserID="+targetUserID+"&pageNo="+pageNo;
+	}
+
+	function goTreeDetailPage(boardID, boardNo) {
+		var detailPageURL = "/servlet/BoardDetail?boardID="+boardID+"&boardNo="+boardNo;
+		
+		window.open(detailPageURL, "", "width=800,height=600");
+	}
+	
+	function goGroupDetailPage(boardID, groupNo, boardNo) {
+		var detailPageURL = "/servlet/BoardDetail?boardID="+boardID+"&boardNo="+groupNo+"&interestedBoadNo="+boardNo;
+		document.location.href = detailPageURL;
+	}
+
 	function init() {
 		if(typeof(sessionStorage) == "undefined") {
 		    alert("Sorry! No HTML5 sessionStorage support..");
@@ -43,7 +62,6 @@
 		}
 		
 		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
-		expandTextarea('contentsInWritePart');
 	}
 	
 	window.onload = init;
@@ -89,49 +107,73 @@
 			continue;
 		}
 		
-		String sourceSubject = StringEscapeActorUtil.replace(personalActivity.getSourceSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4);
-		
+		// String sourceSubject = ;
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("						");
 		out.write("<tr>");
 		out.write("<td>");
 		
 		if (MemberActivityType.WRITE.equals(memberActivityType)) {
 			out.write("<p>");		
 			out.write(personalActivity.getBoardName());
-			out.write(" 게시판에서 게시글(");
-			out.write(String.valueOf(personalActivity.getBoardNo()));
-			out.write(")을 작성하셨습니다");
+			out.write(" 게시판에서 <strong>본문글</strong>(#");
+			out.write(String.valueOf(personalActivity.getBoardNo()));			
+			out.write(")을 ");
+			out.write(WebCommonStaticUtil.FULL_DATE_FORMAT.format(personalActivity.getRegisteredDate()));
+			out.write("에 작성하셨습니다");
 			out.write("</p>");
 		} else if (MemberActivityType.REPLY.equals(memberActivityType)) {
 			out.write("<p>");		
 			out.write(personalActivity.getBoardName());
-			out.write(" 게시판에서 댓글(");
+			out.write(" 게시판에서 <strong>댓글</strong>(#");
 			out.write(String.valueOf(personalActivity.getBoardNo()));
-			out.write(")을 작성하셨습니다");
+			out.write(")을 ");
+			out.write(WebCommonStaticUtil.FULL_DATE_FORMAT.format(personalActivity.getRegisteredDate()));
+			out.write("에 작성하셨습니다");
 			out.write("</p>");
 		} else if (MemberActivityType.DELETE.equals(memberActivityType)) {
 			out.write("<p>");		
 			out.write(personalActivity.getBoardName());
-			out.write(" 게시판에서 게시글(");
+			out.write(" 게시판에서 게시글(#");
 			out.write(String.valueOf(personalActivity.getBoardNo()));
-			out.write(")를 삭제 하였습니다");
+			out.write(")을 ");
+			out.write(WebCommonStaticUtil.FULL_DATE_FORMAT.format(personalActivity.getRegisteredDate()));
+			out.write("에 <strong>삭제</strong> 하였습니다");
 			out.write("</p>");
 		} else if (MemberActivityType.VOTE.equals(memberActivityType)) {
 			out.write("<p>");		
 			out.write(personalActivity.getBoardName());
-			out.write(" 게시판에서 게시글(");
+			out.write(" 게시판에서 게시글(#");
 			out.write(String.valueOf(personalActivity.getBoardNo()));
-			out.write(")를 추천 하셨습니다");
+			out.write(")을 ");
+			out.write(WebCommonStaticUtil.FULL_DATE_FORMAT.format(personalActivity.getRegisteredDate()));
+			out.write("에 <strong>추천</strong> 하셨습니다");
 			out.write("</p>");
 		}		
 		
-		
 		if (BoardListType.TREE.equals(boardListType)) {
 			out.write("<p>");
-			out.write(sourceSubject);
+			out.write("<a href\"#\" onClick=goTreeDetailPage(");
+			out.write(String.valueOf(personalActivity.getBoardID()));
+			out.write(",");
+			out.write(String.valueOf(personalActivity.getBoardNo()));
+			out.write(")");
+			out.write(">");
+			out.write(StringEscapeActorUtil.replace(personalActivity.getSourceSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
+			out.write("</a>");
 			out.write("</p>");
 		} else {
 			out.write("<p>");
-			out.write(sourceSubject);
+			out.write("<a href\"#\" onClick=goGroupDetailPage(");
+			out.write(String.valueOf(personalActivity.getBoardID()));
+			out.write(",");
+			out.write(String.valueOf(personalActivity.getGroupNo()));
+			out.write(",");
+			out.write(String.valueOf(personalActivity.getBoardNo()));
+			out.write(")");
+			out.write(">");
+			out.write(StringEscapeActorUtil.replace(personalActivity.getSourceSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4));
+			out.write("</a>");
 			out.write("</p>");
 		}
 		
@@ -139,12 +181,65 @@
 		out.write("</tr>");
 		
 	}
+					
+	if (personalActivityHistoryRes.getTotal() > 1) {
+		final int pageNo = personalActivityHistoryRes.getPageNo();
+		final int pageSize = personalActivityHistoryRes.getPageSize();
+		
+		
+		long startPageNo = 1 + WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE*(long)((pageNo - 1) / WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE);
+		long endPageNo = Math.min(startPageNo + WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE, 
+		(personalActivityHistoryRes.getTotal() + pageSize - 1) / pageSize);
+		
+		out.write("<tr><td><ul class=\"pagination pagination-sm\">");
+		
+		if (startPageNo > 1) {			
+			out.write("<li class=\"previous\"><a href=\"#\" onClick=\"goPersonalInformation('");
+			out.write(personalActivityHistoryRes.getTargetUserID());
+			out.write("',");
+			out.write(String.valueOf(startPageNo-1));
+			out.write(")\">이전</a></li>");
+		} else {
+			out.write("<li class=\"disabled previous\"><a href=\"#\">이전</a></li>");
+		}
+		
+		for (int i=0; i < WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE; i++) {
+			long workingPageNo = startPageNo + i;
+			if (workingPageNo > endPageNo) break;
+
+			if (workingPageNo == pageNo) {
+				out.write("<li class=\"active\"><a href=\"#\">");
+				out.write(String.valueOf(workingPageNo));
+				out.write("</a></li>");
+			} else {
+				out.write("<li><a href=\"#\" onClick=\"goPersonalInformation('");
+				out.write(personalActivityHistoryRes.getTargetUserID());
+				out.write("',");
+				out.write(String.valueOf(workingPageNo));
+				out.write(")\">");
+				out.write(String.valueOf(workingPageNo));
+				out.write("</a></li>");
+			}
+		}
+		
+		if (startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE <= endPageNo) {		
+			out.write("<li class=\"next\"><a href=\"#\" onClick=\"goPersonalInformation('");
+			out.write(personalActivityHistoryRes.getTargetUserID());
+			out.write("',");
+			out.write(String.valueOf(startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE));
+			out.write(")\">다음</a></li>");
+		} else {
+			out.write("<li class=\"disabled next\"><a href=\"#\">다음</a></li>");
+		}
+		
+		out.write("</ul></td></tr>");
+	}
 %>
 					</tbody>
 				</table>		
 			</div>
 		</div>
-		</div>
 	</div>
+</div>
 </body>
 </html>

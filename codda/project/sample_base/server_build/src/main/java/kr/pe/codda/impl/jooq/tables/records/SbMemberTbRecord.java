@@ -31,7 +31,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> implements Record12<String, String, String, String, Byte, Byte, String, String, UByte, Timestamp, Timestamp, String> {
 
-    private static final long serialVersionUID = -594994762;
+    private static final long serialVersionUID = -1721987833;
 
     /**
      * Setter for <code>sb_db.sb_member_tb.user_id</code>. 사용자 아이디
@@ -174,16 +174,16 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
     }
 
     /**
-     * Setter for <code>sb_db.sb_member_tb.mod_dt</code>. 회원 정보 수정일
+     * Setter for <code>sb_db.sb_member_tb.last_mod_dt</code>. 마지막 회원 정보 수정일
      */
-    public void setModDt(Timestamp value) {
+    public void setLastModDt(Timestamp value) {
         set(10, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_member_tb.mod_dt</code>. 회원 정보 수정일
+     * Getter for <code>sb_db.sb_member_tb.last_mod_dt</code>. 마지막 회원 정보 수정일
      */
-    public Timestamp getModDt() {
+    public Timestamp getLastModDt() {
         return (Timestamp) get(10);
     }
 
@@ -318,7 +318,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public Field<Timestamp> field11() {
-        return SbMemberTb.SB_MEMBER_TB.MOD_DT;
+        return SbMemberTb.SB_MEMBER_TB.LAST_MOD_DT;
     }
 
     /**
@@ -414,7 +414,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public Timestamp component11() {
-        return getModDt();
+        return getLastModDt();
     }
 
     /**
@@ -510,7 +510,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public Timestamp value11() {
-        return getModDt();
+        return getLastModDt();
     }
 
     /**
@@ -616,7 +616,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
      */
     @Override
     public SbMemberTbRecord value11(Timestamp value) {
-        setModDt(value);
+        setLastModDt(value);
         return this;
     }
 
@@ -663,7 +663,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
     /**
      * Create a detached, initialised SbMemberTbRecord
      */
-    public SbMemberTbRecord(String userId, String nickname, String pwdBase64, String pwdSaltBase64, Byte role, Byte state, String pwdHint, String pwdAnswer, UByte pwdFailCnt, Timestamp regDt, Timestamp modDt, String ip) {
+    public SbMemberTbRecord(String userId, String nickname, String pwdBase64, String pwdSaltBase64, Byte role, Byte state, String pwdHint, String pwdAnswer, UByte pwdFailCnt, Timestamp regDt, Timestamp lastModDt, String ip) {
         super(SbMemberTb.SB_MEMBER_TB);
 
         set(0, userId);
@@ -676,7 +676,7 @@ public class SbMemberTbRecord extends UpdatableRecordImpl<SbMemberTbRecord> impl
         set(7, pwdAnswer);
         set(8, pwdFailCnt);
         set(9, regDt);
-        set(10, modDt);
+        set(10, lastModDt);
         set(11, ip);
     }
 }

@@ -2,6 +2,8 @@ package kr.pe.codda.weblib.common;
 
 import java.io.File;
 
+import org.apache.commons.lang3.time.FastDateFormat;
+
 import kr.pe.codda.common.buildsystem.pathsupporter.WebRootBuildSystemPathSupporter;
 
 public abstract class WebCommonStaticUtil {
@@ -18,5 +20,8 @@ public abstract class WebCommonStaticUtil {
 		return new StringBuilder(WebRootBuildSystemPathSupporter.getUserWebUploadPathString(installedPathString, mainProjectName)).append(File.separator)
 				.append(getShortFileNameOfAttachedFile(boardID, boardNo, attachedFileSeq)).toString();
 	}
+	
+	public static FastDateFormat FULL_DATE_FORMAT = FastDateFormat.getInstance( "yyyy년 MM월 dd일 HH시 mm분 ss초");
+	public static FastDateFormat SIMPLE_DATE_FORMAT = FastDateFormat.getInstance( "yyyy.MM.dd HHmmss");
 	
 }

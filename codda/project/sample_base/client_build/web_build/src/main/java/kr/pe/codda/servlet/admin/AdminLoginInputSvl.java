@@ -19,10 +19,7 @@ package kr.pe.codda.servlet.admin;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.codda.common.exception.SymmetricException;
-import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
-import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
-import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.jdf.AbstractServlet;
 
 /**
@@ -36,24 +33,25 @@ public class AdminLoginInputSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
-		ServerSessionkeyIF webServerSessionkey = null;
+		/**************** 파라미터 시작 *******************/
+		String paramUserID = req.getParameter("userID");
+		if (null == paramUserID) {
+			paramUserID = "";
+		} else {
+			try {
+				ValueChecker.checkValidLoginUserID(paramUserID);
+			} catch (IllegalArgumentException e) {
+				String errorMessage = e.getMessage();
+				String debugMessage = null;
 
-		try {
-			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
-			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
-		} catch (SymmetricException e) {
-			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
-
-			String errorMessage = "ServerSessionkeyManger instance init error";
-			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]",
-					e.getMessage());
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
+				printErrorMessagePage(req, res, errorMessage, debugMessage);
+				return;
+			}
 		}
+		/**************** 파라미터 종료 *******************/
 		
 		req.setAttribute("requestURI", "/");
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
-				webServerSessionkey.getModulusHexStrForWeb());
+		req.setAttribute("userID", paramUserID);
 		
 		/** /jsp/member/AdminLoginInput.jsp */
 		printJspPage(req, res, JDF_ADMIN_LOGIN_INPUT_PAGE);

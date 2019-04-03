@@ -42,8 +42,8 @@ public abstract class AbstractAdminLoginServlet extends AbstractSessionKeyServle
 					webServerSessionkey.getModulusHexStrForWeb());
 			printJspPage(req, res, JDF_ADMIN_LOGIN_INPUT_PAGE);
 			return;
-		} else {
-			super.performPreTask(req, res);
 		}
+		
+		super.performPreTask(req, res);
 	}
 }

@@ -15,10 +15,10 @@
 <script src="/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
 <script type='text/javascript'>
 	function init() {		
-		if (parent != null && parent.adminLoginOKCallBack != null) {
-			parent.adminLoginOKCallBack();
+		if (parent != null && parent.callBackForAdminLoginProcess != null) {
+			parent.callBackForAdminLoginProcess();
 		} else {
-			alert("parent.adminLoginOKCallBack 이 존재하지 않습니다");
+			alert("parent.callBackForAdminLoginProcess 이 존재하지 않습니다");
 		}
 	}
 	window.onload = init;

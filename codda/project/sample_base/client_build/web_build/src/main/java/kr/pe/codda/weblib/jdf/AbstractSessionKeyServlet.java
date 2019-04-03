@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.codda.common.exception.SymmetricException;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.codda.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 
@@ -41,6 +42,28 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {		
 		String paramSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
 		String paramIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+		
+		if (null == paramSessionKeyBase64 || null == paramIVBase64) {
+			ServerSessionkeyIF webServerSessionkey  = null;
+			try {
+				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+				webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+				
+				req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, webServerSessionkey.getModulusHexStrForWeb());
+			} catch (SymmetricException e) {
+				log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
+				
+				String errorMessage = "ServerSessionkeyManger instance init error";
+				String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
+				printErrorMessagePage(req, res, errorMessage, debugMessage);
+				return;
+			}
+			
+			log.info("req.getRequestURI=[{}]", req.getRequestURI());			
+			req.setAttribute("requestURI", req.getRequestURI());
+			printJspPage(req, res, JDF_SESSION_KEY_REDIRECT_PAGE);
+			return;
+		}
 		
 		//log.info("paramSessionKeyBase64=[{}]", paramSessionKeyBase64);
 		//log.info("paramIVBase64=[{}]", paramIVBase64);
@@ -64,14 +87,6 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-		
-		if (null == paramSessionKeyBase64 || null == paramIVBase64) {			
-			log.info("req.getRequestURI=[{}]", req.getRequestURI());			
-			req.setAttribute("requestURI", req.getRequestURI());
-			printJspPage(req, res, JDF_SESSION_KEY_REDIRECT_PAGE);
-			return;
-		}		
-		
 		
 		byte[] sessionkeyBytes = null;
 		try {
@@ -112,7 +127,27 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		//log.info("sessionkeyBytes=[{}]", HexUtil.getHexStringFromByteArray(sessionkeyBytes));
 		//log.info("ivBytes=[{}]", HexUtil.getHexStringFromByteArray(ivBytes));
 		
-		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes));
+		ServerSymmetricKeyIF  symmetricKeyFromSessionkey  = null;
+		
+		try {
+			symmetricKeyFromSessionkey = webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes);
+		} catch(Exception e) {
+			log.warn("fail to create a new instance of ServerSymmetricKeyIF class", e);
+			
+			String errorMessage = "fail to create a new instance of ServerSymmetricKeyIF class";
+			String debugMessage = new StringBuilder()
+					.append("paramSessionKeyBase64=[")
+					.append(paramSessionKeyBase64)
+					.append("], paramIVBase64=[")
+					.append(paramIVBase64)
+					.append("], errmsg=")
+					.append(e.getMessage()).toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SYMMETRIC_KEY_FROM_SESSIONKEY, symmetricKeyFromSessionkey);
 		performTask(req,res);
 	}
 }

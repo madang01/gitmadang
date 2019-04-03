@@ -14,13 +14,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Random;
 
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Result;
@@ -433,7 +433,7 @@ public abstract class ServerDBUtil {
 		}
 
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 		} catch (IllegalArgumentException e) {
 			throw new ServerServiceException(e.getMessage());
 		}
@@ -489,7 +489,7 @@ public abstract class ServerDBUtil {
 					.set(SB_MEMBER_TB.STATE, MemberStateType.OK.getValue()).set(SB_MEMBER_TB.PWD_HINT, pwdHint)
 					.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer).set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
 					.set(SB_MEMBER_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-					.set(SB_MEMBER_TB.MOD_DT, SB_MEMBER_TB.REG_DT).set(SB_MEMBER_TB.IP, ip).execute();
+					.set(SB_MEMBER_TB.LAST_MOD_DT, SB_MEMBER_TB.REG_DT).set(SB_MEMBER_TB.IP, ip).execute();
 
 			if (0 == resultOfInsert) {
 				try {
@@ -500,18 +500,16 @@ public abstract class ServerDBUtil {
 
 				String errorMessage = "회원 등록하는데 실패하였습니다";
 				throw new ServerServiceException(errorMessage);
-			}
+			}			
 
+			conn.commit();
+			
 			String logText = new StringBuilder().append("회원 가입 신청 아이디[").append(userID).append("], 회원 종류[")
 					.append(memberRoleType.getName()).append("], ip[").append(ip).append("]").toString();
 			
 			insertSiteLog(conn, create, log, userID, logText, registeredDate);
-
-			try {
-				conn.commit();
-			} catch (Exception e) {
-				log.warn("fail to commit");
-			}
+			
+			conn.commit();
 
 		} catch (ServerServiceException e) {
 			throw e;
@@ -549,14 +547,16 @@ public abstract class ServerDBUtil {
 	 * 
 	 * @param passwordBytes 사용자가 입력한 비밀번호
 	 * @param pwdSaltBytes  비밀번호 해쉬에 사용할 소금
-	 * @return
+	 * @return 회원 테이블 '비밀번호' 필드와 '비밀번호 소금' 필드 값 묶음
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static PasswordPairOfMemberTable toPasswordPairOfMemberTable(byte[] passwordBytes, byte[] pwdSaltBytes)
 			throws NoSuchAlgorithmException {
 		MessageDigest md = MessageDigest.getInstance(CommonStaticFinalVars.PASSWORD_ALGORITHM_NAME);
 
-		ByteBuffer passwordByteBuffer = ByteBuffer.allocate(pwdSaltBytes.length + passwordBytes.length);
+		int limit = pwdSaltBytes.length + passwordBytes.length;
+		
+		ByteBuffer passwordByteBuffer = ByteBuffer.allocate(limit);
 		passwordByteBuffer.put(pwdSaltBytes);
 		passwordByteBuffer.put(passwordBytes);
 
@@ -854,8 +854,12 @@ public abstract class ServerDBUtil {
 	public static void insertSiteLog(Connection conn, DSLContext create, InternalLogger log, String userID, 
 			String logText, Timestamp registeredDate) throws Exception {
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		String yyyyMMdd = sdf.format(registeredDate);
+		// SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		// String yyyyMMdd = sdf.format(registeredDate);
+		
+		Field<String> yyyyMMdd = DSL.field("date_format({0}, {1})", String.class, registeredDate, DSL.inline("%Y%m%d"));
+		
+		
 		
 		/** '일별 로그 순번' 동기화를 위해 락을 건다 */
 		create.select(SB_SEQ_TB.SQ_ID).from(SB_SEQ_TB)

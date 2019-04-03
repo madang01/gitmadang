@@ -132,12 +132,7 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			try {
-				conn.commit();
-			} catch (Exception e) {
-				log.warn("fail to commit");
-			}
-			
+			conn.commit();			
 			
 			
 		} catch (ServerServiceException e) {

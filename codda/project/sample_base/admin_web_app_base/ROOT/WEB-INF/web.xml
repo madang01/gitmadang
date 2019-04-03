@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
 	license agreements. See the NOTICE file distributed with this work for additional 
 	information regarding copyright ownership. The ASF licenses this file to 
@@ -11,8 +11,7 @@
 	language governing permissions and limitations under the License. -->
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	version="3.0" metadata-complete="true">
 
   <display-name>Welcome to Codda Admin</display-name>
@@ -50,30 +49,30 @@
 	
 	<!-- 회원 등록 화면, siteType : {admin, user} -->
 	<servlet>
-		<servlet-name>AdminSiteMembershipInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.admin.AdminSiteMembershipInputSvl</servlet-class>
+		<servlet-name>MemberRegisterInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.MemberRegisterInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/AdminSiteMembershipInput</param-value>
+			<param-value>/servlet/MemberRegisterInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>AdminSiteMembershipInput</servlet-name>
-		<url-pattern>/servlet/AdminSiteMembershipInput</url-pattern>
+		<servlet-name>MemberRegisterInput</servlet-name>
+		<url-pattern>/servlet/MemberRegisterInput</url-pattern>
 	</servlet-mapping>	
 	
 	<!-- 회원 등록 처리 -->
 	<servlet>
-		<servlet-name>MembershipProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.admin.MembershipProcessSvl</servlet-class>
+		<servlet-name>MemberRegisterProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.MemberRegisterProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
 			<param-value>/servlet/AdminSiteMembershipInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MembershipProcess</servlet-name>
-		<url-pattern>/servlet/MembershipProcess</url-pattern>
+		<servlet-name>MemberRegisterProcess</servlet-name>
+		<url-pattern>/servlet/MemberRegisterProcess</url-pattern>
 	</servlet-mapping>
 	
 	<!-- 일반 사용자 사이트 메뉴 관리자 화면 -->

@@ -17,8 +17,10 @@
 	{"depth": 1, "menu_nm": "자바 문자열 변환 도구", "menu_no": 17, "link_url": "/servlet/JavaStringConverterInput", "order_sq": 16, "parent_no": 8},
 	{"depth": 1, "menu_nm": "자바 GC 호출자", "menu_no": 18, "link_url": "/servlet/JavaGCCaller", "order_sq": 17, "parent_no": 8},
 	{"depth": 0, "menu_nm": "회원", "menu_no": 19, "link_url": "/jsp/member/body.jsp", "order_sq": 18, "parent_no": 0},
-	{"depth": 1, "menu_nm": "로그인", "menu_no": 20, "link_url": "/servlet/UserLoginInput", "order_sq": 19, "parent_no": 19},
-	{"depth": 1, "menu_nm": "회원 가입", "menu_no": 21, "link_url": "/servlet/UserSiteMembershipInput", "order_sq": 20, "parent_no": 19},
+	{"depth": 1, "menu_nm": "로그인", "menu_no": 20, "link_url": "/servlet/MemberLoginInput", "order_sq": 19, "parent_no": 19},
+	{"depth": 1, "menu_nm": "회원 가입", "menu_no": 21, "link_url": "/servlet/MemberRegisterInput", "order_sq": 20, "parent_no": 19},
 	{"depth": 0, "menu_nm": "개인", "menu_no": 22, "link_url": "/jsp/my/body.jsp", "order_sq": 21, "parent_no": 0},
-	{"depth": 1, "menu_nm": "개인 정보 조회", "menu_no": 23, "link_url": "/servlet/PersonalInformation", "order_sq": 22, "parent_no": 22}
+	{"depth": 1, "menu_nm": "개인 정보 조회", "menu_no": 23, "link_url": "/servlet/MemberInformation", "order_sq": 22, "parent_no": 22},
+	{"depth": 1, "menu_nm": "비밀번호 변경", "menu_no": 24, "link_url": "/servlet/MemberPasswordChangeInput", "order_sq": 23, "parent_no": 22},
+	{"depth": 1, "menu_nm": "회원 탈퇴", "menu_no": 25, "link_url": "/servlet/MemberWithdrawRequest", "order_sq": 24, "parent_no": 22}
 ]}

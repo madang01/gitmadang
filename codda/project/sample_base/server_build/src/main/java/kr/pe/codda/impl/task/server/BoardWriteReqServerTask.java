@@ -369,10 +369,12 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.CNT.add(1))
 					.set(SB_BOARD_INFO_TB.TOTAL, SB_BOARD_INFO_TB.TOTAL.add(1))
 					.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
+
+			conn.commit();
 			
 			ServerDBUtil.insertMemberActivityHistory(conn, create, log, boardWriteReq.getRequestedUserID(), 
 					memberRoleTypeOfRequestedUserID, MemberActivityType.WRITE, boardID, boardNo, registeredDate);
-
+			
 			conn.commit();
 
 			// log.info("게시판 본문 글[boardID={}, boardNo={}, subject={}] 등록 성공", boardID,

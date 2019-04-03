@@ -26,6 +26,10 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class MemberWithdrawReq extends AbstractMessage {
 	private String requestedUserID;
+	private String pwdCipherBase64;
+	private String sessionKeyBase64;
+	private String ivBase64;
+	private String ip;
 
 	public String getRequestedUserID() {
 		return requestedUserID;
@@ -34,6 +38,34 @@ public class MemberWithdrawReq extends AbstractMessage {
 	public void setRequestedUserID(String requestedUserID) {
 		this.requestedUserID = requestedUserID;
 	}
+	public String getPwdCipherBase64() {
+		return pwdCipherBase64;
+	}
+
+	public void setPwdCipherBase64(String pwdCipherBase64) {
+		this.pwdCipherBase64 = pwdCipherBase64;
+	}
+	public String getSessionKeyBase64() {
+		return sessionKeyBase64;
+	}
+
+	public void setSessionKeyBase64(String sessionKeyBase64) {
+		this.sessionKeyBase64 = sessionKeyBase64;
+	}
+	public String getIvBase64() {
+		return ivBase64;
+	}
+
+	public void setIvBase64(String ivBase64) {
+		this.ivBase64 = ivBase64;
+	}
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 
 	@Override
 	public String toString() {
@@ -41,6 +73,14 @@ public class MemberWithdrawReq extends AbstractMessage {
 		builder.append("memberWithdrawReq[");
 		builder.append("requestedUserID=");
 		builder.append(requestedUserID);
+		builder.append(", pwdCipherBase64=");
+		builder.append(pwdCipherBase64);
+		builder.append(", sessionKeyBase64=");
+		builder.append(sessionKeyBase64);
+		builder.append(", ivBase64=");
+		builder.append(ivBase64);
+		builder.append(", ip=");
+		builder.append(ip);
 		builder.append("]");
 		return builder.toString();
 	}

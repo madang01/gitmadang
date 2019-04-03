@@ -403,6 +403,8 @@ public class PersonalActivityHistoryReqServerTask extends AbstractServerTask {
 		personalActivityHistoryRes.setTargetUserID(personalActivityHistoryReq.getTargetUserID());
 		personalActivityHistoryRes.setTargetUserNickname(targetUserNickname);
 		personalActivityHistoryRes.setTotal(total);
+		personalActivityHistoryRes.setPageNo(pageNo);
+		personalActivityHistoryRes.setPageSize(pageSize);
 		personalActivityHistoryRes.setCnt(personalActivityList.size());
 		personalActivityHistoryRes.setPersonalActivityList(personalActivityList);
 		

@@ -371,13 +371,14 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 					.execute();
 				}
 			}
-			
+						
+			conn.commit();
 			
 			ServerDBUtil.insertMemberActivityHistory(conn, create, log, boardDeleteReq.getRequestedUserID(), 
 					memberRoleTypeOfRequestedUserID, MemberActivityType.DELETE, boardID, boardNo,
 					new java.sql.Timestamp(System.currentTimeMillis()));
-						
-			conn.commit();			
+			
+			conn.commit();
 
 			
 		} catch (ServerServiceException e) {

@@ -262,7 +262,7 @@ public class UserSiteMenuManger {
 				.append(CommonStaticFinalVars.NEWLINE)
 				.append(getTabStrings(tapStep + 4))
 				.append("<li><a href=\"")
-				.append("/servlet/UserSiteMembershipInput")
+				.append("/servlet/MemberRegisterInput")
 				.append("\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up</a></li>")
 				.append(CommonStaticFinalVars.NEWLINE);
 
@@ -280,7 +280,7 @@ public class UserSiteMenuManger {
 			menuNavbarStringBuilder
 					.append(getTabStrings(tapStep + 4))
 					.append("<li><a href=\"")
-					.append("/servlet/UserLoginInput")
+					.append("/servlet/MemberLoginInput")
 					.append("\"><span class=\"glyphicon glyphicon-log-in\"></span> login</a></li>")
 					.append(CommonStaticFinalVars.NEWLINE);
 		}

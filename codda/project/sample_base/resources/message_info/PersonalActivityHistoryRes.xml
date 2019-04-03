@@ -20,6 +20,8 @@
 <singleitem name="targetUserID" type="ub pascal string" />
 <singleitem name="targetUserNickname" type="ub pascal string" />
 <singleitem name="total" type="unsigned integer" />
+<singleitem name="pageNo" type="integer" />
+<singleitem name="pageSize" type="unsigned short" />
 <singleitem name="cnt" type="integer" />
 <array name="personalActivity" cnttype="reference" cntvalue="cnt">
 	<singleitem name="memberActivityType" type="byte" />	

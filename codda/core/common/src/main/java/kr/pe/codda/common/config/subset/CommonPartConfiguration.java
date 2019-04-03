@@ -14,7 +14,7 @@ import kr.pe.codda.common.type.SessionKey;
  *
  */
 public class CommonPartConfiguration {	
-	private String jdfUserLoginPage = null;	
+	private String jdfMemberLoginPage = null;	
 	private String jdfAdminLoginPage = null;
 	private String jdfSessionKeyRedirectPage = null;
 	private String jdfErrorMessagePage = null;	
@@ -51,7 +51,7 @@ public class CommonPartConfiguration {
 		
 		String itemID = itemKey;		
 		
-		if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.JDF_USER_LOGIN_PAGE_ITEMID)) {
+		if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.JDF_MEMBER_LOGIN_PAGE_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof String)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -62,7 +62,7 @@ public class CommonPartConfiguration {
 				throw new CoddaConfigurationException(errorMessage);
 			}
 			
-			this.jdfUserLoginPage = (String) nativeValue;
+			this.jdfMemberLoginPage = (String) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.JDF_ADMIN_LOGIN_PAGE_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof String)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -254,8 +254,8 @@ public class CommonPartConfiguration {
 	}
 	
 
-	public String getJDFUserLoginPage() {
-		return jdfUserLoginPage;
+	public String getJDFMemberLoginPage() {
+		return jdfMemberLoginPage;
 	}
 	
 	public String getJDFAdminLoginPage() {
@@ -328,7 +328,7 @@ public class CommonPartConfiguration {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("CommonPartConfiguration [jdfUserLoginPage=");
-		builder.append(jdfUserLoginPage);
+		builder.append(jdfMemberLoginPage);
 		builder.append(", jdfAdminLoginPage=");
 		builder.append(jdfAdminLoginPage);
 		builder.append(", jdfSessionKeyRedirectPage=");

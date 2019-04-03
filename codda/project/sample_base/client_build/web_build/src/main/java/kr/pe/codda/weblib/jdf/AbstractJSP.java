@@ -80,15 +80,15 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 		}
 		
 		
-		ServerSymmetricKeyIF webServerSymmetricKey = (ServerSymmetricKeyIF)req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY);
-		if (null == webServerSymmetricKey) {
+		ServerSymmetricKeyIF symmetricKeyFromSessionkey = (ServerSymmetricKeyIF)req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SYMMETRIC_KEY_FROM_SESSIONKEY);
+		if (null == symmetricKeyFromSessionkey) {
 			/*String errorMessage = new StringBuilder("the jsp request's attribute[")
 					.append(WebCommonStaticFinalVars.WEB_SERVER_SYMMETRIC_KEY)
 					.append("] doesn't exist").toString();*/
-			log.warn("the jsp request's attribute[{}] doesn't exist", WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY);
+			log.warn("the jsp request's attribute[{}] doesn't exist", WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SYMMETRIC_KEY_FROM_SESSIONKEY);
 			return "";
 		}
-		return CommonStaticUtil.Base64Encoder.encodeToString(webServerSymmetricKey.encrypt(painText.getBytes(CommonStaticFinalVars.CIPHER_CHARSET)));
+		return CommonStaticUtil.Base64Encoder.encodeToString(symmetricKeyFromSessionkey.encrypt(painText.getBytes(CommonStaticFinalVars.CIPHER_CHARSET)));
 	}
 	
 	protected String getParameterIVBase64Value(HttpServletRequest req) {

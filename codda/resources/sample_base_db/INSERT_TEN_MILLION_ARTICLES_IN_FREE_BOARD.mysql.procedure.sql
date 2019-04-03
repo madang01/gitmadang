@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `INSERT_TEN_MILLION_ARTICLES_IN_FREE_BOARD`(IN _FIRST_WRITER_ID VARCHAR(20), OUT RESULT INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `INSERT_TEN_MILLION_ARTICLES_IN_FREE_BOARD`(IN _FIRST_WRITER_ID VARCHAR(20), IN _NICKNAME VARCHAR(45), OUT RESULT INT)
 BEGIN
 	/* 시작 게시판 번호 변수를 선언한다. */
 	DECLARE _START_BOARD_NO INT UNSIGNED;
@@ -22,6 +22,8 @@ BEGIN
     DECLARE _DEPTH1_PARENT_NO INT UNSIGNED;
 	DECLARE _DEPTH2_PARENT_NO INT UNSIGNED;
     DECLARE _ACTIVITY_SQ bigint;
+	
+	DECLARE _IS_MEMBER BOOLEAN;
 
 	/* 만약 SQL에러라면 ROLLBACK 처리한다. */
 	DECLARE exit handler for SQLEXCEPTION
@@ -56,15 +58,27 @@ BEGIN
 		SET _IP = "172.16.0.1";
 		
 		SET _ACTIVITY_SQ = 0;
+		
+		SET _IS_MEMBER = FALSE;
 
 		SET autocommit=0;
 		SET unique_checks=0;
 		SET FOREIGN_KEY_CHECKS=0;
-        
-		SELECT if (max(board_no) is null, 1, max(board_no)+1) INTO _START_BOARD_NO FROM SB_BOARD_TB WHERE board_id = _BOARD_ID;        
-        -- select _START_BOARD_NO, _BOARD_ID, _GROUP_SQ, _PARENT_NO, _DEPTH, _BOARD_STATE, _HISTORY_SQ, _IP;
 		
-		WHILE _START_BOARD_NO <= 1000 DO	
+		SELECT if (max(board_no) is null, 1, max(board_no)+1) INTO _START_BOARD_NO FROM SB_BOARD_TB WHERE board_id = _BOARD_ID;
+        
+        SELECT TRUE INTO _IS_MEMBER FROM sb_member_tb WHERE user_id = _FIRST_WRITER_ID;        
+        
+        SELECT _IS_MEMBER, _START_BOARD_NO FROM DUAL;
+        
+        
+		IF _IS_MEMBER IS FALSE THEN			
+            INSERT INTO `sb_member_tb` (`user_id`,`nickname`,`pwd_base64`,`pwd_salt_base64`,`role`,`state`,`pwd_hint`,`pwd_answer`,`pwd_fail_cnt`,`reg_dt`,`last_mod_dt`,`ip`) 
+				VALUES (_FIRST_WRITER_ID,_NICKNAME,'bFT9mAQXZE/sWa3INB3xTBI14kuRzmvNuZ5x4hN+zsVgbuLWhkA+Uh71RWSYCGZjAkkZkDo5l3i3KABf9gM0+w==','3g2cXn+k0Xk=',77,89,'질문','답변',0,'2019-03-31 08:24:00','2019-03-31 08:24:00','127.0.0.1');
+		END IF;        
+		
+		
+		WHILE _START_BOARD_NO <= 500000 DO	
 			SET _DEPTH = 0;
 			SET _GROUP_NO = _START_BOARD_NO;
 			SET _GROUP_SQ = 9;
@@ -86,10 +100,7 @@ BEGIN
             
             -- select '2222222' from dual;
 			
-			SELECT if (max(activity_sq) is null, 0, max(activity_sq) + 1) into _ACTIVITY_SQ FROM SB_MEMBER_ACTIVITY_HISTORY_TB where user_id = _FIRST_WRITER_ID;			
-            
-            -- select '33333333' from dual;
-			
+			SELECT if (max(activity_sq) is null, 0, max(activity_sq) + 1) into _ACTIVITY_SQ FROM SB_MEMBER_ACTIVITY_HISTORY_TB where user_id = _FIRST_WRITER_ID;
 			INSERT INTO SB_MEMBER_ACTIVITY_HISTORY_TB(user_id, activity_sq, board_id, board_no, activity_type, reg_dt)
 			VALUES(_FIRST_WRITER_ID, _ACTIVITY_SQ, _BOARD_ID, _START_BOARD_NO, ascii('W'), now());
             
@@ -122,8 +133,7 @@ BEGIN
                 -- select '3333333333' from dual;
 				
                 
-				SELECT if (max(activity_sq) is null, 0, max(activity_sq) + 1) into _ACTIVITY_SQ FROM SB_MEMBER_ACTIVITY_HISTORY_TB where user_id = _FIRST_WRITER_ID;			
-			
+				SELECT if (max(activity_sq) is null, 0, max(activity_sq) + 1) into _ACTIVITY_SQ FROM SB_MEMBER_ACTIVITY_HISTORY_TB where user_id = _FIRST_WRITER_ID;
 				INSERT INTO SB_MEMBER_ACTIVITY_HISTORY_TB(user_id, activity_sq, board_id, board_no, activity_type, reg_dt)
 				VALUES(_FIRST_WRITER_ID, _ACTIVITY_SQ, _BOARD_ID, _START_BOARD_NO, ascii('R'), now());
                 
@@ -156,8 +166,6 @@ BEGIN
 					
                     
 					SELECT if (max(activity_sq) is null, 0, max(activity_sq) + 1) into _ACTIVITY_SQ FROM SB_MEMBER_ACTIVITY_HISTORY_TB where user_id = _FIRST_WRITER_ID;
-                    
-			
 					INSERT INTO SB_MEMBER_ACTIVITY_HISTORY_TB(user_id, activity_sq, board_id, board_no, activity_type, reg_dt)
 					VALUES(_FIRST_WRITER_ID, _ACTIVITY_SQ, _BOARD_ID, _START_BOARD_NO, ascii('R'), now());
                     

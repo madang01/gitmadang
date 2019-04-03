@@ -46,6 +46,34 @@ public final class MemberWithdrawReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pwdCipherBase64"
+			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, memberWithdrawReq.getPwdCipherBase64() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "sessionKeyBase64"
+			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, memberWithdrawReq.getSessionKeyBase64() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ivBase64"
+			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, memberWithdrawReq.getIvBase64() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ip"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, memberWithdrawReq.getIp() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		pathStack.pop();
 	}
 }

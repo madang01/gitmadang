@@ -282,11 +282,14 @@ public class BoardBlockReqServerTask extends AbstractServerTask {
 				}
 			}
 			
+			
+			
+			conn.commit();
+			
 			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, boardBlockReq.toString(), 
 					new java.sql.Timestamp(System.currentTimeMillis()));
 			
-			conn.commit();			
-
+			conn.commit();
 			
 		} catch (ServerServiceException e) {
 			throw e;

@@ -170,11 +170,7 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 			.execute();
 						
 			
-			try {
-				conn.commit();
-			} catch (Exception e) {
-				log.warn("fail to commit");
-			}
+			conn.commit();
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {

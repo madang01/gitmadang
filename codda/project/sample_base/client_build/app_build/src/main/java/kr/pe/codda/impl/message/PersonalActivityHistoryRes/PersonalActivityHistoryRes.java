@@ -28,6 +28,8 @@ public class PersonalActivityHistoryRes extends AbstractMessage {
 	private String targetUserID;
 	private String targetUserNickname;
 	private long total;
+	private int pageNo;
+	private int pageSize;
 	private int cnt;
 
 	public static class PersonalActivity {
@@ -175,6 +177,20 @@ public class PersonalActivityHistoryRes extends AbstractMessage {
 	public void setTotal(long total) {
 		this.total = total;
 	}
+	public int getPageNo() {
+		return pageNo;
+	}
+
+	public void setPageNo(int pageNo) {
+		this.pageNo = pageNo;
+	}
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
 	public int getCnt() {
 		return cnt;
 	}
@@ -200,6 +216,10 @@ public class PersonalActivityHistoryRes extends AbstractMessage {
 		builder.append(targetUserNickname);
 		builder.append(", total=");
 		builder.append(total);
+		builder.append(", pageNo=");
+		builder.append(pageNo);
+		builder.append(", pageSize=");
+		builder.append(pageSize);
 		builder.append(", cnt=");
 		builder.append(cnt);
 

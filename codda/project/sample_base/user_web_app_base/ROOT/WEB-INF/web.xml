@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
 	license agreements. See the NOTICE file distributed with this work for additional 
 	information regarding copyright ownership. The ASF licenses this file to 
@@ -11,8 +11,7 @@
 	language governing permissions and limitations under the License. -->
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	version="3.0" metadata-complete="true">
 
 	<display-name>Welcome to Codda</display-name>
@@ -20,76 +19,76 @@
 	Welcome to Codda
     </description>
 	
-	<!-- 사용자 로그인 입력 화면 -->
+	<!-- 회원 로그인 입력 화면 -->
 	<servlet>
-		<servlet-name>UserLoginInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.UserLoginInputSvl</servlet-class>
+		<servlet-name>MemberLoginInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberLoginInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/UserLoginInput</param-value>
+			<param-value>/servlet/MemberLoginInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>UserLoginInput</servlet-name>
-		<url-pattern>/servlet/UserLoginInput</url-pattern>
+		<servlet-name>MemberLoginInput</servlet-name>
+		<url-pattern>/servlet/MemberLoginInput</url-pattern>
 	</servlet-mapping>
 	
-	<!-- DB 사용자 로그인 처리 -->
+	<!-- 원격 회원 로그인 처리 -->
 	<servlet>
-		<servlet-name>UserLoginProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.UserLoginProcessSvl</servlet-class>
+		<servlet-name>MemberLoginProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberLoginProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/UserLoginProcess</param-value>
+			<param-value>/servlet/MemberLoginInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>UserLoginProcess</servlet-name>
-		<url-pattern>/servlet/UserLoginProcess</url-pattern>
+		<servlet-name>MemberLoginProcess</servlet-name>
+		<url-pattern>/servlet/MemberLoginProcess</url-pattern>
 	</servlet-mapping>
 	
-	<!-- 하드코딩된 사용자 정보를 마탕으로 하는 사용자 로그인 처리 -->
+	<!-- 로컬 회원 로그인 처리, 하드코딩된 회원 정보를 바탕으로 하는 회원 로그인 처리 -->
 	<servlet>
-		<servlet-name>UserHardCodingLoginProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.UserHardCodingLoginProcessSvl</servlet-class>
+		<servlet-name>HardCodingMemberLoginProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.HardCodingMemberLoginProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/UserLoginProcess</param-value>
+			<param-value>/servlet/MemberLoginInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>UserHardCodingLoginProcess</servlet-name>
-		<url-pattern>/servlet/UserHardCodingLoginProcess</url-pattern>
+		<servlet-name>HardCodingMemberLoginProcess</servlet-name>
+		<url-pattern>/servlet/HardCodingMemberLoginProcess</url-pattern>
 	</servlet-mapping>
 		
-	<!-- 사용자 사이트의 회원 등록 화면 -->
+	<!-- 회원 등록 화면 -->
 	<servlet>
-		<servlet-name>UserSiteMembershipInput</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.UserSiteMembershipInputSvl</servlet-class>
+		<servlet-name>MemberRegisterInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberRegisterInputSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/UserSiteMembershipInput</param-value>
+			<param-value>/servlet/MemberRegisterInput</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>UserSiteMembershipInput</servlet-name>
-		<url-pattern>/servlet/UserSiteMembershipInput</url-pattern>
+		<servlet-name>MemberRegisterInput</servlet-name>
+		<url-pattern>/servlet/MemberRegisterInput</url-pattern>
 	</servlet-mapping>	
 	
 	<!-- 회원 등록 처리 -->
 	<servlet>
-		<servlet-name>MembershipProcess</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.MembershipProcessSvl</servlet-class>
+		<servlet-name>MemberRegisterProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberRegisterProcessSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/UserSiteMembershipInput</param-value>
+			<param-value>/servlet/MemberRegisterInput</param-value>
 		</init-param>		
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MembershipProcess</servlet-name>
-		<url-pattern>/servlet/MembershipProcess</url-pattern>
+		<servlet-name>MemberRegisterProcess</servlet-name>
+		<url-pattern>/servlet/MemberRegisterProcess</url-pattern>
 	</servlet-mapping>	
-	
+		
 	<!-- JDF 비로그 -->
 	<servlet>
 		<servlet-name>JDFNotLogin</servlet-name>
@@ -430,34 +429,6 @@
 		<url-pattern>/servlet/BoardBlockProcess</url-pattern>
 	</servlet-mapping>
 	
-	<!-- 개인 정보 조회 -->
-	<servlet>
-		<servlet-name>PersonalInformation</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.PersonalInformationSvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/PersonalInformation</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>PersonalInformation</servlet-name>
-		<url-pattern>/servlet/PersonalInformation</url-pattern>
-	</servlet-mapping>
-	
-	<!-- 개인 활동 이력 -->
-	<servlet>
-		<servlet-name>PersonalActivityHistory</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.user.PersonalActivityHistorySvl</servlet-class>
-		<init-param>
-			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/PersonalInformation</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>PersonalActivityHistory</servlet-name>
-		<url-pattern>/servlet/PersonalActivityHistory</url-pattern>
-	</servlet-mapping>
-
 	<!-- 첨부 파일 내려받기 -->
 	<servlet>
 		<servlet-name>BoardDownload</servlet-name>
@@ -471,6 +442,90 @@
 		<servlet-name>BoardDownload</servlet-name>
 		<url-pattern>/servlet/BoardDownload</url-pattern>
 	</servlet-mapping>	
+	
+	<!-- 회원 정보 조회 -->
+	<servlet>
+		<servlet-name>MemberInformation</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberInformationSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberInformation</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberInformation</servlet-name>
+		<url-pattern>/servlet/MemberInformation</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 개인 활동 이력 -->
+	<servlet>
+		<servlet-name>PersonalActivityHistory</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.PersonalActivityHistorySvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberInformation</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PersonalActivityHistory</servlet-name>
+		<url-pattern>/servlet/PersonalActivityHistory</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 비밀번호 변경 입력 -->
+	<servlet>
+		<servlet-name>MemberPasswordChangeInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberPasswordChangeInputSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberPasswordChangeInput</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberPasswordChangeInput</servlet-name>
+		<url-pattern>/servlet/MemberPasswordChangeInput</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 비밀번호 변경 처리 -->
+	<servlet>
+		<servlet-name>MemberPasswordChangeProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberPasswordChangeProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberPasswordChangeInput</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberPasswordChangeProcess</servlet-name>
+		<url-pattern>/servlet/MemberPasswordChangeProcess</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 회원 탈퇴  요청 -->
+	<servlet>
+		<servlet-name>MemberWithdrawRequest</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberWithdrawRequestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberWithdrawRequest</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberWithdrawRequest</servlet-name>
+		<url-pattern>/servlet/MemberWithdrawRequest</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 회원 탈퇴 처리 -->
+	<servlet>
+		<servlet-name>MemberWithdrawProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.MemberWithdrawProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberWithdrawRequest</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberWithdrawProcess</servlet-name>
+		<url-pattern>/servlet/MemberWithdrawProcess</url-pattern>
+	</servlet-mapping>
 	
 	<!-- Simple Captcha start -->
 	<servlet>

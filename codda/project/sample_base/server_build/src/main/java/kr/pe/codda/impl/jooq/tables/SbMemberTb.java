@@ -40,7 +40,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
 
-    private static final long serialVersionUID = -1482323047;
+    private static final long serialVersionUID = 2005022892;
 
     /**
      * The reference instance of <code>sb_db.sb_member_tb</code>
@@ -68,12 +68,12 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     /**
      * The column <code>sb_db.sb_member_tb.pwd_base64</code>. 비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.
      */
-    public final TableField<SbMemberTbRecord, String> PWD_BASE64 = createField("pwd_base64", org.jooq.impl.SQLDataType.VARCHAR(88), this, "비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.");
+    public final TableField<SbMemberTbRecord, String> PWD_BASE64 = createField("pwd_base64", org.jooq.impl.SQLDataType.VARCHAR(88).nullable(false), this, "비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.");
 
     /**
      * The column <code>sb_db.sb_member_tb.pwd_salt_base64</code>. 비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값
      */
-    public final TableField<SbMemberTbRecord, String> PWD_SALT_BASE64 = createField("pwd_salt_base64", org.jooq.impl.SQLDataType.VARCHAR(12), this, "비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값");
+    public final TableField<SbMemberTbRecord, String> PWD_SALT_BASE64 = createField("pwd_salt_base64", org.jooq.impl.SQLDataType.VARCHAR(12).nullable(false), this, "비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값");
 
     /**
      * The column <code>sb_db.sb_member_tb.role</code>. 회원 역할, A:관리자, M:일반회원, SELECT char(ascii('A') using ascii);
@@ -106,9 +106,9 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     public final TableField<SbMemberTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "회원 가입일");
 
     /**
-     * The column <code>sb_db.sb_member_tb.mod_dt</code>. 회원 정보 수정일
+     * The column <code>sb_db.sb_member_tb.last_mod_dt</code>. 마지막 회원 정보 수정일
      */
-    public final TableField<SbMemberTbRecord, Timestamp> MOD_DT = createField("mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "회원 정보 수정일");
+    public final TableField<SbMemberTbRecord, Timestamp> LAST_MOD_DT = createField("last_mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "마지막 회원 정보 수정일");
 
     /**
      * The column <code>sb_db.sb_member_tb.ip</code>.

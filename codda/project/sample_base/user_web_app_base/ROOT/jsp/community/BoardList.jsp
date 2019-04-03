@@ -1,5 +1,5 @@
-<%@page import="kr.pe.codda.weblib.common.AccessedUserInformation"%><%
-%><%@page import="kr.pe.codda.weblib.common.MemberRoleType"%><%	
+<%@page import="kr.pe.codda.common.etc.CommonStaticFinalVars"%><%
+%><%@page import="kr.pe.codda.weblib.common.AccessedUserInformation"%><%
 %><%@page import="kr.pe.codda.weblib.common.PermissionType"%><%	
 %><%@page import="kr.pe.codda.weblib.common.BoardListType"%><%	
 %><%@page import="java.util.List"%><%
@@ -80,18 +80,25 @@
 
 <script src="/js/common.js"></script>
 <script type='text/javascript'>
-	var rsa = new RSAKey();	
+	function buildPrivateKey() {
+		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);	
+		return privateKey;
+	}
+	
+	function putNewPrivateKeyToSessionStorage() {
+		var newPrivateKey = buildPrivateKey();
+		var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
+		
+		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', newPrivateKeyBase64);
+		
+		return newPrivateKeyBase64;
+	}
 	
 	function getPrivateKeyFromSessionStorage() {
-		var privateKeyBase64 = sessionStorage.getItem('kr.pe.codda.privatekey');
+		var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
 		
-		if (null == privateKeyBase64) {
-			var newPrivateKey = CryptoJS.lib.WordArray.random(16);
-			var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
-			
-			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', newPrivateKeyBase64);
-			
-			privateKeyBase64 = newPrivateKeyBase64;
+		if (null == privateKeyBase64) {			
+			privateKeyBase64 = putNewPrivateKeyToSessionStorage();
 		}
 		
 		var privateKey = null;
@@ -106,26 +113,24 @@
 	}
 
 	function getSessionkeyBase64FromSessionStorage() {
-		var privateKeyBase64 = sessionStorage.getItem('kr.pe.codda.privatekey');
+		var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
 		
 		if (null == privateKeyBase64) {
-			var newPrivateKey = CryptoJS.lib.WordArray.random(16);
-			var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
-			
-			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', newPrivateKeyBase64);
-			
-			privateKeyBase64 = newPrivateKeyBase64;
+			privateKeyBase64 = putNewPrivateKeyToSessionStorage();
 		}
 		
-		try {
-			var privateKey = CryptoJS.enc.Base64.parse(privateKeyBase64);
-		} catch(err) {
-			console.log(err);
-			throw err;
-		}
-			
-		var sessionKeyHex = rsa.encrypt(privateKeyBase64);		
-		return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+		
+		var rsa = new RSAKey();	
+		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+		
+		var sessionKeyHex = rsa.encrypt(privateKeyBase64);
+		var sessionKey = CryptoJS.enc.Hex.parse(sessionKeyHex);
+		return CryptoJS.enc.Base64.stringify(sessionKey);
+	}
+	
+	function buildIV() {
+		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+		return iv;
 	}
 		
 	function writeBoard() {		
@@ -145,7 +150,7 @@
 		
 		if (f.pwd != undefined) {
 			try {
-				checkValidPwd(f.pwd.value);
+				checkValidPwd('게시글', f.pwd.value);
 			} catch(err) {
 				alert(err);
 				f.pwd.focus();
@@ -153,17 +158,19 @@
 			}
 			
 			try {
-				checkValidPwdConfirm(f.pwd.value, f.pwdConfirm.value);
+				checkValidPwdConfirm('게시글', f.pwd.value, f.pwdConfirm.value);
 			} catch(err) {
 				alert(err);
 				f.pwd.focus();
 				return;
 			}
-		}
+		}		
 		
+		var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;		
+		var privateKey = getPrivateKeyFromSessionStorage();
+		var iv = buildIV();
 
-		var g = document.writeProcessFrm;		
-		
+		var g = document.writeProcessFrm;	
 		
 		var newFileListDivNode = document.getElementById('newAttachedFileList');
 		var uploadFileCnt = newFileListDivNode.childNodes.length;	
@@ -189,10 +196,8 @@
 			}			
 		}
 		
-		g.sessionkeyBase64.value = getSessionkeyBase64FromSessionStorage();	
-	
-		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();	
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
 		
 		g.subject.value = f.subject.value;
 		g.contents.value = f.contents.value;
@@ -207,7 +212,7 @@
 	
 	function callBackForBoardWriteProcess(boardWriteResObj) {
 		alert("게시글 작성이 완료되었습니다");		
-		goListPage('1')
+		goListPage(1);
 	}	
 	
 	
@@ -243,11 +248,15 @@
 
 	
 	function goListPage(pageNo) {
+		var iv = buildIV();
+		
 		var g = document.listwriteInputFrm;
-		g.pageNo.value = pageNo;
-		g.sessionkeyBase64.value = getSessionkeyBase64FromSessionStorage();
-		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
+		
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();		
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+		
+		
+		g.pageNo.value = pageNo;		
 		g.submit();
 	}
 	
@@ -338,7 +347,7 @@
 		    return;
 		}
 		
-		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+		
 		expandTextarea('contentsInWritePart');
 	}
 	
@@ -355,8 +364,8 @@
 <form name=listwriteInputFrm method="post" action="/servlet/BoardList">
 <input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />
 <input type="hidden" name="pageNo" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 </form>
 <div class="content">
 	<div class="container">
@@ -364,26 +373,30 @@
 			<div class="panel-heading"><h4><%= boardListRes.getBoardName() %> 게시판</h4></div>
 			<div class="panel-body">
 				<div class="btn-group"><%
-					if (PermissionType.MEMBER.equals(boardWritePermissionType)) {
-						if (accessedUserformation.isLoginedIn()) {
-				%>
-					<button type="button" class="btn btn-primary btn-sm" onClick="showWriteEditScreen();">글 작성하기</button><%
-						}
-						} else if (PermissionType.ADMIN.equals(boardWritePermissionType)) {
-							
-							if (MemberRoleType.ADMIN.equals(accessedUserformation.getMemberRoleType())) {
-					%>
-					<button type="button" class="btn btn-primary btn-sm" onClick="showWriteEditScreen();">글 작성하기</button><%
-						}
-						} else {
-							/** 손님 허용 */
-					%>
-					<button type="button" class="btn btn-primary btn-sm" onClick="showWriteEditScreen();">글 작성하기</button><%
-						}
-					%>
+	if (PermissionType.MEMBER.equals(boardWritePermissionType)) {
+		/** 본문 작성 권한이 회원인 경우 */
+		if (accessedUserformation.isLoginedIn()) {
+			out.write(CommonStaticFinalVars.NEWLINE);
+			out.write("					");
+			out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"showWriteEditScreen();\">글 작성하기</button>");
+		}
+	} else if (PermissionType.ADMIN.equals(boardWritePermissionType)) {
+		/** 본문 작성 권한이 관리자인 경우 */
+		if (accessedUserformation.isAdmin()) {
+			out.write(CommonStaticFinalVars.NEWLINE);
+			out.write("					");
+			out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"showWriteEditScreen();\">글 작성하기</button>");
+		}
+	} else if (PermissionType.GUEST.equals(boardWritePermissionType)) {
+		/** 본문 작성 권한이 손님인 경우 */
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("					");
+		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"showWriteEditScreen();\">글 작성하기</button>");
+	}
+%>
 					<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>
 				</div>			 
-				<div id="resultMessageView"></div>
+				<div id="resultMessage"></div>
 				<br>
 				<div id="listPartView">
 					<div class="row">
@@ -395,78 +408,100 @@
 						<div class="col-sm-2" style="background-color:lavender;">최초 작성일</div>
 						<div class="col-sm-2" style="background-color:lavender;">마지막 수정일</div>
 					</div><%
-						List<BoardListRes.Board> boardList = boardListRes.getBoardList();
-						if (null == boardList || boardList.isEmpty()) {
-					%>
+	List<BoardListRes.Board> boardList = boardListRes.getBoardList();
+	if (null == boardList || boardList.isEmpty()) {
+%>
 					<div class="row">
 						<div class="col-sm-12" align="center">조회 결과가 없습니다</div>
 					</div><%
-						} else {
-							for (BoardListRes.Board board : boardList) {
-								int depth = board.getDepth();
-					%>
+	} else {
+		for (BoardListRes.Board board : boardList) {
+			int depth = board.getDepth();
+%>
 					<div class="row">
 						<div class="col-sm-1"><%=board.getBoardNo()%></div>
 						<div class="col-sm-3"><%
-							if (depth > 0) {
-									for (int i=0; i < depth; i++) {
-										out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
-									}
-									out.print("ㄴ");
-								}
-						%><a href="#" onClick="goDetailPage(<%=boardListRes.getBoardID()%>, <%=board.getBoardNo()%>, <%=BoardListType.TREE.equals(boardListType)%>)"><%=StringEscapeActorUtil.replace(board.getSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></a></div>
+			if (depth > 0) {
+				for (int i=0; i < depth; i++) {
+					out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
+				}
+				out.print("ㄴ");
+			}
+%><a href="#" onClick="goDetailPage(<%=boardListRes.getBoardID()%>, <%=board.getBoardNo()%>, <%=BoardListType.TREE.equals(boardListType)%>)"><%=StringEscapeActorUtil.replace(board.getSubject(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></a></div>
 						<div class="col-sm-2"><%=StringEscapeActorUtil.replace(board.getWriterNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
 						<div class="col-sm-1"><%=board.getViewCount()%></div>
 						<div class="col-sm-1"><%=board.getVotes()%></div>
 						<div class="col-sm-2"><%=board.getRegisteredDate()%></div>
 						<div class="col-sm-2"><%=board.getLastModifiedDate()%></div>
 					</div><%
-						}
-						}
+		}
+	}
 
-						if (boardListRes.getTotal() > 1) {
-							final int pageNo = boardListRes.getPageNo();
-							final int pageSize = boardListRes.getPageSize();
-							
-							// long pageNo = boardListRes.getPageOffset() / boardListRes.getPageLength() + 1;
-							
-							long startPageNo = 1 + WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE*(long)((pageNo - 1) / WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE);
-							long endPageNo = Math.min(startPageNo + WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE, 
-							(boardListRes.getTotal() + pageSize - 1) / pageSize);
-					%>
-					<ul class="pagination pagination-sm"><%
-						if (startPageNo > 1) {
-					%>
-						<li class="previous"><a href="#" onClick="goListPage('<%=startPageNo-1%>')">이전</a></li><%
-							} else {
-						%>
-						<li class="disabled previous"><a href="#">이전</a></li><%
-							}
+	if (boardListRes.getTotal() > 1) {
+		final int pageNo = boardListRes.getPageNo();
+		final int pageSize = boardListRes.getPageSize();
+		
+		// long pageNo = boardListRes.getPageOffset() / boardListRes.getPageLength() + 1;
+		
+		long startPageNo = 1 + WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE*(long)((pageNo - 1) / WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE);
+		long endPageNo = Math.min(startPageNo + WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE, 
+		(boardListRes.getTotal() + pageSize - 1) / pageSize);
+		
+		
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("					");
+		out.write("<ul class=\"pagination pagination-sm\">");
+		
+		if (startPageNo > 1) {
+			out.write(CommonStaticFinalVars.NEWLINE);
+			out.write("						");
+			out.write("<li class=\"previous\"><a href=\"#\" onClick=\"goListPage(");
+			out.write(String.valueOf(startPageNo-1));
+			out.write(")\">이전</a></li>");
+		} else {
+			out.write(CommonStaticFinalVars.NEWLINE);
+			out.write("						");
+			out.write("<li class=\"disabled previous\"><a href=\"#\">이전</a></li>");
+		}
+		
+		for (int i=0; i < WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE; i++) {
+			long workingPageNo = startPageNo + i;
+			if (workingPageNo > endPageNo) break;
 
-								for (int i=0; i < WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE; i++) {
-							long workingPageNo = startPageNo + i;
-							if (workingPageNo > endPageNo) break;
-
-							if (workingPageNo == pageNo) {
-						%>
-						<li class="active"><a href="#"><%=workingPageNo%></a></li><%
-							} else {
-						%>
-						<li><a href="#" onClick="goListPage('<%=workingPageNo%>')"><%=workingPageNo%></a></li><%
-							}				
-								}
-								
-								if (startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE <= endPageNo) {
-						%>
-						<li class="next"><a href="#" onClick="goListPage('<%=startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE%>')">다음</a></li><%
-							} else {
-						%>
-						<li class="disabled next"><a href="#">다음</a></li><%
-							}
-						%>
-					</ul><%
-						}
-					%>	
+			if (workingPageNo == pageNo) {
+				out.write(CommonStaticFinalVars.NEWLINE);
+				out.write("						");
+				out.write("<li class=\"active\"><a href=\"#\">");
+				out.write(String.valueOf(workingPageNo));
+				out.write("</a></li>");
+			} else {
+				out.write(CommonStaticFinalVars.NEWLINE);
+				out.write("						");
+				out.write("<li><a href=\"#\" onClick=\"goListPage(");
+				out.write(String.valueOf(workingPageNo));
+				out.write(")\">");
+				out.write(String.valueOf(workingPageNo));
+				out.write("</a></li>");
+			}
+		}
+		
+		if (startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE <= endPageNo) {
+			out.write(CommonStaticFinalVars.NEWLINE);
+			out.write("						");
+			out.write("<li class=\"next\"><a href=\"#\" onClick=\"goListPage(");
+			out.write(String.valueOf(startPageNo+WebCommonStaticFinalVars.WEBSITE_BOARD_PAGE_LIST_SIZE));
+			out.write(")\">다음</a></li>");
+		} else {
+			out.write(CommonStaticFinalVars.NEWLINE);
+			out.write("						");
+			out.write("<li class=\"disabled next\"><a href=\"#\">다음</a></li>");
+		}
+		
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("					");
+		out.write("</ul>");
+	}
+%>				
 				</div>
 				<div id="editScreenOfBoard0" style="display:none">
 					<form name="writeInputFrm" enctype="multipart/form-data" method="post" action="/servlet/BoardWriteProcess" onsubmit="return false;">
@@ -497,13 +532,14 @@
 							<input type="hidden" name="boardID" value="<%=boardListRes.getBoardID()%>" />
 							<input type="hidden" name="subject" />
 							<input type="hidden" name="contents" /><%
-								if (! accessedUserformation.isLoginedIn()) {
-							%>
-							<input type="hidden" name="pwd" /><%
+	if (! accessedUserformation.isLoginedIn()) {
+		out.write(CommonStaticFinalVars.NEWLINE);
+		out.write("							");
+		out.write("<input type=\"hidden\" name=\"pwd\" />");
 	}
 %>
-							<input type="hidden" name="sessionkeyBase64" />
-							<input type="hidden" name="ivBase64" />					
+							<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+							<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />					
 							<!-- 주의점 div 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
 							<div id="newAttachedFileList"></div>
 						</div>

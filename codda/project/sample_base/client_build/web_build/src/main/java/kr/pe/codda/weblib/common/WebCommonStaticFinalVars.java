@@ -14,12 +14,11 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String SERVLET_INIT_PARM_KEY_NAME_OF_MENU_GROUP_URL = "menuGroupURL";
 	
 	public static final String REQUEST_KEY_NAME_OF_MENU_GROUP_URL = "menuGroupURL";
-	public static final String REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY = "webServerSymmetricKey";
+	public static final String REQUEST_KEY_NAME_OF_SYMMETRIC_KEY_FROM_SESSIONKEY = "symmetricKeyFromSessionkey";
 	public static final String REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING = "modulusHexString";
 		
 	
 	public static final String HTTPSESSION_KEY_NAME_OF_LOGINED_USER_INFORMATION = "userLoginRes";
-	public static final String HTTPSESSION_KEY_NAME_OF_CLIENT_SESSIONKEY = "clientSessionKey";
 	
 	//public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_REQUEST_PAGE_INFORMATION = "loginRequestPageInformation";
 	
@@ -118,4 +117,6 @@ public abstract class WebCommonStaticFinalVars {
 	public static final int MAX_NUMBER_OF_BOARDNAME_CHARRACTERS = 10;
 	
 	public static final AccessedUserInformation GUEST_USER_SESSION_INFORMATION = new AccessedUserInformation(false, "guest", "손님", MemberRoleType.GUEST);
+	
+	
 }

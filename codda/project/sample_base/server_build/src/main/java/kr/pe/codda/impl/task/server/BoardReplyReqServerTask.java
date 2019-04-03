@@ -542,6 +542,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 						.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
 			}
 			
+			conn.commit();
 			
 			ServerDBUtil.insertMemberActivityHistory(conn, create, log, boardReplyReq.getRequestedUserID(),
 					memberRoleTypeOfRequestedUserID, MemberActivityType.REPLY, boardID, boardNo,

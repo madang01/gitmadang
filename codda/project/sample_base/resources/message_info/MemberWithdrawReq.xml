@@ -16,4 +16,8 @@
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>회원 탈퇴</desc>
 <singleitem name="requestedUserID" type="ub pascal string" />
+<singleitem name="pwdCipherBase64" type="si pascal string"/>
+<singleitem name="sessionKeyBase64" type="si pascal string"/>
+<singleitem name="ivBase64" type="si pascal string"/>
+<singleitem name="ip" type="ub pascal string"/>
 </message>

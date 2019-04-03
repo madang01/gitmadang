@@ -280,11 +280,7 @@ public class MenuMoveUpReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}			
 			
-			try {
-				conn.commit();
-			} catch (Exception e) {
-				log.warn("fail to commit");
-			}
+			conn.commit();
 			
 			// sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
 			

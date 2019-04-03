@@ -26,7 +26,9 @@ public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {
 				log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
 				
 				String errorMessage = "ServerSessionkeyManger instance init error";
-				String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
+				String debugMessage = new StringBuilder("ServerSessionkeyManger instance init error, errormessage=[")
+						.append(e.getMessage())
+						.append("]").toString();
 				printErrorMessagePage(req, res, errorMessage, debugMessage);
 				return;
 			}
@@ -34,7 +36,7 @@ public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {
 			req.setAttribute("successURL", requestURI);
 			req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 					webServerSessionkey.getModulusHexStrForWeb());
-			printJspPage(req, res, JDF_USER_LOGIN_INPUT_PAGE);
+			printJspPage(req, res, JDF_MEMBER_LOGIN_INPUT_PAGE);
 			return;
 		} 
 		

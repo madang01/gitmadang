@@ -197,10 +197,13 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			conn.commit();
+			
 			ServerDBUtil.insertMemberActivityHistory(conn, create, log, boardVoteReq.getRequestedUserID(), 
 					memberRoleTypeOfRequestedUserID, MemberActivityType.VOTE, boardID, boardNo, registeredDate);
 			
-			conn.commit();			
+			conn.commit();
+			
 		} catch (ServerServiceException e) {
 			throw e;
 		} catch (Exception e) {

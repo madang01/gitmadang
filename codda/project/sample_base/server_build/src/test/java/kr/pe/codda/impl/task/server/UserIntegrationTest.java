@@ -20,11 +20,11 @@ import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
+import kr.pe.codda.impl.message.MemberAllInformationReq.MemberAllInformationReq;
+import kr.pe.codda.impl.message.MemberAllInformationRes.MemberAllInformationRes;
+import kr.pe.codda.impl.message.MemberBlockReq.MemberBlockReq;
+import kr.pe.codda.impl.message.MemberUnBlockReq.MemberUnBlockReq;
 import kr.pe.codda.impl.message.MemberWithdrawReq.MemberWithdrawReq;
-import kr.pe.codda.impl.message.UserBlockReq.UserBlockReq;
-import kr.pe.codda.impl.message.UserInformationReq.UserInformationReq;
-import kr.pe.codda.impl.message.UserInformationRes.UserInformationRes;
-import kr.pe.codda.impl.message.UserUnBlockReq.UserUnBlockReq;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
@@ -277,19 +277,19 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}		
 		
-		UserInformationReqServerTask userInformationReqServerTask = null;
+		MemberAllInformationReqServerTask MemberAllInformationReqServerTask = null;
 		try {
-			userInformationReqServerTask = new UserInformationReqServerTask();
+			MemberAllInformationReqServerTask = new MemberAllInformationReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
 		
-		UserInformationReq userInformationReq = new UserInformationReq();
-		userInformationReq.setRequestedUserID("test03");
-		userInformationReq.setTargetUserID("test03");
+		MemberAllInformationReq memberAllInformationReq = new MemberAllInformationReq();
+		memberAllInformationReq.setRequestedUserID("test03");
+		memberAllInformationReq.setTargetUserID("test03");
 		
 		try {
-			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
+			MemberAllInformationRes userInformationRes = MemberAllInformationReqServerTask.doWork(TEST_DBCP_NAME, memberAllInformationReq);
 			
 			assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 			assertEquals("회원 상태 비교", MemberStateType.OK.getValue(),  userInformationRes.getState());
@@ -375,19 +375,19 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		
-		UserInformationReqServerTask userInformationReqServerTask = null;
+		MemberAllInformationReqServerTask MemberAllInformationReqServerTask = null;
 		try {
-			userInformationReqServerTask = new UserInformationReqServerTask();
+			MemberAllInformationReqServerTask = new MemberAllInformationReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
 		
-		UserInformationReq userInformationReq = new UserInformationReq();
-		userInformationReq.setRequestedUserID("test03");
-		userInformationReq.setTargetUserID("test03");
+		MemberAllInformationReq memberAllInformationReq = new MemberAllInformationReq();
+		memberAllInformationReq.setRequestedUserID("test03");
+		memberAllInformationReq.setTargetUserID("test03");
 		
 		try {
-			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
+			MemberAllInformationRes userInformationRes = MemberAllInformationReqServerTask.doWork(TEST_DBCP_NAME, memberAllInformationReq);
 			
 			assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 			assertEquals("회원 상태 비교", MemberStateType.OK.getValue(),  userInformationRes.getState());
@@ -412,13 +412,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 회원차단_자기자신차단() {
-		UserBlockReq userBlockReq = new UserBlockReq();
+		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("test03");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = null;
+		MebmerBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new UserBlockReqServerTask();
+			userBlockReqServerTask = new MebmerBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -439,13 +439,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 회원차단_비관리자요청() {
-		UserBlockReq userBlockReq = new UserBlockReq();
+		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("test01");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = null;
+		MebmerBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new UserBlockReqServerTask();
+			userBlockReqServerTask = new MebmerBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -467,13 +467,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 회원차단_대상자미존재() {
-		UserBlockReq userBlockReq = new UserBlockReq();
+		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("testAA");
 		
-		UserBlockReqServerTask userBlockReqServerTask = null;
+		MebmerBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new UserBlockReqServerTask();
+			userBlockReqServerTask = new MebmerBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -557,13 +557,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}
 		
-		UserBlockReq userBlockReq = new UserBlockReq();
+		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = null;
+		MebmerBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new UserBlockReqServerTask();
+			userBlockReqServerTask = new MebmerBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -645,13 +645,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}		
 		
-		UserBlockReq userBlockReq = new UserBlockReq();
+		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = null;
+		MebmerBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new UserBlockReqServerTask();
+			userBlockReqServerTask = new MebmerBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -663,19 +663,19 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
 		}		
 				
-		UserInformationReq userInformationReq = new UserInformationReq();
-		userInformationReq.setRequestedUserID("admin");
-		userInformationReq.setTargetUserID("test03");
+		MemberAllInformationReq memberAllInformationReq = new MemberAllInformationReq();
+		memberAllInformationReq.setRequestedUserID("admin");
+		memberAllInformationReq.setTargetUserID("test03");
 		
-		UserInformationReqServerTask userInformationReqServerTask = null;
+		MemberAllInformationReqServerTask MemberAllInformationReqServerTask = null;
 		try {
-			userInformationReqServerTask = new UserInformationReqServerTask();
+			MemberAllInformationReqServerTask = new MemberAllInformationReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
 		
 		try {
-			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
+			MemberAllInformationRes userInformationRes = MemberAllInformationReqServerTask.doWork(TEST_DBCP_NAME, memberAllInformationReq);
 			
 			assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 			assertEquals("회원 상태 비교", MemberStateType.BLOCK.getValue(),  userInformationRes.getState());
@@ -781,13 +781,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}
 		
-		UserBlockReq userBlockReq = new UserBlockReq();
+		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
 		
-		UserBlockReqServerTask userBlockReqServerTask = null;
+		MebmerBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new UserBlockReqServerTask();
+			userBlockReqServerTask = new MebmerBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -799,19 +799,19 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
 		}
 		
-		UserInformationReq userInformationReq = new UserInformationReq();
-		userInformationReq.setRequestedUserID("admin");
-		userInformationReq.setTargetUserID("test03");
+		MemberAllInformationReq memberAllInformationReq = new MemberAllInformationReq();
+		memberAllInformationReq.setRequestedUserID("admin");
+		memberAllInformationReq.setTargetUserID("test03");
 		
-		UserInformationReqServerTask userInformationReqServerTask = null;
+		MemberAllInformationReqServerTask MemberAllInformationReqServerTask = null;
 		try {
-			userInformationReqServerTask = new UserInformationReqServerTask();
+			MemberAllInformationReqServerTask = new MemberAllInformationReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
 		
 		try {
-			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
+			MemberAllInformationRes userInformationRes = MemberAllInformationReqServerTask.doWork(TEST_DBCP_NAME, memberAllInformationReq);
 			
 			assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 			assertEquals("회원 상태 비교", MemberStateType.BLOCK.getValue(),  userInformationRes.getState());
@@ -836,13 +836,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 회원차단해제_자기자시차단해제() {
-		UserUnBlockReq userUnBlockReq = new UserUnBlockReq();
+		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("test03");
 		userUnBlockReq.setTargetUserID("test03");
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
-			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+			userUnBlockReqServerTask = new MemberUnBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -863,13 +863,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 회원차단해제_비관리자요청() {
-		UserUnBlockReq userUnBlockReq = new UserUnBlockReq();
+		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("test01");
 		userUnBlockReq.setTargetUserID("test03");
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
-			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+			userUnBlockReqServerTask = new MemberUnBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -890,13 +890,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 회원차단해제_대상자미존재() {
-		UserUnBlockReq userUnBlockReq = new UserUnBlockReq();
+		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID("testAA");
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
-			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+			userUnBlockReqServerTask = new MemberUnBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -979,13 +979,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}
 		
-		UserUnBlockReq userUnBlockReq = new UserUnBlockReq();
+		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
-			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+			userUnBlockReqServerTask = new MemberUnBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -1066,13 +1066,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}
 		
-		UserUnBlockReq userUnBlockReq = new UserUnBlockReq();
+		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
-			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+			userUnBlockReqServerTask = new MemberUnBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -1157,13 +1157,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}
 		
-		UserBlockReq userBlockReq = new UserBlockReq();
+		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID(userID);
 		
-		UserBlockReqServerTask userBlockReqServerTask = null;
+		MebmerBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new UserBlockReqServerTask();
+			userBlockReqServerTask = new MebmerBlockReqServerTask();
 		} catch (DynamicClassCallException e2) {
 			fail("dead code");
 		}		
@@ -1174,19 +1174,19 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
 		}
 		
-		UserInformationReq userInformationReq = new UserInformationReq();
-		userInformationReq.setRequestedUserID("admin");
-		userInformationReq.setTargetUserID(userID);
+		MemberAllInformationReq memberAllInformationReq = new MemberAllInformationReq();
+		memberAllInformationReq.setRequestedUserID("admin");
+		memberAllInformationReq.setTargetUserID(userID);
 		
-		UserInformationReqServerTask userInformationReqServerTask = null;
+		MemberAllInformationReqServerTask MemberAllInformationReqServerTask = null;
 		try {
-			userInformationReqServerTask = new UserInformationReqServerTask();
+			MemberAllInformationReqServerTask = new MemberAllInformationReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
 		
 		try {
-			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
+			MemberAllInformationRes userInformationRes = MemberAllInformationReqServerTask.doWork(TEST_DBCP_NAME, memberAllInformationReq);
 			
 			assertEquals("회원 상태 비교", MemberStateType.BLOCK.getValue(),  userInformationRes.getState());
 			
@@ -1195,13 +1195,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
 		}
 		
-		UserUnBlockReq userUnBlockReq = new UserUnBlockReq();
+		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
 		
-		UserUnBlockReqServerTask userUnBlockReqServerTask = null;
+		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
-			userUnBlockReqServerTask = new UserUnBlockReqServerTask();
+			userUnBlockReqServerTask = new MemberUnBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -1214,7 +1214,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
+			MemberAllInformationRes userInformationRes = MemberAllInformationReqServerTask.doWork(TEST_DBCP_NAME, memberAllInformationReq);
 			
 			assertEquals("회원 상태 비교", MemberStateType.OK.getValue(),  userInformationRes.getState());
 			
@@ -1342,13 +1342,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("fail to create a test ID");
 		}
 		
-		UserBlockReq userBlockReq = new UserBlockReq();
+		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID(userID);
 		
-		UserBlockReqServerTask userBlockReqServerTask = null;
+		MebmerBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new UserBlockReqServerTask();
+			userBlockReqServerTask = new MebmerBlockReqServerTask();
 		} catch (DynamicClassCallException e2) {
 			fail("dead code");
 		}		
@@ -1468,19 +1468,19 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
 		}
 		
-		UserInformationReq userInformationReq = new UserInformationReq();
-		userInformationReq.setRequestedUserID("admin");
-		userInformationReq.setTargetUserID(userID);
+		MemberAllInformationReq memberAllInformationReq = new MemberAllInformationReq();
+		memberAllInformationReq.setRequestedUserID("admin");
+		memberAllInformationReq.setTargetUserID(userID);
 		
-		UserInformationReqServerTask userInformationReqServerTask = null;
+		MemberAllInformationReqServerTask MemberAllInformationReqServerTask = null;
 		try {
-			userInformationReqServerTask = new UserInformationReqServerTask();
+			MemberAllInformationReqServerTask = new MemberAllInformationReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
 		
 		try {
-			UserInformationRes userInformationRes = userInformationReqServerTask.doWork(TEST_DBCP_NAME, userInformationReq);
+			MemberAllInformationRes userInformationRes = MemberAllInformationReqServerTask.doWork(TEST_DBCP_NAME, memberAllInformationReq);
 			
 			assertEquals("회원 상태 비교", MemberStateType.WITHDRAWAL.getValue(),  userInformationRes.getState());
 			

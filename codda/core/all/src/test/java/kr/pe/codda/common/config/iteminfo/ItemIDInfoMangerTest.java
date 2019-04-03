@@ -120,7 +120,7 @@ public class ItemIDInfoMangerTest extends AbstractJunitTest {
 		assertEquals(expectedValue, acutalValue);
 		
 		expectedValue = false;
-		acutalValue = itemIDInfoManger.isFileOrPathStringGetter(ItemIDDefiner.CommonPartItemIDDefiner.JDF_USER_LOGIN_PAGE_ITEMID);
+		acutalValue = itemIDInfoManger.isFileOrPathStringGetter(ItemIDDefiner.CommonPartItemIDDefiner.JDF_MEMBER_LOGIN_PAGE_ITEMID);
 		
 		assertEquals(expectedValue, acutalValue);
 	}

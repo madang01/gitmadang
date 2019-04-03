@@ -393,11 +393,12 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 							.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).execute();
 				}
 			}
-			
+
+			conn.commit();
 			
 			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, boardUnBlockReq.toString(), 
 					new java.sql.Timestamp(System.currentTimeMillis()));
-
+			
 			conn.commit();
 
 		} catch (ServerServiceException e) {

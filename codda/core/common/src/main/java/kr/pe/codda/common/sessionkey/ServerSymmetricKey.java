@@ -5,8 +5,13 @@ import kr.pe.codda.common.config.CoddaConfigurationManager;
 import kr.pe.codda.common.config.subset.CommonPartConfiguration;
 import kr.pe.codda.common.exception.SymmetricException;
 
+/**
+ * 서버에서 클라이언트가 보낸 세션키로 부터 생성되는 대칭키
+ * @author Won Jonghoon
+ *
+ */
 public class ServerSymmetricKey implements ServerSymmetricKeyIF {
-private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstance();
+	private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstance();
 	
 	private byte[] symmetricKeyBytes = null;
 	private String symmetricKeyAlgorithm = null;

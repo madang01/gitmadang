@@ -61,7 +61,16 @@
 	
 	AccessedUserInformation  accessedUserformation = getAccessedUserInformation(request);
 
-	boolean isFirst = true;%><!DOCTYPE html>
+	String paramInterestedBoadNo = request.getParameter("interestedBoadNo");
+	
+	long interestedBoadNo = 0L;
+	
+	try {
+		interestedBoadNo = Long.parseLong(paramInterestedBoadNo);
+	} catch(Exception e) {		
+	}	
+	
+%><!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -88,20 +97,27 @@
 <script src="/js/common.js"></script>
 <script type="text/javascript">
 <!--
-	var rsa = new RSAKey();
-	
 	var currentEditScreenDiv = null;
 	
+	function buildPrivateKey() {
+		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);	
+		return privateKey;
+	}
+	
+	function putNewPrivateKeyToSessionStorage() {
+		var newPrivateKey = buildPrivateKey();
+		var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
+		
+		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', newPrivateKeyBase64);
+		
+		return newPrivateKeyBase64;
+	}
+	
 	function getPrivateKeyFromSessionStorage() {
-		var privateKeyBase64 = sessionStorage.getItem('kr.pe.codda.privatekey');
+		var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
 		
 		if (null == privateKeyBase64) {
-			var newPrivateKey = CryptoJS.lib.WordArray.random(16);
-			var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
-			
-			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', newPrivateKeyBase64);
-			
-			privateKeyBase64 = newPrivateKeyBase64;
+			privateKeyBase64 = putNewPrivateKeyToSessionStorage();
 		}
 		
 		var privateKey = null;
@@ -116,29 +132,25 @@
 	}
 
 	function getSessionkeyBase64FromSessionStorage() {
-		var privateKeyBase64 = sessionStorage.getItem('kr.pe.codda.privatekey');
+		var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
 		
 		if (null == privateKeyBase64) {
-			var newPrivateKey = CryptoJS.lib.WordArray.random(16);
-			var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
-			
-			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', newPrivateKeyBase64);
-			
-			privateKeyBase64 = newPrivateKeyBase64;
-		}
+			privateKeyBase64 = putNewPrivateKeyToSessionStorage();
+		}		
 		
-		try {
-			var privateKey = CryptoJS.enc.Base64.parse(privateKeyBase64);
-		} catch(err) {
-			console.log(err);
-			throw err;
-		}
+		var rsa = new RSAKey();
+		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
 			
 		var sessionKeyHex = rsa.encrypt(privateKeyBase64);		
 		return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
 	}
 	
-	function modifyBoard() {			
+	function buildIV() {
+		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+		return iv;
+	}
+	
+	function goModify() {			
 		var f = document.modifyInputFrm;
 		
 		if (f.subject != undefined) {
@@ -158,7 +170,7 @@
 		
 		if (f.pwd != undefined) {
 			try {
-				checkValidPwd(f.pwd.value);
+				checkValidPwd('게시글', f.pwd.value);
 			} catch(err) {
 				alert(err);
 				f.pwd.focus();
@@ -175,6 +187,10 @@
 			alert("업로드 할 수 있는 파일 갯수는 최대["+_ATTACHED_FILE_MAX_COUNT+"] 까지 입니다.");
 			return;
 		}
+		
+		var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
+		var privateKey = getPrivateKeyFromSessionStorage();		
+		var iv = buildIV();
 		
 		var g = document.modifyProcessFrm;
 		
@@ -193,15 +209,9 @@
 				}
 			}			
 		}
-			
 		
-		var privateKey = getPrivateKeyFromSessionStorage();		
-		
-		
-		g.sessionkeyBase64.value = getSessionkeyBase64FromSessionStorage();
-		
-		var iv = CryptoJS.lib.WordArray.random(16);		
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
 
 		if (f.subject != undefined) {
 			g.subject.value = f.subject.value;
@@ -209,7 +219,6 @@
 		g.contents.value = f.contents.value;
 
 		if (f.pwd != undefined) {
-			var symmetricKeyObj = CryptoJS.AES;
 			g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		}
 
@@ -220,10 +229,13 @@
 	
 	function callBackForBoardModifyProcess(boardModifyRes) {
 		alert("게시글["+boardModifyRes.boardNo+"] 수정이 완료되었습니다");
-		document.location.reload();
+		
+		var g = document.goDetailFrm;
+		g.interestedBoadNo.value = boardModifyRes.boardNo;
+		g.submiet
 	}
 	
-	function replyBoard() {
+	function goReply() {
 		var f = document.replyInputFrm;
 		
 		if (f.subject != undefined) {
@@ -243,7 +255,7 @@
 		if (f.pwd != undefined) {
 			if (f.pwd != undefined) {
 				try {
-					checkValidPwd(f.pwd.value);
+					checkValidPwd('게시글', f.pwd.value);
 				} catch(err) {
 					alert(err);
 					f.pwd.focus();
@@ -251,7 +263,7 @@
 				}
 				
 				try {
-					checkValidPwdConfirm(f.pwd.value, f.pwdConfirm.value);
+					checkValidPwdConfirm('게시글', f.pwd.value, f.pwdConfirm.value);
 				} catch(err) {
 					alert(err);
 					f.pwd.focus();
@@ -267,6 +279,10 @@
 			alert("업로드 할 수 있는 파일 갯수는 최대["+_ATTACHED_FILE_MAX_COUNT+"] 까지 입니다.");
 			return;
 		}
+		
+		var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
+		var privateKey = getPrivateKeyFromSessionStorage();		
+		var iv = buildIV();
 		
 		var g = document.replyProcessFrm;
 		
@@ -284,12 +300,10 @@
 					return;
 				}
 			}			
-		}
+		}		
 		
-		g.sessionkeyBase64.value = getSessionkeyBase64FromSessionStorage();	
-	
-		var iv = CryptoJS.lib.WordArray.random(16);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
 		
 		
 		if (f.subject != undefined) {
@@ -298,7 +312,6 @@
 		g.contents.value = f.contents.value;
 		
 		if (f.pwd != undefined) {
-			var symmetricKeyObj = CryptoJS.AES;
 			g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, getPrivateKeyFromSessionStorage(), { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		}
 
@@ -320,7 +333,7 @@
 		
 		if (f != undefined) {
 			try {
-				checkValidPwd(f.pwd.value);
+				checkValidPwd('게시글', f.pwd.value);
 			} catch(err) {
 				alert(err);
 				f.pwd.focus();
@@ -328,15 +341,17 @@
 			}
 		}
 		
+		var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
+		var privateKey = getPrivateKeyFromSessionStorage();		
+		var iv = buildIV();
+		
 		var g = document.deleteProcessFrm;
-		g.boardNo.value = boardNo;
-		g.sessionkeyBase64.value = getSessionkeyBase64FromSessionStorage();
-		var iv = CryptoJS.lib.WordArray.random(16);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
+
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();		
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
 		
-		
+		g.boardNo.value = boardNo;		
 		if (f != undefined) {
-			var symmetricKeyObj = CryptoJS.AES;
 			g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, getPrivateKeyFromSessionStorage(), { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		}
 		
@@ -345,7 +360,7 @@
 	
 	
 	function showDeleteEditScreen(boardNo) {	
-		var targetDiv = document.getElementById("editScreenOfBoard"+boardNo);
+		var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
 		
 		if (null != currentEditScreenDiv) {
 			hideEditScreen();
@@ -427,12 +442,15 @@
 	}
 	
 	function goVote(boardNo) {	
+		var iv = buildIV();
+		
 		var g = document.voteFrm;
+		
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();		
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+		
 		g.boardNo.value = boardNo;
-		g.sessionkeyBase64.value 
-		= getSessionkeyBase64FromSessionStorage();
-		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
+				
 		g.submit();
 	}
 	
@@ -589,7 +607,7 @@
 	}
 
 	function showReplyEditScreen(boardID, boardNo, isSubject, isPassword) {	
-		var targetDiv = document.getElementById("editScreenOfBoard"+boardNo);
+		var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
 		
 		
 		/** remove all child nodes of targetDiv node */
@@ -705,7 +723,7 @@
 		var saveButtonNode = document.createElement("input");
 		saveButtonNode.setAttribute("type", "button");
 		saveButtonNode.setAttribute("class", "btn btn-default");		
-		saveButtonNode.setAttribute("onClick", "replyBoard();");
+		saveButtonNode.setAttribute("onClick", "goReply();");
 		saveButtonNode.setAttribute("value", "저장");
 		
 		var addNewAttachedFIleButtonNode = document.createElement("input");
@@ -753,12 +771,12 @@
 		
 		var sessionkeyHiddenNode = document.createElement("input");
 		sessionkeyHiddenNode.setAttribute("type", "hidden");
-		sessionkeyHiddenNode.setAttribute("name", "sessionkeyBase64");
+		sessionkeyHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>");
 		
 		
 		var ivHiddenNode = document.createElement("input");
 		ivHiddenNode.setAttribute("type", "hidden");
-		ivHiddenNode.setAttribute("name", "ivBase64");
+		ivHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>");
 		
 		var newAttachedFileListDiv = document.createElement("div");
 		newAttachedFileListDiv.setAttribute("id", "newAttachedFileList");		
@@ -791,7 +809,7 @@
 	}
 
 	function showMoidfyEditScreen(boardID, boardNo, nextAttachedFileSeq, isSubject, isPassword) {
-		var targetDiv = document.getElementById("editScreenOfBoard"+boardNo);
+		var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
 		var oldAttachedFileListJosnObj = JSON.parse(document.getElementById('oldAttachedFileListJosnStringOfBoard'+boardNo+'InViewScreen').innerText);
 		
 		/** remove all child nodes of targetDiv node */
@@ -891,7 +909,7 @@
 		var saveButtonNode = document.createElement("input");
 		saveButtonNode.setAttribute("type", "button");
 		saveButtonNode.setAttribute("class", "btn btn-default");		
-		saveButtonNode.setAttribute("onClick", "modifyBoard();");
+		saveButtonNode.setAttribute("onClick", "goModify();");
 		saveButtonNode.setAttribute("value", "저장");
 		
 		
@@ -951,11 +969,11 @@
 		
 		var sessionkeyHiddenNode = document.createElement("input");
 		sessionkeyHiddenNode.setAttribute("type", "hidden");
-		sessionkeyHiddenNode.setAttribute("name", "sessionkeyBase64");		
+		sessionkeyHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>");		
 		
 		var ivHiddenNode = document.createElement("input");
 		ivHiddenNode.setAttribute("type", "hidden");
-		ivHiddenNode.setAttribute("name", "ivBase64");		
+		ivHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>");		
 		
 		
 		var oldAttachedFileListDiv = document.createElement("div");
@@ -1035,7 +1053,7 @@
 	function goPersonalInformation(targetUserID) {		
 		if (opener != undefined) {			
 			opener.document.location.href = "/servlet/PersonalInformation?targetUserID="+targetUserID;
-			self.clse();
+			self.close();
 		} else {
 			document.location.href = "/servlet/PersonalInformation?targetUserID="+targetUserID;
 		}
@@ -1044,7 +1062,7 @@
 	function goPersonalActivityHistory(targetUserID) {
 		if (opener != undefined) {			
 			opener.document.location.href = "/servlet/PersonalActivityHistory?targetUserID="+targetUserID;
-			self.clse();
+			self.close();
 		} else {
 			document.location.href = "/servlet/PersonalActivityHistory?targetUserID="+targetUserID;
 		}
@@ -1054,12 +1072,15 @@
 %>
 
 	function goBlock(boardNo) {	
+		var iv = buildIV();
+		
 		var g = document.blockFrm;
+		
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+		
 		g.boardNo.value = boardNo;
-		g.<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>.value 
-		= getSessionkeyBase64FromSessionStorage();
-		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
+				
 		g.submit();
 	}
 	
@@ -1080,7 +1101,15 @@
 		    top.location.href = "/";
 		}
 		
-		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+		var interestedBoadNoDiv = document.getElementById('viewScreenForBoard<%= interestedBoadNo %>');
+		
+		if (interestedBoadNoDiv != undefined) {
+			
+			var offsetTop = getOffsetTop(interestedBoadNoDiv);
+			var offsetLeft = getOffsetLeft(interestedBoadNoDiv);
+			<!-- WARNING! setTimeout 함수에 window.scrollTo 을 넣어야 크롬에서 잘 동작함 -->
+			setTimeout( () => { window.scrollTo(offsetLeft, offsetTop); }, 100);
+		}	
 	}
 
 	window.onload=init;
@@ -1089,14 +1118,21 @@
 </head>
 <body>
 	<div class=header>
-		<div class="container"> <%
+		<div class="container"><%
 	if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType)) {
 		out.write(getMenuNavbarString(request));
 	}
-%></div>
+%>
+		</div>
 	</div>	
 	<form name=goListFrm method="get" action="/servlet/BoardList">
 		<input type="hidden" name="boardID" value="<%= boardDetailRes.getBoardID() %>" />
+	</form>
+	
+	<form name=goDetailFrm method="get" action="/servlet/BoardDetail">
+		<input type="hidden" name="boardID" value="<%= boardDetailRes.getBoardID() %>" />
+		<input type="hidden" name="boardNo" value="<%= boardDetailRes.getBoardNo() %>" />
+		<input type="hidden" name="interestedBoadNo" />
 	</form>
 	
 	<form name=deleteProcessFrm target=hiddenFrame method="post" action="/servlet/BoardDeleteProcess">
@@ -1222,7 +1258,7 @@
 				</div>
 				<div id="resultMessage"></div>
 				<br>
-				<div id="viewScreenOfBoard<%=boardDetailRes.getBoardNo()%>">
+				<div id="viewScreenForBoard<%=boardDetailRes.getBoardNo()%>">
 					<div style="display:none" id="oldAttachedFileListJosnStringOfBoard<%=boardDetailRes.getBoardNo()%>InViewScreen"><%= StringEscapeActorUtil
 					.replace((null == boardDetailRes.getAttachedFileList()) ? "[]" : new Gson().toJson(boardDetailRes.getAttachedFileList()), 
 							StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
@@ -1293,7 +1329,7 @@
 								<td><b>첨부 파일</b></td>
 								<td colspan="5" id="oldFileListOfBoard<%=boardDetailRes.getBoardNo()%>InViewScreen"><%
 	if (null != boardDetailRes.getAttachedFileList()) {
-		isFirst = true;
+		boolean isFirst = true;
 		for (BoardDetailRes.AttachedFile oldAttachedFile : boardDetailRes.getAttachedFileList()) {
 			if (isFirst) {
 				isFirst = false;
@@ -1321,7 +1357,7 @@
 							</tr>
 						</tbody>
 					</table>			
-					<div id="editScreenOfBoard<%=boardDetailRes.getBoardNo()%>" style="display:block"></div>		
+					<div id="editorScreenForBoard<%=boardDetailRes.getBoardNo()%>" style="display:block"></div>		
 				</div>	
 			</div>			
 			<iframe id="hiddenFrame" name="hiddenFrame" style="display:none;"></iframe>
@@ -1334,7 +1370,7 @@
 			<div class="panel-body"><%
 		for (BoardDetailRes.ChildNode childNode :  boardDetailRes.getChildNodeList()) {
 			%>
-				<div id="viewScreenOfBoard<%=childNode.getBoardNo()%>">
+				<div id="viewScreenForBoard<%=childNode.getBoardNo()%>">
 					<div style="display:none" id="oldAttachedFileListJosnStringOfBoard<%=childNode.getBoardNo()%>InViewScreen"><%= StringEscapeActorUtil
 					.replace((null == childNode.getAttachedFileList()) ? "[]" : new Gson().toJson(childNode.getAttachedFileList()), 
 							StringEscapeActorUtil.STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4)%></div>
@@ -1478,7 +1514,7 @@
 								<td colspan="5" id="oldFileListOfBoard<%= childNode.getBoardNo() %>InViewScreen"><%
 			
 			if (null != childNode.getAttachedFileList()) {
-				isFirst = true;
+				boolean isFirst = true;
 				for (BoardDetailRes.ChildNode.AttachedFile oldAttachedFile : childNode.getAttachedFileList()) {
 					if (isFirst) {
 						isFirst = false;
@@ -1508,7 +1544,7 @@
 							</tr>
 						</tbody>
 					</table>			
-					<div id="editScreenOfBoard<%= childNode.getBoardNo() %>" style="display:block"></div>		
+					<div id="editorScreenForBoard<%= childNode.getBoardNo() %>" style="display:block"></div>		
 				</div><%
 		}
 %>			

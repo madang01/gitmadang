@@ -136,49 +136,49 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		try {
 			idCipherBytes = CommonStaticUtil.Base64Decoder.decode(idCipherBase64);
 		} catch (Exception e) {
-			String errorMessage = "아이디 암호문은 base64 인코딩되지 않았습니다";
+			String errorMessage = "아이디 암호문은 베이스64로 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			pwdCipherBytes = CommonStaticUtil.Base64Decoder.decode(pwdCipherBase64);
 		} catch (Exception e) {
-			String errorMessage = "비밀번호 암호문은 base64 인코딩되지 않았습니다";
+			String errorMessage = "비밀번호 암호문은 베이스64로 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			nicknameCipherBytes = CommonStaticUtil.Base64Decoder.decode(nicknameCipherBase64);
 		} catch (Exception e) {
-			String errorMessage = "별명은 base64 인코딩되지 않았습니다";
+			String errorMessage = "별명은 베이스64로 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			hintCipherBytes = CommonStaticUtil.Base64Decoder.decode(hintCipherBase64);
 		} catch (Exception e) {
-			String errorMessage = "비밀번호 분실 힌트는 base64 인코딩되지 않았습니다";
+			String errorMessage = "비밀번호 분실 힌트는 베이스64로 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			answerCipherBytes = CommonStaticUtil.Base64Decoder.decode(answerCipherBase64);
 		} catch (Exception e) {
-			String errorMessage = "비밀번호 분실 답변은 base64 인코딩되지 않았습니다";
+			String errorMessage = "비밀번호 분실 답변은 베이스64로 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			sessionKeyBytes = CommonStaticUtil.Base64Decoder.decode(sessionKeyBase64);
 		} catch (Exception e) {
-			String errorMessage = "세션키는 base64 인코딩되지 않았습니다";
+			String errorMessage = "세션키는 베이스64로 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
 		try {
 			ivBytes = CommonStaticUtil.Base64Decoder.decode(ivBase64);
 		} catch (Exception e) {
-			String errorMessage = "세션키 소금값은 base64 인코딩되지 않았습니다";
+			String errorMessage = "세션키 소금값은 베이스64로 인코딩되지 않았습니다";
 			throw new ServerServiceException(errorMessage);
 		}
 
@@ -312,6 +312,12 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
+		try {
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
+		} catch(IllegalArgumentException e) {			
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
 		
 		ServerDBUtil.registerMember(dbcpName, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip,
 				new java.sql.Timestamp(System.currentTimeMillis()));

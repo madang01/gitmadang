@@ -4,6 +4,11 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.classloader.MessageEncoderManagerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
@@ -16,17 +21,12 @@ import kr.pe.codda.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.codda.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.codda.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.codda.common.util.CommonStaticUtil;
+import kr.pe.codda.impl.message.MemberLoginReq.MemberLoginReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.impl.message.UserLoginReq.UserLoginReq;
 import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.ProjectLoginManagerIF;
 import kr.pe.codda.server.task.ToLetterCarrier;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 
 public class LoginReqServerTaskTest extends AbstractJunitTest {	
 	@Before 
@@ -145,15 +145,15 @@ public class LoginReqServerTaskTest extends AbstractJunitTest {
 		Arrays.fill(passwordBytes, CommonStaticFinalVars.ZERO_BYTE);
 			
 		
-		UserLoginReq inObj = new UserLoginReq();
+		MemberLoginReq inObj = new MemberLoginReq();
 		inObj.setIdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(idCipherTextBytes));
 		inObj.setPwdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(passwordCipherTextBytes));
 		inObj.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupSessionKeyBytes()));
 		inObj.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSessionKey.getDupIVBytes()));
 	
-		UserLoginReqServerTask loginReqServerTask = null;
+		MemberLoginReqServerTask loginReqServerTask = null;
 		try {
-			loginReqServerTask = new UserLoginReqServerTask();
+			loginReqServerTask = new MemberLoginReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}

@@ -8,6 +8,15 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 public abstract class JooqSqlUtil {
+	public static final String MEMBER_TYPE_NAME_SQL_STRING = new StringBuilder("if ({0} = '")
+			.append(MemberRoleType.MEMBER.getValue())
+			.append("', '")
+			.append(MemberRoleType.MEMBER.getName())
+			.append("', if ({0} = '")
+			.append(MemberRoleType.ADMIN.getValue())
+			.append("', '")
+			.append(MemberRoleType.ADMIN.getName())
+			.append("', '알수없음'))").toString();
 
 	public static Field<UInteger> getFieldOfLastInsertID(Class<UInteger> type) {
 		return DSL.field("LAST_INSERT_ID()", type);
@@ -18,17 +27,8 @@ public abstract class JooqSqlUtil {
 	}
 	
 	public static Field<String> getFieldOfMemberTypeName(Field<String> memberTypeField) {
-		String sqlString = new StringBuilder("if ({0} = '")
-				.append(MemberRoleType.MEMBER.getValue())
-				.append("', '")
-				.append(MemberRoleType.MEMBER.getName())
-				.append("', if ({0} = '")
-				.append(MemberRoleType.ADMIN.getValue())
-				.append("', '")
-				.append(MemberRoleType.ADMIN.getName())
-				.append("', '알수없음'))").toString();
 		// "if ({0} = 1, '일반회원', if ({0} = 0, '관리자', '알수없음'))"
-		return DSL.field(sqlString, 
+		return DSL.field(MEMBER_TYPE_NAME_SQL_STRING, 
 				String.class, memberTypeField);
 	}
 	

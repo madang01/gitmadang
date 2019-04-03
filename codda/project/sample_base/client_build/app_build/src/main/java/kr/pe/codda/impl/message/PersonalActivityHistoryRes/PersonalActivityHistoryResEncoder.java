@@ -60,6 +60,20 @@ public final class PersonalActivityHistoryResEncoder extends AbstractMessageEnco
 			, null // nativeItemCharset
 			, middleWritableObject);
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageNo"
+			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
+			, personalActivityHistoryRes.getPageNo() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageSize"
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
+			, personalActivityHistoryRes.getPageSize() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "cnt"
 			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
 			, personalActivityHistoryRes.getCnt() // itemValue

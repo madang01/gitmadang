@@ -32,13 +32,14 @@
 
 >>>> 일반 사용자 사이트 <<<<
 -- 메뉴:게시판
-(1) 게시글 수정 이력 조회
-(2) 차단
+#(1) 게시글 수정 이력 조회
+#(2) 차단
+(3) 게시글 이동
 
 -- 메뉴:개인
-(1) 개인 활동 내역(Personal activity History)
-(2) 비밀번호 변경(Personal Password Change)
-(3) 회원 탈퇴(membership withdraw)
+#(1) 개인 활동 내역(Personal activity History)
+#(2) 비밀번호 변경(Personal Password Change)
+#(3) 회원 탈퇴(membership withdraw)
 
 --- 메뉴: 회원
 (1) 아이디/비밀번호 찾기

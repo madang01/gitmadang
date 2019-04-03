@@ -146,17 +146,17 @@
 	}
 	
 	function loginFailureCallBack(errorMessage) {
-		var resultMessageView = document.getElementById("resultMessageView");
+		var resultMessageDiv = document.getElementById("resultMessage");
 		
-		resultMessageView.setAttribute("class", "alert alert-warning");
-		resultMessageView.innerHTML = "<strong>Warning!</strong> " + errorMessage;
+		resultMessageDiv.setAttribute("class", "alert alert-warning");
+		resultMessageDiv.innerHTML = "<strong>Warning!</strong> " + errorMessage;
 	}
 	
 	function loginOKCallBack() {
-		var resultMessageView = document.getElementById("resultMessageView");
+		var resultMessageDiv = document.getElementById("resultMessage");
 		
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> "+document.frm.userID.value+" 님 로그인 성공하였습니다.";
+		resultMessageDiv.setAttribute("class", "alert alert-success");
+		resultMessageDiv.innerHTML = "<strong>Success!</strong> "+document.frm.userID.value+" 님 로그인 성공하였습니다.";
 		
 		var g = document.successURLfrm;
 		
@@ -191,7 +191,7 @@
 			<div class="panel panel-default">
 				<div class="panel-heading"><h4>사용자 로그인</h4></div>
 				<div class="panel-body">
-					<div id="resultMessageView"></div>
+					<div id="resultMessage"></div>
 					<form method="post" name="gofrm" target="hiddenFrame" action="/servlet/UserHardCodingLoginProcess">
 						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
 						<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />

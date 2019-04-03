@@ -3,6 +3,7 @@
 %><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractAdminJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><jsp:useBean id="requestURI" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="userID" class="java.lang.String" scope="request" /><%
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -27,153 +28,129 @@
 <script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
+
+<script src="/js/common.js"></script>
+
 <script type="text/javascript">
 <!--
-	function init() {
-		var f = document.frm;
-		f.userID.value =  "admin";
-		f.pwd.value =  "test1234$";
-		// f.pwd.value =  "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~$";
+	function buildPrivateKey() {
+		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);	
+		return privateKey;
 	}
-
-	window.onload = init;
-
-	function submitGoFormIfValid() {				
-		var f = document.frm;
-		var g = document.gofrm;
+	
+	function putNewPrivateKeyToSessionStorage() {
+		var newPrivateKey = buildPrivateKey();
+		var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
 		
-		var regexID = /^[A-Za-z][A-Za-z0-9]{3,14}$/;
-		var regexPwd = /^[A-Za-z0-9\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{8,50}$/;
-		var regexPwdAlpha = /.*[A-Za-z]{1,}.*/;
-		var regexPwdDigit = /.*[0-9]{1,}.*/;
-		//var regexPwdPunct = /.*[\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{1,}.*/;
-		var regexPwdPunct = /.*[\!\"#$%&'()*+,\-\.\/:;<=>\?@\[\\\]^_`\{\|\}~]{1,}.*/;
-
-					
-		if(typeof(sessionStorage) == "undefined") {
-			alert("Sorry! No HTML5 sessionStorage support..");
-			return;
-		}	
+		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', newPrivateKeyBase64);
 		
-		if (f.id.value == '') {
-			alert("아이디를 넣어주세요.");
-			f.id.focus();
-			return;
+		return newPrivateKeyBase64;
+	}
+	
+	function getPrivateKeyFromSessionStorage() {
+		var privateKeyBase64 = sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>');
+		
+		if (null == privateKeyBase64) {
+			privateKeyBase64 = putNewPrivateKeyToSessionStorage();
 		}
 		
-		if (!regexID.test(f.id.value)) {
-			alert("아이디는 첫 문자가 영문자 그리고 영문과 숫자로만 최소 4자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
-			f.id.value = '';
-			f.id.focus();
-			return;
+		var privateKey = null;
+		try {
+			privateKey = CryptoJS.enc.Base64.parse(privateKeyBase64);
+		} catch(err) {
+			console.log(err);
+			throw err;
 		}
 		
-		if (f.pwd.value == '') {
-			alert("비밀번호를 넣어주세요.");
-			f.pwd.focus();
-			return;
+		return privateKey;
+	}
+	
+	function getSessionkeyBase64FromSessionStorage() {
+		var privateKeyBase64 = sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>');
+		
+		if (null == privateKeyBase64) {
+			privateKeyBase64 = putNewPrivateKeyToSessionStorage();
 		}
 		
-		
-		/*
-		for( var i=0; i< f.pwd.value.length; i++){
-			if(regexp_pwd.test(f.pwd.value.charAt(i)) == false ){
-				alert(f.pwd.value.charAt(i) + "는 입력불가능한 문자입니다");
-				return;
-			}
-		}
-		*/	
-
-		if (!regexPwd.test(f.pwd.value)) {
-			alert("비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 8자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
-			f.pwd.value = '';
-			f.pwd.focus();
-			return;
-		}
-		
-		if (!regexPwdAlpha.test(f.pwd.value)) {
-			alert("비밀번호는 최소 영문 1자가 포함되어야 합니다. 다시 입력해 주세요.");
-			f.pwd.value = '';
-			f.pwd.focus();
-			return;
-		}
-
-		if (!regexPwdDigit.test(f.pwd.value)) {
-			alert("비밀번호는 최소 숫자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
-			f.pwd.value = '';
-			f.pwd.focus();
-			return;
-		}
-
-		if (!regexPwdPunct.test(f.pwd.value)) {
-			alert("비밀번호는 최소 특수문자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
-			f.pwd.value = '';
-			f.pwd.focus();
-			return;
-		}		
-				
-		
-		var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
-		var privateKeyBase64 = CryptoJS.enc.Base64.stringify(privateKey);
 		
 		var rsa = new RSAKey();
 		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
 			
-		var sessionKeyHex = rsa.encrypt(privateKeyBase64);		
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
-			= CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
-		
+		var sessionKeyHex = rsa.encrypt(privateKeyBase64);
+		var sessionKey = CryptoJS.enc.Hex.parse(sessionKeyHex);
+		return CryptoJS.enc.Base64.stringify(sessionKey);
+	}
+	
+	function buildIV() {
 		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value 
-			= CryptoJS.enc.Base64.stringify(iv);
+		return iv;
+	}
 
+	function goAdminLogin() {				
+		var f = document.frm;
+		try {
+			checkValidUserID('로그인', f.id.value);
+		} catch(err) {
+			alert(err);
+			f.id.focus();
+			return;
+		}
 		
-		var symmetricKeyObj = CryptoJS.<%=WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME%>;
+		try {
+			checkValidPwd('로그인', f.pwd.value);
+		} catch(err) {
+			alert(err);
+			f.pwd.focus();
+			return;
+		}
+		
+		
+		var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
+		var privateKey = buildPrivateKey();
+		var privateKeyBase64 = CryptoJS.enc.Base64.stringify(privateKey);
+		var iv = buildIV();
+		
+		var rsa = new RSAKey();
+		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+		var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));
+		var sessionKey = CryptoJS.enc.Hex.parse(sessionKeyHex);
+		
+		var g = document.gofrm;
+				
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = CryptoJS.enc.Base64.stringify(sessionKey);
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
 	
 		g.userID.value = symmetricKeyObj.encrypt(f.userID.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		
 		f.pwd.value = '';
+		putNewPrivateKeyToSessionStorage();
 		
-		// alert("성공");
-		g.submit();		
-		
-		var newPrivateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
-		var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
-		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', newPrivateKeyBase64);
-		
+		g.submit();
 		return;
 	}
 	
-	function errorMessageCallBack(errorMessage) {		
-		var resultMessageView = document.getElementById("resultMessageView");
+	function callBackForErrorMessage(errorMessage) {		
+		var resultMessageDiv = document.getElementById("resultMessage");
 		
-		resultMessageView.setAttribute("class", "alert alert-warning");
-		resultMessageView.innerHTML = "<strong>Warning!</strong> " + errorMessage;
+		resultMessageDiv.setAttribute("class", "alert alert-warning");
+		resultMessageDiv.innerHTML = "<strong>Warning!</strong> " + errorMessage;
+		
+		alert(resultMessageDiv.innerText);
 	}
 	
-	function adminLoginOKCallBack() {
-		var resultMessageView = document.getElementById("resultMessageView");
+	function callBackForAdminLoginProcess() {
+		var resultMessageDiv = document.getElementById("resultMessage");
 		
-		resultMessageView.setAttribute("class", "alert alert-success");
-		resultMessageView.innerHTML = "<strong>Success!</strong> "+document.frm.userID.value+" 님 로그인 성공하였습니다.";
+		resultMessageDiv.setAttribute("class", "alert alert-success");
+		resultMessageDiv.innerHTML = "<strong>Success!</strong> "+document.frm.userID.value+" 님 로그인 성공하였습니다.";
+		
+		var iv = buildIV();
 		
 		var g = document.successURLfrm;
-		
-		var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
-		var privateKeyBase64 = CryptoJS.enc.Base64.stringify(privateKey);
-		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', privateKeyBase64);
-		
-		var rsa = new RSAKey();
-		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
-			
-		var sessionKeyHex = rsa.encrypt(privateKeyBase64);		
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
-			= CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
-		
-		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value 
-			= CryptoJS.enc.Base64.stringify(iv);
+				
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
 		
 		g.submit();		
 	}
@@ -189,6 +166,21 @@
 			hiddenFrame.style.display = "none";
 		}
 	}
+	
+	function init() {
+		if(typeof(sessionStorage) == "undefined") {
+		    alert("Sorry! No HTML5 sessionStorage support..");
+		    document.location.href = "/";
+		    return;
+		}
+		
+
+		var f = document.frm;
+		f.userID.value =  "admin";
+		f.pwd.value =  "test1234$";
+	}
+
+	window.onload = init;
 //-->
 </script>
 </head>
@@ -203,7 +195,7 @@
 			<div class="panel panel-default">
 				<div class="panel-heading"><h4>관리자 로그인</h4></div>
 				<div class="panel-body">
-					<div id="resultMessageView"></div>
+					<div id="resultMessage"></div>
 					<div class="btn-group">
 						<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>			
 					</div>
@@ -230,10 +222,10 @@
 						}
 					%>
 					</form><br>
-					<form method="post" name="frm" onsubmit="submitGoFormIfValid(); return false;">
+					<form method="post" name="frm" onsubmit="goAdminLogin(); return false;">
 						<div class="form-group">
 							<label for="userID">관리자 아이디:</label>
-							<input type="text" class="form-control" id="userID" placeholder="Enter admin's id" name="userID">
+							<input type="text" class="form-control" id="userID" placeholder="Enter admin's id" name="userID"  value="<%= userID %>">
 							<br>
 							<label for="pwd">비빌번호:</label>
 							<input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">

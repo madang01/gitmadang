@@ -29,9 +29,9 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
-import kr.pe.codda.impl.message.UserBlockReq.UserBlockReq;
+import kr.pe.codda.impl.message.MemberBlockReq.MemberBlockReq;
 import kr.pe.codda.impl.task.server.ArraySiteMenuReqServerTask;
-import kr.pe.codda.impl.task.server.UserBlockReqServerTask;
+import kr.pe.codda.impl.task.server.MebmerBlockReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
 public class ServerDBUtilTest extends AbstractJunitTest {
@@ -647,14 +647,14 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 				fail("fail to create a test ID");
 			}
 
-			UserBlockReq userBlockReq = new UserBlockReq();
-			userBlockReq.setRequestedUserID("admin");
-			userBlockReq.setTargetUserID(requestedUserID);
+			MemberBlockReq memberBlockReq = new MemberBlockReq();
+			memberBlockReq.setRequestedUserID("admin");
+			memberBlockReq.setTargetUserID(requestedUserID);
 
-			UserBlockReqServerTask userBlockReqServerTask = new UserBlockReqServerTask();
+			MebmerBlockReqServerTask userBlockReqServerTask = new MebmerBlockReqServerTask();
 
 			try {
-				userBlockReqServerTask.doWork(TEST_DBCP_NAME, userBlockReq);
+				userBlockReqServerTask.doWork(TEST_DBCP_NAME, memberBlockReq);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("사용자 정보 조회 실패::errmsg=" + e.getMessage());

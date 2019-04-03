@@ -118,13 +118,13 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		password = "j1fev#";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			// log.warn("error", e);
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+			String expectedErrorMessage =  new StringBuilder("회원가입 비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -141,12 +141,12 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		password = "j1fueiv#1j1fueivj1fueivj1fueiv";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+			String expectedErrorMessage =  new StringBuilder("회원가입 비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -163,14 +163,14 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		password = "한글iv#";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			// log.info("추적용", e);
 			
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+			String expectedErrorMessage =  new StringBuilder("회원가입 비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -187,14 +187,14 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		password = "ab37!@\r#";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			// log.info("추적용", e);
 			
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+			String expectedErrorMessage =  new StringBuilder("회원가입 비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -211,12 +211,12 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		password = "11111111";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  "비밀번호는 영문을 최소 1문자 포함해야 합니다";
+			String expectedErrorMessage =  "회원가입 비밀번호는 영문을 최소 1문자 포함해야 합니다";
 			assertEquals(expectedErrorMessage, errorMessage);
 		}
 	}
@@ -229,12 +229,12 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		password = "aaaaaaaa";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  "비밀번호는 숫자를 최소 1문자 포함해야 합니다";
+			String expectedErrorMessage =  "회원가입 비밀번호는 숫자를 최소 1문자 포함해야 합니다";
 			assertEquals(expectedErrorMessage, errorMessage);
 		}
 	}
@@ -247,12 +247,12 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		password = "aaaaaaaa1";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage =  "비밀번호는 문장부호를 최소 1문자 포함해야 합니다";
+			String expectedErrorMessage =  "회원가입 비밀번호는 문장부호를 최소 1문자 포함해야 합니다";
 			assertEquals(expectedErrorMessage, errorMessage);
 		}
 	}
@@ -265,7 +265,7 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		password = "j1fueiv#";
 		passwordBytes = password.getBytes(Charset.forName("utf-8"));
 		try {
-			ValueChecker.checkValidPwd(passwordBytes);
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 		} catch(IllegalArgumentException e) {
 			log.warn("error", e);
 			fail(e.getMessage());

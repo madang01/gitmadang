@@ -159,18 +159,22 @@ public class ValueChecker {
 	}
 		
 	
-	/**
-	 * 비밀번호에 대한 입력값 검사를 수행한다.
-	 * @param password 비밀번호
-	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
-	 */
-	public static void checkValidPwd(byte[] passwordBytes) throws IllegalArgumentException {
+	private static void checkValidPwd(String title, byte[] passwordBytes) throws IllegalArgumentException {
+		if (null == title) {
+			throw new IllegalArgumentException("the parameter title is null");
+		}
+		
 		if (null == passwordBytes) {
-			throw new IllegalArgumentException("the parameter passwordBytes is null");
+			String errorMessage = new StringBuilder(title)
+					.append(" 비밀 번호를 입력해 주세요").toString();
+			
+			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		if (passwordBytes.length < ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS) {
-			String errorMessage = new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+			String errorMessage = new StringBuilder()
+					.append(title)
+					.append(" 비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -179,7 +183,8 @@ public class ValueChecker {
 		}
 		
 		if (passwordBytes.length > ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS) {
-			String errorMessage = new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+			String errorMessage = new StringBuilder()
+					.append(title).append(" 비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -196,7 +201,8 @@ public class ValueChecker {
 		for (int i=0; i < passwordBytes.length; i++) {
 			byte value = passwordBytes[i];
 			if (value <= 0) {
-				String errorMessage = new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+				String errorMessage = new StringBuilder()
+						.append(title).append(" 비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 ")
 						.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
 						.append("자 최대 ")
 						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -213,7 +219,9 @@ public class ValueChecker {
 			} else if (CommonStaticUtil.isPunct(c)) {
 				isPunct = true;
 			} else {
-				String errorMessage = new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
+				String errorMessage = new StringBuilder()
+						.append(title)
+						.append(" 비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 ")
 						.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
 						.append("자 최대 ")
 						.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
@@ -225,69 +233,51 @@ public class ValueChecker {
 		}
 		
 		if (! isAlphabet) {
-			throw new IllegalArgumentException("비밀번호는 영문을 최소 1문자 포함해야 합니다");
+			String errorMessage = new StringBuilder()
+					.append(title)
+					.append(" 비밀번호는 영문을 최소 한글자 포함해야 합니다").toString();
+			
+			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		if (! isDigit) {
-			throw new IllegalArgumentException("비밀번호는 숫자를 최소 1문자 포함해야 합니다");
-		}
-		
-		
-		if (! isPunct) {
-			throw new IllegalArgumentException("비밀번호는 문장부호를 최소 1문자 포함해야 합니다");
-		}
-		
-		/*Pattern p = null;
-		Matcher m = null;		
-		
-		String regexPwd = "^\\p{Graph}{"+ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS+","
-		 + ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS+"}$";
-		
-		p = Pattern.compile(regexPwd);
-		passwdCharBuffer.clear();
-		m = p.matcher(passwdCharBuffer);		
-		boolean isValid = m.matches();
-		if (!isValid) {
-			String errorMessage = new StringBuilder("비밀번호는 영문, 숫자 그리고 문장 부호 조합으로 최소 ")
-					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWRORD_CHARRACTERS)
-					.append("자 최대 ")
-					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWRORD_CHARRACTERS)
-					.append("자를 요구합니다").toString();
+			String errorMessage = new StringBuilder()
+					.append(title)
+					.append(" 비밀번호는 숫자를 최소 한글자 포함해야 합니다").toString();
+			
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		
-		String regexPwdAlpha = ".*\\p{Alpha}{1,}.*";
-		p = Pattern.compile(regexPwdAlpha);
-		passwdCharBuffer.clear();
-		m = p.matcher(passwdCharBuffer);		
-		isValid = m.matches();
-		if (!isValid) {
-			throw new IllegalArgumentException("비밀번호는 영문을 최소 1문자 포함해야 합니다");
+		if (! isPunct) {
+			String errorMessage = new StringBuilder()
+					.append(title)
+					.append(" 비밀번호는 특수문자를 최소 한글자 포함해야 합니다").toString();
+			
+			throw new IllegalArgumentException(errorMessage);
 		}
-		
-		
-		String regexPwdDigit = ".*\\p{Digit}{1,}.*";
-		p = Pattern.compile(regexPwdDigit);
-		passwdCharBuffer.clear();
-		m = p.matcher(passwdCharBuffer);		
-		isValid = m.matches();
-		if (!isValid) {
-			throw new IllegalArgumentException("비밀번호는 숫자를 최소 1문자 포함해야 합니다");
-		}		
-				
-		*//**
-		 * \p{Punct} : !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
-		 *//*
-		String regexPwdPunct = ".*\\p{Punct}{1,}.*";
-		p = Pattern.compile(regexPwdPunct);
-		passwdCharBuffer.clear();
-		m = p.matcher(passwdCharBuffer);		
-		isValid = m.matches();
-		if (!isValid) {
-			throw new IllegalArgumentException("비밀번호는 문장부호를 최소 1문자 포함해야 합니다");
-		}		*/
 	}
+	
+	public static void checkValidLoginPwd(byte[] passwordBytes) throws IllegalArgumentException {
+		checkValidPwd("로그인", passwordBytes);
+	}
+	
+	public static void checkValidMemberReigsterPwd(byte[] passwordBytes) throws IllegalArgumentException {
+		checkValidPwd("회원", passwordBytes);
+	}
+	
+	public static void checkValidOldPwd(byte[] passwordBytes) throws IllegalArgumentException {
+		checkValidPwd("변경 전", passwordBytes);
+	}
+	
+	public static void checkValidNewPwd(byte[] passwordBytes) throws IllegalArgumentException {
+		checkValidPwd("변경 후", passwordBytes);
+	}
+	
+	/*
+	 * public static void checkValidMemberWithdrawPwd(byte[] passwordBytes) throws
+	 * IllegalArgumentException { checkValidPwd("로그인", passwordBytes); }
+	 */
 	
 	/**
 	 * 별명에 대한 입력값 검사를 수행한다.

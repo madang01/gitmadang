@@ -61,7 +61,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	 *	로그인 입력 페이지가 보여지는 문제를 갖게된다.
 	 * </pre>
 	 */
-	protected String JDF_USER_LOGIN_INPUT_PAGE = null;
+	protected String JDF_MEMBER_LOGIN_INPUT_PAGE = null;
 	protected String JDF_ADMIN_LOGIN_INPUT_PAGE = null;
 	protected String JDF_SESSION_KEY_REDIRECT_PAGE = null;
 	protected String JDF_ERROR_MESSAGE_PAGE = null;
@@ -80,7 +80,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 
 		CommonPartConfiguration commonPart = runningProjectConfiguration.getCommonPartConfiguration();
 
-		JDF_USER_LOGIN_INPUT_PAGE = commonPart.getJDFUserLoginPage();
+		JDF_MEMBER_LOGIN_INPUT_PAGE = commonPart.getJDFMemberLoginPage();
 		JDF_ADMIN_LOGIN_INPUT_PAGE = commonPart.getJDFAdminLoginPage();
 		JDF_SESSION_KEY_REDIRECT_PAGE = commonPart.getJDFSessionKeyRedirectPage();
 		JDF_ERROR_MESSAGE_PAGE = commonPart.getJDFErrorMessagePage();

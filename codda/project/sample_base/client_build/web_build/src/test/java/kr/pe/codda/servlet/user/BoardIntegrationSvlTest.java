@@ -171,7 +171,7 @@ public class BoardIntegrationSvlTest extends AbstractJunitTest {
 		HttpServletRequest requestMock = new MembershipRequestMockBuilder().build("test00", "test1234$", "별명00", "질문", "답변");
 		HttpServletResponse responseMock = mock(HttpServletResponse.class);
 
-		MembershipProcessSvl membershipProcessSvl = new MembershipProcessSvl();
+		MemberRegisterProcessSvl membershipProcessSvl = new MemberRegisterProcessSvl();
 
 		try {
 			initServlet(membershipProcessSvl, "/servlet/UserSiteMembershipInput");

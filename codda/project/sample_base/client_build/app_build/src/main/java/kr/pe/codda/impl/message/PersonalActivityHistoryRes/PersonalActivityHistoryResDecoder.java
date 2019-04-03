@@ -59,6 +59,22 @@ public final class PersonalActivityHistoryResDecoder extends AbstractMessageDeco
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		personalActivityHistoryRes.setPageNo((Integer)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "pageNo" // itemName
+			, kr.pe.codda.common.type.SingleItemType.INTEGER // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		personalActivityHistoryRes.setPageSize((Integer)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "pageSize" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_SHORT // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		personalActivityHistoryRes.setCnt((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "cnt" // itemName

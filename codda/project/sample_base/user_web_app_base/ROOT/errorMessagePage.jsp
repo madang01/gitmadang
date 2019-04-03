@@ -20,12 +20,12 @@
 <script type='text/javascript'>
 	function init() {
 		 if (window.top != window.self) {			
-			var userMessageNode = document.getElementById("userMessage");
+			var userMessageDiv = document.getElementById("userMessage");
 			
-			if (parent.errorMessageCallBack != null) {				
-				parent.errorMessageCallBack(userMessageNode.innerText);
+			if (parent.callBackForErrorMessage != null) {				
+				parent.callBackForErrorMessage(userMessageDiv.innerText);
 			} else {
-				alert(userMessageNode.innerText);
+				alert(userMessageDiv.innerText);
 			}
 		}
 	}

@@ -47,7 +47,9 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
 			
 			String errorMessage = "ServerSessionkeyManger instance init error";
-			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
+			String debugMessage = new StringBuilder("ServerSessionkeyManger instance init error, errormessage=[")
+					.append(e.getMessage())
+					.append("]").toString();
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}

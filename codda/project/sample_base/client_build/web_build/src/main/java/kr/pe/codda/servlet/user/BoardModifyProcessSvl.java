@@ -445,7 +445,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 				WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
 				webServerSessionkey.getModulusHexStrForWeb());
 		req.setAttribute(
-				WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY,
+				WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SYMMETRIC_KEY_FROM_SESSIONKEY,
 				webServerSessionkey.getNewInstanceOfServerSymmetricKey(true,
 						sessionkeyBytes, ivBytes));
 		
