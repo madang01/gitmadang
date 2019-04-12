@@ -27,14 +27,13 @@ public class ServerMain {
 						(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
 						(byte) '$' };
 				String nickname = "단위테스터용어드민";
-				String pwdHint = "힌트 그것이 알고싶다";
-				String pwdAnswer = "힌트답변 말이여 방구여";
+				String email = "admin@codda.pe.kr";
 				String ip = "127.0.0.1";
 
 				try {
 				ServerDBUtil.registerMember(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME,
-						MemberRoleType.ADMIN, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+						MemberRoleType.ADMIN, userID, nickname, email, 
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 				} catch (ServerServiceException e) {
 					String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 							.append(userID)
@@ -56,14 +55,13 @@ public class ServerMain {
 						(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
 						(byte) '$' };
 				String nickname = "손님";
-				String pwdHint = "힌트 그것이 알고싶다";
-				String pwdAnswer = "힌트답변 말이여 방구여";
+				String email = "guest@codda.pe.kr";
 				String ip = "127.0.0.1";
 
 				try {
-				ServerDBUtil.registerMember(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME,
-						MemberRoleType.GUEST, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+					ServerDBUtil.registerMember(ServerCommonStaticFinalVars.DEFAULT_DBCP_NAME,
+							MemberRoleType.GUEST, userID, nickname, email, 
+							passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 				} catch (ServerServiceException e) {
 					String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 							.append(userID)

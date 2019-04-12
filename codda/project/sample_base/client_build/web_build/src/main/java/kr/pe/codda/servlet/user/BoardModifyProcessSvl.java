@@ -112,7 +112,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		String paramSessionKeyBase64 = null;
 		String paramIVBase64 = null;
 		String paramBoardID = null;
-		String paramPwdCipherBase64 = null;
+		String paramBoardPwdCipherBase64 = null;
 		String paramBoardNo = null;
 		String paramSubject = null;
 		String paramContents = null;
@@ -155,7 +155,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 				} else if (formFieldName.equals("boardNo")) {
 					paramBoardNo = formFieldValue;
 				} else if (formFieldName.equals("pwd")) {
-					paramPwdCipherBase64 = formFieldValue;
+					paramBoardPwdCipherBase64 = formFieldValue;
 				} else if (formFieldName.equals("subject")) {
 					paramSubject = formFieldValue;
 				} else if (formFieldName.equals("contents")) {
@@ -516,9 +516,9 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
-		String pwdHashBase64 = null;
-		if (null == paramPwdCipherBase64) {
-			pwdHashBase64 = "";
+		String boardPwdHashBase64 = null;
+		if (null == paramBoardPwdCipherBase64) {
+			boardPwdHashBase64 = "";
 		} else {
 			ServerSymmetricKeyIF webServerSymmetricKey = null;
 			try {
@@ -550,7 +550,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			}
 			
 			byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
-					.decode(paramPwdCipherBase64));
+					.decode(paramBoardPwdCipherBase64));
 			
 			MessageDigest md = null;
 			try {
@@ -567,7 +567,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 			}
 			
 			md.update(passwordBytes);
-			pwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
+			boardPwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
 		}
 		
 		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
@@ -576,7 +576,7 @@ public class BoardModifyProcessSvl extends AbstractMultipartServlet {
 		boardModifyReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardModifyReq.setBoardID(boardID);
 		boardModifyReq.setBoardNo(boardNo);
-		boardModifyReq.setPwdHashBase64(pwdHashBase64);
+		boardModifyReq.setPwdHashBase64(boardPwdHashBase64);
 		boardModifyReq.setSubject(paramSubject);
 		boardModifyReq.setContents(paramContents);
 		boardModifyReq.setIp(req.getRemoteAddr());

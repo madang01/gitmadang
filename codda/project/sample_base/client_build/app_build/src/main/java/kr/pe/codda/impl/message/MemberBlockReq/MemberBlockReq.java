@@ -26,6 +26,7 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class MemberBlockReq extends AbstractMessage {
 	private String requestedUserID;
+	private String ip;
 	private String targetUserID;
 
 	public String getRequestedUserID() {
@@ -34,6 +35,13 @@ public class MemberBlockReq extends AbstractMessage {
 
 	public void setRequestedUserID(String requestedUserID) {
 		this.requestedUserID = requestedUserID;
+	}
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 	public String getTargetUserID() {
 		return targetUserID;
@@ -49,6 +57,8 @@ public class MemberBlockReq extends AbstractMessage {
 		builder.append("memberBlockReq[");
 		builder.append("requestedUserID=");
 		builder.append(requestedUserID);
+		builder.append(", ip=");
+		builder.append(ip);
 		builder.append(", targetUserID=");
 		builder.append(targetUserID);
 		builder.append("]");

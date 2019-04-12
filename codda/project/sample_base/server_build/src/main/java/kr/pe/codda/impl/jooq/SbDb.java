@@ -17,6 +17,7 @@ import kr.pe.codda.impl.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardVoteTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
+import kr.pe.codda.impl.jooq.tables.SbPwdSerarchReqTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
 import kr.pe.codda.impl.jooq.tables.SbSiteLogTb;
 import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
@@ -39,7 +40,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = 242615327;
+    private static final long serialVersionUID = -664541506;
 
     /**
      * The reference instance of <code>sb_db</code>
@@ -80,6 +81,11 @@ public class SbDb extends SchemaImpl {
      * The table <code>sb_db.sb_member_tb</code>.
      */
     public final SbMemberTb SB_MEMBER_TB = kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+
+    /**
+     * The table <code>sb_db.sb_pwd_serarch_req_tb</code>.
+     */
+    public final SbPwdSerarchReqTb SB_PWD_SERARCH_REQ_TB = kr.pe.codda.impl.jooq.tables.SbPwdSerarchReqTb.SB_PWD_SERARCH_REQ_TB;
 
     /**
      * The table <code>sb_db.sb_seq_tb</code>.
@@ -128,6 +134,7 @@ public class SbDb extends SchemaImpl {
             SbBoardVoteTb.SB_BOARD_VOTE_TB,
             SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB,
             SbMemberTb.SB_MEMBER_TB,
+            SbPwdSerarchReqTb.SB_PWD_SERARCH_REQ_TB,
             SbSeqTb.SB_SEQ_TB,
             SbSiteLogTb.SB_SITE_LOG_TB,
             SbSitemenuTb.SB_SITEMENU_TB);

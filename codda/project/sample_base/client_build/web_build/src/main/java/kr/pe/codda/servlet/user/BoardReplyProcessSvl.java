@@ -87,7 +87,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		String paramSessionKeyBase64 = null;
 		String paramIVBase64 = null;
 		String paramBoardID = null;
-		String paramPwdCipherBase64 = null;
+		String paramBoardPwdCipherBase64 = null;
 		String paramParentBoardNo = null;
 		String paramSubject = null;
 		String paramContents = null;
@@ -126,7 +126,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 				} else if (formFieldName.equals("boardID")) {
 					paramBoardID = formFieldValue;
 				} else if (formFieldName.equals("pwd")) {
-					paramPwdCipherBase64 = formFieldValue;
+					paramBoardPwdCipherBase64 = formFieldValue;
 				} else if (formFieldName.equals("parentBoardNo")) {
 					paramParentBoardNo = formFieldValue;
 				} else if (formFieldName.equals("subject")) {
@@ -404,9 +404,9 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
-		String pwdHashBase64 = null;
-		if (null == paramPwdCipherBase64) {
-			pwdHashBase64 = "";
+		String boardPwdHashBase64 = null;
+		if (null == paramBoardPwdCipherBase64) {
+			boardPwdHashBase64 = "";
 		} else {
 			ServerSymmetricKeyIF webServerSymmetricKey = null;
 			try {
@@ -438,7 +438,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			}
 			
 			byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
-					.decode(paramPwdCipherBase64));
+					.decode(paramBoardPwdCipherBase64));
 			
 			MessageDigest md = null;
 			try {
@@ -455,7 +455,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			}
 			
 			md.update(passwordBytes);
-			pwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
+			boardPwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
 		}
 
 		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
@@ -463,7 +463,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		BoardReplyReq boardReplyReq = new BoardReplyReq();
 		boardReplyReq.setRequestedUserID(accessedUserformation.getUserID());
 		boardReplyReq.setBoardID(boardID);
-		boardReplyReq.setPwdHashBase64(pwdHashBase64);
+		boardReplyReq.setPwdHashBase64(boardPwdHashBase64);
 		boardReplyReq.setParentBoardNo(parentBoardNo);
 		boardReplyReq.setSubject(paramSubject);
 		boardReplyReq.setContents(paramContents);

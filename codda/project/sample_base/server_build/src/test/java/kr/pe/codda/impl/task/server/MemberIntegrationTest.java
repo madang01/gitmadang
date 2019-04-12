@@ -24,14 +24,13 @@ import kr.pe.codda.impl.message.MemberAllInformationReq.MemberAllInformationReq;
 import kr.pe.codda.impl.message.MemberAllInformationRes.MemberAllInformationRes;
 import kr.pe.codda.impl.message.MemberBlockReq.MemberBlockReq;
 import kr.pe.codda.impl.message.MemberUnBlockReq.MemberUnBlockReq;
-import kr.pe.codda.impl.message.MemberWithdrawReq.MemberWithdrawReq;
 import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
-public class UserIntegrationTest extends AbstractJunitTest {
+public class MemberIntegrationTest extends AbstractJunitTest {
 	final static String TEST_DBCP_NAME = ServerCommonStaticFinalVars.GENERAL_TEST_DBCP_NAME;
 	
 	@BeforeClass
@@ -41,75 +40,72 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		
 		{
 			String userID = "admin";
-			byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용어드민";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "admin@codda.pe.kr";
 			String ip = "127.0.0.1";
-			
+
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, 
-						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
-						.append(userID)
-						.append("] 입니다").toString();
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
 				String actualErrorMessag = e.getMessage();
-				
+
 				// log.warn(actualErrorMessag, e);
-				
+
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");
 			}
 		}
-		
+
 		{
 			String userID = "test01";
-			byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디1";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "test01@codda.pe.kr";
 			String ip = "127.0.0.1";
-			
+
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, 
-						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
-						.append(userID)
-						.append("] 입니다").toString();
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
 				String actualErrorMessag = e.getMessage();
-				
+
 				// log.warn(actualErrorMessag, e);
-				
+
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");
 			}
 		}
-		
+
 		{
 			String userID = "test02";
-			byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디2";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "test02@codda.pe.kr";
 			String ip = "127.0.0.1";
-			
+
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, 
-						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
-						.append(userID)
-						.append("] 입니다").toString();
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
 				String actualErrorMessag = e.getMessage();
-				
+
 				// log.warn(actualErrorMessag, e);
-				
+
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
@@ -128,12 +124,12 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test01";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test01@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, 
+					email, passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
@@ -151,8 +147,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디1";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -202,7 +197,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email, passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
@@ -220,8 +215,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -271,9 +265,9 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
-			log.warn("unknown error", e);
 			fail("fail to create a test ID");
 		}		
 		
@@ -281,6 +275,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		try {
 			MemberAllInformationReqServerTask = new MemberAllInformationReqServerTask();
 		} catch (DynamicClassCallException e1) {
+			log.warn("DynamicClassCallException", e1);
 			fail("dead code");
 		}
 		
@@ -294,17 +289,22 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 			assertEquals("회원 상태 비교", MemberStateType.OK.getValue(),  userInformationRes.getState());
 			assertEquals("회원 역활 비교", MemberRoleType.MEMBER.getValue(),  userInformationRes.getRole());
-			assertEquals("비밀번호 분실시 힌트 비교", pwdHint,  userInformationRes.getPasswordHint());
-			assertEquals("비밀번호 분실시 답변 비교", pwdAnswer,  userInformationRes.getPasswordAnswer());
-			assertEquals("비밀번호 틀린 횟수 비교", 0,  userInformationRes.getPasswordFailedCount());
-			assertEquals("ip address 비교", ip,  userInformationRes.getIp());
+			assertEquals("이메일 비교", email,  userInformationRes.getEmail());			
+			assertEquals("비밀번호 틀린 횟수 비교", 0,  userInformationRes.getPasswordFailedCount());			
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			
 			assertEquals("등록일 비교", sdf.format(new java.util.Date()),  
 					sdf.format(userInformationRes.getRegisteredDate()));
-			assertEquals("수정일 비교", userInformationRes.getRegisteredDate(),  
-					userInformationRes.getLastModifiedDate());
+			
+			assertEquals("마지막 별명 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastNicknameModifiedDate());
+			
+			assertEquals("마지막 이메일 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastEmailModifiedDate());
+			
+			assertEquals("마지막 비밀번호 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastPasswordModifiedDate());
 			
 		} catch (Exception e)  {
 			log.warn("unknown error", e);
@@ -317,8 +317,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -368,7 +367,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, email, passwordBytes, 
+					new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -392,17 +392,22 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 			assertEquals("회원 상태 비교", MemberStateType.OK.getValue(),  userInformationRes.getState());
 			assertEquals("회원 역활 비교", MemberRoleType.ADMIN.getValue(),  userInformationRes.getRole());
-			assertEquals("비밀번호 분실시 힌트 비교", pwdHint,  userInformationRes.getPasswordHint());
-			assertEquals("비밀번호 분실시 답변 비교", pwdAnswer,  userInformationRes.getPasswordAnswer());
+			assertEquals("이메일 비교", email,  userInformationRes.getEmail());
 			assertEquals("비밀번호 틀린 횟수 비교", 0,  userInformationRes.getPasswordFailedCount());
-			assertEquals("ip address 비교", ip,  userInformationRes.getIp());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			
 			assertEquals("등록일 비교", sdf.format(new java.util.Date()),  
 					sdf.format(userInformationRes.getRegisteredDate()));
-			assertEquals("수정일 비교", userInformationRes.getRegisteredDate(),  
-					userInformationRes.getLastModifiedDate());
+			
+			assertEquals("마지막 별명 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastNicknameModifiedDate());
+			
+			assertEquals("마지막 이메일 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastEmailModifiedDate());
+			
+			assertEquals("마지막 비밀번호 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastPasswordModifiedDate());
 			
 		} catch (Exception e)  {
 			log.warn("unknown error", e);
@@ -415,10 +420,11 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("test03");
 		userBlockReq.setTargetUserID("test03");
+		userBlockReq.setIp("127.0.0.3");
 		
-		MebmerBlockReqServerTask userBlockReqServerTask = null;
+		MemberBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new MebmerBlockReqServerTask();
+			userBlockReqServerTask = new MemberBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -442,10 +448,11 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("test01");
 		userBlockReq.setTargetUserID("test03");
+		userBlockReq.setIp("127.0.0.3");
 		
-		MebmerBlockReqServerTask userBlockReqServerTask = null;
+		MemberBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new MebmerBlockReqServerTask();
+			userBlockReqServerTask = new MemberBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -456,7 +463,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
-			String exepcedErrorMessage = "사용자 차단은 관리자 전용 서비스입니다";
+			String exepcedErrorMessage = "회원 차단 서비스는 관리자 전용 서비스입니다";
 			
 			assertEquals("요청자가 비 관리자일 경우 에러 검증", exepcedErrorMessage, acutalErrorMessage);
 		} catch (Exception e)  {
@@ -470,10 +477,11 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("testAA");
+		userBlockReq.setIp("127.0.0.3");
 		
-		MebmerBlockReqServerTask userBlockReqServerTask = null;
+		MemberBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new MebmerBlockReqServerTask();
+			userBlockReqServerTask = new MemberBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -500,8 +508,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -551,7 +558,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -560,11 +568,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
+		userBlockReq.setIp(ip);
 		
-		MebmerBlockReqServerTask userBlockReqServerTask = null;
+		MemberBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new MebmerBlockReqServerTask();
+			userBlockReqServerTask = new MemberBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
+			log.info("DynamicClassCallException", e1);
 			fail("dead code");
 		}
 		
@@ -588,8 +598,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -639,7 +648,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -648,10 +658,11 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
+		userBlockReq.setIp(ip);
 		
-		MebmerBlockReqServerTask userBlockReqServerTask = null;
+		MemberBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new MebmerBlockReqServerTask();
+			userBlockReqServerTask = new MemberBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -680,17 +691,22 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 			assertEquals("회원 상태 비교", MemberStateType.BLOCK.getValue(),  userInformationRes.getState());
 			assertEquals("회원 역활 비교", MemberRoleType.MEMBER.getValue(),  userInformationRes.getRole());
-			assertEquals("비밀번호 분실시 힌트 비교", pwdHint,  userInformationRes.getPasswordHint());
-			assertEquals("비밀번호 분실시 답변 비교", pwdAnswer,  userInformationRes.getPasswordAnswer());
+			assertEquals("이메일 비교", email,  userInformationRes.getEmail());
 			assertEquals("비밀번호 틀린 횟수 비교", 0,  userInformationRes.getPasswordFailedCount());
-			assertEquals("ip address 비교", ip,  userInformationRes.getIp());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			
 			assertEquals("등록일 비교", sdf.format(new java.util.Date()),  
 					sdf.format(userInformationRes.getRegisteredDate()));
-			assertEquals("수정일 비교", userInformationRes.getRegisteredDate(),  
-					userInformationRes.getLastModifiedDate());
+			
+			assertEquals("마지막 별명 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastNicknameModifiedDate());
+			
+			assertEquals("마지막 이메일 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastEmailModifiedDate());
+			
+			assertEquals("마지막 비밀번호 수정일  비교", userInformationRes.getRegisteredDate(),  
+					userInformationRes.getLastPasswordModifiedDate());
 			
 		} catch (Exception e)  {
 			log.warn("unknown error", e);
@@ -724,8 +740,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -775,7 +790,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -784,10 +800,11 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID("test03");
+		userBlockReq.setIp(ip);
 		
-		MebmerBlockReqServerTask userBlockReqServerTask = null;
+		MemberBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new MebmerBlockReqServerTask();
+			userBlockReqServerTask = new MemberBlockReqServerTask();
 		} catch (DynamicClassCallException e1) {
 			fail("dead code");
 		}
@@ -816,17 +833,13 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			assertEquals("별명 비교", nickname,  userInformationRes.getNickname());
 			assertEquals("회원 상태 비교", MemberStateType.BLOCK.getValue(),  userInformationRes.getState());
 			assertEquals("회원 역활 비교", MemberRoleType.MEMBER.getValue(),  userInformationRes.getRole());
-			assertEquals("비밀번호 분실시 힌트 비교", pwdHint,  userInformationRes.getPasswordHint());
-			assertEquals("비밀번호 분실시 답변 비교", pwdAnswer,  userInformationRes.getPasswordAnswer());
+			assertEquals("이메일 비교", email,  userInformationRes.getEmail());
 			assertEquals("비밀번호 틀린 횟수 비교", 0,  userInformationRes.getPasswordFailedCount());
-			assertEquals("ip address 비교", ip,  userInformationRes.getIp());
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			
 			assertEquals("등록일 비교", sdf.format(new java.util.Date()),  
-					sdf.format(userInformationRes.getRegisteredDate()));
-			assertEquals("수정일 비교", userInformationRes.getRegisteredDate(),  
-					userInformationRes.getLastModifiedDate());
+					sdf.format(userInformationRes.getRegisteredDate()));			
 			
 		} catch (Exception e)  {
 			log.warn("unknown error", e);
@@ -839,6 +852,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("test03");
 		userUnBlockReq.setTargetUserID("test03");
+		userUnBlockReq.setIp("127.0.0.3");
 		
 		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
@@ -866,6 +880,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("test01");
 		userUnBlockReq.setTargetUserID("test03");
+		userUnBlockReq.setIp("127.0.0.3");
 		
 		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
@@ -879,7 +894,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
-			String exepcedErrorMessage = "사용자 차단 해제는 관리자 전용 서비스입니다";
+			String exepcedErrorMessage = "회원 차단 해제 서비스는 관리자 전용 서비스입니다";
 			
 			assertEquals("비관리자 요청 에러 검증", exepcedErrorMessage, acutalErrorMessage);
 		} catch (Exception e)  {
@@ -893,6 +908,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID("testAA");
+		userUnBlockReq.setIp("127.0.0.3");
 		
 		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
@@ -922,8 +938,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -973,7 +988,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 	
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -982,6 +998,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
+		userUnBlockReq.setIp(ip);
 		
 		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
@@ -1009,8 +1026,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -1060,7 +1076,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -1069,6 +1086,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
+		userUnBlockReq.setIp(ip);
 		
 		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
@@ -1100,8 +1118,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -1151,7 +1168,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -1160,10 +1178,11 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID(userID);
+		userBlockReq.setIp(ip);
 		
-		MebmerBlockReqServerTask userBlockReqServerTask = null;
+		MemberBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new MebmerBlockReqServerTask();
+			userBlockReqServerTask = new MemberBlockReqServerTask();
 		} catch (DynamicClassCallException e2) {
 			fail("dead code");
 		}		
@@ -1198,6 +1217,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberUnBlockReq userUnBlockReq = new MemberUnBlockReq();
 		userUnBlockReq.setRequestedUserID("admin");
 		userUnBlockReq.setTargetUserID(userID);
+		userUnBlockReq.setIp(ip);
 		
 		MemberUnBlockReqServerTask userUnBlockReqServerTask = null;
 		try {
@@ -1226,25 +1246,20 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 회원탈퇴_대상자미존재() {
-		MemberWithdrawReq memberWithdrawReq = new MemberWithdrawReq();
-		memberWithdrawReq.setRequestedUserID("testAA");
-		
-		MemberWithdrawReqServerTask memberWithdrawReqServerTask = null;
-		try {
-			memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
+		String requestedUserID = "testAA";
+		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+		String ip = "127.0.0.4";
 		
 		try {
-			memberWithdrawReqServerTask.doWork(TEST_DBCP_NAME, memberWithdrawReq);
+			ServerDBUtil.withdrawMember(TEST_DBCP_NAME, requestedUserID, passwordBytes, 
+					new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
-			String exepcedErrorMessage = new StringBuilder("탈퇴 대상 사용자[")
-			.append(memberWithdrawReq.getRequestedUserID())
-			.append("] 가 회원 테이블에 존재하지 않습니다").toString();
+			String exepcedErrorMessage = new StringBuilder("회원 탈퇴 요청자[")
+			.append(requestedUserID)
+			.append("]가 회원 테이블에 존재하지 않습니다").toString();
 			
 			assertEquals("존재 하지 않은 회원 탈퇴 대상자 에러 검증", exepcedErrorMessage, acutalErrorMessage);			
 		} catch (Exception e)  {
@@ -1255,23 +1270,18 @@ public class UserIntegrationTest extends AbstractJunitTest {
 	
 	@Test
 	public void 회원탈퇴_관리자() {
-		MemberWithdrawReq memberWithdrawReq = new MemberWithdrawReq();
-		memberWithdrawReq.setRequestedUserID("admin");
-		
-		MemberWithdrawReqServerTask memberWithdrawReqServerTask = null;
-		try {
-			memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
+		String requestedUserID = "admin";
+		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+		String ip = "127.0.0.4";
 		
 		try {
-			memberWithdrawReqServerTask.doWork(TEST_DBCP_NAME, memberWithdrawReq);
+			ServerDBUtil.withdrawMember(TEST_DBCP_NAME, requestedUserID, passwordBytes, 
+					new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
-			String exepcedErrorMessage = "관리자 아이디는 탈퇴 할 수 없습니다";
+			String exepcedErrorMessage = "회원 탈퇴 요청자[역활:관리자]가 일반 회원이 아닙니다";
 			
 			assertEquals("관리자가 회원 탈퇴하는 에러 검증", exepcedErrorMessage, acutalErrorMessage);			
 		} catch (Exception e)  {
@@ -1285,8 +1295,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -1336,7 +1345,8 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
@@ -1345,10 +1355,11 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		MemberBlockReq userBlockReq = new MemberBlockReq();
 		userBlockReq.setRequestedUserID("admin");
 		userBlockReq.setTargetUserID(userID);
+		userBlockReq.setIp(ip);
 		
-		MebmerBlockReqServerTask userBlockReqServerTask = null;
+		MemberBlockReqServerTask userBlockReqServerTask = null;
 		try {
-			userBlockReqServerTask = new MebmerBlockReqServerTask();
+			userBlockReqServerTask = new MemberBlockReqServerTask();
 		} catch (DynamicClassCallException e2) {
 			fail("dead code");
 		}		
@@ -1359,18 +1370,10 @@ public class UserIntegrationTest extends AbstractJunitTest {
 			fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
 		}
 		
-		MemberWithdrawReq memberWithdrawReq = new MemberWithdrawReq();
-		memberWithdrawReq.setRequestedUserID(userID);
-		
-		MemberWithdrawReqServerTask memberWithdrawReqServerTask = null;
-		try {
-			memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
 		
 		try {
-			memberWithdrawReqServerTask.doWork(TEST_DBCP_NAME, memberWithdrawReq);
+			ServerDBUtil.withdrawMember(TEST_DBCP_NAME, userID, passwordBytes, 
+					new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			
 			fail("no ServerServiceException");
 		} catch (ServerServiceException e) {
@@ -1393,8 +1396,7 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		String userID = "test03";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "단위테스터용아이디3";
-		String pwdHint = "힌트 그것이 알고싶다3";
-		String pwdAnswer = "힌트답변 말이여 방구여3";
+		String email = "test03@codda.pe.kr";
 		String ip = "127.0.0.3";
 		
 		DataSource dataSource = null;
@@ -1444,28 +1446,23 @@ public class UserIntegrationTest extends AbstractJunitTest {
 		}
 		
 		try {
-			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email, 
+					passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to create a test ID");
 		}
-			
 		
-		MemberWithdrawReq memberWithdrawReq = new MemberWithdrawReq();
-		memberWithdrawReq.setRequestedUserID(userID);
 		
-		MemberWithdrawReqServerTask memberWithdrawReqServerTask = null;
-		try {
-			memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
-		} catch (DynamicClassCallException e1) {
-			fail("dead code");
-		}
+		/** 회원 가입시 비밀번호 초기화가 이루어 지므로 값을 복구해 준다 */
+		passwordBytes = new byte[]{(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		
 		try {
-			memberWithdrawReqServerTask.doWork(TEST_DBCP_NAME, memberWithdrawReq);		
+			ServerDBUtil.withdrawMember(TEST_DBCP_NAME, userID, passwordBytes, 
+					new java.sql.Timestamp(System.currentTimeMillis()), ip);		
 		} catch (Exception e)  {
 			log.warn("unknown error", e);
-			fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
+			fail("회원 탈퇴 실패::errmsg="+e.getMessage());
 		}
 		
 		MemberAllInformationReq memberAllInformationReq = new MemberAllInformationReq();

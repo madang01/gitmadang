@@ -46,6 +46,13 @@ public final class BoardModifyReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ip"
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardModifyReq.getIp() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardID"
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, boardModifyReq.getBoardID() // itemValue
@@ -77,13 +84,6 @@ public final class BoardModifyReqEncoder extends AbstractMessageEncoder {
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "contents"
 			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
 			, boardModifyReq.getContents() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ip"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardModifyReq.getIp() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

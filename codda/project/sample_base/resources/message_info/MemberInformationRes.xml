@@ -19,8 +19,11 @@
 <desc>회원 정보 조회 응답 메시지</desc>
 <singleitem name="targetUserID" type="ub pascal string" />
 <singleitem name="nickname" type="ub pascal string" />
+<singleitem name="email" type="us pascal string"/>
 <singleitem name="role" type="byte" />
 <singleitem name="state" type="byte" />
 <singleitem name="registeredDate" type="java sql timestamp" />
-<singleitem name="lastModifiedDate" type="java sql timestamp" />
+<singleitem name="lastNicknameModifiedDate" type="java sql timestamp" />
+<singleitem name="lastEmailModifiedDate" type="java sql timestamp" />
+<singleitem name="lastPasswordModifiedDate" type="java sql timestamp" />
 </message>

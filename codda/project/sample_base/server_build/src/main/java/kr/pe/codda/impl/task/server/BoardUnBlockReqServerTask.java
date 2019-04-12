@@ -9,7 +9,6 @@ import java.util.HashSet;
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
-import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Record3;
 import org.jooq.Record4;
@@ -20,7 +19,6 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
@@ -33,6 +31,7 @@ import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -78,14 +77,31 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 
 	public MessageResultRes doWork(String dbcpName, BoardUnBlockReq boardUnBlockReq) throws Exception {
 
-		if (boardUnBlockReq.getBoardNo() < 0
-				|| boardUnBlockReq.getBoardNo() > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
-			String errorMessage = "게시판 번호가 unsigned integer type 의 최대값(=4294967295) 보다 큽니다";
+		try {
+			ValueChecker.checkValidRequestedUserID(boardUnBlockReq.getRequestedUserID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
-
-		if (null == boardUnBlockReq.getRequestedUserID()) {
-			String errorMessage = "요청한 사용자 아이디를 넣어주세요";
+		
+		try {
+			ValueChecker.checkValidIP(boardUnBlockReq.getIp());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}	
+		
+		try {
+			ValueChecker.checkValidBoardID(boardUnBlockReq.getBoardID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidBoardNo(boardUnBlockReq.getBoardNo());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 
@@ -138,39 +154,9 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 				String errorMessage = e.getMessage();
 				throw new ServerServiceException(errorMessage);
 			}
-
-			Record1<UInteger> boardRecordForGroupNo = create.select(SB_BOARD_TB.GROUP_NO).from(SB_BOARD_TB)
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo)).fetchOne();
-
-			if (null == boardRecordForGroupNo) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = "1.해당 게시글이 존재 하지 않습니다";
-				throw new ServerServiceException(errorMessage);
-			}
-
-			UInteger groupNo = boardRecordForGroupNo.value1();
-
-			/** 최상위 그룹 레코드에 대한 락 걸기 */
-			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO).from(SB_BOARD_TB)
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(groupNo)).forUpdate()
-					.fetchOne();
-
-			if (null == rootBoardRecord) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-
-				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=").append(boardID.shortValue())
-						.append(", boardNo=").append(groupNo.longValue()).append("] 이 존재하지 않습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
+		
+			/** 차단 해제할 게시글에 속한 그룹의 루트 노드에 해당하는 레코드에 락을 건다  */
+			UInteger groupNo = ServerDBUtil.lockGroupOfGivenBoard(conn, create, log, boardID, boardNo);
 
 			Record4<UShort, UInteger, UByte, Byte> boardRecord = create
 					.select(SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH, SB_BOARD_TB.BOARD_ST)
@@ -397,7 +383,7 @@ public class BoardUnBlockReqServerTask extends AbstractServerTask {
 			conn.commit();
 			
 			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, boardUnBlockReq.toString(), 
-					new java.sql.Timestamp(System.currentTimeMillis()));
+					new java.sql.Timestamp(System.currentTimeMillis()), boardUnBlockReq.getIp());
 			
 			conn.commit();
 

@@ -26,9 +26,9 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class BoardBlockReq extends AbstractMessage {
 	private String requestedUserID;
+	private String ip;
 	private short boardID;
 	private long boardNo;
-	private String ip;
 
 	public String getRequestedUserID() {
 		return requestedUserID;
@@ -36,6 +36,13 @@ public class BoardBlockReq extends AbstractMessage {
 
 	public void setRequestedUserID(String requestedUserID) {
 		this.requestedUserID = requestedUserID;
+	}
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 	public short getBoardID() {
 		return boardID;
@@ -51,13 +58,6 @@ public class BoardBlockReq extends AbstractMessage {
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
 	}
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
 
 	@Override
 	public String toString() {
@@ -65,12 +65,12 @@ public class BoardBlockReq extends AbstractMessage {
 		builder.append("boardBlockReq[");
 		builder.append("requestedUserID=");
 		builder.append(requestedUserID);
+		builder.append(", ip=");
+		builder.append(ip);
 		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", boardNo=");
 		builder.append(boardNo);
-		builder.append(", ip=");
-		builder.append(ip);
 		builder.append("]");
 		return builder.toString();
 	}

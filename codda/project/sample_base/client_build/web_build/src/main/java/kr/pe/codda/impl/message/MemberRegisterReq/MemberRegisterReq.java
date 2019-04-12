@@ -28,8 +28,7 @@ public class MemberRegisterReq extends AbstractMessage {
 	private String idCipherBase64;
 	private String pwdCipherBase64;
 	private String nicknameCipherBase64;
-	private String hintCipherBase64;
-	private String answerCipherBase64;
+	private String emailCipherBase64;
 	private String sessionKeyBase64;
 	private String ivBase64;
 	private String ip;
@@ -55,19 +54,12 @@ public class MemberRegisterReq extends AbstractMessage {
 	public void setNicknameCipherBase64(String nicknameCipherBase64) {
 		this.nicknameCipherBase64 = nicknameCipherBase64;
 	}
-	public String getHintCipherBase64() {
-		return hintCipherBase64;
+	public String getEmailCipherBase64() {
+		return emailCipherBase64;
 	}
 
-	public void setHintCipherBase64(String hintCipherBase64) {
-		this.hintCipherBase64 = hintCipherBase64;
-	}
-	public String getAnswerCipherBase64() {
-		return answerCipherBase64;
-	}
-
-	public void setAnswerCipherBase64(String answerCipherBase64) {
-		this.answerCipherBase64 = answerCipherBase64;
+	public void setEmailCipherBase64(String emailCipherBase64) {
+		this.emailCipherBase64 = emailCipherBase64;
 	}
 	public String getSessionKeyBase64() {
 		return sessionKeyBase64;
@@ -101,10 +93,8 @@ public class MemberRegisterReq extends AbstractMessage {
 		builder.append(pwdCipherBase64);
 		builder.append(", nicknameCipherBase64=");
 		builder.append(nicknameCipherBase64);
-		builder.append(", hintCipherBase64=");
-		builder.append(hintCipherBase64);
-		builder.append(", answerCipherBase64=");
-		builder.append(answerCipherBase64);
+		builder.append(", emailCipherBase64=");
+		builder.append(emailCipherBase64);
 		builder.append(", sessionKeyBase64=");
 		builder.append(sessionKeyBase64);
 		builder.append(", ivBase64=");

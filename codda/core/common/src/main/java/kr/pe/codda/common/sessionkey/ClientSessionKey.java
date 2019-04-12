@@ -1,8 +1,8 @@
 package kr.pe.codda.common.sessionkey;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Date;
 
 import kr.pe.codda.common.config.CoddaConfiguration;
 import kr.pe.codda.common.config.CoddaConfigurationManager;
@@ -28,8 +28,16 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 		
 		// this.clientSymmetricKey = clientSymmetricKey;
 		ivBytes = new byte[symmetricIVSize];
-		SecureRandom random = new SecureRandom();
-		random.setSeed(new Date().getTime());
+		
+		SecureRandom random = null;
+		try {
+			random = SecureRandom.getInstance("SHA1PRNG");
+		} catch (NoSuchAlgorithmException e) {
+		    /** dead code */
+			String errorMesssage = "fail to create a instance of SecureRandom class";
+			throw new SymmetricException(errorMesssage);
+		}
+
 		random.nextBytes(ivBytes);
 		
 		clientSymmetricKey = new ClientSymmetricKey(ivBytes);

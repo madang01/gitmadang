@@ -60,16 +60,9 @@ public final class MemberRegisterReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "hintCipherBase64"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "emailCipherBase64"
 			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, memberRegisterReq.getHintCipherBase64() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "answerCipherBase64"
-			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, memberRegisterReq.getAnswerCipherBase64() // itemValue
+			, memberRegisterReq.getEmailCipherBase64() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

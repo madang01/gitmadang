@@ -13,6 +13,7 @@ import kr.pe.codda.impl.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.jooq.tables.SbBoardVoteTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb;
 import kr.pe.codda.impl.jooq.tables.SbMemberTb;
+import kr.pe.codda.impl.jooq.tables.SbPwdSerarchReqTb;
 import kr.pe.codda.impl.jooq.tables.SbSeqTb;
 import kr.pe.codda.impl.jooq.tables.SbSiteLogTb;
 import kr.pe.codda.impl.jooq.tables.SbSitemenuTb;
@@ -65,6 +66,11 @@ public class Tables {
      * The table <code>sb_db.sb_member_tb</code>.
      */
     public static final SbMemberTb SB_MEMBER_TB = kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+
+    /**
+     * The table <code>sb_db.sb_pwd_serarch_req_tb</code>.
+     */
+    public static final SbPwdSerarchReqTb SB_PWD_SERARCH_REQ_TB = kr.pe.codda.impl.jooq.tables.SbPwdSerarchReqTb.SB_PWD_SERARCH_REQ_TB;
 
     /**
      * The table <code>sb_db.sb_seq_tb</code>.

@@ -26,14 +26,14 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class MemberAllInformationRes extends AbstractMessage {
 	private String nickname;
-	private byte state;
+	private String email;
 	private byte role;
-	private String passwordHint;
-	private String passwordAnswer;
+	private byte state;
 	private short passwordFailedCount;
-	private String ip;
 	private java.sql.Timestamp registeredDate;
-	private java.sql.Timestamp lastModifiedDate;
+	private java.sql.Timestamp lastNicknameModifiedDate;
+	private java.sql.Timestamp lastEmailModifiedDate;
+	private java.sql.Timestamp lastPasswordModifiedDate;
 
 	public String getNickname() {
 		return nickname;
@@ -42,12 +42,12 @@ public class MemberAllInformationRes extends AbstractMessage {
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-	public byte getState() {
-		return state;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setState(byte state) {
-		this.state = state;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	public byte getRole() {
 		return role;
@@ -56,19 +56,12 @@ public class MemberAllInformationRes extends AbstractMessage {
 	public void setRole(byte role) {
 		this.role = role;
 	}
-	public String getPasswordHint() {
-		return passwordHint;
+	public byte getState() {
+		return state;
 	}
 
-	public void setPasswordHint(String passwordHint) {
-		this.passwordHint = passwordHint;
-	}
-	public String getPasswordAnswer() {
-		return passwordAnswer;
-	}
-
-	public void setPasswordAnswer(String passwordAnswer) {
-		this.passwordAnswer = passwordAnswer;
+	public void setState(byte state) {
+		this.state = state;
 	}
 	public short getPasswordFailedCount() {
 		return passwordFailedCount;
@@ -77,13 +70,6 @@ public class MemberAllInformationRes extends AbstractMessage {
 	public void setPasswordFailedCount(short passwordFailedCount) {
 		this.passwordFailedCount = passwordFailedCount;
 	}
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
 	public java.sql.Timestamp getRegisteredDate() {
 		return registeredDate;
 	}
@@ -91,12 +77,26 @@ public class MemberAllInformationRes extends AbstractMessage {
 	public void setRegisteredDate(java.sql.Timestamp registeredDate) {
 		this.registeredDate = registeredDate;
 	}
-	public java.sql.Timestamp getLastModifiedDate() {
-		return lastModifiedDate;
+	public java.sql.Timestamp getLastNicknameModifiedDate() {
+		return lastNicknameModifiedDate;
 	}
 
-	public void setLastModifiedDate(java.sql.Timestamp lastModifiedDate) {
-		this.lastModifiedDate = lastModifiedDate;
+	public void setLastNicknameModifiedDate(java.sql.Timestamp lastNicknameModifiedDate) {
+		this.lastNicknameModifiedDate = lastNicknameModifiedDate;
+	}
+	public java.sql.Timestamp getLastEmailModifiedDate() {
+		return lastEmailModifiedDate;
+	}
+
+	public void setLastEmailModifiedDate(java.sql.Timestamp lastEmailModifiedDate) {
+		this.lastEmailModifiedDate = lastEmailModifiedDate;
+	}
+	public java.sql.Timestamp getLastPasswordModifiedDate() {
+		return lastPasswordModifiedDate;
+	}
+
+	public void setLastPasswordModifiedDate(java.sql.Timestamp lastPasswordModifiedDate) {
+		this.lastPasswordModifiedDate = lastPasswordModifiedDate;
 	}
 
 	@Override
@@ -105,22 +105,22 @@ public class MemberAllInformationRes extends AbstractMessage {
 		builder.append("memberAllInformationRes[");
 		builder.append("nickname=");
 		builder.append(nickname);
-		builder.append(", state=");
-		builder.append(state);
+		builder.append(", email=");
+		builder.append(email);
 		builder.append(", role=");
 		builder.append(role);
-		builder.append(", passwordHint=");
-		builder.append(passwordHint);
-		builder.append(", passwordAnswer=");
-		builder.append(passwordAnswer);
+		builder.append(", state=");
+		builder.append(state);
 		builder.append(", passwordFailedCount=");
 		builder.append(passwordFailedCount);
-		builder.append(", ip=");
-		builder.append(ip);
 		builder.append(", registeredDate=");
 		builder.append(registeredDate);
-		builder.append(", lastModifiedDate=");
-		builder.append(lastModifiedDate);
+		builder.append(", lastNicknameModifiedDate=");
+		builder.append(lastNicknameModifiedDate);
+		builder.append(", lastEmailModifiedDate=");
+		builder.append(lastEmailModifiedDate);
+		builder.append(", lastPasswordModifiedDate=");
+		builder.append(lastPasswordModifiedDate);
 		builder.append("]");
 		return builder.toString();
 	}

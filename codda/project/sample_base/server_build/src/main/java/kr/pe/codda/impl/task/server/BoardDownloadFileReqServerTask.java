@@ -28,6 +28,7 @@ import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -74,6 +75,20 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 	public BoardDownloadFileRes doWork(String dbcpName, BoardDownloadFileReq boardDownloadFileReq) throws Exception {
 		// FIXME!
 		log.info(boardDownloadFileReq.toString());
+		
+		try {
+			ValueChecker.checkValidBoardID(boardDownloadFileReq.getBoardID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}		
+		
+		try {
+			ValueChecker.checkValidBoardNo(boardDownloadFileReq.getBoardNo());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
 
 		UByte boardID = UByte.valueOf(boardDownloadFileReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardDownloadFileReq.getBoardNo());

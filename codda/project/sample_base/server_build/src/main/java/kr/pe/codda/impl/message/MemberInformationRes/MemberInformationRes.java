@@ -27,10 +27,13 @@ import kr.pe.codda.common.message.AbstractMessage;
 public class MemberInformationRes extends AbstractMessage {
 	private String targetUserID;
 	private String nickname;
+	private String email;
 	private byte role;
 	private byte state;
 	private java.sql.Timestamp registeredDate;
-	private java.sql.Timestamp lastModifiedDate;
+	private java.sql.Timestamp lastNicknameModifiedDate;
+	private java.sql.Timestamp lastEmailModifiedDate;
+	private java.sql.Timestamp lastPasswordModifiedDate;
 
 	public String getTargetUserID() {
 		return targetUserID;
@@ -45,6 +48,13 @@ public class MemberInformationRes extends AbstractMessage {
 
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	public byte getRole() {
 		return role;
@@ -67,12 +77,26 @@ public class MemberInformationRes extends AbstractMessage {
 	public void setRegisteredDate(java.sql.Timestamp registeredDate) {
 		this.registeredDate = registeredDate;
 	}
-	public java.sql.Timestamp getLastModifiedDate() {
-		return lastModifiedDate;
+	public java.sql.Timestamp getLastNicknameModifiedDate() {
+		return lastNicknameModifiedDate;
 	}
 
-	public void setLastModifiedDate(java.sql.Timestamp lastModifiedDate) {
-		this.lastModifiedDate = lastModifiedDate;
+	public void setLastNicknameModifiedDate(java.sql.Timestamp lastNicknameModifiedDate) {
+		this.lastNicknameModifiedDate = lastNicknameModifiedDate;
+	}
+	public java.sql.Timestamp getLastEmailModifiedDate() {
+		return lastEmailModifiedDate;
+	}
+
+	public void setLastEmailModifiedDate(java.sql.Timestamp lastEmailModifiedDate) {
+		this.lastEmailModifiedDate = lastEmailModifiedDate;
+	}
+	public java.sql.Timestamp getLastPasswordModifiedDate() {
+		return lastPasswordModifiedDate;
+	}
+
+	public void setLastPasswordModifiedDate(java.sql.Timestamp lastPasswordModifiedDate) {
+		this.lastPasswordModifiedDate = lastPasswordModifiedDate;
 	}
 
 	@Override
@@ -83,14 +107,20 @@ public class MemberInformationRes extends AbstractMessage {
 		builder.append(targetUserID);
 		builder.append(", nickname=");
 		builder.append(nickname);
+		builder.append(", email=");
+		builder.append(email);
 		builder.append(", role=");
 		builder.append(role);
 		builder.append(", state=");
 		builder.append(state);
 		builder.append(", registeredDate=");
 		builder.append(registeredDate);
-		builder.append(", lastModifiedDate=");
-		builder.append(lastModifiedDate);
+		builder.append(", lastNicknameModifiedDate=");
+		builder.append(lastNicknameModifiedDate);
+		builder.append(", lastEmailModifiedDate=");
+		builder.append(lastEmailModifiedDate);
+		builder.append(", lastPasswordModifiedDate=");
+		builder.append(lastPasswordModifiedDate);
 		builder.append("]");
 		return builder.toString();
 	}

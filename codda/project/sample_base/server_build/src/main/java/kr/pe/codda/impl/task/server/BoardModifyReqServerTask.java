@@ -14,7 +14,6 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
-import org.jooq.InsertSetMoreStep;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Record4;
@@ -28,7 +27,6 @@ import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.impl.jooq.tables.records.SbBoardHistoryTbRecord;
 import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
 import kr.pe.codda.impl.message.BoardModifyRes.BoardModifyRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -98,15 +96,22 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidBoardNo(boardModifyReq.getBoardNo());
+			ValueChecker.checkValidIP(boardModifyReq.getIp());
+		} catch (RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidBoardID(boardModifyReq.getBoardID());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
-			ValueChecker.checkValidBoardPasswordHashBase64(boardModifyReq.getPwdHashBase64());
-		} catch (RuntimeException e) {
+			ValueChecker.checkValidBoardNo(boardModifyReq.getBoardNo());
+		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
@@ -116,16 +121,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		} catch (RuntimeException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
-		}
-
-		try {
-			ValueChecker.checkValidIP(boardModifyReq.getIp());
-		} catch (RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-			
+		}			
 
 		if (boardModifyReq.getOldAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder().append("기존 첨부 파일들중 남은 갯수[")
@@ -205,6 +201,13 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					.append(boardModifyReq.getNewAttachedFileCnt()).append("])가 최대 값(=255)을 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		try {
+			ValueChecker.checkValidBoardPasswordHashBase64(boardModifyReq.getPwdHashBase64());
+		} catch (RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
 
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
 
@@ -262,6 +265,9 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					throw new ServerServiceException(errorMessage);
 				}
 			}
+			
+			/** 수정할 게시글에 속한 그룹의 루트 노드에 해당하는 레코드에 락을 건다  */
+			ServerDBUtil.lockGroupOfGivenBoard(conn, create, log, boardID, boardNo);
 
 			if (! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				/** 관리자가 아닌 경우 본인 여부 확인 */
@@ -294,15 +300,13 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 							.toString();
 					throw new ServerServiceException(errorMessage);
 				}
-			}
-
-			// boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			}			
 
 			Record4<UInteger, Byte, UByte, String> boardRecord = create
 					.select(SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ,
 							SB_BOARD_TB.PWD_BASE64)
 					.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
-					.forUpdate().fetchOne();
+					.fetchOne();
 
 			if (null == boardRecord) {
 				try {
@@ -311,7 +315,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("해당 게시글이 존재 하지 않습니다").toString();
+				String errorMessage = "해당 게시글이 존재 하지 않습니다";
 				throw new ServerServiceException(errorMessage);
 			}
 
@@ -404,38 +408,27 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 
 			if ((null != dbPwdHashBase64)  && ! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
 				/** 관리자가 아닌 경우 설정한 비밀번호가 있다면 게시글 비밀번호 일치 검사 */
-				String pwdHashBase64 = boardModifyReq.getPwdHashBase64();
+				String boardPasswordHashBase64 = boardModifyReq.getPwdHashBase64();
 				
-				if (null == pwdHashBase64) {
+				if (null == boardPasswordHashBase64 || boardPasswordHashBase64.isEmpty()) {
 					try {
 						conn.rollback();
 					} catch (Exception e) {
 						log.warn("fail to rollback");
 					}
 					
-					String errorMessage = "게시글에 대한 비밀번호를 입력해 주세요";
+					String errorMessage = "게시글 비밀번호를 입력해 주세요";
 					throw new ServerServiceException(errorMessage);
 				}
 
-				if (pwdHashBase64.isEmpty()) {
+				if (! dbPwdHashBase64.equals(boardPasswordHashBase64)) {
 					try {
 						conn.rollback();
 					} catch (Exception e) {
 						log.warn("fail to rollback");
 					}
 					
-					String errorMessage = "설정한 게시글 비밀 번호가 존재합니다, 게시글 비밀번호를 입력해 주세요";
-					throw new ServerServiceException(errorMessage);
-				}
-
-				if (!dbPwdHashBase64.equals(pwdHashBase64)) {
-					try {
-						conn.rollback();
-					} catch (Exception e) {
-						log.warn("fail to rollback");
-					}
-					
-					String errorMessage = "설정한 게시글 비밀 번호가 일치하지 않습니다";
+					String errorMessage = "설정한 게시글 비밀 번호와 일치하지 않습니다";
 					throw new ServerServiceException(errorMessage);
 				}
 			}
@@ -459,30 +452,15 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			UByte newBoardHistorySeq = UByte.valueOf(oldBoardHistorySeq.shortValue()+1);
-
-			InsertSetMoreStep<SbBoardHistoryTbRecord> boardHistoryInsertSetMoreStep = null;
-
-			if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType) && (parenetNo.longValue() != 0L)) {
-				boardHistoryInsertSetMoreStep = create.insertInto(SB_BOARD_HISTORY_TB)
-						.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
-						.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, newBoardHistorySeq)
-						// .set(SB_BOARD_HISTORY_TB.SUBJECT, boardModifyReq.getSubject())
-						.set(SB_BOARD_HISTORY_TB.CONTENTS, boardModifyReq.getContents())
-						.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardModifyReq.getRequestedUserID())
-						.set(SB_BOARD_HISTORY_TB.IP, boardModifyReq.getIp())
-						.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class));
-			} else {
-				boardHistoryInsertSetMoreStep = create.insertInto(SB_BOARD_HISTORY_TB)
-						.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
-						.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, newBoardHistorySeq)
-						.set(SB_BOARD_HISTORY_TB.SUBJECT, boardModifyReq.getSubject())
-						.set(SB_BOARD_HISTORY_TB.CONTENTS, boardModifyReq.getContents())
-						.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardModifyReq.getRequestedUserID())
-						.set(SB_BOARD_HISTORY_TB.IP, boardModifyReq.getIp())
-						.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class));
-			}
-
-			int boardHistoryInsertCount = boardHistoryInsertSetMoreStep.execute();
+			
+			int boardHistoryInsertCount = create.insertInto(SB_BOARD_HISTORY_TB)
+			.set(SB_BOARD_HISTORY_TB.BOARD_ID, boardID).set(SB_BOARD_HISTORY_TB.BOARD_NO, boardNo)
+			.set(SB_BOARD_HISTORY_TB.HISTORY_SQ, newBoardHistorySeq)
+			.set(SB_BOARD_HISTORY_TB.SUBJECT, (BoardListType.ONLY_GROUP_ROOT.equals(boardListType) && (parenetNo.longValue() != 0L) ? null : boardModifyReq.getSubject()))
+			.set(SB_BOARD_HISTORY_TB.CONTENTS, boardModifyReq.getContents())
+			.set(SB_BOARD_HISTORY_TB.REGISTRANT_ID, boardModifyReq.getRequestedUserID())
+			.set(SB_BOARD_HISTORY_TB.IP, boardModifyReq.getIp())
+			.set(SB_BOARD_HISTORY_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class)).execute();
 
 			if (0 == boardHistoryInsertCount) {
 				try {

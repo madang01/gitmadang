@@ -46,9 +46,9 @@ public final class MemberAllInformationResEncoder extends AbstractMessageEncoder
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "state"
-			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
-			, memberAllInformationRes.getState() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "email"
+			, kr.pe.codda.common.type.SingleItemType.US_PASCAL_STRING // itemType
+			, memberAllInformationRes.getEmail() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -60,16 +60,9 @@ public final class MemberAllInformationResEncoder extends AbstractMessageEncoder
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "passwordHint"
-			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, memberAllInformationRes.getPasswordHint() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "passwordAnswer"
-			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, memberAllInformationRes.getPasswordAnswer() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "state"
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
+			, memberAllInformationRes.getState() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -81,13 +74,6 @@ public final class MemberAllInformationResEncoder extends AbstractMessageEncoder
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ip"
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, memberAllInformationRes.getIp() // itemValue
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleWritableObject);
-
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "registeredDate"
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
 			, memberAllInformationRes.getRegisteredDate() // itemValue
@@ -95,9 +81,23 @@ public final class MemberAllInformationResEncoder extends AbstractMessageEncoder
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastModifiedDate"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastNicknameModifiedDate"
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
-			, memberAllInformationRes.getLastModifiedDate() // itemValue
+			, memberAllInformationRes.getLastNicknameModifiedDate() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastEmailModifiedDate"
+			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, memberAllInformationRes.getLastEmailModifiedDate() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "lastPasswordModifiedDate"
+			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, memberAllInformationRes.getLastPasswordModifiedDate() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

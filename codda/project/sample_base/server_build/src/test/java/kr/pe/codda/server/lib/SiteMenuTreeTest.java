@@ -44,75 +44,72 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 		
 		{
 			String userID = "admin";
-			byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용어드민";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "admin@codda.pe.kr";
 			String ip = "127.0.0.1";
-			
+
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, 
-						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
-						.append(userID)
-						.append("] 입니다").toString();
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
 				String actualErrorMessag = e.getMessage();
-				
-				log.warn(actualErrorMessag, e);
-				
+
+				// log.warn(actualErrorMessag, e);
+
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");
 			}
 		}
-		
+
 		{
 			String userID = "test01";
-			byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디1";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "test01@codda.pe.kr";
 			String ip = "127.0.0.1";
-			
+
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, 
-						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
-						.append(userID)
-						.append("] 입니다").toString();
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
 				String actualErrorMessag = e.getMessage();
-				
-				log.warn(actualErrorMessag, e);
-				
+
+				// log.warn(actualErrorMessag, e);
+
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");
 			}
 		}
-		
+
 		{
 			String userID = "test02";
-			byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디2";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "test02@codda.pe.kr";
 			String ip = "127.0.0.1";
-			
+
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, 
-						pwdHint, pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
-						.append(userID)
-						.append("] 입니다").toString();
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
 				String actualErrorMessag = e.getMessage();
-				
-				log.warn(actualErrorMessag, e);
-				
+
+				// log.warn(actualErrorMessag, e);
+
 				assertEquals(expectedErrorMessage, actualErrorMessag);
 			} catch (Exception e) {
 				log.warn("unknown error", e);

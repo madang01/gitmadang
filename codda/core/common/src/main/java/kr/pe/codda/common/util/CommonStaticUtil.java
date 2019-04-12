@@ -413,8 +413,9 @@ public abstract class CommonStaticUtil {
 	}
 
 	/**
+	 * 낱글자 한글 포함한 한글 여부를 반환한다
 	 * @param c
-	 * @return 낱글자 한글 포함한 한글 여부를 반환한다
+	 * @return 낱글자 한글 포함한 한글 여부
 	 */
 	public static boolean isHangul(final char c) {
 		boolean isHangul = false;
@@ -429,9 +430,9 @@ public abstract class CommonStaticUtil {
 	}
 
 	/**
-	 * 
+	 * 초성 중성 종성이 다 갖추어진'가' 에서 '힣' 까지의 한글 여부를 반환한다
 	 * @param c
-	 * @return 초성과 중성 혹은 종성까지 조합된 한글 여부를 반환한다
+	 * @return 초성 중성 종성이 다 갖추어진'가' 에서 '힣' 까지의 한글 여부
 	 */
 	public static boolean isFullHangul(final char c) {
 		boolean isHangul = false;
@@ -450,6 +451,11 @@ public abstract class CommonStaticUtil {
 	 * (c >= '0' && c <= '9') { isDigit = true; } return isDigit; }
 	 */
 
+	/**
+	 * Punctuation: One of !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+	 * @param c
+	 * @return
+	 */
 	public static boolean isPunct(final char c) {
 		boolean isPunct = false;
 
@@ -464,15 +470,36 @@ public abstract class CommonStaticUtil {
 		}
 		return isPunct;
 	}
-
-	public static boolean isLineSeparator(char c) {
+	
+	/**
+	 * SPACE(0x20) or TAB('\t') 문자 여부를 반환
+	 *  
+	 * @param c
+	 * @return SPACE(0x20) or TAB('\t') 문자 여부
+	 */
+	public static boolean isSpaceOrTab(char c) {
 		boolean isWhiteSpace = false;
-		if (('\r' == c) || ('\n' == c) || ('\u0085' == c) || ('\u2028' == c)
-				|| ('\u2029' == c)) {
+
+		if ((' ' == c) || ('\t' == c)) {
 			isWhiteSpace = true;
 		}
-
+		
 		return isWhiteSpace;
+	}
+
+	/**
+	 * 개행 문자('\r' or '\n') 여부를 반환 
+	 * @param c
+	 * @return 개행 문자('\r' or '\n') 여부
+	 */
+	public static boolean isLineSeparator(char c) {
+		boolean isLineSeparator = false;
+		//  || ('\u0085' == c) || ('\u2028' == c) || ('\u2029' == c)
+		if (('\r' == c) || ('\n' == c)) {
+			isLineSeparator = true;
+		}
+
+		return isLineSeparator;
 	}
 
 	public static boolean isAlphabetAndDigit(String sourceString) {

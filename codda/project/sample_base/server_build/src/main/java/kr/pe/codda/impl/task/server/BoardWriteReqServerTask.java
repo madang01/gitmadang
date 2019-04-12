@@ -12,7 +12,6 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
-import org.jooq.InsertSetMoreStep;
 import org.jooq.Record3;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -24,8 +23,6 @@ import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.util.CommonStaticUtil;
-import kr.pe.codda.impl.jooq.tables.records.SbBoardTbRecord;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
@@ -94,12 +91,18 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidBoardPasswordHashBase64(boardWriteReq.getPwdHashBase64());
-		} catch (RuntimeException e) {
+			ValueChecker.checkValidIP(boardWriteReq.getIp());
+		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
-	
+		
+		try {
+			ValueChecker.checkValidBoardID(boardWriteReq.getBoardID());
+		} catch(RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
 
 		try {
 			ValueChecker.checkValidSubject(boardWriteReq.getSubject());
@@ -115,19 +118,6 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		try {
-			ValueChecker.checkValidWriterID(boardWriteReq.getRequestedUserID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		try {
-			ValueChecker.checkValidIP(boardWriteReq.getIp());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
 
 		if (boardWriteReq.getNewAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
@@ -166,13 +156,20 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			}
 		}
 
+		try {
+			ValueChecker.checkValidBoardPasswordHashBase64(boardWriteReq.getPwdHashBase64());
+		} catch (RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		UByte boardID = UByte.valueOf(boardWriteReq.getBoardID());
 		UByte nextAttachedFileSeq = UByte.valueOf(boardWriteReq.getNewAttachedFileCnt());
 		UInteger boardNo = null;
-		String pwdHashBase64 = boardWriteReq.getPwdHashBase64();
+		String boardPasswordHashBase64 = boardWriteReq.getPwdHashBase64();
 		
-		if (null == pwdHashBase64) {
-			pwdHashBase64 = "";
+		if (null == boardPasswordHashBase64) {
+			boardPasswordHashBase64 = "";
 		}
 
 		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
@@ -206,7 +203,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			// String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
 			byte boardWritePermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE);
 			boardNo = boardInforRecord.get(SB_BOARD_INFO_TB.NEXT_BOARD_NO);
 			
@@ -217,7 +214,9 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 
-				String errorMessage = new StringBuilder("지정한 게시판[").append(boardID.shortValue())
+				String errorMessage = new StringBuilder()
+						.append(boardName)
+						.append(" 게시판[").append(boardID.shortValue())
 						.append("]은 최대 갯수까지 글이 등록되어 더 이상 글을 추가 할 수 없습니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
@@ -240,7 +239,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 본문 글 등록 서비스", boardWritePermissionType, boardWriteReq.getRequestedUserID());
 			
 			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
-				if (pwdHashBase64.isEmpty()) {
+				if (boardPasswordHashBase64.isEmpty()) {
 					try {
 						conn.rollback();
 					} catch (Exception e1) {
@@ -250,35 +249,6 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					String errorMessage = "손님의 경우 반듯이 게시글에 대한 비밀번호를 입력해야 합니다";
 					throw new ServerServiceException(errorMessage);
 				}
-				
-				try {
-					CommonStaticUtil.Base64Decoder.decode(pwdHashBase64);
-				} catch(IllegalArgumentException e) {
-					try {
-						conn.rollback();
-					} catch (Exception e1) {
-						log.warn("fail to rollback");
-					}
-
-					String errorMessage = "게시글에 대한 비밀번호가 base64 인코딩 문자열이 아닙니다";
-					throw new ServerServiceException(errorMessage);
-				}
-			} else {
-				if (! pwdHashBase64.isEmpty()) {
-					try {
-						CommonStaticUtil.Base64Decoder.decode(pwdHashBase64);
-					} catch(IllegalArgumentException e) {
-						try {
-							conn.rollback();
-						} catch (Exception e1) {
-							log.warn("fail to rollback");
-						}
-
-						String errorMessage = "게시글에 대한 비밀번호가 base64 인코딩 문자열이 아닙니다";
-						throw new ServerServiceException(errorMessage);
-					}
-					
-				}
 			}
 			
 			create.update(SB_BOARD_INFO_TB)
@@ -286,27 +256,16 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 			.execute();
 			
-			conn.commit();
+			conn.commit();			
 			
-			InsertSetMoreStep<SbBoardTbRecord> boardInsertSetMoreStep = null;
-			if (pwdHashBase64.isEmpty()) {
-				boardInsertSetMoreStep = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
-				.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
-				.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0)).set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
-				.set(SB_BOARD_TB.DEPTH, UByte.valueOf(0)).set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
-				.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
-				.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, nextAttachedFileSeq);
-			} else {
-				boardInsertSetMoreStep = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
-				.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
-				.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0)).set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
-				.set(SB_BOARD_TB.DEPTH, UByte.valueOf(0)).set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
-				.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
-				.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, nextAttachedFileSeq)
-				.set(SB_BOARD_TB.PWD_BASE64, pwdHashBase64);
-			}
-
-			int boardInsertCount = boardInsertSetMoreStep.execute();			
+			int boardInsertCount = create.insertInto(SB_BOARD_TB).set(SB_BOARD_TB.BOARD_ID, boardID)
+					.set(SB_BOARD_TB.BOARD_NO, boardNo).set(SB_BOARD_TB.GROUP_NO, boardNo)
+					.set(SB_BOARD_TB.GROUP_SQ, UShort.valueOf(0)).set(SB_BOARD_TB.PARENT_NO, UInteger.valueOf(0L))
+					.set(SB_BOARD_TB.DEPTH, UByte.valueOf(0)).set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
+					.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
+					.set(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ, nextAttachedFileSeq)
+					.set(SB_BOARD_TB.PWD_BASE64, (boardPasswordHashBase64.isEmpty() ? null : boardPasswordHashBase64))
+					.execute();
 
 			if (0 == boardInsertCount) {
 				try {
@@ -376,9 +335,6 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 					memberRoleTypeOfRequestedUserID, MemberActivityType.WRITE, boardID, boardNo, registeredDate);
 			
 			conn.commit();
-
-			// log.info("게시판 본문 글[boardID={}, boardNo={}, subject={}] 등록 성공", boardID,
-			// boardNo, boardWriteReq.getSubject());
 
 		} catch (ServerServiceException e) {
 			throw e;

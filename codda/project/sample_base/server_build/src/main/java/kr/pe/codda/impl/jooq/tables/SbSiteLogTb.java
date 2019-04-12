@@ -40,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbSiteLogTb extends TableImpl<SbSiteLogTbRecord> {
 
-    private static final long serialVersionUID = -1460426795;
+    private static final long serialVersionUID = -1882273718;
 
     /**
      * The reference instance of <code>sb_db.sb_site_log_tb</code>
@@ -79,6 +79,11 @@ public class SbSiteLogTb extends TableImpl<SbSiteLogTbRecord> {
      * The column <code>sb_db.sb_site_log_tb.reg_dt</code>.
      */
     public final TableField<SbSiteLogTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+
+    /**
+     * The column <code>sb_db.sb_site_log_tb.ip</code>.
+     */
+    public final TableField<SbSiteLogTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(40), this, "");
 
     /**
      * Create a <code>sb_db.sb_site_log_tb</code> table reference

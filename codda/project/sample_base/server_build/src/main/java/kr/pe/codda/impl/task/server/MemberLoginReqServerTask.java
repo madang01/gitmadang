@@ -4,7 +4,6 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
@@ -28,7 +27,6 @@ import kr.pe.codda.impl.message.MemberLoginRes.MemberLoginRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
@@ -122,6 +120,13 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
+		try {
+			ValueChecker.checkValidIP(memberLoginReq.getIp());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		byte[] idCipherBytes = null;
 		byte[] pwdCipherBytes = null;
 		byte[] sessionKeyBytes = null;
@@ -212,6 +217,8 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		
 		
 		String nickname = null;
 		MemberRoleType memberRoleType = null;
@@ -360,7 +367,6 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 				*/				
 				int countOfPwdFailedCountUpdate = create.update(SB_MEMBER_TB)
 					.set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(pwdFailedCount+1))
-					.set(SB_MEMBER_TB.LAST_MOD_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
 					.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
 				
@@ -377,17 +383,22 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 				
 				conn.commit();
 				
+				ServerDBUtil.insertSiteLog(conn, create, log, userID, "로그인 비밀번호 틀림", 
+						new java.sql.Timestamp(System.currentTimeMillis()), memberLoginReq.getIp());
+				
+				conn.commit();
+				
 				String errorMessage = "비밀 번호가 틀렸습니다";
 				throw new ServerServiceException(errorMessage);
 			}
 			
 			conn.commit();
 			
-			if (MemberRoleType.ADMIN.equals(memberRoleType)) {
-				ServerDBUtil.insertSiteLog(conn, create, log, userID, "관리자 로그인", 
-						new java.sql.Timestamp(System.currentTimeMillis()));
-				conn.commit();
-			}
+			ServerDBUtil.insertSiteLog(conn, create, log, userID, new StringBuilder()
+					.append(memberRoleType.getName())
+					.append(" 로그인").toString(), 
+					new java.sql.Timestamp(System.currentTimeMillis()), memberLoginReq.getIp());
+			conn.commit();
 			
 		} catch (ServerServiceException e) {
 			throw e;

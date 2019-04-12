@@ -18,11 +18,11 @@
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>게시판 최상의 글 등록 요청 메시지</desc>
 <singleitem name="requestedUserID" type="ub pascal string" />
+<singleitem name="ip" type="ub pascal string" />
 <singleitem name="boardID" type="unsigned byte" />
 <singleitem name="pwdHashBase64" type="ub pascal string" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="contents" type="us pascal string" />
-<singleitem name="ip" type="ub pascal string" />
 <singleitem name="newAttachedFileCnt" type="unsigned byte" />
 <array name="newAttachedFile" cnttype="reference" cntvalue="newAttachedFileCnt">
 	<singleitem name="attachedFileName" type="us pascal string" />

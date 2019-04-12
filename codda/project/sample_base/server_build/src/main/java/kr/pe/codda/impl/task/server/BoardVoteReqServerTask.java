@@ -81,6 +81,20 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		log.info(boardVoteReq.toString());	
 		
 		try {
+			ValueChecker.checkValidRequestedUserID(boardVoteReq.getRequestedUserID());
+		} catch(RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}		
+		
+		try {
+			ValueChecker.checkValidIP(boardVoteReq.getIp());
+		} catch(RuntimeException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
 			ValueChecker.checkValidBoardID(boardVoteReq.getBoardID());
 		} catch(RuntimeException e) {
 			String errorMessage = e.getMessage();
@@ -94,20 +108,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		try {
-			ValueChecker.checkValidUserID(boardVoteReq.getRequestedUserID());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
 		
-		
-		try {
-			ValueChecker.checkValidIP(boardVoteReq.getIp());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
 		
 		UByte boardID = UByte.valueOf(boardVoteReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardVoteReq.getBoardNo());
@@ -124,6 +125,9 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 			
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 추천 서비스", PermissionType.MEMBER, boardVoteReq.getRequestedUserID());
 			
+			
+			/** 추천할 게시글에 속한 그룹의 루트 노드에 해당하는 레코드에 락을 건다  */
+			ServerDBUtil.lockGroupOfGivenBoard(conn, create, log, boardID, boardNo);
 			
 			Record1<String> 
 			firstWriterBoardRecord = create.select(SB_BOARD_HISTORY_TB.REGISTRANT_ID)

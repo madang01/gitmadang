@@ -16,12 +16,12 @@
 <direction>FROM_NONE_TO_NONE</direction>
 <desc>단위 테스트용 회원 정보 전체 응답 메시지</desc>
 <singleitem name="nickname" type="si pascal string"/>
-<singleitem name="state" type="byte"/>
+<singleitem name="email" type="us pascal string"/>
 <singleitem name="role" type="byte"/>
-<singleitem name="passwordHint" type="si pascal string"/>
-<singleitem name="passwordAnswer" type="si pascal string"/>
+<singleitem name="state" type="byte"/>
 <singleitem name="passwordFailedCount" type="unsigned byte"/>
-<singleitem name="ip" type="ub pascal string"/>
 <singleitem name="registeredDate" type="java sql timestamp" />
-<singleitem name="lastModifiedDate" type="java sql timestamp" />
+<singleitem name="lastNicknameModifiedDate" type="java sql timestamp" />
+<singleitem name="lastEmailModifiedDate" type="java sql timestamp" />
+<singleitem name="lastPasswordModifiedDate" type="java sql timestamp" />
 </message>

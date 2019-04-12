@@ -12,10 +12,10 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Random;
 
 import javax.sql.DataSource;
 
@@ -23,6 +23,7 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record2;
+import org.jooq.Record5;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.conf.MappedSchema;
@@ -385,21 +386,23 @@ public abstract class ServerDBUtil {
 
 	}
 
+	
 	/**
 	 * 회원 종류에 따른 회원 등록을 수행한다. 어드민과 일반 회원 등록 관리를 일원화 시킬 목적으로 '회원 등록 서버 서버
 	 * 타스크'(={@link MemberRegisterReqServerTask})가 아닌 이곳 서버 라이브러리에서 관리한다.
 	 * 
-	 * @param dbcpName       dbcp 이름(=db schema)
-	 * @param memberRoleType 회원 종류로 어드민과 일반 유저가 있다
-	 * @param userID         등록을 원하는 아이디
-	 * @param nickname       별명
-	 * @param pwdHint        패스워드 힌트 질문
-	 * @param pwdAnswer      패스워드 답변
-	 * @param passwordBytes  패스워드
+	 * @param dbcpName dbcp 이름(=db schema)
+	 * @param memberRoleType 회원 역활
+	 * @param userID 회원 아이디
+	 * @param nickname 별명
+	 * @param email 이메일 주소
+	 * @param passwordBytes 패스워드
+	 * @param ip 아이피 주소
+	 * @param registeredDate 등록일
 	 * @throws Exception
 	 */
 	public static void registerMember(String dbcpName, MemberRoleType memberRoleType, String userID, String nickname,
-			String pwdHint, String pwdAnswer, byte[] passwordBytes, String ip, Timestamp registeredDate) throws Exception {		
+			String email, byte[] passwordBytes, Timestamp registeredDate, String ip) throws Exception {		
 		InternalLogger log = InternalLoggerFactory.getInstance(ServerDBUtil.class);
 		
 
@@ -421,24 +424,32 @@ public abstract class ServerDBUtil {
 		}
 
 		try {
-			ValueChecker.checkValidPwdHint(pwdHint);
+			ValueChecker.checkValidEmail(email);
 		} catch (RuntimeException e) {
 			throw new ServerServiceException(e.getMessage());
 		}
 
-		try {
-			ValueChecker.checkValidPwdAnswer(pwdAnswer);
-		} catch (RuntimeException e) {
-			throw new ServerServiceException(e.getMessage());
-		}
 
 		try {
 			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 		} catch (IllegalArgumentException e) {
 			throw new ServerServiceException(e.getMessage());
 		}
+		
+		try {
+			ValueChecker.checkValidIP(ip);
+		} catch (IllegalArgumentException e) {
+			throw new ServerServiceException(e.getMessage());
+		}		
 
-		Random random = new Random();
+		SecureRandom random = null;
+		try {
+			random = SecureRandom.getInstance("SHA1PRNG");
+		} catch (NoSuchAlgorithmException e) {
+			/** dead code */
+			log.error("NoSuchAlgorithmException", e);
+			System.exit(1);
+		}
 		byte[] pwdSaltBytes = new byte[8];
 		random.nextBytes(pwdSaltBytes);
 
@@ -486,10 +497,14 @@ public abstract class ServerDBUtil {
 					.set(SB_MEMBER_TB.PWD_BASE64, passwordPairOfMemberTable.getPasswordBase64())
 					.set(SB_MEMBER_TB.PWD_SALT_BASE64, passwordPairOfMemberTable.getPasswordSaltBase64())
 					.set(SB_MEMBER_TB.ROLE, memberRoleType.getValue())
-					.set(SB_MEMBER_TB.STATE, MemberStateType.OK.getValue()).set(SB_MEMBER_TB.PWD_HINT, pwdHint)
-					.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer).set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
-					.set(SB_MEMBER_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
-					.set(SB_MEMBER_TB.LAST_MOD_DT, SB_MEMBER_TB.REG_DT).set(SB_MEMBER_TB.IP, ip).execute();
+					.set(SB_MEMBER_TB.STATE, MemberStateType.OK.getValue())
+					.set(SB_MEMBER_TB.EMAIL, email)					
+					.set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(0))
+					.set(SB_MEMBER_TB.REG_DT, registeredDate)
+					.set(SB_MEMBER_TB.LAST_NICKNAME_MOD_DT, registeredDate)
+					.set(SB_MEMBER_TB.LAST_EMAIL_MOD_DT, registeredDate)
+					.set(SB_MEMBER_TB.LAST_PWD_MOD_DT, registeredDate)
+					.execute();
 
 			if (0 == resultOfInsert) {
 				try {
@@ -505,9 +520,9 @@ public abstract class ServerDBUtil {
 			conn.commit();
 			
 			String logText = new StringBuilder().append("회원 가입 신청 아이디[").append(userID).append("], 회원 종류[")
-					.append(memberRoleType.getName()).append("], ip[").append(ip).append("]").toString();
+					.append(memberRoleType.getName()).append("]").toString();
 			
-			insertSiteLog(conn, create, log, userID, logText, registeredDate);
+			insertSiteLog(conn, create, log, userID, logText, registeredDate, ip);
 			
 			conn.commit();
 
@@ -522,6 +537,202 @@ public abstract class ServerDBUtil {
 				}
 			}
 
+			throw e;
+		} finally {
+			if (null != conn) {
+				try {
+					conn.close();
+				} catch (Exception e) {
+					log.warn("fail to close the db connection", e);
+				}
+			}
+		}
+	}
+	
+	public static void withdrawMember(String dbcpName, String requestedUserID, byte[] passwordBytes, 
+			Timestamp registeredDate, String ip) throws Exception {		
+		
+		InternalLogger log = InternalLoggerFactory.getInstance(ServerDBUtil.class);
+		
+		DataSource dataSource = DBCPManager.getInstance()
+				.getBasicDataSource(dbcpName);
+
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			conn.setAutoCommit(false);
+			
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			
+			
+			/** 탈퇴 대상 회원 레코드 락 */
+			Record5<Byte, Byte, UByte, String, String> memberRecordOfRequestedUserID = create.select(
+					SB_MEMBER_TB.ROLE,
+					SB_MEMBER_TB.STATE,
+					SB_MEMBER_TB.PWD_FAIL_CNT,
+					SB_MEMBER_TB.PWD_BASE64,
+					SB_MEMBER_TB.PWD_SALT_BASE64)
+			.from(SB_MEMBER_TB)
+			.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
+			.forUpdate()
+			.fetchOne();
+			
+			if (null == memberRecordOfRequestedUserID) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("회원 탈퇴 요청자[")
+						.append(requestedUserID)
+						.append("]가 회원 테이블에 존재하지 않습니다").toString();				
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			byte memberRole = memberRecordOfRequestedUserID.getValue(SB_MEMBER_TB.ROLE);
+			byte memberState = memberRecordOfRequestedUserID.get(SB_MEMBER_TB.STATE);
+			short pwdFailedCount = memberRecordOfRequestedUserID.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
+			String pwdBase64 =  memberRecordOfRequestedUserID.get(SB_MEMBER_TB.PWD_BASE64);
+			String pwdSaltBase64 = memberRecordOfRequestedUserID.get(SB_MEMBER_TB.PWD_SALT_BASE64);
+			
+			
+			MemberRoleType  memberRoleType = null;
+			try {
+				memberRoleType = MemberRoleType.valueOf(memberRole);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("회원 탈퇴 요청자[")
+						.append(requestedUserID)
+						.append("]의 멤버 역활 유형[")
+						.append(memberRole)
+						.append("]이 잘못되어있습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}	
+			
+			if (! MemberRoleType.MEMBER.equals(memberRoleType)) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder()
+						.append( "회원 탈퇴 요청자[역활:")
+						.append(memberRoleType.getName())
+						.append("]가 일반 회원이 아닙니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}	
+			
+			
+			MemberStateType memberStateTypeOfRequestedUserID = null;
+			try {
+				memberStateTypeOfRequestedUserID = MemberStateType.valueOf(memberState);
+			} catch(IllegalArgumentException e) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("회원 탈퇴 요청자[")
+						.append(requestedUserID)
+						.append("]의 상태[")
+						.append(memberState)
+						.append("]가 잘못 되어 있습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			if (! MemberStateType.OK.equals(memberStateTypeOfRequestedUserID)) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("탈퇴 대상 사용자[")
+						.append(requestedUserID)
+						.append("]의 상태[")
+						.append(memberStateTypeOfRequestedUserID.getName())
+						.append("]가 정상이 아닙니다").toString();				
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			
+			if (ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES <= pwdFailedCount) {
+				try {
+					conn.rollback();
+				} catch (Exception e) {
+					log.warn("fail to rollback");
+				}
+				
+				String errorMessage = new StringBuilder("최대 비밀번호 실패 횟수[")
+						.append(ServerCommonStaticFinalVars.MAX_COUNT_OF_PASSWORD_FAILURES)
+						.append("] 이상으로 비밀번호가 틀려 탈퇴하실 수 없습니다, 먼저 비밀번호 찾기 혹은 관리자를 통해 비밀번호 최대 실패 횟수를 초기화 하시기 바랍니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			byte[] pwdSaltBytes = CommonStaticUtil.Base64Decoder.decode(pwdSaltBase64);			
+			
+			PasswordPairOfMemberTable passwordPairOfMemberTable = ServerDBUtil.toPasswordPairOfMemberTable(passwordBytes, pwdSaltBytes);
+			
+			if (! pwdBase64.equals(passwordPairOfMemberTable.getPasswordBase64())) {
+				int countOfPwdFailedCountUpdate = create.update(SB_MEMBER_TB)
+					.set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(pwdFailedCount+1))
+					.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
+				.execute();
+				
+				if (0  == countOfPwdFailedCountUpdate) {
+					try {
+						conn.rollback();
+					} catch (Exception e) {
+						log.warn("fail to rollback");
+					}
+					
+					String errorMessage = "비밀 번호 실패 횟수 갱신이 실패하였습니다";
+					throw new ServerServiceException(errorMessage);
+				}
+				
+				conn.commit();
+				
+				ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, "회원 탈퇴 비밀번호 틀림", 
+						new java.sql.Timestamp(System.currentTimeMillis()), ip);
+				
+				conn.commit();
+				
+				String errorMessage = "비밀 번호가 틀렸습니다";
+				throw new ServerServiceException(errorMessage);
+			}
+			
+			create.update(SB_MEMBER_TB)
+			.set(SB_MEMBER_TB.STATE, MemberStateType.WITHDRAWAL.getValue())
+			.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
+			.execute();
+			
+			
+			conn.commit();
+			
+			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, "회원 탈퇴 완료", 
+					new java.sql.Timestamp(System.currentTimeMillis()), ip);
+			
+			conn.commit();
+			
+		} catch (ServerServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			if (null != conn) {
+				try {
+					conn.rollback();
+				} catch (Exception e1) {
+					log.warn("fail to rollback");
+				}
+			}
+			
 			throw e;
 		} finally {
 			if (null != conn) {
@@ -552,6 +763,7 @@ public abstract class ServerDBUtil {
 	 */
 	public static PasswordPairOfMemberTable toPasswordPairOfMemberTable(byte[] passwordBytes, byte[] pwdSaltBytes)
 			throws NoSuchAlgorithmException {
+		
 		MessageDigest md = MessageDigest.getInstance(CommonStaticFinalVars.PASSWORD_ALGORITHM_NAME);
 
 		int limit = pwdSaltBytes.length + passwordBytes.length;
@@ -852,7 +1064,7 @@ public abstract class ServerDBUtil {
 	}
 
 	public static void insertSiteLog(Connection conn, DSLContext create, InternalLogger log, String userID, 
-			String logText, Timestamp registeredDate) throws Exception {
+			String logText, Timestamp registeredDate, String ip) throws Exception {
 		
 		// SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		// String yyyyMMdd = sdf.format(registeredDate);
@@ -864,7 +1076,7 @@ public abstract class ServerDBUtil {
 		/** '일별 로그 순번' 동기화를 위해 락을 건다 */
 		create.select(SB_SEQ_TB.SQ_ID).from(SB_SEQ_TB)
 		.where(SB_SEQ_TB.SQ_ID.eq(SequenceType.SITE_LOG_LOCK.getSequenceID()))
-		.forUpdate();
+		.forUpdate().fetchOne();
 		
 		UInteger dayLogSeq = create.select(DSL.field("if ({0} is null, {1}, {2})", 
 				UInteger.class, SB_SITE_LOG_TB.DAY_LOG_SQ.max(), UInteger.valueOf(0), 
@@ -877,7 +1089,8 @@ public abstract class ServerDBUtil {
 		.set(SB_SITE_LOG_TB.DAY_LOG_SQ, dayLogSeq)
 		.set(SB_SITE_LOG_TB.USER_ID, userID)		
 		.set(SB_SITE_LOG_TB.LOG_TXT, logText)		
-		.set(SB_SITE_LOG_TB.REG_DT, registeredDate).execute();
+		.set(SB_SITE_LOG_TB.REG_DT, registeredDate)
+		.set(SB_SITE_LOG_TB.IP, ip).execute();
 	}
 	
 	
@@ -894,7 +1107,7 @@ public abstract class ServerDBUtil {
 		/** '회원 이력 순번' 동기화를 위해 락을 건다 */
 		create.select(SB_MEMBER_TB.USER_ID).from(SB_MEMBER_TB)
 		.where(SB_MEMBER_TB.USER_ID.eq(userID))
-		.forUpdate();
+		.forUpdate().fetchOne();
 		
 		Long activitySeq = create.select(DSL.field("if ({0} is null, {1}, {2})", 
 				Long.class, SB_MEMBER_ACTIVITY_HISTORY_TB.ACTIVITY_SQ.max(), 
@@ -910,4 +1123,67 @@ public abstract class ServerDBUtil {
 		.set(SB_MEMBER_ACTIVITY_HISTORY_TB.REG_DT, registeredDate).execute();
 	}
 
+	
+	/**
+	 * 지정한 게시글에 속한 그룹의 루트 노드에 해당하는 레코드에 락을 건후 그룹 번호를 반환한다
+	 * @param conn JDBC 연결
+	 * @param create DSLContext
+	 * @param log 로거
+	 * @param boardID 게시판 식별자
+	 * @param boardNo 게시글 번호
+	 * @return 지정한 게시글에 속한 그룹 번호
+	 * @throws Exception 에러
+	 */
+	public static UInteger lockGroupOfGivenBoard(Connection conn, DSLContext create, InternalLogger log,
+			UByte boardID, UInteger boardNo) throws Exception {
+		/** 그룹 락 시작 */
+		Record1<UInteger> groupRecord = create.select(SB_BOARD_TB.GROUP_NO)
+		.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
+		.fetchOne();
+		
+		if (null == groupRecord) {
+			try {
+				conn.rollback();
+			} catch (Exception e) {
+				log.warn("fail to rollback");
+			}
+
+			String errorMessage = new StringBuilder()
+					.append("해당 게시글[boardID=")
+					.append(boardID)
+					.append(", boardNo=")
+					.append(boardNo)
+					.append("]이 존재 하지 않습니다").toString();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		UInteger groupNo = groupRecord.get(SB_BOARD_TB.GROUP_NO);
+		
+		Record1<UInteger> groupLockRecord = create
+		.select(SB_BOARD_TB.BOARD_NO)
+		.from(SB_BOARD_TB).where(SB_BOARD_TB.BOARD_ID.eq(boardID)).and(SB_BOARD_TB.BOARD_NO.eq(groupNo))
+		.forUpdate().fetchOne();
+		
+		if (null == groupLockRecord) {
+			try {
+				conn.rollback();
+			} catch (Exception e) {
+				log.warn("fail to rollback");
+			}
+
+			String errorMessage = new StringBuilder()
+					.append("그룹 루트 게시글[boardID=")
+					.append(boardID)
+					.append(", groupNo=")
+					.append(groupNo)
+					.append("]이 존재 하지 않습니다").toString(); 
+					
+					new StringBuilder("그룹 루트 게시글이 존재 하지 않습니다").toString();
+			throw new ServerServiceException(errorMessage);
+		}
+		/** 그룹 락 종료 */
+		
+		return groupNo;
+		
+	}
 }

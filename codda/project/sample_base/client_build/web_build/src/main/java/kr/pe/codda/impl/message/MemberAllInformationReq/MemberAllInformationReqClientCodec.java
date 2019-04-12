@@ -29,6 +29,7 @@ import kr.pe.codda.common.protocol.MessageCodecIF;
  */
 public final class MemberAllInformationReqClientCodec implements MessageCodecIF {
 
+	private AbstractMessageEncoder messageEncoder = new MemberAllInformationReqEncoder();
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
@@ -37,6 +38,6 @@ public final class MemberAllInformationReqClientCodec implements MessageCodecIF 
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("the client don't need a message encoder because it is a message[MemberAllInformationReq] that is not sent from client to server");
+		return messageEncoder;
 	}
 }

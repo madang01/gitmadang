@@ -42,7 +42,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberActivityHistoryTb extends TableImpl<SbMemberActivityHistoryTbRecord> {
 
-    private static final long serialVersionUID = -1926264733;
+    private static final long serialVersionUID = -761777777;
 
     /**
      * The reference instance of <code>sb_db.sb_member_activity_history_tb</code>
@@ -78,9 +78,9 @@ public class SbMemberActivityHistoryTb extends TableImpl<SbMemberActivityHistory
     public final TableField<SbMemberActivityHistoryTbRecord, UInteger> BOARD_NO = createField("board_no", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "게시판 번호, 활동 대상이 되는 게시글의 게시판 번호");
 
     /**
-     * The column <code>sb_db.sb_member_activity_history_tb.activity_type</code>. 사용자 활동 종류, 'W'(=87):게시글 작성, 'R'(=82):게시글 댓글, 'V'(=86):게시글 추천, 'D'(=68):게시글 삭제, SELECT char(ascii('W') using ascii);
+     * The column <code>sb_db.sb_member_activity_history_tb.activity_type</code>. 사용자 활동 종류, 'W'(=87):게시글 작성, 'R'(=82):게시글 댓글, 'V'(=86):게시글 추천, 'D'(=68):게시글 삭제, ' SELECT char(ascii('W') using ascii);
      */
-    public final TableField<SbMemberActivityHistoryTbRecord, Byte> ACTIVITY_TYPE = createField("activity_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "사용자 활동 종류, 'W'(=87):게시글 작성, 'R'(=82):게시글 댓글, 'V'(=86):게시글 추천, 'D'(=68):게시글 삭제, SELECT char(ascii('W') using ascii);");
+    public final TableField<SbMemberActivityHistoryTbRecord, Byte> ACTIVITY_TYPE = createField("activity_type", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "사용자 활동 종류, 'W'(=87):게시글 작성, 'R'(=82):게시글 댓글, 'V'(=86):게시글 추천, 'D'(=68):게시글 삭제, ' SELECT char(ascii('W') using ascii);");
 
     /**
      * The column <code>sb_db.sb_member_activity_history_tb.reg_dt</code>.
@@ -153,7 +153,7 @@ public class SbMemberActivityHistoryTb extends TableImpl<SbMemberActivityHistory
      */
     @Override
     public List<ForeignKey<SbMemberActivityHistoryTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbMemberActivityHistoryTbRecord, ?>>asList(Keys.USER_ACTIVITY_HISTORY_FK1, Keys.USER_ACTIVITY_HISOTRY_FK2);
+        return Arrays.<ForeignKey<SbMemberActivityHistoryTbRecord, ?>>asList(Keys.MEMBER_ACTIVITY_HISTORY_FK1, Keys.MEMBER_ACTIVITY_HISOTRY_FK2);
     }
 
     /**

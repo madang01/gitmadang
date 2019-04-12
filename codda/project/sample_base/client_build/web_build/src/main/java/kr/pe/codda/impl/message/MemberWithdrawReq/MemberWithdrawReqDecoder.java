@@ -43,6 +43,14 @@ public final class MemberWithdrawReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		memberWithdrawReq.setIp((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ip" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		memberWithdrawReq.setPwdCipherBase64((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "pwdCipherBase64" // itemName
@@ -63,14 +71,6 @@ public final class MemberWithdrawReqDecoder extends AbstractMessageDecoder {
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "ivBase64" // itemName
 			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
-		memberWithdrawReq.setIp((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "ip" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

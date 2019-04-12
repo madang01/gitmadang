@@ -9,7 +9,6 @@ import java.sql.Connection;
 import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
-import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Record4;
 import org.jooq.SQLDialect;
@@ -92,6 +91,12 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
+		try {
+			ValueChecker.checkValidBoardID(boardDeleteReq.getBoardID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
 		
 		try {
 			ValueChecker.checkValidBoardNo(boardDeleteReq.getBoardNo());
@@ -167,46 +172,8 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			
-			Record1<UInteger> 
-			boardRecordForGroupNo = create.select(SB_BOARD_TB.GROUP_NO)
-					.from(SB_BOARD_TB)					
-					.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-					.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
-					.fetchOne();
-
-			if (null == boardRecordForGroupNo) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = "1.해당 게시글이 존재 하지 않습니다";
-				throw new ServerServiceException(errorMessage);
-			}
-			
-			UInteger groupNo = boardRecordForGroupNo.value1();
-			
-			/** 최상위 그룹 레코드에 대한 락 걸기 */
-			Record1<UInteger> rootBoardRecord = create.select(SB_BOARD_TB.BOARD_NO)
-				.from(SB_BOARD_TB)
-				.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
-				.and(SB_BOARD_TB.BOARD_NO.eq(groupNo)).forUpdate().fetchOne();
-			
-			if (null == rootBoardRecord) {
-				try {
-					conn.rollback();
-				} catch (Exception e) {
-					log.warn("fail to rollback");
-				}
-				
-				String errorMessage = new StringBuilder().append("그룹 최상위 글[boardID=")
-						.append(boardID.shortValue())
-						.append(", boardNo=").append(groupNo.longValue())
-						.append("] 이 존재하지 않습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
+			/** 삭제할 게시글에 속한 그룹의 루트 노드에 해당하는 레코드에 락을 건다  */
+			ServerDBUtil.lockGroupOfGivenBoard(conn, create, log, boardID, boardNo);
 			
 			/** 최상위 그룹 레코드에 대한 락 획득후 게시판 상태 얻기 */
 			Record4<String, UInteger, Byte, String>  boardRecord = create.select(SB_BOARD_TB.PWD_BASE64,
@@ -280,7 +247,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "해당 게시글 트리는 관리자에 의해 차된되었습니다";
+				String errorMessage = "해당 게시글은 관리자에 의해 차단된 글에 속한 글입니다";
 				throw new ServerServiceException(errorMessage);
 			}			
 			
@@ -297,7 +264,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 			}
 			
 			if (MemberRoleType.GUEST.equals(memberRoleTypeOfRequestedUserID)) {
-				/** 손님 자신이 삭제 요청한 경우 설정한 비밀번호가 없다면 삭제 불가 */
+				/** 손님으로 작성한 글은 반듯이 비밀번호가 있어야 하며 만약에 운영자가 실수로 지웠을 경우 무조건 삭제 불가 */
 				if (null == dbPwdHashBase64) {
 					try {
 						conn.rollback();
@@ -311,40 +278,30 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			if ((null != dbPwdHashBase64) && ! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
-				/** 관리자가 아닌 경우 설정한 비밀번호가 있다면 게시글 비밀번호 일치 검사 */
-				String pwdHashBase64 = boardDeleteReq.getPwdHashBase64();
+			if ((null != dbPwdHashBase64)  && ! MemberRoleType.ADMIN.equals(memberRoleTypeOfRequestedUserID)) {
+				/** 관리자가 아닌 경우 설정한 비밀번호가 있다면 게시글 비밀번호 일치 검사 */			
 				
-				if (null == pwdHashBase64) {
+				String boardPasswordHashBase64 = boardDeleteReq.getPwdHashBase64();
+				
+				if (null == boardPasswordHashBase64  || boardPasswordHashBase64.isEmpty()) {
 					try {
 						conn.rollback();
 					} catch (Exception e) {
 						log.warn("fail to rollback");
 					}
 					
-					String errorMessage = "게시글에 대한 비밀번호를 입력해 주세요";
+					String errorMessage = "게시글 비밀번호를 입력해 주세요";
 					throw new ServerServiceException(errorMessage);
 				}
 
-				if (pwdHashBase64.isEmpty()) {
+				if (! dbPwdHashBase64.equals(boardPasswordHashBase64)) {
 					try {
 						conn.rollback();
 					} catch (Exception e) {
 						log.warn("fail to rollback");
 					}
 					
-					String errorMessage = "설정한 게시글 비밀 번호가 존재합니다, 게시글 비밀번호를 입력해 주세요";
-					throw new ServerServiceException(errorMessage);
-				}
-
-				if (! dbPwdHashBase64.equals(pwdHashBase64)) {
-					try {
-						conn.rollback();
-					} catch (Exception e) {
-						log.warn("fail to rollback");
-					}
-					
-					String errorMessage = "설정한 게시글 비밀 번호가 일치하지 않습니다";
+					String errorMessage = "설정한 게시글 비밀 번호와 일치하지 않습니다";
 					throw new ServerServiceException(errorMessage);
 				}
 			}
@@ -363,7 +320,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 				.execute();
 			} else {
-				// 그룹 루트만으로 이루어진 목록일때 그룹 루트에 대한 차단시에만 카운트 1 감소
+				// 그룹 루트만으로 이루어진 목록일때 삭제시 카운트 1 감소
 				if (0L == parentNo.longValue()) {					 
 					create.update(SB_BOARD_INFO_TB)
 					.set(SB_BOARD_INFO_TB.CNT, SB_BOARD_INFO_TB.CNT.sub(1))

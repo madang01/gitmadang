@@ -59,17 +59,9 @@ public final class MemberRegisterReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		memberRegisterReq.setHintCipherBase64((String)
+		memberRegisterReq.setEmailCipherBase64((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "hintCipherBase64" // itemName
-			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
-		memberRegisterReq.setAnswerCipherBase64((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "answerCipherBase64" // itemName
+			, "emailCipherBase64" // itemName
 			, kr.pe.codda.common.type.SingleItemType.SI_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

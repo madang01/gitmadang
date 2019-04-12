@@ -31,7 +31,7 @@ import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.MemberBlockReq.MemberBlockReq;
 import kr.pe.codda.impl.task.server.ArraySiteMenuReqServerTask;
-import kr.pe.codda.impl.task.server.MebmerBlockReqServerTask;
+import kr.pe.codda.impl.task.server.MemberBlockReqServerTask;
 import kr.pe.codda.server.dbcp.DBCPManager;
 
 public class ServerDBUtilTest extends AbstractJunitTest {
@@ -47,13 +47,12 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
 					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용어드민";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "admin@codda.pe.kr";
 			String ip = "127.0.0.1";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, pwdHint, pwdAnswer,
-						passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
@@ -73,13 +72,12 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
 					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디1";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "test01@codda.pe.kr";
 			String ip = "127.0.0.1";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer,
-						passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
@@ -99,13 +97,12 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
 					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디2";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "test02@codda.pe.kr";
 			String ip = "127.0.0.1";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, pwdHint, pwdAnswer,
-						passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
 				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
@@ -634,14 +631,13 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
 					(byte) '4', (byte) '$' };
-			String nickname = "단위테스터용아이디3";
-			String pwdHint = "힌트 그것이 알고싶다3";
-			String pwdAnswer = "힌트답변 말이여 방구여3";
+			String nickname = "단위테스터3호";
+			String email = "test03@codda.pe.kr";
 			String ip = "127.0.0.3";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, requestedUserID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, requestedUserID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");
@@ -651,7 +647,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			memberBlockReq.setRequestedUserID("admin");
 			memberBlockReq.setTargetUserID(requestedUserID);
 
-			MebmerBlockReqServerTask userBlockReqServerTask = new MebmerBlockReqServerTask();
+			MemberBlockReqServerTask userBlockReqServerTask = new MemberBlockReqServerTask();
 
 			try {
 				userBlockReqServerTask.doWork(TEST_DBCP_NAME, memberBlockReq);
@@ -726,13 +722,12 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
 					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디3";
-			String pwdHint = "힌트 그것이 알고싶다3";
-			String pwdAnswer = "힌트답변 말이여 방구여3";
+			String email = "test03@codda.pe.kr";
 			String ip = "127.0.0.3";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, requestedUserID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, requestedUserID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");
@@ -808,13 +803,12 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
 					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디3";
-			String pwdHint = "힌트 그것이 알고싶다3";
-			String pwdAnswer = "힌트답변 말이여 방구여3";
+			String email = "test03@codda.pe.kr";
 			String ip = "127.0.0.3";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.GUEST, requestedUserID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.GUEST, requestedUserID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (Exception e) {
 				log.warn("unknown error", e);
 				fail("fail to create a test ID");

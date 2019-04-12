@@ -31,7 +31,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implements Record10<UByte, UInteger, UInteger, UShort, UInteger, UByte, Integer, Byte, UByte, String> {
 
-    private static final long serialVersionUID = -656671243;
+    private static final long serialVersionUID = -361325745;
 
     /**
      * Setter for <code>sb_db.sb_board_tb.board_id</code>. 게시판 종류 식별자, 어떤 게시판인지 설명하는 게시판 정보(board_info) 테이블을 바라본다.
@@ -132,14 +132,14 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
     }
 
     /**
-     * Setter for <code>sb_db.sb_board_tb.board_st</code>. 게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글,  SELECT char(ascii('Y') using ascii);
+     * Setter for <code>sb_db.sb_board_tb.board_st</code>. 게시글 상태, M:게시글 이동,  B : 블락, T:트리블락, D : 삭제된 게시글, Y : 정상 게시글,  SELECT char(ascii('Y') using ascii);
      */
     public void setBoardSt(Byte value) {
         set(7, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_board_tb.board_st</code>. 게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글,  SELECT char(ascii('Y') using ascii);
+     * Getter for <code>sb_db.sb_board_tb.board_st</code>. 게시글 상태, M:게시글 이동,  B : 블락, T:트리블락, D : 삭제된 게시글, Y : 정상 게시글,  SELECT char(ascii('Y') using ascii);
      */
     public Byte getBoardSt() {
         return (Byte) get(7);

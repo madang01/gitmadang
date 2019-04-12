@@ -1,7 +1,7 @@
 package kr.pe.codda.server.lib;
 
 public enum BoardReplyPolicyType {
-	NO_SUPPORTED((byte)0, "댓글없음"), ONLY_ROOT((byte)1, "본문에만"), ALL((byte)2, "본문및 댓글 모두");
+	NO_REPLY((byte)0, "댓글없음"), ONLY_ROOT((byte)1, "본문에만"), ALL((byte)2, "본문및 댓글 모두");
 	
 	private byte boardReplyPolicyTypeValue;
 	private String boardReplyPolicyTypeName;

@@ -1,5 +1,5 @@
 -- MySQL Workbench Synchronization
--- Generated: 2019-03-30 20:27
+-- Generated: 2019-04-13 04:24
 -- Model: New Model
 -- Version: 1.0
 -- Project: Name of the project
@@ -29,19 +29,20 @@ DEFAULT CHARACTER SET = utf8;
 CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_MEMBER_TB` (
   `user_id` VARCHAR(20) NOT NULL COMMENT '사용자 아이디',
   `nickname` VARCHAR(45) NOT NULL COMMENT '별명',
+  `email` VARCHAR(320) NOT NULL COMMENT '이메일 주소,  320 =  주소 64 byte + @ 1 byte + 도메인주소 255 byte',
   `pwd_base64` VARCHAR(88) NOT NULL COMMENT '비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.',
   `pwd_salt_base64` VARCHAR(12) NOT NULL COMMENT '비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값',
   `role` TINYINT(4) NOT NULL COMMENT '회원 역할, A:관리자, M:일반회원, SELECT char(ascii(\'A\') using ascii);',
   `state` TINYINT(4) NOT NULL COMMENT '회원 상태, Y : 정상, B:블락, W:탈퇴, SELECT char(ascii(\'Y\') using ascii);',
-  `pwd_hint` TINYTEXT NULL DEFAULT NULL COMMENT '비밀번호 힌트, 비밀번호 분실시 답변 유도용 사용자한테 보여주는 힌트',
-  `pwd_answer` TINYTEXT NULL DEFAULT NULL COMMENT '비밀번호 답변, 비밀번호 분실시 맞춘다면 비밀번호 재 설정 혹은 비밀번호 초기화를 진행한다.',
   `pwd_fail_cnt` TINYINT(4) UNSIGNED NULL DEFAULT NULL COMMENT '비밀번호 틀린 횟수, 로그인시 비밀번호 틀릴 경우 1 씩 증가하며 최대 n 번까지 시도 가능하다.  비밀번호를 맞쳤을 경우 0 으로 초기화 된다.',
   `reg_dt` DATETIME NULL DEFAULT NULL COMMENT '회원 가입일',
-  `last_mod_dt` DATETIME NULL DEFAULT NULL COMMENT '마지막 회원 정보 수정일',
-  `ip` VARCHAR(40) NULL DEFAULT NULL,
+  `last_nickname_mod_dt` DATETIME NULL DEFAULT NULL COMMENT '마지막 이메일 수정일',
+  `last_email_mod_dt` DATETIME NULL DEFAULT NULL COMMENT '마지막 이메일 수정일',
+  `last_pwd_mod_dt` DATETIME NULL DEFAULT NULL COMMENT '마지막 비밀번호 변경일',
   PRIMARY KEY (`user_id`),
   UNIQUE INDEX `sb_member_idx1` (`nickname` ASC),
-  INDEX `sb_member_idx2` (`state` ASC))
+  INDEX `sb_member_idx2` (`state` ASC),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
@@ -53,13 +54,13 @@ CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_TB` (
   `parent_no` INT(10) UNSIGNED NULL DEFAULT NULL COMMENT '부모 게시판 번호,  게시판 번호는 1부터 시작하며 부모가 없는 경우 부모 게시판 번호는 0 값을 갖는다.',
   `depth` TINYINT(3) UNSIGNED NULL DEFAULT NULL COMMENT '트리 깊이,  0 부터 시작하며 트리 깊이가 0 일 경우 최상위 글로써 최상위 글을 기준으로 이후 댓글이 달린다. 자식 글의 댓글 깊이는 부모 글의 댓글 깊이보다 1 이 크다.',
   `view_cnt` INT(11) NULL DEFAULT NULL COMMENT '조회수',
-  `board_st` TINYINT(4) NOT NULL COMMENT '게시글 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글,  SELECT char(ascii(\'Y\') using ascii);',
+  `board_st` TINYINT(4) NOT NULL COMMENT '게시글 상태, M:게시글 이동,  B : 블락, T:트리블락, D : 삭제된 게시글, Y : 정상 게시글,  SELECT char(ascii(\'Y\') using ascii);',
   `next_attached_file_sq` TINYINT(3) UNSIGNED NULL DEFAULT NULL COMMENT '다음 첨부 파일 시퀀스, 처음 0부터 시작',
   `pwd_base64` VARCHAR(88) NULL DEFAULT NULL COMMENT '게시글 비밀번호, 손님의 경우 반듯이 게시글 비밀번호를 입력한다. 게시글 수정할때 이 값이 null  이 아니면 게시글 비밀번호를 입력한것으로 간주하여 값 일치한경우에만 수정을 허용한다',
   PRIMARY KEY (`board_id`, `board_no`),
   INDEX `sb_board_fk1_idx` (`board_id` ASC),
-  INDEX `sb_board_idx1` (`board_id` DESC, `board_st` DESC, `group_no` DESC, `group_sq` DESC),
-  INDEX `sb_board_idx2` (`board_id` DESC, `board_st` DESC, `parent_no` DESC, `board_no` DESC),
+  INDEX `sb_board_idx1` (`board_id` DESC, `group_no` DESC, `group_sq` DESC, `board_st` DESC),
+  INDEX `sb_board_idx2` (`board_id` DESC, `parent_no` DESC, `board_no` DESC, `board_st` DESC),
   CONSTRAINT `sb_board_fk1`
     FOREIGN KEY (`board_id`)
     REFERENCES `SB_DB`.`SB_BOARD_INFO_TB` (`board_id`)
@@ -154,6 +155,7 @@ CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_SITE_LOG_TB` (
   `user_id` VARCHAR(20) NULL DEFAULT NULL COMMENT '사용자 아이디',
   `log_txt` TEXT NULL DEFAULT NULL COMMENT '로그 내용, 로그로 남기는 내용 (1) 회원 가입, (2) 회원 탈퇴, (3) 사용자 차단, (4) 사용자 차단 해제, (5) 게시글 차단, (6) 게시글 차단 해제,  (7) 관리자 로그인',
   `reg_dt` DATETIME NULL DEFAULT NULL,
+  `ip` VARCHAR(40) NULL DEFAULT NULL,
   PRIMARY KEY (`yyyymmdd`, `day_log_sq`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
@@ -163,18 +165,33 @@ CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_MEMBER_ACTIVITY_HISTORY_TB` (
   `activity_sq` BIGINT(20) NOT NULL COMMENT '활동 순번, 0 부터 시작되며 이후 MAX + 1 이 된다',
   `board_id` TINYINT(3) UNSIGNED NOT NULL COMMENT '게시판 식별자,  활동  대상이 되는 게시글의 게시판 식별자',
   `board_no` INT(10) UNSIGNED NOT NULL COMMENT '게시판 번호, 활동 대상이 되는 게시글의 게시판 번호',
-  `activity_type` TINYINT(4) NOT NULL COMMENT '사용자 활동 종류, \'W\'(=87):게시글 작성, \'R\'(=82):게시글 댓글, \'V\'(=86):게시글 추천, \'D\'(=68):게시글 삭제, SELECT char(ascii(\'W\') using ascii);',
+  `activity_type` TINYINT(4) NOT NULL COMMENT '사용자 활동 종류, \'W\'(=87):게시글 작성, \'R\'(=82):게시글 댓글, \'V\'(=86):게시글 추천, \'D\'(=68):게시글 삭제, \' SELECT char(ascii(\'W\') using ascii);',
   `reg_dt` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`user_id`, `activity_sq`),
   INDEX `board_id_idx` (`board_id` ASC, `board_no` ASC),
-  CONSTRAINT `user_activity_history_fk1`
+  CONSTRAINT `member_activity_history_fk1`
     FOREIGN KEY (`user_id`)
     REFERENCES `SB_DB`.`SB_MEMBER_TB` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `user_activity_hisotry_fk2`
+  CONSTRAINT `member_activity_hisotry_fk2`
     FOREIGN KEY (`board_id` , `board_no`)
     REFERENCES `SB_DB`.`SB_BOARD_TB` (`board_id` , `board_no`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_PWD_SERARCH_REQ_TB` (
+  `user_id` VARCHAR(20) NOT NULL COMMENT '사용자 아이디',
+  `fail_cnt` TINYINT(3) UNSIGNED NOT NULL COMMENT '비밀 인증 값 실패 횟수',
+  `retry_cnt` TINYINT(3) UNSIGNED NOT NULL COMMENT '비밀번호 찾기 재시도 횟수',
+  `last_secret_auth_value` VARCHAR(20) NOT NULL COMMENT '마지막 비밀 인증 값, 비밀번호 찾기 요청은 최대 횟수까지 가능하며 그때마다 \'비밀 인증 값\' 과 \'비밀 번호 찾기 요청일\' 이 변경된다',
+  `last_req_dt` DATETIME NOT NULL COMMENT '마지막 비밀번호 찾기 요청일, 비밀번호 찾기 요청은 최대 횟수까지 가능하며 그때마다 \'비밀 인증 값\' 과 \'비밀 번호 찾기 요청일\' 이 변경된다',
+  PRIMARY KEY (`user_id`),
+  CONSTRAINT `pwd_search_req_fk1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `SB_DB`.`SB_MEMBER_TB` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB

@@ -55,5 +55,8 @@ public abstract class ServerCommonStaticFinalVars {
 	/** 업로드 파일명 최대 문자수 */
 	public static final int MAX_NUMBER_OF_UPLOAD_FILENAME_CHARRACTERS = 80;
 	
+	/** 파일명 금지 문자들은 상대 경로 지정에 쓰일만한 문자,  xss 공격에 쓰일만한 문자, 파일명에 존재해서는 안되는 문자로 구성 */
 	public static final char[] FILENAME_FORBIDDEN_CHARS = {'&', '/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
+	
+	public static final String BOARD_PASSWORD_HASH_ALGORITHM = "SHA-256";
 }

@@ -18,5 +18,6 @@
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>회원 차단 해제 요청 메시지</desc>
 <singleitem name="requestedUserID" type="ub pascal string" />
+<singleitem name="ip" type="ub pascal string"/>
 <singleitem name="targetUserID" type="ub pascal string" />
 </message>

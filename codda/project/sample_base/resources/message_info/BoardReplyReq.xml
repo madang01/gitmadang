@@ -18,12 +18,12 @@
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>게시판 댓글 등록 요청 메시지</desc>
 <singleitem name="requestedUserID" type="ub pascal string" />
+<singleitem name="ip" type="ub pascal string" />
 <singleitem name="boardID" type="unsigned byte" />
 <singleitem name="parentBoardNo" type="unsigned integer" />
 <singleitem name="pwdHashBase64" type="ub pascal string" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="contents" type="si pascal string" />
-<singleitem name="ip" type="ub pascal string" />
 <singleitem name="newAttachedFileCnt" type="unsigned byte" />
 <array name="newAttachedFile" cnttype="reference" cntvalue="newAttachedFileCnt">
 	<singleitem name="attachedFileName" type="us pascal string" />

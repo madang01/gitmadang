@@ -26,12 +26,12 @@ import kr.pe.codda.common.message.AbstractMessage;
  */
 public class BoardModifyReq extends AbstractMessage {
 	private String requestedUserID;
+	private String ip;
 	private short boardID;
 	private long boardNo;
 	private String pwdHashBase64;
 	private String subject;
 	private String contents;
-	private String ip;
 	private short nextAttachedFileSeq;
 	private int oldAttachedFileCnt;
 
@@ -101,6 +101,13 @@ public class BoardModifyReq extends AbstractMessage {
 	public void setRequestedUserID(String requestedUserID) {
 		this.requestedUserID = requestedUserID;
 	}
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 	public short getBoardID() {
 		return boardID;
 	}
@@ -135,13 +142,6 @@ public class BoardModifyReq extends AbstractMessage {
 
 	public void setContents(String contents) {
 		this.contents = contents;
-	}
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
 	}
 	public short getNextAttachedFileSeq() {
 		return nextAttachedFileSeq;
@@ -185,6 +185,8 @@ public class BoardModifyReq extends AbstractMessage {
 		builder.append("boardModifyReq[");
 		builder.append("requestedUserID=");
 		builder.append(requestedUserID);
+		builder.append(", ip=");
+		builder.append(ip);
 		builder.append(", boardID=");
 		builder.append(boardID);
 		builder.append(", boardNo=");
@@ -195,8 +197,6 @@ public class BoardModifyReq extends AbstractMessage {
 		builder.append(subject);
 		builder.append(", contents=");
 		builder.append(contents);
-		builder.append(", ip=");
-		builder.append(ip);
 		builder.append(", nextAttachedFileSeq=");
 		builder.append(nextAttachedFileSeq);
 		builder.append(", oldAttachedFileCnt=");

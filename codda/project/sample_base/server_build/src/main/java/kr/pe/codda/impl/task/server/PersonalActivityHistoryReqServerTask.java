@@ -217,16 +217,16 @@ public class PersonalActivityHistoryReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			Record1<Long> maxActivitySeqRecord =  create.select(SB_MEMBER_ACTIVITY_HISTORY_TB.ACTIVITY_SQ.max())
+			Record1<Long> totalRecord =  create.select(
+					DSL.field("if ({0} is null, {1}, {2})", Long.class, 
+							SB_MEMBER_ACTIVITY_HISTORY_TB.ACTIVITY_SQ.max(), 0, 
+							SB_MEMBER_ACTIVITY_HISTORY_TB.ACTIVITY_SQ.max().add(1)))
 			.from(SB_MEMBER_ACTIVITY_HISTORY_TB)
 			.where(SB_MEMBER_ACTIVITY_HISTORY_TB.USER_ID.eq(personalActivityHistoryReq.getTargetUserID()))
 			.fetchOne();
 			
-			if (null == maxActivitySeqRecord) {
-				total = 0;
-			} else {
-				total = maxActivitySeqRecord.value1() + 1;				
-			}
+			total = totalRecord.value1();
+			
 			
 			if (total > 0) {
 				long startActivitySeq = ((long)pageNo - 1) * (long)pageSize;

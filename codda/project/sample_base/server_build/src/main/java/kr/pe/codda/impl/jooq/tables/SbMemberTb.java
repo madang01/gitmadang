@@ -40,7 +40,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
 
-    private static final long serialVersionUID = 2005022892;
+    private static final long serialVersionUID = -1793818704;
 
     /**
      * The reference instance of <code>sb_db.sb_member_tb</code>
@@ -66,6 +66,11 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     public final TableField<SbMemberTbRecord, String> NICKNAME = createField("nickname", org.jooq.impl.SQLDataType.VARCHAR(45).nullable(false), this, "별명");
 
     /**
+     * The column <code>sb_db.sb_member_tb.email</code>. 이메일 주소,  320 =  주소 64 byte + @ 1 byte + 도메인주소 255 byte
+     */
+    public final TableField<SbMemberTbRecord, String> EMAIL = createField("email", org.jooq.impl.SQLDataType.VARCHAR(320).nullable(false), this, "이메일 주소,  320 =  주소 64 byte + @ 1 byte + 도메인주소 255 byte");
+
+    /**
      * The column <code>sb_db.sb_member_tb.pwd_base64</code>. 비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.
      */
     public final TableField<SbMemberTbRecord, String> PWD_BASE64 = createField("pwd_base64", org.jooq.impl.SQLDataType.VARCHAR(88).nullable(false), this, "비밀번호, 비밀번호는 해쉬 값으로 변환되어 base64 형태로 저장된다.");
@@ -86,16 +91,6 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     public final TableField<SbMemberTbRecord, Byte> STATE = createField("state", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "회원 상태, Y : 정상, B:블락, W:탈퇴, SELECT char(ascii('Y') using ascii);");
 
     /**
-     * The column <code>sb_db.sb_member_tb.pwd_hint</code>. 비밀번호 힌트, 비밀번호 분실시 답변 유도용 사용자한테 보여주는 힌트
-     */
-    public final TableField<SbMemberTbRecord, String> PWD_HINT = createField("pwd_hint", org.jooq.impl.SQLDataType.CLOB, this, "비밀번호 힌트, 비밀번호 분실시 답변 유도용 사용자한테 보여주는 힌트");
-
-    /**
-     * The column <code>sb_db.sb_member_tb.pwd_answer</code>. 비밀번호 답변, 비밀번호 분실시 맞춘다면 비밀번호 재 설정 혹은 비밀번호 초기화를 진행한다.
-     */
-    public final TableField<SbMemberTbRecord, String> PWD_ANSWER = createField("pwd_answer", org.jooq.impl.SQLDataType.CLOB, this, "비밀번호 답변, 비밀번호 분실시 맞춘다면 비밀번호 재 설정 혹은 비밀번호 초기화를 진행한다.");
-
-    /**
      * The column <code>sb_db.sb_member_tb.pwd_fail_cnt</code>. 비밀번호 틀린 횟수, 로그인시 비밀번호 틀릴 경우 1 씩 증가하며 최대 n 번까지 시도 가능하다.  비밀번호를 맞쳤을 경우 0 으로 초기화 된다.
      */
     public final TableField<SbMemberTbRecord, UByte> PWD_FAIL_CNT = createField("pwd_fail_cnt", org.jooq.impl.SQLDataType.TINYINTUNSIGNED, this, "비밀번호 틀린 횟수, 로그인시 비밀번호 틀릴 경우 1 씩 증가하며 최대 n 번까지 시도 가능하다.  비밀번호를 맞쳤을 경우 0 으로 초기화 된다.");
@@ -106,14 +101,19 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     public final TableField<SbMemberTbRecord, Timestamp> REG_DT = createField("reg_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "회원 가입일");
 
     /**
-     * The column <code>sb_db.sb_member_tb.last_mod_dt</code>. 마지막 회원 정보 수정일
+     * The column <code>sb_db.sb_member_tb.last_nickname_mod_dt</code>. 마지막 이메일 수정일
      */
-    public final TableField<SbMemberTbRecord, Timestamp> LAST_MOD_DT = createField("last_mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "마지막 회원 정보 수정일");
+    public final TableField<SbMemberTbRecord, Timestamp> LAST_NICKNAME_MOD_DT = createField("last_nickname_mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "마지막 이메일 수정일");
 
     /**
-     * The column <code>sb_db.sb_member_tb.ip</code>.
+     * The column <code>sb_db.sb_member_tb.last_email_mod_dt</code>. 마지막 이메일 수정일
      */
-    public final TableField<SbMemberTbRecord, String> IP = createField("ip", org.jooq.impl.SQLDataType.VARCHAR(40), this, "");
+    public final TableField<SbMemberTbRecord, Timestamp> LAST_EMAIL_MOD_DT = createField("last_email_mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "마지막 이메일 수정일");
+
+    /**
+     * The column <code>sb_db.sb_member_tb.last_pwd_mod_dt</code>. 마지막 비밀번호 변경일
+     */
+    public final TableField<SbMemberTbRecord, Timestamp> LAST_PWD_MOD_DT = createField("last_pwd_mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "마지막 비밀번호 변경일");
 
     /**
      * Create a <code>sb_db.sb_member_tb</code> table reference
@@ -157,7 +157,7 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_MEMBER_TB_PRIMARY, Indexes.SB_MEMBER_TB_SB_MEMBER_IDX1, Indexes.SB_MEMBER_TB_SB_MEMBER_IDX2);
+        return Arrays.<Index>asList(Indexes.SB_MEMBER_TB_EMAIL_UNIQUE, Indexes.SB_MEMBER_TB_PRIMARY, Indexes.SB_MEMBER_TB_SB_MEMBER_IDX1, Indexes.SB_MEMBER_TB_SB_MEMBER_IDX2);
     }
 
     /**
@@ -173,7 +173,7 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
      */
     @Override
     public List<UniqueKey<SbMemberTbRecord>> getKeys() {
-        return Arrays.<UniqueKey<SbMemberTbRecord>>asList(Keys.KEY_SB_MEMBER_TB_PRIMARY, Keys.KEY_SB_MEMBER_TB_SB_MEMBER_IDX1);
+        return Arrays.<UniqueKey<SbMemberTbRecord>>asList(Keys.KEY_SB_MEMBER_TB_PRIMARY, Keys.KEY_SB_MEMBER_TB_SB_MEMBER_IDX1, Keys.KEY_SB_MEMBER_TB_EMAIL_UNIQUE);
     }
 
     /**

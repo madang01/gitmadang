@@ -71,32 +71,40 @@ public class MemberUnBlockReqServerTask extends AbstractServerTask {
 	
 	public MessageResultRes doWork(String dbcpName, MemberUnBlockReq memberUnBlockReq)
 			throws Exception {
-		String requestedUserID = memberUnBlockReq.getRequestedUserID();
-		String targetUserID = memberUnBlockReq.getTargetUserID();
-		
-		if (null == requestedUserID) {
-			String errorMessage = "요청한 사용자 아이디를 넣어주세요";
-			throw new ServerServiceException(errorMessage);
-		}
-		
+
 		try {
-			ValueChecker.checkValidRequestedUserID(requestedUserID);
+			ValueChecker.checkValidRequestedUserID(memberUnBlockReq.getRequestedUserID());
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
-			ValueChecker.checkValidUnBlockUserID(targetUserID);
+			ValueChecker.checkValidIP(memberUnBlockReq.getIp());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidUnBlockUserID(memberUnBlockReq.getTargetUserID());
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (requestedUserID.equals(targetUserID)) {
+		if (memberUnBlockReq.getRequestedUserID().equals(memberUnBlockReq.getTargetUserID())) {
 			String errorMessage = "자기 자신을 차단 해제 할 수 없습니다";
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		try {
+			ValueChecker.checkValidIP(memberUnBlockReq.getIp());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -108,13 +116,13 @@ public class MemberUnBlockReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 차단 해제 서비스", PermissionType.ADMIN, requestedUserID);
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 차단 해제 서비스", PermissionType.ADMIN, memberUnBlockReq.getRequestedUserID());
 			
 			
 			/** 차단 해제 대상 회원 레코드 락 */
 			Record2<Byte, Byte> memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)
 			.from(SB_MEMBER_TB)
-			.where(SB_MEMBER_TB.USER_ID.eq(targetUserID))
+			.where(SB_MEMBER_TB.USER_ID.eq(memberUnBlockReq.getTargetUserID()))
 			.forUpdate()
 			.fetchOne();
 			
@@ -126,7 +134,7 @@ public class MemberUnBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("차단 해제 대상 사용자[")
-						.append(targetUserID)
+						.append(memberUnBlockReq.getTargetUserID())
 						.append("]가 회원 테이블에 존재하지 않습니다").toString();				
 				throw new ServerServiceException(errorMessage);
 			}
@@ -143,7 +151,7 @@ public class MemberUnBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("알 수 없는 회원[")
-					.append(targetUserID)
+					.append(memberUnBlockReq.getTargetUserID())
 					.append("]의 역활[")
 					.append(memberRoleOfTargetUserID)
 					.append("] 값입니다").toString();
@@ -173,7 +181,7 @@ public class MemberUnBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("알 수 없는 회원[")
-					.append(targetUserID)
+					.append(memberUnBlockReq.getTargetUserID())
 					.append("]의 상태[")
 					.append(memeberStateOfTargetUserID)
 					.append("] 값입니다").toString();				
@@ -188,7 +196,7 @@ public class MemberUnBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("차단 해제 대상 사용자[사용자아이디=")
-						.append(targetUserID)
+						.append(memberUnBlockReq.getTargetUserID())
 						.append(", 상태=")
 						.append(memberStateTypeOfTargetUserID.getName())
 						.append("]는 차단된 사용자가 아닙니다").toString();				
@@ -197,13 +205,13 @@ public class MemberUnBlockReqServerTask extends AbstractServerTask {
 			
 			create.update(SB_MEMBER_TB)
 			.set(SB_MEMBER_TB.STATE, MemberStateType.OK.getValue())
-			.where(SB_MEMBER_TB.USER_ID.eq(targetUserID))
+			.where(SB_MEMBER_TB.USER_ID.eq(memberUnBlockReq.getTargetUserID()))
 			.execute();
 			
 			conn.commit();
 			
-			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, memberUnBlockReq.toString(), 
-					new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.insertSiteLog(conn, create, log, memberUnBlockReq.getRequestedUserID(), memberUnBlockReq.toString(), 
+					new java.sql.Timestamp(System.currentTimeMillis()), memberUnBlockReq.getIp());
 
 			conn.commit();
 

@@ -27,9 +27,9 @@ import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
-public class MebmerBlockReqServerTask extends AbstractServerTask {
+public class MemberBlockReqServerTask extends AbstractServerTask {
 
-	public MebmerBlockReqServerTask() throws DynamicClassCallException {
+	public MemberBlockReqServerTask() throws DynamicClassCallException {
 		super();
 	}
 
@@ -71,32 +71,39 @@ public class MebmerBlockReqServerTask extends AbstractServerTask {
 	
 	public MessageResultRes doWork(String dbcpName, MemberBlockReq memberBlockReq)
 			throws Exception {
-		String requestedUserID = memberBlockReq.getRequestedUserID();
-		String targetUserID = memberBlockReq.getTargetUserID();
-		
-		if (null == requestedUserID) {
-			String errorMessage = "요청한 사용자 아이디를 넣어주세요";
-			throw new ServerServiceException(errorMessage);
-		}
 		
 		try {
-			ValueChecker.checkValidRequestedUserID(requestedUserID);
+			ValueChecker.checkValidRequestedUserID(memberBlockReq.getRequestedUserID());
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
 		try {
-			ValueChecker.checkValidBlockUserID(targetUserID);
+			ValueChecker.checkValidIP(memberBlockReq.getIp());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidBlockUserID(memberBlockReq.getTargetUserID());
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		if (requestedUserID.equals(targetUserID)) {
+		if (memberBlockReq.getRequestedUserID().equals(memberBlockReq.getTargetUserID())) {
 			String errorMessage = "자기 자신을 차단 할 수 없습니다";
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		try {
+			ValueChecker.checkValidIP(memberBlockReq.getIp());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}	
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -108,13 +115,13 @@ public class MebmerBlockReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
 			
-			ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 차단 서비스", PermissionType.ADMIN, requestedUserID);
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 차단 서비스", PermissionType.ADMIN, memberBlockReq.getRequestedUserID());
 						
 			
 			/** 차단 대상 회원 레코드 락 */
 			Record2<Byte, Byte> memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE)
 			.from(SB_MEMBER_TB)
-			.where(SB_MEMBER_TB.USER_ID.eq(targetUserID))
+			.where(SB_MEMBER_TB.USER_ID.eq(memberBlockReq.getTargetUserID()))
 			.forUpdate()
 			.fetchOne();
 			
@@ -126,7 +133,7 @@ public class MebmerBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("차단 대상 사용자[")
-						.append(targetUserID)
+						.append(memberBlockReq.getTargetUserID())
 						.append("] 가 회원 테이블에 존재하지 않습니다").toString();				
 				throw new ServerServiceException(errorMessage);
 			}
@@ -143,7 +150,7 @@ public class MebmerBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("알 수 없는 회원[")
-					.append(targetUserID)
+					.append(memberBlockReq.getTargetUserID())
 					.append("]의 역활[")
 					.append(memberRoleOfTargetUserID)
 					.append("] 값입니다").toString();
@@ -174,7 +181,7 @@ public class MebmerBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("알 수 없는 회원[")
-					.append(targetUserID)
+					.append(memberBlockReq.getTargetUserID())
 					.append("]의 상태[")
 					.append(memeberStateOfTargetUserID)
 					.append("] 값입니다").toString();				
@@ -189,27 +196,23 @@ public class MebmerBlockReqServerTask extends AbstractServerTask {
 				}
 				
 				String errorMessage = new StringBuilder("차단 대상 사용자[")
-						.append(targetUserID)
+						.append(memberBlockReq.getTargetUserID())
 						.append("] 상태[")
 						.append(memberStateTypeOfTargetUserID.getName())
 						.append("]가 정상이 아닙니다").toString();				
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			
-			
 			create.update(SB_MEMBER_TB)
 			.set(SB_MEMBER_TB.STATE, MemberStateType.BLOCK.getValue())
-			.where(SB_MEMBER_TB.USER_ID.eq(targetUserID))
+			.where(SB_MEMBER_TB.USER_ID.eq(memberBlockReq.getTargetUserID()))
 			.execute();
-			
-			
 			
 			
 			conn.commit();
 			
-			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, memberBlockReq.toString(), 
-					new java.sql.Timestamp(System.currentTimeMillis()));
+			ServerDBUtil.insertSiteLog(conn, create, log, memberBlockReq.getRequestedUserID(), memberBlockReq.toString(), 
+					new java.sql.Timestamp(System.currentTimeMillis()), memberBlockReq.getIp());
 			
 			conn.commit();
 

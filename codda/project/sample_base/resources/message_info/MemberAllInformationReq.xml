@@ -15,7 +15,7 @@
 -->
 <message>
 <messageID>MemberAllInformationReq</messageID>
-<direction>FROM_NONE_TO_NONE</direction>
+<direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>단위 테스트용 회원 정보 전체 요청 메시지</desc>
 <singleitem name="requestedUserID" type="ub pascal string" />
 <singleitem name="targetUserID" type="ub pascal string" />

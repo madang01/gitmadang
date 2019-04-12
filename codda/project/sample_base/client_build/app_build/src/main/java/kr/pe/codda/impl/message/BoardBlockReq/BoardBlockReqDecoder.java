@@ -43,6 +43,14 @@ public final class BoardBlockReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardBlockReq.setIp((String)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ip" // itemName
+			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardBlockReq.setBoardID((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardID" // itemName
@@ -55,14 +63,6 @@ public final class BoardBlockReqDecoder extends AbstractMessageDecoder {
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardNo" // itemName
 			, kr.pe.codda.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
-			, -1 // itemSize
-			, null // nativeItemCharset
-			, middleReadableObject));
-
-		boardBlockReq.setIp((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "ip" // itemName
-			, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

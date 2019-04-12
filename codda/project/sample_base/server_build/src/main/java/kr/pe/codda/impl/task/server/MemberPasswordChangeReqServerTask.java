@@ -2,9 +2,10 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.Timestamp;
-import java.util.Random;
 
 import javax.sql.DataSource;
 
@@ -26,7 +27,6 @@ import kr.pe.codda.impl.message.MemberPasswordChangeReq.MemberPasswordChangeReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.dbcp.DBCPManager;
-import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
@@ -87,6 +87,13 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(memberPasswordChangeReq.toString());
 		
+		try {
+			ValueChecker.checkValidRequestedUserID(memberPasswordChangeReq.getRequestedUserID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		String oldPwdCipherBase64 = memberPasswordChangeReq.getOldPwdCipherBase64();
 		String newPwdCipherBase64 = memberPasswordChangeReq.getNewPwdCipherBase64();
 		String sessionKeyBase64 = memberPasswordChangeReq.getSessionKeyBase64();		
@@ -110,6 +117,13 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 		
 		if (null == ivBase64) {
 			String errorMessage = "세션키 소금값을 입력해 주세요";
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		try {
+			ValueChecker.checkValidIP(memberPasswordChangeReq.getIp());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
@@ -335,7 +349,6 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 			if (! pwdBase64.equals(oldPasswordPairOfMemberTable.getPasswordBase64())) {				
 				int countOfPwdFailedCountUpdate = create.update(SB_MEMBER_TB)
 					.set(SB_MEMBER_TB.PWD_FAIL_CNT, UByte.valueOf(pwdFailedCount+1))
-					.set(SB_MEMBER_TB.LAST_MOD_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
 					.where(SB_MEMBER_TB.USER_ID.eq(memberPasswordChangeReq.getRequestedUserID()))
 				.execute();
 				
@@ -352,11 +365,26 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 				
 				conn.commit();
 				
+				ServerDBUtil.insertSiteLog(conn, create, log, memberPasswordChangeReq.getRequestedUserID(), "비밀번호 변경 비밀번호 틀림", 
+						new java.sql.Timestamp(System.currentTimeMillis()), memberPasswordChangeReq.getIp());
+				
+				conn.commit();
+				
 				String errorMessage = "비밀 번호가 틀렸습니다";
 				throw new ServerServiceException(errorMessage);
 			}
+			
+			Timestamp lastPwdModifiedDate = new java.sql.Timestamp(System.currentTimeMillis());
 
-			Random random = new Random();
+			SecureRandom random = null;
+			try {
+				random = SecureRandom.getInstance("SHA1PRNG");
+			} catch (NoSuchAlgorithmException e) {
+				/** dead code */
+				log.error("NoSuchAlgorithmException", e);
+				System.exit(1);
+			}
+			
 			byte[] newPwdSaltBytes = new byte[8];
 			random.nextBytes(newPwdSaltBytes);
 			
@@ -365,13 +393,14 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 			create.update(SB_MEMBER_TB)
 			.set(SB_MEMBER_TB.PWD_BASE64, newPasswordPairOfMemberTable.getPasswordBase64())
 			.set(SB_MEMBER_TB.PWD_SALT_BASE64, newPasswordPairOfMemberTable.getPasswordSaltBase64())
+			.set(SB_MEMBER_TB.LAST_PWD_MOD_DT, lastPwdModifiedDate)
 			.where(SB_MEMBER_TB.USER_ID.eq(memberPasswordChangeReq.getRequestedUserID()))
 			.execute();
 			
 			conn.commit();
 			
 			ServerDBUtil.insertSiteLog(conn, create, log, memberPasswordChangeReq.getRequestedUserID(), "비밀번호 변경 완료", 
-					new java.sql.Timestamp(System.currentTimeMillis()));
+					lastPwdModifiedDate, memberPasswordChangeReq.getIp());
 			conn.commit();
 			
 		} catch (ServerServiceException e) {

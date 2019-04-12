@@ -103,12 +103,12 @@ public class MemberAllInformationReqServerTask extends AbstractServerTask {
 		String nickname = null;
 		byte memeberState;
 		byte role;
-		String passwordHint = null;
-		String passwordAnswer = null;
+		String email = null;
 		UByte passwordFailedCount = null;
-		String ip = null;
 		Timestamp registeredDate = null;
-		Timestamp lastModifiedDate = null;
+		Timestamp lastNicknameModifiedDate = null;
+		Timestamp lastEmailModifiedDate = null;
+		Timestamp lastPasswordModifiedDate = null;
 		
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(dbcpName);
@@ -130,15 +130,15 @@ public class MemberAllInformationReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			Record9<String, Byte, Byte, String, String, UByte, String, Timestamp, Timestamp> 
+			Record9<String, Byte, Byte, String, UByte, Timestamp, Timestamp, Timestamp, Timestamp> 
 			memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.NICKNAME,
 					SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE,
-					SB_MEMBER_TB.PWD_HINT,
-					SB_MEMBER_TB.PWD_ANSWER,
+					SB_MEMBER_TB.EMAIL,
 					SB_MEMBER_TB.PWD_FAIL_CNT,
-					SB_MEMBER_TB.IP,
 					SB_MEMBER_TB.REG_DT,
-					SB_MEMBER_TB.LAST_MOD_DT)
+					SB_MEMBER_TB.LAST_NICKNAME_MOD_DT,
+					SB_MEMBER_TB.LAST_EMAIL_MOD_DT,
+					SB_MEMBER_TB.LAST_PWD_MOD_DT)
 			.from(SB_MEMBER_TB)
 			.where(SB_MEMBER_TB.USER_ID.eq(targetUserID))
 			.fetchOne();
@@ -159,12 +159,12 @@ public class MemberAllInformationReqServerTask extends AbstractServerTask {
 			nickname = memberRecordOfTargetUserID.get(SB_MEMBER_TB.NICKNAME);
 			memeberState = memberRecordOfTargetUserID.get(SB_MEMBER_TB.STATE);			
 			role = memberRecordOfTargetUserID.get(SB_MEMBER_TB.ROLE);
-			passwordHint = memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_HINT);
-			passwordAnswer = memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_ANSWER);
+			email = memberRecordOfTargetUserID.get(SB_MEMBER_TB.EMAIL);
 			passwordFailedCount = memberRecordOfTargetUserID.get(SB_MEMBER_TB.PWD_FAIL_CNT);
-			ip = memberRecordOfTargetUserID.get(SB_MEMBER_TB.IP);
 			registeredDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.REG_DT);
-			lastModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.LAST_MOD_DT);
+			lastNicknameModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.LAST_NICKNAME_MOD_DT);
+			lastEmailModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.LAST_EMAIL_MOD_DT);
+			lastPasswordModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.LAST_PWD_MOD_DT);
 
 			conn.commit();			
 			
@@ -193,12 +193,12 @@ public class MemberAllInformationReqServerTask extends AbstractServerTask {
 		userInformationRes.setNickname(nickname);
 		userInformationRes.setState(memeberState);		
 		userInformationRes.setRole(role);
-		userInformationRes.setPasswordHint(passwordHint);
-		userInformationRes.setPasswordAnswer(passwordAnswer);
+		userInformationRes.setEmail(email);
 		userInformationRes.setPasswordFailedCount(passwordFailedCount.shortValue());
-		userInformationRes.setIp(ip);
 		userInformationRes.setRegisteredDate(registeredDate);
-		userInformationRes.setLastModifiedDate(lastModifiedDate);
+		userInformationRes.setLastNicknameModifiedDate(lastNicknameModifiedDate);
+		userInformationRes.setLastEmailModifiedDate(lastEmailModifiedDate);
+		userInformationRes.setLastPasswordModifiedDate(lastPasswordModifiedDate);
 		
 		return userInformationRes;
 	}

@@ -87,7 +87,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 		String paramSessionKeyBase64 = null;
 		String paramIVBase64 = null;
 		String paramBoardID = null;
-		String paramPwdCipherBase64 = null;
+		String paramBoardPwdCipherBase64 = null;
 		String paramSubject = null;
 		String paramContents = null;
 		List<BoardWriteReq.NewAttachedFile> newAttachedFileList = new ArrayList<BoardWriteReq.NewAttachedFile>();
@@ -125,7 +125,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				} else if (formFieldName.equals("boardID")) {
 					paramBoardID = formFieldValue;
 				} else if (formFieldName.equals("pwd")) {
-					paramPwdCipherBase64 = formFieldValue;
+					paramBoardPwdCipherBase64 = formFieldValue;
 				} else if (formFieldName.equals("subject")) {
 					paramSubject = formFieldValue;
 				} else if (formFieldName.equals("contents")) {
@@ -392,7 +392,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 		}
 		
 		String pwdHashBase64 = null;
-		if (null == paramPwdCipherBase64) {
+		if (null == paramBoardPwdCipherBase64) {
 			pwdHashBase64 = "";
 		} else {
 			ServerSymmetricKeyIF webServerSymmetricKey = null;
@@ -424,8 +424,8 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				throw new WebClientException(errorMessage, debugMessage);
 			}
 			
-			byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
-					.decode(paramPwdCipherBase64));
+			byte[] boardPasswordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
+					.decode(paramBoardPwdCipherBase64));
 			
 			MessageDigest md = null;
 			try {
@@ -441,7 +441,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 				throw new WebClientException(errorMessage, debugMessage);
 			}
 			
-			md.update(passwordBytes);
+			md.update(boardPasswordBytes);
 			pwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
 		}
 		

@@ -18,8 +18,7 @@
 <singleitem name="idCipherBase64" type="si pascal string"/>
 <singleitem name="pwdCipherBase64" type="si pascal string"/>
 <singleitem name="nicknameCipherBase64" type="si pascal string"/>
-<singleitem name="hintCipherBase64" type="si pascal string"/>
-<singleitem name="answerCipherBase64" type="si pascal string"/>
+<singleitem name="emailCipherBase64" type="si pascal string"/>
 <singleitem name="sessionKeyBase64" type="si pascal string"/>
 <singleitem name="ivBase64" type="si pascal string"/>
 <singleitem name="ip" type="ub pascal string"/>

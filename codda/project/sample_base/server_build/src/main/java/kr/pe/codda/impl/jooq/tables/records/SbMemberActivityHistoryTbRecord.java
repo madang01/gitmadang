@@ -32,7 +32,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberActivityHistoryTbRecord extends UpdatableRecordImpl<SbMemberActivityHistoryTbRecord> implements Record6<String, Long, UByte, UInteger, Byte, Timestamp> {
 
-    private static final long serialVersionUID = 443582563;
+    private static final long serialVersionUID = -793812907;
 
     /**
      * Setter for <code>sb_db.sb_member_activity_history_tb.user_id</code>. 사용자 아이디, 활동을 한 회원 아이디
@@ -91,14 +91,14 @@ public class SbMemberActivityHistoryTbRecord extends UpdatableRecordImpl<SbMembe
     }
 
     /**
-     * Setter for <code>sb_db.sb_member_activity_history_tb.activity_type</code>. 사용자 활동 종류, 'W'(=87):게시글 작성, 'R'(=82):게시글 댓글, 'V'(=86):게시글 추천, 'D'(=68):게시글 삭제, SELECT char(ascii('W') using ascii);
+     * Setter for <code>sb_db.sb_member_activity_history_tb.activity_type</code>. 사용자 활동 종류, 'W'(=87):게시글 작성, 'R'(=82):게시글 댓글, 'V'(=86):게시글 추천, 'D'(=68):게시글 삭제, ' SELECT char(ascii('W') using ascii);
      */
     public void setActivityType(Byte value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>sb_db.sb_member_activity_history_tb.activity_type</code>. 사용자 활동 종류, 'W'(=87):게시글 작성, 'R'(=82):게시글 댓글, 'V'(=86):게시글 추천, 'D'(=68):게시글 삭제, SELECT char(ascii('W') using ascii);
+     * Getter for <code>sb_db.sb_member_activity_history_tb.activity_type</code>. 사용자 활동 종류, 'W'(=87):게시글 작성, 'R'(=82):게시글 댓글, 'V'(=86):게시글 추천, 'D'(=68):게시글 삭제, ' SELECT char(ascii('W') using ascii);
      */
     public Byte getActivityType() {
         return (Byte) get(4);

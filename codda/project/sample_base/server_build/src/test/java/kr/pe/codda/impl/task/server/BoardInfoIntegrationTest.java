@@ -56,21 +56,17 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 
 		{
 			String userID = "admin";
-			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's',
-					(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
-					(byte) '$' };
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용어드민";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "admin@codda.pe.kr";
 			String ip = "127.0.0.1";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.ADMIN, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder(
-						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
 				String actualErrorMessag = e.getMessage();
 
@@ -85,21 +81,17 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 
 		{
 			String userID = "test01";
-			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's',
-					(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
-					(byte) '$' };
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디1";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "test01@codda.pe.kr";
 			String ip = "127.0.0.1";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.MEMBER, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder(
-						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
 				String actualErrorMessag = e.getMessage();
 
@@ -114,21 +106,17 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 
 		{
 			String userID = "test02";
-			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's',
-					(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
-					(byte) '$' };
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
 			String nickname = "단위테스터용아이디2";
-			String pwdHint = "힌트 그것이 알고싶다";
-			String pwdAnswer = "힌트답변 말이여 방구여";
+			String email = "test02@codda.pe.kr";
 			String ip = "127.0.0.1";
 
 			try {
-				ServerDBUtil.registerMember(TEST_DBCP_NAME,
-						MemberRoleType.MEMBER, userID, nickname, pwdHint,
-						pwdAnswer, passwordBytes, ip, new java.sql.Timestamp(System.currentTimeMillis()));
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			} catch (ServerServiceException e) {
-				String expectedErrorMessage = new StringBuilder(
-						"기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
 						.toString();
 				String actualErrorMessag = e.getMessage();
 
@@ -273,7 +261,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForUser);
 		boardInfoAddReq.setBoardName("추가 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
-		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
 		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
@@ -303,7 +291,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		maxBoardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		maxBoardInfoAddReq.setBoardName("단위테스트용 추가 게시판");
 		maxBoardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
-		maxBoardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		maxBoardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		maxBoardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
 		maxBoardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
@@ -371,7 +359,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("추가 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
-		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
 		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
@@ -410,7 +398,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("추가 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
-		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
 		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
@@ -542,7 +530,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("추가 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
-		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
 		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
@@ -631,7 +619,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("삭제를 위한 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
-		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
 		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
@@ -710,7 +698,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoModifyReq.setRequestedUserID(requestedUserIDForUser);
 		boardInfoModifyReq.setBoardID((short)5);
 		boardInfoModifyReq.setBoardName("수정를 위한 게시판");
-		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
 		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
@@ -745,7 +733,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoModifyReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoModifyReq.setBoardID((short)5);
 		boardInfoModifyReq.setBoardName("수정를 위한 게시판");
-		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		boardInfoModifyReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		boardInfoModifyReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
 		boardInfoModifyReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
@@ -781,7 +769,7 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		boardInfoAddReq.setRequestedUserID(requestedUserIDForAdmin);
 		boardInfoAddReq.setBoardName("수정전 게시판");
 		boardInfoAddReq.setBoardListType(BoardListType.TREE.getValue());
-		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_SUPPORTED.getValue());
+		boardInfoAddReq.setBoardReplyPolicyType(BoardReplyPolicyType.NO_REPLY.getValue());
 		boardInfoAddReq.setBoardWritePermissionType(PermissionType.MEMBER.getValue());
 		boardInfoAddReq.setBoardReplyPermissionType(PermissionType.ADMIN.getValue());
 		
