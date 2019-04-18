@@ -114,17 +114,12 @@
 		}
 	
 				
-		if (f.pwdHint.value == '') {
-			alert("비밀번호 분실시 질문을 넣어주세요.");
+		if (f.email.value == '') {
+			alert("이메일을 넣어주세요.");
 			f.pwdHint.focus();
 			return;
 		}		
 		
-		if (f.pwdAnswer.value == '') {
-			alert("비밀번호 분실시 답변을 넣어주세요.");
-			f.pwdAnswer.focus();
-			return;
-		}		
 		
 		if (f.captchaAnswer.value == '') {
 			alert("Captcha 답변을 넣어주세요.");
@@ -150,8 +145,7 @@
 		g.userID.value = symmetricKeyObj.encrypt(f.userID.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.nickname.value = symmetricKeyObj.encrypt(f.nickname.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-		g.pwdHint.value = symmetricKeyObj.encrypt(f.pwdHint.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-		g.pwdAnswer.value = symmetricKeyObj.encrypt(f.pwdAnswer.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+		g.email.value = symmetricKeyObj.encrypt(f.email.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 	
 		g.captchaAnswer.value = symmetricKeyObj.encrypt(f.captchaAnswer.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		
@@ -213,8 +207,7 @@
 		f.pwd.value =  "test1234$";
 		f.pwdConfirm.value =  f.pwd.value;
 		f.nickname.value = "별명00";
-		f.pwdHint.value = "질문";
-		f.pwdAnswer.value = "답변";
+		f.email.value = "test00@codda.pe.kr";
 	}
 
 	window.onload = init;
@@ -237,8 +230,7 @@
 						<input type="hidden" name="userID" />
 						<input type="hidden" name="pwd" />
 						<input type="hidden" name="nickname" />
-						<input type="hidden" name="pwdHint" />
-						<input type="hidden" name="pwdAnswer" />
+						<input type="hidden" name="email" />
 						<input type="hidden" name="captchaAnswer" />
 					</form>
 					<div id="resultMessage"></div>
@@ -263,13 +255,9 @@
 							<input type="text" id="nickname" class="form-control" name="nickname" maxlength="20">
 						</div>			
 						<div class="form-group">
-							<label for="pwdHint">비밀 번호 분실시 답변 힌트</label>
-							<input type="text" id="pwdHint" class="form-control" name="pwdHint" maxlength="30">
-						</div>
-						<div class="form-group">
-							<label for="pwdAnswer">비밀 번호 분실시 답변</label>
-							<textarea id="pwdAnswer" class="form-control" name="pwdAnswer" rows="5" cols="30"></textarea>
-						</div>
+							<label for="email">이메일</label>
+							<input type="email" id="email" class="form-control" name="pwdHint" maxlength="30">
+						</div>						
 						<div class="form-group">
 							<label for="captchaImage">Captcha 이미지</label>
 							<img id="captchaImage" class="img-thumbnail" src="/servlet/stickyImg" alt="Captcha Image" />

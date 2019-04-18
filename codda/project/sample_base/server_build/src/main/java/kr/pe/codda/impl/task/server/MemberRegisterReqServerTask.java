@@ -108,12 +108,11 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		try {
-			ValueChecker.checkValidIP(ip);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
+		/*
+		 * try { ValueChecker.checkValidIP(ip); } catch (IllegalArgumentException e) {
+		 * String errorMessage = e.getMessage(); throw new
+		 * ServerServiceException(errorMessage); }
+		 */
 
 		byte[] idCipherBytes = null;
 		byte[] pwdCipherBytes = null;

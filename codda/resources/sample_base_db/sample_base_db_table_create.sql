@@ -1,5 +1,5 @@
 -- MySQL Workbench Synchronization
--- Generated: 2019-04-13 04:24
+-- Generated: 2019-04-18 21:45
 -- Model: New Model
 -- Version: 1.0
 -- Project: Name of the project
@@ -182,12 +182,13 @@ CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_MEMBER_ACTIVITY_HISTORY_TB` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_PWD_SERARCH_REQ_TB` (
+CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_ACCOUNT_SERARCH_REQ_TB` (
   `user_id` VARCHAR(20) NOT NULL COMMENT '사용자 아이디',
-  `fail_cnt` TINYINT(3) UNSIGNED NOT NULL COMMENT '비밀 인증 값 실패 횟수',
-  `retry_cnt` TINYINT(3) UNSIGNED NOT NULL COMMENT '비밀번호 찾기 재시도 횟수',
+  `fail_cnt` TINYINT(3) UNSIGNED NOT NULL COMMENT '비밀 인증 값 실패 횟수, 0 부터 시작 비밀번호 틀렸을 때 1 증가',
+  `retry_cnt` TINYINT(3) UNSIGNED NOT NULL COMMENT '비밀번호 찾기 재시도 횟수, 1부터 시작하며 재시도할때 마다 1씩 증가한다',
   `last_secret_auth_value` VARCHAR(20) NOT NULL COMMENT '마지막 비밀 인증 값, 비밀번호 찾기 요청은 최대 횟수까지 가능하며 그때마다 \'비밀 인증 값\' 과 \'비밀 번호 찾기 요청일\' 이 변경된다',
   `last_req_dt` DATETIME NOT NULL COMMENT '마지막 비밀번호 찾기 요청일, 비밀번호 찾기 요청은 최대 횟수까지 가능하며 그때마다 \'비밀 인증 값\' 과 \'비밀 번호 찾기 요청일\' 이 변경된다',
+  `is_finished` CHAR(1) NULL DEFAULT NULL COMMENT '종결여부,  \'N\':미결, \'Y\':종결, 24시간 동안은 유지하여 하루당 메일 보내는 횟수를 제한하기 위함이며 배치에서 종결 상태로 24시간이 지난 레코드 일괄 삭제하도록한다.',
   PRIMARY KEY (`user_id`),
   CONSTRAINT `pwd_search_req_fk1`
     FOREIGN KEY (`user_id`)

@@ -1,6 +1,6 @@
 package kr.pe.codda.impl.task.server;
 
-import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
+import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 
 import java.sql.Connection;
 import java.util.ArrayList;

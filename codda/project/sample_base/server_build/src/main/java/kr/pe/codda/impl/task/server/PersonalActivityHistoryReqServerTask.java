@@ -1,11 +1,11 @@
 package kr.pe.codda.impl.task.server;
 
 
-import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
-import static kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB;
-import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+import static kr.pe.codda.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
+import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
+import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
+import static kr.pe.codda.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB;
+import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
@@ -29,7 +29,7 @@ import org.jooq.types.UInteger;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb;
+import kr.pe.codda.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.PersonalActivityHistoryReq.PersonalActivityHistoryReq;
 import kr.pe.codda.impl.message.PersonalActivityHistoryRes.PersonalActivityHistoryRes;

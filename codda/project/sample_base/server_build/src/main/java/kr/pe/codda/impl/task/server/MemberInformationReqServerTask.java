@@ -1,16 +1,10 @@
 package kr.pe.codda.impl.task.server;
 
-import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
-import java.sql.Connection;
 import java.sql.Timestamp;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.Record7;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
+import org.jooq.Record8;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
@@ -19,7 +13,6 @@ import kr.pe.codda.impl.message.MemberInformationReq.MemberInformationReq;
 import kr.pe.codda.impl.message.MemberInformationRes.MemberInformationRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.PermissionType;
@@ -75,43 +68,21 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 
 		try {
 			ValueChecker.checkValidUserID(memberInformationReq.getRequestedUserID());
-		} catch (RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		try {
 			ValueChecker.checkValidActivtyTargetUserID(memberInformationReq.getTargetUserID());
-		} catch (RuntimeException e) {
+		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			log.warn(errorMessage, e);
-
 			throw new ServerServiceException(errorMessage);
 		}
-		
-		String targetUserNickname = null;
-		MemberRoleType targetUserMemberRoleType = null;
-		MemberStateType targetUserMemberStateType = null;
-		Timestamp targetUserRegisteredDate = null;
-		Timestamp targetUserLastNicknameModifiedDate = null;
-		Timestamp targetUserLastEmailModifiedDate = null;
-		Timestamp targetUserLastPasswordModifiedDate = null;
-		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
 
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-			
+		MemberInformationRes memberInformationRes = new MemberInformationRes();
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			@SuppressWarnings("unused")
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "개인 정보 조회 서비스", PermissionType.GUEST, memberInformationReq.getRequestedUserID());
 			
-			Record7<String, Byte, Byte, Timestamp, Timestamp, Timestamp, Timestamp> targetUserMemberRecord = create.select(
+			Record8<String, String, Byte, Byte, Timestamp, Timestamp, Timestamp, Timestamp> targetUserMemberRecord = create.select(
 					SB_MEMBER_TB.NICKNAME,
+					SB_MEMBER_TB.EMAIL,
 					SB_MEMBER_TB.ROLE,
 					SB_MEMBER_TB.STATE,
 					SB_MEMBER_TB.REG_DT,
@@ -136,15 +107,16 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			targetUserNickname = targetUserMemberRecord.get(SB_MEMBER_TB.NICKNAME);
+			String targetUserNickname = targetUserMemberRecord.get(SB_MEMBER_TB.NICKNAME);
+			String email = targetUserMemberRecord.get(SB_MEMBER_TB.EMAIL);
 			byte targetUserMemberRole = targetUserMemberRecord.get(SB_MEMBER_TB.ROLE);
 			byte targetUserMemberState = targetUserMemberRecord.get(SB_MEMBER_TB.STATE);
-			targetUserRegisteredDate = targetUserMemberRecord.get(SB_MEMBER_TB.REG_DT);
-			targetUserLastNicknameModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_NICKNAME_MOD_DT);
-			targetUserLastEmailModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_EMAIL_MOD_DT);
-			targetUserLastPasswordModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_PWD_MOD_DT);
+			Timestamp targetUserRegisteredDate = targetUserMemberRecord.get(SB_MEMBER_TB.REG_DT);
+			Timestamp targetUserLastNicknameModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_NICKNAME_MOD_DT);
+			Timestamp targetUserLastEmailModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_EMAIL_MOD_DT);
+			Timestamp targetUserLastPasswordModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_PWD_MOD_DT);
 			
-			
+			MemberRoleType targetUserMemberRoleType = null;
 			try {
 				targetUserMemberRoleType = MemberRoleType.valueOf(targetUserMemberRole);
 			} catch(IllegalArgumentException e) {
@@ -175,7 +147,7 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			
+			MemberStateType targetUserMemberStateType = null;
 			try {
 				targetUserMemberStateType = MemberStateType.valueOf(targetUserMemberState);
 			} catch(IllegalArgumentException e) {
@@ -193,37 +165,16 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-		
-		MemberInformationRes memberInformationRes = new MemberInformationRes();
-		memberInformationRes.setTargetUserID(memberInformationReq.getTargetUserID());
-		memberInformationRes.setNickname(targetUserNickname);
-		memberInformationRes.setRole(targetUserMemberRoleType.getValue());
-		memberInformationRes.setState(targetUserMemberStateType.getValue());
-		memberInformationRes.setRegisteredDate(targetUserRegisteredDate);
-		memberInformationRes.setLastNicknameModifiedDate(targetUserLastNicknameModifiedDate);
-		memberInformationRes.setLastEmailModifiedDate(targetUserLastEmailModifiedDate);
-		memberInformationRes.setLastPasswordModifiedDate(targetUserLastPasswordModifiedDate);
+			memberInformationRes.setTargetUserID(memberInformationReq.getTargetUserID());
+			memberInformationRes.setNickname(targetUserNickname);
+			memberInformationRes.setEmail(email);
+			memberInformationRes.setRole(targetUserMemberRoleType.getValue());
+			memberInformationRes.setState(targetUserMemberStateType.getValue());
+			memberInformationRes.setRegisteredDate(targetUserRegisteredDate);
+			memberInformationRes.setLastNicknameModifiedDate(targetUserLastNicknameModifiedDate);
+			memberInformationRes.setLastEmailModifiedDate(targetUserLastEmailModifiedDate);
+			memberInformationRes.setLastPasswordModifiedDate(targetUserLastPasswordModifiedDate);
+		});
 		
 		
 		return memberInformationRes;

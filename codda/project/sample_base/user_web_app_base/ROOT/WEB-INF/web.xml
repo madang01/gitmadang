@@ -88,6 +88,48 @@
 		<servlet-name>MemberRegisterProcess</servlet-name>
 		<url-pattern>/servlet/MemberRegisterProcess</url-pattern>
 	</servlet-mapping>	
+	
+	<!-- 계정 찾기 요청 -->
+	<servlet>
+		<servlet-name>AccountSearchRequest</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.AccountSearchRequestSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/AccountSearchRequest</param-value>
+		</init-param>		
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AccountSearchRequest</servlet-name>
+		<url-pattern>/servlet/AccountSearchRequest</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 아이디 혹은 비밀번호 찾기 준비 -->
+	<servlet>
+		<servlet-name>AccountSearchInput</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.AccountSearchInputSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/AccountSearchRequest</param-value>
+		</init-param>		
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AccountSearchInput</servlet-name>
+		<url-pattern>/servlet/AccountSearchInput</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 아이디 혹은 비밀번호 찾기 처리 -->
+	<servlet>
+		<servlet-name>AccountSearchProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.user.AccountSearchProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/AccountSearchRequest</param-value>
+		</init-param>		
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AccountSearchProcess</servlet-name>
+		<url-pattern>/servlet/AccountSearchProcess</url-pattern>
+	</servlet-mapping>
 		
 	<!-- JDF 비로그 -->
 	<servlet>

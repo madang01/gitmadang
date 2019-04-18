@@ -39,7 +39,7 @@
 
     <target>
       <!-- The destination package of your generated classes (within the destination directory) -->
-      <packageName>kr.pe.codda.impl.jooq</packageName>
+      <packageName>kr.pe.codda.jooq</packageName>
 
       <!-- The destination directory of your generated classes. Using Maven directory layout here -->
       <directory>D:\gitmadang\codda\project\sample_base\server_build\src\main\java</directory>

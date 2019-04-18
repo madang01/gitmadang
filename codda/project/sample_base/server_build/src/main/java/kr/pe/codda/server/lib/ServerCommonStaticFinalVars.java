@@ -59,4 +59,13 @@ public abstract class ServerCommonStaticFinalVars {
 	public static final char[] FILENAME_FORBIDDEN_CHARS = {'&', '/', '\\', '?',  '%', '*', ':', '|', '\"', '<', '>', '\''};
 	
 	public static final String BOARD_PASSWORD_HASH_ALGORITHM = "SHA-256";
+	
+	/** 비밀번호 찾기 서비스 최대 요청 갯수 */
+	public static final short MAX_RETRY_COUNT_OF_PASSWORD_SEARCH_SERVICE = 5;
+	
+	/** 비밀번호 찾기 서비스에서 최대 비밀번호 틀린 횟수*/
+	public static final short MAX_WRONG_PASSWORD_COUNT_OF_PASSWORD_SEARCH_SERVICE = 5;
+	
+	/** 아이디/비밀번호 찾기 최대 입력 제한 시간, 단위 ms */
+	public static final long TIMEOUT_OF_PASSWORD_SEARCH_SERVICE = 5*60*1000L;
 }

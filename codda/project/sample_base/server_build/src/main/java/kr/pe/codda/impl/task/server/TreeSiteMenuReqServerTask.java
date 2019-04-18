@@ -1,6 +1,6 @@
 package kr.pe.codda.impl.task.server;
 
-import static kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
+import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
 import java.sql.Connection;
 import java.util.ArrayList;

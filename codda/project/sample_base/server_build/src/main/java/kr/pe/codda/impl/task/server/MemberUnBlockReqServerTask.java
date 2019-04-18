@@ -1,6 +1,6 @@
 package kr.pe.codda.impl.task.server;
 
-import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.sql.Connection;
 

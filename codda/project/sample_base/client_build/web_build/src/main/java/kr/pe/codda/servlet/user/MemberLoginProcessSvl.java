@@ -218,6 +218,7 @@ public class MemberLoginProcessSvl extends AbstractServlet {
 				CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
 		memberLoginReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
 		memberLoginReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));
+		memberLoginReq.setIp(req.getRemoteAddr());
 
 		AbstractMessage outputMessage = mainProjectConnectionPool
 				.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), memberLoginReq);

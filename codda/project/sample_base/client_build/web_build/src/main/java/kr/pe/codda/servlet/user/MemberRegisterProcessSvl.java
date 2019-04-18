@@ -102,60 +102,54 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 	
 		String paramUserIDBase64 = req.getParameter("userID");
 		String paramPwdBase64 = req.getParameter("pwd");
-		String paramNicknameBase64 = req.getParameter("nickname");
-		String paramPwdHintBase64 = req.getParameter("pwdHint");
-		String paramPwdAnswerBae64 = req.getParameter("pwdAnswer");
+		String paramNicknameBase64 = req.getParameter("nickname");		
+		String paramEmailBae64 = req.getParameter("email");
 		String paramCaptchaAnswerBase64 = req.getParameter("captchaAnswer");
 		/**************** 파라미터 종료 *******************/
 		
 		log.info("param sessionkeyBase64=[{}], param ivBase64=[{}], " +
 				"param userID=[{}], param pwd=[{}], param nickname=[{}], " +
-				"param pwdHint=[{}], param pwdAnswer=[{}], param captchaAnswer=[{}]", 
+				"param email=[{}], param captchaAnswer=[{}]", 
 				paramSessionKeyBase64, paramIVBase64, 
 				paramUserIDBase64, paramPwdBase64, paramNicknameBase64, 
-				paramPwdHintBase64, paramPwdAnswerBae64, paramCaptchaAnswerBase64);
+				paramEmailBae64, paramCaptchaAnswerBase64);
 		
 		if (null == paramSessionKeyBase64) {
-			String errorMessage = "세션키 값을 입력해 주세요";
+			String errorMessage = "세션키를 입력해 주세요";
 			String debugMessage = null;
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
 		if (null == paramIVBase64) {
-			String errorMessage = "IV 값을 입력해 주세요";
+			String errorMessage = "세션키  소금을 입력해 주세요";
 			String debugMessage = null;
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
 		if (null == paramUserIDBase64) {
-			String errorMessage = "아이디 값을 입력해 주세요";
+			String errorMessage = "아이디를 입력해 주세요";
 			String debugMessage = null;
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
 		if (null == paramPwdBase64) {
-			String errorMessage = "비밀번호 값을 입력해 주세요";
+			String errorMessage = "비밀번호를 입력해 주세요";
 			String debugMessage = null;
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
 		if (null == paramNicknameBase64) {
-			String errorMessage = "별명 값을 입력해 주세요";
+			String errorMessage = "별명을 입력해 주세요";
 			String debugMessage = null;
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
-		if (null == paramPwdHintBase64) {
-			String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요";
+		if (null == paramEmailBae64) {
+			String errorMessage = "이메일 주소를 입력해 주세요";
 			String debugMessage = null;
 			throw new WebClientException(errorMessage, debugMessage);
 		}
 		
-		if (null == paramPwdAnswerBae64) {
-			String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요";
-			String debugMessage = null;
-			throw new WebClientException(errorMessage, debugMessage);
-		}
 		
 		if (null == paramCaptchaAnswerBase64) {
 			String errorMessage = "Captcha 값을 입력해 주세요";
@@ -244,8 +238,7 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 		byte[] userIdBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramUserIDBase64));
 		byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramPwdBase64));
 		byte[] nicknameBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramNicknameBase64));
-		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramPwdHintBase64));
-		byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramPwdAnswerBae64));
+		byte[] emailBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramEmailBae64));		
 		byte[] captchaAnswerBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder.decode(paramCaptchaAnswerBase64));
 		
 		try {
@@ -316,14 +309,12 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 		byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
 		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
 
-		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
-		
+		MemberRegisterReq memberRegisterReq = new MemberRegisterReq();		
 		
 		memberRegisterReq.setIdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(userIdBytes)));
 		memberRegisterReq.setPwdCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(passwordBytes)));
 		memberRegisterReq.setNicknameCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(nicknameBytes)));
-		memberRegisterReq.setHintCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(pwdHintBytes)));
-		memberRegisterReq.setAnswerCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(pwdAnswerBytes)));
+		memberRegisterReq.setEmailCipherBase64(CommonStaticUtil.Base64Encoder.encodeToString(clientSymmetricKey.encrypt(emailBytes)));
 		memberRegisterReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
 		memberRegisterReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));
 		memberRegisterReq.setIp(req.getRemoteAddr());

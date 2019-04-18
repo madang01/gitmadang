@@ -291,4 +291,28 @@ public class ProjectBuildSytemPathSupporterTest extends AbstractJunitTest {
 		
 		assertEquals("the expected value comparison", expectedValue, returnedValue);
 	}
+	
+	@Test
+	public void testGetProjectEmailPropertiesFilePathString() {
+		String mainProjectName = "sample_base";
+		String installedPathString = installedPath.getAbsolutePath();
+		
+		String expectedValue = new StringBuilder(ProjectBuildSytemPathSupporter
+				.getProjectResourcesDirectoryPathString(installedPathString, mainProjectName))
+				.append(File.separator).append("email.properties")
+				.toString();
+		
+		log.info("expectedValue={}", expectedValue);
+		
+		
+		if (!(new File(expectedValue)).exists()) {
+			fail("the file(=the variable expectedValue) doesn't exist");
+		}
+		
+		
+		String returnedValue = ProjectBuildSytemPathSupporter
+				.getProjectEmailPropertiesFilePathString(installedPathString, mainProjectName);
+		
+		assertEquals("the expected value comparison", expectedValue, returnedValue);
+	}
 }

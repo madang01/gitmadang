@@ -89,6 +89,15 @@ public abstract class ProjectBuildSytemPathSupporter {
 	}
 	
 	
+	public static String getProjectEmailPropertiesFilePathString(String installedPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(
+				getProjectResourcesDirectoryPathString(installedPathString, mainProjectName));
+		strBuilder.append(File.separator);
+		strBuilder.append("email.properties");
+		
+		return strBuilder.toString();
+	}
+	
 	
 	
 	/** logback config file path : [project resources path]/[logack log short file name] */

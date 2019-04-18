@@ -701,4 +701,18 @@ public class ValueChecker {
 			}
 		}
 	}
+	
+	public static void checkValidEmail(String email) throws IllegalArgumentException {
+		if (null == email || email.isEmpty()) {
+			throw new IllegalArgumentException("이메일 주소를 입력해 주세요");
+		}
+		
+		String regex = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+		
+		if (! email.matches(regex)) {
+			String errorMessage = "이메일 주소 형태가 잘못되었습니다";
+			throw new IllegalArgumentException(errorMessage);
+		} 
+	}
 }

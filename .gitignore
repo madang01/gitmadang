@@ -9,6 +9,7 @@
 *.jar
 codda/temp/**
 codda/**/report/**
+#codda/project/sample_base/resources/email.properties
 codda/project/sample_*test/**
 !codda/core/logger/lib/**/*.jar
 !codda/core/common/lib/**/*.jar

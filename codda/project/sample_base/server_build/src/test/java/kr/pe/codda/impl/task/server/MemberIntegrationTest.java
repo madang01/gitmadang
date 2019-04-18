@@ -1,6 +1,6 @@
 package kr.pe.codda.impl.task.server;
 
-import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -1251,7 +1251,9 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		String ip = "127.0.0.4";
 		
 		try {
-			ServerDBUtil.withdrawMember(TEST_DBCP_NAME, requestedUserID, passwordBytes, 
+			MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+			
+			memberWithdrawReqServerTask.withdrawMember(TEST_DBCP_NAME, log, requestedUserID, passwordBytes, 
 					new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			
 			fail("no ServerServiceException");
@@ -1275,7 +1277,9 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		String ip = "127.0.0.4";
 		
 		try {
-			ServerDBUtil.withdrawMember(TEST_DBCP_NAME, requestedUserID, passwordBytes, 
+			MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+			
+			memberWithdrawReqServerTask.withdrawMember(TEST_DBCP_NAME, log, requestedUserID, passwordBytes, 
 					new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			
 			fail("no ServerServiceException");
@@ -1372,7 +1376,9 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		
 		try {
-			ServerDBUtil.withdrawMember(TEST_DBCP_NAME, userID, passwordBytes, 
+			MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+			
+			memberWithdrawReqServerTask.withdrawMember(TEST_DBCP_NAME, log, userID, passwordBytes, 
 					new java.sql.Timestamp(System.currentTimeMillis()), ip);
 			
 			fail("no ServerServiceException");
@@ -1458,7 +1464,9 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		passwordBytes = new byte[]{(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		
 		try {
-			ServerDBUtil.withdrawMember(TEST_DBCP_NAME, userID, passwordBytes, 
+			MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
+			
+			memberWithdrawReqServerTask.withdrawMember(TEST_DBCP_NAME, log, userID, passwordBytes, 
 					new java.sql.Timestamp(System.currentTimeMillis()), ip);		
 		} catch (Exception e)  {
 			log.warn("unknown error", e);

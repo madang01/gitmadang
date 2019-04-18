@@ -1,10 +1,10 @@
 package kr.pe.codda.server.lib;
 
-import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
-import static kr.pe.codda.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
-import static kr.pe.codda.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
-import static kr.pe.codda.impl.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
+import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
+import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
+import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+import static kr.pe.codda.jooq.tables.SbSeqTb.SB_SEQ_TB;
+import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

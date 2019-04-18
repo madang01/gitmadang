@@ -297,7 +297,7 @@ public class ValueChecker {
 			
 		for (int i=0; i < passwordBytes.length; i++) {
 			byte value = passwordBytes[i];
-			if (value <= 0) {
+			if (value <= 0) {				
 				String errorMessage = new StringBuilder()
 						.append(title).append(" 비밀번호가 잘못되었습니다").toString();
 				throw new IllegalArgumentException(errorMessage);
@@ -361,6 +361,10 @@ public class ValueChecker {
 	
 	public static void checkValidNewPwd(byte[] passwordBytes) throws IllegalArgumentException {
 		checkValidPwd("변경 후", passwordBytes);
+	}
+	
+	public static void checkValidPasswordChangePwd(byte[] passwordBytes) throws IllegalArgumentException {
+		checkValidPwd("새로운", passwordBytes);
 	}
 	
 	

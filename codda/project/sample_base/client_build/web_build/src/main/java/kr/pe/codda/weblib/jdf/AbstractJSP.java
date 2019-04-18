@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.HttpJspPage;
 
+import org.apache.commons.text.StringEscapeUtils;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.SymmetricException;
@@ -114,6 +115,13 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 			return "/";
 		}
 		return (String)groupRequestURL;
+	}
+	
+	protected String toEscapeHtml4(String source) {
+		if (null == source || source.isEmpty()) {
+			return "";
+		}
+		return StringEscapeUtils.escapeHtml4(source);
 	}
 	
 	abstract public String getMenuNavbarString(HttpServletRequest request);

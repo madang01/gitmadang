@@ -1,11 +1,11 @@
 package kr.pe.codda.impl.task.server;
 
-import static kr.pe.codda.impl.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
-import static kr.pe.codda.impl.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
-import static kr.pe.codda.impl.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB;
+import static kr.pe.codda.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
+import static kr.pe.codda.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
+import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
+import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
+import static kr.pe.codda.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
+import static kr.pe.codda.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -1347,12 +1347,7 @@ public class BoardIntegrationTest extends AbstractBoardTest {
 			assertEquals("게시판 트리 노드의 제목과 게시판 레코드의 제목 비교",
 					boardTreeNode.getSubject(), board.getSubject());
 		}
-	}
-
-	
-
-	
-	
+	}	
 
 	@Test
 	public void 계획된_게시판_테스트_데이터_실사화_검증() {
