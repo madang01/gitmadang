@@ -2,13 +2,6 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -20,7 +13,6 @@ import kr.pe.codda.impl.message.BoardInfoAddReq.BoardInfoAddReq;
 import kr.pe.codda.impl.message.BoardInfoAddRes.BoardInfoAddRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
@@ -76,67 +68,31 @@ public class BoardInfoAddReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(boardInfoAddReq.toString());
 		
-		try {
-			ValueChecker.checkValidWriterID(boardInfoAddReq.getRequestedUserID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
+		final BoardListType boardListType;
+		final BoardReplyPolicyType boardReplyPolicyType;
+		final PermissionType boardWritePermissionType;
+		final PermissionType boardReplyPermissionType;		
 		
 		try {
+			ValueChecker.checkValidRequestedUserID(boardInfoAddReq.getRequestedUserID());
 			ValueChecker.checkValidBoardName(boardInfoAddReq.getBoardName());
+			
+			boardListType = BoardListType.valueOf(boardInfoAddReq.getBoardListType());
+			boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardInfoAddReq.getBoardReplyPolicyType());
+			boardWritePermissionType = PermissionType.valueOf("본문 쓰기", boardInfoAddReq.getBoardWritePermissionType());
+			boardReplyPermissionType = PermissionType.valueOf("댓글 쓰기", boardInfoAddReq.getBoardReplyPermissionType());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
-		}		
-		
-		BoardListType boardListType = null;
-		try {
-			boardListType = BoardListType.valueOf(boardInfoAddReq.getBoardListType());
-		} catch(IllegalArgumentException e) {
-			String errorMessage = "게시판 목록 유형 값이 잘못되었습니다";
-			throw new ServerServiceException(errorMessage);
 		}
 		
-		BoardReplyPolicyType boardReplyPolicyType = null;
-		try {
-			boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardInfoAddReq.getBoardReplyPolicyType());
-		} catch(IllegalArgumentException e) {
-			String errorMessage = "게시판 댓글 유형 값이 잘못되었습니다";
-			throw new ServerServiceException(errorMessage);
-		}
+		BoardInfoAddRes boardInfoAddRes = new BoardInfoAddRes();
 		
-		PermissionType boardWritePermissionType = null;		
-		try {
-			boardWritePermissionType = PermissionType.valueOf(boardInfoAddReq.getBoardWritePermissionType());
-		} catch(IllegalArgumentException e) {
-			String errorMessage = "게시판 본문 쓰기 권한 유형 값이 잘못되었습니다";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		PermissionType boardReplyPermissionType = null;		
-		try {
-			boardReplyPermissionType = PermissionType.valueOf(boardInfoAddReq.getBoardReplyPermissionType());
-		} catch(IllegalArgumentException e) {
-			String errorMessage = "게시판 댓글 쓰기 권한 유형 값이 잘못되었습니다";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		short boardID = -1;
-		
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 정보 추가 서비스", PermissionType.ADMIN, boardInfoAddReq.getRequestedUserID());
 			
-			boardID = create.select(JooqSqlUtil.getIfField(SB_BOARD_INFO_TB.BOARD_ID.max(), 0, SB_BOARD_INFO_TB.BOARD_ID.max().add(1)))
+			short boardID = create.select(JooqSqlUtil.getIfField(SB_BOARD_INFO_TB.BOARD_ID.max(), 0, SB_BOARD_INFO_TB.BOARD_ID.max().add(1)))
 			.from(SB_BOARD_INFO_TB)
 			.fetchOne(0, Short.class);
 			
@@ -172,30 +128,8 @@ public class BoardInfoAddReqServerTask extends AbstractServerTask {
 			
 			conn.commit();
 			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-
-		BoardInfoAddRes boardInfoAddRes = new BoardInfoAddRes();
-		boardInfoAddRes.setBoardID(boardID);
+			boardInfoAddRes.setBoardID(boardID);
+		});		
 
 		return boardInfoAddRes;
 	}

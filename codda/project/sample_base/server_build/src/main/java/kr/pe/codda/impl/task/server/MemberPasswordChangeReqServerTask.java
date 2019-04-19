@@ -4,15 +4,9 @@ import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.sql.Connection;
 import java.sql.Timestamp;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record6;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -26,7 +20,6 @@ import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.impl.message.MemberPasswordChangeReq.MemberPasswordChangeReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
@@ -89,6 +82,7 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 		
 		try {
 			ValueChecker.checkValidRequestedUserID(memberPasswordChangeReq.getRequestedUserID());
+			ValueChecker.checkValidIP(memberPasswordChangeReq.getIp());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
@@ -117,13 +111,6 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 		
 		if (null == ivBase64) {
 			String errorMessage = "세션키 소금값을 입력해 주세요";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
-			ValueChecker.checkValidIP(memberPasswordChangeReq.getIp());
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
@@ -175,8 +162,7 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		byte[] oldPasswordBytes = null;		
-
+		final byte[] oldPasswordBytes;
 		try {
 			oldPasswordBytes = serverSymmetricKey.decrypt(oldPwdCipherBytes);
 		} catch (IllegalArgumentException e) {			
@@ -189,15 +175,8 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 			log.warn(errorMessage, e);
 			throw new ServerServiceException(errorMessage);
 		}
-					
-		try {
-			ValueChecker.checkValidOldPwd(oldPasswordBytes);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
 		
-		byte[] newPasswordBytes = null;		
+		final byte[] newPasswordBytes;		
 
 		try {
 			newPasswordBytes = serverSymmetricKey.decrypt(newPwdCipherBytes);
@@ -213,23 +192,16 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 		}
 					
 		try {
+			ValueChecker.checkValidOldPwd(oldPasswordBytes);
 			ValueChecker.checkValidOldPwd(newPasswordBytes);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		String nickname = null;
+		final StringBuilder resultMessageStringBuilder = new StringBuilder();
 		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			Record6<String, Byte, Byte, UByte, String, String> memberRecord = create.select(
 					SB_MEMBER_TB.NICKNAME,
@@ -255,7 +227,7 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			nickname =  memberRecord.get(SB_MEMBER_TB.NICKNAME);
+			String nickname =  memberRecord.get(SB_MEMBER_TB.NICKNAME);
 			byte memberRole = memberRecord.get(SB_MEMBER_TB.ROLE);
 			byte memberState = memberRecord.get(SB_MEMBER_TB.STATE);
 			short pwdFailedCount = memberRecord.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
@@ -403,36 +375,14 @@ public class MemberPasswordChangeReqServerTask extends AbstractServerTask {
 					lastPwdModifiedDate, memberPasswordChangeReq.getIp());
 			conn.commit();
 			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch(Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-		
-		String successResultMessage = new StringBuilder()
-				.append(nickname)
-				.append("님의 비밀번호 변경 처리가 완료되었습니다").toString();
-		
+			resultMessageStringBuilder.append(nickname)
+			.append("님의 비밀번호 변경 처리가 완료되었습니다");
+		});
+				
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(memberPasswordChangeReq.getMessageID());
 		messageResultRes.setIsSuccess(true);		
-		messageResultRes.setResultMessage(successResultMessage);
+		messageResultRes.setResultMessage(resultMessageStringBuilder.toString());
 
 		return messageResultRes;
 		

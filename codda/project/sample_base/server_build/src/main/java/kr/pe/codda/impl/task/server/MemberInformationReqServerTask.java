@@ -165,6 +165,8 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			conn.commit();
+			
 			memberInformationRes.setTargetUserID(memberInformationReq.getTargetUserID());
 			memberInformationRes.setNickname(targetUserNickname);
 			memberInformationRes.setEmail(email);

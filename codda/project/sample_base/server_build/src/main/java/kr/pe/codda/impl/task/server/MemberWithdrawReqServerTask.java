@@ -75,20 +75,6 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 			throws Exception {
 		// FIXME!
 		log.info(memberWithdrawReq.toString());
-		
-		try {
-			ValueChecker.checkValidRequestedUserID(memberWithdrawReq.getRequestedUserID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
-			ValueChecker.checkValidIP(memberWithdrawReq.getIp());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
 				
 		String pwdCipherBase64 = memberWithdrawReq.getPwdCipherBase64();
 		String sessionKeyBase64 = memberWithdrawReq.getSessionKeyBase64();
@@ -110,13 +96,10 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		
-		
 		byte[] pwdCipherBytes = null;
 		byte[] sessionKeyBytes = null;
 		byte[] ivBytes = null;
-		
-		
+
 		try {
 			pwdCipherBytes = CommonStaticUtil.Base64Decoder.decode(pwdCipherBase64);
 		} catch (Exception e) {
@@ -183,13 +166,6 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		try {
-			ValueChecker.checkValidLoginPwd(passwordBytes);
-		} catch(IllegalArgumentException e) {			
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
 		withdrawMember(dbcpName, log, memberWithdrawReq.getRequestedUserID(), passwordBytes, 
 				new java.sql.Timestamp(System.currentTimeMillis()), memberWithdrawReq.getIp());
 		
@@ -207,7 +183,17 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 	}
 	
 	public void withdrawMember(String dbcpName, InternalLogger log, String requestedUserID, byte[] passwordBytes, 
-			Timestamp registeredDate, String ip) throws Exception {	
+			Timestamp registeredDate, String ip) throws Exception {
+		
+		try {
+			ValueChecker.checkValidRequestedUserID(requestedUserID);
+			ValueChecker.checkValidLoginPwd(passwordBytes);
+			ValueChecker.checkValidIP(ip);
+		} catch(IllegalArgumentException e) {			
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			/** 탈퇴 대상 회원 레코드 락 */
 			Record5<Byte, Byte, UByte, String, String> memberRecordOfRequestedUserID = create.select(

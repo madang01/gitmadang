@@ -769,4 +769,61 @@ public class ValueChecker {
 			throw new IllegalArgumentException(errorMessage);
 		} 
 	}
+	
+	public static void checkValidSecretAuthenticationValue(String secretAuthenticationValue) throws IllegalArgumentException {
+		if (null == secretAuthenticationValue || secretAuthenticationValue.isEmpty()) {
+			String errorMessage = "아이디 혹은 비밀번호 찾기용 비밀 값을 입력해 주세요";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		try {
+			CommonStaticUtil.Base64Decoder.decode(secretAuthenticationValue);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = "아이디 혹은 비밀번호 찾기용 비밀 값이 베이스64가 아닙니다";
+			throw new IllegalArgumentException(errorMessage);
+		}
+	}
+	
+	public static void checkValidAttachedFilCount(int newAttachedFileCount) throws IllegalArgumentException {
+		if (newAttachedFileCount > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder().append("신규 첨부 파일 등록 갯수[")
+					.append(newAttachedFileCount).append("]가 unsgiend byte 최대값[")
+					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX).append("]을 초과하였습니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (newAttachedFileCount > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
+			String errorMessage = new StringBuilder().append("신규 첨부 파일 등록 갯수[")
+					.append(newAttachedFileCount).append("]가 총 첨부 파일 최대 갯수[")
+					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT).append("]를 초과하였습니다")
+					.toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+	}
+	
+	public static void checkValidAttachedFilCount(int oldAttachedFileCount, int newAttachedFileCount) throws IllegalArgumentException {
+		if (oldAttachedFileCount > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder().append("기존 첨부 파일 등록 갯수[")
+					.append(newAttachedFileCount).append("]가 unsgiend byte 최대값[")
+					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX).append("]을 초과하였습니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (newAttachedFileCount > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder().append("신규 첨부 파일 등록 갯수[")
+					.append(newAttachedFileCount).append("]가 unsgiend byte 최대값[")
+					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX).append("]을 초과하였습니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if ((oldAttachedFileCount + newAttachedFileCount) > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
+			String errorMessage = new StringBuilder().append("기존 첨부 파일 등록 갯수[")
+					.append(oldAttachedFileCount)
+					.append("]와 신규 첨부 파일 등록 갯수[")
+					.append(newAttachedFileCount).append("]의 합이 총 첨부 파일 최대 갯수[")
+					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT).append("]를 초과하였습니다")
+					.toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+	}
 }

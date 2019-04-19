@@ -28,9 +28,9 @@ public enum BoardListType {
 		}
 		
 		String errorMessage = new StringBuilder()
-				.append("the parameter boardListTypeValue[")
+				.append("게시판 목록 유형 값[")
 				.append(boardListTypeValue)
-				.append("] is a element of BoardListType set").toString();
+				.append("]이 잘못되었습니다").toString();
 
 		throw new IllegalArgumentException(errorMessage);
 	}

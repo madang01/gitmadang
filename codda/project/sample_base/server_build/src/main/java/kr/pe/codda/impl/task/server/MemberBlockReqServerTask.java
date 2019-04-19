@@ -2,14 +2,7 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record2;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
@@ -17,7 +10,6 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MemberBlockReq.MemberBlockReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.PermissionType;
@@ -74,19 +66,7 @@ public class MemberBlockReqServerTask extends AbstractServerTask {
 		
 		try {
 			ValueChecker.checkValidRequestedUserID(memberBlockReq.getRequestedUserID());
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidIP(memberBlockReq.getIp());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidBlockUserID(memberBlockReq.getTargetUserID());
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
@@ -98,22 +78,7 @@ public class MemberBlockReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		try {
-			ValueChecker.checkValidIP(memberBlockReq.getIp());
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}	
-		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 차단 서비스", PermissionType.ADMIN, memberBlockReq.getRequestedUserID());
 						
@@ -215,27 +180,8 @@ public class MemberBlockReqServerTask extends AbstractServerTask {
 					new java.sql.Timestamp(System.currentTimeMillis()), memberBlockReq.getIp());
 			
 			conn.commit();
-
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+		});
+		
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(memberBlockReq.getMessageID());

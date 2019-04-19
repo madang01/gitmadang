@@ -190,11 +190,11 @@ public class BoardModifyReqServerTaskTest extends AbstractBoardTest {
 		} catch (ServerServiceException e) {
 			String acutalErrorMessage = e.getMessage();
 			String expectedErrorMessage = new StringBuilder()
-					.append("총 첨부 파일 갯수(=신규 첨부 파일 등록 갯수[")
-					.append(boardModifyReq.getNewAttachedFileCnt())
-					.append("] + 기존 첨부 파일들중 남은 갯수[")
+					.append("기존 첨부 파일 등록 갯수[")
 					.append(boardModifyReq.getOldAttachedFileCnt())
-					.append("]) 가 첨부 파일 최대 갯수[")
+					.append("]와 신규 첨부 파일 등록 갯수[")
+					.append(boardModifyReq.getNewAttachedFileCnt())
+					.append("]의 합이 총 첨부 파일 최대 갯수[")
 					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT)
 					.append("]를 초과하였습니다").toString();
 

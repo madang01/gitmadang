@@ -6,15 +6,9 @@ import static org.junit.Assert.fail;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
@@ -35,7 +29,6 @@ import kr.pe.codda.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.BoardTree;
@@ -140,46 +133,22 @@ public class BoardReplyReqServerTaskTest extends AbstractBoardTest {
 			fail("fail to execuate doTask");
 		}
 		
+		final UByte boardID = UByte.valueOf(boardInfoAddRes.getBoardID());
+		
 		try {
-			DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(TEST_DBCP_NAME);
-
-			Connection conn = null;
-			try {
-				conn = dataSource.getConnection();
-				conn.setAutoCommit(false);
-
-				DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-				
+			
+			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
 				create.update(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(CommonStaticFinalVars.UNSIGNED_INTEGER_MAX))
-				.where(SB_BOARD_INFO_TB.BOARD_ID.eq(UByte.valueOf(boardInfoAddRes.getBoardID())))
+				.where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID))
 				.execute();	
 				
 				conn.commit();
-			} catch (Exception e) {	
-				if (null != conn) {
-					try {
-						conn.rollback();
-					} catch (Exception e1) {
-						log.warn("fail to rollback");
-					}
-				}
-				
-				throw e;
-			} finally {
-				if (null != conn) {
-					try {
-						conn.close();
-					} catch (Exception e) {
-						log.warn("fail to close the db connection", e);
-					}
-				}
-			}
+			});			
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
 
 			fail(e.getMessage());
-		}
-		
+		}		
 		
 		BoardReplyReq boardReplyReq = new BoardReplyReq();
 		boardReplyReq.setRequestedUserID(requestedUserIDForMember);

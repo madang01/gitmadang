@@ -5,13 +5,6 @@ import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 import org.junit.After;
 import org.junit.Before;
@@ -19,13 +12,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.task.server.ArraySiteMenuReqServerTask;
-import kr.pe.codda.server.dbcp.DBCPManager;
 
 public class SiteMenuTreeTest extends AbstractJunitTest {
 	
@@ -36,11 +27,6 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();
 		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);		
-	}
-	
-	@Before
-	public void setUp() {
-		// UByte freeBoardSequenceID = UByte.valueOf(SequenceType.FREE_BOARD.getSequenceID());
 		
 		{
 			String userID = "admin";
@@ -116,55 +102,26 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 				fail("fail to create a test ID");
 			}
 		}
-		
-		
-		DataSource dataSource = null;
+	}
+	
+	@Before
+	public void setUp() {
+		// UByte freeBoardSequenceID = UByte.valueOf(SequenceType.FREE_BOARD.getSequenceID());
+	
 		try {
-			dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}		
-		
-		Connection conn = null;
-		
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-			
-			create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, UInteger.valueOf(1))
-			.where(SB_SEQ_TB.SQ_ID.eq(SequenceType.MENU.getSequenceID()))
-			.execute();			
-						
-			create.delete(SB_SITEMENU_TB).execute();			
-			
-			conn.commit();
-			
+			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				create.update(SB_SEQ_TB).set(SB_SEQ_TB.SQ_VALUE, UInteger.valueOf(1))
+				.where(SB_SEQ_TB.SQ_ID.eq(SequenceType.MENU.getSequenceID()))
+				.execute();			
+							
+				create.delete(SB_SITEMENU_TB).execute();			
+				
+				conn.commit();
+			});
 		} catch (Exception e) {
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
-			log.warn(e.getMessage(), e);
-
-			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+			log.warn("unknown error", e);
+			fail("단위 테스트용 DB 초기화 실패");
+		}		
 	}
 	
 	@After

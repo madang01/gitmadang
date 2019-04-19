@@ -6,23 +6,14 @@ import static kr.pe.codda.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.AccountSearchReadyReq.AccountSearchReadyReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.AccountSearchType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
@@ -175,55 +166,26 @@ public class AccountSearchReadyReqServerTaskTest extends AbstractJunitTest {
 		String email = "k9200544@hanmail.net";
 		String ip = "127.0.0.1";
 		
-		DataSource dataSource = null;
-		try {
-			dataSource = DBCPManager.getInstance().getBasicDataSource(
-					TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-			
-			create.delete(SB_SITE_LOG_TB)
-			.execute();
-			
-			create.delete(SB_ACCOUNT_SERARCH_TB)
-			.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(testID))
-			.execute();
-			
-			create.delete(SB_MEMBER_TB)
-			.where(SB_MEMBER_TB.USER_ID.eq(testID))
-			.execute();
-			
-			conn.commit();
-		
+		try {		
+			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(testID))
+				.execute();
+				
+				create.delete(SB_MEMBER_TB)
+				.where(SB_MEMBER_TB.USER_ID.eq(testID))
+				.execute();
+				
+				conn.commit();
+			});
 		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
 			log.warn(e.getMessage(), e);
 
 			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
 		}
 		
 		{
@@ -340,55 +302,26 @@ public class AccountSearchReadyReqServerTaskTest extends AbstractJunitTest {
 		String email = "k9200544@hanmail.net";
 		String ip = "127.0.0.1";
 		
-		DataSource dataSource = null;
-		try {
-			dataSource = DBCPManager.getInstance().getBasicDataSource(
-					TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-			
-			create.delete(SB_SITE_LOG_TB)
-			.execute();
-			
-			create.delete(SB_ACCOUNT_SERARCH_TB)
-			.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(testID))
-			.execute();
-			
-			create.delete(SB_MEMBER_TB)
-			.where(SB_MEMBER_TB.USER_ID.eq(testID))
-			.execute();
-			
-			conn.commit();
-		
+		try {		
+			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(testID))
+				.execute();
+				
+				create.delete(SB_MEMBER_TB)
+				.where(SB_MEMBER_TB.USER_ID.eq(testID))
+				.execute();
+				
+				conn.commit();
+			});
 		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
 			log.warn(e.getMessage(), e);
 
 			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
 		}
 		
 		{
@@ -466,55 +399,26 @@ public class AccountSearchReadyReqServerTaskTest extends AbstractJunitTest {
 		String email = "k9200544@hanmail.net";
 		String ip = "127.0.0.1";
 		
-		DataSource dataSource = null;
-		try {
-			dataSource = DBCPManager.getInstance().getBasicDataSource(
-					TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-			
-			create.delete(SB_SITE_LOG_TB)
-			.execute();
-			
-			create.delete(SB_ACCOUNT_SERARCH_TB)
-			.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(testID))
-			.execute();
-			
-			create.delete(SB_MEMBER_TB)
-			.where(SB_MEMBER_TB.USER_ID.eq(testID))
-			.execute();
-			
-			conn.commit();
-		
+		try {		
+			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(testID))
+				.execute();
+				
+				create.delete(SB_MEMBER_TB)
+				.where(SB_MEMBER_TB.USER_ID.eq(testID))
+				.execute();
+				
+				conn.commit();
+			});
 		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
 			log.warn(e.getMessage(), e);
 
 			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
 		}
 		
 		{

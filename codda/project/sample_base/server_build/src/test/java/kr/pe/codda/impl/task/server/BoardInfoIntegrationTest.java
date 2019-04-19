@@ -9,15 +9,9 @@ import static kr.pe.codda.jooq.tables.SbMemberActivityHistoryTb.SB_MEMBER_ACTIVI
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.junit.Before;
@@ -26,7 +20,6 @@ import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.DBCPDataSourceNotFoundException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.BoardInfoAddReq.BoardInfoAddReq;
@@ -38,11 +31,10 @@ import kr.pe.codda.impl.message.BoardInfoModifyReq.BoardInfoModifyReq;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
-import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.BoardReplyPolicyType;
 import kr.pe.codda.server.lib.MemberRoleType;
+import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
@@ -132,61 +124,28 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 
 	@Before
 	public void setUp() {
-		DataSource dataSource = null;
 		try {
-			dataSource = DBCPManager.getInstance().getBasicDataSource(
-					TEST_DBCP_NAME);
-		} catch (DBCPDataSourceNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}
+			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				create.delete(SB_MEMBER_ACTIVITY_HISTORY_TB).execute();
+				create.delete(SB_BOARD_VOTE_TB).execute();
+				create.delete(SB_BOARD_FILELIST_TB).execute();
+				create.delete(SB_BOARD_HISTORY_TB).execute();
+				create.delete(SB_BOARD_TB).execute();
 
-		Connection conn = null;
+				/** sample_base 프로젝에 예약된 0 ~ 3 까지의 게시판 식별자를 제외한 게시판 정보 삭제  */
+				create.delete(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.ge(UByte.valueOf(4))).execute();
+				
+				create.update(SB_BOARD_INFO_TB)
+						.set(SB_BOARD_INFO_TB.CNT, 0L)
+						.set(SB_BOARD_INFO_TB.TOTAL, 0L)
+						.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
 
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL,
-					ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-
-			create.delete(SB_MEMBER_ACTIVITY_HISTORY_TB).execute();
-			create.delete(SB_BOARD_VOTE_TB).execute();
-			create.delete(SB_BOARD_FILELIST_TB).execute();
-			create.delete(SB_BOARD_HISTORY_TB).execute();
-			create.delete(SB_BOARD_TB).execute();
-
-			/** sample_base 프로젝에 예약된 0 ~ 3 까지의 게시판 식별자를 제외한 게시판 정보 삭제  */
-			create.delete(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.ge(UByte.valueOf(4))).execute();
-			
-			create.update(SB_BOARD_INFO_TB)
-					.set(SB_BOARD_INFO_TB.CNT, 0L)
-					.set(SB_BOARD_INFO_TB.TOTAL, 0L)
-					.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
-
-			conn.commit();
-
+				conn.commit();
+			});
 		} catch (Exception e) {
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
 			log.warn(e.getMessage(), e);
 
 			fail(e.getMessage());
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
 		}
 	}
 	
@@ -295,56 +254,22 @@ public class BoardInfoIntegrationTest extends AbstractJunitTest {
 		maxBoardInfoAddReq.setBoardWritePermissionType(PermissionType.ADMIN.getValue());
 		maxBoardInfoAddReq.setBoardReplyPermissionType(PermissionType.MEMBER.getValue());
 		
-		DataSource dataSource = null;
-
 		try {
-			dataSource = DBCPManager.getInstance().getBasicDataSource(TEST_DBCP_NAME);
-		} catch (IllegalArgumentException | DBCPDataSourceNotFoundException e) {
-			String errorMessage = e.getMessage();
-
-			log.warn(errorMessage, e);
-
-			/** 지정한 이름의 dbcp 를 받지 못할 경우 아무 처리도 하지 않는다 */
-			return;
-		}
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(true);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
-
-			create.insertInto(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(CommonStaticFinalVars.UNSIGNED_BYTE_MAX))
-					.set(SB_BOARD_INFO_TB.BOARD_NAME, "게시판 식별자 최대값 게시판")
-					.set(SB_BOARD_INFO_TB.LIST_TYPE, BoardListType.TREE.getValue())
-					.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, BoardReplyPolicyType.ALL.getValue())
-					.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, PermissionType.ADMIN.getValue())
-					.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, PermissionType.MEMBER.getValue())
-					.set(SB_BOARD_INFO_TB.CNT, 0L).set(SB_BOARD_INFO_TB.TOTAL, 0L)
-					.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
-			
-
+			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				create.insertInto(SB_BOARD_INFO_TB).set(SB_BOARD_INFO_TB.BOARD_ID, UByte.valueOf(CommonStaticFinalVars.UNSIGNED_BYTE_MAX))
+				.set(SB_BOARD_INFO_TB.BOARD_NAME, "게시판 식별자 최대값 게시판")
+				.set(SB_BOARD_INFO_TB.LIST_TYPE, BoardListType.TREE.getValue())
+				.set(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE, BoardReplyPolicyType.ALL.getValue())
+				.set(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE, PermissionType.ADMIN.getValue())
+				.set(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE, PermissionType.MEMBER.getValue())
+				.set(SB_BOARD_INFO_TB.CNT, 0L).set(SB_BOARD_INFO_TB.TOTAL, 0L)
+				.set(SB_BOARD_INFO_TB.NEXT_BOARD_NO, UInteger.valueOf(1)).execute();
+				
+				conn.commit();
+			});
 		} catch (Exception e) {
 			log.warn("error", e);
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
 			fail("게시판 식별자 값이 최대값을 갖는 게시판 정보 추가 실패");
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
 		}
 		
 		

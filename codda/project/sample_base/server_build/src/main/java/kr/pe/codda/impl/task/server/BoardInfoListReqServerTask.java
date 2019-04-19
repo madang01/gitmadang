@@ -2,17 +2,11 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record9;
 import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -23,7 +17,6 @@ import kr.pe.codda.impl.message.BoardInfoListReq.BoardInfoListReq;
 import kr.pe.codda.impl.message.BoardInfoListRes.BoardInfoListRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -84,14 +77,7 @@ public class BoardInfoListReqServerTask extends AbstractServerTask {
 		
 		List<BoardInfoListRes.BoardInfo> boardInfoList = new ArrayList<BoardInfoListRes.BoardInfo>();
 		
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {			
 			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 정보 목록 조회 서비스", PermissionType.ADMIN, boardInfoListReq.getRequestedUserID());
 			
@@ -131,28 +117,7 @@ public class BoardInfoListReqServerTask extends AbstractServerTask {
 			}
 						
 			conn.commit();
-			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+		});		
 
 		BoardInfoListRes boardInfoListRes = new BoardInfoListRes();
 		boardInfoListRes.setCnt(boardInfoList.size());

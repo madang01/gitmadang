@@ -412,30 +412,9 @@ public abstract class ServerDBUtil {
 
 		try {
 			ValueChecker.checkValidUserID(userID);
-		} catch (IllegalArgumentException e) {
-			throw new ServerServiceException(e.getMessage());
-		}
-
-		try {
 			ValueChecker.checkValidNickname(nickname);
-		} catch (IllegalArgumentException e) {
-			throw new ServerServiceException(e.getMessage());
-		}
-
-		try {
-			ValueChecker.checkValidEmail(email);
-		} catch (RuntimeException e) {
-			throw new ServerServiceException(e.getMessage());
-		}
-
-
-		try {
-			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
-		} catch (IllegalArgumentException e) {
-			throw new ServerServiceException(e.getMessage());
-		}
-		
-		try {
+			ValueChecker.checkValidEmail(email);		
+			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);		
 			ValueChecker.checkValidIP(ip);
 		} catch (IllegalArgumentException e) {
 			throw new ServerServiceException(e.getMessage());
@@ -455,6 +434,7 @@ public abstract class ServerDBUtil {
 		PasswordPairOfMemberTable passwordPairOfMemberTable = toPasswordPairOfMemberTable(passwordBytes, pwdSaltBytes);
 
 		ServerDBUtil.execute(dbcpName, (conn, create) -> {
+			
 			boolean isSameIDMember = create.fetchExists(
 					create.select(SB_MEMBER_TB.USER_ID).from(SB_MEMBER_TB).where(SB_MEMBER_TB.USER_ID.eq(userID)));
 
@@ -776,7 +756,7 @@ public abstract class ServerDBUtil {
 			}
 
 			String errorMessage = new StringBuilder("서비스 요청자[").append(requestedUserID).append("]의 회원 상태[")
-					.append(memeberStateOfRequestedUserID).append("] 값이 잘못되었습니다").toString();
+					.append(memberStateTypeOfRequestedUserID.getName()).append("] 값이 잘못되었습니다").toString();
 
 			throw new ServerServiceException(errorMessage);
 		}

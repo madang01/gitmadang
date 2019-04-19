@@ -187,11 +187,7 @@ public class AccountSearchProcessReqServerTask extends AbstractServerTask {
 		
 		try {
 			email = getDecryptedString(emailCipherBytes, serverSymmetricKey);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = "이메일에 대한 복호문을 얻는데 실패하였습니다";
-			log.warn(errorMessage, e);
-			throw new ServerServiceException(errorMessage);
-		} catch (SymmetricException e) {
+		} catch (IllegalArgumentException | SymmetricException e) {
 			String errorMessage = "이메일에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
 			throw new ServerServiceException(errorMessage);
@@ -199,11 +195,7 @@ public class AccountSearchProcessReqServerTask extends AbstractServerTask {
 		
 		try {
 			secretAuthenticationValue = getDecryptedString(secretAuthenticationValueCipherBytes, serverSymmetricKey);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = "이메일에 대한 복호문을 얻는데 실패하였습니다";
-			log.warn(errorMessage, e);
-			throw new ServerServiceException(errorMessage);
-		} catch (SymmetricException e) {
+		} catch (IllegalArgumentException | SymmetricException e) {
 			String errorMessage = "이메일에 대한 복호문을 얻는데 실패하였습니다";
 			log.warn(errorMessage, e);
 			throw new ServerServiceException(errorMessage);
@@ -242,39 +234,18 @@ public class AccountSearchProcessReqServerTask extends AbstractServerTask {
 			final String ip) throws Exception {
 		try {
 			ValueChecker.checkValidEmail(email);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		if (null == secretAuthenticationValue || secretAuthenticationValue.isEmpty()) {
-			String errorMessage = "아이디 혹은 비밀번호 찾기용 비밀 값을 입력해 주세요";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
-			CommonStaticUtil.Base64Decoder.decode(secretAuthenticationValue);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = "아이디 혹은 비밀번호 찾기용 비밀 값이 베이스64가 아닙니다";
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		if (AccountSearchType.PASSWORD.equals(accountSearchType)) {
-			try {
+			ValueChecker.checkValidSecretAuthenticationValue(secretAuthenticationValue);
+
+			if (AccountSearchType.PASSWORD.equals(accountSearchType)) {
 				ValueChecker.checkValidPasswordChangePwd(newPasswordBytes);
-			} catch(IllegalArgumentException e) {
-				String errorMessage = e.getMessage();
-				throw new ServerServiceException(errorMessage);
 			}
-		}
-		
-		
-		try {
+			
 			ValueChecker.checkValidIP(ip);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
 		
 		final AccountSearchProcessRes accountSearchProcessRes = new AccountSearchProcessRes();
 		

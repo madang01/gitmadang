@@ -6,15 +6,9 @@ import static org.junit.Assert.fail;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.junit.Test;
@@ -32,7 +26,6 @@ import kr.pe.codda.impl.message.BoardReplyRes.BoardReplyRes;
 import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -545,7 +538,7 @@ public class BoardDeleteReqServerTaskTest extends AbstractBoardTest {
 		byte[] boardPasswrdBytes = {'t', 'e', 's', 't', '1', '2', '3', '4', '%'};
 		
 		MessageDigest md = null;
-		try {
+		try {	
 			md = MessageDigest.getInstance(ServerCommonStaticFinalVars.BOARD_PASSWORD_HASH_ALGORITHM);
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = "fail to get a MessageDigest class instance";
@@ -590,50 +583,27 @@ public class BoardDeleteReqServerTaskTest extends AbstractBoardTest {
 			fail("fail to execuate doTask");
 		}
 		
-		String newBoardPwdBase64 = null;
+		final UByte boardID = UByte.valueOf(boardWriteRes.getBoardID());
+		final UInteger boardNo = UInteger.valueOf(boardWriteRes.getBoardNo());		
+		final String newBoardPwdBase64 = null;
 		
 		try {
-			DataSource dataSource = DBCPManager.getInstance()
-					.getBasicDataSource(TEST_DBCP_NAME);
-
-			Connection conn = null;
-			try {
-				conn = dataSource.getConnection();
-				conn.setAutoCommit(false);
-				
-				DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(TEST_DBCP_NAME));
+			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
 				
 				create.update(SB_BOARD_TB)
 				.set(SB_BOARD_TB.PWD_BASE64, newBoardPwdBase64)
-				.where(SB_BOARD_TB.BOARD_ID.eq(UByte.valueOf(boardWriteRes.getBoardID())))
-				.and(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardWriteRes.getBoardNo())))
+				.where(SB_BOARD_TB.BOARD_ID.eq(boardID))
+				.and(SB_BOARD_TB.BOARD_NO.eq(boardNo))
 				.execute();	
 				
 				conn.commit();
-			} catch (Exception e) {
-				if (null != conn) {
-					try {
-						conn.rollback();
-					} catch (Exception e1) {
-						log.warn("fail to rollback");
-					}
-				}
 				
-				throw e;
-			} finally {
-				if (null != conn) {
-					try {
-						conn.close();
-					} catch (Exception e) {
-						log.warn("fail to close the db connection", e);
-					}
-				}
-			}
-			
- 		} catch(Exception e) {
- 			log.warn("unknwon error", e);
+			});
+		} catch (Exception e) {
+			log.warn("unknwon error", e);
  			fail("알수 없는 에러로 테스트 실패");
- 		}
+		}
+		
 		
 		BoardDeleteReqServerTask boardDeleteReqServerTask = null;
 		try {

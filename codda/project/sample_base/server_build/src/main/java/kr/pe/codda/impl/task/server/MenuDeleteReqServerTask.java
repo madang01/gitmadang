@@ -3,15 +3,8 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.jooq.tables.SbSeqTb.SB_SEQ_TB;
 import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -21,11 +14,11 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MenuDeleteReq.MenuDeleteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -75,16 +68,17 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(menuDeleteReq.toString());
 		
-		final UByte menuSequenceID = SequenceType.MENU.getSequenceID();
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		Connection conn = null;
 		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			ValueChecker.checkValidRequestedUserID(menuDeleteReq.getRequestedUserID());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		final UByte menuSequenceID = SequenceType.MENU.getSequenceID();
+		
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "메뉴 삭제 서비스", PermissionType.ADMIN, menuDeleteReq.getRequestedUserID());
 			
@@ -171,27 +165,8 @@ public class MenuDeleteReqServerTask extends AbstractServerTask {
 						
 			
 			conn.commit();
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch(Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+		});
+		
 		
 		log.info("메뉴[{}] 삭제 처리가 완료되었습니다", menuDeleteReq.getMenuNo());
 		

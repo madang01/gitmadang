@@ -2,18 +2,12 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record6;
 import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -24,10 +18,10 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.TreeSiteMenuReq.TreeSiteMenuReq;
 import kr.pe.codda.impl.message.TreeSiteMenuRes.TreeSiteMenuRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -78,20 +72,19 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(treeSiteMenuReq.toString());
 		
+		try {
+			ValueChecker.checkValidRequestedUserID(treeSiteMenuReq.getRequestedUserID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
 		java.util.List<TreeSiteMenuRes.Menu> rootMenuList = new ArrayList<TreeSiteMenuRes.Menu>();
 		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-		
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-		
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "계층형 메뉴 조회 서비스", PermissionType.ADMIN, treeSiteMenuReq.getRequestedUserID());
-				
+			
 			HashMap<UInteger, TreeSiteMenuRes.Menu> menuHash = new HashMap<UInteger, TreeSiteMenuRes.Menu>();
 			
 			Result<Record6<UInteger, UInteger, UByte, UByte, String, String>> menuListResult = create.select(SB_SITEMENU_TB.MENU_NO, 
@@ -151,31 +144,9 @@ public class TreeSiteMenuReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			conn.commit();			
-			
-			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}		
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch(Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-		
+			conn.commit();	
+		});
+				
 		TreeSiteMenuRes treeSiteMenuRes = new TreeSiteMenuRes();
 		treeSiteMenuRes.setRootMenuList(rootMenuList);
 		treeSiteMenuRes.setRootMenuListSize(rootMenuList.size());

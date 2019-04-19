@@ -1,6 +1,8 @@
 package kr.pe.codda.impl.task.server;
 
+import static kr.pe.codda.jooq.tables.SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB;
 import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
+import static kr.pe.codda.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -144,6 +146,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -179,6 +189,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -248,6 +266,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -406,6 +432,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -463,6 +497,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -573,6 +615,15 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -738,6 +789,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -793,6 +852,15 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -852,6 +920,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -1000,6 +1076,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();
@@ -1070,6 +1154,14 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
+				create.delete(SB_SITE_LOG_TB)
+				.execute();
+				
+				create.delete(SB_ACCOUNT_SERARCH_TB)
+				.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID))
+				.execute();
+				
 				create.delete(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
 				.execute();

@@ -15,7 +15,6 @@ import kr.pe.codda.server.PersonalLoginManagerIF;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
-import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -272,15 +271,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			String errorMessage = "비밀번호 복호화 실패로 멤버 등록이 실패하였습니다. 상세한 이유는 서버 로그를 확인해 주세요.";
 			throw new ServerServiceException(errorMessage);
 		}
-		
-		try {
-			ValueChecker.checkValidLoginPwd(passwordBytes);
-		} catch(IllegalArgumentException e) {			
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		
+
 		ServerDBUtil.registerMember(dbcpName, MemberRoleType.MEMBER, userID, nickname, email, passwordBytes,
 				new java.sql.Timestamp(System.currentTimeMillis()), ip);
 		

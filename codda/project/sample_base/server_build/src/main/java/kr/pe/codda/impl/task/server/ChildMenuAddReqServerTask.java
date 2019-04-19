@@ -3,15 +3,8 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.jooq.tables.SbSeqTb.SB_SEQ_TB;
 import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record3;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -23,11 +16,11 @@ import kr.pe.codda.impl.message.ChildMenuAddReq.ChildMenuAddReq;
 import kr.pe.codda.impl.message.ChildMenuAddRes.ChildMenuAddRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -78,20 +71,18 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(childMenuAddReq.toString());
 		
-		final UByte menuSequenceID = SequenceType.MENU.getSequenceID();
-		UInteger parentMenuNo = UInteger.valueOf(childMenuAddReq.getParentNo());
-		UInteger childMenuNo = null;
-		UByte newOrderSeq = null;
-		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		Connection conn = null;
 		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			ValueChecker.checkValidRequestedUserID(childMenuAddReq.getRequestedUserID());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		final UByte menuSequenceID = SequenceType.MENU.getSequenceID();
+		final UInteger parentMenuNo = UInteger.valueOf(childMenuAddReq.getParentNo());
+		final ChildMenuAddRes childMenuAddRes = new ChildMenuAddRes();
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "자식 메뉴 등록 서비스", PermissionType.ADMIN, childMenuAddReq.getRequestedUserID());
 					
@@ -115,7 +106,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			childMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);	
+			UInteger childMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);	
 			
 			if (childMenuNo.longValue() == UInteger.MAX_VALUE) {
 				try {
@@ -203,7 +194,7 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			}
 			
 			UByte fromOrderSeq = ServerDBUtil.getToOrderSeqOfRelativeRootMenu(create, parentOrderSeq, parentParnetNo);
-			newOrderSeq = UByte.valueOf(fromOrderSeq.shortValue() + 1);	
+			UByte newOrderSeq = UByte.valueOf(fromOrderSeq.shortValue() + 1);	
 						
 			create.update(SB_SITEMENU_TB)
 			.set(SB_SITEMENU_TB.ORDER_SQ, SB_SITEMENU_TB.ORDER_SQ.add(1))
@@ -237,41 +228,16 @@ public class ChildMenuAddReqServerTask extends AbstractServerTask {
 			
 			conn.commit();
 			
+			childMenuAddRes.setMenuNo(childMenuNo.longValue());
+			childMenuAddRes.setOrderSeq(newOrderSeq.shortValue());
 			
-			
-			
-			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {	
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch(Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+		});
 		
 		log.info("자식 메뉴[부모 메뉴번호:{}, 번호:{}, 메뉴명:{}, URL:{}] 추가 완료",
 				childMenuAddReq.getParentNo(),
-				childMenuNo,
+				childMenuAddRes.getMenuNo(),
 				childMenuAddReq.getMenuName(),
 				childMenuAddReq.getLinkURL());
-		
-		ChildMenuAddRes childMenuAddRes = new ChildMenuAddRes();
-		childMenuAddRes.setMenuNo(childMenuNo.longValue());
-		childMenuAddRes.setOrderSeq(newOrderSeq.shortValue());
 		
 		return childMenuAddRes;
 		

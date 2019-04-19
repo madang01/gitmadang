@@ -2,17 +2,11 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record6;
 import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -23,10 +17,10 @@ import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -79,18 +73,16 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(arraySiteMenuReq.toString());
 		
-		java.util.List<ArraySiteMenuRes.Menu> menuList = new ArrayList<ArraySiteMenuRes.Menu>();
-		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		
-		Connection conn = null;
 		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			ValueChecker.checkValidRequestedUserID(arraySiteMenuReq.getRequestedUserID());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		final java.util.List<ArraySiteMenuRes.Menu> menuList = new ArrayList<ArraySiteMenuRes.Menu>();
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, 
 					"배열형 메뉴 조회 서비스", PermissionType.ADMIN, arraySiteMenuReq.getRequestedUserID());
@@ -121,28 +113,9 @@ public class ArraySiteMenuReqServerTask extends AbstractServerTask {
 				menuList.add(menu);
 			}			
 			
-			conn.commit();			
-			
-				
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}		
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch(Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+			conn.commit();
+		});
+		
 		
 		ArraySiteMenuRes menuListRes = new ArraySiteMenuRes();
 		menuListRes.setMenuList(menuList);

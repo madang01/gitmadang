@@ -2,14 +2,7 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record6;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
@@ -25,7 +18,6 @@ import kr.pe.codda.impl.message.MemberLoginReq.MemberLoginReq;
 import kr.pe.codda.impl.message.MemberLoginRes.MemberLoginRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.MemberStateType;
 import kr.pe.codda.server.lib.PasswordPairOfMemberTable;
@@ -118,6 +110,7 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
 
 		byte[] idCipherBytes = null;
 		byte[] pwdCipherBytes = null;
@@ -168,7 +161,7 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		String userID = null;
+		final String userID;
 
 		try {
 			userID = getDecryptedString(idCipherBytes, serverSymmetricKey);
@@ -182,14 +175,7 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		try {
-			ValueChecker.checkValidUserID(userID);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		byte[] passwordBytes = null;
+		final byte[] passwordBytes;
 
 		try {
 			passwordBytes = serverSymmetricKey.decrypt(pwdCipherBytes);
@@ -205,24 +191,17 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 		}
 
 		try {
+			ValueChecker.checkValidUserID(userID);
 			ValueChecker.checkValidLoginPwd(passwordBytes);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
-
-		String nickname = null;
-		MemberRoleType memberRoleType = null;
-
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-
+		
+		final MemberLoginRes memberLoginRes = new MemberLoginRes();
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
+			
 			Record6<String, Byte, Byte, UByte, String, String> memberRecord = create
 					.select(SB_MEMBER_TB.NICKNAME, SB_MEMBER_TB.ROLE, SB_MEMBER_TB.STATE, SB_MEMBER_TB.PWD_FAIL_CNT,
 							SB_MEMBER_TB.PWD_BASE64, SB_MEMBER_TB.PWD_SALT_BASE64)
@@ -239,13 +218,15 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			nickname = memberRecord.get(SB_MEMBER_TB.NICKNAME);
+			String nickname = memberRecord.get(SB_MEMBER_TB.NICKNAME);
 			byte memberRole = memberRecord.get(SB_MEMBER_TB.ROLE);
 			byte memberState = memberRecord.get(SB_MEMBER_TB.STATE);
 			short pwdFailedCount = memberRecord.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
 			String pwdBase64 = memberRecord.get(SB_MEMBER_TB.PWD_BASE64);
 			String pwdSaltBase64 = memberRecord.get(SB_MEMBER_TB.PWD_SALT_BASE64);
 
+			MemberRoleType memberRoleType = null;
+			
 			try {
 				memberRoleType = MemberRoleType.valueOf(memberRole);
 			} catch (IllegalArgumentException e) {
@@ -379,33 +360,11 @@ public class MemberLoginReqServerTask extends AbstractServerTask {
 					new StringBuilder().append(memberRoleType.getName()).append(" 로그인").toString(),
 					new java.sql.Timestamp(System.currentTimeMillis()), memberLoginReq.getIp());
 			conn.commit();
-
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-
-		MemberLoginRes memberLoginRes = new MemberLoginRes();
-		memberLoginRes.setUserID(userID);
-		memberLoginRes.setUserName(nickname);
-		memberLoginRes.setMemberRole(memberRoleType.getValue());
+			
+			memberLoginRes.setUserID(userID);
+			memberLoginRes.setUserName(nickname);
+			memberLoginRes.setMemberRole(memberRoleType.getValue());
+		});		
 
 		return memberLoginRes;
 	}

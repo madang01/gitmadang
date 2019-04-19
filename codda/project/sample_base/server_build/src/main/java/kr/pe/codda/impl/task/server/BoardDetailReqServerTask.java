@@ -7,14 +7,10 @@ import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
 import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
-import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record10;
 import org.jooq.Record15;
@@ -22,9 +18,7 @@ import org.jooq.Record17;
 import org.jooq.Record3;
 import org.jooq.Record4;
 import org.jooq.Result;
-import org.jooq.SQLDialect;
 import org.jooq.Table;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
@@ -32,13 +26,12 @@ import org.jooq.types.UShort;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.jooq.tables.SbBoardHistoryTb;
-import kr.pe.codda.jooq.tables.SbBoardTb;
 import kr.pe.codda.impl.message.BoardDetailReq.BoardDetailReq;
 import kr.pe.codda.impl.message.BoardDetailRes.BoardDetailRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
+import kr.pe.codda.jooq.tables.SbBoardHistoryTb;
+import kr.pe.codda.jooq.tables.SbBoardTb;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.MemberRoleType;
@@ -95,64 +88,22 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 		
 		try {
 			ValueChecker.checkValidRequestedUserID(boardDetailReq.getRequestedUserID());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		try {
 			ValueChecker.checkValidBoardID(boardDetailReq.getBoardID());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidBoardNo(boardDetailReq.getBoardNo());
-		} catch(RuntimeException e) {
+		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
-		
 
-		UByte boardID = UByte.valueOf(boardDetailReq.getBoardID());
-		UInteger boardNo = UInteger.valueOf(boardDetailReq.getBoardNo());
+		final UByte boardID = UByte.valueOf(boardDetailReq.getBoardID());
+		final UInteger boardNo = UInteger.valueOf(boardDetailReq.getBoardNo());
+		final BoardDetailRes boardDetailRes = new BoardDetailRes();
 
-		String boardName = null;
-		byte boardListTypeValue;
-		byte boardReplyPolicyTypeValue;
-		byte boardReplyPermssionTypeValue;
+		final List<BoardDetailRes.AttachedFile> attachedFileList = new ArrayList<BoardDetailRes.AttachedFile>();
+		final List<BoardDetailRes.ChildNode> childNodeList = new ArrayList<BoardDetailRes.ChildNode>();
 
-		UInteger groupNo = null;
-		UShort groupSeqence = null;
-		UInteger parentNo = null;
-		UByte depth = null;
-		int oldViewCount = 0;
-		byte boardState;
-		UByte nextAttachedFileSeq = null;
-		boolean isBoardPassword = false;
-		int votes = 0;
-		String firstWriterID = null;
-		Timestamp firstRegisteredDate = null;
-		String firstWriterNickname = null;
-		String subject = null;
-		String contents = null;
-		String lastModifierID = null;
-		String lastModifierNickName = null;
-		Timestamp lastModifedDate = null;
-
-		List<BoardDetailRes.AttachedFile> attachedFileList = new ArrayList<BoardDetailRes.AttachedFile>();
-		List<BoardDetailRes.ChildNode> childNodeList = new ArrayList<BoardDetailRes.ChildNode>();
-
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
+			
 			Record4<String, Byte, Byte, Byte> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.BOARD_NAME, SB_BOARD_INFO_TB.LIST_TYPE, SB_BOARD_INFO_TB.REPLY_POLICY_TYPE,
 							SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE)
@@ -170,10 +121,10 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
-			boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);			
-			boardReplyPolicyTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE);
-			boardReplyPermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE);
+			String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
+			byte boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);			
+			byte boardReplyPolicyTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_POLICY_TYPE);
+			byte boardReplyPermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.REPLY_PERMISSION_TYPE);
 
 			BoardListType boardListType = null;
 			try {
@@ -231,23 +182,23 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			groupNo = mainBoardRecord.get(SB_BOARD_TB.GROUP_NO);
-			groupSeqence = mainBoardRecord.get(SB_BOARD_TB.GROUP_SQ);
-			parentNo = mainBoardRecord.get(SB_BOARD_TB.PARENT_NO);
-			depth = mainBoardRecord.get(SB_BOARD_TB.DEPTH);
-			oldViewCount = mainBoardRecord.get(SB_BOARD_TB.VIEW_CNT);
-			boardState = mainBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
-			nextAttachedFileSeq = mainBoardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
+			UInteger groupNo = mainBoardRecord.get(SB_BOARD_TB.GROUP_NO);
+			UShort groupSeqence = mainBoardRecord.get(SB_BOARD_TB.GROUP_SQ);
+			UInteger parentNo = mainBoardRecord.get(SB_BOARD_TB.PARENT_NO);
+			UByte depth = mainBoardRecord.get(SB_BOARD_TB.DEPTH);
+			int oldViewCount = mainBoardRecord.get(SB_BOARD_TB.VIEW_CNT);
+			byte boardState = mainBoardRecord.getValue(SB_BOARD_TB.BOARD_ST);
+			UByte nextAttachedFileSeq = mainBoardRecord.getValue(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ);
 			String boardPwdBase64 = mainBoardRecord.get(SB_BOARD_TB.PWD_BASE64);
-			votes = mainBoardRecord.get("votes", Integer.class);
-			subject = mainBoardRecord.get(SB_BOARD_HISTORY_TB.SUBJECT);
-			contents = mainBoardRecord.get(SB_BOARD_HISTORY_TB.CONTENTS);
-			lastModifedDate = mainBoardRecord.get("last_modified_date", Timestamp.class);
-			lastModifierID = mainBoardRecord.get("last_modifier_id", String.class);
-			lastModifierNickName = mainBoardRecord.get("last_modifier_nickname", String.class);
-			firstRegisteredDate = mainBoardRecord.get("first_registered_date", Timestamp.class);
-			firstWriterID = mainBoardRecord.get("first_writer_id", String.class);
-			firstWriterNickname = mainBoardRecord.get("first_writer_nickname", String.class);
+			int votes = mainBoardRecord.get("votes", Integer.class);
+			String subject = mainBoardRecord.get(SB_BOARD_HISTORY_TB.SUBJECT);
+			String contents = mainBoardRecord.get(SB_BOARD_HISTORY_TB.CONTENTS);
+			Timestamp lastModifedDate = mainBoardRecord.get("last_modified_date", Timestamp.class);
+			String lastModifierID = mainBoardRecord.get("last_modifier_id", String.class);
+			String lastModifierNickName = mainBoardRecord.get("last_modifier_nickname", String.class);
+			Timestamp firstRegisteredDate = mainBoardRecord.get("first_registered_date", Timestamp.class);
+			String firstWriterID = mainBoardRecord.get("first_writer_id", String.class);
+			String firstWriterNickname = mainBoardRecord.get("first_writer_nickname", String.class);
 			
 
 			BoardStateType boardStateType = null;
@@ -292,7 +243,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			}
 			
 			/** 게시글 비밀번호 유무 */			
-			isBoardPassword = (null != boardPwdBase64);
+			boolean isBoardPassword = (null != boardPwdBase64);
 
 			if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType)) {
 				/** 본문으로만 이루어진 목록의 상세 조회는 본문에 대한 상세 조회만 허용 된다 */
@@ -442,62 +393,42 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			}
 
 			conn.commit();
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
 			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+			boardDetailRes.setBoardID(boardDetailReq.getBoardID());
+			boardDetailRes.setBoardName(boardName);
+			boardDetailRes.setBoardListType(boardListTypeValue);
+			boardDetailRes.setBoardReplyPolicyType(boardReplyPolicyTypeValue);
+			boardDetailRes.setBoardReplyPermssionType(boardReplyPermssionTypeValue);
+			boardDetailRes.setIsBoardPassword(isBoardPassword);
 
-		BoardDetailRes boardDetailRes = new BoardDetailRes();
-		boardDetailRes.setBoardID(boardDetailReq.getBoardID());
-		boardDetailRes.setBoardName(boardName);
-		boardDetailRes.setBoardListType(boardListTypeValue);
-		boardDetailRes.setBoardReplyPolicyType(boardReplyPolicyTypeValue);
-		boardDetailRes.setBoardReplyPermssionType(boardReplyPermssionTypeValue);
-		boardDetailRes.setIsBoardPassword(isBoardPassword);
+			boardDetailRes.setBoardNo(boardDetailReq.getBoardNo());
+			boardDetailRes.setGroupNo(groupNo.longValue());
+			boardDetailRes.setGroupSeq(groupSeqence.intValue());
+			boardDetailRes.setParentNo(parentNo.longValue());
+			boardDetailRes.setDepth(depth.shortValue());
+			boardDetailRes.setViewCount(oldViewCount + 1);
+			boardDetailRes.setNextAttachedFileSeq(nextAttachedFileSeq.shortValue());
+			boardDetailRes.setBoardSate(boardState);
+			boardDetailRes.setVotes(votes);
 
-		boardDetailRes.setBoardNo(boardDetailReq.getBoardNo());
-		boardDetailRes.setGroupNo(groupNo.longValue());
-		boardDetailRes.setGroupSeq(groupSeqence.intValue());
-		boardDetailRes.setParentNo(parentNo.longValue());
-		boardDetailRes.setDepth(depth.shortValue());
-		boardDetailRes.setViewCount(oldViewCount + 1);
-		boardDetailRes.setNextAttachedFileSeq(nextAttachedFileSeq.shortValue());
-		boardDetailRes.setBoardSate(boardState);
-		boardDetailRes.setVotes(votes);
+			boardDetailRes.setSubject(subject);
+			boardDetailRes.setContents(contents);
 
-		boardDetailRes.setSubject(subject);
-		boardDetailRes.setContents(contents);
+			boardDetailRes.setFirstWriterID(firstWriterID);
+			boardDetailRes.setFirstWriterNickname(firstWriterNickname);
+			boardDetailRes.setFirstRegisteredDate(firstRegisteredDate);
 
-		boardDetailRes.setFirstWriterID(firstWriterID);
-		boardDetailRes.setFirstWriterNickname(firstWriterNickname);
-		boardDetailRes.setFirstRegisteredDate(firstRegisteredDate);
+			boardDetailRes.setLastModifierID(lastModifierID);
+			boardDetailRes.setLastModifierNickName(lastModifierNickName);
+			boardDetailRes.setLastModifiedDate(lastModifedDate);
 
-		boardDetailRes.setLastModifierID(lastModifierID);
-		boardDetailRes.setLastModifierNickName(lastModifierNickName);
-		boardDetailRes.setLastModifiedDate(lastModifedDate);
+			boardDetailRes.setAttachedFileCnt(attachedFileList.size());
+			boardDetailRes.setAttachedFileList(attachedFileList);
 
-		boardDetailRes.setAttachedFileCnt(attachedFileList.size());
-		boardDetailRes.setAttachedFileList(attachedFileList);
-
-		boardDetailRes.setChildNodeCnt(childNodeList.size());
-		boardDetailRes.setChildNodeList(childNodeList);
+			boardDetailRes.setChildNodeCnt(childNodeList.size());
+			boardDetailRes.setChildNodeList(childNodeList);
+			
+		});
 
 		return boardDetailRes;
 	}

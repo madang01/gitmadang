@@ -3,13 +3,6 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -18,7 +11,6 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardInfoDeleteReq.BoardInfoDeleteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
@@ -78,17 +70,10 @@ public class BoardInfoDeleteReqServerTask extends AbstractServerTask {
 			throw new ServerServiceException(errorMessage);
 		}
 
-		UByte boardID = UByte.valueOf(boardInfoDeleteReq.getBoardID());
-
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-
+		UByte boardID = UByte.valueOf(boardInfoDeleteReq.getBoardID());		
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
+			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "게시판 정보 삭제 서비스", PermissionType.ADMIN, boardInfoDeleteReq.getRequestedUserID());
 			
 			boolean isBoardInfoRecord = create
@@ -135,29 +120,8 @@ public class BoardInfoDeleteReqServerTask extends AbstractServerTask {
 			}
 			
 
-			conn.commit();
-
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+			conn.commit();			
+		});
 
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(boardInfoDeleteReq.getMessageID());

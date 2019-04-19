@@ -19,7 +19,7 @@ public enum PermissionType {
 		return permissonTypeName;
 	}
 	
-	public static PermissionType valueOf(byte permissonTypeValue) {
+	public static PermissionType valueOf(String title, byte permissonTypeValue) {
 		PermissionType[] boardWritePermissionTypes = PermissionType.values();
 		for (PermissionType boardWritePermissionType : boardWritePermissionTypes) {
 			if (boardWritePermissionType.getValue() == permissonTypeValue) {
@@ -28,9 +28,10 @@ public enum PermissionType {
 		}
 		
 		String errorMessage = new StringBuilder()
-				.append("the parameter permissonTypeValue[")
+				.append(title)
+				.append("권한 값[")
 				.append(permissonTypeValue)
-				.append("] is a element of permissonTypeValue set").toString();
+				.append("]이 잘못되었습니다").toString();
 
 		throw new IllegalArgumentException(errorMessage);
 	}

@@ -28,9 +28,9 @@ public enum BoardReplyPolicyType {
 		}
 		
 		String errorMessage = new StringBuilder()
-				.append("the parameter boardReplyPolicyTypeValue[")
+				.append("게시판 댓글 정책 유형 값[")
 				.append(boardReplyPolicyTypeValue)
-				.append("] is a element of BoardReplyPolicyType set").toString();
+				.append("]이 잘못되었습니다").toString();
 
 		throw new IllegalArgumentException(errorMessage);
 	}

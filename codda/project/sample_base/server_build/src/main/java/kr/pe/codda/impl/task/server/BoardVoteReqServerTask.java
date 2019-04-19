@@ -3,15 +3,9 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.jooq.tables.SbBoardVoteTb.SB_BOARD_VOTE_TB;
 
-import java.sql.Connection;
 import java.sql.Timestamp;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record1;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -21,7 +15,6 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.MemberActivityType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
@@ -82,49 +75,20 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 		
 		try {
 			ValueChecker.checkValidRequestedUserID(boardVoteReq.getRequestedUserID());
-		} catch(RuntimeException e) {
+			ValueChecker.checkValidIP(boardVoteReq.getIp());		
+			ValueChecker.checkValidBoardID(boardVoteReq.getBoardID());		
+			ValueChecker.checkValidBoardNo(boardVoteReq.getBoardNo());
+		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}		
 		
-		try {
-			ValueChecker.checkValidIP(boardVoteReq.getIp());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
+		final UByte boardID = UByte.valueOf(boardVoteReq.getBoardID());
+		final UInteger boardNo = UInteger.valueOf(boardVoteReq.getBoardNo());
 		
-		try {
-			ValueChecker.checkValidBoardID(boardVoteReq.getBoardID());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
-			ValueChecker.checkValidBoardNo(boardVoteReq.getBoardNo());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		
-		
-		UByte boardID = UByte.valueOf(boardVoteReq.getBoardID());
-		UInteger boardNo = UInteger.valueOf(boardVoteReq.getBoardNo());
-		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 추천 서비스", PermissionType.MEMBER, boardVoteReq.getRequestedUserID());
-			
 			
 			/** 추천할 게시글에 속한 그룹의 루트 노드에 해당하는 레코드에 락을 건다  */
 			ServerDBUtil.lockGroupOfGivenBoard(conn, create, log, boardID, boardNo);
@@ -207,28 +171,7 @@ public class BoardVoteReqServerTask extends AbstractServerTask {
 					memberRoleTypeOfRequestedUserID, MemberActivityType.VOTE, boardID, boardNo, registeredDate);
 			
 			conn.commit();
-			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+		});
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(boardVoteReq.getMessageID());

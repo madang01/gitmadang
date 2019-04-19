@@ -1,5 +1,6 @@
 package kr.pe.codda.impl.task.server;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
@@ -10,10 +11,12 @@ import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.exception.DynamicClassCallException;
+import kr.pe.codda.common.exception.ServerServiceException;
 import kr.pe.codda.impl.message.ArraySiteMenuReq.ArraySiteMenuReq;
 import kr.pe.codda.impl.message.ArraySiteMenuRes.ArraySiteMenuRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
 import kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes;
+import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
 
@@ -24,11 +27,88 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractJunitTest.setUpBeforeClass();		
 		
-		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);		
+		ServerDBUtil.initializeDBEnvoroment(TEST_DBCP_NAME);	
+		
+		{
+			String userID = "admin";
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
+			String nickname = "단위테스터용어드민";
+			String email = "admin@codda.pe.kr";
+			String ip = "127.0.0.1";
+
+			try {
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.ADMIN, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
+			} catch (ServerServiceException e) {
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
+				String actualErrorMessag = e.getMessage();
+
+				// log.warn(actualErrorMessag, e);
+
+				assertEquals(expectedErrorMessage, actualErrorMessag);
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to create a test ID");
+			}
+		}
+
+		{
+			String userID = "test01";
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
+			String nickname = "단위테스터용아이디1";
+			String email = "test01@codda.pe.kr";
+			String ip = "127.0.0.1";
+
+			try {
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
+			} catch (ServerServiceException e) {
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
+				String actualErrorMessag = e.getMessage();
+
+				// log.warn(actualErrorMessag, e);
+
+				assertEquals(expectedErrorMessage, actualErrorMessag);
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to create a test ID");
+			}
+		}
+
+		{
+			String userID = "test02";
+			byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '1', (byte) '2', (byte) '3',
+					(byte) '4', (byte) '$' };
+			String nickname = "단위테스터용아이디2";
+			String email = "test02@codda.pe.kr";
+			String ip = "127.0.0.1";
+
+			try {
+				ServerDBUtil.registerMember(TEST_DBCP_NAME, MemberRoleType.MEMBER, userID, nickname, email,
+						passwordBytes, new java.sql.Timestamp(System.currentTimeMillis()), ip);
+			} catch (ServerServiceException e) {
+				String expectedErrorMessage = new StringBuilder("기존 회원과 중복되는 아이디[").append(userID).append("] 입니다")
+						.toString();
+				String actualErrorMessag = e.getMessage();
+
+				// log.warn(actualErrorMessag, e);
+
+				assertEquals(expectedErrorMessage, actualErrorMessag);
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+				fail("fail to create a test ID");
+			}
+		}
 	}
 	
 	@Test
 	public void testDoServie_ok() {
+		String requestedUserID = "admin";
+		
 		ArraySiteMenuReqServerTask arraySiteMenuReqServerTask = null;
 		try {
 			arraySiteMenuReqServerTask = new ArraySiteMenuReqServerTask();
@@ -37,6 +117,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		arraySiteMenuReq.setRequestedUserID(requestedUserID);
 		
 		try {
 			ArraySiteMenuRes ArraySiteMenuRes = arraySiteMenuReqServerTask.doWork(TEST_DBCP_NAME, arraySiteMenuReq);
@@ -58,6 +139,8 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 	
 	@Test
 	public void testDoServie_두번루트메뉴등록하여목록점검() {
+		String requestedUserID = "admin";
+		
 		ArraySiteMenuReqServerTask menuListReqServerTask = null;
 		try {
 			menuListReqServerTask = new ArraySiteMenuReqServerTask();
@@ -66,6 +149,8 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		}
 
 		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
+		menuListReq.setRequestedUserID(requestedUserID);
+		
 		ArraySiteMenuRes beforeMenuListRes = null;
 		ArraySiteMenuRes afterMenuListRes = null;
 		try {
@@ -83,6 +168,8 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		RootMenuAddReq firstRootMenuAddReq = new RootMenuAddReq();
+		firstRootMenuAddReq.setRequestedUserID(requestedUserID);
+		
 		firstRootMenuAddReq.setMenuName("temp1");
 		firstRootMenuAddReq.setLinkURL("/temp01");
 		
@@ -139,6 +226,7 @@ public class MenuListReqServerTaskTest extends AbstractJunitTest {
 		}
 		
 		RootMenuAddReq secondRootMenuAddReq = new RootMenuAddReq();
+		secondRootMenuAddReq.setRequestedUserID(requestedUserID);
 		secondRootMenuAddReq.setMenuName("temp2");
 		secondRootMenuAddReq.setLinkURL("/temp02");
 		

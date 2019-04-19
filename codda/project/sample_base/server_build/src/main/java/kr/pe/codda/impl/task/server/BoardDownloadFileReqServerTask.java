@@ -4,14 +4,7 @@ import static kr.pe.codda.jooq.tables.SbBoardFilelistTb.SB_BOARD_FILELIST_TB;
 import static kr.pe.codda.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record1;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -22,7 +15,6 @@ import kr.pe.codda.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.codda.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.MemberRoleType;
 import kr.pe.codda.server.lib.PermissionType;
@@ -78,12 +70,6 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 		
 		try {
 			ValueChecker.checkValidBoardID(boardDownloadFileReq.getBoardID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}		
-		
-		try {
 			ValueChecker.checkValidBoardNo(boardDownloadFileReq.getBoardNo());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
@@ -93,17 +79,10 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 		UByte boardID = UByte.valueOf(boardDownloadFileReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardDownloadFileReq.getBoardNo());
 		UByte attachedFileSeq = UByte.valueOf(boardDownloadFileReq.getAttachedFileSeq());
-		String attachedFileName = null;
-
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+		
+		final BoardDownloadFileRes boardDownloadFileRes = new BoardDownloadFileRes();
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 첨부 파일 다운로드 서비스", PermissionType.MEMBER, boardDownloadFileReq.getRequestedUserID());
 
@@ -204,38 +183,15 @@ public class BoardDownloadFileReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			attachedFileName = fileListRecord.getValue(SB_BOARD_FILELIST_TB.ATTACHED_FNAME);
+			String attachedFileName = fileListRecord.getValue(SB_BOARD_FILELIST_TB.ATTACHED_FNAME);
 
 			conn.commit();
-
 			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-		
-		BoardDownloadFileRes boardDownloadFileRes = new BoardDownloadFileRes();
-		boardDownloadFileRes.setBoardID(boardDownloadFileReq.getBoardID());
-		boardDownloadFileRes.setBoardNo(boardDownloadFileReq.getBoardNo());
-		boardDownloadFileRes.setAttachedFileSeq(boardDownloadFileReq.getAttachedFileSeq());
-		boardDownloadFileRes.setAttachedFileName(attachedFileName);			
+			boardDownloadFileRes.setBoardID(boardDownloadFileReq.getBoardID());
+			boardDownloadFileRes.setBoardNo(boardDownloadFileReq.getBoardNo());
+			boardDownloadFileRes.setAttachedFileSeq(boardDownloadFileReq.getAttachedFileSeq());
+			boardDownloadFileRes.setAttachedFileName(attachedFileName);	
+		});				
 
 		return boardDownloadFileRes;
 	}

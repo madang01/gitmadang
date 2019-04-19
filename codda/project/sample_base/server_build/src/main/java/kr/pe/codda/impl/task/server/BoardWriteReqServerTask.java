@@ -5,16 +5,10 @@ import static kr.pe.codda.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
-import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record3;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
@@ -27,7 +21,6 @@ import kr.pe.codda.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.codda.impl.message.BoardWriteRes.BoardWriteRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.MemberActivityType;
 import kr.pe.codda.server.lib.MemberRoleType;
@@ -85,52 +78,14 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 		
 		try {
 			ValueChecker.checkValidRequestedUserID(boardWriteReq.getRequestedUserID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidIP(boardWriteReq.getIp());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
-			ValueChecker.checkValidBoardID(boardWriteReq.getBoardID());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		try {
-			ValueChecker.checkValidSubject(boardWriteReq.getSubject());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		try {
+			ValueChecker.checkValidBoardID(boardWriteReq.getBoardID());		
+			ValueChecker.checkValidBoardPasswordHashBase64(boardWriteReq.getPwdHashBase64());
+			ValueChecker.checkValidSubject(boardWriteReq.getSubject());		
 			ValueChecker.checkValidContents(boardWriteReq.getContents());
+			ValueChecker.checkValidAttachedFilCount(boardWriteReq.getNewAttachedFileCnt());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-
-
-		if (boardWriteReq.getNewAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
-					.append(boardWriteReq.getNewAttachedFileCnt()).append("]가 unsgiend byte 최대값[")
-					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX).append("]을 초과하였습니다").toString();
-			throw new ServerServiceException(errorMessage);
-		}
-
-		if (boardWriteReq.getNewAttachedFileCnt() > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
-			String errorMessage = new StringBuilder().append("첨부 파일 등록 갯수[")
-					.append(boardWriteReq.getNewAttachedFileCnt()).append("]가 첨부 파일 최대 갯수[")
-					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT).append("]를 초과하였습니다")
-					.toString();
 			throw new ServerServiceException(errorMessage);
 		}
 
@@ -155,34 +110,15 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
-
-		try {
-			ValueChecker.checkValidBoardPasswordHashBase64(boardWriteReq.getPwdHashBase64());
-		} catch (RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
 		
-		UByte boardID = UByte.valueOf(boardWriteReq.getBoardID());
-		UByte nextAttachedFileSeq = UByte.valueOf(boardWriteReq.getNewAttachedFileCnt());
-		UInteger boardNo = null;
-		String boardPasswordHashBase64 = boardWriteReq.getPwdHashBase64();
+		final UByte boardID = UByte.valueOf(boardWriteReq.getBoardID());
+		final UByte nextAttachedFileSeq = UByte.valueOf(boardWriteReq.getNewAttachedFileCnt());
+		final String boardPasswordHashBase64 = (null == boardWriteReq.getPwdHashBase64()) ? "" : boardWriteReq.getPwdHashBase64(); 
+
+		final BoardWriteRes boardWriteRes = new BoardWriteRes();
 		
-		if (null == boardPasswordHashBase64) {
-			boardPasswordHashBase64 = "";
-		}
-
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
-			
-
 			/**
 			 * '게시판 식별자 정보'(SB_BOARD_INFO_TB) 테이블에는 '다음 게시판 번호'가 있어 락을 건후 1 증가 시키고 가져온 값은 '게시판 번호'로 사용한다
 			 */
@@ -205,7 +141,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 
 			String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);
 			byte boardWritePermssionTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.WRITE_PERMISSION_TYPE);
-			boardNo = boardInforRecord.get(SB_BOARD_INFO_TB.NEXT_BOARD_NO);
+			UInteger boardNo = boardInforRecord.get(SB_BOARD_INFO_TB.NEXT_BOARD_NO);
 			
 			if (boardNo.longValue() == CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 				try {
@@ -224,7 +160,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			PermissionType boardWritePermissionType = null;
 
 			try {
-				boardWritePermissionType = PermissionType.valueOf(boardWritePermssionTypeValue);
+				boardWritePermissionType = PermissionType.valueOf("본문글 쓰기", boardWritePermssionTypeValue);
 			} catch (IllegalArgumentException e) {
 				try {
 					conn.rollback();
@@ -336,31 +272,9 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			
 			conn.commit();
 
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {	
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-
-		BoardWriteRes boardWriteRes = new BoardWriteRes();
-		boardWriteRes.setBoardID(boardID.shortValue());
-		boardWriteRes.setBoardNo(boardNo.longValue());
+			boardWriteRes.setBoardID(boardID.shortValue());
+			boardWriteRes.setBoardNo(boardNo.longValue());
+		});
 
 		return boardWriteRes;
 	}

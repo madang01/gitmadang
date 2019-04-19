@@ -3,21 +3,15 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.jooq.tables.SbSeqTb.SB_SEQ_TB;
 import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
-import java.sql.Connection;
 import java.util.HashSet;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Record3;
 import org.jooq.Result;
-import org.jooq.SQLDialect;
 import org.jooq.SelectHavingStep;
 import org.jooq.exception.TooManyRowsException;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -27,11 +21,11 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MenuMoveDownReq.MenuMoveDownReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -79,22 +73,19 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 	public MessageResultRes doWork(String dbcpName, MenuMoveDownReq menuMoveDownReq) throws Exception {
 		// FIXME!
 		log.info(menuMoveDownReq.toString());
+		
+		try {
+			ValueChecker.checkValidRequestedUserID(menuMoveDownReq.getRequestedUserID());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
 
 		final UByte menuSequenceID = SequenceType.MENU.getSequenceID();
-		UInteger sourceMenuNo = UInteger.valueOf(menuMoveDownReq.getMenuNo());
-		UByte sourceOrderSeq = null;
-		UInteger targetMenuNo = null;
-		UByte targetOrderSeq = null;
-
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-
+		final UInteger sourceMenuNo = UInteger.valueOf(menuMoveDownReq.getMenuNo());
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
+			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "메뉴 하단 이동 서비스", PermissionType.ADMIN,
 					menuMoveDownReq.getRequestedUserID());
 
@@ -133,7 +124,7 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 
 			UInteger sourceParetNo = sourceMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
 			UByte sourceDepth = sourceMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
-			sourceOrderSeq = sourceMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
+			UByte sourceOrderSeq = sourceMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
 
 			Record3<UInteger, UByte, UByte> targetMenuRecord = null;
 			try {
@@ -170,10 +161,10 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			targetMenuNo = targetMenuRecord.getValue(SB_SITEMENU_TB.MENU_NO);
+			UInteger targetMenuNo = targetMenuRecord.getValue(SB_SITEMENU_TB.MENU_NO);
 			// UInteger targetParetNo = targetMenuRecord.getValue(SB_SITEMENU_TB.PARENT_NO);
 			UByte targetDepth = targetMenuRecord.getValue(SB_SITEMENU_TB.DEPTH);
-			targetOrderSeq = targetMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
+			UByte targetOrderSeq = targetMenuRecord.getValue(SB_SITEMENU_TB.ORDER_SQ);
 
 			int sourceGroupListSize = targetOrderSeq.shortValue() - sourceOrderSeq.shortValue();
 			int targetGroupListSize = 1;
@@ -241,31 +232,11 @@ public class MenuMoveDownReqServerTask extends AbstractServerTask {
 			}
 
 			conn.commit();
-
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-
-		log.info("원본 메뉴[번호:{}, 순서:{}] <--하단 메뉴 이동에 따른 순서 뒤바뀜--> 목적지 메뉴[번호:{}, 순서:{}]", menuMoveDownReq.getMenuNo(),
-				sourceOrderSeq, targetMenuNo, targetOrderSeq);
+			
+			log.info("원본 메뉴[번호:{}, 순서:{}] <--하단 메뉴 이동에 따른 순서 뒤바뀜--> 목적지 메뉴[번호:{}, 순서:{}]", menuMoveDownReq.getMenuNo(),
+					sourceOrderSeq, targetMenuNo, targetOrderSeq);
+		});
+				
 
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(menuMoveDownReq.getMessageID());

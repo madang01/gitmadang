@@ -3,14 +3,7 @@ package kr.pe.codda.impl.task.server;
 import static kr.pe.codda.jooq.tables.SbSeqTb.SB_SEQ_TB;
 import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -22,12 +15,12 @@ import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.impl.message.RootMenuAddReq.RootMenuAddReq;
 import kr.pe.codda.impl.message.RootMenuAddRes.RootMenuAddRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.JooqSqlUtil;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.SequenceType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -75,20 +68,19 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 	public RootMenuAddRes doWork(String dbcpName, RootMenuAddReq rootMenuAddReq) throws Exception {
 		// FIXME!
 		log.info(rootMenuAddReq.toString());
+		
+		try {
+			ValueChecker.checkValidRequestedUserID(rootMenuAddReq.getRequestedUserID());
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
 
 		final UByte menuSequenceID = SequenceType.MENU.getSequenceID();
-		UInteger rootMenuNo = null;
-		short newOrderSeq = 0;
-
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-
+		final RootMenuAddRes rootMenuAddRes = new RootMenuAddRes();		
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
+			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "루트 메뉴 추가 서비스", PermissionType.ADMIN,
 					rootMenuAddReq.getRequestedUserID());
 
@@ -108,7 +100,7 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			rootMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);
+			UInteger rootMenuNo = menuSeqRecord.getValue(SB_SEQ_TB.SQ_VALUE);
 
 			if (rootMenuNo.longValue() == UInteger.MAX_VALUE) {
 				try {
@@ -137,7 +129,7 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			newOrderSeq = create.select(
+			short newOrderSeq = create.select(
 					JooqSqlUtil.getIfField(SB_SITEMENU_TB.ORDER_SQ.max(), 0, SB_SITEMENU_TB.ORDER_SQ.max().add(1)))
 					.from(SB_SITEMENU_TB).fetchOne(0, Short.class);
 
@@ -170,35 +162,14 @@ public class RootMenuAddReqServerTask extends AbstractServerTask {
 			}
 
 			conn.commit();
+			
+			rootMenuAddRes.setMenuNo(rootMenuNo.longValue());
+			rootMenuAddRes.setOrderSeq(newOrderSeq);
+		});
 
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
 
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-
-		log.info("루트 메뉴[번호:{}, 메뉴명:{}, URL:{}] 추가 완료", rootMenuNo, rootMenuAddReq.getMenuName(),
+		log.info("루트 메뉴[번호:{}, 메뉴명:{}, URL:{}] 추가 완료", rootMenuAddRes.getMenuNo(), rootMenuAddReq.getMenuName(),
 				rootMenuAddReq.getLinkURL());
-
-		RootMenuAddRes rootMenuAddRes = new RootMenuAddRes();
-		rootMenuAddRes.setMenuNo(rootMenuNo.longValue());
-		rootMenuAddRes.setOrderSeq(newOrderSeq);
 
 		return rootMenuAddRes;
 

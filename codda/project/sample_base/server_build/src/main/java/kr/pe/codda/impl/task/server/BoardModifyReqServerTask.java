@@ -5,21 +5,15 @@ import static kr.pe.codda.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
-import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Record4;
 import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -31,7 +25,6 @@ import kr.pe.codda.impl.message.BoardModifyReq.BoardModifyReq;
 import kr.pe.codda.impl.message.BoardModifyRes.BoardModifyRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.JooqSqlUtil;
@@ -89,62 +82,38 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		log.info(boardModifyReq.toString());
 
 		try {
-			ValueChecker.checkValidRequestedUserID(boardModifyReq.getRequestedUserID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
-			ValueChecker.checkValidIP(boardModifyReq.getIp());
-		} catch (RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
-			ValueChecker.checkValidBoardID(boardModifyReq.getBoardID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
+			ValueChecker.checkValidRequestedUserID(boardModifyReq.getRequestedUserID());		
+			ValueChecker.checkValidIP(boardModifyReq.getIp());			
+			ValueChecker.checkValidBoardID(boardModifyReq.getBoardID());		
 			ValueChecker.checkValidBoardNo(boardModifyReq.getBoardNo());
+			ValueChecker.checkValidBoardPasswordHashBase64(boardModifyReq.getPwdHashBase64());
+			ValueChecker.checkValidContents(boardModifyReq.getContents());			
+			
+			ValueChecker.checkValidAttachedFilCount(boardModifyReq.getOldAttachedFileCnt(), boardModifyReq.getNewAttachedFileCnt());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
+		
+		HashSet<Short> remainingOldAttachedFileSequeceSet = new HashSet<Short>();
+		for (BoardModifyReq.OldAttachedFile oldAttachedFile : boardModifyReq.getOldAttachedFileList()) {
 
-		try {
-			ValueChecker.checkValidContents(boardModifyReq.getContents());
-		} catch (RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}			
+			short oldAttachedFileSeq = oldAttachedFile.getAttachedFileSeq();
 
-		if (boardModifyReq.getOldAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			String errorMessage = new StringBuilder().append("기존 첨부 파일들중 남은 갯수[")
-					.append(boardModifyReq.getOldAttachedFileCnt()).append("]가 unsgiend byte 최대값[")
-					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX).append("]을 초과하였습니다").toString();
-			throw new ServerServiceException(errorMessage);
-		}
+			if (remainingOldAttachedFileSequeceSet.contains(oldAttachedFileSeq)) {
+				String errorMessage = new StringBuilder().append("보존을 원하는 구 첨부 파일 목록에서 증복된 첨부 파일 시퀀스[")
+						.append(oldAttachedFileSeq).append("]가 존재합니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
 
-		if (boardModifyReq.getNewAttachedFileCnt() > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			String errorMessage = new StringBuilder().append("신규 첨부 파일 등록 갯수[")
-					.append(boardModifyReq.getNewAttachedFileCnt()).append("]가 unsgiend byte 최대값[")
-					.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX).append("]을 초과하였습니다").toString();
-			throw new ServerServiceException(errorMessage);
-		}
+			if (oldAttachedFileSeq >= boardModifyReq.getNextAttachedFileSeq()) {
+				String errorMessage = new StringBuilder().append("보존을 원하는 구 첨부 파일 시퀀스[").append(oldAttachedFileSeq)
+						.append("]가 다음 첨부 파일 시퀀스[").append(boardModifyReq.getNextAttachedFileSeq())
+						.append("]보다 크거나 같습니다").toString();
+				throw new ServerServiceException(errorMessage);
+			}
 
-		if ((boardModifyReq.getNewAttachedFileCnt() + boardModifyReq
-				.getOldAttachedFileCnt()) > ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT) {
-			String errorMessage = new StringBuilder().append("총 첨부 파일 갯수(=신규 첨부 파일 등록 갯수[")
-					.append(boardModifyReq.getNewAttachedFileCnt()).append("] + 기존 첨부 파일들중 남은 갯수[")
-					.append(boardModifyReq.getOldAttachedFileCnt()).append("]) 가 첨부 파일 최대 갯수[")
-					.append(ServerCommonStaticFinalVars.WEBSITE_ATTACHED_FILE_MAX_COUNT).append("]를 초과하였습니다")
-					.toString();
-			throw new ServerServiceException(errorMessage);
+			remainingOldAttachedFileSequeceSet.add(oldAttachedFileSeq);
 		}
 
 		if (boardModifyReq.getNewAttachedFileCnt() > 0) {
@@ -169,31 +138,10 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 		}
 
-		HashSet<Short> remainingOldAttachedFileSequeceSet = new HashSet<Short>();
-		for (BoardModifyReq.OldAttachedFile oldAttachedFile : boardModifyReq.getOldAttachedFileList()) {
-
-			short oldAttachedFileSeq = oldAttachedFile.getAttachedFileSeq();
-
-			if (remainingOldAttachedFileSequeceSet.contains(oldAttachedFileSeq)) {
-				String errorMessage = new StringBuilder().append("보존을 원하는 구 첨부 파일 목록에서 증복된 첨부 파일 시퀀스[")
-						.append(oldAttachedFileSeq).append("]가 존재합니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
-
-			if (oldAttachedFileSeq >= boardModifyReq.getNextAttachedFileSeq()) {
-				String errorMessage = new StringBuilder().append("보존을 원하는 구 첨부 파일 시퀀스[").append(oldAttachedFileSeq)
-						.append("]가 다음 첨부 파일 시퀀스[").append(boardModifyReq.getNextAttachedFileSeq())
-						.append("]보다 크거나 같습니다").toString();
-				throw new ServerServiceException(errorMessage);
-			}
-
-			remainingOldAttachedFileSequeceSet.add(oldAttachedFileSeq);
-		}
-
-		UByte boardID = UByte.valueOf(boardModifyReq.getBoardID());
-		UInteger boardNo = UInteger.valueOf(boardModifyReq.getBoardNo());
-		HashSet<Short> deletedAttachedFileSequeceSet = new HashSet<Short>();
-		int newNextAttachedFileSeq = boardModifyReq.getNextAttachedFileSeq() + boardModifyReq.getNewAttachedFileCnt();
+		final UByte boardID = UByte.valueOf(boardModifyReq.getBoardID());
+		final UInteger boardNo = UInteger.valueOf(boardModifyReq.getBoardNo());
+		final HashSet<Short> deletedAttachedFileSequeceSet = new HashSet<Short>();
+		final int newNextAttachedFileSeq = boardModifyReq.getNextAttachedFileSeq() + boardModifyReq.getNewAttachedFileCnt();
 
 		if (newNextAttachedFileSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder().append("새로운 '다음 첨부 파일 시퀀스 번호'(= 기존 '다음 첨부 파일 시퀀스 번호'[")
@@ -201,23 +149,9 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 					.append(boardModifyReq.getNewAttachedFileCnt()).append("])가 최대 값(=255)을 초과하였습니다").toString();
 			throw new ServerServiceException(errorMessage);
 		}
-		
-		try {
-			ValueChecker.checkValidBoardPasswordHashBase64(boardModifyReq.getPwdHashBase64());
-		} catch (RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
 
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
+			
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log,
 					"게시판 수정 서비스", PermissionType.GUEST, boardModifyReq.getRequestedUserID());
 
@@ -547,28 +481,8 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			}
 
 			conn.commit();
+		});
 
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
 
 		BoardModifyRes boardModifyRes = new BoardModifyRes();
 

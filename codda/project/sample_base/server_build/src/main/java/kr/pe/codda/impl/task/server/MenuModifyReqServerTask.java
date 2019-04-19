@@ -2,14 +2,7 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record2;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -18,10 +11,10 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.MenuModifyReq.MenuModifyReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.codda.server.lib.ServerDBUtil;
+import kr.pe.codda.server.lib.ValueChecker;
 import kr.pe.codda.server.task.AbstractServerTask;
 import kr.pe.codda.server.task.ToLetterCarrier;
 
@@ -72,18 +65,14 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(menuModifyReq.toString());
 		
-		String oldMenuName = null;
-		String oldMenuLinkURL = null;
-		
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		Connection conn = null;
 		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
+			ValueChecker.checkValidRequestedUserID(menuModifyReq.getRequestedUserID());
+		} catch(IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			throw new ServerServiceException(errorMessage);
+		}
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
 			ServerDBUtil.checkUserAccessRights(conn, create, log, "메뉴 수정 서비스", PermissionType.ADMIN, menuModifyReq.getRequestedUserID());
 			
@@ -107,8 +96,8 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 			}
 			
 			
-			oldMenuName = menuRecord.getValue(SB_SITEMENU_TB.MENU_NM);
-			oldMenuLinkURL = menuRecord.getValue(SB_SITEMENU_TB.LINK_URL);
+			String oldMenuName = menuRecord.getValue(SB_SITEMENU_TB.MENU_NM);
+			String oldMenuLinkURL = menuRecord.getValue(SB_SITEMENU_TB.LINK_URL);
 			
 			
 			int menuUpdateCount = create.update(SB_SITEMENU_TB)
@@ -132,37 +121,16 @@ public class MenuModifyReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			conn.commit();			
+			conn.commit();	
 			
-			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch(Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
+			log.info("메뉴 수정전 {메뉴명[{}], URL[{}]}, 수정후 {메뉴명[{}], URL[{}]}", 
+					oldMenuName,
+					oldMenuLinkURL,
+					menuModifyReq.getMenuName(),
+					menuModifyReq.getLinkURL());
+		});
 		
-		log.info("메뉴 수정전 {메뉴명[{}], URL[{}]}, 수정후 {메뉴명[{}], URL[{}]}", 
-				oldMenuName,
-				oldMenuLinkURL,
-				menuModifyReq.getMenuName(),
-				menuModifyReq.getLinkURL());
+		
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(menuModifyReq.getMessageID());

@@ -4,15 +4,8 @@ import static kr.pe.codda.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
 import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
 import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
 
-import java.sql.Connection;
-
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record2;
 import org.jooq.Record4;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -22,7 +15,6 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.impl.message.BoardDeleteReq.BoardDeleteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.BoardStateType;
 import kr.pe.codda.server.lib.MemberActivityType;
@@ -82,59 +74,26 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 	}
 
 	public MessageResultRes doWork(String dbcpName, BoardDeleteReq boardDeleteReq)
-			throws Exception {
-		
+			throws Exception {		
 		try {
 			ValueChecker.checkValidRequestedUserID(boardDeleteReq.getRequestedUserID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidBoardID(boardDeleteReq.getBoardID());
-		} catch (IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidBoardNo(boardDeleteReq.getBoardNo());
+			ValueChecker.checkValidBoardPasswordHashBase64(boardDeleteReq.getPwdHashBase64());
+			ValueChecker.checkValidIP(boardDeleteReq.getIp());
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
-			ValueChecker.checkValidBoardPasswordHashBase64(boardDeleteReq.getPwdHashBase64());
-		} catch (RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}	
-		
-		try {
-			ValueChecker.checkValidIP(boardDeleteReq.getIp());
-		} catch (RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
+		}		
 		
 		String requestedUserID = boardDeleteReq.getRequestedUserID();
 		UByte boardID = UByte.valueOf(boardDeleteReq.getBoardID());
 		UInteger boardNo = UInteger.valueOf(boardDeleteReq.getBoardNo());
-		String boardName = null;
+		
+		StringBuilder resultMessageStringBuilder = new StringBuilder();
+		
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 
-		DataSource dataSource = DBCPManager.getInstance()
-				.getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-						
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "게시글 삭제 서비스", PermissionType.GUEST, requestedUserID);
 			
 			Record2<String, Byte> boardInforRecord = create
@@ -154,7 +113,7 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 
-			boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);			
+			String boardName = boardInforRecord.get(SB_BOARD_INFO_TB.BOARD_NAME);			
 			byte boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
 			
 			
@@ -336,40 +295,20 @@ public class BoardDeleteReqServerTask extends AbstractServerTask {
 					new java.sql.Timestamp(System.currentTimeMillis()));
 			
 			conn.commit();
+			
+			resultMessageStringBuilder.append(boardName)
+			.append(" 게시판[")
+			.append(boardID)
+			.append("]의 글[")
+			.append(boardNo.longValue())
+			.append("] 삭제가 완료되었습니다");
+		});
 
-			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
-			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
 		
 		MessageResultRes messageResultRes = new MessageResultRes();
 		messageResultRes.setTaskMessageID(boardDeleteReq.getMessageID());
 		messageResultRes.setIsSuccess(true);		
-		messageResultRes.setResultMessage(new StringBuilder()
-				.append(boardName)
-				.append(" 게시판[")
-				.append(boardID)
-				.append("]의 글[")
-				.append(boardNo.longValue())
-				.append("] 삭제가 완료되었습니다").toString());
+		messageResultRes.setResultMessage(resultMessageStringBuilder.toString());
 		
 		return messageResultRes;
 	}

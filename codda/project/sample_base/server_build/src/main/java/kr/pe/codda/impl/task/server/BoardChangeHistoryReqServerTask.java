@@ -1,24 +1,18 @@
 package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbBoardHistoryTb.SB_BOARD_HISTORY_TB;
-import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.jooq.tables.SbBoardInfoTb.SB_BOARD_INFO_TB;
+import static kr.pe.codda.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
-import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Record6;
 import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -29,7 +23,6 @@ import kr.pe.codda.impl.message.BoardChangeHistoryReq.BoardChangeHistoryReq;
 import kr.pe.codda.impl.message.BoardChangeHistoryRes.BoardChangeHistoryRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.server.PersonalLoginManagerIF;
-import kr.pe.codda.server.dbcp.DBCPManager;
 import kr.pe.codda.server.lib.BoardListType;
 import kr.pe.codda.server.lib.PermissionType;
 import kr.pe.codda.server.lib.ServerCommonStaticFinalVars;
@@ -82,43 +75,20 @@ public class BoardChangeHistoryReqServerTask extends AbstractServerTask {
 	public BoardChangeHistoryRes doWork(String dbcpName, BoardChangeHistoryReq boardChangeHistoryReq) throws Exception {
 		try {
 			ValueChecker.checkValidRequestedUserID(boardChangeHistoryReq.getRequestedUserID());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidBoardID(boardChangeHistoryReq.getBoardID());
-		} catch(RuntimeException e) {
-			String errorMessage = e.getMessage();
-			throw new ServerServiceException(errorMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidBoardNo(boardChangeHistoryReq.getBoardNo());
-		} catch(RuntimeException e) {
+		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			throw new ServerServiceException(errorMessage);
 		}
 		
-		UByte boardID = UByte.valueOf(boardChangeHistoryReq.getBoardID());
-		UInteger boardNo = UInteger.valueOf(boardChangeHistoryReq.getBoardNo());
+		final UByte boardID = UByte.valueOf(boardChangeHistoryReq.getBoardID());
+		final UInteger boardNo = UInteger.valueOf(boardChangeHistoryReq.getBoardNo());
 		
-		BoardListType boardListType = null;
-		UInteger parentNo = null;
-		UInteger groupNo = null;
+		final List<BoardChangeHistoryRes.BoardChangeHistory> boardChangeHistoryList = new ArrayList<BoardChangeHistoryRes.BoardChangeHistory>();
+		final BoardChangeHistoryRes boardChangeHistoryRes = new BoardChangeHistoryRes();
 		
-		List<BoardChangeHistoryRes.BoardChangeHistory> boardChangeHistoryList = new ArrayList<BoardChangeHistoryRes.BoardChangeHistory>();
-		
-		DataSource dataSource = DBCPManager.getInstance().getBasicDataSource(dbcpName);
-
-		Connection conn = null;
-		try {
-			conn = dataSource.getConnection();
-			conn.setAutoCommit(false);
-
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL, ServerDBUtil.getDBCPSettings(dbcpName));
-			
+		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			Record1<Byte> boardInforRecord = create
 					.select(SB_BOARD_INFO_TB.LIST_TYPE)
 					.from(SB_BOARD_INFO_TB).where(SB_BOARD_INFO_TB.BOARD_ID.eq(boardID)).fetchOne();
@@ -137,7 +107,7 @@ public class BoardChangeHistoryReqServerTask extends AbstractServerTask {
 			
 			byte boardListTypeValue = boardInforRecord.get(SB_BOARD_INFO_TB.LIST_TYPE);
 			
-			
+			BoardListType boardListType = null;
 			try {
 				boardListType = BoardListType.valueOf(boardListTypeValue);
 			} catch (IllegalArgumentException e) {
@@ -173,8 +143,9 @@ public class BoardChangeHistoryReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
-			parentNo = boardRecord.get(SB_BOARD_TB.PARENT_NO);
-			groupNo = boardRecord.get(SB_BOARD_TB.GROUP_NO);
+			
+			UInteger parentNo = boardRecord.get(SB_BOARD_TB.PARENT_NO);
+			UInteger groupNo = boardRecord.get(SB_BOARD_TB.GROUP_NO);
 			
 			Result<Record6<UByte, String, String, String, String, Timestamp>> boardHistoryResult = create.select(SB_BOARD_HISTORY_TB.HISTORY_SQ, 
 					SB_BOARD_HISTORY_TB.SUBJECT, 
@@ -206,37 +177,16 @@ public class BoardChangeHistoryReqServerTask extends AbstractServerTask {
 				boardChangeHistory.setRegisteredDate(registeredDate);
 				
 				boardChangeHistoryList.add(boardChangeHistory);
-			}			
-		} catch (ServerServiceException e) {
-			throw e;
-		} catch (Exception e) {
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback");
-				}
-			}
+			}	
 			
-			throw e;
-		} finally {
-			if (null != conn) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-					log.warn("fail to close the db connection", e);
-				}
-			}
-		}
-		
-		BoardChangeHistoryRes boardChangeHistoryRes = new BoardChangeHistoryRes();
-		boardChangeHistoryRes.setBoardID(boardID.shortValue());
-		boardChangeHistoryRes.setBoardNo(boardNo.longValue());
-		boardChangeHistoryRes.setBoardListType(boardListType.getValue());
-		boardChangeHistoryRes.setParentNo(parentNo.longValue());
-		boardChangeHistoryRes.setGroupNo(groupNo.longValue());
-		boardChangeHistoryRes.setBoardChangeHistoryCnt(boardChangeHistoryList.size());
-		boardChangeHistoryRes.setBoardChangeHistoryList(boardChangeHistoryList);
+			boardChangeHistoryRes.setBoardID(boardID.shortValue());
+			boardChangeHistoryRes.setBoardNo(boardNo.longValue());
+			boardChangeHistoryRes.setBoardListType(boardListType.getValue());
+			boardChangeHistoryRes.setParentNo(parentNo.longValue());
+			boardChangeHistoryRes.setGroupNo(groupNo.longValue());
+			boardChangeHistoryRes.setBoardChangeHistoryCnt(boardChangeHistoryList.size());
+			boardChangeHistoryRes.setBoardChangeHistoryList(boardChangeHistoryList);
+		});
 
 		return boardChangeHistoryRes;
 	}
