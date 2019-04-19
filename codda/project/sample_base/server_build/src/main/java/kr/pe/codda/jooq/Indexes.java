@@ -6,7 +6,7 @@ package kr.pe.codda.jooq;
 
 import javax.annotation.Generated;
 
-import kr.pe.codda.jooq.tables.SbAccountSerarchReqTb;
+import kr.pe.codda.jooq.tables.SbAccountSerarchTb;
 import kr.pe.codda.jooq.tables.SbBoardFilelistTb;
 import kr.pe.codda.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.jooq.tables.SbBoardInfoTb;
@@ -40,7 +40,7 @@ public class Indexes {
     // INDEX definitions
     // -------------------------------------------------------------------------
 
-    public static final Index SB_ACCOUNT_SERARCH_REQ_TB_PRIMARY = Indexes0.SB_ACCOUNT_SERARCH_REQ_TB_PRIMARY;
+    public static final Index SB_ACCOUNT_SERARCH_TB_PRIMARY = Indexes0.SB_ACCOUNT_SERARCH_TB_PRIMARY;
     public static final Index SB_BOARD_FILELIST_TB_PRIMARY = Indexes0.SB_BOARD_FILELIST_TB_PRIMARY;
     public static final Index SB_BOARD_HISTORY_TB_PRIMARY = Indexes0.SB_BOARD_HISTORY_TB_PRIMARY;
     public static final Index SB_BOARD_HISTORY_TB_SB_BOARD_HISTORY_FK2_IDX = Indexes0.SB_BOARD_HISTORY_TB_SB_BOARD_HISTORY_FK2_IDX;
@@ -69,7 +69,7 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     private static class Indexes0 {
-        public static Index SB_ACCOUNT_SERARCH_REQ_TB_PRIMARY = Internal.createIndex("PRIMARY", SbAccountSerarchReqTb.SB_ACCOUNT_SERARCH_REQ_TB, new OrderField[] { SbAccountSerarchReqTb.SB_ACCOUNT_SERARCH_REQ_TB.USER_ID }, true);
+        public static Index SB_ACCOUNT_SERARCH_TB_PRIMARY = Internal.createIndex("PRIMARY", SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB, new OrderField[] { SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB.USER_ID }, true);
         public static Index SB_BOARD_FILELIST_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB, new OrderField[] { SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_NO, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACHED_FILE_SQ }, true);
         public static Index SB_BOARD_HISTORY_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardHistoryTb.SB_BOARD_HISTORY_TB, new OrderField[] { SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_ID, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_NO, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.HISTORY_SQ }, true);
         public static Index SB_BOARD_HISTORY_TB_SB_BOARD_HISTORY_FK2_IDX = Internal.createIndex("sb_board_history_fk2_idx", SbBoardHistoryTb.SB_BOARD_HISTORY_TB, new OrderField[] { SbBoardHistoryTb.SB_BOARD_HISTORY_TB.REGISTRANT_ID }, false);

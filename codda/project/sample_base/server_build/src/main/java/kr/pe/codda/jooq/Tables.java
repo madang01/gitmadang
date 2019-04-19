@@ -6,7 +6,7 @@ package kr.pe.codda.jooq;
 
 import javax.annotation.Generated;
 
-import kr.pe.codda.jooq.tables.SbAccountSerarchReqTb;
+import kr.pe.codda.jooq.tables.SbAccountSerarchTb;
 import kr.pe.codda.jooq.tables.SbBoardFilelistTb;
 import kr.pe.codda.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.jooq.tables.SbBoardInfoTb;
@@ -33,9 +33,9 @@ import kr.pe.codda.jooq.tables.SbSitemenuTb;
 public class Tables {
 
     /**
-     * The table <code>sb_db.sb_account_serarch_req_tb</code>.
+     * The table <code>sb_db.sb_account_serarch_tb</code>.
      */
-    public static final SbAccountSerarchReqTb SB_ACCOUNT_SERARCH_REQ_TB = kr.pe.codda.jooq.tables.SbAccountSerarchReqTb.SB_ACCOUNT_SERARCH_REQ_TB;
+    public static final SbAccountSerarchTb SB_ACCOUNT_SERARCH_TB = kr.pe.codda.jooq.tables.SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB;
 
     /**
      * The table <code>sb_db.sb_board_filelist_tb</code>.

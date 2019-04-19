@@ -10,7 +10,7 @@ import java.util.List;
 
 import javax.annotation.Generated;
 
-import kr.pe.codda.jooq.tables.SbAccountSerarchReqTb;
+import kr.pe.codda.jooq.tables.SbAccountSerarchTb;
 import kr.pe.codda.jooq.tables.SbBoardFilelistTb;
 import kr.pe.codda.jooq.tables.SbBoardHistoryTb;
 import kr.pe.codda.jooq.tables.SbBoardInfoTb;
@@ -40,7 +40,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = 824245440;
+    private static final long serialVersionUID = -389438578;
 
     /**
      * The reference instance of <code>sb_db</code>
@@ -48,9 +48,9 @@ public class SbDb extends SchemaImpl {
     public static final SbDb SB_DB = new SbDb();
 
     /**
-     * The table <code>sb_db.sb_account_serarch_req_tb</code>.
+     * The table <code>sb_db.sb_account_serarch_tb</code>.
      */
-    public final SbAccountSerarchReqTb SB_ACCOUNT_SERARCH_REQ_TB = kr.pe.codda.jooq.tables.SbAccountSerarchReqTb.SB_ACCOUNT_SERARCH_REQ_TB;
+    public final SbAccountSerarchTb SB_ACCOUNT_SERARCH_TB = kr.pe.codda.jooq.tables.SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB;
 
     /**
      * The table <code>sb_db.sb_board_filelist_tb</code>.
@@ -127,7 +127,7 @@ public class SbDb extends SchemaImpl {
 
     private final List<Table<?>> getTables0() {
         return Arrays.<Table<?>>asList(
-            SbAccountSerarchReqTb.SB_ACCOUNT_SERARCH_REQ_TB,
+            SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB,
             SbBoardFilelistTb.SB_BOARD_FILELIST_TB,
             SbBoardHistoryTb.SB_BOARD_HISTORY_TB,
             SbBoardInfoTb.SB_BOARD_INFO_TB,

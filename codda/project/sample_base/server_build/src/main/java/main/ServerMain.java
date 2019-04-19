@@ -26,7 +26,7 @@ public class ServerMain {
 				byte[] passwordBytes = { (byte) 't', (byte) 'e', (byte) 's',
 						(byte) 't', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
 						(byte) '$' };
-				String nickname = "단위테스터용어드민";
+				String nickname = "관리자";
 				String email = "admin@codda.pe.kr";
 				String ip = "127.0.0.1";
 

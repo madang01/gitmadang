@@ -1,7 +1,7 @@
 package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
-import static kr.pe.codda.jooq.tables.SbAccountSerarchReqTb.SB_ACCOUNT_SERARCH_REQ_TB;
+import static kr.pe.codda.jooq.tables.SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB;
 
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -114,8 +114,8 @@ public class AccountSearchReadyReqServerTask extends AbstractServerTask {
 			String email = memberRecord.get(SB_MEMBER_TB.EMAIL);
 
 			Record2<UByte, UByte> passwordSearchRequestRecord = create
-					.select(SB_ACCOUNT_SERARCH_REQ_TB.FAIL_CNT, SB_ACCOUNT_SERARCH_REQ_TB.RETRY_CNT).from(SB_ACCOUNT_SERARCH_REQ_TB)
-					.where(SB_ACCOUNT_SERARCH_REQ_TB.USER_ID.eq(userID)).fetchOne();
+					.select(SB_ACCOUNT_SERARCH_TB.FAIL_CNT, SB_ACCOUNT_SERARCH_TB.RETRY_CNT).from(SB_ACCOUNT_SERARCH_TB)
+					.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID)).fetchOne();
 
 			if (null == passwordSearchRequestRecord) {
 				byte[] secretAuthenticationValueBytes = new byte[8];
@@ -127,12 +127,12 @@ public class AccountSearchReadyReqServerTask extends AbstractServerTask {
 
 				Timestamp registeredDate = new java.sql.Timestamp(System.currentTimeMillis());
 
-				create.insertInto(SB_ACCOUNT_SERARCH_REQ_TB).set(SB_ACCOUNT_SERARCH_REQ_TB.USER_ID, userID)
-						.set(SB_ACCOUNT_SERARCH_REQ_TB.FAIL_CNT, UByte.valueOf(0))
-						.set(SB_ACCOUNT_SERARCH_REQ_TB.RETRY_CNT, UByte.valueOf(1))
-						.set(SB_ACCOUNT_SERARCH_REQ_TB.LAST_SECRET_AUTH_VALUE, secretAuthenticationValue)
-						.set(SB_ACCOUNT_SERARCH_REQ_TB.LAST_REQ_DT, registeredDate)
-						.set(SB_ACCOUNT_SERARCH_REQ_TB.IS_FINISHED, "N").execute();
+				create.insertInto(SB_ACCOUNT_SERARCH_TB).set(SB_ACCOUNT_SERARCH_TB.USER_ID, userID)
+						.set(SB_ACCOUNT_SERARCH_TB.FAIL_CNT, UByte.valueOf(0))
+						.set(SB_ACCOUNT_SERARCH_TB.RETRY_CNT, UByte.valueOf(1))
+						.set(SB_ACCOUNT_SERARCH_TB.LAST_SECRET_AUTH_VALUE, secretAuthenticationValue)
+						.set(SB_ACCOUNT_SERARCH_TB.LAST_REQ_DT, registeredDate)
+						.set(SB_ACCOUNT_SERARCH_TB.IS_FINISHED, "N").execute();
 
 				EmilUtil.sendPasswordSearchEmail(accountSearchType, nickname, email, secretAuthenticationValue);
 
@@ -147,8 +147,8 @@ public class AccountSearchReadyReqServerTask extends AbstractServerTask {
 
 				conn.commit();
 			} else {
-				UByte failCount = passwordSearchRequestRecord.get(SB_ACCOUNT_SERARCH_REQ_TB.FAIL_CNT);
-				UByte retryCount = passwordSearchRequestRecord.get(SB_ACCOUNT_SERARCH_REQ_TB.RETRY_CNT);				
+				UByte failCount = passwordSearchRequestRecord.get(SB_ACCOUNT_SERARCH_TB.FAIL_CNT);
+				UByte retryCount = passwordSearchRequestRecord.get(SB_ACCOUNT_SERARCH_TB.RETRY_CNT);				
 
 				if (ServerCommonStaticFinalVars.MAX_RETRY_COUNT_OF_PASSWORD_SEARCH_SERVICE == retryCount.shortValue()) {
 					try {
@@ -172,7 +172,7 @@ public class AccountSearchReadyReqServerTask extends AbstractServerTask {
 						log.warn("fail to rollback");
 					}
 
-					String errorMessage = new StringBuilder().append("아이디 혹은 비밀번호 찾기로 비밀값 틀린 횟수가  최대 횟수 ")
+					String errorMessage = new StringBuilder().append("아이디 혹은 비밀번호 찾기로 비밀 값 틀린 횟수가  최대 횟수 ")
 							.append(ServerCommonStaticFinalVars.MAX_WRONG_PASSWORD_COUNT_OF_PASSWORD_SEARCH_SERVICE)
 							.append("회에 도달하여 더 이상 진행할 수 없습니다, 관리자에게 문의하여 주시기 바랍니다").toString();
 
@@ -187,11 +187,12 @@ public class AccountSearchReadyReqServerTask extends AbstractServerTask {
 						.encodeToString(newSecretAuthenticationValueBytes);
 				Timestamp registeredDate = new java.sql.Timestamp(System.currentTimeMillis());
 
-				create.update(SB_ACCOUNT_SERARCH_REQ_TB)
-						.set(SB_ACCOUNT_SERARCH_REQ_TB.RETRY_CNT, SB_ACCOUNT_SERARCH_REQ_TB.RETRY_CNT.add(1))
-						.set(SB_ACCOUNT_SERARCH_REQ_TB.LAST_SECRET_AUTH_VALUE, secretAuthenticationValue)
-						.set(SB_ACCOUNT_SERARCH_REQ_TB.LAST_REQ_DT, registeredDate)
-						.where(SB_ACCOUNT_SERARCH_REQ_TB.USER_ID.eq(userID)).execute();
+				create.update(SB_ACCOUNT_SERARCH_TB)
+						.set(SB_ACCOUNT_SERARCH_TB.RETRY_CNT, SB_ACCOUNT_SERARCH_TB.RETRY_CNT.add(1))
+						.set(SB_ACCOUNT_SERARCH_TB.LAST_SECRET_AUTH_VALUE, secretAuthenticationValue)
+						.set(SB_ACCOUNT_SERARCH_TB.LAST_REQ_DT, registeredDate)
+						.set(SB_ACCOUNT_SERARCH_TB.IS_FINISHED, "N")
+						.where(SB_ACCOUNT_SERARCH_TB.USER_ID.eq(userID)).execute();
 
 				EmilUtil.sendPasswordSearchEmail(accountSearchType, nickname, email, secretAuthenticationValue);
 

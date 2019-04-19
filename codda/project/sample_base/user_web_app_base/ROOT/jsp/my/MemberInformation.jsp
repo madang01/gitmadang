@@ -67,21 +67,17 @@
 		
 %>
 						<tr><td>아이디</td><td><%= memberInformationRes.getTargetUserID() %></td></tr>
-						<tr><td>별명</td><td><%= memberInformationRes.getNickname() %></td></tr><%
-	if (accessedUserformation.isAdmin() || accessedUserformation.getUserID().equals(memberInformationRes.getTargetUserID())) {
-		out.print(CommonStaticFinalVars.NEWLINE);
-		out.print("						");
-		out.print("<tr><td>이메일</td><td>");
-		out.print(memberInformationRes.getEmail());
-		out.print("</td></tr>");
-	}
-%>
+						<tr><td>별명</td><td><%= memberInformationRes.getNickname() %></td></tr>
 						<tr><td>상태</td><td><%= memberStateType.getName() %></td></tr>
 						<tr><td>역활</td><td><%= memberRoleType.getName() %></td></tr>
-						<tr><td>최초 가입일</td><td><%= WebCommonStaticUtil.FULL_DATE_FORMAT.format(memberInformationRes.getRegisteredDate()) %></td></tr>
+						<tr><td>최초 가입일</td><td><%= WebCommonStaticUtil.FULL_DATE_FORMAT.format(memberInformationRes.getRegisteredDate()) %></td></tr><%
+		if (accessedUserformation.isAdmin() || accessedUserformation.getUserID().equals(memberInformationRes.getTargetUserID())) {
+%>
+						<tr><td>이메일</td><td><%= memberInformationRes.getEmail() %></td></tr>
 						<tr><td>마지막 별명 수정일</td><td><%= WebCommonStaticUtil.FULL_DATE_FORMAT.format(memberInformationRes.getLastNicknameModifiedDate()) %></td></tr>
 						<tr><td>마지막 이메일 수정일</td><td><%= WebCommonStaticUtil.FULL_DATE_FORMAT.format(memberInformationRes.getLastEmailModifiedDate()) %></td></tr>
 						<tr><td>마지막 비밀번호 수정일</td><td><%= WebCommonStaticUtil.FULL_DATE_FORMAT.format(memberInformationRes.getLastPasswordModifiedDate()) %></td></tr><%
+		}
 	} else {
 		out.write("<tr><td><p>회원 정보 조회는 지정 받은 사용자에 대해서 조회를 수행합니다. 단 지정된 대상이 없다면 안내 문구만 소개하지만 로그인 했을 경우 로그인 사용자가 지정된 사용자로 대체됩니다.</p></td><td></tr>");
 	}

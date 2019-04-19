@@ -1,7 +1,7 @@
 package kr.pe.codda.server.lib;
 
 public enum MemberStateType {
-	OK((byte)'Y', "정상"), BLOCK((byte)'B', "블락"), WITHDRAWAL((byte)'W', "탈퇴");
+	OK((byte)'Y', "정상"), BLOCK((byte)'B', "차단"), WITHDRAWAL((byte)'W', "탈퇴");
 	
 	private byte memberStateTypeValue;
 	private String memberStateTypeName;

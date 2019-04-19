@@ -1,5 +1,5 @@
 -- MySQL Workbench Synchronization
--- Generated: 2019-04-18 21:45
+-- Generated: 2019-04-19 12:57
 -- Model: New Model
 -- Version: 1.0
 -- Project: Name of the project
@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_MEMBER_ACTIVITY_HISTORY_TB` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_ACCOUNT_SERARCH_REQ_TB` (
+CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_ACCOUNT_SERARCH_TB` (
   `user_id` VARCHAR(20) NOT NULL COMMENT '사용자 아이디',
   `fail_cnt` TINYINT(3) UNSIGNED NOT NULL COMMENT '비밀 인증 값 실패 횟수, 0 부터 시작 비밀번호 틀렸을 때 1 증가',
   `retry_cnt` TINYINT(3) UNSIGNED NOT NULL COMMENT '비밀번호 찾기 재시도 횟수, 1부터 시작하며 재시도할때 마다 1씩 증가한다',
