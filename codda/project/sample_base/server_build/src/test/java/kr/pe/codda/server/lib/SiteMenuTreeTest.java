@@ -320,6 +320,7 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 			fail("dead code");
 		}
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		arraySiteMenuReq.setRequestedUserID("admin");
 		ArraySiteMenuRes arraySiteMenuRes = null;
 		
 		try {
@@ -599,6 +600,7 @@ public class SiteMenuTreeTest extends AbstractJunitTest {
 			fail("dead code");
 		}
 		ArraySiteMenuReq arraySiteMenuReq = new ArraySiteMenuReq();
+		arraySiteMenuReq.setRequestedUserID("admin");
 		ArraySiteMenuRes arraySiteMenuRes = null;
 		
 		try {

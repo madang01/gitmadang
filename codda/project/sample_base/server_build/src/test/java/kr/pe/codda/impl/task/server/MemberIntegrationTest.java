@@ -1121,6 +1121,7 @@ public class MemberIntegrationTest extends AbstractJunitTest {
 			fail("사용자 정보 조회 실패::errmsg="+e.getMessage());
 		}
 		
+		passwordBytes = new byte[]{(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		
 		try {
 			MemberWithdrawReqServerTask memberWithdrawReqServerTask = new MemberWithdrawReqServerTask();
