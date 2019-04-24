@@ -15,7 +15,7 @@ public abstract class AbstractMultipartServlet extends AbstractServlet {
 		if (! ServletFileUpload.isMultipartContent(req)) {
 			String errorMessage = "the request doesn't contain multipart content";
 			
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String userID = (null == accessedUserformation) ? "guest" : accessedUserformation.getUserID();			
 			

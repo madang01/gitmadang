@@ -73,7 +73,7 @@ public class MenuDeletionProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		MenuDeleteReq menuDeleteReq = new MenuDeleteReq();
 		menuDeleteReq.setRequestedUserID(accessedUserformation.getUserID());

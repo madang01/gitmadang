@@ -158,6 +158,13 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "firstWriterRole"
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
+			, boardDetailRes.getFirstWriterRole() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "firstRegisteredDate"
 			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
 			, boardDetailRes.getFirstRegisteredDate() // itemValue
@@ -344,6 +351,13 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "firstWriterNickname"
 					, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 					, childNode$2.getFirstWriterNickname() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, childNode$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "firstWriterRole"
+					, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
+					, childNode$2.getFirstWriterRole() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, childNode$2MiddleWritableObject);

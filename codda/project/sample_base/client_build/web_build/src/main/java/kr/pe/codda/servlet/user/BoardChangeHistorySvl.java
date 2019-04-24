@@ -28,17 +28,10 @@ public class BoardChangeHistorySvl extends AbstractServlet {
 		/**************** 파라미터 종료 *******************/
 		
 		short boardID = -1;
+		long boardNo = 0L;
+		
 		try {
 			boardID = ValueChecker.checkValidBoardID(paramBoardID);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			String debugMessage = null;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
-		
-		long boardNo = 0L;
-		try {
 			boardNo = ValueChecker.checkValidBoardNo(paramBoardNo);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
@@ -47,7 +40,7 @@ public class BoardChangeHistorySvl extends AbstractServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		
 		BoardChangeHistoryReq boardChangeHistoryReq = new BoardChangeHistoryReq();

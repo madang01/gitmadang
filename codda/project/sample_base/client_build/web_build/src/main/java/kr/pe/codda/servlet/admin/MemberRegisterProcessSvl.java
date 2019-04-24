@@ -44,7 +44,7 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String  logMessage = new StringBuilder()
 					.append("errmsg=")
@@ -65,7 +65,7 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		} catch (Exception e) {
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String errorMessage = "회원 가입이 실패하였습니다";
 			String debugMessage = new StringBuilder()

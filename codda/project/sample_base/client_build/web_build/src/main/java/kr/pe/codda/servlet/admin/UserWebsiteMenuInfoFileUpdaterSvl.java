@@ -105,7 +105,7 @@ public class UserWebsiteMenuInfoFileUpdaterSvl extends
 		
 		TreeSiteMenuReq treeSiteMenuReq = new TreeSiteMenuReq();
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		treeSiteMenuReq.setRequestedUserID(accessedUserformation.getUserID());
 		
 		TreeSiteMenuRes treeSiteMenuRes = null;

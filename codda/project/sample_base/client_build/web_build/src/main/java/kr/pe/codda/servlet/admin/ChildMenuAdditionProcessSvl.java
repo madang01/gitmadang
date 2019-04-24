@@ -105,7 +105,7 @@ public class ChildMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		ChildMenuAddReq childMenuAddReq = new ChildMenuAddReq();
 		childMenuAddReq.setRequestedUserID(accessedUserformation.getUserID());

@@ -58,10 +58,7 @@ public class BoardBlockReqServerTaskTest extends AbstractBoardTest {
 		BoardWriteRes blockSateBoardWriteRes = null;
 		try {
 			blockSateBoardWriteRes = boardWriteReqServerTask.doWork(
-					TEST_DBCP_NAME, boardWriteReq);
-		} catch (ServerServiceException e) {
-			log.warn(e.getMessage(), e);
-			fail("fail to execuate doTask");
+					TEST_DBCP_NAME, boardWriteReq);		
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("fail to execuate doTask");

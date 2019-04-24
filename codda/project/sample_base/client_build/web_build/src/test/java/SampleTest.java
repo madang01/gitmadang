@@ -111,7 +111,7 @@ public class SampleTest {
 		} catch(IllegalArgumentException e) {
 			fail(e.getMessage());
 		}
-		
-		
 	}
+	
+	
 }

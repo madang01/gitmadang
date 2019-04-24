@@ -7,6 +7,7 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +66,7 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 
-			AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			log.warn("{}, userID={}, ip={}",
 					(null == debugMessage) ? errorMessage : debugMessage,
@@ -362,28 +363,8 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 		short boardID = -1;
 		try {
 			boardID = ValueChecker.checkValidBoardID(paramBoardID);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			String debugMessage = null;
-			throw new WebClientException(errorMessage, debugMessage);
-		}
-
-		if (null == paramSubject) {
-			String errorMessage = "제목 값을 넣어주세요";
-			String debugMessage = "the web parameter 'subject' is null";
-
-			throw new WebClientException(errorMessage, debugMessage);
-		}
 		
-		try {
 			ValueChecker.checkValidSubject(paramSubject);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			String debugMessage = null;
-			throw new WebClientException(errorMessage, debugMessage);
-		}
-		
-		try {
 			ValueChecker.checkValidContents(paramContents);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
@@ -427,6 +408,16 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 			byte[] boardPasswordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
 					.decode(paramBoardPwdCipherBase64));
 			
+			try {
+				ValueChecker.checkValidBoardPwd(boardPasswordBytes);
+			} catch(IllegalArgumentException e) {
+				Arrays.fill(boardPasswordBytes, (byte)0);
+				
+				String errorMessage = e.getMessage();
+				String debugMessage = null;
+				throw new WebClientException(errorMessage, debugMessage);
+			}			
+			
 			MessageDigest md = null;
 			try {
 				md = MessageDigest.getInstance(WebCommonStaticFinalVars.BOARD_HASH_ALGORITHM);
@@ -443,9 +434,11 @@ public class BoardWriteProcessSvl extends AbstractMultipartServlet {
 			
 			md.update(boardPasswordBytes);
 			pwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
+			
+			Arrays.fill(boardPasswordBytes, (byte)0);
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 
 		BoardWriteReq boardWriteReq = new BoardWriteReq();
 		boardWriteReq.setRequestedUserID(accessedUserformation.getUserID());

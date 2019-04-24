@@ -11,7 +11,7 @@ import kr.pe.codda.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
-import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
+import kr.pe.codda.weblib.jdf.AbstractUserLoginServlet;
 
 /**
  * 
@@ -19,7 +19,7 @@ import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
  * 
  */
 @SuppressWarnings("serial")
-public class BoardVoteProcessSvl extends AbstractLoginServlet {
+public class BoardVoteProcessSvl extends AbstractUserLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -51,7 +51,7 @@ public class BoardVoteProcessSvl extends AbstractLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 
 		BoardVoteReq boardVoteReq = new BoardVoteReq();
 		boardVoteReq.setRequestedUserID(accessedUserformation.getUserID());

@@ -46,7 +46,7 @@ public class BoardDetailSvl extends AbstractServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		BoardDetailReq boardDetailReq = new BoardDetailReq();
 		boardDetailReq.setRequestedUserID(accessedUserformation.getUserID());

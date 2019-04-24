@@ -417,6 +417,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 		
 		try {
 			ServerDBUtil.execute(TEST_DBCP_NAME, (conn, create) -> {
+				
 				ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 미 존재 테스트 서비스", PermissionType.MEMBER,
 						requestedUserID);
 				fail("ServerServiceException");
@@ -505,6 +506,8 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 				create.update(SB_MEMBER_TB)
 				.set(SB_MEMBER_TB.ROLE, (byte)'K').where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
 						.execute();
+				
+				conn.commit();
 
 				ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 역활 유형이 손님인 테스트 서비스", PermissionType.MEMBER,
 						requestedUserID);				
@@ -598,7 +601,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			String expectedErrorMessage = "관리저 전용 서비스에 일반인 접근 테스트 서비스는 관리자 전용 서비스입니다";
 
-			assertEquals("관리저 전용 서비스에 일반회원가 접근한 경우 점검", expectedErrorMessage, actualErrorMessag);
+			assertEquals(expectedErrorMessage, actualErrorMessag);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("메뉴 단위 테스트 실패");
@@ -622,7 +625,7 @@ public class ServerDBUtilTest extends AbstractJunitTest {
 
 			String expectedErrorMessage = "관리저 전용 서비스에 손님 접근 테스트 서비스는 관리자 전용 서비스입니다";
 
-			assertEquals("관리저 전용 서비스에 일반회원가 접근한 경우 점검", expectedErrorMessage, actualErrorMessag);
+			assertEquals(expectedErrorMessage, actualErrorMessag);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
 			fail("메뉴 단위 테스트 실패");

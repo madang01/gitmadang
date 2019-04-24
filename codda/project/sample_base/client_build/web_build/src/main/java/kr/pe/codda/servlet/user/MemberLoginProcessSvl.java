@@ -1,5 +1,7 @@
 package kr.pe.codda.servlet.user;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -167,6 +169,8 @@ public class MemberLoginProcessSvl extends AbstractServlet {
 		try {
 			ValueChecker.checkValidLoginPwd(passwordBytes);
 		} catch (IllegalArgumentException e) {
+			Arrays.fill(passwordBytes, (byte)0);
+			
 			String errorMessage = e.getMessage();
 			String debugMessage = null;
 
@@ -219,6 +223,8 @@ public class MemberLoginProcessSvl extends AbstractServlet {
 		memberLoginReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
 		memberLoginReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));
 		memberLoginReq.setIp(req.getRemoteAddr());
+		
+		Arrays.fill(passwordBytes, (byte)0);
 
 		AbstractMessage outputMessage = mainProjectConnectionPool
 				.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), memberLoginReq);

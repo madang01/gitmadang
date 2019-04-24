@@ -58,7 +58,7 @@ public class BoardInfoDeleteSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		BoardInfoDeleteReq boardInfoDeleteReq = new BoardInfoDeleteReq();
 		boardInfoDeleteReq.setRequestedUserID(accessedUserformation.getUserID());

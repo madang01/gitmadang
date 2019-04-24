@@ -7,6 +7,7 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +66,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 			
-			AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 
 			log.warn("{}, userID={}, ip={}",
 					(null == debugMessage) ? errorMessage : debugMessage,
@@ -364,39 +365,19 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 						sessionkeyBytes, ivBytes));
 		
 		short boardID = -1;
-		try {
-			boardID = ValueChecker.checkValidBoardID(paramBoardID);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			String debugMessage = null;
-			throw new WebClientException(errorMessage, debugMessage);
-		}
-		
 		long parentBoardNo = 0L;
 		
+		
 		try {
+			boardID = ValueChecker.checkValidBoardID(paramBoardID);
 			parentBoardNo = ValueChecker.checkValidParentBoardNo(paramParentBoardNo);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			String debugMessage = null;
-			throw new WebClientException(errorMessage, debugMessage);
-		}
-
-		if (null != paramSubject) {
-			try {
+			
+			if (null != paramSubject) {
 				ValueChecker.checkValidSubject(paramSubject);
-			} catch(IllegalArgumentException e) {
-				String errorMessage = e.getMessage();
-				String debugMessage = null;
-				throw new WebClientException(errorMessage, debugMessage);
+			} else {
+				paramSubject = "";
 			}
-		} else {
-			paramSubject = "";
-		}
-		
-		
-		
-		try {
+			
 			ValueChecker.checkValidContents(paramContents);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
@@ -405,6 +386,7 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 		}
 		
 		String boardPwdHashBase64 = null;
+
 		if (null == paramBoardPwdCipherBase64) {
 			boardPwdHashBase64 = "";
 		} else {
@@ -437,8 +419,18 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 				throw new WebClientException(errorMessage, debugMessage);
 			}
 			
-			byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
+			byte[] boardPasswordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
 					.decode(paramBoardPwdCipherBase64));
+			
+			try {
+				ValueChecker.checkValidBoardPwd(boardPasswordBytes);
+			} catch(IllegalArgumentException e) {
+				Arrays.fill(boardPasswordBytes, (byte)0);
+				
+				String errorMessage = e.getMessage();
+				String debugMessage = null;
+				throw new WebClientException(errorMessage, debugMessage);
+			}	
 			
 			MessageDigest md = null;
 			try {
@@ -454,11 +446,13 @@ public class BoardReplyProcessSvl extends AbstractMultipartServlet {
 				throw new WebClientException(errorMessage, debugMessage);
 			}
 			
-			md.update(passwordBytes);
+			md.update(boardPasswordBytes);
 			boardPwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
+			
+			Arrays.fill(boardPasswordBytes, (byte)0);
 		}
 
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		BoardReplyReq boardReplyReq = new BoardReplyReq();
 		boardReplyReq.setRequestedUserID(accessedUserformation.getUserID());

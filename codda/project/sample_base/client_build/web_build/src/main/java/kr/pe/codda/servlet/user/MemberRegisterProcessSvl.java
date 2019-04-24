@@ -1,5 +1,7 @@
 package kr.pe.codda.servlet.user;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -44,7 +46,7 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String  logMessage = new StringBuilder()
 					.append("errmsg=")
@@ -65,7 +67,7 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		} catch (Exception e) {
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String errorMessage = "회원 가입이 실패하였습니다";
 			String debugMessage = new StringBuilder()
@@ -244,6 +246,8 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 		try {
 			ValueChecker.checkValidMemberReigsterPwd(passwordBytes);
 		} catch (IllegalArgumentException e) {
+			Arrays.fill(passwordBytes, (byte)0);
+			
 			String errorMessage = e.getMessage();
 			String debugMessage = null;
 
@@ -318,6 +322,8 @@ public class MemberRegisterProcessSvl extends AbstractServlet {
 		memberRegisterReq.setSessionKeyBase64(CommonStaticUtil.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
 		memberRegisterReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));
 		memberRegisterReq.setIp(req.getRemoteAddr());
+		
+		Arrays.fill(passwordBytes, (byte)0);
 
 		AbstractMessage memberRegisterOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), memberRegisterReq);					
 		if (! (memberRegisterOutputMessage instanceof MessageResultRes)) {

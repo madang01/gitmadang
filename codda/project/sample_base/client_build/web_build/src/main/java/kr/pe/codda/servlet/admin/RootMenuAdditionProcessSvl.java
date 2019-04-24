@@ -43,7 +43,7 @@ public class RootMenuAdditionProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		RootMenuAddReq rootMenuAddReq = new RootMenuAddReq();
 		rootMenuAddReq.setRequestedUserID(accessedUserformation.getUserID());

@@ -5,9 +5,7 @@
 %><%@page import="kr.pe.codda.weblib.common.MemberRoleType"%><%	
 %><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%	
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><jsp:useBean id="memberInformationRes" class="kr.pe.codda.impl.message.MemberInformationRes.MemberInformationRes" scope="request" /><%
-	AccessedUserInformation accessedUserformation = getAccessedUserInformation(request);
-%><!DOCTYPE html>
+%><jsp:useBean id="memberInformationRes" class="kr.pe.codda.impl.message.MemberInformationRes.MemberInformationRes" scope="request" /><%AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(request);%><!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">

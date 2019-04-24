@@ -228,6 +228,10 @@ public class ValueChecker {
 		checkValidPwd("변경 후", passwordBytes);
 	}
 	
+	public static void checkValidBoardPwd(byte[] passwordBytes) throws IllegalArgumentException {
+		checkValidPwd("게시글", passwordBytes);
+	}
+	
 	/*
 	 * public static void checkValidMemberWithdrawPwd(byte[] passwordBytes) throws
 	 * IllegalArgumentException { checkValidPwd("회원 탈퇴", passwordBytes); }
@@ -377,6 +381,41 @@ public class ValueChecker {
 			}
 		}
 	}
+	
+	private static short checkValidBoardID(String title, String paramBoardID) throws IllegalArgumentException {
+		if (null == paramBoardID) {
+			throw new IllegalArgumentException(title + "게시판 식별자를 입력하세요");
+		}
+		
+		short boardID = -1;
+		try {
+			boardID = Short.parseShort(paramBoardID);
+		}catch (NumberFormatException nfe) {
+			String errorMessage = new StringBuilder()
+					.append(title)
+					.append("게시판 식별자[")
+					.append(paramBoardID).append("]가 unsigned byte type 값이 아닙니다").toString();			
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (boardID < 0) {
+			String errorMessage = new StringBuilder()
+					.append(title)
+					.append("게시판 식별자[")
+			.append(boardID).append("]가 0 보다 크거나 같아야 합니다").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}	
+		
+		if (boardID > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			String errorMessage = new StringBuilder()
+					.append(title)
+					.append("게시판 식별자[")
+					.append(boardID).append("]가 unsigned byte 최대값 255 보다 큽니다").toString();
+					throw new IllegalArgumentException(errorMessage);
+		}
+		
+		return boardID;
+	}
 
 	/**
 	 * 게시판 식별자 검사, 0 <= 게시판 식별자 <= unsigned byte max(=255)
@@ -384,42 +423,21 @@ public class ValueChecker {
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
 	public static short checkValidBoardID(String paramBoardID) throws IllegalArgumentException {
-		if (null == paramBoardID) {
-			throw new IllegalArgumentException("게시판 식별자를 입력하세요");
-		}
-		
-		short boardID = -1;
-		try {
-			boardID = Short.parseShort(paramBoardID);
-		}catch (NumberFormatException nfe) {
-			String errorMessage = new StringBuilder("게시판 식별자[")
-					.append(paramBoardID).append("]가 unsigned byte 가 아닙니다").toString();			
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (boardID < 0) {
-			String errorMessage = new StringBuilder("게시판 식별자[")
-			.append(boardID).append("]가 0 보다 크거나 같아야 합니다").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}	
-		
-		if (boardID > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			String errorMessage = new StringBuilder("게시판 식별자[")
-					.append(boardID).append("]가 unsigned byte 최대값 255 보다 큽니다").toString();
-					throw new IllegalArgumentException(errorMessage);
-		}
-		
-		return boardID;
+		return checkValidBoardID("", paramBoardID);
+	}
+	
+	public static short checkValidSourceBoardID(String paramBoardID) throws IllegalArgumentException {
+		return checkValidBoardID("이동 대상 ", paramBoardID);
 	}	
 	
-	/**
-	 * 게시판 번호 검사, 1 <= 게시판 번호 <= unsigned integer max(=4294967295)  
-	 * @param boardNo 게시판 번호
-	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
-	 */
-	public static long checkValidBoardNo(String paramBoardNo) throws IllegalArgumentException {
+	public static short checkValidTargetBoardID(String paramBoardID) throws IllegalArgumentException {
+		return checkValidBoardID("목적지 ", paramBoardID);
+	}	
+	
+	
+	private static long checkValidBoardNo(String title, String paramBoardNo) throws IllegalArgumentException {
 		if (null == paramBoardNo) {
-			throw new IllegalArgumentException("게시판 번호를 입력해 주세요");
+			throw new IllegalArgumentException(title + "게시판 번호를 입력해 주세요");
 		}
 		
 		long boardNo = 0L;
@@ -427,20 +445,25 @@ public class ValueChecker {
 		try {
 			boardNo = Long.parseLong(paramBoardNo);
 		} catch (NumberFormatException nfe) {
-			String errorMessage = new StringBuilder(
-					"잘못된 게시판 번호[").append(paramBoardNo)
-					.append("]입니다").toString();
+			String errorMessage = new StringBuilder(					)
+					.append(title)
+					.append("게시판 번호[").append(paramBoardNo)
+					.append("]가 long type 값이 아닙니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		if (boardNo <= 0) {
-			String errorMessage = new StringBuilder("게시판 번호[")
+			String errorMessage = new StringBuilder(					)
+					.append(title)
+					.append("게시판 번호[")
 			.append(boardNo).append("]가  0 보다 작거나 같습니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		if (boardNo > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
-			String errorMessage = new StringBuilder("게시판 번호 값[")
+			String errorMessage = new StringBuilder(					)
+					.append(title)
+					.append("게시판 번호[")
 			.append(boardNo).append("]이 unsigned integer 최대값 4294967295 보다 큽니다").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -448,6 +471,19 @@ public class ValueChecker {
 		return boardNo;
 	}
 	
+	/**
+	 * 게시판 번호 검사, 1 <= 게시판 번호 <= unsigned integer max(=4294967295)  
+	 * @param boardNo 게시판 번호
+	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
+	 */
+	public static long checkValidBoardNo(String paramBoardNo) throws IllegalArgumentException {
+		return checkValidBoardNo("", paramBoardNo);
+	}
+	
+	
+	public static long checkValidSourceBoardNo(String paramBoardNo) throws IllegalArgumentException {
+		return checkValidBoardNo("이동 대상 ", paramBoardNo);
+	}
 	
 	/**
 	 * 부모 게시판 번호 검사, 0 <= 부모 게시판 번호 <= unsigned integer max(=4294967295)  

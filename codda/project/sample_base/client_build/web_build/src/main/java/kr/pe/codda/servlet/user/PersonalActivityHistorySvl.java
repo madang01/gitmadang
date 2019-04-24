@@ -38,7 +38,7 @@ public class PersonalActivityHistorySvl extends AbstractServlet {
 		
 		
 		PersonalActivityHistoryReq personalActivityHistoryReq = new PersonalActivityHistoryReq();
-		personalActivityHistoryReq.setRequestedUserID(getAccessedUserInformation(req).getUserID());
+		personalActivityHistoryReq.setRequestedUserID(getAccessedUserInformationFromSession(req).getUserID());
 		personalActivityHistoryReq.setTargetUserID(paramTargetUserID);
 		personalActivityHistoryReq.setPageNo(pageNo);
 		personalActivityHistoryReq.setPageSize(WebCommonStaticFinalVars.WEBSITE_BOARD_LIST_SIZE_PER_PAGE);

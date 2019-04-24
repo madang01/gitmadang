@@ -171,6 +171,14 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		boardDetailRes.setFirstWriterRole((Byte)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "firstWriterRole" // itemName
+			, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		boardDetailRes.setFirstRegisteredDate((java.sql.Timestamp)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "firstRegisteredDate" // itemName
@@ -360,6 +368,14 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "firstWriterNickname" // itemName
 				, kr.pe.codda.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, childNode$2MiddleWritableObject));
+
+			childNode$2.setFirstWriterRole((Byte)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "firstWriterRole" // itemName
+				, kr.pe.codda.common.type.SingleItemType.BYTE // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
 				, childNode$2MiddleWritableObject));

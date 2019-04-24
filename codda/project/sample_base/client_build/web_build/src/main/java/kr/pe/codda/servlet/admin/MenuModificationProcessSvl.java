@@ -102,7 +102,7 @@ public class MenuModificationProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		MenuModifyReq menuModifyReq = new MenuModifyReq();
 		menuModifyReq.setRequestedUserID(accessedUserformation.getUserID());

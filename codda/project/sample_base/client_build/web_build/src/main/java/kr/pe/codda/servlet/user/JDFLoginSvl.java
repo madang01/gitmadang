@@ -3,10 +3,10 @@ package kr.pe.codda.servlet.user;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
+import kr.pe.codda.weblib.jdf.AbstractUserLoginServlet;
 
 
-public class JDFLoginSvl extends AbstractLoginServlet {
+public class JDFLoginSvl extends AbstractUserLoginServlet {
 
 	/**
 	 * 

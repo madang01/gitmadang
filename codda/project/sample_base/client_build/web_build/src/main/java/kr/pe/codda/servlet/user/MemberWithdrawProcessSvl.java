@@ -1,5 +1,7 @@
 package kr.pe.codda.servlet.user;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,9 +22,9 @@ import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.exception.WebClientException;
-import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
+import kr.pe.codda.weblib.jdf.AbstractUserLoginServlet;
 
-public class MemberWithdrawProcessSvl extends AbstractLoginServlet {
+public class MemberWithdrawProcessSvl extends AbstractUserLoginServlet {
 
 	private static final long serialVersionUID = -5099657195453876192L;
 
@@ -36,7 +38,7 @@ public class MemberWithdrawProcessSvl extends AbstractLoginServlet {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String  logMessage = new StringBuilder()
 			.append("errmsg=")
@@ -57,7 +59,7 @@ public class MemberWithdrawProcessSvl extends AbstractLoginServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		} catch (Exception e) {
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String errorMessage = "비밀 번호 변경이 실패하였습니다";
 			String debugMessage = new StringBuilder()
@@ -128,6 +130,8 @@ public class MemberWithdrawProcessSvl extends AbstractLoginServlet {
 		try {
 			ValueChecker.checkValidLoginPwd(passwordBytes);
 		} catch (IllegalArgumentException e) {
+			Arrays.fill(passwordBytes, (byte)0);
+			
 			String errorMessage = e.getMessage();
 			String debugMessage = null;
 
@@ -162,7 +166,7 @@ public class MemberWithdrawProcessSvl extends AbstractLoginServlet {
 		byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
 		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		MemberWithdrawReq memberWithdrawReq= new MemberWithdrawReq();
 		memberWithdrawReq.setRequestedUserID(accessedUserformation.getUserID());
@@ -172,6 +176,8 @@ public class MemberWithdrawProcessSvl extends AbstractLoginServlet {
 				.Base64Encoder.encodeToString(sessionKeyBytesOfServer));
 		memberWithdrawReq.setIvBase64(CommonStaticUtil.Base64Encoder.encodeToString(ivBytesOfServer));
 		memberWithdrawReq.setIp(req.getRemoteAddr());
+		
+		Arrays.fill(passwordBytes, (byte)0);
 		
 		AbstractMessage memberRegisterOutputMessage = mainProjectConnectionPool
 				.sendSyncInputMessage(ClientMessageCodecManger.getInstance(), memberWithdrawReq);					

@@ -42,6 +42,7 @@ public class BoardDetailRes extends AbstractMessage {
 	private String contents;
 	private String firstWriterID;
 	private String firstWriterNickname;
+	private byte firstWriterRole;
 	private java.sql.Timestamp firstRegisteredDate;
 	private String lastModifierID;
 	private String lastModifierNickName;
@@ -105,6 +106,7 @@ public class BoardDetailRes extends AbstractMessage {
 		private byte boardSate;
 		private String firstWriterID;
 		private String firstWriterNickname;
+		private byte firstWriterRole;
 		private java.sql.Timestamp firstRegisteredDate;
 		private String lastModifierID;
 		private String lastModifierNickName;
@@ -220,6 +222,13 @@ public class BoardDetailRes extends AbstractMessage {
 		public void setFirstWriterNickname(String firstWriterNickname) {
 			this.firstWriterNickname = firstWriterNickname;
 		}
+		public byte getFirstWriterRole() {
+			return firstWriterRole;
+		}
+
+		public void setFirstWriterRole(byte firstWriterRole) {
+			this.firstWriterRole = firstWriterRole;
+		}
 		public java.sql.Timestamp getFirstRegisteredDate() {
 			return firstRegisteredDate;
 		}
@@ -299,6 +308,8 @@ public class BoardDetailRes extends AbstractMessage {
 			builder.append(firstWriterID);
 			builder.append(", firstWriterNickname=");
 			builder.append(firstWriterNickname);
+			builder.append(", firstWriterRole=");
+			builder.append(firstWriterRole);
 			builder.append(", firstRegisteredDate=");
 			builder.append(firstRegisteredDate);
 			builder.append(", lastModifierID=");
@@ -463,6 +474,13 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setFirstWriterNickname(String firstWriterNickname) {
 		this.firstWriterNickname = firstWriterNickname;
 	}
+	public byte getFirstWriterRole() {
+		return firstWriterRole;
+	}
+
+	public void setFirstWriterRole(byte firstWriterRole) {
+		this.firstWriterRole = firstWriterRole;
+	}
 	public java.sql.Timestamp getFirstRegisteredDate() {
 		return firstRegisteredDate;
 	}
@@ -572,6 +590,8 @@ public class BoardDetailRes extends AbstractMessage {
 		builder.append(firstWriterID);
 		builder.append(", firstWriterNickname=");
 		builder.append(firstWriterNickname);
+		builder.append(", firstWriterRole=");
+		builder.append(firstWriterRole);
 		builder.append(", firstRegisteredDate=");
 		builder.append(firstRegisteredDate);
 		builder.append(", lastModifierID=");

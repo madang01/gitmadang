@@ -10,10 +10,10 @@ import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 
 @SuppressWarnings("serial")
-public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {	
+public abstract class AbstractUserLoginServlet extends AbstractSessionKeyServlet {	
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		if (! accessedUserformation.isLoginedIn()) {
 			String requestURI = req.getRequestURI();

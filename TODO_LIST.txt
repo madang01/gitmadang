@@ -40,10 +40,15 @@
 #(1) 개인 활동 내역(Personal activity History)
 #(2) 비밀번호 변경(Personal Password Change)
 #(3) 회원 탈퇴(membership withdraw)
-(4) 개인정보조회#회원 차단
+
 
 --- 메뉴: 회원
 # (1) 계정 찾기
+
+
+-- 공통
+(1) 회원 차단
+
 
 
 >>>> 관리자 사이트 <<<<

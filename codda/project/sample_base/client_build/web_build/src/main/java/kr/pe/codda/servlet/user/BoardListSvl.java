@@ -49,7 +49,7 @@ public class BoardListSvl extends AbstractServlet {
 		// AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
 		
 		BoardListReq boardListReq = new BoardListReq();
-		boardListReq.setRequestedUserID(getAccessedUserInformation(req).getUserID());
+		boardListReq.setRequestedUserID(getAccessedUserInformationFromSession(req).getUserID());
 		boardListReq.setBoardID(boardID);
 		boardListReq.setPageNo(pageNo);
 		boardListReq.setPageSize(WebCommonStaticFinalVars.WEBSITE_BOARD_LIST_SIZE_PER_PAGE);

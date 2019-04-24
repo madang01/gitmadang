@@ -20,9 +20,9 @@ import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.codda.weblib.exception.WebClientException;
-import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
+import kr.pe.codda.weblib.jdf.AbstractUserLoginServlet;
 
-public class MemberPasswordChangeProcessSvl extends AbstractLoginServlet {
+public class MemberPasswordChangeProcessSvl extends AbstractUserLoginServlet {
 
 	private static final long serialVersionUID = 966535867318719804L;
 	
@@ -37,7 +37,7 @@ public class MemberPasswordChangeProcessSvl extends AbstractLoginServlet {
 			String errorMessage = e.getErrorMessage();
 			String debugMessage = e.getDebugMessage();
 
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String  logMessage = new StringBuilder()
 			.append("errmsg=")
@@ -58,7 +58,7 @@ public class MemberPasswordChangeProcessSvl extends AbstractLoginServlet {
 			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		} catch (Exception e) {
-			AccessedUserInformation  accessedUserformation = getAccessedUserInformation(req);
+			AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(req);
 			
 			String errorMessage = "비밀 번호 변경이 실패하였습니다";
 			String debugMessage = new StringBuilder()
@@ -193,7 +193,7 @@ public class MemberPasswordChangeProcessSvl extends AbstractLoginServlet {
 		ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
 		
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		MemberPasswordChangeReq memberPasswordChangeReq = new MemberPasswordChangeReq();		
 		memberPasswordChangeReq.setRequestedUserID(accessedUserformation.getUserID());

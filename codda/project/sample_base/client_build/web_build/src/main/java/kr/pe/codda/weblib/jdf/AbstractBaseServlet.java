@@ -13,7 +13,7 @@ import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
 public abstract class AbstractBaseServlet extends HttpServlet {
 	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractBaseServlet.class);
 	
-	public AccessedUserInformation getAccessedUserInformation(HttpServletRequest req) {
+	public AccessedUserInformation getAccessedUserInformationFromSession(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		
 		Object accessedUserformationOfHttpSession = httpSession

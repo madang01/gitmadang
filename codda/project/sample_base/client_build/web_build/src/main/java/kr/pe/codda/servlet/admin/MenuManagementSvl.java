@@ -21,7 +21,7 @@ public class MenuManagementSvl extends AbstractAdminLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		ArraySiteMenuReq menuListReq = new ArraySiteMenuReq();
 		menuListReq.setRequestedUserID(accessedUserformation.getUserID());

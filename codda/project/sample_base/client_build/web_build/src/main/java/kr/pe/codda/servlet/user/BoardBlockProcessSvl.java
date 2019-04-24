@@ -11,9 +11,9 @@ import kr.pe.codda.impl.message.BoardBlockReq.BoardBlockReq;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.ValueChecker;
-import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
+import kr.pe.codda.weblib.jdf.AbstractUserLoginServlet;
 
-public class BoardBlockProcessSvl extends AbstractLoginServlet {
+public class BoardBlockProcessSvl extends AbstractUserLoginServlet {
 
 	private static final long serialVersionUID = 3160934611426725072L;
 
@@ -47,7 +47,7 @@ public class BoardBlockProcessSvl extends AbstractLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		BoardBlockReq boardBlockReq = new BoardBlockReq();
 		boardBlockReq.setRequestedUserID(accessedUserformation.getUserID());

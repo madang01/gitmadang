@@ -54,12 +54,14 @@
 	}	 */
 	
 	
+	MemberRoleType firstWriterRoleType = MemberRoleType.valueOf(boardDetailRes.getFirstWriterRole());
+	
 	
 	BoardListType boardListType = BoardListType.valueOf(boardDetailRes.getBoardListType());
 	BoardReplyPolicyType boardReplyPolicyType = BoardReplyPolicyType.valueOf(boardDetailRes.getBoardReplyPolicyType());	
 	PermissionType boardReplyPermissionType = PermissionType.valueOf(boardDetailRes.getBoardReplyPermssionType());		
 	
-	AccessedUserInformation  accessedUserformation = getAccessedUserInformation(request);
+	AccessedUserInformation  accessedUserformation = getAccessedUserInformationFromSession(request);
 
 	String paramInterestedBoadNo = request.getParameter("interestedBoadNo");
 	
@@ -68,9 +70,7 @@
 	try {
 		interestedBoadNo = Long.parseLong(paramInterestedBoadNo);
 	} catch(Exception e) {		
-	}	
-	
-%><!DOCTYPE html>
+	}%><!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -1050,12 +1050,12 @@
 	}
 	
 	
-	function goPersonalInformation(targetUserID) {		
+	function goMemberInformation(targetUserID) {		
 		if (opener != undefined) {			
-			opener.document.location.href = "/servlet/PersonalInformation?targetUserID="+targetUserID;
+			opener.document.location.href = "/servlet/MemberInformation?targetUserID="+targetUserID;
 			self.close();
 		} else {
-			document.location.href = "/servlet/PersonalInformation?targetUserID="+targetUserID;
+			document.location.href = "/servlet/MemberInformation?targetUserID="+targetUserID;
 		}
 	}
 	
@@ -1074,7 +1074,7 @@
 	function goBlock(boardNo) {	
 		var iv = buildIV();
 		
-		var g = document.blockFrm;
+		var g = document.goBlockFrm;
 		
 		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
 		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
@@ -1091,6 +1091,36 @@
 		resultMessageDiv.innerHTML = "<strong>Success!</strong> 게시글[" + boardNo+ "] 차단이 완료 되었습니다";
 		
 		document.location.reload();
+	}
+	
+	function goMove() {
+		var f = document.moveFrm;
+		var g = document.goMoveFrm;
+		
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
+
+		var iv = buildIV();
+		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+		
+		g.targetBoardID.value = f.targetBoardID.value;
+				
+		g.submit();
+	}
+	
+	function callBackForBoardMoveProcess() {
+		var resultMessageDiv = document.getElementById("resultMessage");
+		
+		resultMessageDiv.setAttribute("class", "alert alert-success");
+		resultMessageDiv.innerHTML = "<strong>Success!</strong> 게시글 이동 처리가 완료 되었습니다";
+		
+		var g = document.goMoveFrm;
+		
+		if (opener != undefined) {
+			opener.document.location.href="/servlet/BoardList?boardID="+g.targetBoardID.value;
+			self.close();
+		} else {
+			document.location.href="/servlet/BoardList?boardID="+g.targetBoardID.value;
+		}
 	}<%
 	}
 %>
@@ -1167,11 +1197,18 @@
 	if (MemberRoleType.ADMIN.equals(accessedUserformation.getMemberRoleType())) {
 %>
 
-	<form name=blockFrm target=hiddenFrame method="post" action="/servlet/BoardBlockProcess">
+	<form name=goBlockFrm target=hiddenFrame method="post" action="/servlet/BoardBlockProcess">
 		<input type="hidden" name="boardID" value="<%= boardDetailRes.getBoardID() %>" />
 		<input type="hidden" name="boardNo" />
 		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
 		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
+	</form>
+	<form name=goMoveFrm target=hiddenFrame method="post" action="/servlet/BoardMoveProcess">
+		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY%>" />
+		<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV%>" />
+		<input type="hidden" name="sourceBoardID" value="<%= boardDetailRes.getBoardID() %>" />
+		<input type="hidden" name="sourceBoardNo" value="<%= boardDetailRes.getBoardNo() %>" />
+		<input type="hidden" name="targetBoardID" />
 	</form><%
 	}
 %>
@@ -1246,7 +1283,7 @@
 		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goList()\">목록으로</button>");
 	}
 			
-	if (MemberRoleType.ADMIN.equals(accessedUserformation.getMemberRoleType())) {
+	if (accessedUserformation.isAdmin()) {
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("					");
 		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goBlock(");
@@ -1255,7 +1292,31 @@
 	}
 %>
 					<button type="button" class="btn btn-primary btn-sm" onClick="clickHiddenFrameButton(this);">Show Hidden Frame</button>
-				</div>
+				</div><%
+	if (accessedUserformation.isAdmin()) {
+		if (0 == boardDetailRes.getParentNo() && (1 == boardDetailRes.getBoardID() || 2 == boardDetailRes.getBoardID())) {
+%>
+				<br><br><form name=moveFrm class="form-inline" method="post" onSubmit="return false;">
+						<div class="form-group">
+							<label  for="targetBoardID">이동할 게시판:</label>
+														
+							<select class="form-control" name="targetBoardID" id="targetBoardID"><%
+			if (2 == boardDetailRes.getBoardID()) {
+%>
+					<option value="1">자유</option><%
+			} else {
+%>
+					<option value="2">이슈</option><%
+			}
+%>							
+							</select>							
+							
+							<button type="button" class="btn btn-primary btn-sm" onclick="goMove()">게시글 이동</button>
+						</div>
+					</form><%
+		}
+	}
+%>
 				<div id="resultMessage"></div>
 				<br>
 				<div id="viewScreenForBoard<%=boardDetailRes.getBoardNo()%>">
@@ -1269,7 +1330,7 @@
 								<th><%= boardDetailRes.getBoardNo() %></th>
 						    	<th>작성자</th>
 						    	<th><%
-		if (WebCommonStaticFinalVars.GUEST_USER_SESSION_INFORMATION.getUserID().equals(boardDetailRes.getFirstWriterID())) {			
+		if (MemberRoleType.GUEST.equals(firstWriterRoleType)) {			
 			out.write(boardDetailRes.getFirstWriterID());
 		} else {
 			String firstWriterNickName = StringEscapeActorUtil.replace(boardDetailRes.getFirstWriterNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4);
@@ -1283,8 +1344,8 @@
 			out.write("<ul class=\"dropdown-menu\" role=\"menu\">");
 			
 			out.write("<li role=\"presentation\">");
-			out.write("<a role=\"menuitem\" tabindex=\"-1\" href=\"#\" onclick=\"goPersonalInformation('");
-			// out.write("/servlet/PersonalInformation?targetUserID=");
+			out.write("<a role=\"menuitem\" tabindex=\"-1\" href=\"#\" onclick=\"goMemberInformation('");
+			// out.write("/servlet/MemberInformation?targetUserID=");
 			out.write(boardDetailRes.getFirstWriterID());
 			out.write("')\">개인 정보</a>");
 			out.write("</li>");
@@ -1369,7 +1430,8 @@
 			<div class="panel-heading">댓글</div>
 			<div class="panel-body"><%
 		for (BoardDetailRes.ChildNode childNode :  boardDetailRes.getChildNodeList()) {
-			%>
+			MemberRoleType childFirstWriterRoleType = MemberRoleType.valueOf(childNode.getFirstWriterRole());
+%>
 				<div id="viewScreenForBoard<%=childNode.getBoardNo()%>">
 					<div style="display:none" id="oldAttachedFileListJosnStringOfBoard<%=childNode.getBoardNo()%>InViewScreen"><%= StringEscapeActorUtil
 					.replace((null == childNode.getAttachedFileList()) ? "[]" : new Gson().toJson(childNode.getAttachedFileList()), 
@@ -1381,7 +1443,7 @@
 								<th><%= childNode.getBoardNo() %></th>
 						    	<th>작성자</th>
 						    	<th><% 
-	    	if (WebCommonStaticFinalVars.GUEST_USER_SESSION_INFORMATION.getUserID().equals(childNode.getFirstWriterID())) {			
+	    	if (MemberRoleType.GUEST.equals(childFirstWriterRoleType)) {			
 				out.write(childNode.getFirstWriterID());
 			} else {
 				String firstWriterNickName = StringEscapeActorUtil.replace(childNode.getFirstWriterNickname(), STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4);
@@ -1395,10 +1457,9 @@
 				out.write("<ul class=\"dropdown-menu\" role=\"menu\">");
 				
 				out.write("<li role=\"presentation\">");
-				out.write("<a role=\"menuitem\" tabindex=\"-1\" href=\"#\" onclick=\"goPersonalInformation('");
-				// out.write("/servlet/PersonalInformation?targetUserID=");
+				out.write("<a role=\"menuitem\" tabindex=\"-1\" href=\"#\" onclick=\"goMemberInformation('");				
 				out.write(childNode.getFirstWriterID());
-				out.write("')\">개인 정보</a>");
+				out.write("')\">회원 정보</a>");
 				out.write("</li>");
 				
 				out.write("<li role=\"presentation\">");

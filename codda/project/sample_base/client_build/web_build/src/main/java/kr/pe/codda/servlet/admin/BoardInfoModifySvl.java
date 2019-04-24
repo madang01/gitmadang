@@ -134,7 +134,7 @@ public class BoardInfoModifySvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		BoardInfoModifyReq boardInfoModifyReq = new BoardInfoModifyReq();
 		boardInfoModifyReq.setRequestedUserID(accessedUserformation.getUserID());

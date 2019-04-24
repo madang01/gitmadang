@@ -8,8 +8,7 @@
 %><%@ page import="kr.pe.codda.weblib.common.WebCommonStaticFinalVars" %><%	
 %><%@ page import="kr.pe.codda.impl.message.BoardListRes.BoardListRes" %><%
 %><%@ page extends="kr.pe.codda.weblib.jdf.AbstractUserJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%
-	//String boardListResJsonString = new Gson().toJson(boardListRes);
+%><jsp:useBean id="boardListRes" class="kr.pe.codda.impl.message.BoardListRes.BoardListRes" scope="request" /><%//String boardListResJsonString = new Gson().toJson(boardListRes);
 
 	/* {
 	String requestUserID = "guest";
@@ -49,11 +48,10 @@
 	} */	
 	
 	
-	AccessedUserInformation accessedUserformation = getAccessedUserInformation(request);
+	AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(request);
 	
 	BoardListType boardListType = BoardListType.valueOf(boardListRes.getBoardListType());		
-	PermissionType boardWritePermissionType = PermissionType.valueOf(boardListRes.getBoardWritePermissionType());
-%><!DOCTYPE html>
+	PermissionType boardWritePermissionType = PermissionType.valueOf(boardListRes.getBoardWritePermissionType());%><!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">

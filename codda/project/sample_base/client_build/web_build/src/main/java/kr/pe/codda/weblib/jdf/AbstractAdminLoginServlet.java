@@ -14,7 +14,7 @@ public abstract class AbstractAdminLoginServlet extends AbstractSessionKeyServle
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		if (! accessedUserformation.isAdmin()) {
 			String requestURI = req.getRequestURI();

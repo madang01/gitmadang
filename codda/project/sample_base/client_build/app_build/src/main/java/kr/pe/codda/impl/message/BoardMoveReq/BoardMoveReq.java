@@ -1,0 +1,87 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package kr.pe.codda.impl.message.BoardMoveReq;
+
+import kr.pe.codda.common.message.AbstractMessage;
+
+/**
+ * BoardMoveReq message
+ * @author Won Jonghoon
+ *
+ */
+public class BoardMoveReq extends AbstractMessage {
+	private String requestedUserID;
+	private String ip;
+	private short sourceBoardID;
+	private long sourceBoardNo;
+	private short targetBoardID;
+
+	public String getRequestedUserID() {
+		return requestedUserID;
+	}
+
+	public void setRequestedUserID(String requestedUserID) {
+		this.requestedUserID = requestedUserID;
+	}
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+	public short getSourceBoardID() {
+		return sourceBoardID;
+	}
+
+	public void setSourceBoardID(short sourceBoardID) {
+		this.sourceBoardID = sourceBoardID;
+	}
+	public long getSourceBoardNo() {
+		return sourceBoardNo;
+	}
+
+	public void setSourceBoardNo(long sourceBoardNo) {
+		this.sourceBoardNo = sourceBoardNo;
+	}
+	public short getTargetBoardID() {
+		return targetBoardID;
+	}
+
+	public void setTargetBoardID(short targetBoardID) {
+		this.targetBoardID = targetBoardID;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("boardMoveReq[");
+		builder.append("requestedUserID=");
+		builder.append(requestedUserID);
+		builder.append(", ip=");
+		builder.append(ip);
+		builder.append(", sourceBoardID=");
+		builder.append(sourceBoardID);
+		builder.append(", sourceBoardNo=");
+		builder.append(sourceBoardNo);
+		builder.append(", targetBoardID=");
+		builder.append(targetBoardID);
+		builder.append("]");
+		return builder.toString();
+	}
+}

@@ -23,7 +23,7 @@ public class MemberInformationSvl extends AbstractServlet {
 		String paramTargetUserID = req.getParameter("targetUserID");
 		/**************** 파라미터 종료 *******************/
 		
-		AccessedUserInformation accessedUserInformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserInformation = getAccessedUserInformationFromSession(req);
 		
 		String targetUserID = null;
 		if (null != paramTargetUserID) {

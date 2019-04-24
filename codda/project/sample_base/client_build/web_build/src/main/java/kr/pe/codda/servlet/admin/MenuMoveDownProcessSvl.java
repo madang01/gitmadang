@@ -71,7 +71,7 @@ public class MenuMoveDownProcessSvl extends AbstractAdminLoginServlet {
 			return;
 		}
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		MenuMoveDownReq menuMoveDownReq = new MenuMoveDownReq();
 		menuMoveDownReq.setRequestedUserID(accessedUserformation.getUserID());

@@ -23,10 +23,10 @@ import kr.pe.codda.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.codda.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.codda.weblib.common.AccessedUserInformation;
 import kr.pe.codda.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
+import kr.pe.codda.weblib.jdf.AbstractUserLoginServlet;
 
 @SuppressWarnings("serial")
-public class BoardDownloadSvl extends AbstractLoginServlet {
+public class BoardDownloadSvl extends AbstractUserLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
@@ -38,7 +38,7 @@ public class BoardDownloadSvl extends AbstractLoginServlet {
 		String paramAttachedFileSeq = req.getParameter("attachedFileSeq");
 		/**************** 파라미터 종료 *******************/
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		if (null == paramBoardID) {
 			String errorMessage = "게시판 식별자 값을 넣어 주세요.";

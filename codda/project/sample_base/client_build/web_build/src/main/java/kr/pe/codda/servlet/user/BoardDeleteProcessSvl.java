@@ -2,6 +2,7 @@ package kr.pe.codda.servlet.user;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,17 +58,9 @@ public class BoardDeleteProcessSvl extends AbstractServlet {
 		}
 		
 		short boardID = -1;
-		try {
-			boardID = ValueChecker.checkValidBoardID(paramBoardID);
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			String debugMessage = null;
-			printErrorMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}
-		
 		long boardNo = 0L;
 		try {
+			boardID = ValueChecker.checkValidBoardID(paramBoardID);
 			boardNo = ValueChecker.checkValidBoardNo(paramBoardNo);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
@@ -157,8 +150,18 @@ public class BoardDeleteProcessSvl extends AbstractServlet {
 		if (null == paramPwdCipherBase64) {
 			pwdHashBase64 = "";
 		} else {			
-			byte[] passwordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
+			byte[] boardPasswordBytes = webServerSymmetricKey.decrypt(CommonStaticUtil.Base64Decoder
 					.decode(paramPwdCipherBase64));
+			
+			try {
+				ValueChecker.checkValidBoardPwd(boardPasswordBytes);
+			} catch(IllegalArgumentException e) {
+				Arrays.fill(boardPasswordBytes, (byte)0);
+				
+				String errorMessage = e.getMessage();
+				String debugMessage = null;
+				throw new WebClientException(errorMessage, debugMessage);
+			}	
 			
 			MessageDigest md = null;
 			try {
@@ -174,12 +177,14 @@ public class BoardDeleteProcessSvl extends AbstractServlet {
 				throw new WebClientException(errorMessage, debugMessage);
 			}
 			
-			md.update(passwordBytes);
+			md.update(boardPasswordBytes);
 			pwdHashBase64 = CommonStaticUtil.Base64Encoder.encodeToString(md.digest());
+			
+			Arrays.fill(boardPasswordBytes, (byte)0);
 		}
 		
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		BoardDeleteReq boardDeleteReq = new BoardDeleteReq();
 		boardDeleteReq.setRequestedUserID(accessedUserformation.getUserID());

@@ -13,8 +13,8 @@ import java.util.List;
 
 import org.jooq.Record;
 import org.jooq.Record10;
-import org.jooq.Record15;
-import org.jooq.Record17;
+import org.jooq.Record16;
+import org.jooq.Record18;
 import org.jooq.Record3;
 import org.jooq.Record4;
 import org.jooq.Result;
@@ -147,8 +147,10 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			SbBoardHistoryTb b = SB_BOARD_HISTORY_TB.as("b");
 			SbBoardHistoryTb c = SB_BOARD_HISTORY_TB.as("c");
 
-			Record17<UInteger, UShort, UInteger, UByte, Integer, Byte, UByte, String, Object, String, String, Timestamp, String, Object, Timestamp, String, Object> mainBoardRecord = create
-					.select(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH,
+			Record18<UInteger, UShort, UInteger, UByte, Integer, Byte, UByte, String, Object, String, String, Timestamp, String, Object, Timestamp, String, Object, Object> mainBoardRecord = create
+					.select
+					(
+							SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ, SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH,
 							SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ,
 							SB_BOARD_TB.PWD_BASE64,
 							create.selectCount().from(SB_BOARD_VOTE_TB)
@@ -158,9 +160,13 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 							b.REGISTRANT_ID.as("last_modifier_id"),
 							create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
 									.where(SB_MEMBER_TB.USER_ID.eq(b.REGISTRANT_ID)).asField("last_modifier_nickname"),
-							c.REG_DT.as("first_registered_date"), c.REGISTRANT_ID.as("first_writer_id"),
+							c.REG_DT.as("first_registered_date"), 
+							c.REGISTRANT_ID.as("first_writer_id"),
 							create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
-									.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID)).asField("first_writer_nickname"))
+									.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID)).asField("first_writer_nickname"),
+							create.select(SB_MEMBER_TB.ROLE).from(SB_MEMBER_TB)
+									.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID)).asField("first_writer_role")
+					)
 					.from(SB_BOARD_TB).innerJoin(c).on(c.BOARD_ID.eq(SB_BOARD_TB.field(SB_BOARD_TB.BOARD_ID)))
 					.and(c.BOARD_NO.eq(SB_BOARD_TB.field(SB_BOARD_TB.BOARD_NO))).and(c.HISTORY_SQ.eq(UByte.valueOf(0)))
 					.innerJoin(b).on(b.BOARD_ID.eq(SB_BOARD_TB.field(SB_BOARD_TB.BOARD_ID)))
@@ -199,6 +205,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			Timestamp firstRegisteredDate = mainBoardRecord.get("first_registered_date", Timestamp.class);
 			String firstWriterID = mainBoardRecord.get("first_writer_id", String.class);
 			String firstWriterNickname = mainBoardRecord.get("first_writer_nickname", String.class);
+			byte firstWriterRole = mainBoardRecord.get("first_writer_role", Byte.class);
 			
 
 			BoardStateType boardStateType = null;
@@ -277,24 +284,31 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 						.and(a.GROUP_NO.eq(d.field(SB_BOARD_TB.GROUP_NO)))
 						.and(a.GROUP_SQ.eq(d.field(SB_BOARD_TB.GROUP_SQ))).asTable("a");				
 
-				Result<Record15<UInteger, UShort, UInteger, UByte, Byte, UByte, String, Object, String, Timestamp, String, Object, Timestamp, String, Object>> childBoardResult = create
-						.select(mainTable.field(SB_BOARD_TB.BOARD_NO), mainTable.field(SB_BOARD_TB.GROUP_SQ),
-								mainTable.field(SB_BOARD_TB.PARENT_NO), mainTable.field(SB_BOARD_TB.DEPTH),
-								mainTable.field(SB_BOARD_TB.BOARD_ST),
-								mainTable.field(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ),
-								mainTable.field(SB_BOARD_TB.PWD_BASE64),
-								create.selectCount().from(SB_BOARD_VOTE_TB)
-								.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
-								.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
-								.asField("votes"),
-								b.CONTENTS, b.REG_DT.as("last_modified_date"), b.REGISTRANT_ID.as("last_modifier_id"),
-								create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
-										.where(SB_MEMBER_TB.USER_ID.eq(b.REGISTRANT_ID))
-										.asField("last_modifier_nickname"),
-								c.REG_DT.as("first_registered_date"), c.REGISTRANT_ID.as("first_writer_id"),
-								create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
-										.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID))
-										.asField("first_writer_nickname"))
+				Result<Record16<UInteger, UShort, UInteger, UByte, Byte, UByte, String, Object, String, Timestamp, String, Object, Timestamp, String, Object, Object>> childBoardResult = create
+						.select
+						(
+							mainTable.field(SB_BOARD_TB.BOARD_NO), mainTable.field(SB_BOARD_TB.GROUP_SQ),
+							mainTable.field(SB_BOARD_TB.PARENT_NO), mainTable.field(SB_BOARD_TB.DEPTH),
+							mainTable.field(SB_BOARD_TB.BOARD_ST),
+							mainTable.field(SB_BOARD_TB.NEXT_ATTACHED_FILE_SQ),
+							mainTable.field(SB_BOARD_TB.PWD_BASE64),
+							create.selectCount().from(SB_BOARD_VOTE_TB)
+							.where(SB_BOARD_VOTE_TB.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
+							.and(SB_BOARD_VOTE_TB.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
+							.asField("votes"),
+							b.CONTENTS, b.REG_DT.as("last_modified_date"), b.REGISTRANT_ID.as("last_modifier_id"),
+							create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
+									.where(SB_MEMBER_TB.USER_ID.eq(b.REGISTRANT_ID))
+									.asField("last_modifier_nickname"),
+							c.REG_DT.as("first_registered_date"), 
+							c.REGISTRANT_ID.as("first_writer_id"),
+							create.select(SB_MEMBER_TB.NICKNAME).from(SB_MEMBER_TB)
+									.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID))
+									.asField("first_writer_nickname"),
+							create.select(SB_MEMBER_TB.ROLE).from(SB_MEMBER_TB)
+									.where(SB_MEMBER_TB.USER_ID.eq(c.REGISTRANT_ID))
+									.asField("first_writer_role")
+						)
 						.from(mainTable).innerJoin(c).on(c.BOARD_ID.eq(mainTable.field(SB_BOARD_TB.BOARD_ID)))
 						.and(c.BOARD_NO.eq(mainTable.field(SB_BOARD_TB.BOARD_NO)))
 						.and(c.HISTORY_SQ.eq(UByte.valueOf(0))).innerJoin(b)
@@ -322,6 +336,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					Timestamp childFirstRegisteredDate = childBoardRecord.get("first_registered_date", Timestamp.class);
 					String childFirstWriterID = childBoardRecord.get("first_writer_id", String.class);
 					String childFirstWriterNickname = childBoardRecord.get("first_writer_nickname", String.class);
+					byte childFirstWriterRole = childBoardRecord.get("first_writer_role", Byte.class);
 					
 					boolean childIsBoardPassword = (null != childPasswordBase64);
 
@@ -335,6 +350,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 					childNode.setBoardSate(childBoardState);
 					childNode.setFirstWriterID(childFirstWriterID);
 					childNode.setFirstWriterNickname(childFirstWriterNickname);
+					childNode.setFirstWriterRole(childFirstWriterRole);
 					childNode.setFirstRegisteredDate(childFirstRegisteredDate);
 					childNode.setLastModifierID(childLastModifierID);
 					childNode.setLastModifierNickName(childLastModifierNickName);
@@ -416,6 +432,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 
 			boardDetailRes.setFirstWriterID(firstWriterID);
 			boardDetailRes.setFirstWriterNickname(firstWriterNickname);
+			boardDetailRes.setFirstWriterRole(firstWriterRole);
 			boardDetailRes.setFirstRegisteredDate(firstRegisteredDate);
 
 			boardDetailRes.setLastModifierID(lastModifierID);

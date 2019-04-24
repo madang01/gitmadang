@@ -23,7 +23,7 @@ public class BoardInfoMangerSvl extends AbstractAdminLoginServlet {
 		
 		BoardInfoListReq boardInfoListReq = new BoardInfoListReq();
 		
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);		
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);		
 		boardInfoListReq.setRequestedUserID(accessedUserformation.getUserID());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();

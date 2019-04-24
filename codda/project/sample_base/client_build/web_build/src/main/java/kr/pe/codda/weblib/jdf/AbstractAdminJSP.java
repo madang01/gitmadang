@@ -12,7 +12,7 @@ public abstract class AbstractAdminJSP extends AbstractJSP {
 
 	@Override
 	public String getMenuNavbarString(HttpServletRequest req) {
-		AccessedUserInformation accessedUserformation = getAccessedUserInformation(req);
+		AccessedUserInformation accessedUserformation = getAccessedUserInformationFromSession(req);
 		
 		return adminSiteMenuManger.getMenuNavbarString(getGroupRequestURL(req), accessedUserformation.isAdmin());
 	}

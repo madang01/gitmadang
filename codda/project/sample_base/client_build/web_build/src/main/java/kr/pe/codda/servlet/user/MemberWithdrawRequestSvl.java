@@ -3,9 +3,9 @@ package kr.pe.codda.servlet.user;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.codda.weblib.jdf.AbstractLoginServlet;
+import kr.pe.codda.weblib.jdf.AbstractUserLoginServlet;
 
-public class MemberWithdrawRequestSvl extends AbstractLoginServlet {
+public class MemberWithdrawRequestSvl extends AbstractUserLoginServlet {
 	
 	private static final long serialVersionUID = 1773282625699468262L;
 

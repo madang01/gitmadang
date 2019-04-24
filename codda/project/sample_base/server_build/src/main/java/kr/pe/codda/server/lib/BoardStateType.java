@@ -34,6 +34,6 @@ public enum BoardStateType {
 			}
 		}
 		
-		throw new IllegalArgumentException("the parameter boardStateTypeValue["+boardStateTypeValue+"] is a element of BoardStateType set");
+		throw new IllegalArgumentException("게시글 상태["+boardStateTypeValue+"] 값이 잘못되었습니다");
 	}
 }
