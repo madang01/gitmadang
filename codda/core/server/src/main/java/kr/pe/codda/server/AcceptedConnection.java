@@ -29,7 +29,7 @@ import java.util.ArrayDeque;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
@@ -60,7 +60,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	private long socketTimeout = 5000;
 	private int serverOutputMessageQueueCapacity = 5;
 	private MessageProtocolIF messageProtocol = null;
-	private ReceivedDataOnlyStream receivedDataOnlyStream = null;
+	private ReceivedDataStream receivedDataOnlyStream = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ServerIOEvenetControllerIF serverIOEvenetController = null;
 	private ServerTaskMangerIF serverTaskManager = null;
@@ -79,7 +79,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	public AcceptedConnection(SelectionKey personalSelectionKey,
 			SocketChannel acceptedSocketChannel, String projectName,
 			long socketTimeOut, int serverOutputMessageQueueCapacity,
-			ReceivedDataOnlyStream receivedDataOnlyStream,
+			ReceivedDataStream receivedDataOnlyStream,
 			ProjectLoginManagerIF projectLoginManager,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool,

@@ -24,7 +24,7 @@ import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
@@ -32,7 +32,7 @@ import kr.pe.codda.common.protocol.MessageProtocolIF;
 public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SyncThreadSafeSingleConnection.class);
 
-	private ReceivedDataOnlyStream receivedDataOnlyStream = null;
+	private ReceivedDataStream receivedDataOnlyStream = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 
@@ -53,7 +53,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	private SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
 
 	public SyncThreadSafeSingleConnection(String serverHost, int serverPort, long socketTimeout,
-			int clientDataPacketBufferSize, ReceivedDataOnlyStream receivedDataOnlyStream, MessageProtocolIF messageProtocol,
+			int clientDataPacketBufferSize, ReceivedDataStream receivedDataOnlyStream, MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool)
 			throws IOException {
 

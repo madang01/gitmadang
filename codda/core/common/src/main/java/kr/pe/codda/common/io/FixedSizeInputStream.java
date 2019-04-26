@@ -27,8 +27,8 @@ import java.util.Arrays;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.exception.CharsetDecoderException;
 import kr.pe.codda.common.exception.BufferUnderflowExceptionWithMessage;
+import kr.pe.codda.common.exception.CharsetDecoderException;
 import kr.pe.codda.common.util.HexUtil;
 
 /**
@@ -589,23 +589,7 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 		return streamByteOrder;
 	}
 
-	@Override
-	public long indexOf(byte[] searchBytes) {
-		int remainingBytes = streamBuffer.remaining();
-		
-		for (int i=0; i < remainingBytes; i++) {
-			if (i+searchBytes.length > remainingBytes) return -1;
-			
-			int j=0;
-			for (; j < searchBytes.length; j++) {
-				if (streamBuffer.get(i+j) != searchBytes[j]) break;
-			}
-			
-			if (j == searchBytes.length) return i;
-		}
-		
-		return -1;
-	}
+	
 	
 	/**
 	 * Closing a FixedSizeOutputStream has no effect

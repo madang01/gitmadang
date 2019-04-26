@@ -17,8 +17,8 @@ import java.util.Set;
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
-import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataStream;
+import kr.pe.codda.common.io.ReceivedDataStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.server.classloader.ServerTaskMangerIF;
 
@@ -34,7 +34,7 @@ public class ServerIOEventController extends Thread implements
 
 	private long socketTimeOut = 5000;
 	private int serverOutputMessageQueueCapacity = 5;
-	private ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = null;
+	private ReceivedDataStreamFactoryIF receivedDataOnlyStreamFactory = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ServerTaskMangerIF serverTaskManager = null;
@@ -47,7 +47,7 @@ public class ServerIOEventController extends Thread implements
 
 	public ServerIOEventController(
 			ProjectPartConfiguration projectPartConfiguration,
-			ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory,
+			ReceivedDataStreamFactoryIF receivedDataOnlyStreamFactory,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			ServerTaskMangerIF serverTaskManager) {
@@ -207,8 +207,8 @@ public class ServerIOEventController extends Thread implements
 												.register(ioEventSelector,
 														SelectionKey.OP_READ);		
 
-									ReceivedDataOnlyStream receivedDataOnlyStream = receivedDataOnlyStreamFactory
-												.createReceivedDataOnlyStream();		
+									ReceivedDataStream receivedDataOnlyStream = receivedDataOnlyStreamFactory
+												.createReceivedDataStream();		
 
 									AcceptedConnection acceptedConnection = new AcceptedConnection(
 											acceptedKey, acceptedSocketChannel,

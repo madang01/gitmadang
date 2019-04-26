@@ -18,7 +18,7 @@ import junitlib.AbstractJunitTest;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
@@ -73,7 +73,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		long afterTime = 0;
 		
 		
-		int retryCount = 1;
+		int retryCount = 1000000;
 		
 		int firstIndex = -1;
 		int differentCount = 0;
@@ -93,7 +93,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		selfExnReq.messageHeaderInfo.mailboxID = 1;
 		selfExnReq.messageHeaderInfo.mailID = 3;
 		
-		beforeTime= new Date().getTime();
+		beforeTime= System.currentTimeMillis();
 		
 		ArrayBlockingQueue<ReadableMiddleObjectWrapper> readableMiddleObjectWrapperQueue = new ArrayBlockingQueue<ReadableMiddleObjectWrapper>(10);
 		
@@ -124,9 +124,9 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			}
 			//log.info("3");
 			
-			ReceivedDataOnlyStream sos = null;
+			ReceivedDataStream sos = null;
 			try {
-				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -185,7 +185,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			}
 		}
 		
-		afterTime= new Date().getTime();
+		afterTime= System.currentTimeMillis();
 		
 		log.info("{} 번 시간차={} ms, 평균={} ms, firstIndex={}, differentCount={}", retryCount, (afterTime-beforeTime), (double)(afterTime-beforeTime)/retryCount, firstIndex, differentCount);
 	}
@@ -229,7 +229,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		long afterTime = 0;
 		
 		
-		int retryCount = 1;
+		int retryCount = 100;
 		
 		int firstIndex = -1;
 		int differentCount = 0;
@@ -269,9 +269,9 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			
 			//log.info("3");
 			
-			ReceivedDataOnlyStream sos = null;
+			ReceivedDataStream sos = null;
 			try {
-				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);

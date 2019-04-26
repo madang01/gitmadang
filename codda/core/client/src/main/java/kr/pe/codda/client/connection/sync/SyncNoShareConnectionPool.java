@@ -14,8 +14,8 @@ import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
-import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataStream;
+import kr.pe.codda.common.io.ReceivedDataStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public class SyncNoShareConnectionPool implements ConnectionPoolIF {
@@ -35,7 +35,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	private MessageProtocolIF messageProtocol = null; 
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
-	private ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = null;
+	private ReceivedDataStreamFactoryIF receivedDataOnlyStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 	
 	private ArrayDeque<SyncNoShareConnection> connectionQueue = null;
@@ -44,7 +44,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	public SyncNoShareConnectionPool(ProjectPartConfiguration projectPartConfiguration, 
 			MessageProtocolIF messageProtocol, 
 			DataPacketBufferPoolIF dataPacketBufferPool,
-			ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory,
+			ReceivedDataStreamFactoryIF receivedDataOnlyStreamFactory,
 			ConnectionPoolSupporterIF connectionPoolSupporter) throws NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 		if (null == projectPartConfiguration) {
 			throw new IllegalArgumentException("the parameter projectPartConfiguration is null");
@@ -246,7 +246,7 @@ public class SyncNoShareConnectionPool implements ConnectionPoolIF {
 	public void fillAllConnection() throws NoMoreDataPacketBufferException, IOException, InterruptedException {
 		synchronized (monitor) {
 			while (numberOfConnection  < clientConnectionCount) {				
-				ReceivedDataOnlyStream receivedDataOnlyStream = receivedDataOnlyStreamFactory.createReceivedDataOnlyStream();
+				ReceivedDataStream receivedDataOnlyStream = receivedDataOnlyStreamFactory.createReceivedDataStream();
 				
 				SyncNoShareConnection syncNoShareConnection = new SyncNoShareConnection(serverHost,
 							serverPort,

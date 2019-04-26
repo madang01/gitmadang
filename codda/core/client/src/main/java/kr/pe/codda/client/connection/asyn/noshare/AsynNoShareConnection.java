@@ -7,7 +7,7 @@ import kr.pe.codda.client.connection.asyn.AsynConnectedConnectionAdderIF;
 import kr.pe.codda.client.connection.asyn.AsynThreadSafeSingleConnection;
 import kr.pe.codda.client.connection.asyn.ClientIOEventControllerIF;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public class AsynNoShareConnection extends AsynThreadSafeSingleConnection {
@@ -18,7 +18,7 @@ public class AsynNoShareConnection extends AsynThreadSafeSingleConnection {
 			int serverPort, long socketTimeout,
 			int syncMessageMailboxCountPerAsynShareConnection,
 			int clientAsynInputMessageQueueCapacity,
-			ReceivedDataOnlyStream receivedDataOnlyStream,
+			ReceivedDataStream receivedDataOnlyStream,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			ClientTaskMangerIF clientTaskManger,

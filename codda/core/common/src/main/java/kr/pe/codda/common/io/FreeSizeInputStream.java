@@ -73,7 +73,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		if (readableWrapBufferQueue.size() > dataPacketBufferMaxCount) {
 			String errorMessage = String.format(
 					"the parameter readableWrapBufferList's size[%d] is greater than The maximum number[%d] of buffers that can be assigned per one message",
@@ -86,26 +86,26 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		if (null == dataPacketBufferPool) {
 			String errorMessage = "the parameter dataPacketBufferPool is null";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
-		}		
-		
+		}
+
 		this.dataPacketBufferMaxCount = dataPacketBufferMaxCount;
-		this.readableWrapBufferList = readableWrapBufferQueue;		
+		this.readableWrapBufferList = readableWrapBufferQueue;
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferPool = dataPacketBufferPool;
-		
+
 		readableWrapBufferListSize = readableWrapBufferQueue.size();
 		streamCharset = streamCharsetDecoder.charset();
 		streamByteOrder = dataPacketBufferPool.getByteOrder();
-		
+
 		streamBufferList = new ArrayList<ByteBuffer>(readableWrapBufferListSize);
 
 		numberOfBytesRemaining = 0L;
-		
+
 		for (WrapBuffer wrapBuffer : readableWrapBufferQueue) {
 			ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 			this.streamBufferList.add(byteBuffer);
@@ -169,18 +169,12 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		return dst;
 	}
 
-	
-	
-
 	/**
 	 * 목적지 바이트 배열에 지정된 시작위치에 지정된 크기 만큼 스트림의 내용을 읽어와서 저장한다.
 	 * 
-	 * @param dstBytes
-	 *            목적지 바이트 배열
-	 * @param offset
-	 *            스트림 내용이 저장될 목적지 바이트 배열의 시작 위치
-	 * @param len
-	 *            스트림으로 부터 읽어 올 크기
+	 * @param dstBytes 목적지 바이트 배열
+	 * @param offset   스트림 내용이 저장될 목적지 바이트 배열의 시작 위치
+	 * @param len      스트림으로 부터 읽어 올 크기
 	 */
 	private void doGetBytes(byte[] dstBytes, int offset, int len) throws BufferUnderflowExceptionWithMessage {
 		int remainingBytesOfWorkBuffer = workBuffer.remaining();
@@ -213,9 +207,11 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private void throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(long numberOfBytesRequired)
 			throws BufferUnderflowExceptionWithMessage {
 		if (numberOfBytesRemaining < numberOfBytesRequired) {
-			throw new BufferUnderflowExceptionWithMessage(String.format(
-					"the number[%d] of bytes remaining in this input stream is less than [%d] byte(s) that is required",
-					numberOfBytesRemaining, numberOfBytesRequired));
+			String errorMessage = new StringBuilder().append("the number[").append(numberOfBytesRemaining)
+					.append("] of bytes remaining in this input stream is less than [").append(numberOfBytesRequired)
+					.append("] byte(s) that is required").toString();
+
+			throw new BufferUnderflowExceptionWithMessage(errorMessage);
 		}
 	}
 
@@ -257,41 +253,40 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
 
-		short retValue = 0;	
-		
-		
+		short retValue = 0;
+
 		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
-			retValue = (short)(((t1 & 0xff) << 8) | (t2 & 0xff));
+
+			retValue = (short) (((t1 & 0xff) << 8) | (t2 & 0xff));
 		} else {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
-			retValue = (short)(((t2 & 0xff) << 8) | (t1 & 0xff));
+
+			retValue = (short) (((t2 & 0xff) << 8) | (t1 & 0xff));
 		}
 
 		return retValue;
@@ -302,43 +297,43 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(2);
 
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
-		
+
 		int retValue = 0;
-		
+
 		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			retValue = (((t1 & 0xff) << 8) | (t2 & 0xff));
 		} else {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
-			retValue = (((t2 & 0xff) << 8)  | (t1 & 0xff));
+
+			retValue = (((t2 & 0xff) << 8) | (t1 & 0xff));
 		}
-		
+
 		return retValue;
 	}
 
@@ -346,68 +341,68 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	public int getInt() throws BufferUnderflowExceptionWithMessage {
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(4);
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
-		
+
 		int retValue = 0;
-		
+
 		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t3 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t4 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
-			retValue = (((t1 & 0xff) << 24) | ((t2 & 0xff) << 16) | ((t3 & 0xff) << 8)  | (t4 & 0xff));
+
+			retValue = (((t1 & 0xff) << 24) | ((t2 & 0xff) << 16) | ((t3 & 0xff) << 8) | (t4 & 0xff));
 		} else {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t3 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t4 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
-			retValue = (((t4 & 0xff) << 24) | ((t3 & 0xff) << 16) | ((t2 & 0xff) << 8)  | (t1 & 0xff));
+
+			retValue = (((t4 & 0xff) << 24) | ((t3 & 0xff) << 16) | ((t2 & 0xff) << 8) | (t1 & 0xff));
 		}
 		return retValue;
-		
+
 	}
 
 	@Override
@@ -416,63 +411,63 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
 
 		long retValue = 0;
-		
+
 		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t3 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t4 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
-			retValue = (((t1 & 0xffL) << 24) | ((t2 & 0xffL) << 16) | ((t3 & 0xffL) << 8)  | (t4 & 0xffL));
+
+			retValue = (((t1 & 0xffL) << 24) | ((t2 & 0xffL) << 16) | ((t3 & 0xffL) << 8) | (t4 & 0xffL));
 		} else {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t3 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
 			}
-			
+
 			byte t4 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
-			retValue = (((t4 & 0xffL) << 24) | ((t3 & 0xffL) << 16) | ((t2 & 0xffL) << 8)  | (t1 & 0xffL));
+
+			retValue = (((t4 & 0xffL) << 24) | ((t3 & 0xffL) << 16) | ((t2 & 0xffL) << 8) | (t1 & 0xffL));
 		}
 		return retValue;
 	}
@@ -481,112 +476,111 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	public long getLong() throws BufferUnderflowExceptionWithMessage {
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(8);
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
-	
+
 		long retValue = 0;
-		
+
 		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t3 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t4 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t5 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t6 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t7 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t8 = workBuffer.get();
-			numberOfBytesRemaining--;			
-			
-			retValue = (((t1 & 0xffL) << 56 ) | ((t2 & 0xffL) << 48) 
-					| ((t3 & 0xffL) << 40)  | ((t4 & 0xffL) << 32 ) 
-					| ( (t5 & 0xffL) << 24)| ((t6 & 0xffL) << 16) | ((t7 & 0xffL) << 8) | (t8  & 0xffL));
+			numberOfBytesRemaining--;
+
+			retValue = (((t1 & 0xffL) << 56) | ((t2 & 0xffL) << 48) | ((t3 & 0xffL) << 40) | ((t4 & 0xffL) << 32)
+					| ((t5 & 0xffL) << 24) | ((t6 & 0xffL) << 16) | ((t7 & 0xffL) << 8) | (t8 & 0xffL));
 		} else {
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t1 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t2 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t3 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t4 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t5 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t6 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t7 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
+
 			if (!workBuffer.hasRemaining()) {
 				nextBuffer();
-			}			
+			}
 			byte t8 = workBuffer.get();
 			numberOfBytesRemaining--;
-			
-			retValue = (((t8 & 0xffL) << 56 ) | ((t7 & 0xffL) << 48) | ((t6 & 0xffL) << 40)  | ((t5 & 0xffL) << 32 ) 
-					| ( (t4 & 0xffL) << 24)| ((t3 & 0xffL) << 16) | ((t2 & 0xffL) << 8) | (t1  & 0xffL));
+
+			retValue = (((t8 & 0xffL) << 56) | ((t7 & 0xffL) << 48) | ((t6 & 0xffL) << 40) | ((t5 & 0xffL) << 32)
+					| ((t4 & 0xffL) << 24) | ((t3 & 0xffL) << 16) | ((t2 & 0xffL) << 8) | (t1 & 0xffL));
 		}
 		return retValue;
 	}
@@ -656,7 +650,6 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		}
 
 		int length = (int) numberOfBytesRemaining;
-		
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
 
@@ -687,22 +680,22 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		if (null == wantedCharset) {
 			throw new IllegalArgumentException("the parameter wantedCharset is null");
 		}
-		
+
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(1);
-		
+
 		int length = getUnsignedByte();
 		if (0 == length) {
 			return "";
-		}		
-		
+		}
+
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
-	
+
 		return doGetString(length, wantedCharset);
 	}
 
 	@Override
 	public String getUSPascalString()
-			throws BufferUnderflowExceptionWithMessage, IllegalArgumentException, CharsetDecoderException {				
+			throws BufferUnderflowExceptionWithMessage, IllegalArgumentException, CharsetDecoderException {
 		return getUSPascalString(streamCharset);
 	}
 
@@ -711,17 +704,17 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		if (null == wantedCharset) {
 			throw new IllegalArgumentException("the parameter wantedCharset is null");
 		}
-		
+
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(2);
-		
+
 		int length = getUnsignedShort();
-		
+
 		if (0 == length) {
 			return "";
 		}
-		
+
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
-		
+
 		return doGetString(length, wantedCharset);
 	}
 
@@ -730,29 +723,29 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			throws BufferUnderflowExceptionWithMessage, IllegalArgumentException, CharsetDecoderException {
 		return getSIPascalString(streamCharset);
 	}
-	
+
 	@Override
 	public String getSIPascalString(Charset wantedCharset)
 			throws BufferUnderflowExceptionWithMessage, IllegalArgumentException, CharsetDecoderException {
 		if (null == wantedCharset) {
 			throw new IllegalArgumentException("the parameter wantedCharset is null");
 		}
-		
+
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(4);
-		
+
 		int length = getInt();
 		if (length < 0)
 			throw new IllegalArgumentException(
 					String.format("the pascal string length[%d] whose type is integer is less than zero", length));
-		
+
 		if (0 == length) {
 			return "";
 		}
-		
+
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
-		
+
 		return doGetString(length, wantedCharset);
-		
+
 	}
 
 	@Override
@@ -782,7 +775,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than array.length[%d]",
 					sumOfOffsetAndLength, offset, length, dst.length));
 		}
-		
+
 		if (0 == length) {
 			return;
 		}
@@ -799,7 +792,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		if (null == dstBytes) {
 			throw new IllegalArgumentException("paramerter dstBytes is null");
 		}
-		
+
 		if (0 == dstBytes.length) {
 			return;
 		}
@@ -816,11 +809,10 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		if (len < 0) {
 			throw new IllegalArgumentException(String.format("parameter len[%d] less than zero", len));
 		}
-		
+
 		if (0 == len) {
 			return new byte[0];
 		}
-		
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(len);
 
@@ -903,94 +895,12 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		return numberOfBytesRemaining;
 	}
 
-
-	@Override
-	public long indexOf(byte[] searchBytes) {
-		if (null == workBuffer) {
-			return -1L;
-		}
-
-		/**
-		 * <pre>
-		 * 비록 순차 검색 효율은 떨어지지만 안전하다.
-		 * 스트림을 현재 위치에서 부터 1 byte 씩 증가하여 찾고자 하는 바이트 배열을 순차 비교하여 
-		 * 일치하는 위치를 현재 위치로 부터의 상대 위치로 반환다.
-		 * 일치하는 위치가 없다면 -1을 반환다.
-		 * </pre>
-		 */
-
-		int streamBufferListSize = streamBufferList.size();
-
-		long startIndex = 0;
-
-		for (int inxOfBuffer = indexOfWorkBuffer; inxOfBuffer < streamBufferListSize; inxOfBuffer++) {
-			ByteBuffer baseSearchWorkBuffer = streamBufferList.get(inxOfBuffer).duplicate();
-			baseSearchWorkBuffer.order(streamByteOrder);
-			int baseSearchWorkRemaining = baseSearchWorkBuffer.remaining();
-
-			/**
-			 * 다음 버퍼가 없는데 남은 데이터가 검색중인 바이트 배열의 크기 보다 작은 경우 실패
-			 */
-			if ((inxOfBuffer + 1) >= streamBufferListSize && searchBytes.length > baseSearchWorkRemaining)
-				return -1;
-
-			while (baseSearchWorkBuffer.hasRemaining()) {
-				ByteBuffer searchWorkBuffer = baseSearchWorkBuffer.duplicate();
-				searchWorkBuffer.order(streamByteOrder);
-				// int searchWorkPosition = searchWorkBuffer.position();
-
-				/** 비교할 지점(startIndex) 에서 부터 찾고자 하는 바이트 배열을 순차 비교한다. */
-				int j = 0;
-				for (; j < searchBytes.length; j++) {
-					/** 작업중인 버퍼에서 한 바이트를 읽어와서 j 번째 바이트 배열과 비교하여 다르면 루프 종료. */
-					if (searchWorkBuffer.get() != searchBytes[j])
-						break;
-
-					if (!searchWorkBuffer.hasRemaining()) {
-						/** 비교할 데이터 없음 */
-
-						/** 비교할 데이터가 더 있는 경우 검색 실패 */
-						if (inxOfBuffer + 1 >= streamBufferListSize)
-							return -1;
-
-						/** 다음 버퍼의 내용과 바꾼후 검색중인 바이트 배열과 비교를 계속 진행한다. */
-						searchWorkBuffer = streamBufferList.get(inxOfBuffer + 1).duplicate();
-						searchWorkBuffer.order(streamByteOrder);
-					}
-				}
-
-				/** 바이트 배열과 일치하면 비교할 지점을 반환한다. */
-				if (j == searchBytes.length) {
-					return startIndex;
-				}
-
-				/** 바이트 배열과 일치하지 않으면 비교할 지점을 1 byte 증가 */
-				startIndex++;
-				baseSearchWorkBuffer.get();
-			}
-		}
-
-		return -1;
-	}
-	/*
-	public final int getIndexOfWorkBuffer() {
-		return indexOfWorkBuffer;
-	}
-
-	public int getPositionOfWorkBuffer() {
-		if (null == workBuffer) {
-			return 0;
-		}
-		return workBuffer.position();
-	}*/
-
 	public CharsetDecoder getStreamCharsetDecoder() {
 		return streamCharsetDecoder;
 	}
-	
-	public byte[] getMD5WithoutChange(long size)
-			throws IllegalArgumentException, BufferUnderflowExceptionWithMessage {		
-		
+
+	public byte[] getMD5WithoutChange(long size) throws IllegalArgumentException, BufferUnderflowExceptionWithMessage {
+
 		if (size < 0) {
 			String errorMessage = new StringBuilder("the parameter size[").append(size).append("] is less than zero")
 					.toString();
@@ -999,19 +909,19 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		}
 
 		if (size > available()) {
-			String errorMessage = String.format("the parameter size[%d] is greater than the numbfer of bytes[%d] remaing in this input stream", 
-					size,
-					available());
+			String errorMessage = String.format(
+					"the parameter size[%d] is greater than the numbfer of bytes[%d] remaing in this input stream",
+					size, available());
 			log.info(errorMessage);
 			throw new BufferUnderflowExceptionWithMessage(errorMessage);
 		}
-				
+
 		if (0 == size) {
 			byte md5Bytes[] = new byte[CommonStaticFinalVars.MD5_BYTESIZE];
 			Arrays.fill(md5Bytes, CommonStaticFinalVars.ZERO_BYTE);
 			return md5Bytes;
 		}
-		
+
 		java.security.MessageDigest md5 = null;
 		try {
 			md5 = MessageDigest.getInstance("MD5");
@@ -1021,27 +931,27 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		}
 
 		byte md5Bytes[] = null;
-				
+
 		for (ByteBuffer byteBuffer : streamBufferList) {
 			ByteBuffer dupByteBuffer = byteBuffer.duplicate();
-			//dupByteBuffer.order(byteBuffer.order());
-			
+			// dupByteBuffer.order(byteBuffer.order());
+
 			int remaing = dupByteBuffer.remaining();
 			if (remaing == 0) {
 				continue;
 			}
-			
+
 			if (size < remaing) {
-				dupByteBuffer.limit(dupByteBuffer.position()+(int)size);
+				dupByteBuffer.limit(dupByteBuffer.position() + (int) size);
 				md5.update(dupByteBuffer);
 				break;
 			}
-			
+
 			md5.update(dupByteBuffer);
 			size -= remaing;
 		}
-		
-		md5Bytes = md5.digest();		
+
+		md5Bytes = md5.digest();
 		return md5Bytes;
 	}
 
@@ -1054,7 +964,8 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		/** 파라미터 데이터 패킷 버퍼목록 회수 */
 		for (WrapBuffer inputStreamWrapBuffer : readableWrapBufferList) {
-			// log.info("return the inputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", inputStreamWrapBuffer.hashCode());
+			// log.info("return the inputStreamWrapBuffer[hashcode={}] to the data packet
+			// buffer pool", inputStreamWrapBuffer.hashCode());
 
 			dataPacketBufferPool.putDataPacketBuffer(inputStreamWrapBuffer);
 		}

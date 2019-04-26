@@ -40,8 +40,8 @@ import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactory;
-import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataStreamFactory;
+import kr.pe.codda.common.io.ReceivedDataStreamFactoryIF;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 import kr.pe.codda.common.protocol.dhb.DHBMessageProtocol;
@@ -72,7 +72,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private MessageProtocolIF messageProtocol = null;
 	private ClientTaskMangerIF clientTaskManger = null;
-	private ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = null;
+	private ReceivedDataStreamFactoryIF receivedDataOnlyStreamFactory = null;
 	private ClientIOEventController asynClientIOEventController = null;
 	
 
@@ -127,7 +127,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 			}
 		}	
 		
-		receivedDataOnlyStreamFactory = new ReceivedDataOnlyStreamFactory(charsetDecoderOfProject,
+		receivedDataOnlyStreamFactory = new ReceivedDataStreamFactory(charsetDecoderOfProject,
 				clientDataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		
 		connectionPoolSupporter = new ConnectionPoolSupporter(clientConnectionPoolSupporterTimeInterval);
@@ -261,7 +261,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 						projectPartConfiguration.getClientSocketTimeout(),
 						projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection(),
 						projectPartConfiguration.getClientAsynInputMessageQueueCapacity(),					 
-				receivedDataOnlyStreamFactory.createReceivedDataOnlyStream(), 
+				receivedDataOnlyStreamFactory.createReceivedDataStream(), 
 				messageProtocol, dataPacketBufferPool, clientTaskManger, ayncThreadSafeSingleConnectedConnectionAdder, 
 				asynClientIOEventController);		
 		
@@ -292,7 +292,7 @@ public final class AnyProjectConnectionPool implements AnyProjectConnectionPoolI
 				serverPort,
 				projectPartConfiguration.getClientSocketTimeout(),
 				projectPartConfiguration.getClientDataPacketBufferSize(),
-				receivedDataOnlyStreamFactory.createReceivedDataOnlyStream(), messageProtocol, dataPacketBufferPool);
+				receivedDataOnlyStreamFactory.createReceivedDataStream(), messageProtocol, dataPacketBufferPool);
 		
 		return connectedConnection;
 	}

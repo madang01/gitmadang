@@ -17,21 +17,20 @@
 
 package kr.pe.codda.common.protocol.thb;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.HeaderFormatException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.FreeSizeInputStream;
 import kr.pe.codda.common.io.FreeSizeOutputStream;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
@@ -219,14 +218,14 @@ public class THBMessageProtocol implements MessageProtocolIF {
 
 	
 	@Override
-	public void S2MList(ReceivedDataOnlyStream receivedDataOnlyStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue) 
+	public void S2MList(ReceivedDataStream receivedDataOnlyStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {		
 		THBMessageHeader messageHeader = (THBMessageHeader)receivedDataOnlyStream.getUserDefObject();		
 				
 		
 		boolean isMoreMessage = false;
 		
-		long numberOfSocketReadBytes = receivedDataOnlyStream.getStreamSize();
+		long numberOfSocketReadBytes = receivedDataOnlyStream.getReceviedBytes();
 		
 		try {
 			do {
@@ -234,30 +233,37 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						&& numberOfSocketReadBytes >= messageHeaderSize) {
 					/** 헤더 읽기 */
 					THBMessageHeader thbMessageHeader = new THBMessageHeader();
-					
+					/*
 					FreeSizeInputStream headerInputStream = receivedDataOnlyStream.cutMessageInputStreamFromStartingPosition(messageHeaderSize);
+			
+			
 					try {
 						thbMessageHeader.fromInputStream(headerInputStream, headerCharsetDecoder);
 					} finally {
 						headerInputStream.close();
 					}
+					*/
+					
+					thbMessageHeader.fromInputStream(receivedDataOnlyStream, headerCharsetDecoder);
 
 					if (thbMessageHeader.bodySize < 0) {
 						String errorMessage = new StringBuilder()
 						.append("the body size is less than zero, ")
 						.append(thbMessageHeader.toString()).toString();
 						throw new HeaderFormatException(errorMessage);
-					}					
-
-					numberOfSocketReadBytes = receivedDataOnlyStream.getStreamSize();
+					}
+					
+					numberOfSocketReadBytes = receivedDataOnlyStream.getReceviedBytes();
 					messageHeader = thbMessageHeader;
 				}
 				
 				if (null != messageHeader) {
 					/*log.info(String.format("3. inputStramSizeBeforeMessageWork[%d]", inputStramSizeBeforeMessageWork));*/
 					
-					if (numberOfSocketReadBytes >= messageHeader.bodySize) {
+					if (numberOfSocketReadBytes >= (messageHeader.bodySize+messageHeaderSize)) {
 						/** 메시지 추출 */
+						
+						/*
 						FreeSizeInputStream bodyInputStream = receivedDataOnlyStream
 								.cutMessageInputStreamFromStartingPosition(messageHeader.bodySize);
 											
@@ -275,10 +281,30 @@ public class THBMessageProtocol implements MessageProtocolIF {
 							
 							throw new HeaderFormatException(errorMessage);
 						}
+						*/
+						
+						FreeSizeInputStream messageInputStream = receivedDataOnlyStream
+								.cutMessageInputStreamFromStartingPosition(messageHeader.bodySize+messageHeaderSize);
 
+						String messageID = null;
+						int mailboxID;
+						int mailID;
+						try {
+							messageInputStream.skip(messageHeaderSize);
+							messageID = messageInputStream.getUBPascalString(headerCharset);
+							mailboxID = messageInputStream.getUnsignedShort();
+							mailID = messageInputStream.getInt();
+						} catch (Exception e) {
+							String errorMessage = new StringBuilder("fail to read a header in body from the output stream, , errmsg=")
+									.append(e.getMessage()).toString();
+							log.warn(errorMessage, e);
+							
+							throw new HeaderFormatException(errorMessage);
+						}
+						
 						ReadableMiddleObjectWrapper readableMiddleObjectWrapper = 
 								new ReadableMiddleObjectWrapper(messageID, 
-										mailboxID, mailID, bodyInputStream);
+										mailboxID, mailID, messageInputStream);
 						
 						try {
 							wrapMessageBlockingQueue.putReceivedMessage(readableMiddleObjectWrapper);
@@ -287,7 +313,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 							throw e;
 						}
 
-						numberOfSocketReadBytes = receivedDataOnlyStream.getStreamSize();
+						numberOfSocketReadBytes = receivedDataOnlyStream.getReceviedBytes();
 						if (numberOfSocketReadBytes > messageHeaderSize) {
 							isMoreMessage = true;
 						} else {

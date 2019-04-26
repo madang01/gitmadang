@@ -29,7 +29,7 @@ import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
@@ -49,7 +49,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 	private long socketTimeout = 0;
 	int syncMessageMailboxCountPerAsynShareConnection;
 	int clientAsynInputMessageQueueCapacity;
-	private ReceivedDataOnlyStream receivedDataOnlyStream = null;
+	private ReceivedDataStream receivedDataOnlyStream = null;
 	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ClientTaskMangerIF clientTaskManger = null;
@@ -67,7 +67,7 @@ public class AsynThreadSafeSingleConnection implements AsynConnectionIF,
 	public AsynThreadSafeSingleConnection(String projectName,
 			String serverHost, int serverPort, long socketTimeout,
 			int syncMessageMailboxCountPerAsynShareConnection,
-			int clientAsynInputMessageQueueCapacity, ReceivedDataOnlyStream receivedDataOnlyStream,
+			int clientAsynInputMessageQueueCapacity, ReceivedDataStream receivedDataOnlyStream,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			ClientTaskMangerIF clientTaskManger,

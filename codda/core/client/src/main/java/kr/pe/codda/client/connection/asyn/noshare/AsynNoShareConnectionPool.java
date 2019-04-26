@@ -20,8 +20,8 @@ import kr.pe.codda.common.exception.ConnectionPoolException;
 import kr.pe.codda.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
-import kr.pe.codda.common.io.ReceivedDataOnlyStreamFactoryIF;
+import kr.pe.codda.common.io.ReceivedDataStream;
+import kr.pe.codda.common.io.ReceivedDataStreamFactoryIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnectedConnectionAdderIF {
@@ -40,7 +40,7 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	private MessageProtocolIF messageProtocol = null; 
 	private ClientTaskMangerIF clientTaskManger = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory = null;
+	private ReceivedDataStreamFactoryIF receivedDataOnlyStreamFactory = null;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
 	
@@ -53,7 +53,7 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	public AsynNoShareConnectionPool(ProjectPartConfiguration projectPartConfiguration,
 			MessageProtocolIF messageProtocol, 
 			ClientTaskMangerIF clientTaskManger,
-			DataPacketBufferPoolIF dataPacketBufferPool, ReceivedDataOnlyStreamFactoryIF receivedDataOnlyStreamFactory,
+			DataPacketBufferPoolIF dataPacketBufferPool, ReceivedDataStreamFactoryIF receivedDataOnlyStreamFactory,
 			ConnectionPoolSupporterIF connectionPoolSupporter,
 			ClientIOEventControllerIF asynClientIOEventController)
 			throws NoMoreDataPacketBufferException, IOException {
@@ -261,7 +261,7 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	}
 
 	private ClientIOEventHandlerIF newUnregisteredConnection() throws NoMoreDataPacketBufferException, IOException {
-		ReceivedDataOnlyStream sos = receivedDataOnlyStreamFactory.createReceivedDataOnlyStream();
+		ReceivedDataStream sos = receivedDataOnlyStreamFactory.createReceivedDataStream();
 
 		ClientIOEventHandlerIF asynInterestedConnection = new AsynNoShareConnection(projectName,
 				serverHost,

@@ -26,7 +26,7 @@ import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
-import kr.pe.codda.common.io.ReceivedDataOnlyStream;
+import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
@@ -121,9 +121,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
+			ReceivedDataStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
 				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
@@ -189,9 +189,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataOnlyStream sos = null;
+			ReceivedDataStream sos = null;
 			try {
-				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -240,9 +240,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataOnlyStream sos = null;
+		ReceivedDataStream sos = null;
 		try {
-			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
@@ -339,9 +339,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
+			ReceivedDataStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
 				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
@@ -407,9 +407,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataOnlyStream sos = null;
+			ReceivedDataStream sos = null;
 			try {
-				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -458,9 +458,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataOnlyStream sos = null;
+		ReceivedDataStream sos = null;
 		try {
-			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
@@ -556,9 +556,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
+			ReceivedDataStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
 				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
@@ -642,9 +642,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataOnlyStream sos = null;
+			ReceivedDataStream sos = null;
 			try {
-				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -693,9 +693,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataOnlyStream sos = null;
+		ReceivedDataStream sos = null;
 		try {
-			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
@@ -791,9 +791,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
+			ReceivedDataStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
 				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
@@ -877,9 +877,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataOnlyStream sos = null;
+			ReceivedDataStream sos = null;
 			try {
-				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -928,9 +928,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataOnlyStream sos = null;
+		ReceivedDataStream sos = null;
 		try {
-			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
@@ -1026,9 +1026,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		{
 			
 
-			ReceivedDataOnlyStream receivedDataOnlyStreamOfAcceptedSC = null;
+			ReceivedDataStream receivedDataOnlyStreamOfAcceptedSC = null;
 			try {
-				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataOnlyStream(streamCharsetDecoder,
+				receivedDataOnlyStreamOfAcceptedSC = new ReceivedDataStream(streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (NoMoreDataPacketBufferException e1) {
 				fail("fail to build the instance of ReceivedDataOnlyStream class becase there is no more buffer in the dataPacketBufferPool");
@@ -1133,9 +1133,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataOnlyStream sos = null;
+			ReceivedDataStream sos = null;
 			try {
-				sos = new ReceivedDataOnlyStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -1184,9 +1184,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataOnlyStream sos = null;
+		ReceivedDataStream sos = null;
 		try {
-			sos = new ReceivedDataOnlyStream(wrapBufferQueue, streamCharsetDecoder,
+			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
