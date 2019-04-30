@@ -34,7 +34,6 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 
 	/** 메시지를 추출시 생기는 부가 정보를 */
 	private Object userDefObject = null;
-	private boolean isClosed = false;
 
 	private final int dataPacketBufferSize;
 	private int front = 0;
@@ -44,6 +43,8 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 	private final ByteBuffer readableByteBufferArray[];
 	private long numberOfReadBytes = 0;
 	private long mark = -1;
+	
+	private final ArrayDeque<WrapBuffer> backupStreamWrapBufferQueue = new ArrayDeque<WrapBuffer>();
 
 	public ReceivedDataStream(CharsetDecoder streamCharsetDecoder, int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolIF dataPacketBufferPool) throws NoMoreDataPacketBufferException {
@@ -119,11 +120,11 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 	}
 
 	private boolean isOutputStreamQueueFull() {
-		return (dataPacketBufferMaxCntPerMessage != getCircleQueueSize());
+		return (dataPacketBufferMaxCntPerMessage == getCircleQueueSize());
 	}
 
-	private WrapBuffer addNewWrapBufferToStreamWrapBufferQueue() throws NoMoreDataPacketBufferException {
-		if (!isOutputStreamQueueFull()) {
+	private WrapBuffer addNewWrapBufferToStreamWrapBufferQueue() throws NoMoreDataPacketBufferException {		
+		if (isOutputStreamQueueFull()) {
 			String errorMessage = String.format(
 					"this stream wrap buffer list size[%d] has researched the maximum number[%d] of data packt buffers per message message",
 					getCircleQueueSize(), dataPacketBufferMaxCntPerMessage);
@@ -149,7 +150,8 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 		/**
 		 * '수신한 데이터 전담 스트림' 에서 메시지 추출후 남은 스트림을 다른 큐에 백업한다
 		 */
-		ArrayDeque<WrapBuffer> backupStreamWrapBufferQueue = new ArrayDeque<WrapBuffer>(getCircleQueueSize());
+		
+		backupStreamWrapBufferQueue.clear();
 		while (!isInputStreamQueueEmpty()) {
 			WrapBuffer outputStreamWrapBuffer = removeFirstFromInputStreamQueue();
 			backupStreamWrapBufferQueue.add(outputStreamWrapBuffer);
@@ -161,32 +163,34 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 		addLastToInputStreamQueue(newFirstWrapBuffer);
 
 		/** 메시지 추출후 남은 스트림을 '수신한 데이터 전담 스트림' 에 이어 붙인다 */
-		while (!backupStreamWrapBufferQueue.isEmpty()) {
-			WrapBuffer firstWrapBufferOfBackup = backupStreamWrapBufferQueue.removeFirst();
+		while (! backupStreamWrapBufferQueue.isEmpty()) {
+			WrapBuffer srcWrapBuffer = backupStreamWrapBufferQueue.removeFirst();
 
-			ByteBuffer fistByteBufferOfBackup = firstWrapBufferOfBackup.getByteBuffer();
-			fistByteBufferOfBackup.flip();
+			ByteBuffer srcByteBuffer = srcWrapBuffer.getByteBuffer();
+			srcByteBuffer.flip();
 
-			ByteBuffer lastByteBuffer = peekLastFromInputStreamQueue().getByteBuffer();
+			ByteBuffer dstByteBuffer = peekLastFromInputStreamQueue().getByteBuffer();
+			
+			/**
+			 * 잔존데이터 복사
+			 */
+			int minRemaining = Math.min(dstByteBuffer.remaining(), srcByteBuffer.remaining());
+			srcByteBuffer.limit(srcByteBuffer.position()+minRemaining);
+			dstByteBuffer.put(srcByteBuffer);
+			srcByteBuffer.limit(srcByteBuffer.capacity());
+			
 
-			while (lastByteBuffer.hasRemaining()) {
-				if (!fistByteBufferOfBackup.hasRemaining()) {
-					break;
-				}
-				lastByteBuffer.put(fistByteBufferOfBackup.get());
-			}
-
-			if (fistByteBufferOfBackup.hasRemaining()) {
-				fistByteBufferOfBackup.compact();
-				addLastToInputStreamQueue(firstWrapBufferOfBackup);
+			if (srcByteBuffer.hasRemaining()) {
+				srcByteBuffer.compact();
+				addLastToInputStreamQueue(srcWrapBuffer);
 			} else {
-				if (backupStreamWrapBufferQueue.size() > 0) {
+				if (! backupStreamWrapBufferQueue.isEmpty()) {
 					log.error(
 							"dead code::if stream then backupStreamWrapBufferQueue's size is zero, so nobody knows if a side effect bug will occur");
 					System.exit(1);
 				}
 
-				dataPacketBufferPool.putDataPacketBuffer(firstWrapBufferOfBackup);
+				dataPacketBufferPool.putDataPacketBuffer(srcWrapBuffer);
 			}
 		}
 	}
@@ -266,7 +270,7 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 		return numRead;
 	}
 
-	public FreeSizeInputStream cutMessageInputStreamFromStartingPosition(long size)
+	public FreeSizeInputStream cutReceivedDataStream(final long size)
 			throws NoMoreDataPacketBufferException {
 		if (size <= 0) {
 			String errorMessage = new StringBuilder().append("the parameter size[").append(size)
@@ -282,6 +286,8 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		long remaing = size;
 
 		numberOfReceivedBytes -= size;
 		
@@ -293,16 +299,16 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 					.getByteBuffer();
 			int remaining = firstByteBufferOfReceviedDataOnlyStream.flip().remaining();
 
-			if ((size - remaining) > 0L) {
-				size -= remaining;
+			if ((remaing - remaining) > 0L) {
+				remaing -= remaining;
 			} else {
-				lastPositionOfMessageStreamLastByteBuffer = (int) size;
+				lastPositionOfMessageStreamLastByteBuffer = (int) remaing;
 				firstByteBufferOfReceviedDataOnlyStream.position(
 						firstByteBufferOfReceviedDataOnlyStream.position() + lastPositionOfMessageStreamLastByteBuffer);
-				size = 0;
+				remaing = 0;
 			}
 			messageStreamWrapBufferQueue.add(firstWrapBufferOfReceviedDataOnlyStream);
-		} while (size > 0);
+		} while (remaing > 0);
 
 		// log.info("2. messageInputStreamWrapBufferQueue={}",
 		// messageInputStreamWrapBufferQueue.toString());
@@ -322,22 +328,42 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 
 		/** 버퍼에 담긴 잔존 데이터 처리후 버퍼 속성 position 와 limit 값 복귀 */
 		lastByteBufferOfMessageStream.position(0);
-		lastByteBufferOfMessageStream.limit(lastPositionOfMessageStreamLastByteBuffer);
-		
+		lastByteBufferOfMessageStream.limit(lastPositionOfMessageStreamLastByteBuffer);		
 		
 		/** 읽기 상태 초기화 */
-		numberOfReadBytes = 0;
-		
-		if (size < numberOfReadBytes) {
-			/** 자르고자 하는 크기가 읽은 용량 보다 작은 경우에만 readableByteBufferArray 전체 초기화 */
+		if (numberOfReadBytes > size) {
+			remaing = numberOfReadBytes - size;
+			
+						
 			final int circleQueueSize = getCircleQueueSize();
+			
+			// FIXME!
+			// log.info("numberOfReadBytes={}, size={}, circleQueueSize={}", numberOfReadBytes, size, circleQueueSize);
+
+			
 			for (int i=0; i < circleQueueSize; i++) {
 				final int workingIndex = (front + 1 + i) % circleQueueArraySize;
 				
 				ByteBuffer readableByteBuffer = readableByteBufferArray[workingIndex];
-				readableByteBuffer.clear();
+				
+				log.info("readableByteBuffer={}", readableByteBuffer.toString());
+				
+				if (remaing > dataPacketBufferSize) {
+					readableByteBuffer.limit(dataPacketBufferSize);
+					readableByteBuffer.position(dataPacketBufferSize);
+					
+					remaing -= dataPacketBufferSize;
+				} else if (remaing > 0) {
+					readableByteBuffer.position((int)remaing);
+					readableByteBuffer.limit(dataPacketBufferSize);
+					remaing = 0;
+				} else {
+					readableByteBuffer.clear();
+				}
 			}
 		}
+		
+		numberOfReadBytes = 0;
 		
 		
 
@@ -394,20 +420,21 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 
 	public void close() {
 		// log.info("call close");
+		numberOfReceivedBytes = 0;
+		numberOfReadBytes = 0;
+		userDefObject = null;
 
-		while (!isInputStreamQueueEmpty()) {
+		while (! isInputStreamQueueEmpty()) {
 			WrapBuffer streamWrapBuffer = removeFirstFromInputStreamQueue();
 			dataPacketBufferPool.putDataPacketBuffer(streamWrapBuffer);
 		}
-
-		numberOfReceivedBytes = 0;
-		userDefObject = null;
-		isClosed = true;
 	}
 
+	/*
 	public boolean isClosed() {
 		return isClosed;
 	}
+	*/
 
 	/************************/
 	public boolean isInputStreamQueueEmpty() {
@@ -419,8 +446,8 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 	}
 
 	public void addLastToInputStreamQueue(WrapBuffer itemWrapBuffer) throws IllegalStateException {
-
 		if (isInputStreamQueueFull()) {
+			dataPacketBufferPool.putDataPacketBuffer(itemWrapBuffer);
 			throw new IllegalStateException("this wrap buffer queue is full");
 		}
 
@@ -437,28 +464,27 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 	public WrapBuffer peekFirstFromInputStreamQueue() {
 		if (isInputStreamQueueEmpty()) {
 			throw new NoSuchElementException("this wrap buffer queue is empty");
-		} else {
-			return receivedStreamWrapBufferArray[(front + 1) % circleQueueArraySize];
 		}
+		
+		return receivedStreamWrapBufferArray[(front + 1) % circleQueueArraySize];
 	}
 
 	public WrapBuffer removeFirstFromInputStreamQueue() {
 		if (isInputStreamQueueEmpty()) {
-			throw new NoSuchElementException("wrap buffer queue empty");
-		} else {
-			// readableByteBufferDeque.removeFirst();
-
-			front = (front + 1) % circleQueueArraySize;
-			return receivedStreamWrapBufferArray[front];
+			throw new NoSuchElementException("this wrap buffer queue is empty");
 		}
+		// readableByteBufferDeque.removeFirst();
+
+		front = (front + 1) % circleQueueArraySize;
+		return receivedStreamWrapBufferArray[front];		
 	}
 
-	public WrapBuffer peekLastFromInputStreamQueue() {
+	private WrapBuffer peekLastFromInputStreamQueue() throws NoSuchElementException {
 		if (isInputStreamQueueEmpty()) {
 			throw new NoSuchElementException("this wrap buffer queue is empty");
-		} else {
-			return receivedStreamWrapBufferArray[rear];
 		}
+		
+		return receivedStreamWrapBufferArray[rear];
 	}
 
 	public int getCircleQueueSize() {		
@@ -621,8 +647,6 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 		if (! workingByteBuffer.hasRemaining()) {
 			workingIndex = (workingIndex + 1) % circleQueueArraySize;
 			workingByteBuffer = readableByteBufferArray[workingIndex];
-			// FIXME!
-			log.info("workingIndex={}, workingByteBuffer={}", workingIndex, workingByteBuffer);
 		}
 
 		byte t2 = workingByteBuffer.get();
@@ -1115,8 +1139,6 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 		int relativeIndex = (int) (numberOfReadBytes / dataPacketBufferSize);
 		int workingIndex = (front + 1 + relativeIndex) % circleQueueArraySize;
 
-		// FIXME!
-		// log.info("workingIndex={}, relativeIndex={}", workingIndex, relativeIndex);
 
 		ByteBuffer workingByteBuffer = readableByteBufferArray[workingIndex];
 
@@ -1202,19 +1224,28 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 
 		while (size > 0) {
 			ByteBuffer byteBuffer = readableByteBufferArray[workingIndex];
-			ByteBuffer dupByteBuffer = byteBuffer.duplicate();
+			
+			/** MD5 이전 버퍼 상태 저장 */
+			int backupPostion = byteBuffer.position();
 
-			int remaing = dupByteBuffer.remaining();
+			int remaing = byteBuffer.remaining();
 			
 			if (size < remaing) {
-				dupByteBuffer.limit(dupByteBuffer.position() + (int) size);
-				md5.update(dupByteBuffer);
+				byteBuffer.limit(byteBuffer.position() + (int) size);
+				md5.update(byteBuffer);
+				
+				/** MD5 이전 버퍼 상태로 복구 */
+				byteBuffer.limit(dataPacketBufferSize);
+				byteBuffer.position(backupPostion);				
 				break;
 			}
 
-			md5.update(dupByteBuffer);
-			size -= remaing;
+			md5.update(byteBuffer);
 			
+			/** MD5 이전 버퍼 상태로 복구 */
+			byteBuffer.position(backupPostion);
+			
+			size -= remaing;
 			workingIndex = (workingIndex + 1) % circleQueueArraySize;
 		}
 
@@ -1264,7 +1295,7 @@ public final class ReceivedDataStream implements BinaryInputStreamIF {
 			if (size < remaing) {
 				byteBuffer.limit(byteBuffer.position() + (int) size);
 				md5.update(byteBuffer);
-				byteBuffer.limit(byteBuffer.capacity());
+				byteBuffer.limit(dataPacketBufferSize);
 				
 				numberOfReadBytes += size;
 				break;

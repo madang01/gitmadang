@@ -9,26 +9,21 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
-import java.util.Date;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 import junitlib.AbstractJunitTest;
+import kr.pe.codda.client.connection.sync.SyncOutputMessageReceiver;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.io.DataPacketBufferPool;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
-import kr.pe.codda.common.protocol.SimpleReceivedMessageBlockingQueue;
-import kr.pe.codda.common.protocol.thb.THBSingleItemDecoder;
-import kr.pe.codda.common.protocol.thb.THBSingleItemDecoderMatcher;
-import kr.pe.codda.common.protocol.thb.THBSingleItemDecoderMatcherIF;
 import kr.pe.codda.common.type.SelfExn;
+import kr.pe.codda.impl.classloader.ClientMessageCodecManger;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
-import kr.pe.codda.impl.message.SelfExnRes.SelfExnResDecoder;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnResEncoder;
 
 public class DHBMessageProtocolTest extends AbstractJunitTest {	
@@ -61,18 +56,15 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 						streamCharsetDecoder,
 						dataPacketBufferPoolManager);
 		
-		SelfExnResEncoder selfExnEncoder = new SelfExnResEncoder();
-		SelfExnResDecoder selfExnDecoder = new SelfExnResDecoder();
+		SelfExnResEncoder selfExnEncoder = new SelfExnResEncoder();	
 		
-		THBSingleItemDecoderMatcherIF thbSingleItemDecoderMatcher = new THBSingleItemDecoderMatcher(streamCharsetDecoder);
-		THBSingleItemDecoder thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
 
 		// log.info("1");		
 		long beforeTime = 0;
 		long afterTime = 0;
 		
 		
-		int retryCount = 100;
+		int retryCount = 1000000;
 		
 		int firstIndex = -1;
 		int differentCount = 0;
@@ -83,25 +75,26 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			testStringBuilder.append("한글");
 		}
 		
-		SelfExnRes selfExnReq = new SelfExnRes();
-		selfExnReq.setErrorPlace(SelfExn.ErrorPlace.SERVER);
-		selfExnReq.setErrorType(SelfExn.ErrorType.BodyFormatException);
-		selfExnReq.setErrorMessageID("Echo");
-		selfExnReq.setErrorReason(testStringBuilder.toString());	
+		SelfExnRes expectedSelfExnRes = new SelfExnRes();
+		expectedSelfExnRes.setErrorPlace(SelfExn.ErrorPlace.SERVER);
+		expectedSelfExnRes.setErrorType(SelfExn.ErrorType.BodyFormatException);
+		expectedSelfExnRes.setErrorMessageID("Echo");
+		expectedSelfExnRes.setErrorReason(testStringBuilder.toString());	
 		
-		selfExnReq.messageHeaderInfo.mailboxID = 1;
-		selfExnReq.messageHeaderInfo.mailID = 3;
+		expectedSelfExnRes.messageHeaderInfo.mailboxID = 1;
+		expectedSelfExnRes.messageHeaderInfo.mailID = 3;
 		
-		beforeTime= new Date().getTime();
-		ArrayBlockingQueue<ReadableMiddleObjectWrapper> readableMiddleObjectWrapperQueue = new ArrayBlockingQueue<ReadableMiddleObjectWrapper>(10);
-		SimpleReceivedMessageBlockingQueue simpleWrapMessageBlockingQueue = new SimpleReceivedMessageBlockingQueue(readableMiddleObjectWrapperQueue);
+		SyncOutputMessageReceiver syncOutputMessageReceiver = new SyncOutputMessageReceiver(dhbMessageProtocol);
+		
+		
+		beforeTime= System.nanoTime();
 		
 		for (int i=0; i < retryCount; i++) {			
 			long beforeLocalTime= System.currentTimeMillis();			
 			
 			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
-				wrapBufferListOfInputMessage = dhbMessageProtocol.M2S(selfExnReq, selfExnEncoder);
+				wrapBufferListOfInputMessage = dhbMessageProtocol.M2S(expectedSelfExnRes, selfExnEncoder);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -132,10 +125,9 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 			
 			//log.info("4");
-			
-			
+			syncOutputMessageReceiver.ready(ClientMessageCodecManger.getInstance());
 			try {
-				dhbMessageProtocol.S2MList(rds, simpleWrapMessageBlockingQueue);
+				dhbMessageProtocol.S2MList(rds, syncOutputMessageReceiver);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -143,29 +135,29 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			}
 			
 			//log.info("5");
+			if (syncOutputMessageReceiver.isError()) {
+				fail("1 개 이상 출력 메시지 추출되었습니다");
+			}
 			
-			while (! readableMiddleObjectWrapperQueue.isEmpty()) {
-				ReadableMiddleObjectWrapper readableMiddleObjectWrapper = readableMiddleObjectWrapperQueue.poll();
+			//log.info("5");
+			if (! syncOutputMessageReceiver.isReceivedMessage()) {
+				fail("추출한 출력 메시지가 없습니다");
+			}				
 				
-				Object readablemiddleObj = readableMiddleObjectWrapper.getReadableMiddleObject();				
+			try {
+				AbstractMessage resObj = syncOutputMessageReceiver.getReceiveMessage();
 				
-				try {
-					AbstractMessage resObj = selfExnDecoder.decode(thbSingleItemDecoder, readablemiddleObj);
-					resObj.messageHeaderInfo.mailboxID = readableMiddleObjectWrapper.getMailboxID();
-					resObj.messageHeaderInfo.mailID = readableMiddleObjectWrapper.getMailID();
-					
-					/*if (! (resObj instanceof SelfExn)) {
-						fail("resObj is not a instance of SelfExn class");
-					}*/
-					
-					SelfExnRes selfExnRes = (SelfExnRes)resObj;
-					
-					assertEquals("SelfExn 입력과 출력 메시지 비교", selfExnReq.toString(), selfExnRes.toString());
-				} catch (Exception e) {
-					String errorMessage = "error::"+e.getMessage();
-					log.warn(errorMessage, e);
-					fail(errorMessage);
+				if (! (resObj instanceof SelfExnRes)) {
+					fail("resObj is not a instance of SelfExnRes class");
 				}
+				
+				SelfExnRes acutalSelfExnRes = (SelfExnRes)resObj;
+				
+				assertEquals("SelfExn 입력과 출력 메시지 비교", expectedSelfExnRes.toString(), acutalSelfExnRes.toString());
+			} catch (Exception e) {
+				String errorMessage = "error::"+e.getMessage();
+				log.warn(errorMessage, e);
+				fail(errorMessage);
 			}
 			
 			long afterLocalTime= System.currentTimeMillis();
@@ -179,9 +171,12 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			}
 		}
 		
-		afterTime = new Date().getTime();
+		afterTime = System.nanoTime();
 		
-		log.info("{} 번 시간차={} ms, 평균={} ms, firstIndex={}, differentCount={}", retryCount, (afterTime-beforeTime), (double)(afterTime-beforeTime)/retryCount, firstIndex, differentCount);
+		log.info("{} 번 시간차={} micro seconds, 평균={} micro seconds, firstIndex={}, differentCount={}", retryCount, 
+				TimeUnit.MICROSECONDS.convert((afterTime - beforeTime), TimeUnit.NANOSECONDS) , 
+				TimeUnit.MICROSECONDS.convert((afterTime - beforeTime)/retryCount, TimeUnit.NANOSECONDS),
+				firstIndex, differentCount);
 	}
 	
 	@Test
@@ -211,11 +206,10 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 						streamCharsetDecoder,
 						dataPacketBufferPoolManager);
 		
-		SelfExnResEncoder selfExnEncoder = new SelfExnResEncoder();
-		SelfExnResDecoder selfExnDecoder = new SelfExnResDecoder();
+		SyncOutputMessageReceiver syncOutputMessageReceiver = new SyncOutputMessageReceiver(dhbMessageProtocol);
+		syncOutputMessageReceiver.ready(ClientMessageCodecManger.getInstance());
 		
-		THBSingleItemDecoderMatcherIF thbSingleItemDecoderMatcher = new THBSingleItemDecoderMatcher(streamCharsetDecoder);
-		THBSingleItemDecoder thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
+		SelfExnResEncoder selfExnEncoder = new SelfExnResEncoder();
 
 		// log.info("1");		
 		long totalTime = 0;
@@ -230,25 +224,22 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			testStringBuilder.append("한글");
 		}
 		
-		SelfExnRes selfExnReq = new SelfExnRes();
-		selfExnReq.setErrorPlace(SelfExn.ErrorPlace.SERVER);
-		selfExnReq.setErrorType(SelfExn.ErrorType.BodyFormatException);
-		selfExnReq.setErrorMessageID("Echo");
-		selfExnReq.setErrorReason(testStringBuilder.toString());	
+		SelfExnRes expectedSelfExnRes = new SelfExnRes();
+		expectedSelfExnRes.setErrorPlace(SelfExn.ErrorPlace.SERVER);
+		expectedSelfExnRes.setErrorType(SelfExn.ErrorType.BodyFormatException);
+		expectedSelfExnRes.setErrorMessageID("Echo");
+		expectedSelfExnRes.setErrorReason(testStringBuilder.toString());	
 		
-		selfExnReq.messageHeaderInfo.mailboxID = 1;
-		selfExnReq.messageHeaderInfo.mailID = 3;
+		expectedSelfExnRes.messageHeaderInfo.mailboxID = 1;
+		expectedSelfExnRes.messageHeaderInfo.mailID = 3;
 		
-		
-		ArrayBlockingQueue<ReadableMiddleObjectWrapper> readableMiddleObjectWrapperQueue = new ArrayBlockingQueue<ReadableMiddleObjectWrapper>(10);
-		SimpleReceivedMessageBlockingQueue simpleWrapMessageBlockingQueue = new SimpleReceivedMessageBlockingQueue(readableMiddleObjectWrapperQueue);
 		
 		for (int i=0; i < retryCount; i++) {			
 						
 			
 			ArrayDeque<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
-				wrapBufferListOfInputMessage = dhbMessageProtocol.M2S(selfExnReq, selfExnEncoder);
+				wrapBufferListOfInputMessage = dhbMessageProtocol.M2S(expectedSelfExnRes, selfExnEncoder);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -279,47 +270,51 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 			
 			//log.info("4");
+			syncOutputMessageReceiver.ready(ClientMessageCodecManger.getInstance());
 			
-			long beforeLocalTime= System.currentTimeMillis();
+			long beforeLocalTime= System.nanoTime();
 			try {
-				dhbMessageProtocol.S2MList(rds, simpleWrapMessageBlockingQueue);
+				dhbMessageProtocol.S2MList(rds, syncOutputMessageReceiver);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
-			long afterLocalTime= System.currentTimeMillis();
+			long afterLocalTime= System.nanoTime();
 			
 			totalTime += (afterLocalTime - beforeLocalTime);
 			//log.info("5");
 			
-			while (! readableMiddleObjectWrapperQueue.isEmpty()) {
-				ReadableMiddleObjectWrapper readableMiddleObjectWrapper = readableMiddleObjectWrapperQueue.poll();
+			if (syncOutputMessageReceiver.isError()) {
+				fail("1 개 이상 출력 메시지 추출되었습니다");
+			}
+			
+			//log.info("5");
+			if (! syncOutputMessageReceiver.isReceivedMessage()) {
+				fail("추출한 출력 메시지가 없습니다");
+			}				
 				
-				Object readablemiddleObj = readableMiddleObjectWrapper.getReadableMiddleObject();				
+			try {
+				AbstractMessage resObj = syncOutputMessageReceiver.getReceiveMessage();
 				
-				try {
-					AbstractMessage resObj = selfExnDecoder.decode(thbSingleItemDecoder, readablemiddleObj);
-					resObj.messageHeaderInfo.mailboxID = readableMiddleObjectWrapper.getMailboxID();
-					resObj.messageHeaderInfo.mailID = readableMiddleObjectWrapper.getMailID();
-					
-					/*if (! (resObj instanceof SelfExn)) {
-						fail("resObj is not a instance of SelfExn class");
-					}*/
-					
-					SelfExnRes selfExnRes = (SelfExnRes)resObj;
-					
-					assertEquals("SelfExn 입력과 출력 메시지 비교", selfExnReq.toString(), selfExnRes.toString());
-				} catch (Exception e) {
-					String errorMessage = "error::"+e.getMessage();
-					log.warn(errorMessage, e);
-					fail(errorMessage);
+				if (! (resObj instanceof SelfExnRes)) {
+					fail("resObj is not a instance of SelfExnRes class");
 				}
+				
+				SelfExnRes acutalSelfExnRes = (SelfExnRes)resObj;
+				
+				assertEquals("SelfExn 입력과 출력 메시지 비교", expectedSelfExnRes.toString(), acutalSelfExnRes.toString());
+			} catch (Exception e) {
+				String errorMessage = "error::"+e.getMessage();
+				log.warn(errorMessage, e);
+				fail(errorMessage);
 			}
 		}
 		
 		
-		log.info("{} 번 시간차={} ms, 평균={} ms", retryCount, totalTime, (double)totalTime/retryCount);
+		log.info("{} 번 시간차={} micro seconds, 평균={} micro seconds", retryCount, 
+				TimeUnit.MICROSECONDS.convert(totalTime, TimeUnit.NANOSECONDS) , 
+				TimeUnit.MICROSECONDS.convert(totalTime/retryCount, TimeUnit.NANOSECONDS));
 	}
 }
 

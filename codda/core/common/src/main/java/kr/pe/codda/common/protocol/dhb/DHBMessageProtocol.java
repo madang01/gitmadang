@@ -17,9 +17,6 @@
 
 package kr.pe.codda.common.protocol.dhb;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -29,6 +26,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.HeaderFormatException;
@@ -41,8 +40,7 @@ import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
+import kr.pe.codda.common.protocol.ReceivedMessageReceiverIF;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoder;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoderMatcher;
@@ -330,7 +328,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 	@Override
 	public void S2MList(ReceivedDataStream receivedDataOnlyStream,
-			ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue)
+			ReceivedMessageReceiverIF wrapMessageBlockingQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException,
 			InterruptedException {
 		if (null == receivedDataOnlyStream) {
@@ -352,11 +350,12 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 					byte[] actualHeaderBodyMD5Bytes = null;
 
 					try {
-						// actualHeaderBodyMD5Bytes = receivedDataOnlyStream.getMD5WithoutChange(headerBodySize);
-						
+						/*
 						receivedDataOnlyStream.mark();
 						actualHeaderBodyMD5Bytes = receivedDataOnlyStream.getMD5(headerBodySize);
 						receivedDataOnlyStream.reset();
+						*/
+						actualHeaderBodyMD5Bytes = receivedDataOnlyStream.getMD5WithoutChange(headerBodySize);
 						
 					} catch (Exception e) {
 						String errorMessage = new StringBuilder(
@@ -404,43 +403,15 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 				}
 
 				if (null != messageHeader) {
-					/*
-					 * log.info(String.format(
-					 * "3. inputStramSizeBeforeMessageWork[%d]",
-					 * inputStramSizeBeforeMessageWork));
-					 */
-
-					// long messageFrameSize = workingDHBMessageHeader.bodySize
-					// + messageHeaderSize;
-
-					if (numberOfSocketReadBytes >= (messageHeader.bodySize+messageHeaderSize)) {
-						/*
-						FreeSizeInputStream bodyInputStream = receivedDataOnlyStream
-								.cutMessageInputStreamFromStartingPosition(messageHeader.bodySize);
-
+					if (numberOfSocketReadBytes >= (messageHeader.bodySize+messageHeaderSize)) {												
 						byte[] acutalBodyMD5Bytes = null;
-						try {
-							acutalBodyMD5Bytes = bodyInputStream
-									.getMD5WithoutChange(messageHeader.bodySize);
-						} catch (Exception e) {
-							String errorMessage = new StringBuilder(
-									"fail to read a body md5 from the output stream, , errmsg=")
-									.append(e.getMessage()).toString();
-							log.warn(errorMessage, e);
-
-							throw new HeaderFormatException(errorMessage);
-						}
-						*/
-						
-						byte[] acutalBodyMD5Bytes = null;
-						try {
-							// acutalBodyMD5Bytes = receivedDataOnlyStream.getMD5WithoutChange(messageHeader.bodySize);
-							
+						try {		
+							/*
 							receivedDataOnlyStream.mark();
 							acutalBodyMD5Bytes = receivedDataOnlyStream.getMD5(messageHeader.bodySize);
 							receivedDataOnlyStream.reset();
-							
-							
+							*/
+							acutalBodyMD5Bytes = receivedDataOnlyStream.getMD5WithoutChange(messageHeader.bodySize);
 						} catch (Exception e) {
 							String errorMessage = new StringBuilder(
 									"fail to read a body md5 from the output stream, , errmsg=")
@@ -463,7 +434,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 						}
 						
 						FreeSizeInputStream messageInputStream = receivedDataOnlyStream
-								.cutMessageInputStreamFromStartingPosition(messageHeader.bodySize+messageHeaderSize);
+								.cutReceivedDataStream(messageHeader.bodySize+messageHeaderSize);
 						
 						String messageID = null;
 						int mailboxID;
@@ -482,17 +453,18 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 							throw new HeaderFormatException(errorMessage);
 						}
-						
-						
 
-						ReadableMiddleObjectWrapper readableMiddleObjectWrapper = new ReadableMiddleObjectWrapper(
-								messageID, mailboxID, mailID, messageInputStream);
+						/*
+						 * ReadableMiddleObjectWrapper readableMiddleObjectWrapper = new
+						 * ReadableMiddleObjectWrapper( messageID, mailboxID, mailID,
+						 * messageInputStream);
+						 */
 						try {
-							wrapMessageBlockingQueue
-									.putReceivedMessage(readableMiddleObjectWrapper);
+							// wrapMessageBlockingQueue.putReceivedMessage(readableMiddleObjectWrapper);
+							wrapMessageBlockingQueue.putReceivedMessage(mailboxID, mailID, messageID, messageInputStream);
 						} catch (InterruptedException e) {
-							readableMiddleObjectWrapper
-									.closeReadableMiddleObject();
+							// readableMiddleObjectWrapper.closeReadableMiddleObject();
+							messageInputStream.close();
 							throw e;
 						}
 

@@ -31,7 +31,6 @@ import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.common.util.CommonStaticUtil;
 import kr.pe.codda.server.AcceptedConnection;
@@ -137,7 +136,7 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 	public void execute(String projectName,
 			AcceptedConnection fromAcceptedConnection,			
 			ProjectLoginManagerIF projectLoginManager,						
-			ReadableMiddleObjectWrapper readableMiddleObjectWrapper,
+			int mailboxID, int mailID, String messageID, Object readableMiddleObject,
 			MessageProtocolIF messageProtocol,
 			PersonalLoginManagerIF fromPersonalLoginManager) throws InterruptedException {
 
@@ -147,12 +146,17 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 			
 		AbstractMessage inputMessage = null;
 		try {
-			inputMessage = inputMessageDecoder.decode(messageProtocol.getSingleItemDecoder(), readableMiddleObjectWrapper.getReadableMiddleObject());
-			inputMessage.messageHeaderInfo.mailboxID = readableMiddleObjectWrapper.getMailboxID();
-			inputMessage.messageHeaderInfo.mailID = readableMiddleObjectWrapper.getMailID();
+			inputMessage = inputMessageDecoder.decode(messageProtocol.getSingleItemDecoder(), readableMiddleObject);
+			inputMessage.messageHeaderInfo.mailboxID = mailboxID;
+			inputMessage.messageHeaderInfo.mailID = mailID;
 		} catch (BodyFormatException e) {
 			String errorMessage = new StringBuilder("fail to get a input message from readable middle object[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation())
+					.append("mailboxID=")
+					.append(mailboxID)
+					.append(", mailID=")
+					.append(mailID)
+					.append(", messageID=")
+					.append(messageID)
 					.append("]").toString();
 			
 			
@@ -164,12 +168,17 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
 					errorType,
-					errorReason,
-					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
+					errorReason,					
+					mailboxID, mailID, messageID, fromAcceptedConnection, messageProtocol);
 			return;		
 		} catch(Exception | Error e) {
 			String errorMessage = new StringBuilder("unknown error::fail to get a input message from readable middle object[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation())
+					.append("mailboxID=")
+					.append(mailboxID)
+					.append(", mailID=")
+					.append(mailID)
+					.append(", messageID=")
+					.append(messageID)
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();			
 			
@@ -181,7 +190,7 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
 					errorType,
 					errorReason,
-					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
+					mailboxID, mailID, messageID, fromAcceptedConnection, messageProtocol);
 			return;
 		}
 		
@@ -199,9 +208,16 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 			throw e;
 		} catch (Exception | Error e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(ServerTaskException.class);
+			
+			
 			String errorReason = new StringBuilder()
 					.append("unknown error::fail to execuate the input message's task[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation())
+					.append("mailboxID=")
+					.append(mailboxID)
+					.append(", mailID=")
+					.append(mailID)
+					.append(", messageID=")
+					.append(messageID)
 					.append("], errmsg=")
 					.append(e.getMessage()).toString();
 			
@@ -210,7 +226,7 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
 					errorType,
 					errorReason,
-					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
+					mailboxID, mailID, messageID, fromAcceptedConnection, messageProtocol);
 			return;
 		}
 
@@ -218,6 +234,7 @@ public abstract class AbstractServerTask implements MessageEncoderManagerIF {
 		// long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
 		// log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
 	}
+	
 	
 	abstract public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception;

@@ -2,6 +2,7 @@ package kr.pe.codda.client.connection.asyn;
 
 import static org.junit.Assert.*;
 
+import java.net.SocketException;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,6 +19,7 @@ import kr.pe.codda.common.buildsystem.pathsupporter.ServerBuildSytemPathSupporte
 import kr.pe.codda.common.config.subset.ProjectPartConfiguration;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.CoddaConfigurationException;
+import kr.pe.codda.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.type.ConnectionType;
 import kr.pe.codda.common.type.MessageProtocolType;
@@ -56,7 +58,7 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 		// int clientConnectionCount = 2;
 		int clientConnectionMaxCount = 4;
 		long clientConnectionPoolSupporterTimeInterval = 600000L;
-		int clientAsynPirvateMailboxCntPerPublicConnection = 2;
+		int clientAsynPirvateMailboxCntPerPublicConnection = 10;
 		int clientAsynInputMessageQueueSize = 5;
 		int clientAsynOutputMessageQueueSize = 5;
 		long clientAsynSelectorWakeupInterval = 1L;			
@@ -111,9 +113,9 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 		boolean clientDataPacketBufferIsDirect = false;
 		String serverHost = null;
 		int serverPort;
-		int numberOfThread = 3;
+		int numberOfThread = 10;
 		int numberOfConnection = 0;
-		int retryCount = 10000;
+		int retryCount = 1000000;
 		ArrayBlockingQueue<String> noticeBlockingQueue = new ArrayBlockingQueue<String>(numberOfThread); 
 		
 		// host = "172.30.1.16";
@@ -209,7 +211,10 @@ public class AsynThreadSafeSingleConnectionTest extends AbstractJunitTest {
 							TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS)/retryCount);
 					
 					
-					
+				} catch (ConnectionPoolTimeoutException e) {
+					log.warn(e.getMessage());
+				} catch (SocketException e) {
+					log.warn(e.getMessage());
 				} catch (Exception e) {
 					log.warn("error", e);
 

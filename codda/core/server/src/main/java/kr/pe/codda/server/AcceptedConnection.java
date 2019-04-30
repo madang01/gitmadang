@@ -17,15 +17,14 @@
 
 package kr.pe.codda.server;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskException;
 import kr.pe.codda.common.io.DataPacketBufferPoolIF;
@@ -33,8 +32,8 @@ import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
+import kr.pe.codda.common.protocol.ProtocolUtil;
+import kr.pe.codda.common.protocol.ReceivedMessageReceiverIF;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.codda.common.updownfile.LocalTargetFileResourceManager;
@@ -48,10 +47,9 @@ import kr.pe.codda.server.task.ToLetterCarrier;
  * @author Won Jonghoon
  * 
  */
-public class AcceptedConnection implements ServerIOEventHandlerIF,
-		ReceivedMessageBlockingQueueIF, PersonalLoginManagerIF {
-	private InternalLogger log = InternalLoggerFactory
-			.getInstance(AcceptedConnection.class);
+public class AcceptedConnection
+		implements ServerIOEventHandlerIF, ReceivedMessageReceiverIF, PersonalLoginManagerIF {
+	private InternalLogger log = InternalLoggerFactory.getInstance(AcceptedConnection.class);
 
 	private SelectionKey personalSelectionKey = null;
 	private SocketChannel acceptedSocketChannel = null;
@@ -76,29 +74,22 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	/** 클라이언트에 할당되는 서버 편지 식별자 */
 	private int serverMailID = Integer.MIN_VALUE;
 
-	public AcceptedConnection(SelectionKey personalSelectionKey,
-			SocketChannel acceptedSocketChannel, String projectName,
-			long socketTimeOut, int serverOutputMessageQueueCapacity,
-			ReceivedDataStream receivedDataOnlyStream,
-			ProjectLoginManagerIF projectLoginManager,
-			MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferPool,
-			ServerIOEvenetControllerIF serverIOEvenetController,
-			ServerTaskMangerIF serverTaskManager) {
+	public AcceptedConnection(SelectionKey personalSelectionKey, SocketChannel acceptedSocketChannel,
+			String projectName, long socketTimeOut, int serverOutputMessageQueueCapacity,
+			ReceivedDataStream receivedDataOnlyStream, ProjectLoginManagerIF projectLoginManager,
+			MessageProtocolIF messageProtocol, DataPacketBufferPoolIF dataPacketBufferPool,
+			ServerIOEvenetControllerIF serverIOEvenetController, ServerTaskMangerIF serverTaskManager) {
 
 		if (null == personalSelectionKey) {
-			throw new IllegalArgumentException(
-					"the parameter personalSelectionKey is null");
+			throw new IllegalArgumentException("the parameter personalSelectionKey is null");
 		}
 
 		if (null == acceptedSocketChannel) {
-			throw new IllegalArgumentException(
-					"the parameter acceptedSocketChannel is null");
+			throw new IllegalArgumentException("the parameter acceptedSocketChannel is null");
 		}
 
 		if (socketTimeOut < 0) {
-			throw new IllegalArgumentException(
-					"the parameter socketTimeOut is less than zero");
+			throw new IllegalArgumentException("the parameter socketTimeOut is less than zero");
 		}
 
 		if (serverOutputMessageQueueCapacity <= 0) {
@@ -107,28 +98,23 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		}
 
 		if (null == receivedDataOnlyStream) {
-			throw new IllegalArgumentException(
-					"the parameter receivedDataOnlyStream is null");
+			throw new IllegalArgumentException("the parameter receivedDataOnlyStream is null");
 		}
 
 		if (null == projectLoginManager) {
-			throw new IllegalArgumentException(
-					"the parameter projectLoginManager is null");
+			throw new IllegalArgumentException("the parameter projectLoginManager is null");
 		}
 
 		if (null == messageProtocol) {
-			throw new IllegalArgumentException(
-					"the parameter messageProtocol is null");
+			throw new IllegalArgumentException("the parameter messageProtocol is null");
 		}
 
 		if (null == dataPacketBufferPool) {
-			throw new IllegalArgumentException(
-					"the parameter dataPacketBufferPool is null");
+			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
 		}
 
 		if (null == serverIOEvenetController) {
-			throw new IllegalArgumentException(
-					"the parameter serverIOEvenetController is null");
+			throw new IllegalArgumentException("the parameter serverIOEvenetController is null");
 		}
 
 		this.personalSelectionKey = personalSelectionKey;
@@ -145,13 +131,12 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 
 		finalReadTime = new java.util.Date();
 
-		outputMessageQueue = new ArrayDeque<ArrayDeque<WrapBuffer>>(
-				serverOutputMessageQueueCapacity);
+		outputMessageQueue = new ArrayDeque<ArrayDeque<WrapBuffer>>(serverOutputMessageQueueCapacity);
 	}
 
-	/*public SocketChannel getOwnerSC() {
-		return acceptedSocketChannel;
-	}*/
+	/*
+	 * public SocketChannel getOwnerSC() { return acceptedSocketChannel; }
+	 */
 
 	/**
 	 * 마지막으로 읽은 시간을 반환한다.
@@ -170,32 +155,28 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	}
 
 	private void turnOnSocketWriteMode() throws CancelledKeyException {
-		personalSelectionKey.interestOps(personalSelectionKey.interestOps()
-				| SelectionKey.OP_WRITE);
+		personalSelectionKey.interestOps(personalSelectionKey.interestOps() | SelectionKey.OP_WRITE);
 
 		// log.info("call turn on OP_WRITE[{}]",
 		// acceptedSocketChannel.hashCode());
 	}
 
 	private void turnOffSocketWriteMode() throws CancelledKeyException {
-		personalSelectionKey.interestOps(personalSelectionKey.interestOps()
-				& ~SelectionKey.OP_WRITE);
+		personalSelectionKey.interestOps(personalSelectionKey.interestOps() & ~SelectionKey.OP_WRITE);
 
 		// log.info("call turn off OP_WRITE[{}]",
 		// acceptedSocketChannel.hashCode());
 	}
 
 	private void turnOnSocketReadMode() throws CancelledKeyException {
-		personalSelectionKey.interestOps(personalSelectionKey.interestOps()
-				| SelectionKey.OP_READ);
+		personalSelectionKey.interestOps(personalSelectionKey.interestOps() | SelectionKey.OP_READ);
 
 		// log.info("call turn on OP_READ[{}]",
 		// acceptedSocketChannel.hashCode());
 	}
 
 	private void turnOffSocketReadMode() throws CancelledKeyException {
-		personalSelectionKey.interestOps(personalSelectionKey.interestOps()
-				& ~SelectionKey.OP_READ);
+		personalSelectionKey.interestOps(personalSelectionKey.interestOps() & ~SelectionKey.OP_READ);
 
 		// log.info("call turn off OP_READ[{}]",
 		// acceptedSocketChannel.hashCode());
@@ -221,8 +202,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		int numberOfReadBytes = receivedDataOnlyStream.read(acceptedSocketChannel);
 
 		if (numberOfReadBytes == -1) {
-			String errorMessage = new StringBuilder("this socket channel[")
-					.append(acceptedSocketChannel.hashCode())
+			String errorMessage = new StringBuilder("this socket channel[").append(acceptedSocketChannel.hashCode())
 					.append("] has reached end-of-stream").toString();
 
 			log.warn(errorMessage);
@@ -233,8 +213,8 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		setFinalReadTime();
 		messageProtocol.S2MList(receivedDataOnlyStream, this);
 		/**
-		 * 추출된 메시지에 1:1 대응하는 서버 비지니스 로직 수행후 출력 메시지 큐 크기가 수용 가능 용량의 50% 보다 클 경우
-		 * 소켓 읽기 이벤트 끄기
+		 * 추출된 메시지에 1:1 대응하는 서버 비지니스 로직 수행후 출력 메시지 큐 크기가 수용 가능 용량의 50% 보다 클 경우 소켓 읽기 이벤트
+		 * 끄기
 		 */
 		if (outputMessageQueue.size() > serverOutputMessageQueueCapacity / 2) {
 			turnOffSocketReadMode();
@@ -244,23 +224,19 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 
 	@Override
 	public void onWrite(SelectionKey personalSelectionKey) throws Exception {
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue
-				.peek();
+		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue.peek();
 		if (null == inputMessageWrapBufferQueue) {
 			log.warn("the var inputMessageWrapBufferQueue is null");
 			return;
 		}
 
-		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue
-				.peek();
-		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer
-				.getByteBuffer();
+		WrapBuffer currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
+		ByteBuffer currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 		boolean loop = true;
 
 		while (loop) {
-			int numberOfBytesWritten = acceptedSocketChannel
-						.write(currentWorkingByteBuffer);
-			
+			int numberOfBytesWritten = acceptedSocketChannel.write(currentWorkingByteBuffer);
+
 			if (0 == numberOfBytesWritten) {
 				loop = false;
 				break;
@@ -268,8 +244,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 
 			if (!currentWorkingByteBuffer.hasRemaining()) {
 				inputMessageWrapBufferQueue.removeFirst();
-				dataPacketBufferPool
-						.putDataPacketBuffer(currentWorkingWrapBuffer);
+				dataPacketBufferPool.putDataPacketBuffer(currentWorkingWrapBuffer);
 
 				if (inputMessageWrapBufferQueue.isEmpty()) {
 					outputMessageQueue.removeFirst();
@@ -289,8 +264,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 				}
 
 				currentWorkingWrapBuffer = inputMessageWrapBufferQueue.peek();
-				currentWorkingByteBuffer = currentWorkingWrapBuffer
-						.getByteBuffer();
+				currentWorkingByteBuffer = currentWorkingWrapBuffer.getByteBuffer();
 			}
 		}
 
@@ -298,8 +272,8 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	}
 
 	/**
-	 * 소켓 읽기 이벤트가 꺼져 있는 상태라면 더 이상 전송할 데이터 없는 상태가 되어 소켓 쓰기 이벤트가 꺼져 있거나 혹은 출력 메시지
-	 * 큐가 최대 용량 25% 보다 작은 경우 소켓 읽기 이벤트 켜기
+	 * 소켓 읽기 이벤트가 꺼져 있는 상태라면 더 이상 전송할 데이터 없는 상태가 되어 소켓 쓰기 이벤트가 꺼져 있거나 혹은 출력 메시지 큐가
+	 * 최대 용량 25% 보다 작은 경우 소켓 읽기 이벤트 켜기
 	 */
 	private void turnOnSocketReadModeIfValid() {
 		int interestOps = personalSelectionKey.interestOps();
@@ -328,8 +302,7 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	 * @param outputMessageWrapBufferQueue
 	 * @throws InterruptedException
 	 */
-	public void addOutputMessage(AbstractMessage outputMessage,
-			ArrayDeque<WrapBuffer> outputMessageWrapBufferQueue)
+	public void addOutputMessage(AbstractMessage outputMessage, ArrayDeque<WrapBuffer> outputMessageWrapBufferQueue)
 			throws InterruptedException {
 
 		// log.info("outputMessageQueue.size={}, inputMessageCount={}",
@@ -342,78 +315,57 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 			 */
 			turnOnSocketWriteMode();
 		} catch (CancelledKeyException e) {
-			log.warn("this client[{}]'s selection key has been cancelled",
-					acceptedSocketChannel.hashCode());
+			log.warn("this client[{}]'s selection key has been cancelled", acceptedSocketChannel.hashCode());
 
 			close();
 		}
 	}
 
 	@Override
-	public void putReceivedMessage(
-			ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
+	public void putReceivedMessage(int mailboxID, int mailID, String messageID, Object readableMiddleObject)
 			throws InterruptedException {
-		String messageID = readableMiddleObjectWrapper.getMessageID();
+
+		AbstractServerTask serverTask = null;
 		try {
-			AbstractServerTask serverTask = null;
-			try {
-				serverTask = serverTaskManager.getServerTask(messageID);
-			} catch (DynamicClassCallException e) {
-				log.warn(e.getMessage());
+			serverTask = serverTaskManager.getServerTask(messageID);
+		} catch (DynamicClassCallException e) {
+			log.warn(e.getMessage());
 
-				SelfExn.ErrorType errorType = SelfExn.ErrorType
-						.valueOf(DynamicClassCallException.class);
-				String errorReason = e.getMessage();
-				ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(
-						errorType, errorReason, readableMiddleObjectWrapper,
-						this, messageProtocol);
+			ProtocolUtil.closeReadableMiddleObject(mailboxID, mailID, messageID, readableMiddleObject);
 
-				return;
-			} catch (Exception | Error e) {
-				String errorMessage = new StringBuilder()
-						.append("unknown error::fail to get a input message[")
-						.append(messageID).append("] server task").toString();
-				log.warn(errorMessage, e);
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
+			String errorReason = e.getMessage();
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(errorType, errorReason, mailboxID, mailID,
+					messageID, this, messageProtocol);
 
-				SelfExn.ErrorType errorType = SelfExn.ErrorType
-						.valueOf(DynamicClassCallException.class);
-				String errorReason = "fail to get a input message server task::"
-						+ e.getMessage();
-				ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(
-						errorType, errorReason, readableMiddleObjectWrapper,
-						this, messageProtocol);
-				return;
-			}
+			return;
+		} catch (Exception | Error e) {
+			String errorMessage = new StringBuilder().append("unknown error::fail to get a input message[")
+					.append(messageID).append("] server task").toString();
+			log.warn(errorMessage, e);
 
-			try {
-				serverTask.execute(projectName, this, projectLoginManager,
-						readableMiddleObjectWrapper, messageProtocol, this);
-			} catch (InterruptedException e) {
-				throw e;
-			} catch (Exception | Error e) {
-				log.warn(
-						"unknwon error::fail to execute a input message server task",
-						e);
+			ProtocolUtil.closeReadableMiddleObject(mailboxID, mailID, messageID, readableMiddleObject);
 
-				SelfExn.ErrorType errorType = SelfExn.ErrorType
-						.valueOf(ServerTaskException.class);
-				String errorReason = "fail to execute a input message server task::"
-						+ e.getMessage();
-				ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(
-						errorType, errorReason, readableMiddleObjectWrapper,
-						this, messageProtocol);
-				return;
-			}
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
+			String errorReason = "fail to get a input message server task::" + e.getMessage();
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(errorType, errorReason, mailboxID, mailID,
+					messageID, this, messageProtocol);
+			return;
+		}
 
-		} finally {
-			/**
-			 * <pre>
-			 * MiddleReadableObject 가 가진 자원 반환을 하는 장소는  2군데이다.
-			 * 첫번째 장소는 메시지 추출 후 쓰임이 다해서 호출하는 AbstractMessageDecoder#decode 이며
-			 * 두번째 장소는 2번 연속 호출해도 무방하기때문에 안전하게 자원 반환을 보장하기위한 Executor#run 이다.
-			 * </pre>
-			 */
-			readableMiddleObjectWrapper.closeReadableMiddleObject();
+		try {
+			serverTask.execute(projectName, this, projectLoginManager, mailboxID, mailID, messageID,
+					readableMiddleObject, messageProtocol, this);
+		} catch (InterruptedException e) {
+			throw e;
+		} catch (Exception | Error e) {
+			log.warn("unknwon error::fail to execute a input message server task", e);
+
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(ServerTaskException.class);
+			String errorReason = "fail to execute a input message server task::" + e.getMessage();
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(errorType, errorReason, mailboxID, mailID,
+					messageID, this, messageProtocol);
+			return;
 		}
 	}
 
@@ -456,33 +408,28 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 	}
 
 	private void releaseResources() {
-		while (! outputMessageQueue.isEmpty()) {
-			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue
-					.removeFirst();
-	
+		while (!outputMessageQueue.isEmpty()) {
+			ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = outputMessageQueue.removeFirst();
+
 			while (!inputMessageWrapBufferQueue.isEmpty()) {
 				WrapBuffer buffer = inputMessageWrapBufferQueue.removeFirst();
 				dataPacketBufferPool.putDataPacketBuffer(buffer);
 			}
 		}
-	
+
 		receivedDataOnlyStream.close();
 		releaseLoginUserResource();
-	
-		log.info(
-				"this accepted socket channel[hashcode={}, selection key={}]'s resources has been released",
-				acceptedSocketChannel.hashCode(),
-				personalSelectionKey.hashCode());
+
+		log.info("this accepted socket channel[hashcode={}, selection key={}]'s resources has been released",
+				acceptedSocketChannel.hashCode(), personalSelectionKey.hashCode());
 	}
 
 	/** 로그 아웃시 할당 받은 자원을 해제한다. */
 	private void releaseLoginUserResource() {
 		if (null != personalLoginID) {
 			projectLoginManager.removeLoginUser(personalSelectionKey);
-			LocalSourceFileResourceManager.getInstance()
-					.removeUsingUserIDWithUnlockFile(personalLoginID);
-			LocalTargetFileResourceManager.getInstance()
-					.removeUsingUserIDWithUnlockFile(personalLoginID);
+			LocalSourceFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(personalLoginID);
+			LocalTargetFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(personalLoginID);
 		}
 	}
 
@@ -490,20 +437,19 @@ public class AcceptedConnection implements ServerIOEventHandlerIF,
 		try {
 			acceptedSocketChannel.shutdownOutput();
 		} catch (Exception e) {
-			log.warn(
-					"fail to shutdown output of the socket channel[{}], errmsg={}",
-					acceptedSocketChannel.hashCode(), e.getMessage());
+			log.warn("fail to shutdown output of the socket channel[{}], errmsg={}", acceptedSocketChannel.hashCode(),
+					e.getMessage());
 		}
-	
+
 		try {
 			acceptedSocketChannel.close();
 		} catch (Exception e) {
-			log.warn("fail to close the socket channel[{}], errmsg={}",
-					acceptedSocketChannel.hashCode(), e.getMessage());
+			log.warn("fail to close the socket channel[{}], errmsg={}", acceptedSocketChannel.hashCode(),
+					e.getMessage());
 		}
-	
+
 		serverIOEvenetController.cancel(personalSelectionKey);
-	
+
 		releaseResources();
 	}
 

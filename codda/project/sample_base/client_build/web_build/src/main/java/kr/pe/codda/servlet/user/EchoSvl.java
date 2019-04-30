@@ -1,5 +1,7 @@
 package kr.pe.codda.servlet.user;
 
+import java.util.concurrent.TimeUnit;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -44,7 +46,7 @@ public class EchoSvl extends AbstractServlet {
 		java.util.Random random = new java.util.Random();
 		Echo echoReq = new Echo();
 		echoReq.setRandomInt(random.nextInt());
-		echoReq.setStartTime(new java.util.Date().getTime());
+		echoReq.setStartTime(System.nanoTime());
 
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager
 				.getInstance().getMainProjectConnectionPool();
@@ -53,11 +55,8 @@ public class EchoSvl extends AbstractServlet {
 				.sendSyncInputMessage(ClientMessageCodecManger.getInstance(),
 						echoReq);
 
-		boolean isSame = false;
-		long erraseTime = 0;
-
 		if (!(outputMessage instanceof Echo)) {
-			String errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다";
+			String errorMessage = "에코 메시지 응답 메시지를 얻는데 실패하였습니다";
 
 			String debugMessage = new StringBuilder("입력 메시지[")
 					.append(echoReq.getMessageID())
@@ -72,8 +71,10 @@ public class EchoSvl extends AbstractServlet {
 
 		Echo echoRes = (Echo) outputMessage;
 
-		erraseTime = new java.util.Date().getTime() - echoReq.getStartTime();
+		long erraseTime = TimeUnit.MICROSECONDS.convert(System.nanoTime() - echoReq.getStartTime(), TimeUnit.NANOSECONDS);
 
+		boolean isSame = false;
+		
 		if ((echoRes.getRandomInt() == echoReq.getRandomInt())
 				&& (echoRes.getStartTime() == echoReq.getStartTime())) {
 			isSame = true;

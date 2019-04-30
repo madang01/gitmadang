@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import junitlib.AbstractJunitTest;
-import kr.pe.codda.client.connection.ClientMessageUtility;
+import kr.pe.codda.client.connection.sync.SyncOutputMessageReceiver;
 import kr.pe.codda.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.codda.common.etc.CharsetUtil;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
@@ -31,8 +31,6 @@ import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
 import kr.pe.codda.common.protocol.thb.THBMessageProtocol;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoder;
 import kr.pe.codda.common.protocol.thb.THBSingleItemDecoderMatcher;
@@ -50,29 +48,6 @@ import kr.pe.codda.server.ServerIOEvenetControllerIF;
 import kr.pe.codda.server.classloader.ServerTaskMangerIF;
 
 public class ServerTaskTest extends AbstractJunitTest {
-	
-	class ReceivedMessageBlockingQueueMock implements ReceivedMessageBlockingQueueIF {
-		private ReadableMiddleObjectWrapper readableMiddleObjectWrapper = null;
-
-		@Override
-		public void putReceivedMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
-				throws InterruptedException {
-			if (null == readableMiddleObjectWrapper) {
-				fail("the parameter readableMiddleObjectWrapper is null");
-			}
-			
-			if (null != this.readableMiddleObjectWrapper) {
-				fail("메시지 추출은 1번만이야하지만  2번째 호출함");
-			}
-			this.readableMiddleObjectWrapper = readableMiddleObjectWrapper;
-			
-		}
-		
-		
-		public ReadableMiddleObjectWrapper getReadableMiddleObjectWrapper() {
-			return readableMiddleObjectWrapper;
-		}
-	}
 	
 	
 	@Test
@@ -150,7 +125,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		
 
-		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -189,9 +163,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataStream sos = null;
+			ReceivedDataStream rds = null;
 			try {
-				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				rds = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -202,33 +176,19 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 
 			// log.info("4");
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
 			try {
-				messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);
+				messageProtocol.S2MList(rds, fromAcceptedConnection);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
-
-
-			inputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			
-			if (null == inputMessageWrapReadableMiddleObject) {
-				fail("추출된 입력 메시지 없습니다");
-			}
-		}
-				
-		try {
-			fromAcceptedConnection.putReceivedMessage(inputMessageWrapReadableMiddleObject);
-		} catch (InterruptedException e) {
-			fail("인터럽트 발생");
 		}
 		
 		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = fromAcceptedConnection.getOutputMessageQueue();
 		
 		if (1 != outputMessageQueue.size()) {
-			fail("메시지 갯수가 1개가 아님");
+			fail("메시지 갯수가 1개가 아닌 다수입니다");
 		}
 		
 		
@@ -240,36 +200,34 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataStream sos = null;
+		ReceivedDataStream rds = null;
 		try {
-			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
+			rds = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
 		
-		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
+		SyncOutputMessageReceiver syncOutputMessageReceiver = new SyncOutputMessageReceiver(messageProtocol);
+		syncOutputMessageReceiver.ready(ClientMessageCodecManger.getInstance());
 		try {
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
-			messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);			
-			outputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			if (null == outputMessageWrapReadableMiddleObject) {
-				fail("추출된 출력 메시지가 없습니다");
-			}
+			
+			messageProtocol.S2MList(rds, syncOutputMessageReceiver);
 		} catch (Exception e) {
 			fail("fail to close");
+		}		
+		
+		if (syncOutputMessageReceiver.isError()) {
+			fail("1 개 이상 출력 메시지 추출되었습니다");
 		}
 		
-		
-		AbstractMessage receviedOutputMessage = null;
-		try {
-			receviedOutputMessage = ClientMessageUtility.buildOutputMessage(ClientMessageCodecManger.getInstance(),
-					messageProtocol,
-					outputMessageWrapReadableMiddleObject);
-		} catch (DynamicClassCallException | BodyFormatException e) {
-			fail("fail to build a output message");
+		//log.info("5");
+		if (! syncOutputMessageReceiver.isReceivedMessage()) {
+			fail("추출한 출력 메시지가 없습니다");
 		}
+		
+		AbstractMessage receviedOutputMessage = syncOutputMessageReceiver.getReceiveMessage();
 		
 		if (! (receviedOutputMessage instanceof SelfExnRes)) {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
@@ -285,10 +243,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 코덱 얻기 실패가 아님");
 		}
 		
-		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-
-		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-		// fromAcceptedConnection.close();
 		fromAcceptedConnection.close();
 		
 	}
@@ -368,7 +322,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		
 
-		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
+		
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -407,9 +361,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataStream sos = null;
+			ReceivedDataStream rds = null;
 			try {
-				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				rds = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -420,33 +374,19 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 
 			// log.info("4");
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
 			try {
-				messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);
+				messageProtocol.S2MList(rds, fromAcceptedConnection);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
-
-
-			inputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			
-			if (null == inputMessageWrapReadableMiddleObject) {
-				fail("추출된 입력 메시지 없습니다");
-			}
-		}
-				
-		try {
-			fromAcceptedConnection.putReceivedMessage(inputMessageWrapReadableMiddleObject);
-		} catch (InterruptedException e) {
-			fail("인터럽트 발생");
 		}
 		
 		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = fromAcceptedConnection.getOutputMessageQueue();
 		
 		if (1 != outputMessageQueue.size()) {
-			fail("메시지 갯수가 1개가 아님");
+			fail("메시지 갯수가 1개가 아닌 다수입니다");
 		}
 		
 		
@@ -458,36 +398,36 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataStream sos = null;
+		ReceivedDataStream rds = null;
 		try {
-			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
+			rds = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
-		
-		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
+		/**
+		 * 출력 스트림을 출력 메시지로 환원
+		 */
+		SyncOutputMessageReceiver syncOutputMessageReceiver = new SyncOutputMessageReceiver(messageProtocol);
+		syncOutputMessageReceiver.ready(ClientMessageCodecManger.getInstance());
 		try {
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
-			messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);			
-			outputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			if (null == outputMessageWrapReadableMiddleObject) {
-				fail("추출된 출력 메시지가 없습니다");
-			}
+			
+			messageProtocol.S2MList(rds, syncOutputMessageReceiver);
 		} catch (Exception e) {
 			fail("fail to close");
 		}
 		
-		
-		AbstractMessage receviedOutputMessage = null;
-		try {
-			receviedOutputMessage = ClientMessageUtility.buildOutputMessage(ClientMessageCodecManger.getInstance(),
-					messageProtocol,
-					outputMessageWrapReadableMiddleObject);
-		} catch (DynamicClassCallException | BodyFormatException e) {
-			fail("fail to build a output message");
+		if (syncOutputMessageReceiver.isError()) {
+			fail("1 개 이상 출력 메시지 추출되었습니다");
 		}
+		
+		//log.info("5");
+		if (! syncOutputMessageReceiver.isReceivedMessage()) {
+			fail("추출한 출력 메시지가 없습니다");
+		}
+		
+		AbstractMessage receviedOutputMessage = syncOutputMessageReceiver.getReceiveMessage();
 		
 		if (! (receviedOutputMessage instanceof SelfExnRes)) {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
@@ -503,9 +443,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 코덱 얻기 실패가 아님");
 		}
 		
-		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-
-		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		// fromAcceptedConnection.close();
 		fromAcceptedConnection.close();
 	}
@@ -601,9 +538,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 					serverTaskMangerMock);
 		}
 		
-		
-
-		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -642,9 +576,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataStream sos = null;
+			ReceivedDataStream rds = null;
 			try {
-				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				rds = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -655,33 +589,19 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 
 			// log.info("4");
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
 			try {
-				messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);
+				messageProtocol.S2MList(rds, fromAcceptedConnection);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
-
-
-			inputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			
-			if (null == inputMessageWrapReadableMiddleObject) {
-				fail("추출된 입력 메시지 없습니다");
-			}
-		}
-				
-		try {
-			fromAcceptedConnection.putReceivedMessage(inputMessageWrapReadableMiddleObject);
-		} catch (InterruptedException e) {
-			fail("인터럽트 발생");
 		}
 		
 		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = fromAcceptedConnection.getOutputMessageQueue();
 		
 		if (1 != outputMessageQueue.size()) {
-			fail("메시지 갯수가 1개가 아님");
+			fail("메시지 갯수가 1개가 아닌 다수입니다");
 		}
 		
 		
@@ -693,36 +613,37 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataStream sos = null;
+		ReceivedDataStream rds = null;
 		try {
-			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
+			rds = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
+		/**
+		 * 출력 스트림을 출력 메시지로 환원
+		 */
+		SyncOutputMessageReceiver syncOutputMessageReceiver = new SyncOutputMessageReceiver(messageProtocol);
+		syncOutputMessageReceiver.ready(ClientMessageCodecManger.getInstance());
 		
-		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
 		try {
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
-			messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);			
-			outputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			if (null == outputMessageWrapReadableMiddleObject) {
-				fail("추출된 출력 메시지가 없습니다");
-			}
+			
+			messageProtocol.S2MList(rds, syncOutputMessageReceiver);
 		} catch (Exception e) {
 			fail("fail to close");
 		}
 		
-		
-		AbstractMessage receviedOutputMessage = null;
-		try {
-			receviedOutputMessage = ClientMessageUtility.buildOutputMessage(ClientMessageCodecManger.getInstance(),
-					messageProtocol,
-					outputMessageWrapReadableMiddleObject);
-		} catch (DynamicClassCallException | BodyFormatException e) {
-			fail("fail to build a output message");
+		if (syncOutputMessageReceiver.isError()) {
+			fail("1 개 이상 출력 메시지 추출되었습니다");
 		}
+		
+		//log.info("5");
+		if (! syncOutputMessageReceiver.isReceivedMessage()) {
+			fail("추출한 출력 메시지가 없습니다");
+		}		
+		
+		AbstractMessage receviedOutputMessage = syncOutputMessageReceiver.getReceiveMessage();
 		
 		if (! (receviedOutputMessage instanceof SelfExnRes)) {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
@@ -737,10 +658,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		if (selfExnRes.getErrorReason().indexOf("모의 DynamicClassCallException 예외 던지기") < 0) {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 코덱 얻기 실패가 아님");
 		}
-		
-		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 
-		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		// fromAcceptedConnection.close();
 		fromAcceptedConnection.close();
 	}
@@ -836,9 +754,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 					serverTaskMangerMock);
 		}
 		
-		
-
-		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -877,9 +792,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataStream sos = null;
+			ReceivedDataStream rds = null;
 			try {
-				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				rds = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -890,33 +805,19 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 
 			// log.info("4");
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
 			try {
-				messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);
+				messageProtocol.S2MList(rds, fromAcceptedConnection);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
-
-
-			inputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			
-			if (null == inputMessageWrapReadableMiddleObject) {
-				fail("추출된 입력 메시지 없습니다");
-			}
-		}
-				
-		try {
-			fromAcceptedConnection.putReceivedMessage(inputMessageWrapReadableMiddleObject);
-		} catch (InterruptedException e) {
-			fail("인터럽트 발생");
 		}
 		
 		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = fromAcceptedConnection.getOutputMessageQueue();
 		
 		if (1 != outputMessageQueue.size()) {
-			fail("메시지 갯수가 1개가 아님");
+			fail("메시지 갯수가 1개가 아닌 다수입니다");
 		}
 		
 		
@@ -928,36 +829,37 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataStream sos = null;
+		ReceivedDataStream rds = null;
 		try {
-			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
+			rds = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
+		/**
+		 * 출력 스트림을 출력 메시지로 환원
+		 */
+		SyncOutputMessageReceiver syncOutputMessageReceiver = new SyncOutputMessageReceiver(messageProtocol);
+		syncOutputMessageReceiver.ready(ClientMessageCodecManger.getInstance());
 		
-		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
 		try {
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
-			messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);			
-			outputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			if (null == outputMessageWrapReadableMiddleObject) {
-				fail("추출된 출력 메시지가 없습니다");
-			}
+			
+			messageProtocol.S2MList(rds, syncOutputMessageReceiver);
 		} catch (Exception e) {
 			fail("fail to close");
 		}
 		
-		
-		AbstractMessage receviedOutputMessage = null;
-		try {
-			receviedOutputMessage = ClientMessageUtility.buildOutputMessage(ClientMessageCodecManger.getInstance(),
-					messageProtocol,
-					outputMessageWrapReadableMiddleObject);
-		} catch (DynamicClassCallException | BodyFormatException e) {
-			fail("fail to build a output message");
+		if (syncOutputMessageReceiver.isError()) {
+			fail("1 개 이상 출력 메시지 추출되었습니다");
 		}
+		
+		//log.info("5");
+		if (! syncOutputMessageReceiver.isReceivedMessage()) {
+			fail("추출한 출력 메시지가 없습니다");
+		}		
+		
+		AbstractMessage receviedOutputMessage = syncOutputMessageReceiver.getReceiveMessage();
 		
 		if (! (receviedOutputMessage instanceof SelfExnRes)) {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
@@ -973,9 +875,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 코덱 얻기 실패가 아님");
 		}
 		
-		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-
-		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		fromAcceptedConnection.close();
 	}
 	
@@ -1094,7 +993,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		
 
-		ReadableMiddleObjectWrapper inputMessageWrapReadableMiddleObject = null;
 		{
 			Empty emptyReq = new Empty();
 			emptyReq.messageHeaderInfo.mailboxID = 1;
@@ -1133,9 +1031,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("3");
 
-			ReceivedDataStream sos = null;
+			ReceivedDataStream rds = null;
 			try {
-				sos = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
+				rds = new ReceivedDataStream(wrapBufferListOfInputMessage, streamCharsetDecoder,
 						dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -1146,33 +1044,19 @@ public class ServerTaskTest extends AbstractJunitTest {
 			// log.info("sos.size={}", sos.size());
 
 			// log.info("4");
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
 			try {
-				messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);
+				messageProtocol.S2MList(rds, fromAcceptedConnection);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
-
-
-			inputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			
-			if (null == inputMessageWrapReadableMiddleObject) {
-				fail("추출된 입력 메시지 없습니다");
-			}
-		}
-				
-		try {
-			fromAcceptedConnection.putReceivedMessage(inputMessageWrapReadableMiddleObject);
-		} catch (InterruptedException e) {
-			fail("인터럽트 발생");
 		}
 		
 		ArrayDeque<ArrayDeque<WrapBuffer>> outputMessageQueue = fromAcceptedConnection.getOutputMessageQueue();
 		
 		if (1 != outputMessageQueue.size()) {
-			fail("메시지 갯수가 1개가 아님");
+			fail("메시지 갯수가 1개가 아닌 다수입니다");
 		}
 		
 		
@@ -1184,36 +1068,37 @@ public class ServerTaskTest extends AbstractJunitTest {
 		}
 		
 		
-		ReceivedDataStream sos = null;
+		ReceivedDataStream rds = null;
 		try {
-			sos = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
+			rds = new ReceivedDataStream(wrapBufferQueue, streamCharsetDecoder,
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 		} catch (NoMoreDataPacketBufferException e) {
 			fail("fail to create a instance of ReceivedDataOnlyStream");
 		}
 		
+		/**
+		 * 출력 스트림을 출력 메시지로 환원
+		 */
+		SyncOutputMessageReceiver syncOutputMessageReceiver = new SyncOutputMessageReceiver(messageProtocol);
+		syncOutputMessageReceiver.ready(ClientMessageCodecManger.getInstance());
 		
-		ReadableMiddleObjectWrapper outputMessageWrapReadableMiddleObject = null;
 		try {
-			ReceivedMessageBlockingQueueMock receivedMessageBlockingQueueMock = new ReceivedMessageBlockingQueueMock();
-			messageProtocol.S2MList(sos, receivedMessageBlockingQueueMock);			
-			outputMessageWrapReadableMiddleObject = receivedMessageBlockingQueueMock.getReadableMiddleObjectWrapper();
-			if (null == outputMessageWrapReadableMiddleObject) {
-				fail("추출된 출력 메시지가 없습니다");
-			}
+			
+			messageProtocol.S2MList(rds, syncOutputMessageReceiver);
 		} catch (Exception e) {
 			fail("fail to close");
 		}
 		
-		
-		AbstractMessage receviedOutputMessage = null;
-		try {
-			receviedOutputMessage = ClientMessageUtility.buildOutputMessage(ClientMessageCodecManger.getInstance(),
-					messageProtocol,
-					outputMessageWrapReadableMiddleObject);
-		} catch (DynamicClassCallException | BodyFormatException e) {
-			fail("fail to build a output message");
+		if (syncOutputMessageReceiver.isError()) {
+			fail("1 개 이상 출력 메시지 추출되었습니다");
 		}
+		
+		//log.info("5");
+		if (! syncOutputMessageReceiver.isReceivedMessage()) {
+			fail("추출한 출력 메시지가 없습니다");
+		}		
+		
+		AbstractMessage receviedOutputMessage = syncOutputMessageReceiver.getReceiveMessage();
 		
 		if (! (receviedOutputMessage instanceof SelfExnRes)) {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그에 대한 처리 결과 메시지인 SelfExnRes 미 발생");
@@ -1229,9 +1114,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 			fail("서버 메시지 코덱 얻기 실패 실험 실패::강제적으로 서버 메시지 코덱 얻기 실패 예외를 던졌지만 그 원인이 입력 메시지 코덱 얻기 실패가 아님");
 		}
 		
-		outputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
-
-		inputMessageWrapReadableMiddleObject.closeReadableMiddleObject();
 		fromAcceptedConnection.close();
 	}
 }

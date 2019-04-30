@@ -21,7 +21,6 @@ package kr.pe.codda.server.task;
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerTaskPermissionException;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.server.AcceptedConnection;
 import kr.pe.codda.server.PersonalLoginManagerIF;
@@ -37,7 +36,7 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 	public void execute(String projectName,
 			AcceptedConnection fromAcceptedConnection,			
 			ProjectLoginManagerIF projectLoginManager,						
-			ReadableMiddleObjectWrapper readableMiddleObjectWrapper,
+			int mailboxID, int mailID, String messageID, Object readableMiddleObject,
 			MessageProtocolIF messageProtocol,
 			PersonalLoginManagerIF fromPersonalLoginManager) throws InterruptedException {		
 		
@@ -46,14 +45,14 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue( 
 					SelfExn.ErrorType.valueOf(ServerTaskPermissionException.class),
 					"you are not logged in. this service requires a login",
-					readableMiddleObjectWrapper, fromAcceptedConnection, messageProtocol);
+					mailboxID, mailID, messageID, fromAcceptedConnection, messageProtocol);
 			
 			return;
 		}
 		super.execute(projectName,
 				fromAcceptedConnection,				
 				projectLoginManager,
-				readableMiddleObjectWrapper, 
+				mailboxID, mailID, messageID, readableMiddleObject, 
 				messageProtocol, fromPersonalLoginManager);
 	}
 }

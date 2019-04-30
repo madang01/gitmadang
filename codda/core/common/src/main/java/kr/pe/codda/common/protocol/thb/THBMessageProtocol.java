@@ -35,8 +35,7 @@ import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
-import kr.pe.codda.common.protocol.ReceivedMessageBlockingQueueIF;
+import kr.pe.codda.common.protocol.ReceivedMessageReceiverIF;
 import kr.pe.codda.common.protocol.SingleItemDecoderIF;
 
 /**
@@ -218,7 +217,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 
 	
 	@Override
-	public void S2MList(ReceivedDataStream receivedDataOnlyStream, ReceivedMessageBlockingQueueIF wrapMessageBlockingQueue) 
+	public void S2MList(ReceivedDataStream receivedDataOnlyStream, ReceivedMessageReceiverIF wrapMessageBlockingQueue) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException, InterruptedException {		
 		THBMessageHeader messageHeader = (THBMessageHeader)receivedDataOnlyStream.getUserDefObject();		
 				
@@ -284,7 +283,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						*/
 						
 						FreeSizeInputStream messageInputStream = receivedDataOnlyStream
-								.cutMessageInputStreamFromStartingPosition(messageHeader.bodySize+messageHeaderSize);
+								.cutReceivedDataStream(messageHeader.bodySize+messageHeaderSize);
 
 						String messageID = null;
 						int mailboxID;
@@ -302,14 +301,18 @@ public class THBMessageProtocol implements MessageProtocolIF {
 							throw new HeaderFormatException(errorMessage);
 						}
 						
-						ReadableMiddleObjectWrapper readableMiddleObjectWrapper = 
-								new ReadableMiddleObjectWrapper(messageID, 
-										mailboxID, mailID, messageInputStream);
+						/*
+						 * ReadableMiddleObjectWrapper readableMiddleObjectWrapper = new
+						 * ReadableMiddleObjectWrapper(messageID, mailboxID, mailID,
+						 * messageInputStream);
+						 */
 						
 						try {
-							wrapMessageBlockingQueue.putReceivedMessage(readableMiddleObjectWrapper);
+							// wrapMessageBlockingQueue.putReceivedMessage(readableMiddleObjectWrapper);
+							wrapMessageBlockingQueue.putReceivedMessage(mailboxID, mailID, messageID, messageInputStream);
 						} catch(InterruptedException e) {
-							readableMiddleObjectWrapper.closeReadableMiddleObject();							
+							// readableMiddleObjectWrapper.closeReadableMiddleObject();
+							messageInputStream.close();							
 							throw e;
 						}
 

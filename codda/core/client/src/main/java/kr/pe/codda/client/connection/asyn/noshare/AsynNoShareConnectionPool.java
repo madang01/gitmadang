@@ -34,7 +34,6 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 	private long socketTimeout=0;
 	private int clientConnectionCount = 0; 
 	
-	private int clientSyncMessageMailboxCountPerAsynShareConnection=0;
 	private int clientAsynInputMessageQueueCapacity=0;
 	
 	private MessageProtocolIF messageProtocol = null; 
@@ -85,7 +84,6 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 		this.serverPort = projectPartConfiguration.getServerPort();
 		this.socketTimeout = projectPartConfiguration.getClientSocketTimeout();
 		this.clientConnectionCount = projectPartConfiguration.getClientConnectionCount();
-		this.clientSyncMessageMailboxCountPerAsynShareConnection = projectPartConfiguration.getClientSyncMessageMailboxCountPerAsynShareConnection();
 		this.clientAsynInputMessageQueueCapacity = projectPartConfiguration.getClientAsynInputMessageQueueCapacity();
 		
 		this.messageProtocol = messageProtocol;
@@ -267,7 +265,6 @@ public class AsynNoShareConnectionPool implements ConnectionPoolIF, AsynConnecte
 				serverHost,
 				serverPort,
 				socketTimeout,
-				clientSyncMessageMailboxCountPerAsynShareConnection,
 				clientAsynInputMessageQueueCapacity,
 				sos,
 				messageProtocol, dataPacketBufferPool, clientTaskManger, this, 

@@ -4,5 +4,5 @@ java  \
 -Dsinnori.logPath=D:\gitmadang\codda\project\sample_base\log\appclient \
 -Dsinnori.installedPath=D:\gitsinnori\sinnori \
 -Dsinnori.projectName=sample_base \
--jar dist\SinnoriAppClientRun.jar
+-jar dist\SinnoriAppClientRun.jar $1
 cd -

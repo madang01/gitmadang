@@ -32,6 +32,11 @@ public class AppClientMain {
 		
 		log.info("numberOfThread={}", numberOfThread);
 		
+		if (args.length == 0) {
+			log.warn("파라미터 입력 없음");
+			System.exit(1);
+		}
+		
 		class ConnectionPoolThreadSafeTester implements Runnable {
 			private InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticFinalVars.BASE_PACKAGE_NAME);
 			

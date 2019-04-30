@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -13,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -22,7 +24,7 @@ import kr.pe.codda.common.etc.CommonStaticFinalVars;
 public class ReceivedDataStreamTest extends AbstractJunitTest {
 	
 	@Test
-	public void testCutMessageInputStreamFromStartingPosition_basic() {
+	public void testCutReceivedDataStream_basic() {
 		int dataPacketBufferMaxCount = 15;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
@@ -30,8 +32,8 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 	
 		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
-		int dataPacketBufferSize = 512;
-		int dataPacketBufferPoolSize = 15;
+		int dataPacketBufferSize = 1024;
+		int dataPacketBufferPoolSize = 200000;
 		
 		
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
@@ -43,8 +45,7 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 			fail("unknown error::" + e.getMessage());
 		}
 		
-		
-		ReceivedDataStream sos = null;
+		ReceivedDataStream rds = null;
 		FreeSizeOutputStream fsos = null;
 		try {
 			{
@@ -57,25 +58,25 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 					
 					fsos.skip(expectedSize);
 					emptyOutputStreamWrapBufferList = fsos.getOutputStreamWrapBufferList();
-					sos = new ReceivedDataStream(emptyOutputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPool);
+					rds = new ReceivedDataStream(emptyOutputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPool);
 				}
 				
-				long actualSize = sos.getSreamSizeUsingStreamWrapBufferQueue();
+				long actualSize = rds.getSreamSizeUsingStreamWrapBufferQueue();
 				
 				assertEquals(expectedSize, actualSize);
 			}			
 			
 			FreeSizeInputStream fsis = null;
 			try {
-				long oldSize = sos.getSreamSizeUsingStreamWrapBufferQueue();
+				long oldSize = rds.getSreamSizeUsingStreamWrapBufferQueue();
 				
 				long expectedSize = oldSize - dataPacketBufferSize - 24;
-				fsis = sos.cutMessageInputStreamFromStartingPosition(expectedSize);
+				fsis = rds.cutReceivedDataStream(expectedSize);
 				
 				//log.info("fsis size={}", fsis.available());
 				// log.info("sos size={}", sos.size());
 				
-				long actualSize = sos.getSreamSizeUsingStreamWrapBufferQueue();
+				long actualSize = rds.getSreamSizeUsingStreamWrapBufferQueue();
 				
 				assertEquals(oldSize - expectedSize, actualSize);
 			} finally {
@@ -87,15 +88,105 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 			log.warn(""+e.getMessage(), e);
 			fail("unknown error::"+e.getMessage());
 		} finally {
-			if (null != sos) {
-				sos.close();
+			if (null != rds) {
+				rds.close();
 			}
 		}
 	}
-
+	
+	@Test
+	public void test_잔존데이터복사방법속도비교_메모리복사와1byte씩복사() {
+		ByteBuffer srcByteBuffer =  ByteBuffer.allocate(2048);
+		ByteBuffer destByteBuffer =  ByteBuffer.allocate(2048);
+		
+		
+		final int retryCount = 1000000;
+		final int remaining = 712;
+		
+		long startTime = System.nanoTime();
+		
+		for (int i=0; i < retryCount; i++) {
+			srcByteBuffer.clear();
+			destByteBuffer.clear();
+			destByteBuffer.position(destByteBuffer.capacity() - remaining);			
+			
+			/** 첫번째 잔존 데이터 복사 방법 : 메모리 복사 */
+			int minRemaining = Math.min(destByteBuffer.remaining(), srcByteBuffer.remaining());
+			srcByteBuffer.limit(srcByteBuffer.position()+minRemaining);
+			destByteBuffer.put(srcByteBuffer);
+			srcByteBuffer.limit(srcByteBuffer.capacity());
+		}
+		long endTime = System.nanoTime();
+		
+		log.info("첫번째 잔존데이터 복사 방법 평균시간:{}", (endTime - startTime)/retryCount);
+		
+		startTime = System.nanoTime();
+		
+		for (int i=0; i < retryCount; i++) {
+			srcByteBuffer.clear();
+			destByteBuffer.clear();
+			destByteBuffer.position(destByteBuffer.capacity() - remaining);			
+			
+			/** 첫번째 잔존 데이터 복사 방법 : 1byte 씩 복사 */
+			int minRemaining = Math.min(destByteBuffer.remaining(), srcByteBuffer.remaining());
+			srcByteBuffer.limit(srcByteBuffer.position()+minRemaining);
+			for (int j=0; j < minRemaining; j++) {
+				destByteBuffer.put(srcByteBuffer.get());
+			}			
+			srcByteBuffer.limit(srcByteBuffer.capacity());
+		}
+		endTime = System.nanoTime();
+		
+		log.info("두번째 잔존데이터 복사 방법 평균시간:{}", (endTime - startTime)/retryCount);
+	}
 
 	@Test
-	public void testCutMessageInputStreamFromStartingPosition_complex() {
+	public void test_잔존데이터복사방법속도비교2() {
+		
+		ByteBuffer srcByteBuffer =  ByteBuffer.allocate(2048);
+		ByteBuffer destByteBuffer =  ByteBuffer.allocate(2048);
+		
+		
+		final int retryCount = 1000000;
+		final int remaining = 712;
+		
+		long startTime = System.nanoTime();
+		
+		for (int i=0; i < retryCount; i++) {
+			srcByteBuffer.clear();
+			destByteBuffer.clear();
+			destByteBuffer.position(destByteBuffer.capacity() - remaining);			
+			
+			/** 첫번째 잔존 데이터 복사 방법 : 2개 버퍼의 남아 있는 최소을 이용한 방법 */
+			int minRemaining = Math.min(destByteBuffer.remaining(), srcByteBuffer.remaining());
+			srcByteBuffer.limit(srcByteBuffer.position()+minRemaining);
+			destByteBuffer.put(srcByteBuffer);
+			srcByteBuffer.limit(srcByteBuffer.capacity());
+		}
+		long endTime = System.nanoTime();
+		
+		log.info("첫번째 잔존데이터 복사 방법 평균시간:{}", (endTime - startTime)/retryCount);
+		
+		// 8 개 연산자
+		startTime = System.nanoTime();
+		
+		for (int i=0; i < retryCount; i++) {
+			srcByteBuffer.clear();
+			destByteBuffer.clear();
+			destByteBuffer.position(destByteBuffer.capacity() - remaining);
+
+			/** 첫번째 잔존 데이터 복사 방법 : 두 버퍼 모두 복사 가능 여부를 따져 1 byte씩 복사하는 방법 */
+			while (destByteBuffer.hasRemaining() && srcByteBuffer.hasRemaining()) {
+				destByteBuffer.put(srcByteBuffer.get());
+			}
+		}
+		
+		endTime = System.nanoTime();
+		log.info("두번째 잔존데이터 복사 방법 평균시간:{}", (endTime - startTime)/retryCount);
+	}
+
+	@Test
+	public void testCutReceivedDataStream_랜덤() {
 		int dataPacketBufferMaxCount = 15;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
@@ -103,8 +194,8 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 	
 		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
-		int dataPacketBufferSize = 6;
-		int dataPacketBufferPoolSize = 15;
+		int dataPacketBufferSize = 2048;
+		int dataPacketBufferPoolSize = 1000;
 		
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
@@ -115,14 +206,7 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 			fail("unknown error::" + e.getMessage());
 		}
 		
-		final int integerTypeExpectedValueList[] = { 
-				0x11223344, 
-				0x55667788,
-				0x99aabbcc,
-				0xddeeff00
-			};	
-		
-		final byte eofByte = (byte) 0xc1;
+		final byte expectedValue = (byte) 0x7f;
 		 
 		
 		ReceivedDataStream sos = null;
@@ -133,63 +217,51 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
 					dataPacketBufferPool);
 			
-			for (int expectedValue : integerTypeExpectedValueList) {
-				fsos.putInt(expectedValue);
-			}
-	
+			byte[] testDataBytes = new byte[dataPacketBufferMaxCount*dataPacketBufferSize - 1];
 			
-			fsos.putByte(eofByte);
+			Random random = new Random();
+			
+			random.nextBytes(testDataBytes);
+			
+			fsos.putBytes(testDataBytes);
+			
+			fsos.putByte(expectedValue);
+			
+			// int streamSize = (int)fsos.size();
 			
 			outputStreamWrapBufferListForTest = fsos.getOutputStreamWrapBufferList();
 			
-			sos = 
-					new ReceivedDataStream(outputStreamWrapBufferListForTest, streamCharsetDecoder,
+			sos = new ReceivedDataStream(outputStreamWrapBufferListForTest, streamCharsetDecoder,
 							dataPacketBufferMaxCount, dataPacketBufferPool);
 			
-			// log.info("sos.size={}", sos.size());
-			FreeSizeInputStream fsis = null;
-			for (int i=0; i < integerTypeExpectedValueList.length; i++) {
-				int expectedValue = integerTypeExpectedValueList[i];
-				try {
-					fsis = sos.cutMessageInputStreamFromStartingPosition(4);
-					int actualValue = fsis.getInt();
-					
-					assertEquals(String.format("integerTypeExpectedValueList's index[%d]'s value[%d] vs  actualValue[%d] 비교", i, expectedValue, actualValue), expectedValue, actualValue);				
-				} finally {
-					if (null != fsis) {
-						fsis.close();
-					}				
-				}
-			}
-			
-			if (1 != sos.getCircleQueueSize()) {
-				fail(String.format("StreamWrapBufferQueue size[%d] is not equal to one", 
-						sos.getCircleQueueSize()));
-			}
-			
-			try {
-				fsis = sos.cutMessageInputStreamFromStartingPosition(1);
-				byte actualValue = fsis.getByte();
+			int total = 0;
+			while (total < testDataBytes.length) {
+				//log.info("before dataPacketBufferPool.size={}", dataPacketBufferPool.size());
 				
-				assertEquals(eofByte, actualValue);				
-			} finally {
-				if (null != fsis) {
-					fsis.close();
-				}				
+				int cutSize = random.nextInt(1024) + 1;
+				
+				if ((total + cutSize) > testDataBytes.length) {
+					cutSize = testDataBytes.length - total;
+				}
+				
+				FreeSizeInputStream fsis = sos.cutReceivedDataStream(cutSize);
+				
+				//log.info("after dataPacketBufferPool.size={}", dataPacketBufferPool.size());
+				
+				int size = (int)fsis.available();
+				
+				for (int i=0; i < size; i++) {
+					assertEquals(testDataBytes[total+i], fsis.getByte());
+				}
+				
+				fsis.close();
+				
+				total += cutSize;
 			}
 			
-			if (0L != sos.getReceviedBytes()) {
-				fail("1. the number of socket read bytes is not zero");
-			}
+			byte actualValue = sos.getByte();
 			
-			if (0L != sos.getSreamSizeUsingStreamWrapBufferQueue()) {
-				fail("2. the number of socket read bytes is not zero");
-			}
-			
-			if (0 != sos.getCircleQueueSize()) {
-				fail(String.format("StreamWrapBufferQueue size[%d] is not equal to zero", 
-						sos.getCircleQueueSize()));
-			}
+			assertEquals(expectedValue, actualValue);
 			
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);
@@ -1147,7 +1219,7 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 	
 	@Test
 	public void testGetMD5WithoutChange_getMD5_속도비교() {
-		int dataPacketBufferMaxCount = 21;
+		int dataPacketBufferMaxCount = 1000;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
@@ -1160,7 +1232,9 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 		ReceivedDataStream rds = null;
 		
-		int[] dataPacketBufferSizeList = { 1, 2, 3, 4, 512};
+		int[] dataPacketBufferSizeList = { 1, 2, 3, 4, 256, 512, 1024, 2048};
+		
+		Random random = new Random();
 		
 		for (int dataPacketBufferSize : dataPacketBufferSizeList) {
 			try {
@@ -1171,7 +1245,13 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 				fail(errorMessage);
 			}
 			
-			byte[] testByteArray = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+			byte[] testByteArray = new byte[530];
+			
+			random.nextBytes(testByteArray);
+			testByteArray[0] = 17;
+			testByteArray[1] = 18;
+			
+			// {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
 			
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
@@ -1196,7 +1276,8 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 				
 				long endTime = System.nanoTime();
 				
-				log.info("{}::getMD5WithoutChange::평균시간:{}", dataPacketBufferSize, (endTime - startTime)/retryCount);
+				log.info("{}::getMD5WithoutChange::평균시간:{} nanoseconds", dataPacketBufferSize, 
+						TimeUnit.NANOSECONDS.convert((endTime - startTime)/retryCount, TimeUnit.NANOSECONDS));
 				
 				
 				startTime = System.nanoTime();
@@ -1210,15 +1291,16 @@ public class ReceivedDataStreamTest extends AbstractJunitTest {
 				
 				endTime = System.nanoTime();
 				
-				log.info("{}::getMD5::평균시간:{}", dataPacketBufferSize, (endTime - startTime)/retryCount);
+				log.info("{}::getMD5::평균시간:{} nanoseconds", dataPacketBufferSize, 
+						TimeUnit.NANOSECONDS.convert((endTime - startTime)/retryCount, TimeUnit.NANOSECONDS));
 				
 				byte actualValue = rds.getByte();
 				
-				assertEquals(0, actualValue);
+				assertEquals(17, actualValue);
 				
 				actualValue = rds.getByte();
 				
-				assertEquals(1, actualValue);
+				assertEquals(18, actualValue);
 				
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();

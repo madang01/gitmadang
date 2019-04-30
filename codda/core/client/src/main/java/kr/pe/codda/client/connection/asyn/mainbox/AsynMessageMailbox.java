@@ -4,7 +4,7 @@ import kr.pe.codda.common.etc.CommonStaticFinalVars;
 
 public abstract class AsynMessageMailbox {
 
-	private static int mailID = Integer.MIN_VALUE;
+	private transient static int mailID = Integer.MIN_VALUE;
 
 	public static int getMailboxID() {
 		return CommonStaticFinalVars.ASYN_MAILBOX_ID;

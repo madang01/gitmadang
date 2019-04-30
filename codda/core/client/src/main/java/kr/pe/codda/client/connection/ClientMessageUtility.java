@@ -1,101 +1,168 @@
 package kr.pe.codda.client.connection;
 
-import java.util.ArrayDeque;
-
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.common.classloader.MessageDecoderMangerIF;
-import kr.pe.codda.common.classloader.MessageEncoderManagerIF;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
-import kr.pe.codda.common.exception.HeaderFormatException;
-import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
-import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
+import kr.pe.codda.common.protocol.ProtocolUtil;
+import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 
 public abstract class ClientMessageUtility {
 
-	public static AbstractMessage buildOutputMessage(
-			MessageDecoderMangerIF messageDecoderManger, 
+	/**
+	 * 변수 'readableMiddleObject' 를 디코딩하여 출력 메시지를 반환한다. 단 동적 호출 클래스 호출이 실패하였거나 디코딩 실패시 SelfExnRes 을 반환한다.
+	 * 
+	 * @param messageCodecManger
+	 * @param messageProtocol
+	 * @param mailboxID
+	 * @param mailID
+	 * @param messageID
+	 * @param readableMiddleObject
+	 * @return
+	 */
+	public static AbstractMessage buildOutputMessage(String title,
+			MessageDecoderMangerIF messageCodecManger, 
 			MessageProtocolIF messageProtocol,
-			ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
-			throws DynamicClassCallException, BodyFormatException {
-		if (null == messageDecoderManger) {
-			throw new IllegalArgumentException("the parameter messageDecoderManger is null");
-		}
-
-		if (null == messageProtocol) {
-			throw new IllegalArgumentException("the parameter messageProtocol is null");
-		}
-
-		if (null == readableMiddleObjectWrapper) {
-			throw new IllegalArgumentException("the parameter readableMiddleObjectWrapper is null");
-		}
+			int mailboxID, int mailID, String messageID, Object readableMiddleObject) {
 		
-		InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
-		
-		String messageID = readableMiddleObjectWrapper.getMessageID();
-		int mailboxID = readableMiddleObjectWrapper.getMailboxID();
-		int mailID = readableMiddleObjectWrapper.getMailID();
-		Object middleReadObj = readableMiddleObjectWrapper.getReadableMiddleObject();
-
-		if (middleReadObj instanceof SelfExnRes) {
-			/** 소켓 쓰기시 IO Exception 발생 */
-			SelfExnRes selfExnRes = (SelfExnRes) middleReadObj;
-
-			return selfExnRes;
-		}
-
-		AbstractMessageDecoder messageDecoder = null;		
 		try {
-			messageDecoder = messageDecoderManger.getMessageDecoder(messageID);
-		} catch (DynamicClassCallException e) {
-			String errorMessage = new StringBuilder("fail to get the client message decoder of the output message[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("], errmsg=")
-					.append(e.getMessage()).toString();
+			AbstractMessageDecoder messageDecoder = null;		
+			try {
+				messageDecoder = messageCodecManger.getMessageDecoder(messageID);
+			} catch (DynamicClassCallException e) {
+				String errorMessage = new StringBuilder("fail to get the client message decoder of the ")
+						.append(title)
+						.append(" output message")
+						.append("mailboxID=")
+						.append(mailboxID)
+						.append(", mailID=")
+						.append(mailID)
+						.append(", messageID=")
+						.append(messageID)
+						.append("], errmsg=")
+						.append(e.getMessage()).toString();
 
-			log.warn(errorMessage);
-			throw e;
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder(
-					"unknwon error::fail to get the client message decoder of the output message[")
-							.append(readableMiddleObjectWrapper.toSimpleInformation()).append("]::").append(e.getMessage())
-							.toString();
+				InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
+				log.warn(errorMessage);
+					
+				
+				SelfExnRes selfExnRes = new SelfExnRes();
+				selfExnRes.messageHeaderInfo.mailboxID = mailboxID;
+				selfExnRes.messageHeaderInfo.mailID = mailID;
+				selfExnRes.setErrorPlace(SelfExn.ErrorPlace.CLIENT);
+				selfExnRes.setErrorType(SelfExn.ErrorType.valueOf(DynamicClassCallException.class));
+			
+				selfExnRes.setErrorMessageID(messageID);
+				selfExnRes.setErrorReason(errorMessage);
+				
+				return selfExnRes;
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder(
+						"unknwon error::fail to get the client message decoder of the ")
+						.append(title)
+						.append(" output message[")
+						.append("mailboxID=")
+						.append(mailboxID)
+						.append(", mailID=")
+						.append(mailID)
+						.append(", messageID=")
+						.append(messageID)
+								.append("], errmsg=").append(e.getMessage())
+								.toString();
+				
+				InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
+				log.warn(errorMessage, e);
+				
+				SelfExnRes selfExnRes = new SelfExnRes();
+				selfExnRes.messageHeaderInfo.mailboxID = mailboxID;
+				selfExnRes.messageHeaderInfo.mailID = mailID;
+				selfExnRes.setErrorPlace(SelfExn.ErrorPlace.CLIENT);
+				selfExnRes.setErrorType(SelfExn.ErrorType.valueOf(DynamicClassCallException.class));
+			
+				selfExnRes.setErrorMessageID(messageID);
+				selfExnRes.setErrorReason(errorMessage);
+				
+				return selfExnRes;
+			}
 
-			log.warn(errorMessage, e);
-			throw new DynamicClassCallException(errorMessage);
-		}
+			AbstractMessage outputMessage = null;
+			try {
+				outputMessage = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), readableMiddleObject);
+				outputMessage.messageHeaderInfo.mailboxID = mailboxID;
+				outputMessage.messageHeaderInfo.mailID = mailID;
+			} catch (BodyFormatException e) {
+				String errorMessage = new StringBuilder("fail to decode the var 'readableMiddleObject' of the ")
+						.append(title)
+						.append(" output message")
+						.append("mailboxID=")
+						.append(mailboxID)
+						.append(", mailID=")
+						.append(mailID)
+						.append(", messageID=")
+						.append(messageID)
+						.append("], errmsg=")
+						.append("")
+						.append(e.getMessage())
+						.toString();
 
-		AbstractMessage outputMessage = null;
-		try {
-			outputMessage = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), middleReadObj);
+				InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
+				log.warn(errorMessage);		
+				
+				SelfExnRes selfExnRes = new SelfExnRes();
+				selfExnRes.messageHeaderInfo.mailboxID = mailboxID;
+				selfExnRes.messageHeaderInfo.mailID = mailID;
+				selfExnRes.setErrorPlace(SelfExn.ErrorPlace.CLIENT);
+				selfExnRes.setErrorType(SelfExn.ErrorType.valueOf(BodyFormatException.class));
+			
+				selfExnRes.setErrorMessageID(messageID);
+				selfExnRes.setErrorReason(errorMessage);
+				
+				return selfExnRes;
+			} catch (Exception | Error e) {
+				String errorMessage = new StringBuilder("unknow error::fail to decode the var 'readableMiddleObject' of the ")
+						.append(title)
+						.append(" output message")
+						.append("mailboxID=")
+						.append(mailboxID)
+						.append(", mailID=")
+						.append(mailID)
+						.append(", messageID=")
+						.append(messageID)
+						.append("], errmsg=")
+						.append("")
+						.append(e.getMessage())
+						.toString();
+				
+				InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
+				log.warn(errorMessage, e);
+				
+				SelfExnRes selfExnRes = new SelfExnRes();
+				selfExnRes.messageHeaderInfo.mailboxID = mailboxID;
+				selfExnRes.messageHeaderInfo.mailID = mailID;
+				selfExnRes.setErrorPlace(SelfExn.ErrorPlace.CLIENT);
+				selfExnRes.setErrorType(SelfExn.ErrorType.valueOf(BodyFormatException.class));
+			
+				selfExnRes.setErrorMessageID(messageID);
+				selfExnRes.setErrorReason(errorMessage);
+				
+				return selfExnRes;
+			}
+			
 			outputMessage.messageHeaderInfo.mailboxID = mailboxID;
 			outputMessage.messageHeaderInfo.mailID = mailID;
-		} catch (BodyFormatException e) {
-			String errorMessage = new StringBuilder("fail to get a output message[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("] from readable middle object")
-					.toString();
 
-			log.warn(errorMessage);
-			throw new BodyFormatException(errorMessage);
-		} catch (Exception | Error e) {
-			String errorMessage = new StringBuilder("unknwon error::fail to get a output message[")
-					.append(readableMiddleObjectWrapper.toSimpleInformation()).append("] from readable middle object::")
-					.append(e.getMessage()).toString();
-
-			log.warn(errorMessage, e);
-			throw new BodyFormatException(errorMessage);
-		}
-
-		return outputMessage;
+			return outputMessage;
+		} finally {
+			ProtocolUtil.closeReadableMiddleObject(mailboxID, mailID, messageID, readableMiddleObject);
+		}	
 	}
-
-	public static ArrayDeque<WrapBuffer> buildReadableWrapBufferList(
+	/*
+	private static ArrayDeque<WrapBuffer> buildReadableWrapBufferList(
 			MessageEncoderManagerIF messageEncoderManager, 
 			MessageProtocolIF messageProtocol,
 			AbstractMessage inputMessage)
@@ -107,9 +174,6 @@ public abstract class ClientMessageUtility {
 		try {
 			messageEncoder = messageEncoderManager.getMessageEncoder(inputMessage.getMessageID());
 		} catch (DynamicClassCallException e) {
-			/*String errorMessage = new StringBuilder("fail to get a input message encoder::").append(e.getMessage())
-					.toString();
-			log.warn(errorMessage);*/
 			throw e;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("unkown error::fail to get a input message encoder::")
@@ -122,22 +186,10 @@ public abstract class ClientMessageUtility {
 		try {
 			wrapBufferList = messageProtocol.M2S(inputMessage, messageEncoder);
 		} catch (NoMoreDataPacketBufferException e) {
-			/*String errorMessage = new StringBuilder("fail to build a input message stream[")
-					.append(inputMessage.getMessageID()).append("]::").append(e.getMessage()).toString();
-			log.warn(errorMessage);*/
-
 			throw e;
 		} catch (BodyFormatException e) {
-			/*String errorMessage = new StringBuilder("fail to build a input message stream[")
-					.append(inputMessage.getMessageID()).append("]::").append(e.getMessage()).toString();
-			log.warn(errorMessage);*/
-
 			throw e;
 		} catch (HeaderFormatException e) {
-			/*String errorMessage = new StringBuilder("fail to build a input message stream[")
-					.append(inputMessage.getMessageID()).append("]::").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);*/
-
 			throw e;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("unkown error::fail to get a input message encoder::")
@@ -146,12 +198,10 @@ public abstract class ClientMessageUtility {
 			System.exit(1);
 		}
 		
-		// FIXME!
-		/*if (dataPacketBufferPool.size() < 2000) {
-			log.info("dataPacketBufferPool.size={}", dataPacketBufferPool.size());
-		}*/
+		
 		
 		
 		return wrapBufferList;
 	}
+*/
 }

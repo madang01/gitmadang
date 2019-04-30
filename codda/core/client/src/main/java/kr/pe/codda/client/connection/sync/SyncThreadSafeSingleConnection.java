@@ -14,11 +14,11 @@ import java.util.Arrays;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.codda.client.connection.ClientMessageUtility;
 import kr.pe.codda.common.classloader.MessageCodecMangerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
 import kr.pe.codda.common.exception.BodyFormatException;
 import kr.pe.codda.common.exception.DynamicClassCallException;
+import kr.pe.codda.common.exception.HeaderFormatException;
 import kr.pe.codda.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.codda.common.exception.NotSupportedException;
 import kr.pe.codda.common.exception.ServerTaskException;
@@ -27,6 +27,7 @@ import kr.pe.codda.common.io.DataPacketBufferPoolIF;
 import kr.pe.codda.common.io.ReceivedDataStream;
 import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
@@ -50,7 +51,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 	private final int mailboxID = 1;
 	private transient int mailID = Integer.MIN_VALUE;
 	private transient java.util.Date finalReadTime = new java.util.Date();
-	private SyncReceivedMessageBlockingQueue syncReceivedMessageBlockingQueue = new SyncReceivedMessageBlockingQueue();
+	private SyncOutputMessageReceiver syncOutputMessageReceiver = null;
 
 	public SyncThreadSafeSingleConnection(String serverHost, int serverPort, long socketTimeout,
 			int clientDataPacketBufferSize, ReceivedDataStream receivedDataOnlyStream, MessageProtocolIF messageProtocol,
@@ -66,6 +67,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		
 		socketBuffer = new byte[this.clientDataPacketBufferSize];
+		syncOutputMessageReceiver = new SyncOutputMessageReceiver(messageProtocol);
 
 		openSocketChannel();
 
@@ -171,11 +173,37 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 		inputMessage.messageHeaderInfo.mailboxID = mailboxID;
 		inputMessage.messageHeaderInfo.mailID = mailID;
 
-		ArrayDeque<WrapBuffer> inputMessageWrapBufferQueue = ClientMessageUtility.buildReadableWrapBufferList(
-				messageCodecManger, messageProtocol, inputMessage);
+		AbstractMessageEncoder messageEncoder = null;
 
-		while (!inputMessageWrapBufferQueue.isEmpty()) {
-			WrapBuffer inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
+		try {
+			messageEncoder = messageCodecManger.getMessageEncoder(inputMessage.getMessageID());
+		} catch (DynamicClassCallException e) {
+			throw e;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("unkown error::fail to get a input message encoder::")
+					.append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+			throw new DynamicClassCallException(errorMessage);
+		}
+
+		ArrayDeque<WrapBuffer> wrapBufferList = null;
+		try {
+			wrapBufferList = messageProtocol.M2S(inputMessage, messageEncoder);
+		} catch (NoMoreDataPacketBufferException e) {
+			throw e;
+		} catch (BodyFormatException e) {
+			throw e;
+		} catch (HeaderFormatException e) {
+			throw e;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("unkown error::fail to get a input message encoder::")
+					.append(e.getMessage()).toString();
+			log.error(errorMessage, e);
+			System.exit(1);
+		}
+
+		while (! wrapBufferList.isEmpty()) {
+			WrapBuffer inputMessageWrapBuffer = wrapBufferList.pollFirst();
 			try {
 				ByteBuffer inputMessageByteBuffer = inputMessageWrapBuffer.getByteBuffer();
 				int len = inputMessageByteBuffer.remaining();
@@ -185,8 +213,8 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 				dataPacketBufferPool.putDataPacketBuffer(inputMessageWrapBuffer);
 			} catch (IOException e) {
 				dataPacketBufferPool.putDataPacketBuffer(inputMessageWrapBuffer);
-				while (!inputMessageWrapBufferQueue.isEmpty()) {
-					inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
+				while (! wrapBufferList.isEmpty()) {
+					inputMessageWrapBuffer = wrapBufferList.pollFirst();
 					dataPacketBufferPool.putDataPacketBuffer(inputMessageWrapBuffer);
 				}
 
@@ -198,8 +226,8 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 				close();
 			} catch (Exception e) {
 				dataPacketBufferPool.putDataPacketBuffer(inputMessageWrapBuffer);
-				while (!inputMessageWrapBufferQueue.isEmpty()) {
-					inputMessageWrapBuffer = inputMessageWrapBufferQueue.pollFirst();
+				while (! wrapBufferList.isEmpty()) {
+					inputMessageWrapBuffer = wrapBufferList.pollFirst();
 					dataPacketBufferPool.putDataPacketBuffer(inputMessageWrapBuffer);
 				}
 
@@ -211,8 +239,7 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 			}
 		}
 
-		
-		syncReceivedMessageBlockingQueue.reset();
+		syncOutputMessageReceiver.ready(messageCodecManger);
 		try {
 			do {
 				int numberOfReadBytes = 0;
@@ -230,11 +257,11 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 
 				setFinalReadTime();
 
-				messageProtocol.S2MList(receivedDataOnlyStream, syncReceivedMessageBlockingQueue);
+				messageProtocol.S2MList(receivedDataOnlyStream, syncOutputMessageReceiver);
 
 				// log.info("numberOfReadBytes={}, readableMiddleObjectWrapperQueue.isEmpty={}",
 				// numberOfReadBytes, readableMiddleObjectWrapperQueue.isEmpty());
-			} while (!syncReceivedMessageBlockingQueue.isReceivedMessage());
+			} while (! syncOutputMessageReceiver.isReceivedMessage());
 
 		} catch (NoMoreDataPacketBufferException e) {
 			String errorMessage = new StringBuilder()
@@ -261,8 +288,13 @@ public final class SyncThreadSafeSingleConnection implements SyncConnectionIF {
 			Arrays.fill(socketBuffer, CommonStaticFinalVars.ZERO_BYTE);
 		}
 
-		AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage(messageCodecManger, messageProtocol,			
-				syncReceivedMessageBlockingQueue.getReadableMiddleObjectWrapper());
+		if (syncOutputMessageReceiver.isError()) {
+			String errorMessage = "there are one or more recevied messages";
+			close();
+			throw new IOException(errorMessage);
+		}
+
+		AbstractMessage outputMessage = syncOutputMessageReceiver.getReceiveMessage();
 
 		return outputMessage;
 	}

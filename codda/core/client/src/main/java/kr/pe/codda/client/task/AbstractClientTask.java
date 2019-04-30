@@ -10,7 +10,6 @@ import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.util.CommonStaticUtil;
 
 public abstract class AbstractClientTask {
@@ -41,12 +40,13 @@ public abstract class AbstractClientTask {
 	}
 
 	public void execute(int index, String projectName, AsynConnectionIF asynConnection,
-			ReadableMiddleObjectWrapper readableMiddleObjectWrapper, MessageProtocolIF messageProtocol)
+			int mailboxID, int mailID, String messageID, Object readableMiddleObject, 
+			MessageProtocolIF messageProtocol)
 			throws InterruptedException {
 
 		AbstractMessage outputMessage = null;
 		try {
-			outputMessage = outputMessageDecoder.decode(messageProtocol.getSingleItemDecoder(), readableMiddleObjectWrapper.getReadableMiddleObject());
+			outputMessage = outputMessageDecoder.decode(messageProtocol.getSingleItemDecoder(), readableMiddleObject);
 		} catch (BodyFormatException e) {
 			log.warn("fail to get a output message, errmsg=", e.getMessage());
 			return;
@@ -61,8 +61,17 @@ public abstract class AbstractClientTask {
 		} catch (InterruptedException e) {
 			throw e;
 		} catch (Exception | Error e) {
-			String errorReason = String.format("unknown error::fail to execuate the message[%s]'s task::%s",
-					readableMiddleObjectWrapper.toSimpleInformation(), e.getMessage());
+			
+			String errorReason = new StringBuilder()
+					.append("unknown error::fail to execuate the message[")
+					.append("mailboxID=")
+					.append(mailboxID)
+					.append(", mailID=")
+					.append(mailID)
+					.append(", messageID=")
+					.append(messageID)
+					.append("]'s task::")
+					.append(e.getMessage()).toString();
 
 			log.warn(errorReason, e);
 			return;

@@ -32,7 +32,6 @@ import kr.pe.codda.common.io.WrapBuffer;
 import kr.pe.codda.common.message.AbstractMessage;
 import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageProtocolIF;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
 import kr.pe.codda.common.type.SelfExn;
 import kr.pe.codda.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.codda.server.AcceptedConnection;
@@ -266,7 +265,7 @@ public class ToLetterCarrier {
 	
 	public static void putInputErrorMessageToOutputMessageQueue(SelfExn.ErrorType errorType,
 			String errorReason,			
-			ReadableMiddleObjectWrapper readableMiddleObjectWrapper,
+			int mailboxID, int mailID, String messageID,
 			AcceptedConnection fromAcceptedConnection,
 			MessageProtocolIF messageProtocol) throws InterruptedException {
 		
@@ -278,9 +277,6 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter errorReason is null");
 		}
 		
-		if (null == readableMiddleObjectWrapper) {
-			throw new IllegalArgumentException("the parameter readableMiddleObjectWrapper is null");
-		}
 		
 		if (null == fromAcceptedConnection) {
 			throw new IllegalArgumentException("the parameter fromSocketResource is null");
@@ -290,13 +286,10 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter messageProtocol is null");
 		}
 		
-		int mailboxIDOfSelfExn = readableMiddleObjectWrapper.getMailboxID();
-		int mailIDOfSelfExn = readableMiddleObjectWrapper.getMailID();
-		String errorMessageID = readableMiddleObjectWrapper.getMessageID();
 		
-		SelfExnRes selfExnRes = buildSelfExn(mailboxIDOfSelfExn, 
-				mailIDOfSelfExn, 
-				errorMessageID, 
+		SelfExnRes selfExnRes = buildSelfExn(mailboxID, 
+				mailID, 
+				messageID, 
 				errorType,
 				errorReason);
 

@@ -78,23 +78,29 @@
 					</div>
 					<div class="row">
 						<div class="col-sm-2" style="background-color:lavender;">항목</div>
-						<div class="col-sm-1" style="background-color:lavender;">값</div>
+						<div class="col-sm-2" style="background-color:lavender;">값</div>
 					</div>
 					<div class="row">
 						<div class="col-sm-2" style="background-color:lavenderblush;">랜덤 32bit 부호화 정수</div>
-						<div class="col-sm-1" style="background-color:lavenderblush;"><%= echoRes.getRandomInt() %></div>
+						<div class="col-sm-2" style="background-color:lavenderblush;"><%= echoRes.getRandomInt() %></div>
 					</div>
 					<div class="row">
 						<div class="col-sm-2" style="background-color:lavender;">the number of milliseconds since January 1, 1970, 00:00:00<br/>GMT represented</div>
-						<div class="col-sm-1" style="background-color:lavender;"><%= echoRes.getStartTime() %></div>
+						<div class="col-sm-2" style="background-color:lavender;"><%= echoRes.getStartTime() %></div>
 					</div>
 					<div class="row">
-						<div class="col-sm-2" style="background-color:lavenderblush;">경과시간(milliseconds)</div>
-						<div class="col-sm-1" style="background-color:lavenderblush;"><%= erraseTime %></div>
+						<div class="col-sm-2" style="background-color:lavenderblush;">경과시간(microseconds)</div>
+						<div class="col-sm-2" style="background-color:lavenderblush;"><%= erraseTime %></div>
 					</div>
 					<div class="row">
-						<div class="col-sm-2" style="background-color:lavender;">출력 비교 결과</div>
-						<div class="col-sm-1" style="background-color:lavender;"><%= isSame %></div>
+						<div class="col-sm-2" style="background-color:lavender;">출력 비교 결과</div><%						
+	if (Boolean.valueOf(isSame)) {
+		out.print("<div class=\"col-sm-2\" style=\"background-color:blue;color:white\">성공<div>");
+
+	} else {
+		out.print("<div class=\"col-sm-2\" style=\"background-color:red;color:white\">실패<div>");
+	}
+%>
 					</div>
 				</div>
 			</div>

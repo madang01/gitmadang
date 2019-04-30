@@ -22,26 +22,31 @@ import java.net.SocketTimeoutException;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.client.ConnectionIF;
+import kr.pe.codda.client.connection.ClientMessageUtility;
+import kr.pe.codda.common.classloader.MessageCodecMangerIF;
 import kr.pe.codda.common.etc.CommonStaticFinalVars;
-import kr.pe.codda.common.protocol.ReadableMiddleObjectWrapper;
+import kr.pe.codda.common.message.AbstractMessage;
+import kr.pe.codda.common.protocol.MessageProtocolIF;
 
 public final class SyncMessageMailbox {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SyncMessageMailbox.class);
-	/*private ArrayBlockingQueue<ReadableMiddleObjectWrapper> outputMessageQueue = new ArrayBlockingQueue<ReadableMiddleObjectWrapper>(
-			1);*/
-
 	private final Object monitor = new Object();
-
-	private ConnectionIF conn;
 	
+	private ConnectionIF conn;	
 
 	private long socketTimeOut;
 
 	private int mailboxID;
 	private transient int mailID = Integer.MIN_VALUE;
-	private ReadableMiddleObjectWrapper outputMessageReadableMiddleObjectWrapper = null;
+	private MessageProtocolIF messageProtocol = null;
+	
+	
+	private String receviedMessageID = null;
+	private Object receviedReadableMiddleObject = null;
 
-	public SyncMessageMailbox(ConnectionIF conn, int mailboxID, long socketTimeOut) {
+	private MessageCodecMangerIF messageCodecManger = null;
+
+	public SyncMessageMailbox(ConnectionIF conn, int mailboxID, long socketTimeOut, MessageProtocolIF messageProtocol) {
 		if (0 == mailboxID) {
 			String errorMessage = String
 					.format("the parameter mailboxID[%d] is equal to zero that is a public mail box's id", mailboxID);
@@ -67,23 +72,18 @@ public final class SyncMessageMailbox {
 		this.conn = conn;
 		this.mailboxID = mailboxID;
 		this.socketTimeOut = socketTimeOut;
+		this.messageProtocol = messageProtocol;
 	}
 
+	public void setMessageCodecManger(MessageCodecMangerIF messageCodecManger) {
+		this.messageCodecManger = messageCodecManger;
+	}
+	
 	/*
 	 * private int getMailboxID() { return mailboxID; }
 	 */
 
-	private void increaseMailID() {
-		// FIXME!
-		// log.info("call , mailID={}", mailID);
-		//synchronized (monitor) {
-			if (Integer.MAX_VALUE == mailID) {
-				mailID = Integer.MIN_VALUE;
-			} else {
-				mailID++;
-			}
-		//}
-	}
+	
 
 	public int getMailboxID() {
 		return mailboxID;
@@ -92,51 +92,58 @@ public final class SyncMessageMailbox {
 	public int getMailID() {
 		return mailID;
 	}
+	
 
-	public void putSyncOutputMessage(ReadableMiddleObjectWrapper readableMiddleObjectWrapper)
+	public void putSyncOutputMessage(int fromMailboxID, int fromMailID, String messageID, Object readableMiddleObject)
 			throws InterruptedException {
-		if (null == readableMiddleObjectWrapper) {
-			throw new IllegalArgumentException("the parameter readableMiddleObjectWrapper is null");
+		if (null == readableMiddleObject) {
+			throw new IllegalArgumentException("the parameter readableMiddleObject is null");
 		}
-		
-		int fromMailboxID = readableMiddleObjectWrapper.getMailboxID();
-		int fromMailID = readableMiddleObjectWrapper.getMailID();
 		
 		synchronized (monitor) {
 			if (mailboxID != fromMailboxID) {
+				AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage("discarded", messageCodecManger, messageProtocol, fromMailboxID, fromMailID, messageID, readableMiddleObject);
+				
 				log.warn("drop the received letter[{}][{}] because it's mailbox id is different form this mailbox id[{}]",
-						readableMiddleObjectWrapper.toString(), mailboxID);
-
-				readableMiddleObjectWrapper.closeReadableMiddleObject();
+						outputMessage.toString(), mailboxID);				
 				return;
 			}
 			
 			if (mailID != fromMailID) {
+				AbstractMessage outputMessage = ClientMessageUtility.buildOutputMessage("discarded", messageCodecManger, messageProtocol, fromMailboxID, fromMailID, messageID, readableMiddleObject);
+				
 				log.warn("drop the received letter[{}] because it's mail id is different form this mailbox's mail id[{}]",
-						readableMiddleObjectWrapper.toString(), mailID);
+						outputMessage.toString(), mailID);
 
-				readableMiddleObjectWrapper.closeReadableMiddleObject();
+				// readableMiddleObjectWrapper.closeReadableMiddleObject();
 				return;
-			}
+			}			
 			
-			outputMessageReadableMiddleObjectWrapper = readableMiddleObjectWrapper;
+			// outputMessageReadableMiddleObjectWrapper = readableMiddleObjectWrapper;
+			this.receviedMessageID = messageID;
+			this.receviedReadableMiddleObject = readableMiddleObject;
 			monitor.notify();
 		}
 	}
 
-	public ReadableMiddleObjectWrapper getSyncOutputMessage() throws IOException, InterruptedException {
-		ReadableMiddleObjectWrapper returnObject = null;
+	public AbstractMessage getSyncOutputMessage() throws IOException, InterruptedException {
+		AbstractMessage returnedObject = null;
 		synchronized (monitor) {
-			if (null == outputMessageReadableMiddleObjectWrapper) {
+			if (null == receviedReadableMiddleObject) {
 				monitor.wait(socketTimeOut);				
-				if (null == outputMessageReadableMiddleObjectWrapper) {
+				if (null == receviedReadableMiddleObject) {
 					
 					if (! conn.isConnected()) {
 						log.warn(
 								"this connection[{}] disconnected so the input message's mail[mailboxID={}, mailID={}] lost",
 								conn.hashCode(), mailboxID, mailID);
 						log.info("연결 끊어져서 mailID 증가, mailID={}", mailID);
-						increaseMailID();
+						
+						if (Integer.MAX_VALUE == mailID) {
+							mailID = Integer.MIN_VALUE;
+						} else {
+							mailID++;
+						}
 						throw new IOException("the connection has been disconnected");
 					}
 					
@@ -144,15 +151,26 @@ public final class SyncMessageMailbox {
 							conn.hashCode(), mailboxID, mailID);
 					
 					log.info("소켓 타임아웃으로 인한 mailID 증가, mailID={}", mailID);
-					increaseMailID();					
+					if (Integer.MAX_VALUE == mailID) {
+						mailID = Integer.MIN_VALUE;
+					} else {
+						mailID++;
+					}					
 					throw new SocketTimeoutException("socket timeout occurred");
 				}				
 			}
-			returnObject = outputMessageReadableMiddleObjectWrapper;			
-			increaseMailID();
-			outputMessageReadableMiddleObjectWrapper = null;
-			return returnObject;
+			returnedObject = ClientMessageUtility.buildOutputMessage("received", messageCodecManger, messageProtocol, mailboxID, mailID, receviedMessageID, receviedReadableMiddleObject);
+			
+			if (Integer.MAX_VALUE == mailID) {
+				mailID = Integer.MIN_VALUE;
+			} else {
+				mailID++;
+			}
+			//receviedMessageID = null;
+			receviedReadableMiddleObject = null;
 		}
+		
+		return returnedObject;
 	}
 
 	@Override
