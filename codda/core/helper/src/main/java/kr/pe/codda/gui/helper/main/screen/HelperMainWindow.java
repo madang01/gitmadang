@@ -15,7 +15,7 @@ import kr.pe.codda.gui.helper.iobuilder.screen.IOFIleSetBuilderPanel;
 import kr.pe.codda.gui.helper.lib.ScreenManagerIF;
 import kr.pe.codda.gui.helper.projectmanager.screen.AllMainProjectManagerPanel;
 import kr.pe.codda.gui.helper.projectmanager.screen.MainProjectEditorPanel;
-import kr.pe.codda.gui.helper.projectmanager.screen.SinnoriInstalledPathPanel;
+import kr.pe.codda.gui.helper.projectmanager.screen.InstalledPathPanel;
 
 /**
  * @author Jonghoon Won
@@ -29,7 +29,7 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 	private IOFIleSetBuilderPanel ioFileSetBuilderPanel  = new IOFIleSetBuilderPanel(this, this);
 	private EachIOFileTypeBuilder eachIOFileTypeBuilder  = new EachIOFileTypeBuilder(this, this);
 	
-	private SinnoriInstalledPathPanel sinnoriInstalledPathPanel = new SinnoriInstalledPathPanel(this, this);
+	private InstalledPathPanel installedPathPanel = new InstalledPathPanel(this, this);
 	private AllMainProjectManagerPanel allMainProjectManagerPanel = new AllMainProjectManagerPanel(this, this);
 	private MainProjectEditorPanel mainProjectEditorPanel = new MainProjectEditorPanel(this, this);
 	
@@ -39,7 +39,7 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 		this.add(firstPanel);
 		this.add(ioFileSetBuilderPanel);
 		this.add(eachIOFileTypeBuilder);
-		this.add(sinnoriInstalledPathPanel);
+		this.add(installedPathPanel);
 		this.add(allMainProjectManagerPanel);
 		this.add(mainProjectEditorPanel);
 		
@@ -84,25 +84,25 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 	}
 	
 	@Override
-	public void moveToSinnoriInstalledPathScreen() {
-		this.setTitle("Sinnori Installed Path");
+	public void moveToInstalledPathScreen() {
+		this.setTitle("Codda Installed Path");
 		
 		hideAllScreen();
 		
-		sinnoriInstalledPathPanel.setEnabled(true);
-		sinnoriInstalledPathPanel.setVisible(true);
+		installedPathPanel.setEnabled(true);
+		installedPathPanel.setVisible(true);
 		this.pack();
 	}	
 
 	@Override
-	public void moveToAllMainProjectManagerScreen(String sinnoriInstalledPathString) {
+	public void moveToAllMainProjectManagerScreen(String installedPathString) {
 		this.setTitle("All Main Project Manager");
 		
 		hideAllScreen();
 		
 		allMainProjectManagerPanel.setEnabled(true);
 		allMainProjectManagerPanel.setVisible(true);
-		allMainProjectManagerPanel.setScreen(sinnoriInstalledPathString);
+		allMainProjectManagerPanel.setScreen(installedPathString);
 		this.pack();
 	}
 
@@ -149,14 +149,14 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 		firstPanel.setEnabled(false);
 		ioFileSetBuilderPanel.setEnabled(false);
 		eachIOFileTypeBuilder.setEnabled(false);
-		sinnoriInstalledPathPanel.setEnabled(false);
+		installedPathPanel.setEnabled(false);
 		allMainProjectManagerPanel.setEnabled(false);
 		mainProjectEditorPanel.setEnabled(false);
 		
 		firstPanel.setVisible(false);
 		ioFileSetBuilderPanel.setVisible(false);
 		eachIOFileTypeBuilder.setVisible(false);
-		sinnoriInstalledPathPanel.setVisible(false);
+		installedPathPanel.setVisible(false);
 		allMainProjectManagerPanel.setVisible(false);
 		mainProjectEditorPanel.setVisible(false);
 	}	

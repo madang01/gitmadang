@@ -34,10 +34,10 @@ public interface ScreenManagerIF {
 	public void moveToFirstScreen();
 	
 	/** 신놀이 설치 화면으로 전환 */
-	public void moveToSinnoriInstalledPathScreen();
+	public void moveToInstalledPathScreen();
 	
 	/** 전체 주 프로젝트 편집 화면으로 전환  */
-	public void moveToAllMainProjectManagerScreen(String sinnoriInstalledPathString);
+	public void moveToAllMainProjectManagerScreen(String installedPathString);
 	
 	/** 개별적인 주 프로젝트 편집 화면으로 전환 */
 	public void moveToMainProjectEditScreen(MainProjectBuildSystemState mainProjectBuildSystemState);

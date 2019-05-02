@@ -50,3 +50,6 @@ setenv.bat 를 환경에 맞게 수정후 <CATALINA_HOME>/bin  위치에 setenv.bat 와 CPAPP
 참고 : CPAPPEND.BAT 는 도스 shell 에서 CLASSPATH 환경 변수에 값을 추가하기 위한 shell 이다.
   (2) 데비안
 setenv.sh 을 환경에 맞게 수정후 <CATALINA_HOME>/bin  위치에 setenv.sh 을 넣는다.
+
+-----------
+

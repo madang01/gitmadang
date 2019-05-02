@@ -72,12 +72,12 @@ public class MainProjectEditorPanel extends JPanel {
 	private final String titlesOfPropertiesTableModel[] = { "key", "value" };
 	private final Class<?>[] columnTypesOfPropertiesTableModel = new Class[] {
 			ItemKeyLabel.class, ItemValuePanel.class };
-	private ItemIDInfoManger sinnoriItemIDInfoManger = ItemIDInfoManger
+	private ItemIDInfoManger itemIDInfoManger = ItemIDInfoManger
 			.getInstance();
-	private List<ItemIDInfo<?>> dbcpItemIDInfoList = sinnoriItemIDInfoManger
+	private List<ItemIDInfo<?>> dbcpItemIDInfoList = itemIDInfoManger
 			.getUnmodifiableDBCPPartItemIDInfoList();
 	private int dbcpItemIDInfoListSize = dbcpItemIDInfoList.size();
-	private List<ItemIDInfo<?>> subProjectPartItemIDInfoList = sinnoriItemIDInfoManger
+	private List<ItemIDInfo<?>> subProjectPartItemIDInfoList = itemIDInfoManger
 			.getUnmodifiableProjectPartItemIDInfoList();
 	private int subProjectPartItemIDInfoListSize = subProjectPartItemIDInfoList
 			.size();
@@ -95,7 +95,7 @@ public class MainProjectEditorPanel extends JPanel {
 	 * {@link #setProject(MainProjectBuildSystemState)} 에서 초기화
 	 */
 	private String mainProjectName = null;
-	private String sinnoriInstalledPathString = null;
+	private String installedPathString = null;
 	private List<String> subProjectNameList = new ArrayList<String>();
 	private List<String> dbcpNameList = new ArrayList<String>();
 	private ConfigurationPartTableModel commonPartTableModel = null;
@@ -107,7 +107,7 @@ public class MainProjectEditorPanel extends JPanel {
 	public void updateScreenWithMainProjectBuildSystemState(
 			MainProjectBuildSystemState mainProjectBuildSystemState) {
 		this.mainProjectName = mainProjectBuildSystemState.getMainProjectName();
-		this.sinnoriInstalledPathString = mainProjectBuildSystemState
+		this.installedPathString = mainProjectBuildSystemState
 				.getInstalledPathString();
 
 		this.subProjectNameList.clear();
@@ -124,10 +124,10 @@ public class MainProjectEditorPanel extends JPanel {
 				.getDBCPNameList();
 		List<String> subProjectNameList = mainProjectBuildSystemState
 				.getSubProjectNameList();
-		SequencedProperties sinnoriConfigSequencedProperties = mainProjectBuildSystemState
+		SequencedProperties mainProjectSequencedProperties = mainProjectBuildSystemState
 				.getConfigurationSequencedPropties();
 
-		ItemIDInfoManger sinnoriItemIDInfoManger = ItemIDInfoManger
+		ItemIDInfoManger itemIDInfoManger = ItemIDInfoManger
 				.getInstance();
 
 		int maxRowHeightOfCommonPartItemValuePanel = -1;
@@ -143,7 +143,7 @@ public class MainProjectEditorPanel extends JPanel {
 				ItemIDInfo<?> dbcpPartItemIDInfo = dbcpItemIDInfoList.get(i);
 				String itemID = dbcpPartItemIDInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(itemID).toString();
-				String itemValue = sinnoriConfigSequencedProperties
+				String itemValue = mainProjectSequencedProperties
 						.getProperty(itemKey);
 				
 				String itemDescriptionKey = dbcpPartItemIDInfo
@@ -176,7 +176,7 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 
 		{
-			List<ItemIDInfo<?>> commonPartItemIDInfoList = sinnoriItemIDInfoManger
+			List<ItemIDInfo<?>> commonPartItemIDInfoList = itemIDInfoManger
 					.getUnmodifiableCommonPartItemIDInfoList();
 			int commonPartConfigItemListSize = commonPartItemIDInfoList.size();
 
@@ -187,7 +187,7 @@ public class MainProjectEditorPanel extends JPanel {
 				ItemIDInfo<?> commonPartItemIDInfo = commonPartItemIDInfoList.get(i);
 				String itemID = commonPartItemIDInfo.getItemID();
 				String itemKey = itemID;
-				String itemValue = sinnoriConfigSequencedProperties
+				String itemValue = mainProjectSequencedProperties
 						.getProperty(itemKey);
 				
 				String itemDescriptionKey = commonPartItemIDInfo
@@ -223,7 +223,7 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 
 		{
-			List<ItemIDInfo<?>> mainProjectPartItemIDInfoList = sinnoriItemIDInfoManger
+			List<ItemIDInfo<?>> mainProjectPartItemIDInfoList = itemIDInfoManger
 					.getUnmodifiableProjectPartItemIDInfoList();
 			int mainProjectPartItemIDInfoListSize = mainProjectPartItemIDInfoList
 					.size();
@@ -236,7 +236,7 @@ public class MainProjectEditorPanel extends JPanel {
 				String itemID = mainProjectPartItemIDInfo.getItemID();
 				String itemKey = new StringBuilder("mainproject.").append(
 						itemID).toString();
-				String itemValue = sinnoriConfigSequencedProperties
+				String itemValue = mainProjectSequencedProperties
 						.getProperty(itemKey);
 				
 				String itemDescriptionKey = mainProjectPartItemIDInfo
@@ -279,7 +279,7 @@ public class MainProjectEditorPanel extends JPanel {
 				String itemID = subProjectPartItemIDInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(itemID)
 						.toString();
-				String itemValue = sinnoriConfigSequencedProperties
+				String itemValue = mainProjectSequencedProperties
 						.getProperty(itemKey);
 				
 				String itemDescriptionKey = subProjectPartItemIDInfo
@@ -311,7 +311,7 @@ public class MainProjectEditorPanel extends JPanel {
 					subProjectPropertiesTableModel);
 		}
 
-		sinnoriInstalledPathValueLabel.setText(sinnoriInstalledPathString);
+		installedPathValueLabel.setText(installedPathString);
 		mainProjectNameValueLabel.setText(mainProjectName);
 
 		appClientCheckBox.setSelected(isAppClient);
@@ -382,7 +382,7 @@ public class MainProjectEditorPanel extends JPanel {
 		mainProjectPartEditorTable.setVisible(true);
 	}
 	
-	private class SinnoriConfigurationSequencedProperties extends
+	private class ProjectConfigurationSequencedProperties extends
 			SequencedProperties {
 		/**
 		 * 주어진 신놀이 시퀀스 프로퍼티에 지정한 dbcp 이름 목록을 갖는 'dbcp 이름 목록' 항목을 추가한다.
@@ -448,13 +448,13 @@ public class MainProjectEditorPanel extends JPanel {
 				this.put(itemDescriptionKey, itemDescriptionValue);
 				this.put(itemKey, itemValue);
 
-				boolean isInactive = sinnoriItemIDInfoManger.isDisabled(
+				boolean isInactive = itemIDInfoManger.isDisabled(
 						itemID, prefixOfItemID, this);
 				if (isInactive)
 					continue;
 
 				try {
-					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(
+					itemIDInfoManger.getNativeValueAfterValidChecker(
 							itemKey, this);
 				} catch (IllegalArgumentException
 						| CoddaConfigurationException e1) {
@@ -500,13 +500,13 @@ public class MainProjectEditorPanel extends JPanel {
 					this.put(itemDescriptionKey, itemDescriptionValue);
 					this.put(itemKey, itemValue);
 
-					boolean isInactive = sinnoriItemIDInfoManger.isDisabled(
+					boolean isInactive = itemIDInfoManger.isDisabled(
 							itemID, prefixOfItemID, this);
 					if (isInactive)
 						continue;
 
 					try {
-						sinnoriItemIDInfoManger
+						itemIDInfoManger
 								.getNativeValueAfterValidChecker(itemKey, this);
 					} catch (IllegalArgumentException
 							| CoddaConfigurationException e1) {
@@ -551,13 +551,13 @@ public class MainProjectEditorPanel extends JPanel {
 				this.put(itemDescriptionKey, itemDescriptionValue);				
 				this.put(itemKey, itemValue);
 
-				boolean isInactive = sinnoriItemIDInfoManger.isDisabled(
+				boolean isInactive = itemIDInfoManger.isDisabled(
 						itemID, prefixOfItemID, this);
 				if (isInactive)
 					continue;
 
 				try {
-					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(
+					itemIDInfoManger.getNativeValueAfterValidChecker(
 							itemKey, this);
 				} catch (IllegalArgumentException
 						| CoddaConfigurationException e1) {
@@ -600,13 +600,13 @@ public class MainProjectEditorPanel extends JPanel {
 
 					this.put(itemKey, itemValue);				
 
-					boolean isInactive = sinnoriItemIDInfoManger.isDisabled(
+					boolean isInactive = itemIDInfoManger.isDisabled(
 							itemID, prefixOfItemID, this);
 					if (isInactive)
 						continue;
 
 					try {
-						sinnoriItemIDInfoManger
+						itemIDInfoManger
 								.getNativeValueAfterValidChecker(itemKey, this);
 					} catch (IllegalArgumentException
 							| CoddaConfigurationException e1) {
@@ -631,39 +631,39 @@ public class MainProjectEditorPanel extends JPanel {
 	 * 
 	 * @return 모든 파트 테이블 모델로부터 만들어진 신놀이 설정 순서 프로퍼티
 	 */
-	private SequencedProperties getModifiedSinnoriConfigSequencedPropertiesFromAllPartTableModel() {
-		SinnoriConfigurationSequencedProperties sinnoriConfigurationSequencedProperties = new SinnoriConfigurationSequencedProperties();
+	private SequencedProperties getProjectConfigurationSequencedPropertiesFromAllPartTableModel() {
+		ProjectConfigurationSequencedProperties projectConfigurationSequencedProperties = new ProjectConfigurationSequencedProperties();
 
-		boolean result = sinnoriConfigurationSequencedProperties
+		boolean result = projectConfigurationSequencedProperties
 				.addCommonPartItems();
 		if (!result) {
 			return null;
 		}
 
-		sinnoriConfigurationSequencedProperties
+		projectConfigurationSequencedProperties
 				.addDBCPNameListItem(dbcpNameList);
 
-		result = sinnoriConfigurationSequencedProperties.addAllDBCPPartItems();
+		result = projectConfigurationSequencedProperties.addAllDBCPPartItems();
 		if (!result) {
 			return null;
 		}
 
-		result = sinnoriConfigurationSequencedProperties
+		result = projectConfigurationSequencedProperties
 				.addMainProjectPartItems();
 		if (!result) {
 			return null;
 		}
 
-		sinnoriConfigurationSequencedProperties
+		projectConfigurationSequencedProperties
 				.addSubProjectNameListItem(subProjectNameList);
 
-		result = sinnoriConfigurationSequencedProperties
+		result = projectConfigurationSequencedProperties
 				.addAllSubProjectPartItems();
 		if (!result) {
 			return null;
 		}
 
-		return sinnoriConfigurationSequencedProperties;
+		return projectConfigurationSequencedProperties;
 	}	
 
 	private void saveMainProjectState(ActionEvent e) {
@@ -703,13 +703,13 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 		
 		
-		SequencedProperties modifiedSinnoriConfigSequencedProperties = getModifiedSinnoriConfigSequencedPropertiesFromAllPartTableModel();
-		if (null == modifiedSinnoriConfigSequencedProperties)
+		SequencedProperties projectConfigurationSequencedProperties = getProjectConfigurationSequencedPropertiesFromAllPartTableModel();
+		if (null == projectConfigurationSequencedProperties)
 			return;
 		
 		try {
-			ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);
-			projectBuilder.changeProjectState(isServer, isAppClient, isWebClient, servletSystemLibraryPathString, modifiedSinnoriConfigSequencedProperties);
+			ProjectBuilder projectBuilder = new ProjectBuilder(	installedPathString, mainProjectName);
+			projectBuilder.changeProjectState(isServer, isAppClient, isWebClient, servletSystemLibraryPathString, projectConfigurationSequencedProperties);
 
 		} catch (BuildSystemException e1) {
 			log.warn(e1.getMessage(), e1);
@@ -721,7 +721,7 @@ public class MainProjectEditorPanel extends JPanel {
 	}
 
 	private void goBack(ActionEvent e) {
-		screenManagerIF.moveToAllMainProjectManagerScreen(sinnoriInstalledPathString);
+		screenManagerIF.moveToAllMainProjectManagerScreen(installedPathString);
 	}
 
 	private void newSubProjectAddButtonActionPerformed(ActionEvent e) {
@@ -753,12 +753,12 @@ public class MainProjectEditorPanel extends JPanel {
 					.getItemDescKey(prefixOfItemID);
 			String itemDescriptionValue = subProjectPartItemIDInfo.getDescription();
 			
-			AbstractFileOrPathStringGetter fileOrPathStringGetter = sinnoriItemIDInfoManger
+			AbstractFileOrPathStringGetter fileOrPathStringGetter = itemIDInfoManger
 					.getFileOrPathStringGetter(itemID);
 			if (null != fileOrPathStringGetter) {
 				fileOrPathStringGetter
 						.getFileOrPathStringDependingOnInstalledPath(
-								sinnoriInstalledPathString, mainProjectName);
+								installedPathString, mainProjectName);
 			}
 			ItemIDInfo.ViewType itemViewType = subProjectPartItemIDInfo.getViewType();
 			Set<String> itemSet = subProjectPartItemIDInfo.getItemSet();
@@ -842,7 +842,7 @@ public class MainProjectEditorPanel extends JPanel {
 		/**
 		 * 공통 파트 항목들은 모든 서브 파트 항목들이 의존하므로 반듯이 먼저 유효성 검사를 수행해야 한다.
 		 */
-		SinnoriConfigurationSequencedProperties commonPartSequencedProperties = new SinnoriConfigurationSequencedProperties();
+		ProjectConfigurationSequencedProperties commonPartSequencedProperties = new ProjectConfigurationSequencedProperties();
 		boolean result = commonPartSequencedProperties.addCommonPartItems();
 		if (!result) {
 			return;
@@ -924,12 +924,12 @@ public class MainProjectEditorPanel extends JPanel {
 					.getItemDescKey(prefixOfItemID);
 			String itemDescriptionValue = dbcpPartItemIDInfo.getDescription();
 			
-			AbstractFileOrPathStringGetter fileOrPathStringGetter = sinnoriItemIDInfoManger
+			AbstractFileOrPathStringGetter fileOrPathStringGetter = itemIDInfoManger
 					.getFileOrPathStringGetter(itemID);
 			if (null != fileOrPathStringGetter) {
 				fileOrPathStringGetter
 						.getFileOrPathStringDependingOnInstalledPath(
-								sinnoriInstalledPathString, mainProjectName, 
+								installedPathString, mainProjectName, 
 								newDBCPName);
 			}
 			ItemIDInfo.ViewType itemViewType = dbcpPartItemIDInfo.getViewType();
@@ -1014,7 +1014,7 @@ public class MainProjectEditorPanel extends JPanel {
 		/**
 		 * 공통 파트 항목들은 모든 서브 파트 항목들이 의존하므로 반듯이 먼저 유효성 검사를 수행해야 한다.
 		 */
-		SinnoriConfigurationSequencedProperties commonPartSequencedProperties = new SinnoriConfigurationSequencedProperties();
+		ProjectConfigurationSequencedProperties commonPartSequencedProperties = new ProjectConfigurationSequencedProperties();
 		boolean result = commonPartSequencedProperties.addCommonPartItems();
 		if (!result) {
 			return;
@@ -1078,14 +1078,14 @@ public class MainProjectEditorPanel extends JPanel {
 	}
 
 	private void popupProjectIOManagerScreenActionPerformed(ActionEvent e) {		
-		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
+		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(installedPathString);
 		
 		assert(null == projectBasePathString);
 		
 		File projectBasePath = new File(projectBasePathString);
 		if (! projectBasePath.exists()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist", 
-					sinnoriInstalledPathString, projectBasePathString);
+			String errorMessage = String.format("the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] doesn't exist", 
+					installedPathString, projectBasePathString);
 			
 			log.warn(errorMessage);
 			
@@ -1094,8 +1094,8 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 		
 		if (!projectBasePath.isDirectory()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry", 
-					sinnoriInstalledPathString, projectBasePathString);
+			String errorMessage = String.format("the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] is not a direcotry", 
+					installedPathString, projectBasePathString);
 			log.warn(errorMessage);
 			
 			showMessageDialog(errorMessage);
@@ -1103,8 +1103,8 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 		
 		if (!projectBasePath.canRead()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read", 
-					sinnoriInstalledPathString, projectBasePathString);
+			String errorMessage = String.format("the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] doesn't hava permission to read", 
+					installedPathString, projectBasePathString);
 			log.warn(errorMessage);
 			
 			showMessageDialog(errorMessage);
@@ -1116,7 +1116,7 @@ public class MainProjectEditorPanel extends JPanel {
 		for (File childFile : projectBasePath.listFiles()) {
 			if (childFile.isDirectory()) {
 				if (!childFile.canRead()) {
-					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to read", childFile.getAbsolutePath());
+					String errorMessage = String.format("the project base path[%s] doesn't hava permission to read", childFile.getAbsolutePath());
 					log.warn(errorMessage);
 					
 					showMessageDialog(errorMessage);
@@ -1124,7 +1124,7 @@ public class MainProjectEditorPanel extends JPanel {
 				}
 				
 				if (!childFile.canWrite()) {
-					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to write", childFile.getAbsolutePath());
+					String errorMessage = String.format("the project base path[%s] doesn't hava permission to write", childFile.getAbsolutePath());
 					log.warn(errorMessage);
 					
 					showMessageDialog(errorMessage);
@@ -1139,7 +1139,7 @@ public class MainProjectEditorPanel extends JPanel {
 		}		
 		
 		ProjectIOFileSetBuilderPopup popup = new ProjectIOFileSetBuilderPopup(
-				mainFrame, sinnoriInstalledPathString, mainProjectName, otherProjectNameList);
+				mainFrame, installedPathString, mainProjectName, otherProjectNameList);
 		popup.setTitle("Sub Project Part Editor");
 		popup.setSize(740, 380);
 		popup.setVisible(true);
@@ -1183,9 +1183,9 @@ public class MainProjectEditorPanel extends JPanel {
 		mainProjectStateSaveButton = new JButton();
 		popupProjectIOManagerScreenButton = new JButton();
 		prevButton = new JButton();
-		sinnoriInstalledPathLinePanel = new JPanel();
-		sinnoriInstalledPathTitleLabel = new JLabel();
-		sinnoriInstalledPathValueLabel = new JLabel();
+		installedPathLinePanel = new JPanel();
+		installedPathTitleLabel = new JLabel();
+		installedPathValueLabel = new JLabel();
 		mainProjectNameLinePanel = new JPanel();
 		mainProjectNameTitleLabel = new JLabel();
 		mainProjectNameValueLabel = new JLabel();
@@ -1274,21 +1274,21 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 		add(functionPanel, CC.xy(2, 2));
 
-		//======== sinnoriInstalledPathLinePanel ========
+		//======== installedPathLinePanel ========
 		{
-			sinnoriInstalledPathLinePanel.setLayout(new FormLayout(
+			installedPathLinePanel.setLayout(new FormLayout(
 				"default, $lcgap, default:grow",
 				"default"));
 
-			//---- sinnoriInstalledPathTitleLabel ----
-			sinnoriInstalledPathTitleLabel.setText("Sinnori installed path :");
-			sinnoriInstalledPathLinePanel.add(sinnoriInstalledPathTitleLabel, CC.xy(1, 1));
+			//---- installedPathTitleLabel ----
+			installedPathTitleLabel.setText("Codda installed path :");
+			installedPathLinePanel.add(installedPathTitleLabel, CC.xy(1, 1));
 
-			//---- sinnoriInstalledPathValueLabel ----
-			sinnoriInstalledPathValueLabel.setText("d:\\gitsinnori\\sinnori");
-			sinnoriInstalledPathLinePanel.add(sinnoriInstalledPathValueLabel, CC.xy(3, 1));
+			//---- installedPathValueLabel ----
+			installedPathValueLabel.setText("");
+			installedPathLinePanel.add(installedPathValueLabel, CC.xy(3, 1));
 		}
-		add(sinnoriInstalledPathLinePanel, CC.xy(2, 4));
+		add(installedPathLinePanel, CC.xy(2, 4));
 
 		//======== mainProjectNameLinePanel ========
 		{
@@ -1473,7 +1473,7 @@ public class MainProjectEditorPanel extends JPanel {
 			//---- dbcpNameListComboBox ----
 			dbcpNameListComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
 				"- DBCP Name -",
-				"tw_sinnoridb"
+				"sample_base_db"
 			}));
 			dbcpNameListLinePanel.add(dbcpNameListComboBox, CC.xy(3, 1));
 
@@ -1588,9 +1588,9 @@ public class MainProjectEditorPanel extends JPanel {
 	private JButton mainProjectStateSaveButton;
 	private JButton popupProjectIOManagerScreenButton;
 	private JButton prevButton;
-	private JPanel sinnoriInstalledPathLinePanel;
-	private JLabel sinnoriInstalledPathTitleLabel;
-	private JLabel sinnoriInstalledPathValueLabel;
+	private JPanel installedPathLinePanel;
+	private JLabel installedPathTitleLabel;
+	private JLabel installedPathValueLabel;
 	private JPanel mainProjectNameLinePanel;
 	private JLabel mainProjectNameTitleLabel;
 	private JLabel mainProjectNameValueLabel;

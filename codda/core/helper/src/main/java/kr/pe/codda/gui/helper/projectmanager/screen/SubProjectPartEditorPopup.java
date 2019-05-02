@@ -121,7 +121,7 @@ public class SubProjectPartEditorPopup extends JDialog {
 						LineSeparatorType.NEWLINE, 100));
 	}
 	private void okButtonActionPerformed(ActionEvent e) {
-		ItemIDInfoManger sinnoriItemIDInfoManger = ItemIDInfoManger.getInstance();
+		ItemIDInfoManger itemIDInfoManger = ItemIDInfoManger.getInstance();
 		
 		SequencedProperties subProjectPartSequencedProperties = new SequencedProperties();
 		subProjectPartSequencedProperties.putAll(commonPartSequencedProperties);
@@ -154,10 +154,10 @@ public class SubProjectPartEditorPopup extends JDialog {
 			
 			boolean isInactive = true;
 			try {
-				isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, prefixOfItemID, subProjectPartSequencedProperties);
+				isInactive = itemIDInfoManger.isDisabled(itemID, prefixOfItemID, subProjectPartSequencedProperties);
 				
 				if (isInactive) {
-					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey, subProjectPartSequencedProperties);
+					itemIDInfoManger.getNativeValueAfterValidChecker(itemKey, subProjectPartSequencedProperties);
 				}
 				
 			} catch (IllegalArgumentException | CoddaConfigurationException e1) {

@@ -60,18 +60,18 @@ public class AllMainProjectManagerPanel extends JPanel {
 		initComponents();
 	}
 
-	public void setScreen(String sinnoriInstalledPathString) {
-		if (null == sinnoriInstalledPathString) {
-			throw new IllegalArgumentException("the parameter sinnoriInstalledPathString is null");
+	public void setScreen(String installedPathString) {
+		if (null == installedPathString) {
+			throw new IllegalArgumentException("the parameter installedPathString is null");
 		}
 		
-		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
+		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(installedPathString);
 
 		File projectBasePath = new File(projectBasePathString);
 		if (!projectBasePath.exists()) {
 			String errorMessage = String.format(
-					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist",
-					sinnoriInstalledPathString, projectBasePathString);
+					"the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] doesn't exist",
+					installedPathString, projectBasePathString);
 
 			log.warn(errorMessage);
 
@@ -81,8 +81,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 		if (!projectBasePath.isDirectory()) {
 			String errorMessage = String.format(
-					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry",
-					sinnoriInstalledPathString, projectBasePathString);
+					"the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] is not a direcotry",
+					installedPathString, projectBasePathString);
 			log.warn(errorMessage);
 
 			showMessageDialog(errorMessage);
@@ -91,8 +91,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 		if (!projectBasePath.canRead()) {
 			String errorMessage = String.format(
-					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read",
-					sinnoriInstalledPathString, projectBasePathString);
+					"the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] doesn't hava permission to read",
+					installedPathString, projectBasePathString);
 			log.warn(errorMessage);
 
 			showMessageDialog(errorMessage);
@@ -113,7 +113,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			if (fileOfList.isDirectory()) {
 				if (!fileOfList.canRead()) {
 					String errorMessage = String.format(
-							"the sinnori project base path[%s] doesn't hava permission to read",
+							"the project base path[%s] doesn't hava permission to read",
 							fileOfList.getAbsolutePath());
 					log.warn(errorMessage);
 
@@ -123,7 +123,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 				if (!fileOfList.canWrite()) {
 					String errorMessage = String.format(
-							"the sinnori project base path[%s] doesn't hava permission to write",
+							"the project base path[%s] doesn't hava permission to write",
 							fileOfList.getAbsolutePath());
 					log.warn(errorMessage);
 
@@ -142,7 +142,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			mainProjectNameListComboBox.addItem(mainProjectName);
 		}
 
-		sinnoriInstalledPathInfoValueLabel.setText(sinnoriInstalledPathString);
+		installedPathInfoValueLabel.setText(installedPathString);
 		mainProjecNameListUpdatetButton.setEnabled(true);
 		mainProjectNameTextField.setEnabled(true);
 		projectNameAddButton.setEnabled(true);
@@ -150,18 +150,18 @@ public class AllMainProjectManagerPanel extends JPanel {
 		mainProjectNameListComboBox.setEnabled(true);
 		mainProjectNameEditButton.setEnabled(true);
 		mainProjectNameDeleteButton.setEnabled(true);
-		applySinnoriInstalledPathButton.setEnabled(true);
+		applyInstalledPathButton.setEnabled(true);
 	}
 
 	private void mainProjectEditButtonActionPerformed(ActionEvent e) {
 		if (mainProjectNameListComboBox.getSelectedIndex() > 0) {
 			String mainProjectName = (String) mainProjectNameListComboBox.getSelectedItem();
-			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
+			String installedPathString = installedPathInfoValueLabel.getText();
 
 			MainProjectBuildSystemState selectedMainProjectBuildSystemState = null;
 
 			try {
-				ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);				
+				ProjectBuilder projectBuilder = new ProjectBuilder(	installedPathString, mainProjectName);				
 				selectedMainProjectBuildSystemState = projectBuilder.getNewInstanceOfMainProjectBuildSystemState();
 				
 			} catch (BuildSystemException e1) {
@@ -185,12 +185,12 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 			if (mainProjectNameListComboBox.getSelectedIndex() > 0) {
 				String mainProjectName = (String) e.getItem();
-				String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
+				String installedPathString = installedPathInfoValueLabel.getText();
 
 				MainProjectBuildSystemState mainProjectBuildSystemState = null;
 
 				try {
-					ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);
+					ProjectBuilder projectBuilder = new ProjectBuilder(	installedPathString, mainProjectName);
 					
 					mainProjectBuildSystemState = projectBuilder.getNewInstanceOfMainProjectBuildSystemState();
 				} catch (BuildSystemException e2) {
@@ -243,14 +243,14 @@ public class AllMainProjectManagerPanel extends JPanel {
 			return;
 		}
 
-		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
+		String installedPathString = installedPathInfoValueLabel.getText();
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = false;
 		String servletSystemLibraryPathString = "";
 
 		try {
-			ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, newMainProjectName);
+			ProjectBuilder projectBuilder = new ProjectBuilder(	installedPathString, newMainProjectName);
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 			
 		} catch (IllegalArgumentException | BuildSystemException e1) {
@@ -287,9 +287,9 @@ public class AllMainProjectManagerPanel extends JPanel {
 		if (answer == JOptionPane.OK_OPTION) {
 			mainProjectNameListComboBox.setSelectedIndex(0);
 			
-			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
+			String installedPathString = installedPathInfoValueLabel.getText();
 			try {
-				ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, selectedProjectName);				
+				ProjectBuilder projectBuilder = new ProjectBuilder(	installedPathString, selectedProjectName);				
 				projectBuilder.dropProject();
 			} catch (BuildSystemException e1) {
 				log.warn("fail to delete main project directory", e1);
@@ -304,32 +304,32 @@ public class AllMainProjectManagerPanel extends JPanel {
 	 * 프로젝트 경로에 있는 프로젝트들 목록을 재 구성한다.
 	 */
 	private void mainProjectNameListUpdateButtonActionPerformed(ActionEvent e) {
-		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
-		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
+		String installedPathString = installedPathInfoValueLabel.getText();
+		String projectBasePathString = ProjectBuildSytemPathSupporter.getProjectBasePathString(installedPathString);
 
 		assert(null == projectBasePathString);
 		
 		File projectBasePath = new File(projectBasePathString);
 		if (!projectBasePath.exists()) {
 			String errorMessage = String.format(
-					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist",
-					sinnoriInstalledPathString, projectBasePathString);
+					"the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] doesn't exist",
+					installedPathString, projectBasePathString);
 			showMessageDialog(errorMessage);
 			return;
 		}
 
 		if (!projectBasePath.isDirectory()) {
 			String errorMessage = String.format(
-					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry",
-					sinnoriInstalledPathString, projectBasePathString);
+					"the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] is not a direcotry",
+					installedPathString, projectBasePathString);
 			showMessageDialog(errorMessage);
 			return;
 		}
 
 		if (!projectBasePath.canRead()) {
 			String errorMessage = String.format(
-					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read",
-					sinnoriInstalledPathString, projectBasePathString);
+					"the codda installed path(=parameter installedPathString[%s])'s the project base path[%s] doesn't hava permission to read",
+					installedPathString, projectBasePathString);
 			showMessageDialog(errorMessage);
 			return;
 		}
@@ -346,20 +346,20 @@ public class AllMainProjectManagerPanel extends JPanel {
 		JOptionPane.showMessageDialog(mainFrame, "프로젝트 경로에 있는 프로젝트들 목록 갱신 완료");
 	}
 
-	private void applySinnoriInstalledPathToAllProject(ActionEvent e) {
+	private void applyInstalledPathToAllProject(ActionEvent e) {
 		int itemCount = mainProjectNameListComboBox.getItemCount();
 		if (itemCount <= 1) {
 			showMessageDialog("Any main project doesn't exist");
 			return;
 		}
 
-		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
+		String installedPathString = installedPathInfoValueLabel.getText();
 		
 		for (int i = 1; i < itemCount; i++) {
 			String mainProjectName = mainProjectNameListComboBox.getItemAt(i);
 			
 			try {
-				ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);				
+				ProjectBuilder projectBuilder = new ProjectBuilder(	installedPathString, mainProjectName);				
 				projectBuilder.applyInstalledPath();
 			} catch (BuildSystemException e1) {
 				log.warn(e1.getMessage(), e1);
@@ -368,7 +368,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			}
 		}
 
-		showMessageDialog("success to apply Sinnori installed path to all project");
+		showMessageDialog("success to apply Codda installed path to all project");
 	}
 
 	private void firstScreenMoveButtonActionPerformed(ActionEvent e) {
@@ -379,12 +379,12 @@ public class AllMainProjectManagerPanel extends JPanel {
 		// JFormDesigner - Component initialization - DO NOT MODIFY
 		// //GEN-BEGIN:initComponents
 		// Generated using JFormDesigner non-commercial license
-		sinnoriInstalledPathInfoLinePanel = new JPanel();
-		sinnoriInstalledPathInfoTitleLabel = new JLabel();
-		sinnoriInstalledPathInfoValueLabel = new JLabel();
+		installedPathInfoLinePanel = new JPanel();
+		installedPathInfoTitleLabel = new JLabel();
+		installedPathInfoValueLabel = new JLabel();
 		allProjectWorkSaveLinePanel = new JPanel();
 		mainProjecNameListUpdatetButton = new JButton();
-		applySinnoriInstalledPathButton = new JButton();
+		applyInstalledPathButton = new JButton();
 		prevButton = new JButton();
 		projectNameInputLinePanel = new JPanel();
 		mainProjectNameLabel = new JLabel();
@@ -417,18 +417,18 @@ public class AllMainProjectManagerPanel extends JPanel {
 			"$ugap, ${growing-button}, $ugap",
 			"$ugap, 4*(20dlu, $lgap), min, 4*($lgap, [20dlu,default]), $ugap"));
 
-		//======== sinnoriInstalledPathInfoLinePanel ========
+		//======== installedPathInfoLinePanel ========
 		{
-			sinnoriInstalledPathInfoLinePanel.setLayout(new FormLayout(
+			installedPathInfoLinePanel.setLayout(new FormLayout(
 				"default, $lcgap, 317dlu",
 				"default"));
 
-			//---- sinnoriInstalledPathInfoTitleLabel ----
-			sinnoriInstalledPathInfoTitleLabel.setText("Sinnori installed path :");
-			sinnoriInstalledPathInfoLinePanel.add(sinnoriInstalledPathInfoTitleLabel, CC.xy(1, 1));
-			sinnoriInstalledPathInfoLinePanel.add(sinnoriInstalledPathInfoValueLabel, CC.xy(3, 1));
+			//---- installedPathInfoTitleLabel ----
+			installedPathInfoTitleLabel.setText("Codda installed path :");
+			installedPathInfoLinePanel.add(installedPathInfoTitleLabel, CC.xy(1, 1));
+			installedPathInfoLinePanel.add(installedPathInfoValueLabel, CC.xy(3, 1));
 		}
-		add(sinnoriInstalledPathInfoLinePanel, CC.xy(2, 2));
+		add(installedPathInfoLinePanel, CC.xy(2, 2));
 
 		//======== allProjectWorkSaveLinePanel ========
 		{
@@ -448,16 +448,16 @@ public class AllMainProjectManagerPanel extends JPanel {
 			});
 			allProjectWorkSaveLinePanel.add(mainProjecNameListUpdatetButton, CC.xy(1, 1));
 
-			//---- applySinnoriInstalledPathButton ----
-			applySinnoriInstalledPathButton.setText("apply Sinnori installed path to all project");
-			applySinnoriInstalledPathButton.setEnabled(false);
-			applySinnoriInstalledPathButton.addActionListener(new ActionListener() {
+			//---- applyInstalledPathButton ----
+			applyInstalledPathButton.setText("apply Codda installed path to all project");
+			applyInstalledPathButton.setEnabled(false);
+			applyInstalledPathButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					applySinnoriInstalledPathToAllProject(e);
+					applyInstalledPathToAllProject(e);
 				}
 			});
-			allProjectWorkSaveLinePanel.add(applySinnoriInstalledPathButton, CC.xy(3, 1));
+			allProjectWorkSaveLinePanel.add(applyInstalledPathButton, CC.xy(3, 1));
 
 			//---- prevButton ----
 			prevButton.setText("go to first screen");
@@ -640,12 +640,12 @@ public class AllMainProjectManagerPanel extends JPanel {
 	// JFormDesigner - Variables declaration - DO NOT MODIFY
 	// //GEN-BEGIN:variables
 	// Generated using JFormDesigner non-commercial license
-	private JPanel sinnoriInstalledPathInfoLinePanel;
-	private JLabel sinnoriInstalledPathInfoTitleLabel;
-	private JLabel sinnoriInstalledPathInfoValueLabel;
+	private JPanel installedPathInfoLinePanel;
+	private JLabel installedPathInfoTitleLabel;
+	private JLabel installedPathInfoValueLabel;
 	private JPanel allProjectWorkSaveLinePanel;
 	private JButton mainProjecNameListUpdatetButton;
-	private JButton applySinnoriInstalledPathButton;
+	private JButton applyInstalledPathButton;
 	private JButton prevButton;
 	private JPanel projectNameInputLinePanel;
 	private JLabel mainProjectNameLabel;

@@ -18,7 +18,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.codda.gui.helper.lib.ScreenManagerIF;
-import kr.pe.codda.gui.helper.projectmanager.screen.SinnoriInstalledPathPanel;
+import kr.pe.codda.gui.helper.projectmanager.screen.InstalledPathPanel;
 
 /**
  * @author Jonghoon Won
@@ -26,7 +26,7 @@ import kr.pe.codda.gui.helper.projectmanager.screen.SinnoriInstalledPathPanel;
 @SuppressWarnings("serial")
 public class FirstPanel extends JPanel {
 	@SuppressWarnings("unused")
-	private InternalLogger log = InternalLoggerFactory.getInstance(SinnoriInstalledPathPanel.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(InstalledPathPanel.class);
 	@SuppressWarnings("unused")
 	private Frame mainFrame = null;
 	private ScreenManagerIF screenManagerIF = null;
@@ -41,7 +41,7 @@ public class FirstPanel extends JPanel {
 	}
 
 	private void AllMainProjectManagerScreenButtonActionPerformed(ActionEvent e) {
-		if (null != screenManagerIF) 	screenManagerIF.moveToSinnoriInstalledPathScreen();
+		if (null != screenManagerIF) 	screenManagerIF.moveToInstalledPathScreen();
 	}
 
 	private void IOBuilderScreenButtonActionPerformed(ActionEvent e) {

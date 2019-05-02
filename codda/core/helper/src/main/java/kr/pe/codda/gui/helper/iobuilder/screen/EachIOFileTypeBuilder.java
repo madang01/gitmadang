@@ -78,7 +78,7 @@ public class EachIOFileTypeBuilder extends JPanel {
 		FileOutputStream fos = null;
 		
 		try {
-			tempMessageInfoFile = File.createTempFile("sinnoriMessageInfo", null);
+			tempMessageInfoFile = File.createTempFile("messageInfo", ".tmp");
 			
 			fos = new FileOutputStream(tempMessageInfoFile);
 			fos.write(messageInfoText.getBytes("UTF-8"));

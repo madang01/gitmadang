@@ -58,7 +58,7 @@ public class DBCPPartEditorPopup extends JDialog {
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
-		ItemIDInfoManger sinnoriItemIDInfoManger = ItemIDInfoManger.getInstance();
+		ItemIDInfoManger itemIDInfoManger = ItemIDInfoManger.getInstance();
 
 		SequencedProperties dbcpPartSequencedProperties = new SequencedProperties();
 		dbcpPartSequencedProperties.putAll(commonPartSequencedProperties);
@@ -91,10 +91,10 @@ public class DBCPPartEditorPopup extends JDialog {
 			
 			boolean isInactive = true;
 			try {
-				isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, prefixOfItemID, dbcpPartSequencedProperties);
+				isInactive = itemIDInfoManger.isDisabled(itemID, prefixOfItemID, dbcpPartSequencedProperties);
 				
 				if (isInactive) {
-					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey, dbcpPartSequencedProperties);
+					itemIDInfoManger.getNativeValueAfterValidChecker(itemKey, dbcpPartSequencedProperties);
 				}
 				
 			} catch (IllegalArgumentException | CoddaConfigurationException e1) {
