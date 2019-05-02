@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>codda_core_all</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>core_all_test_src</name>
+			<type>2</type>
+			<location>../gitmadang/codda/core/all/src/test/java</location>
+		</link>
+		<link>
+			<name>core_client_main_src</name>
+			<type>2</type>
+			<location>../gitmadang/codda/core/client/src/main/java</location>
+		</link>
+		<link>
+			<name>core_common_main_src</name>
+			<type>2</type>
+			<location>../gitmadang/codda/core/common/src/main/java</location>
+		</link>
+		<link>
+			<name>core_common_test_src</name>
+			<type>2</type>
+			<location>../gitmadang/codda/core/common/src/test/java</location>
+		</link>
+		<link>
+			<name>core_server_main_src</name>
+			<type>2</type>
+			<location>../gitmadang/codda/core/server/src/main/java</location>
+		</link>
+	</linkedResources>
+</projectDescription>

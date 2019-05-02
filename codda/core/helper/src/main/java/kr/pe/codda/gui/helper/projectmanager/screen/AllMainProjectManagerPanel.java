@@ -346,7 +346,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 		JOptionPane.showMessageDialog(mainFrame, "프로젝트 경로에 있는 프로젝트들 목록 갱신 완료");
 	}
 
-	private void applyInstalledPathToAllProject(ActionEvent e) {
+	private void applyInstalledPath(ActionEvent e) {
 		int itemCount = mainProjectNameListComboBox.getItemCount();
 		if (itemCount <= 1) {
 			showMessageDialog("Any main project doesn't exist");
@@ -449,12 +449,12 @@ public class AllMainProjectManagerPanel extends JPanel {
 			allProjectWorkSaveLinePanel.add(mainProjecNameListUpdatetButton, CC.xy(1, 1));
 
 			//---- applyInstalledPathButton ----
-			applyInstalledPathButton.setText("apply Codda installed path to all project");
+			applyInstalledPathButton.setText("apply Codda installed path");
 			applyInstalledPathButton.setEnabled(false);
 			applyInstalledPathButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					applyInstalledPathToAllProject(e);
+					applyInstalledPath(e);
 				}
 			});
 			allProjectWorkSaveLinePanel.add(applyInstalledPathButton, CC.xy(3, 1));

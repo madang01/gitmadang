@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>codda_sample_base_appclient</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>main_src</name>
+			<type>2</type>
+			<location>../gitmadang/codda/project/sample_base/client_build/app_build/src/main/java</location>
+		</link>
+		<link>
+			<name>test_src</name>
+			<type>2</type>
+			<location>../gitmadang/codda/project/sample_base/client_build/app_build/src/test/java</location>
+		</link>
+	</linkedResources>
+</projectDescription>
