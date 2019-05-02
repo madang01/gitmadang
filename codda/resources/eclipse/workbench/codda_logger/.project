@@ -18,7 +18,7 @@
 		<link>
 			<name>main_src</name>
 			<type>2</type>
-			<location>../gitmadang/codda/core/logger/src/main/java</location>
+			<location>../../gitmadang/codda/core/logger/src/main/java</location>
 		</link>
 	</linkedResources>
 </projectDescription>
