@@ -297,14 +297,22 @@ public class EclipseBuilder {
 		EclipsePath[] eclipsePathList = { new EclipsePath("main_src", "project/sample_base/client_build/web_build/src/main/java"),
 				new EclipsePath("test_src", "project/sample_base/client_build/web_build/src/test/java")};
 
-		String[] eclipseLibiaryRelativePathStringList = { 
+		String[] eclipseLibiaryRelativePathStringList = {
+				"project/sample_base/client_build/web_build/corelib/ex/gson-2.8.5.jar",
+				"core/common/dist/codda-core-junitlib.jar",
+				"core/common/lib/test/byte-buddy-1.7.9.jar",
+				"core/common/lib/test/byte-buddy-agent-1.7.9.jar",
+				"core/common/lib/test/commons-exec-1.3.jar", 
+				"core/common/lib/test/mockito-core-2.13.4.jar",
+				"core/common/lib/test/objenesis-2.6.jar",				
+				"project/sample_base/client_build/web_build/corelib/ex/codda-core-all.jar",				
 				"project/sample_base/client_build/web_build/lib/main/ex/commons-fileupload-1.3.2.jar",
-				"project/sample_base/client_build/web_build/lib/main/ex/commons-io-2.6.jar",
 				"project/sample_base/client_build/web_build/lib/main/ex/commons-lang3-3.7.jar",
-				"project/sample_base/client_build/web_build/lib/main/ex/commons-text-1.3.jar",
+				"project/sample_base/client_build/web_build/lib/main/ex/commons-text-1.3.jar",				
+				"project/sample_base/client_build/web_build/lib/main/ex/commons-io-2.6.jar",
+				"project/sample_base/client_build/web_build/lib/main/ex/simplecaptcha-1.2.1.jar",
 				"project/sample_base/client_build/web_build/lib/test/httpcore-4.4.10.jar",
-				"project/sample_base/client_build/web_build/lib/test/httpmime-4.5.6.jar",
-				"project/sample_base/client_build/web_build/corelib/ex/codda-core-all.jar",
+				"project/sample_base/client_build/web_build/lib/test/httpmime-4.5.6.jar",				
 		};
 
 		createCoddaAllEclipeProjectXMLFile(eclipseProjectName, eclipsePathList);
