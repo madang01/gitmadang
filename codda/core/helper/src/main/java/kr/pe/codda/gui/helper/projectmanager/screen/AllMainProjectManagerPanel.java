@@ -364,6 +364,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			eclipseBuilder.createCoddaCoreHelperEclipeWorkbenchFiles();
 			eclipseBuilder.createCoddaSampleBaseServerEclipeWorkbenchFiles();
 			eclipseBuilder.createCoddaSampleBaseAppClientEclipeWorkbenchFiles();
+			eclipseBuilder.createCoddaSampleBaseWebClientEclipeWorkbenchFiles();
 			
 		} catch (BuildSystemException e1) {
 			log.warn(e1.getMessage(), e1);
