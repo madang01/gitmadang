@@ -1,28 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="main_src"/>
-	<classpathentry kind="src" path="USER_ROOT"/>
-	<classpathentry kind="src" path="test_src"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/byte-buddy-1.7.9.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/byte-buddy-agent-1.7.9.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/commons-exec-1.3.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/mockito-core-2.13.4.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/objenesis-2.6.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/corelib/ex/codda-core-all.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/corelib/ex/commons-dbcp2-2.0.1.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/corelib/ex/commons-pool2-2.5.0.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/commons-fileupload-1.3.2.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/commons-lang3-3.7.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/commons-text-1.3.jar"/>
-	<classpathentry kind="lib" path="../apache-tomcat-8.5.32/lib/jsp-api.jar"/>
-	<classpathentry kind="lib" path="../apache-tomcat-8.5.32/lib/servlet-api.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/lib/test/httpcore-4.4.10.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/lib/test/httpmime-4.5.6.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/dist/codda-core-junitlib.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/commons-io-2.6.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/corelib/ex/gson-2.8.5.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/simplecaptcha-1.2.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="main_src"/>
+	<classpathentry kind="src" path="test_src"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/commons-fileupload-1.3.2.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/commons-io-2.6.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/commons-lang3-3.7.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/web_build/lib/main/ex/commons-text-1.3.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/web_build/lib/test/httpcore-4.4.10.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/web_build/lib/test/httpmime-4.5.6.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/web_build/corelib/ex/codda-core-all.jar"/>
 </classpath>

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
 	<classpathentry kind="src" path="main_src"/>
 	<classpathentry kind="src" path="test_src"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/helper/lib/main/in/jgoodies-common.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/helper/lib/main/in/jgoodies-forms.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/byte-buddy-1.7.9.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/byte-buddy-agent-1.7.9.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/commons-exec-1.3.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/mockito-core-2.13.4.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/lib/test/objenesis-2.6.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/common/dist/codda-core-common.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/logger/lib/ex/jcl-over-slf4j-1.7.25.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/logger/lib/ex/logback-classic-1.2.3.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/logger/lib/ex/logback-core-1.2.3.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/logger/lib/ex/slf4j-api-1.7.25.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/helper/lib/main/in/commons-cli-1.4.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/helper/lib/test/codda-core-junitlib.jar"/>
-	<classpathentry kind="lib" path="../../gitmadang/codda/core/helper/lib/main/in/commons-io-2.6.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/helper/lib/main/in/jgoodies-common.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/helper/lib/main/in/jgoodies-forms.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/common/lib/test/byte-buddy-1.7.9.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/common/lib/test/byte-buddy-agent-1.7.9.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/common/lib/test/commons-exec-1.3.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/common/lib/test/mockito-core-2.13.4.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/common/lib/test/objenesis-2.6.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/common/dist/codda-core-common.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/logger/lib/ex/jcl-over-slf4j-1.7.25.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/logger/lib/ex/logback-classic-1.2.3.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/logger/lib/ex/logback-core-1.2.3.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/logger/lib/ex/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/helper/lib/main/in/commons-cli-1.4.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/helper/lib/test/codda-core-junitlib.jar"/>
+	<classpathentry kind="lib" path="D:/gitmadang/codda/core/helper/lib/main/in/commons-io-2.6.jar"/>
 </classpath>

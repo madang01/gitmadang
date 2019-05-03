@@ -80,6 +80,18 @@ public class InstalledPathPanel extends JPanel {
 		installedPathButton.setAction(pathAction);
 		nextStepButton.setToolTipText(
 			"<html>update all project'config and overwrite all project'shells based on installed path</html>");
+		
+		File installedPath = new File(".");
+		
+		String installedPathString= null;
+		try {
+			installedPathString = installedPath.getCanonicalPath();
+			
+			installedPathTextField.setText(installedPathString);
+		} catch (IOException e) {
+			String errorMessage = String.format("fail to get the canonical pathname of the installed path[%s]", installedPathString);
+			log.warn(errorMessage, e);
+		}
 	}
 	
 	public InstalledPathPanel(Frame mainFrame, ScreenManagerIF screenManagerIF) {
