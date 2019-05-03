@@ -173,6 +173,7 @@ public class EclipseBuilder {
 		String eclipseProjectName = "codda_core_all";
 
 		EclipsePath[] eclipsePathList = { new EclipsePath("core_common_main_src", "core/common/src/main/java"),
+				new EclipsePath("core_common_test_src", "core/common/src/test/java"),
 				new EclipsePath("core_client_main_src", "core/client/src/main/java"),
 				new EclipsePath("core_server_main_src", "core/server/src/main/java"),
 				new EclipsePath("core_all_test_src", "core/all/src/test/java") };
@@ -183,7 +184,7 @@ public class EclipseBuilder {
 				"core/common/lib/test/mockito-core-2.13.4.jar", "core/common/lib/test/objenesis-2.6.jar",
 				"core/logger/lib/ex/jcl-over-slf4j-1.7.25.jar", "core/logger/lib/ex/logback-classic-1.2.3.jar",
 				"core/logger/lib/ex/logback-core-1.2.3.jar", "core/logger/lib/ex/slf4j-api-1.7.25.jar",
-				"core/logger/dist/codda-logger.jar", "core/common/dist/codda-core-junitlib.jar" };
+				"core/logger/dist/codda-logger.jar"};
 
 		createCoddaAllEclipeProjectXMLFile(eclipseProjectName, eclipsePathList);
 
