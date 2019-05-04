@@ -232,7 +232,7 @@
 		
 		var g = document.goDetailFrm;
 		g.interestedBoadNo.value = boardModifyRes.boardNo;
-		g.submiet
+		g.submit();
 	}
 	
 	function goReply() {

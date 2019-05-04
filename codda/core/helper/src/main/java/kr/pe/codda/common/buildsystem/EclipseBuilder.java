@@ -296,7 +296,9 @@ public class EclipseBuilder {
 		String eclipseProjectName = "codda_sample_base_webclient";
 
 		EclipsePath[] eclipsePathList = { new EclipsePath("main_src", "project/sample_base/client_build/web_build/src/main/java"),
-				new EclipsePath("test_src", "project/sample_base/client_build/web_build/src/test/java")};
+				new EclipsePath("test_src", "project/sample_base/client_build/web_build/src/test/java"),
+				new EclipsePath("WWW_ROOT", "project/sample_base/user_web_app_base/ROOT"),
+				new EclipsePath("ADMIN_ROOT", "project/sample_base/admin_web_app_base/ROOT")};
 
 		String[] eclipseLibiaryRelativePathStringList = {
 				"project/sample_base/client_build/web_build/corelib/ex/gson-2.8.5.jar",
