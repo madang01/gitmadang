@@ -34,6 +34,7 @@ public class MemberInformationRes extends AbstractMessage {
 	private java.sql.Timestamp lastNicknameModifiedDate;
 	private java.sql.Timestamp lastEmailModifiedDate;
 	private java.sql.Timestamp lastPasswordModifiedDate;
+	private java.sql.Timestamp lastStateModifiedDate;
 
 	public String getTargetUserID() {
 		return targetUserID;
@@ -98,6 +99,13 @@ public class MemberInformationRes extends AbstractMessage {
 	public void setLastPasswordModifiedDate(java.sql.Timestamp lastPasswordModifiedDate) {
 		this.lastPasswordModifiedDate = lastPasswordModifiedDate;
 	}
+	public java.sql.Timestamp getLastStateModifiedDate() {
+		return lastStateModifiedDate;
+	}
+
+	public void setLastStateModifiedDate(java.sql.Timestamp lastStateModifiedDate) {
+		this.lastStateModifiedDate = lastStateModifiedDate;
+	}
 
 	@Override
 	public String toString() {
@@ -121,6 +129,8 @@ public class MemberInformationRes extends AbstractMessage {
 		builder.append(lastEmailModifiedDate);
 		builder.append(", lastPasswordModifiedDate=");
 		builder.append(lastPasswordModifiedDate);
+		builder.append(", lastStateModifiedDate=");
+		builder.append(lastStateModifiedDate);
 		builder.append("]");
 		return builder.toString();
 	}

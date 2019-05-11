@@ -41,7 +41,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbAccountSerarchTb extends TableImpl<SbAccountSerarchTbRecord> {
 
-    private static final long serialVersionUID = 368408502;
+    private static final long serialVersionUID = 1158024277;
 
     /**
      * The reference instance of <code>sb_db.sb_account_serarch_tb</code>
@@ -152,7 +152,7 @@ public class SbAccountSerarchTb extends TableImpl<SbAccountSerarchTbRecord> {
      */
     @Override
     public List<ForeignKey<SbAccountSerarchTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbAccountSerarchTbRecord, ?>>asList(Keys.PWD_SEARCH_REQ_FK1);
+        return Arrays.<ForeignKey<SbAccountSerarchTbRecord, ?>>asList(Keys.PWD_SEARCH_FK1);
     }
 
     /**

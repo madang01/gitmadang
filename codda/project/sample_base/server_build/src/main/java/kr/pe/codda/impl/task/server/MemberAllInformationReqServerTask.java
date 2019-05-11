@@ -4,7 +4,7 @@ import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.sql.Timestamp;
 
-import org.jooq.Record9;
+import org.jooq.Record10;
 import org.jooq.types.UByte;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -91,7 +91,7 @@ public class MemberAllInformationReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			Record9<String, Byte, Byte, String, UByte, Timestamp, Timestamp, Timestamp, Timestamp> 
+			Record10<String, Byte, Byte, String, UByte, Timestamp, Timestamp, Timestamp, Timestamp, Timestamp> 
 			memberRecordOfTargetUserID = create.select(SB_MEMBER_TB.NICKNAME,
 					SB_MEMBER_TB.STATE, SB_MEMBER_TB.ROLE,
 					SB_MEMBER_TB.EMAIL,
@@ -99,7 +99,8 @@ public class MemberAllInformationReqServerTask extends AbstractServerTask {
 					SB_MEMBER_TB.REG_DT,
 					SB_MEMBER_TB.LAST_NICKNAME_MOD_DT,
 					SB_MEMBER_TB.LAST_EMAIL_MOD_DT,
-					SB_MEMBER_TB.LAST_PWD_MOD_DT)
+					SB_MEMBER_TB.LAST_PWD_MOD_DT,
+					SB_MEMBER_TB.LAST_STATE_MOD_DT)
 			.from(SB_MEMBER_TB)
 			.where(SB_MEMBER_TB.USER_ID.eq(targetUserID))
 			.fetchOne();
@@ -126,6 +127,7 @@ public class MemberAllInformationReqServerTask extends AbstractServerTask {
 			Timestamp lastNicknameModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.LAST_NICKNAME_MOD_DT);
 			Timestamp lastEmailModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.LAST_EMAIL_MOD_DT);
 			Timestamp lastPasswordModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.LAST_PWD_MOD_DT);
+			Timestamp lastStateModifiedDate = memberRecordOfTargetUserID.get(SB_MEMBER_TB.LAST_STATE_MOD_DT);
 			
 			conn.commit();
 			
@@ -138,6 +140,7 @@ public class MemberAllInformationReqServerTask extends AbstractServerTask {
 			userInformationRes.setLastNicknameModifiedDate(lastNicknameModifiedDate);
 			userInformationRes.setLastEmailModifiedDate(lastEmailModifiedDate);
 			userInformationRes.setLastPasswordModifiedDate(lastPasswordModifiedDate);
+			userInformationRes.setLastStateModifiedDate(lastStateModifiedDate);
 		});
 		
 		return userInformationRes;

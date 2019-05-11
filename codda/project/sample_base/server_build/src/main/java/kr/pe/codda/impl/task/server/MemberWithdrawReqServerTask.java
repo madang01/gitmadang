@@ -339,8 +339,11 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			Timestamp lastStateModifiedDate = new java.sql.Timestamp(System.currentTimeMillis());
+			
 			create.update(SB_MEMBER_TB)
 			.set(SB_MEMBER_TB.STATE, MemberStateType.WITHDRAWAL.getValue())
+			.set(SB_MEMBER_TB.LAST_STATE_MOD_DT, lastStateModifiedDate)
 			.where(SB_MEMBER_TB.USER_ID.eq(requestedUserID))
 			.execute();
 			
@@ -348,7 +351,7 @@ public class MemberWithdrawReqServerTask extends AbstractServerTask {
 			conn.commit();
 			
 			ServerDBUtil.insertSiteLog(conn, create, log, requestedUserID, "회원 탈퇴 완료", 
-					new java.sql.Timestamp(System.currentTimeMillis()), ip);
+					lastStateModifiedDate, ip);
 			
 			conn.commit();
 		});

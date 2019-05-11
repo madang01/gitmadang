@@ -40,7 +40,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
 
-    private static final long serialVersionUID = -1136676140;
+    private static final long serialVersionUID = -948239134;
 
     /**
      * The reference instance of <code>sb_db.sb_member_tb</code>
@@ -114,6 +114,11 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
      * The column <code>sb_db.sb_member_tb.last_pwd_mod_dt</code>. 마지막 비밀번호 변경일
      */
     public final TableField<SbMemberTbRecord, Timestamp> LAST_PWD_MOD_DT = createField("last_pwd_mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "마지막 비밀번호 변경일");
+
+    /**
+     * The column <code>sb_db.sb_member_tb.last_state_mod_dt</code>.
+     */
+    public final TableField<SbMemberTbRecord, Timestamp> LAST_STATE_MOD_DT = createField("last_state_mod_dt", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
      * Create a <code>sb_db.sb_member_tb</code> table reference

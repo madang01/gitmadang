@@ -12,7 +12,7 @@ public class EclipseBuilderTest extends AbstractJunitTest 	{
 	@Test
 	public void testCreateCoddaCoreAllEclipeWorkbenchFiles() {
 		try {
-			EclipseBuilder eclipseBuilder = new EclipseBuilder("D:\\gitmadang\\codda");
+			EclipseBuilder eclipseBuilder = new EclipseBuilder(installedPath.getAbsolutePath());
 			eclipseBuilder.createCoddaCoreAllEclipeWorkbenchFiles();
 		} catch (BuildSystemException e) {
 			log.warn("error", e);
@@ -23,7 +23,7 @@ public class EclipseBuilderTest extends AbstractJunitTest 	{
 	@Test
 	public void testCreateCoddaCoreLoggerEclipeWorkbenchFiles() {
 		try {
-			EclipseBuilder eclipseBuilder = new EclipseBuilder("D:\\gitmadang\\codda");
+			EclipseBuilder eclipseBuilder = new EclipseBuilder(installedPath.getAbsolutePath());
 			eclipseBuilder.createCoddaCoreLoggerEclipeWorkbenchFiles();
 		} catch (BuildSystemException e) {
 			log.warn("error", e);
@@ -34,7 +34,7 @@ public class EclipseBuilderTest extends AbstractJunitTest 	{
 	@Test
 	public void testCreateCoddaCoreHelperEclipeWorkbenchFiles() {
 		try {
-			EclipseBuilder eclipseBuilder = new EclipseBuilder("D:\\gitmadang\\codda");
+			EclipseBuilder eclipseBuilder = new EclipseBuilder(installedPath.getAbsolutePath());
 			eclipseBuilder.createCoddaCoreHelperEclipeWorkbenchFiles();
 		} catch (BuildSystemException e) {
 			log.warn("error", e);
@@ -45,7 +45,7 @@ public class EclipseBuilderTest extends AbstractJunitTest 	{
 	@Test
 	public void testCreateCoddaSampleBaseServerEclipeWorkbenchFiles() {
 		try {
-			EclipseBuilder eclipseBuilder = new EclipseBuilder("D:\\gitmadang\\codda");
+			EclipseBuilder eclipseBuilder = new EclipseBuilder(installedPath.getAbsolutePath());
 			eclipseBuilder.createCoddaSampleBaseServerEclipeWorkbenchFiles();
 		} catch (BuildSystemException e) {
 			log.warn("error", e);
@@ -56,7 +56,7 @@ public class EclipseBuilderTest extends AbstractJunitTest 	{
 	@Test
 	public void testCreateCoddaSampleBaseAppClientEclipeWorkbenchFiles() {
 		try {
-			EclipseBuilder eclipseBuilder = new EclipseBuilder("D:\\gitmadang\\codda");
+			EclipseBuilder eclipseBuilder = new EclipseBuilder(installedPath.getAbsolutePath());
 			eclipseBuilder.createCoddaSampleBaseAppClientEclipeWorkbenchFiles();
 		} catch (BuildSystemException e) {
 			log.warn("error", e);
@@ -67,7 +67,7 @@ public class EclipseBuilderTest extends AbstractJunitTest 	{
 	@Test
 	public void testCreateCoddaSampleBaseWebClientEclipeWorkbenchFiles() {
 		try {
-			EclipseBuilder eclipseBuilder = new EclipseBuilder("D:\\gitmadang\\codda");
+			EclipseBuilder eclipseBuilder = new EclipseBuilder(installedPath.getAbsolutePath());
 			eclipseBuilder.createCoddaSampleBaseWebClientEclipeWorkbenchFiles();
 		} catch (BuildSystemException e) {
 			log.warn("error", e);

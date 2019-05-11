@@ -75,16 +75,19 @@ function getNumberOfLines(str) {
 	return str.split(/\r\n|[\n\r\u0085\u2028\u2029]/g).length;
 }
 
+
+
 function expandTextarea(id) {
-    document.getElementById(id).addEventListener('keyup', function() {
-        this.style.overflow = 'hidden';
-        this.style.height = 0;
-        if (this.scrollHeight < 100) {
-        	this.style.height = '100px';
-        } else {
-        	this.style.height = this.scrollHeight + 'px';
-        }
-    }, false);
+	document.getElementById(id).addEventListener('keyup', function() {
+		this.style.overflow = 'hidden';
+		this.style.height = 0;
+		
+		if (this.scrollHeight < 100) {
+			this.style.height = 100 + 'px';;
+		} else {
+			this.style.height = this.scrollHeight + 'px';
+		}
+	}, false);
 }
 
 <!-- 목적한 DIV 로 화면 이동 시켜주는 window.scrollTo 함수의 파라미터 offsetTop 을 가져오는 함수 -->

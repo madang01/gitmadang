@@ -252,19 +252,20 @@ public class EclipseBuilder {
 				"project/sample_base/server_build/corelib/ex/logback-classic-1.2.3.jar",
 				"project/sample_base/server_build/corelib/ex/logback-core-1.2.3.jar",
 				"project/sample_base/server_build/corelib/ex/slf4j-api-1.7.25.jar",
+				"project/sample_base/server_build/lib/main/ex/oracle-mail-1.4.7.jar",
 				"project/sample_base/server_build/lib/main/ex/jooq-3.10.6.jar",
 				"project/sample_base/server_build/lib/main/ex/jooq-codegen-3.10.6.jar",
 				"project/sample_base/server_build/lib/main/ex/jooq-meta-3.10.6.jar",
+				"project/sample_base/server_build/lib/main/ex/mariadb-java-client-2.4.1.jar",				
 				"core/common/lib/test/byte-buddy-1.7.9.jar", 
-				"core/common/lib/test/byte-buddy-agent-1.7.9.jar",
-				"core/common/lib/test/commons-exec-1.3.jar",
-				"core/common/lib/test/mockito-core-2.13.4.jar", 
+				"core/common/lib/test/byte-buddy-agent-1.7.9.jar",				
 				"core/common/lib/test/objenesis-2.6.jar",
-				"util/jooq/mysql-connector-java-5.1.46.jar",
+				"core/common/lib/test/mockito-core-2.13.4.jar", 
+				"core/common/lib/test/commons-exec-1.3.jar",
 				"project/sample_base/server_build/corelib/in/codda-core-all.jar",
 				"core/common/dist/codda-core-junitlib.jar",
 				"project/sample_base/server_build/corelib/ex/gson-2.8.5.jar",
-				"project/sample_base/server_build/lib/main/ex/oracle-mail-1.4.7.jar",
+				
 		};
 
 		createCoddaAllEclipeProjectXMLFile(eclipseProjectName, eclipsePathList);

@@ -5,10 +5,10 @@
 	<classpathentry kind="output" path="bin"/>
 	<classpathentry kind="src" path="main_src"/>
 	<classpathentry kind="src" path="test_src"/>
-	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/gson-2.8.5.jar"/>
-	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/jcl-over-slf4j-1.7.25.jar"/>
-	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/logback-classic-1.2.3.jar"/>
-	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/logback-core-1.2.3.jar"/>
-	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/slf4j-api-1.7.25.jar"/>
-	<classpathentry kind="lib" path="D:/gitmadang/codda/project/sample_base/client_build/app_build/corelib/in/codda-core-all.jar"/>
+	<classpathentry kind="lib" path="/home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/gson-2.8.5.jar"/>
+	<classpathentry kind="lib" path="/home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/jcl-over-slf4j-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/logback-classic-1.2.3.jar"/>
+	<classpathentry kind="lib" path="/home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/logback-core-1.2.3.jar"/>
+	<classpathentry kind="lib" path="/home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/corelib/ex/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/corelib/in/codda-core-all.jar"/>
 </classpath>

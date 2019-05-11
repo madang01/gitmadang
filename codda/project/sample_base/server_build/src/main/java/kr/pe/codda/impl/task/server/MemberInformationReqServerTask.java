@@ -4,7 +4,7 @@ import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
 import java.sql.Timestamp;
 
-import org.jooq.Record8;
+import org.jooq.Record9;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.exception.ServerServiceException;
@@ -80,7 +80,7 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 			@SuppressWarnings("unused")
 			MemberRoleType memberRoleTypeOfRequestedUserID = ServerDBUtil.checkUserAccessRights(conn, create, log, "개인 정보 조회 서비스", PermissionType.GUEST, memberInformationReq.getRequestedUserID());
 			
-			Record8<String, String, Byte, Byte, Timestamp, Timestamp, Timestamp, Timestamp> targetUserMemberRecord = create.select(
+			Record9<String, String, Byte, Byte, Timestamp, Timestamp, Timestamp, Timestamp, Timestamp> targetUserMemberRecord = create.select(
 					SB_MEMBER_TB.NICKNAME,
 					SB_MEMBER_TB.EMAIL,
 					SB_MEMBER_TB.ROLE,
@@ -88,7 +88,8 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 					SB_MEMBER_TB.REG_DT,
 					SB_MEMBER_TB.LAST_NICKNAME_MOD_DT,
 					SB_MEMBER_TB.LAST_EMAIL_MOD_DT,
-					SB_MEMBER_TB.LAST_PWD_MOD_DT)
+					SB_MEMBER_TB.LAST_PWD_MOD_DT,
+					SB_MEMBER_TB.LAST_STATE_MOD_DT)
 				.from(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(memberInformationReq.getTargetUserID())).fetchOne();
 			
@@ -115,6 +116,7 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 			Timestamp targetUserLastNicknameModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_NICKNAME_MOD_DT);
 			Timestamp targetUserLastEmailModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_EMAIL_MOD_DT);
 			Timestamp targetUserLastPasswordModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_PWD_MOD_DT);
+			Timestamp targetUserLastStateModifiedDate = targetUserMemberRecord.get(SB_MEMBER_TB.LAST_STATE_MOD_DT);
 			
 			MemberRoleType targetUserMemberRoleType = null;
 			try {
@@ -176,6 +178,7 @@ public class MemberInformationReqServerTask extends AbstractServerTask {
 			memberInformationRes.setLastNicknameModifiedDate(targetUserLastNicknameModifiedDate);
 			memberInformationRes.setLastEmailModifiedDate(targetUserLastEmailModifiedDate);
 			memberInformationRes.setLastPasswordModifiedDate(targetUserLastPasswordModifiedDate);
+			memberInformationRes.setLastStateModifiedDate(targetUserLastStateModifiedDate);
 		});
 		
 		

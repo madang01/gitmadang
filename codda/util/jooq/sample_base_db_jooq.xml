@@ -2,8 +2,8 @@
 <configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.10.0.xsd">
   <!-- Configure the database connection here -->
   <jdbc>
-    <driver>com.mysql.jdbc.Driver</driver>
-    <url>jdbc:mysql://localhost:3306/SB_DB</url>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://172.30.1.15:3306/SB_DB</url>
     <user>madangsoe01</user>
     <password>test1234</password>
   </jdbc>
@@ -42,7 +42,7 @@
       <packageName>kr.pe.codda.jooq</packageName>
 
       <!-- The destination directory of your generated classes. Using Maven directory layout here -->
-      <directory>D:\gitmadang\codda\project\sample_base\server_build\src\main\java</directory>
+      <directory>/home/madang01/gitmadang/codda/project/sample_base/server_build/src/main/java</directory>
     </target>
   </generator>
 </configuration>

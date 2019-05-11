@@ -59,10 +59,10 @@ public class Indexes {
     public static final Index SB_MEMBER_TB_SB_MEMBER_IDX1 = Indexes0.SB_MEMBER_TB_SB_MEMBER_IDX1;
     public static final Index SB_MEMBER_TB_SB_MEMBER_IDX2 = Indexes0.SB_MEMBER_TB_SB_MEMBER_IDX2;
     public static final Index SB_SEQ_TB_PRIMARY = Indexes0.SB_SEQ_TB_PRIMARY;
-    public static final Index SB_SITE_LOG_TB_PRIMARY = Indexes0.SB_SITE_LOG_TB_PRIMARY;
     public static final Index SB_SITEMENU_TB_PRIMARY = Indexes0.SB_SITEMENU_TB_PRIMARY;
     public static final Index SB_SITEMENU_TB_SB_SITEMENU_IDX1 = Indexes0.SB_SITEMENU_TB_SB_SITEMENU_IDX1;
     public static final Index SB_SITEMENU_TB_SB_SITEMENU_IDX2 = Indexes0.SB_SITEMENU_TB_SB_SITEMENU_IDX2;
+    public static final Index SB_SITE_LOG_TB_PRIMARY = Indexes0.SB_SITE_LOG_TB_PRIMARY;
 
     // -------------------------------------------------------------------------
     // [#1459] distribute members to avoid static initialisers > 64kb
@@ -88,9 +88,9 @@ public class Indexes {
         public static Index SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createIndex("sb_member_idx1", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.NICKNAME }, true);
         public static Index SB_MEMBER_TB_SB_MEMBER_IDX2 = Internal.createIndex("sb_member_idx2", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.STATE }, false);
         public static Index SB_SEQ_TB_PRIMARY = Internal.createIndex("PRIMARY", SbSeqTb.SB_SEQ_TB, new OrderField[] { SbSeqTb.SB_SEQ_TB.SQ_ID }, true);
-        public static Index SB_SITE_LOG_TB_PRIMARY = Internal.createIndex("PRIMARY", SbSiteLogTb.SB_SITE_LOG_TB, new OrderField[] { SbSiteLogTb.SB_SITE_LOG_TB.YYYYMMDD, SbSiteLogTb.SB_SITE_LOG_TB.DAY_LOG_SQ }, true);
         public static Index SB_SITEMENU_TB_PRIMARY = Internal.createIndex("PRIMARY", SbSitemenuTb.SB_SITEMENU_TB, new OrderField[] { SbSitemenuTb.SB_SITEMENU_TB.MENU_NO }, true);
         public static Index SB_SITEMENU_TB_SB_SITEMENU_IDX1 = Internal.createIndex("sb_sitemenu_idx1", SbSitemenuTb.SB_SITEMENU_TB, new OrderField[] { SbSitemenuTb.SB_SITEMENU_TB.ORDER_SQ }, false);
         public static Index SB_SITEMENU_TB_SB_SITEMENU_IDX2 = Internal.createIndex("sb_sitemenu_idx2", SbSitemenuTb.SB_SITEMENU_TB, new OrderField[] { SbSitemenuTb.SB_SITEMENU_TB.PARENT_NO, SbSitemenuTb.SB_SITEMENU_TB.ORDER_SQ }, false);
+        public static Index SB_SITE_LOG_TB_PRIMARY = Internal.createIndex("PRIMARY", SbSiteLogTb.SB_SITE_LOG_TB, new OrderField[] { SbSiteLogTb.SB_SITE_LOG_TB.YYYYMMDD, SbSiteLogTb.SB_SITE_LOG_TB.DAY_LOG_SQ }, true);
     }
 }

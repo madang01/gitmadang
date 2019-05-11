@@ -18,12 +18,12 @@
 		<link>
 			<name>main_src</name>
 			<type>2</type>
-			<location>D:/gitmadang/codda/project/sample_base/client_build/app_build/src/main/java</location>
+			<location>/home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/src/main/java</location>
 		</link>
 		<link>
 			<name>test_src</name>
 			<type>2</type>
-			<location>D:/gitmadang/codda/project/sample_base/client_build/app_build/src/test/java</location>
+			<location>/home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/src/test/java</location>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -674,7 +674,7 @@
 		contentsInputNode.setAttribute("id", "contentsInEditor");
 		contentsInputNode.setAttribute("class", "form-control");
 		contentsInputNode.setAttribute("placeholder", "Enter contents");		
-		contentsInputNode.setAttribute("rows", "5");
+		contentsInputNode.setAttribute("rows", "20);
 		
 		inputFormDiv.appendChild(contentsLabelNode);
 		inputFormDiv.appendChild(contentsInputNode);
@@ -804,8 +804,6 @@
 		}		
 		
 		targetDiv.appendChild(processFormNode);
-		
-		expandTextarea('contentsInEditor');
 	}
 
 	function showMoidfyEditScreen(boardID, boardNo, nextAttachedFileSeq, isSubject, isPassword) {
@@ -876,7 +874,7 @@
 		contentsInputNode.setAttribute("id", "contentsInEditor");
 		contentsInputNode.setAttribute("class", "form-control");
 		contentsInputNode.setAttribute("placeholder", "Enter contents");		
-		contentsInputNode.setAttribute("rows", "5");
+		contentsInputNode.setAttribute("rows", "20");
 		
 		inputFormDiv.appendChild(contentsLabelNode);
 		inputFormDiv.appendChild(contentsInputNode);
@@ -1021,7 +1019,6 @@
 		f.contents.value = contentsDiv.innerText;
 		
 		restoreOldAttachedFileList(boardNo);
-		expandTextarea('contentsInEditor');
 	}
 	
 	function hideEditScreen() {

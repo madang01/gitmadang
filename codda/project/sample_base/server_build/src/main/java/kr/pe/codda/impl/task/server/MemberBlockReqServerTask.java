@@ -2,6 +2,8 @@ package kr.pe.codda.impl.task.server;
 
 import static kr.pe.codda.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
+import java.sql.Timestamp;
+
 import org.jooq.Record2;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
@@ -80,7 +82,8 @@ public class MemberBlockReqServerTask extends AbstractServerTask {
 		
 		ServerDBUtil.execute(dbcpName, (conn, create) -> {
 			
-			ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 차단 서비스", PermissionType.ADMIN, memberBlockReq.getRequestedUserID());
+			ServerDBUtil.checkUserAccessRights(conn, create, log, "회원 차단 서비스", PermissionType.ADMIN, 
+					memberBlockReq.getRequestedUserID());
 						
 			
 			/** 차단 대상 회원 레코드 락 */
@@ -123,14 +126,18 @@ public class MemberBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}	
 			
-			if (MemberRoleType.ADMIN.equals(memberRoleTypeOfTargetUserID)) {
+			if (! MemberRoleType.MEMBER.equals(memberRoleTypeOfTargetUserID)) {
 				try {
 					conn.rollback();
 				} catch (Exception e) {
 					log.warn("fail to rollback");
 				}
 				
-				String errorMessage = "관리자 아이디는 차단 대상이 아닙니다";
+				String errorMessage = new StringBuilder().append("차단 대상 회원[id=")
+						.append(memberBlockReq.getTargetUserID())
+						.append(", 역활=")
+						.append(memberRoleTypeOfTargetUserID.name())
+						.append("]이 일반 회원이 아닙니다").toString();
 				throw new ServerServiceException(errorMessage);
 			}
 			
@@ -168,16 +175,23 @@ public class MemberBlockReqServerTask extends AbstractServerTask {
 				throw new ServerServiceException(errorMessage);
 			}
 			
+			Timestamp lastStateModifiedDate = new java.sql.Timestamp(System.currentTimeMillis());
+			
 			create.update(SB_MEMBER_TB)
 			.set(SB_MEMBER_TB.STATE, MemberStateType.BLOCK.getValue())
+			.set(SB_MEMBER_TB.LAST_STATE_MOD_DT, lastStateModifiedDate)
 			.where(SB_MEMBER_TB.USER_ID.eq(memberBlockReq.getTargetUserID()))
 			.execute();
 			
 			
 			conn.commit();
 			
-			ServerDBUtil.insertSiteLog(conn, create, log, memberBlockReq.getRequestedUserID(), memberBlockReq.toString(), 
-					new java.sql.Timestamp(System.currentTimeMillis()), memberBlockReq.getIp());
+			String logText = new StringBuilder().append("아이디 '")
+					.append(memberBlockReq.getTargetUserID())
+					.append("' 회원 차단 해제").toString();
+			
+			ServerDBUtil.insertSiteLog(conn, create, log, memberBlockReq.getRequestedUserID(), logText, 
+					lastStateModifiedDate, memberBlockReq.getIp());
 			
 			conn.commit();
 		});

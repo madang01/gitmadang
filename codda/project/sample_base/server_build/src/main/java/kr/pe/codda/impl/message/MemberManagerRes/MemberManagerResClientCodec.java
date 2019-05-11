@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.codda.impl.message.UserUnBlockReq;
+package kr.pe.codda.impl.message.MemberManagerRes;
 
 import kr.pe.codda.common.exception.DynamicClassCallException;
 import kr.pe.codda.common.message.codec.AbstractMessageDecoder;
@@ -23,21 +23,21 @@ import kr.pe.codda.common.message.codec.AbstractMessageEncoder;
 import kr.pe.codda.common.protocol.MessageCodecIF;
 
 /**
- * UserUnBlockReq client codec
+ * MemberManagerRes client codec
  * @author Won Jonghoon
  *
  */
-public final class UserUnBlockReqClientCodec implements MessageCodecIF {
+public final class MemberManagerResClientCodec implements MessageCodecIF {
 
-	private AbstractMessageEncoder messageEncoder = new UserUnBlockReqEncoder();
+	private AbstractMessageDecoder messageDecoder = new MemberManagerResDecoder();
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("the client don't need a message decoder because it is a message[UserUnBlockReq] that is not sent from server to client");
+		return messageDecoder;
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return messageEncoder;
+		throw new DynamicClassCallException("the client don't need a message encoder because it is a message[MemberManagerRes] that is not sent from client to server");
 	}
 }

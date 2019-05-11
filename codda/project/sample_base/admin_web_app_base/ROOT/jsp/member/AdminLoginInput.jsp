@@ -173,11 +173,6 @@
 		    document.location.href = "/";
 		    return;
 		}
-		
-
-		var f = document.frm;
-		f.userID.value =  "admin";
-		f.pwd.value =  "test1234$";
 	}
 
 	window.onload = init;
@@ -187,7 +182,7 @@
 <body>
 	<div class=header>
 		<div class="container">
-		<%=getMenuNavbarString(request)%>
+		<%= getMenuNavbarString(request) %>
 		</div>
 	</div>
 	<div class="content">

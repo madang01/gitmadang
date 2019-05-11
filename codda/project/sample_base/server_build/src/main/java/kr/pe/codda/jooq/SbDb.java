@@ -40,7 +40,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = -389438578;
+    private static final long serialVersionUID = -514416720;
 
     /**
      * The reference instance of <code>sb_db</code>
@@ -93,14 +93,14 @@ public class SbDb extends SchemaImpl {
     public final SbSeqTb SB_SEQ_TB = kr.pe.codda.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
     /**
-     * The table <code>sb_db.sb_site_log_tb</code>.
-     */
-    public final SbSiteLogTb SB_SITE_LOG_TB = kr.pe.codda.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
-
-    /**
      * The table <code>sb_db.sb_sitemenu_tb</code>.
      */
     public final SbSitemenuTb SB_SITEMENU_TB = kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
+
+    /**
+     * The table <code>sb_db.sb_site_log_tb</code>.
+     */
+    public final SbSiteLogTb SB_SITE_LOG_TB = kr.pe.codda.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
 
     /**
      * No further instances allowed
@@ -136,7 +136,7 @@ public class SbDb extends SchemaImpl {
             SbMemberActivityHistoryTb.SB_MEMBER_ACTIVITY_HISTORY_TB,
             SbMemberTb.SB_MEMBER_TB,
             SbSeqTb.SB_SEQ_TB,
-            SbSiteLogTb.SB_SITE_LOG_TB,
-            SbSitemenuTb.SB_SITEMENU_TB);
+            SbSitemenuTb.SB_SITEMENU_TB,
+            SbSiteLogTb.SB_SITE_LOG_TB);
     }
 }

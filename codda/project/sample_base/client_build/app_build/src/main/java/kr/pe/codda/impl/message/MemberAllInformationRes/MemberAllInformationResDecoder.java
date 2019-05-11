@@ -107,6 +107,14 @@ public final class MemberAllInformationResDecoder extends AbstractMessageDecoder
 			, null // nativeItemCharset
 			, middleReadableObject));
 
+		memberAllInformationRes.setLastStateModifiedDate((java.sql.Timestamp)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "lastStateModifiedDate" // itemName
+			, kr.pe.codda.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
 		pathStack.pop();
 
 		return memberAllInformationRes;

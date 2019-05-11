@@ -202,13 +202,6 @@
 		    document.location.href = "/";
 		    return;
 		}
-		
-		var f = document.frm;
-		f.userID.value =  "test00";
-		f.pwd.value =  "test1234$";
-		f.pwdConfirm.value =  f.pwd.value;
-		f.nickname.value = "별명00";
-		f.email.value = "test00@codda.pe.kr";
 	}
 
 	window.onload = init;

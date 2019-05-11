@@ -475,6 +475,7 @@ public abstract class ServerDBUtil {
 					.set(SB_MEMBER_TB.LAST_NICKNAME_MOD_DT, registeredDate)
 					.set(SB_MEMBER_TB.LAST_EMAIL_MOD_DT, registeredDate)
 					.set(SB_MEMBER_TB.LAST_PWD_MOD_DT, registeredDate)
+					.set(SB_MEMBER_TB.LAST_STATE_MOD_DT, registeredDate)
 					.execute();
 
 			if (0 == resultOfInsert) {

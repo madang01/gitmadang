@@ -77,6 +77,7 @@
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 
 <script src="/js/common.js"></script>
+
 <script type='text/javascript'>
 	function buildPrivateKey() {
 		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);	
@@ -344,9 +345,6 @@
 		    document.location.href = "/";
 		    return;
 		}
-		
-		
-		expandTextarea('contentsInWritePart');
 	}
 	
 	window.onload = init;
@@ -508,7 +506,7 @@
 							<label for="subject">제목</label>
 							<input type="text" name="subject" class="form-control" placeholder="Enter subject" />
 							<label for="content">내용</label>
-							<textarea name="contents" id="contentsInWritePart" class="form-control" placeholder="Enter contents" rows="5"></textarea><%
+							<textarea name="contents" id="contentsInWritePart" class="form-control input-block-level" placeholder="Enter contents" rows="20"></textarea><%
 								if (! accessedUserformation.isLoginedIn()) {
 							%>
 							<label for="content">게시글 비밀번호</label>

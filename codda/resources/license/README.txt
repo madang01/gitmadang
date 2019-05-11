@@ -1,17 +1,17 @@
 Codda Core
 ============================
 
-1. ¿ÜºÎ ¶óÀÌºê·¯¸®¿¡¼­ ¼Ò½º ±×´ë·Î °¡Á®¿Â ¸ñ·Ï
+1. ì™¸ë¶€ ë¼ì´ë¸ŒëŸ¬ë¦¬ì—ì„œ ì†ŒìŠ¤ ê·¸ëŒ€ë¡œ ê°€ì ¸ì˜¨ ëª©ë¡
   (1) kr.pe.codda.common.util.ComparableComparator
-      ¼³¸í : Comparator Å¬·¡½º¸¦ »ó¼Ó¹ŞÀº ¼ıÀÚ ºñ±³ÇÏ´Â Comparator
-      ÃâÃ³ : the HttpClient component of the Apache HttpComponents project
-      ¿øº» Âü°í ÁÖ¼Ò : https://commons.apache.org/proper/commons-collections/apidocs/src-html/org/apache/commons/collections4/comparators/ComparableComparator.html
-      ¹é¾÷ pdf : apache_commons_collections_ComparableComparator.pdf
-      ¶óÀÌ¼¾½º : ¾ÆÆÄÄ¡2 ¶óÀÌ¼¾½º
+      ì„¤ëª… : Comparator í´ë˜ìŠ¤ë¥¼ ìƒì†ë°›ì€ ìˆ«ì ë¹„êµí•˜ëŠ” Comparator
+      ì¶œì²˜ : the HttpClient component of the Apache HttpComponents project
+      ì›ë³¸ ì°¸ê³  ì£¼ì†Œ : https://commons.apache.org/proper/commons-collections/apidocs/src-html/org/apache/commons/collections4/comparators/ComparableComparator.html
+      ë°±ì—… pdf : apache_commons_collections_ComparableComparator.pdf
+      ë¼ì´ì„¼ìŠ¤ : ì•„íŒŒì¹˜2 ë¼ì´ì„¼ìŠ¤
       
    (2) io.netty.util.internal.logging
-      ¼³¸í : ³×Æ¼¿¡¼­ °¡Á®¿Â ·Î°Å·Î ¼³Ä¡µÈ ·Î±× ¶óÀÌºê·¯¸®¸¦ ÀÎÁöÇÏ¿© µ¿ÀÛÇÏ´Â ·Î°ÅÀÔ´Ï´Ù.
-      ÃâÃ³ : ³×Æ¼
-      ¶óÀÌ¼¾½º : ¾ÆÆÄÄ¡2 ¶óÀÌ¼¾½º
+      ì„¤ëª… : ë„¤í‹°ì—ì„œ ê°€ì ¸ì˜¨ ë¡œê±°ë¡œ ì„¤ì¹˜ëœ ë¡œê·¸ ë¼ì´ë¸ŒëŸ¬ë¦¬ë¥¼ ì¸ì§€í•˜ì—¬ ë™ì‘í•˜ëŠ” ë¡œê±°ì…ë‹ˆë‹¤.
+      ì¶œì²˜ : ë„¤í‹°
+      ë¼ì´ì„¼ìŠ¤ : ì•„íŒŒì¹˜2 ë¼ì´ì„¼ìŠ¤
       
-2. ¿ÜºÎ¶óÀÌºê·¯¸®
+2. ì™¸ë¶€ë¼ì´ë¸ŒëŸ¬ë¦¬

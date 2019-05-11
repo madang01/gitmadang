@@ -24,4 +24,5 @@
 <singleitem name="lastNicknameModifiedDate" type="java sql timestamp" />
 <singleitem name="lastEmailModifiedDate" type="java sql timestamp" />
 <singleitem name="lastPasswordModifiedDate" type="java sql timestamp" />
+<singleitem name="lastStateModifiedDate" type="java sql timestamp" />
 </message>

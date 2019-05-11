@@ -6,9 +6,9 @@
 (0) 시작하기 앞서 알아 두어야할 사항
 첫번째 보안을 위해서 git 에 DB 계정 혹은 개인 메일 계정의 아이디와 비밀번호를 올리지 않도록 주의하시기 바랍니다.
 
-두번째 코다 개발 환경을 구축할 PC 는 OS 로 데비안 9.9 가 설치되었으며 IP 주소는 172.30.1.15 를 갖습니다.
+두번째 서버로 운영해야 하기때문에 자동 IP 가 아닌 수동으로 설정한 IP 이어야 합니다. 코다 개발 환경을 구축할 PC 는 OS 로 데비안 9.9 가 설치되었으며 IP 주소는 172.30.1.15 를 갖습니다. 
 자신의 PC 환경에 맞게 IP 와 와 DB 계정 비밀번호를 바꾸어 주시면 됩니다.
-DB 계정 비밀번호가 test1234 라면 'root비밀번호' 로 표시된 부분에서 작은 따옴표 안에 자신의 비밀번호를 넣어 'test1234' 로 수정하시면 됩니다.
+DB 계정 비밀번호가 test1234 라면 아래 howto 문서에 있는 'root비밀번호' 로 표시된 부분에서 작은 따옴표 안에 자신의 비밀번호를 넣어 'test1234' 로 수정하시면 됩니다.
 
 세번째 아파치 & tomcat 은 계속 진화중인지라 각 버전마다 설장 방법이 조금씩 다를 수 있습니다.
 
@@ -22,14 +22,16 @@ DB 계정 비밀번호가 test1234 라면 'root비밀번호' 로 표시된 부�
 
 여섯째 코다의 과거 이름은 신놀이 였으며 그때 사용한 도메인이 www.sinnori.pe.kr 입니다. 통합 테스트를 위해서 이 도메인으로 가 오픈할 예정입니다.
 
+일곱번째 아래 필요한 파일들을 설치해서인지 ant 가 자동으로 설치된것을 확인할 수 있습니다. 만약에 ant 가 없다면 ant 도 추가해 주시기 바랍니다.
+
 ------------ 필요한 파일 설치 파트 시작 ------------
 (1) apt-get install git
 (2) apt-get install default-jdk
-(3) apt-get install eclipse
-(4) apt-get install mariadb-server
-(5) apt-get install apache2
-(6) apt-get install tomcat8
-(7) apt-get install libapache2-mod-jk
+(3) apt-get install mariadb-server
+(4) apt-get install apache2
+(5) apt-get install tomcat8
+(6) apt-get install libapache2-mod-jk
+(7) apt-get install mysql-workbench
 ------------ 필요한 파일 설치 파트 종료 ------------
 
 ------------ 기타 유틸 설치 파트 시작 ------------
@@ -52,26 +54,47 @@ DB 계정 비밀번호가 test1234 라면 'root비밀번호' 로 표시된 부�
 (5-4) "All Main Project Manger" 화면에서 "apply Codda installed path to all project" 버튼 클릭
 <img src="/images/howto/codda_helper_screenshot03.png" class="img-rounded"  />
 (5-5) 창종료
-(6) eclipse 환경 구축
-(6-1) 이클립스를 다운로드 받는다
+(6) 코다 코어 컴파일후 복사 하기
+(6-1) /home/madang01/gitmadang/codda/core/all/ 경로에 들어가서 ant 
+(6-2) /home/madang01/gitmadang/codda/core/helper/ 경로에 들어가서 ant
+(6-3) /home/madang01/gitmadang/codda/project/sample_base/server_build/ 경로 들어가서 ant copy.core
+(6-4) /home/madang01/gitmadang/codda/project/sample_base/client_build/app_build/ 경로 들어가서 ant copy.core
+(6-4) /home/madang01/gitmadang/codda/project/sample_base/client_build/web_build/ 경로 들어가서 ant copy.core
+
+(7) eclipse 환경 구축
+(7-1) 이클립스를 다운로드 받는다
 wget -O eclipse.tar.gz 'https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/neon/1a/eclipse-java-neon-1a-linux-gtk-x86_64.tar.gz&r=1'
-(6-2) eclipse.tar.gz 압축을 푼후 이클립스를 구동시킨다.
-(6-3) 이때 worbench 를 ~ 바로 밑에 생성한다.
-(6-4) copy -r /home/madang01/gitmadang/codda/resources/eclipse/workbench/* ~/workbench
-(6-5) eclipse 실행상태에서 import 메뉴를 선택하여 codda_logger, codda_helper, codda_core_all, 
-codda_sample_base_server, codda_sample_base_appclient, codda_sample_base_webclient 차례대로 포함시킨다.
+(7-2) eclipse.tar.gz 압축을 푼후 이클립스를 구동시킨다.
+(7-3) 이때 workspace 를 ~ 바로 밑에 생성한다.
+(7-4) cp -r /home/madang01/gitmadang/codda/resources/eclipse/workbench/* ~/workspace
+(7-5) eclipse 실행상태에서 import 메뉴 ==> "General" ==> "Existing Projects into Workspace" 를 선택하여 아래 이클립스 프로젝트인
+      codda_logger, codda_helper, codda_core_all, codda_sample_base_server, codda_sample_base_appclient, codda_sample_base_webclient 차례대로 포함시킨다.
 참고) codda_sample_base_webclient 이클립스 프로젝트는 tomcat 서블릿 라이브러리인 
 /usr/share/tomcat8/lib/servlet-api.jar, /usr/share/tomcat8/lib/jsp-api.jar
 2개 파일을 수동으로 추가시켜야 합니다.
 
+(8) /home/madang01/gitmadang/codda/project/sample_base/client_build/web_build/webAnt.properties 에서 servlet.systemlib.path 의 값을 /usr/share/tomcat8/lib 로 수정할것
 
+(9) /home/madang01/gitmadang/codda/project/sample_base/user_web_app_base/ROOT/userWebsiteMenuInfo.txt 의 그룹을 tomcat8 로 바꾼후 그룹에 쓰기 권한을 주어야 관라지 홈피 메뉴 관리자에서 사용자 홈피의 메뉴 갱신을 할 수 있습니다.
 
------------- codda 소스 다운로드및 개발 환경 구축하기 종료 ------------
+(10) /home/madang01/gitmadang/codda/core/common/src/test/java/junitlib/AbstractJunitTest.java 에서 
+하드 코딩된 경로를 설치 기본 경로 /home/madang01/gitmadang 으로 그리고 tomcat 라이브러리 경로를 /usr/share/tomcat8/lib 로 수정할것
+
+(11) 아파치와 톰캣의 로그 경로에 대한 소유자 변경및 쓰기 권한 부여
+(11-1) 아파치 로그
+chgrp www-data /home/madang01/gitmadang/codda/project/sample_base/log/apache
+chmod g+w /home/madang01/gitmadang/codda/project/sample_base/log/apache
+(11-2) 톰캣 로그
+chgrp tomcat8 /home/madang01/gitmadang/codda/project/sample_base/log/tomcat
+chmod g+w /home/madang01/gitmadang/codda/project/sample_base/log/tomcat
+
+------------- codda 개발 환경을 위한 파일 퍼미션 변경 종료 -------------
+
 
 
 ------------ mariadb db 서버 설치및 환경 설정 시작  ------------
 (1) mariadb 원격 접속 허용및 대소문자 구별 없애기 설정
-(1-1) /etc/mysql/mariadb.conf.d/50-server.cnf 파일에서 bind-address 앞에 # 을 붙여 주석 처리하기
+(1-1) /etc/mysql/mariadb.conf.d/50-server.cnf 파일에서 bind-address = 127.0.0.1 앞에 # 을 붙여 주석 처리하기
 (1-2) 바로 아래줄에 lower_case_table_names = 1 추가
 (1-3) mariadb 리스타트 ==> /etc/init.d/mysql restart
 
@@ -91,7 +114,7 @@ codda_sample_base_server, codda_sample_base_appclient, codda_sample_base_webclie
 	Query OK, 1 row affected (0.00 sec)
 	Rows matched: 1  Changed: 1  Warnings: 0
 
-	MariaDB [mysql]> flush pribvileges;
+	MariaDB [mysql]> flush privileges;
 
 (2-3) root 계정 원격에서 접속 허용하기
 
@@ -113,24 +136,21 @@ codda_sample_base_server, codda_sample_base_appclient, codda_sample_base_webclie
 <img src="/images/howto/workbench_screenshot04.png" class="img-rounded" style="width:100%" />
 (3-5) workbench 정상 접속 화면
 <img src="/images/howto/workbench_screenshot05.png" class="img-rounded" style="width:100%" />
-(3-6) madangshoe01  계정을 만들고 "sample_base_db_erd.mwb" 파일을 열어 Databse -> Synchronize Model 메뉴을 선택하여 'sb_db', 'gt_sb_db', 'lt_sb_db' 각 스키마 생성
+(3-6)  "sample_base_db_erd.mwb" 파일을 열어 Databse -> Synchronize Model 메뉴을 선택하여 'sb_db', 'gt_sb_db', 'lt_sb_db' 각 스키마 생성후 madangshoe01  계정을 새로 만들때 select, insert, update, delete 권한을 줄것
 
+
+(4) /home/madang01/gitmadang/codda/project/sample_base/server_build 경로로 들어가서 
+src/main/java/main/SeverMain.java 에 하드코딩된 admin 계정의 비밀번호를 바꾼후 
+컴파일 한후 sh sample_baseServer.sh 을 실행하여 DB 설정이 잘되어 서버 실행이 잘되는지를 확인합니다.
 
 ------------ db 서버 설치및 환경 설정 종료  ------------
 
 
 ------------ 아파치 & tomcat 설정 시작 ------------
-(10) 아파치와 톰캣의 로그 경로에 대한 소유자 변경및 쓰기 권한 부여
-(10-1) 아파치 로그
-chgrp www-data /home/madang01/gitmadang/codda/project/sample_base/log/apache
-chmod g+w /home/madang01/gitmadang/codda/project/sample_base/log/apache
-(10-2) 톰캣 로그
-chgrp tomcat8 /home/madang01/gitmadang/codda/project/sample_base/log/tomcat
-chmod g+w /home/madang01/gitmadang/codda/project/sample_base/log/tomcat
-
-(11) 아파치 & tomcat 설정
-(11-1) 아파치에 가상 호스트 등록
-      gitmadang/codda/resources/tomcat/ubuntu/vhost1.conf 파일을 /etc/apache2/sites-available/ 로 복사후 자기 환경에 맞게 수정
+(1) 아파치 & tomcat 설정
+(1-1) 아파치에 가상 호스트 등록
+      /home/madang01/gitmadang/codda/resources/tomcat/debian/vhost1.conf 파일을 /etc/apache2/sites-available/ 로 복사후 자기 환경에 맞게 수정
+      cp /home/madang01/gitmadang/codda/resources/tomcat/debian/vhost1.conf /etc/apache2/sites-available/
 
 ### vhost1.conf file 내용 시작 ###
 <virtualhost www.sinnori.pe.kr>
@@ -147,7 +167,7 @@ chmod g+w /home/madang01/gitmadang/codda/project/sample_base/log/tomcat
 </virtualhost>
 ### vhost1 file 내용 종료 ###
 
-(11-2) tomcat bin 경로(ex /usr/share/tomcat8/bin/)에 gitmadang/codda/resources/tomcat/ubuntu/ 경로에 있는 setenv.sh 을  복사호 chmod a+x 해 줍니다.
+(1-2) tomcat bin 경로(ex /usr/share/tomcat8/bin/)에 /home/madang01/gitmadang/codda/resources/tomcat/debian/ 경로에 있는 setenv.sh 을  복사호 chmod a+x 해 줍니다.
 
 ### setenv.sh file 내용 시작 ###
 #!/bin/sh
@@ -178,37 +198,53 @@ export JAVA_OPTS="$JAVA_OPTS \
 -Dcodda.projectName=$PROJECT_NAME"
 ### setenv.sh file 내용 종료 ###
 
-(11-3) tomcat 에서 AJP 활성화
-(11-3-1) 아파치 server.xml(=> /etc/tomcat8/server.xml) 파일에서  AJP 활성화
+(1-3) tomcat 에서 AJP 활성화
+아파치 server.xml(=> /etc/tomcat8/server.xml) 파일에서  AJP 활성화
 server.xml 를 보면 “Define an AJP 1.3 Connector on port 8009” 이
 부분이 있다. <Connector port="8009" protocol="AJP/1.3"
 redirectPort="8443" /> 부분의 주석을 풀어 준다.
 
-(11-3-1) 아파치 신규 등록한 vhost 활성화
+(1-4) 아파치 신규 등록한 vhost 활성화
 a2ensite vhost1
 
+(1-5) tomcat UTF8 세팅
+web.xml(ex D:\apache-tomcat-8.5.32\conf\web.xml, /etc/tomcat8/web.xml) 파일 에서 
+웹 파라미터 값을 UTF8 문자열로 다루기 위한 조취로
+아래 처럼 2 군데 주석(첫번째 : 첫번째 UTF8 을 갖는 문자열 인코딩 필터 정의 부, 
+두번째 : 두번째 UTF8 문자열 인코딩 필터 URL 매칭 정의 부)을 풀어준다.
+  
+  # 첫번째 UTF8 을 갖는 문자열 인코딩 필터 정의 부
+    <filter>
+        <filter-name>setCharacterEncodingFilter</filter-name>
+        <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <async-supported>true</async-supported>
+    </filter>
+    
+  # 두번째 UTF8 문자열 인코딩 필터 URL 매칭 정의 부
+    <filter-mapping>
+        <filter-name>setCharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-(11-4) tomcat 에서 호스트 등록
+
+(1-6) tomcat 에서 호스트 등록
 아파치 server.xml(=> /etc/tomcat8/server.xml) 파일에서 아래 2개 호스트 등록
 Host 태그로 문자열 찾아 들어가면 그곳에 기본으로 설정된 로컬 호스트가 등록되어 있습니다. 그 아래에 추가하시면 됩니다.
 
 <!-- 일반 사용자 사이트 -->
-	<Host name="www.sinnor.pe.kr" appBase="/home/madang01/gitmadang/codda/project/sample_base/user_web_app_base" unpackWARs="true" autoDeploy="true">
+	<Host name="www.sinnori.pe.kr" appBase="/home/madang01/gitmadang/codda/project/sample_base/user_web_app_base" unpackWARs="true" autoDeploy="true">
 		<Context path="" docBase="ROOT" debug="0" reloadable="true"/>
 		<Valve className="org.apache.catalina.valves.AccessLogValve" directory="/home/madang01/gitmadang/codda/project/sample_base/log/tomcat"  prefix="tomcat_access_www_" suffix=".log" pattern="%h %l %u %t &quot;%r&quot; %s %b" resolveHosts="false"/>
 	</Host>
 	
 	<!-- 관리자 사이트 -->
-	<Host name="admin.sinnor.pe.kr" appBase="/home/madang01\gitmadang\codda\project\sample_base\admin_web_app_base" unpackWARs="true" autoDeploy="true">
+	<Host name="admin.sinnori.pe.kr" appBase="/home/madang01/gitmadang/codda/project/sample_base/admin_web_app_base" unpackWARs="true" autoDeploy="true">
 		<Context path="" docBase="ROOT" debug="0" reloadable="true"/>
 		<Valve className="org.apache.catalina.valves.AccessLogValve" directory="/home/madang01/gitmadang/codda/project/sample_base/log/tomcat"  prefix="tomcat_access_admin_" suffix=".log" pattern="%h %l %u %t &quot;%r&quot; %s %b" resolveHosts="false"/>
 	</Host>
+	
 
-(12) 아파치 설정 파일(/etc/apache2/apache2.conf)에서 root 상대 경로에 대한 접근을 허용하도록 설정 변경
-### 변경후 ###
-<Directory />
-    Options FollowSymLinks
-    AllowOverride None
-    # Require all denied
-     Require all granted
-</Directory>

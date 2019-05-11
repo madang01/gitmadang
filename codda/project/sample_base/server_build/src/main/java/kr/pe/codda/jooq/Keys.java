@@ -68,14 +68,14 @@ public class Keys {
     public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = UniqueKeys0.KEY_SB_MEMBER_TB_SB_MEMBER_IDX1;
     public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_EMAIL_UNIQUE = UniqueKeys0.KEY_SB_MEMBER_TB_EMAIL_UNIQUE;
     public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = UniqueKeys0.KEY_SB_SEQ_TB_PRIMARY;
-    public static final UniqueKey<SbSiteLogTbRecord> KEY_SB_SITE_LOG_TB_PRIMARY = UniqueKeys0.KEY_SB_SITE_LOG_TB_PRIMARY;
     public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_PRIMARY = UniqueKeys0.KEY_SB_SITEMENU_TB_PRIMARY;
+    public static final UniqueKey<SbSiteLogTbRecord> KEY_SB_SITE_LOG_TB_PRIMARY = UniqueKeys0.KEY_SB_SITE_LOG_TB_PRIMARY;
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final ForeignKey<SbAccountSerarchTbRecord, SbMemberTbRecord> PWD_SEARCH_REQ_FK1 = ForeignKeys0.PWD_SEARCH_REQ_FK1;
+    public static final ForeignKey<SbAccountSerarchTbRecord, SbMemberTbRecord> PWD_SEARCH_FK1 = ForeignKeys0.PWD_SEARCH_FK1;
     public static final ForeignKey<SbBoardFilelistTbRecord, SbBoardTbRecord> SB_BOARD_FILELIST_FK1 = ForeignKeys0.SB_BOARD_FILELIST_FK1;
     public static final ForeignKey<SbBoardHistoryTbRecord, SbBoardTbRecord> SB_BOARD_HISTORY_FK1 = ForeignKeys0.SB_BOARD_HISTORY_FK1;
     public static final ForeignKey<SbBoardHistoryTbRecord, SbMemberTbRecord> SB_BOARD_HISTORY_FK2 = ForeignKeys0.SB_BOARD_HISTORY_FK2;
@@ -101,12 +101,12 @@ public class Keys {
         public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_sb_member_tb_sb_member_idx1", SbMemberTb.SB_MEMBER_TB.NICKNAME);
         public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_EMAIL_UNIQUE = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_sb_member_tb_email_UNIQUE", SbMemberTb.SB_MEMBER_TB.EMAIL);
         public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = Internal.createUniqueKey(SbSeqTb.SB_SEQ_TB, "KEY_sb_seq_tb_PRIMARY", SbSeqTb.SB_SEQ_TB.SQ_ID);
-        public static final UniqueKey<SbSiteLogTbRecord> KEY_SB_SITE_LOG_TB_PRIMARY = Internal.createUniqueKey(SbSiteLogTb.SB_SITE_LOG_TB, "KEY_sb_site_log_tb_PRIMARY", SbSiteLogTb.SB_SITE_LOG_TB.YYYYMMDD, SbSiteLogTb.SB_SITE_LOG_TB.DAY_LOG_SQ);
         public static final UniqueKey<SbSitemenuTbRecord> KEY_SB_SITEMENU_TB_PRIMARY = Internal.createUniqueKey(SbSitemenuTb.SB_SITEMENU_TB, "KEY_sb_sitemenu_tb_PRIMARY", SbSitemenuTb.SB_SITEMENU_TB.MENU_NO);
+        public static final UniqueKey<SbSiteLogTbRecord> KEY_SB_SITE_LOG_TB_PRIMARY = Internal.createUniqueKey(SbSiteLogTb.SB_SITE_LOG_TB, "KEY_sb_site_log_tb_PRIMARY", SbSiteLogTb.SB_SITE_LOG_TB.YYYYMMDD, SbSiteLogTb.SB_SITE_LOG_TB.DAY_LOG_SQ);
     }
 
     private static class ForeignKeys0 {
-        public static final ForeignKey<SbAccountSerarchTbRecord, SbMemberTbRecord> PWD_SEARCH_REQ_FK1 = Internal.createForeignKey(kr.pe.codda.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB, "pwd_search_req_fk1", SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB.USER_ID);
+        public static final ForeignKey<SbAccountSerarchTbRecord, SbMemberTbRecord> PWD_SEARCH_FK1 = Internal.createForeignKey(kr.pe.codda.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB, "pwd_search_fk1", SbAccountSerarchTb.SB_ACCOUNT_SERARCH_TB.USER_ID);
         public static final ForeignKey<SbBoardFilelistTbRecord, SbBoardTbRecord> SB_BOARD_FILELIST_FK1 = Internal.createForeignKey(kr.pe.codda.jooq.Keys.KEY_SB_BOARD_TB_PRIMARY, SbBoardFilelistTb.SB_BOARD_FILELIST_TB, "sb_board_filelist_fk1", SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.BOARD_NO);
         public static final ForeignKey<SbBoardHistoryTbRecord, SbBoardTbRecord> SB_BOARD_HISTORY_FK1 = Internal.createForeignKey(kr.pe.codda.jooq.Keys.KEY_SB_BOARD_TB_PRIMARY, SbBoardHistoryTb.SB_BOARD_HISTORY_TB, "sb_board_history_fk1", SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_ID, SbBoardHistoryTb.SB_BOARD_HISTORY_TB.BOARD_NO);
         public static final ForeignKey<SbBoardHistoryTbRecord, SbMemberTbRecord> SB_BOARD_HISTORY_FK2 = Internal.createForeignKey(kr.pe.codda.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardHistoryTb.SB_BOARD_HISTORY_TB, "sb_board_history_fk2", SbBoardHistoryTb.SB_BOARD_HISTORY_TB.REGISTRANT_ID);

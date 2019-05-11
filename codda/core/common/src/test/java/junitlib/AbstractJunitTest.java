@@ -21,7 +21,7 @@ public abstract class AbstractJunitTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		installedBasePath = new File("D:\\gitmadang");
+		installedBasePath = new File("/home/madang01/gitmadang");
 		
 		if (! installedBasePath.exists()) {
 			fail("the installed path doesn't exist");
@@ -45,8 +45,8 @@ public abstract class AbstractJunitTest {
 			fail("the installed path isn't a directory");
 		}
 		
-		wasLibPath = new File("D:\\apache-tomcat-8.5.32\\lib");
-		//wasLibPath = new File("D:\\apache-tomcat-7.0.57\\lib");
+		// wasLibPath = new File("D:\\apache-tomcat-8.5.32\\lib");
+		wasLibPath = new File("/usr/share/tomcat8/lib");
 		if (! wasLibPath.exists()) {
 			fail("the was libaray path doesn't exist");
 		}

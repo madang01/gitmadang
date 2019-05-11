@@ -78,12 +78,12 @@ public class Tables {
     public static final SbSeqTb SB_SEQ_TB = kr.pe.codda.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
     /**
-     * The table <code>sb_db.sb_site_log_tb</code>.
-     */
-    public static final SbSiteLogTb SB_SITE_LOG_TB = kr.pe.codda.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
-
-    /**
      * The table <code>sb_db.sb_sitemenu_tb</code>.
      */
     public static final SbSitemenuTb SB_SITEMENU_TB = kr.pe.codda.jooq.tables.SbSitemenuTb.SB_SITEMENU_TB;
+
+    /**
+     * The table <code>sb_db.sb_site_log_tb</code>.
+     */
+    public static final SbSiteLogTb SB_SITE_LOG_TB = kr.pe.codda.jooq.tables.SbSiteLogTb.SB_SITE_LOG_TB;
 }
