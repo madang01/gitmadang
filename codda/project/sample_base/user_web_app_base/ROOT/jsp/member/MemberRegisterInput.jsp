@@ -84,10 +84,10 @@
 		var f = document.frm;
 		
 		try {
-			checkValidUserID('회원', f.id.value);
+			checkValidUserID('회원', f.userID.value);
 		} catch(err) {
 			alert(err);
-			f.id.focus();
+			f.userID.focus();
 			return;
 		}
 		
@@ -116,7 +116,7 @@
 				
 		if (f.email.value == '') {
 			alert("이메일을 넣어주세요.");
-			f.pwdHint.focus();
+			f.email.focus();
 			return;
 		}		
 		

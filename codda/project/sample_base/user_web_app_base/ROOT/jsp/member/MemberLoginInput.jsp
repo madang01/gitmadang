@@ -89,10 +89,10 @@
 		var f = document.frm;
 		
 		try {
-			checkValidUserID('로그인', f.id.value);
+			checkValidUserID('로그인', f.userID.value);
 		} catch(err) {
 			alert(err);
-			f.id.focus();
+			f.userID.focus();
 			return;
 		}
 		
@@ -224,12 +224,12 @@
 					</form><br>
 					<form method="post" name="frm" onsubmit="goLogin(); return false;">
 						<div class="form-group">				
-							<label for="userID">아이디:</label>
-							<input type="text" class="form-control" id="userID" placeholder="Enter admin's id" name="userID" value="<%= userID %>">
+							<label for="userID">회원 아이디:</label>
+							<input type="text" class="form-control" id="userID" placeholder="로그인 아이디를 넣어주세요" name="userID" value="<%= userID %>">
 							<br>
 						
 							<label for="pwd">비빌번호:</label>
-							<input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
+							<input type="password" class="form-control" id="pwd" placeholder="로그인 비밀번호를 넣어주세요" name="pwd">
 						</div>
 						<button type="submit" class="btn btn-default">Submit</button>		
 					</form>

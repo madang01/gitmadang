@@ -45,7 +45,7 @@ public class AdminSiteMenuManger {
 			menu.setMenuNo(2);
 			menu.setDepth((short)0);
 			menu.setMenuName("사용자 관리");
-			menu.setLinkURL("/servlet/MemberManagement");
+			menu.setLinkURL("/servlet/MemberManager");
 			menu.setChildMenuListSize(0);
 			menu.setChildMenuList(new java.util.ArrayList<TreeSiteMenuRes.Menu>());
 			
@@ -57,7 +57,19 @@ public class AdminSiteMenuManger {
 			menu.setMenuNo(3);
 			menu.setDepth((short)0);
 			menu.setMenuName("게시판 정보 관리자");
-			menu.setLinkURL("/servlet/BoardInfoManger");
+			menu.setLinkURL("/servlet/BoardInformationManager");
+			menu.setChildMenuListSize(0);
+			menu.setChildMenuList(new java.util.ArrayList<TreeSiteMenuRes.Menu>());
+			
+			rootMenuList.add(menu);
+		}
+		
+		{
+			TreeSiteMenuRes.Menu menu = new TreeSiteMenuRes.Menu();
+			menu.setMenuNo(3);
+			menu.setDepth((short)0);
+			menu.setMenuName("게시판 관리자");
+			menu.setLinkURL("/servlet/BoardManager");
 			menu.setChildMenuListSize(0);
 			menu.setChildMenuList(new java.util.ArrayList<TreeSiteMenuRes.Menu>());
 			

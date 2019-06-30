@@ -91,6 +91,13 @@ public class ValueChecker {
 		checkValidUserID("로그인", userID);
 	}
 	
+	public static void checkValidBlockUserID(String userID) throws IllegalArgumentException {
+		checkValidUserID("차단 대상", userID);
+	}
+	
+	public static void checkValidUnBlockUserID(String userID) throws IllegalArgumentException {
+		checkValidUserID("차단 해제 대상", userID);
+	}
 	
 	private static void checkValidPwd(String title, byte[] passwordBytes) throws IllegalArgumentException {
 		if (null == title) {

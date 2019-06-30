@@ -106,16 +106,23 @@ public class ValueChecker {
 		return isLineSeparator;
 	}
 
-	public static boolean isAlphabetAndDigit(String sourceString) {
+	public static boolean isEnglish(final char c) {
+		boolean isAlphabet = ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+		
+		return isAlphabet;
+	}
+	
+	public static boolean isEnglishAndDigit(String sourceString) {
 		for (char c : sourceString.toCharArray()) {
-			if (!Character.isDigit(c) && !Character.isAlphabetic(c)) {
+			if (! isEnglish(c) && ! Character.isDigit(c)) {
 				return false;
 			}
 		}
+		
 		return true;
 	}
-
-	public static boolean isAlphabetAndDigitWithRegular(String sourceString) {
+	
+	public static boolean isEnglishAndDigitWithRegular(String sourceString) {
 		String regex = "[a-zA-Z0-9]+";
 
 		boolean isValid = sourceString.matches(regex);
@@ -158,7 +165,7 @@ public class ValueChecker {
 		}		
 		
 		char firstChar = userIDChars[0];
-		if (! Character.isAlphabetic(firstChar)) {
+		if (! isEnglish(firstChar)) {
 			String errorMessage = new StringBuilder(title)
 			.append(" 아이디[")
 					.append(userID)
@@ -168,7 +175,7 @@ public class ValueChecker {
 		
 		for (int i=1; i < userIDChars.length; i++) {
 			char c = userIDChars[i];
-			if (! Character.isDigit(c) && ! Character.isAlphabetic(c)) {
+			if (! Character.isDigit(c) && ! isEnglish(c)) {
 				String errorMessage = new StringBuilder(title)
 						.append(" 아이디[")
 						.append(userID)
@@ -292,7 +299,7 @@ public class ValueChecker {
 		// CharBuffer passwdCharBuffer = CharBuffer.allocate(passwordBytes.length);
 		
 		boolean isDigit = false;
-		boolean isAlphabet = false;
+		boolean isEnglish = false;
 		boolean isPunct = false;
 			
 		for (int i=0; i < passwordBytes.length; i++) {
@@ -305,8 +312,8 @@ public class ValueChecker {
 			
 			char c = (char)value;
 			
-			if (Character.isAlphabetic(c)) {
-				isAlphabet = true;
+			if (isEnglish(c)) {
+				isEnglish = true;
 			} else if (Character.isDigit(c)) {
 				isDigit = true;
 			} else if (isPunct(c)) {
@@ -321,7 +328,7 @@ public class ValueChecker {
 			// passwdCharBuffer.append((char)value);
 		}
 		
-		if (! isAlphabet) {
+		if (! isEnglish) {
 			String errorMessage = new StringBuilder()
 					.append(title)
 					.append(" 비밀번호는 영문을 최소 한글자 포함해야 합니다").toString();
@@ -399,6 +406,8 @@ public class ValueChecker {
 		}
 		
 		for (char c : nicknameChars) {
+			
+			
 			if (isLineSeparator(c)) {
 				throw new IllegalArgumentException("별명에 개행 문자가 포함되었습니다");
 			} else if (isSpaceOrTab(c)) {
@@ -408,6 +417,12 @@ public class ValueChecker {
 			} else if (isPunct(c)) {
 				/** xss 공격을 막기 위한 조취 */
 				throw new IllegalArgumentException("별명에 특수 문자가 포함되었습니다");
+			} else if (! Character.isAlphabetic(c) && ! Character.isDigit(c)) {
+				
+				System.out.println();
+				System.out.printf("%d", Character.getType(c));
+				
+				throw new IllegalArgumentException("별명에 알 수 없는 문자가 포함되었습니다");
 			}
 		}
 	}

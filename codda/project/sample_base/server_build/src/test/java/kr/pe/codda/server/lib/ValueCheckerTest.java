@@ -590,4 +590,15 @@ public class ValueCheckerTest extends AbstractJunitTest {
 		
 		log.info("trimValue=[{}][len={}]", trimValue, trimValue.length());
 	}	
+	
+	@Test
+	public void testCheckValidNickname_한글() {
+		String nickname = "한글사랑1aAHkzZ";
+		try {
+			ValueChecker.checkValidNickname(nickname);
+		} catch (IllegalArgumentException e) {
+		    fail("errmsg="+e.getMessage());
+		}
+		
+	}
 }

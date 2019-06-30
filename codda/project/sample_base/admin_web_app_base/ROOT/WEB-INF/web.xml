@@ -189,73 +189,115 @@
 	
 	<!-- 게시판 정보 관리자 -->
 	<servlet>
-		<servlet-name>BoardInfoManger</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.admin.BoardInfoMangerSvl</servlet-class>
+		<servlet-name>BoardInformationManager</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardInformationManagerSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/BoardInfoManger</param-value>
+			<param-value>/servlet/BoardInformationManager</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BoardInfoManger</servlet-name>
-		<url-pattern>/servlet/BoardInfoManger</url-pattern>
+		<servlet-name>BoardInformationManager</servlet-name>
+		<url-pattern>/servlet/BoardInformationManager</url-pattern>
 	</servlet-mapping>
 	
 	<!-- 게시판 정보 등록 -->
 	<servlet>
-		<servlet-name>BoardInfoAdd</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.admin.BoardInfoAddSvl</servlet-class>
+		<servlet-name>BoardInformationAdd</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardInformationAddSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/BoardInfoManger</param-value>
+			<param-value>/servlet/BoardInformationManager</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BoardInfoAdd</servlet-name>
-		<url-pattern>/servlet/BoardInfoAdd</url-pattern>
+		<servlet-name>BoardInformationAdd</servlet-name>
+		<url-pattern>/servlet/BoardInformationAdd</url-pattern>
 	</servlet-mapping>
 	
 	
 	<!-- 게시판 정보 삭제 -->
 	<servlet>
-		<servlet-name>BoardInfoDelete</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.admin.BoardInfoDeleteSvl</servlet-class>
+		<servlet-name>BoardInformationDelete</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardInformationDeleteSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/BoardInfoManger</param-value>
+			<param-value>/servlet/BoardInformationManager</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BoardInfoDelete</servlet-name>
-		<url-pattern>/servlet/BoardInfoDelete</url-pattern>
+		<servlet-name>BoardInformationDelete</servlet-name>
+		<url-pattern>/servlet/BoardInformationDelete</url-pattern>
 	</servlet-mapping>
 	
 	<!-- 게시판 정보 수정 -->
 	<servlet>
-		<servlet-name>BoardInfoModify</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.admin.BoardInfoModifySvl</servlet-class>
+		<servlet-name>BoardInformationModify</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardInformationModifySvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/BoardInfoManger</param-value>
+			<param-value>/servlet/BoardInformationModify</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BoardInfoModify</servlet-name>
-		<url-pattern>/servlet/BoardInfoModify</url-pattern>
+		<servlet-name>BoardInformationModify</servlet-name>
+		<url-pattern>/servlet/BoardInformationModify</url-pattern>
 	</servlet-mapping>
 	
-	<!-- 사용자 게시글 관리자 -->
+	<!-- 게시판 관리자 -->
 	<servlet>
-		<servlet-name>UserPostsManger</servlet-name>
-		<servlet-class>kr.pe.codda.servlet.admin.UserPostsMangerSvl</servlet-class>
+		<servlet-name>BoardManager</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.BoardManagerSvl</servlet-class>
 		<init-param>
 			<param-name>menuGroupURL</param-name>
-			<param-value>/servlet/UserPostsManger</param-value>
+			<param-value>/servlet/BoardManager</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>UserPostsManger</servlet-name>
-		<url-pattern>/servlet/UserPostsManger</url-pattern>
+		<servlet-name>BoardManager</servlet-name>
+		<url-pattern>/servlet/BoardManager</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 회원 관리자 -->
+	<servlet>
+		<servlet-name>MemberManager</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.MemberManagerSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberManager</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberManager</servlet-name>
+		<url-pattern>/servlet/MemberManager</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 회원 차단 -->
+	<servlet>
+		<servlet-name>MemberBlockProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.MemberBlockProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberManager</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberBlockProcess</servlet-name>
+		<url-pattern>/servlet/MemberBlockProcess</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 회원 차단 해제 -->
+	<servlet>
+		<servlet-name>MemberUnBlockProcess</servlet-name>
+		<servlet-class>kr.pe.codda.servlet.admin.MemberUnBlockProcessSvl</servlet-class>
+		<init-param>
+			<param-name>menuGroupURL</param-name>
+			<param-value>/servlet/MemberManager</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MemberUnBlockProcess</servlet-name>
+		<url-pattern>/servlet/MemberUnBlockProcess</url-pattern>
 	</servlet-mapping>
 
 	<!-- Simple Captcha start -->

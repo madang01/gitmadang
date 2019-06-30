@@ -94,244 +94,165 @@
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 
-<script src="/js/common.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
 <script type="text/javascript">
-<!--
-	var currentEditScreenDiv = null;
+var currentEditScreenDiv = null;
+
+function buildPrivateKey() {
+	var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);	
+	return privateKey;
+}
+
+function putNewPrivateKeyToSessionStorage() {
+	var newPrivateKey = buildPrivateKey();
+	var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
 	
-	function buildPrivateKey() {
-		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);	
-		return privateKey;
+	sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', newPrivateKeyBase64);
+	
+	return newPrivateKeyBase64;
+}
+
+function getPrivateKeyFromSessionStorage() {
+	var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
+	
+	if (null == privateKeyBase64) {
+		privateKeyBase64 = putNewPrivateKeyToSessionStorage();
 	}
 	
-	function putNewPrivateKeyToSessionStorage() {
-		var newPrivateKey = buildPrivateKey();
-		var newPrivateKeyBase64 = CryptoJS.enc.Base64.stringify(newPrivateKey);
-		
-		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', newPrivateKeyBase64);
-		
-		return newPrivateKeyBase64;
+	var privateKey = null;
+	try {
+		privateKey = CryptoJS.enc.Base64.parse(privateKeyBase64);
+	} catch(err) {
+		console.log(err);
+		throw err;
 	}
 	
-	function getPrivateKeyFromSessionStorage() {
-		var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
+	return privateKey;
+}
+
+function getSessionkeyBase64FromSessionStorage() {
+	var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
+	
+	if (null == privateKeyBase64) {
+		privateKeyBase64 = putNewPrivateKeyToSessionStorage();
+	}		
+	
+	var rsa = new RSAKey();
+	rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
 		
-		if (null == privateKeyBase64) {
-			privateKeyBase64 = putNewPrivateKeyToSessionStorage();
+	var sessionKeyHex = rsa.encrypt(privateKeyBase64);		
+	return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+}
+
+function buildIV() {
+	var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+	return iv;
+}
+
+function goModify() {			
+	var f = document.modifyInputFrm;
+	
+	if (f.subject != undefined) {
+		if (f.subject.value == '') {
+			alert("제목을 넣어 주세요");
+			f.subject.focus();
+			return;
 		}
-		
-		var privateKey = null;
+	}
+
+	if ('' == f.contents.value) {
+		alert("내용을 넣어 주세요.");
+		f.contents.focus();
+		return;
+	}
+	
+	
+	if (f.pwd != undefined) {
 		try {
-			privateKey = CryptoJS.enc.Base64.parse(privateKeyBase64);
+			checkValidPwd('게시글', f.pwd.value);
 		} catch(err) {
-			console.log(err);
-			throw err;
+			alert(err);
+			f.pwd.focus();
+			return;
 		}
-		
-		return privateKey;
 	}
 
-	function getSessionkeyBase64FromSessionStorage() {
-		var privateKeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>');
+	var newFileListDivNode = document.getElementById('newAttachedFileList');		
+	var oldFileListDivNode = document.getElementById('oldAttachedFileList');
+	
+	var uploadFileCnt = oldFileListDivNode.childNodes.length + newFileListDivNode.childNodes.length;
 		
-		if (null == privateKeyBase64) {
-			privateKeyBase64 = putNewPrivateKeyToSessionStorage();
-		}		
-		
-		var rsa = new RSAKey();
-		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
-			
-		var sessionKeyHex = rsa.encrypt(privateKeyBase64);		
-		return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+	if (uploadFileCnt > _ATTACHED_FILE_MAX_COUNT) {
+		alert("업로드 할 수 있는 파일 갯수는 최대["+_ATTACHED_FILE_MAX_COUNT+"] 까지 입니다.");
+		return;
 	}
 	
-	function buildIV() {
-		var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
-		return iv;
-	}
+	var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
+	var privateKey = getPrivateKeyFromSessionStorage();		
+	var iv = buildIV();
 	
-	function goModify() {			
-		var f = document.modifyInputFrm;
+	var g = document.modifyProcessFrm;
+	
+	for (var i=0; i < newFileListDivNode.childNodes.length; i++) {				
+		var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
 		
-		if (f.subject != undefined) {
-			if (f.subject.value == '') {
-				alert("제목을 넣어 주세요");
-				f.subject.focus();
+		if (1 == newFileListDivNode.childNodes.length) {
+			if (g.newAttachedFile.value == '') {
+				alert("첨부 파일을 선택하세요");
 				return;
 			}
-		}
-
-		if ('' == f.contents.value) {
-			alert("내용을 넣어 주세요.");
-			f.contents.focus();
-			return;
-		}
-		
-		
-		if (f.pwd != undefined) {
-			try {
-				checkValidPwd('게시글', f.pwd.value);
-			} catch(err) {
-				alert(err);
-				f.pwd.focus();
-				return;
-			}
-		}
-
-		var newFileListDivNode = document.getElementById('newAttachedFileList');		
-		var oldFileListDivNode = document.getElementById('oldAttachedFileList');
-		
-		var uploadFileCnt = oldFileListDivNode.childNodes.length + newFileListDivNode.childNodes.length;
-			
-		if (uploadFileCnt > _ATTACHED_FILE_MAX_COUNT) {
-			alert("업로드 할 수 있는 파일 갯수는 최대["+_ATTACHED_FILE_MAX_COUNT+"] 까지 입니다.");
-			return;
-		}
-		
-		var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
-		var privateKey = getPrivateKeyFromSessionStorage();		
-		var iv = buildIV();
-		
-		var g = document.modifyProcessFrm;
-		
-		for (var i=0; i < newFileListDivNode.childNodes.length; i++) {				
-			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
-			
-			if (1 == newFileListDivNode.childNodes.length) {
-				if (g.newAttachedFile.value == '') {
-					alert("첨부 파일을 선택하세요");
-					return;
-				}
-			} else {
-				if (g.newAttachedFile[i].value == '') {
-					alert(fileInput.getAttribute("title")+"을 선택하세요");
-					return;
-				}
-			}			
-		}
-		
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
-
-		if (f.subject != undefined) {
-			g.subject.value = f.subject.value;
-		}
-		g.contents.value = f.contents.value;
-
-		if (f.pwd != undefined) {
-			g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-		}
-
-		g.submit();		
-		
-		return;	
-	}
-	
-	function callBackForBoardModifyProcess(boardModifyRes) {
-		alert("게시글["+boardModifyRes.boardNo+"] 수정이 완료되었습니다");
-		
-		var g = document.goDetailFrm;
-		g.interestedBoadNo.value = boardModifyRes.boardNo;
-		g.submit();
-	}
-	
-	function goReply() {
-		var f = document.replyInputFrm;
-		
-		if (f.subject != undefined) {
-			if (f.subject.value == '') {
-				alert("제목을 넣어 주세요");
-				f.subject.focus();
-				return;
-			}
-		}
-
-		if ('' == f.contents.value) {
-			alert("내용을 넣어 주세요.");
-			f.contents.focus();
-			return;
-		}
-		
-		if (f.pwd != undefined) {
-			if (f.pwd != undefined) {
-				try {
-					checkValidPwd('게시글', f.pwd.value);
-				} catch(err) {
-					alert(err);
-					f.pwd.focus();
-					return;
-				}
-				
-				try {
-					checkValidPwdConfirm('게시글', f.pwd.value, f.pwdConfirm.value);
-				} catch(err) {
-					alert(err);
-					f.pwd.focus();
-					return;
-				}
-			}
-		}		
-				
-		var newFileListDivNode = document.getElementById('newAttachedFileList');		
-		var uploadFileCnt = newFileListDivNode.childNodes.length;	
-		
-		if (uploadFileCnt > _ATTACHED_FILE_MAX_COUNT) {
-			alert("업로드 할 수 있는 파일 갯수는 최대["+_ATTACHED_FILE_MAX_COUNT+"] 까지 입니다.");
-			return;
-		}
-		
-		var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
-		var privateKey = getPrivateKeyFromSessionStorage();		
-		var iv = buildIV();
-		
-		var g = document.replyProcessFrm;
-		
-		for (var i=0; i < newFileListDivNode.childNodes.length; i++) {				
-			var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
-			
-			if (1 == newFileListDivNode.childNodes.length) {
-				if (g.newAttachedFile.value == '') {
-					alert("첨부 파일을 선택하세요");
-					return;
-				}
-			} else {
-				if (g.newAttachedFile[i].value == '') {
-					alert(fileInput.getAttribute("title")+"을 선택하세요");
-					return;
-				}
-			}			
-		}		
-		
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
-		
-		
-		if (f.subject != undefined) {
-			g.subject.value = f.subject.value;
-		}
-		g.contents.value = f.contents.value;
-		
-		if (f.pwd != undefined) {
-			g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, getPrivateKeyFromSessionStorage(), { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-		}
-
-		g.submit();
-	}
-	
-	function callBackForBoardReplyProcess(boardWriteResObj) {		
-		alert("댓글["+boardWriteResObj.boardNo+"] 등록이 완료되었습니다");
-		if (opener != undefined) {
-			opener.document.location.reload();
-			self.close();
 		} else {
-			document.location.reload();
-		}
+			if (g.newAttachedFile[i].value == '') {
+				alert(fileInput.getAttribute("title")+"을 선택하세요");
+				return;
+			}
+		}			
 	}
 	
-	function goDelete(boardNo) {		
-		var f = document.deleteInputFrm;
-		
-		if (f != undefined) {
+	g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
+	g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+
+	if (f.subject != undefined) {
+		g.subject.value = f.subject.value;
+	}
+	g.contents.value = f.contents.value;
+
+	if (f.pwd != undefined) {
+		g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+	}
+
+	g.submit();		
+	
+	return;	
+}
+
+function callBackForBoardModifyProcess(boardModifyRes) {
+	alert("게시글["+boardModifyRes.boardNo+"] 수정이 완료되었습니다");
+	
+	var g = document.goDetailFrm;
+	g.interestedBoadNo.value = boardModifyRes.boardNo;
+	g.submit();
+}
+
+function goReply() {
+	var f = document.replyInputFrm;
+	
+	if (f.subject != undefined) {
+		if (f.subject.value == '') {
+			alert("제목을 넣어 주세요");
+			f.subject.focus();
+			return;
+		}
+	}
+
+	if ('' == f.contents.value) {
+		alert("내용을 넣어 주세요.");
+		f.contents.focus();
+		return;
+	}
+	
+	if (f.pwd != undefined) {
+		if (f.pwd != undefined) {
 			try {
 				checkValidPwd('게시글', f.pwd.value);
 			} catch(err) {
@@ -339,51 +260,425 @@
 				f.pwd.focus();
 				return;
 			}
+			
+			try {
+				checkValidPwdConfirm('게시글', f.pwd.value, f.pwdConfirm.value);
+			} catch(err) {
+				alert(err);
+				f.pwd.focus();
+				return;
+			}
 		}
-		
-		var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
-		var privateKey = getPrivateKeyFromSessionStorage();		
-		var iv = buildIV();
-		
-		var g = document.deleteProcessFrm;
-
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();		
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
-		
-		g.boardNo.value = boardNo;		
-		if (f != undefined) {
-			g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, getPrivateKeyFromSessionStorage(), { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-		}
-		
-		g.submit();
+	}		
+			
+	var newFileListDivNode = document.getElementById('newAttachedFileList');		
+	var uploadFileCnt = newFileListDivNode.childNodes.length;	
+	
+	if (uploadFileCnt > _ATTACHED_FILE_MAX_COUNT) {
+		alert("업로드 할 수 있는 파일 갯수는 최대["+_ATTACHED_FILE_MAX_COUNT+"] 까지 입니다.");
+		return;
 	}
 	
+	var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
+	var privateKey = getPrivateKeyFromSessionStorage();		
+	var iv = buildIV();
 	
-	function showDeleteEditScreen(boardNo) {	
-		var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
+	var g = document.replyProcessFrm;
+	
+	for (var i=0; i < newFileListDivNode.childNodes.length; i++) {				
+		var fileInput = newFileListDivNode.childNodes[i].childNodes[0].childNodes[0];
 		
-		if (null != currentEditScreenDiv) {
-			hideEditScreen();
-		}
-		
-		currentEditScreenDiv = targetDiv;
-		targetDiv.style.display = "block";
-		
-		var titleTextNode = document.createTextNode("삭제용 비밀번호 입력 화면");
-		var titleH4Node = document.createElement("h4");		
-		titleH4Node.appendChild(titleTextNode);
-		
-		targetDiv.appendChild(titleH4Node);
+		if (1 == newFileListDivNode.childNodes.length) {
+			if (g.newAttachedFile.value == '') {
+				alert("첨부 파일을 선택하세요");
+				return;
+			}
+		} else {
+			if (g.newAttachedFile[i].value == '') {
+				alert(fileInput.getAttribute("title")+"을 선택하세요");
+				return;
+			}
+		}			
+	}		
+	
+	g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();
+	g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+	
+	
+	if (f.subject != undefined) {
+		g.subject.value = f.subject.value;
+	}
+	g.contents.value = f.contents.value;
+	
+	if (f.pwd != undefined) {
+		g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, getPrivateKeyFromSessionStorage(), { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+	}
 
-		var inputFormNode = document.createElement("form");
-		inputFormNode.setAttribute("name", "deleteInputFrm");
-		inputFormNode.setAttribute("method", "get");
-		inputFormNode.setAttribute("onSubmit", "return false;");
+	g.submit();
+}
+
+function callBackForBoardReplyProcess(boardWriteResObj) {		
+	alert("댓글["+boardWriteResObj.boardNo+"] 등록이 완료되었습니다");
+	if (opener != undefined) {
+		opener.document.location.reload();
+		self.close();
+	} else {
+		document.location.reload();
+	}
+}
+
+function goDelete(boardNo) {		
+	var f = document.deleteInputFrm;
+	
+	if (f != undefined) {
+		try {
+			checkValidPwd('게시글', f.pwd.value);
+		} catch(err) {
+			alert(err);
+			f.pwd.focus();
+			return;
+		}
+	}
+	
+	var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
+	var privateKey = getPrivateKeyFromSessionStorage();		
+	var iv = buildIV();
+	
+	var g = document.deleteProcessFrm;
+
+	g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();		
+	g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+	
+	g.boardNo.value = boardNo;		
+	if (f != undefined) {
+		g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, getPrivateKeyFromSessionStorage(), { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+	}
+	
+	g.submit();
+}
+
+
+function showDeleteEditScreen(boardNo) {	
+	var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
+	
+	if (null != currentEditScreenDiv) {
+		hideEditScreen();
+	}
+	
+	currentEditScreenDiv = targetDiv;
+	targetDiv.style.display = "block";
+	
+	var titleTextNode = document.createTextNode("삭제용 비밀번호 입력 화면");
+	var titleH4Node = document.createElement("h4");		
+	titleH4Node.appendChild(titleTextNode);
+	
+	targetDiv.appendChild(titleH4Node);
+
+	var inputFormNode = document.createElement("form");
+	inputFormNode.setAttribute("name", "deleteInputFrm");
+	inputFormNode.setAttribute("method", "get");
+	inputFormNode.setAttribute("onSubmit", "return false;");
+	
+	var inputFormDiv = document.createElement("div");
+	inputFormDiv.setAttribute("class", "form-group");
+			
+	
+	var passwordLabelTextNode = document.createTextNode("비밀번호");
+	
+	var passwordLabelNode = document.createElement("label");
+	passwordLabelNode.setAttribute("for", "passwordInEditor");
+	passwordLabelNode.appendChild(passwordLabelTextNode);
+	
+	var passwordInputNode = document.createElement("input");
+	passwordInputNode.setAttribute("type", "password");
+	passwordInputNode.setAttribute("id", "passwordInEditor");
+	passwordInputNode.setAttribute("name", "pwd");
+	passwordInputNode.setAttribute("class", "form-control");
+	passwordInputNode.setAttribute("placeholder", "Enter password");	
+	
+	inputFormDiv.appendChild(passwordLabelNode);
+	inputFormDiv.appendChild(passwordInputNode);
+	
+	inputFormNode.appendChild(inputFormDiv);
+	
+	targetDiv.appendChild(inputFormNode);
+	
+	var functionDiv = document.createElement("div");
+	functionDiv.setAttribute("class", "btn-group");
+	
+	var deleteProcessButtonNode = document.createElement("input");
+	deleteProcessButtonNode.setAttribute("type", "button");
+	deleteProcessButtonNode.setAttribute("class", "btn btn-default");		
+	deleteProcessButtonNode.setAttribute("onClick", "goDelete("+boardNo+");");
+	deleteProcessButtonNode.setAttribute("value", "삭제 처리");
+	
+	var hideButtonNode = document.createElement("input");
+	hideButtonNode.setAttribute("type", "button");
+	hideButtonNode.setAttribute("class", "btn btn-default");		
+	hideButtonNode.setAttribute("onClick", "hideEditScreen();");
+	hideButtonNode.setAttribute("value", "닫기");			
+	
+	functionDiv.appendChild(deleteProcessButtonNode);
+	functionDiv.appendChild(hideButtonNode);
+			
+	targetDiv.appendChild(functionDiv);
+}
+
+function callBackForBoardDeleteProcess(boardNo) {
+	var resultMessageDiv = document.getElementById("resultMessage");
+	
+	resultMessageDiv.setAttribute("class", "alert alert-success");
+	resultMessageDiv.innerHTML = "<strong>Success!</strong> 게시글[" + boardNo+ "] 삭제가 완료되었습니다";
+	
+	alert(resultMessageDiv.innerText);
+	
+	if (opener != undefined) {
+		opener.document.location.reload();
+		self.close();
+	} else {
+		document.location.reload();
+	}
+}
+
+function goVote(boardNo) {	
+	var iv = buildIV();
+	
+	var g = document.voteFrm;
+	
+	g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();		
+	g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
+	
+	g.boardNo.value = boardNo;
+			
+	g.submit();
+}
+
+function callBackForBoardVoteProcess(boardNo) {
+	var resultMessageDiv = document.getElementById("resultMessage");
+	
+	resultMessageDiv.setAttribute("class", "alert alert-success");
+	resultMessageDiv.innerHTML = "<strong>Success!</strong> 게시글[" + boardNo+ "] 추천이 완료되었습니다";
+	
+	var voteDiv = document.getElementById("voteOfBoard"+boardNo);
+	
+	var numberOfVote = parseInt(voteDiv.innerText, 10);
+	
+	numberOfVote++;
+	
+	voteDiv.innerText = "" + numberOfVote;
+}
+
+function goBoardChangeHistory(boardNo) {
+	var g = document.boardChangeHistoryFrm;
+	g.boardNo.value = boardNo;		
+	g.submit();
+}
+
+function goList() {	
+	var g = document.goListFrm;		
+	g.submit();
+}
+
+function downloadFile(boardNo, attachedFileSeq) {
+	var g = document.goDownloadFrm;
+	g.boardNo.value = boardNo;
+	g.attachedFileSeq.value = attachedFileSeq;
+	g.submit();
+}
+
+function addNewAttachedFile(f) {		
+	var prefixOfNewChildDiv = 'newAttachedFileRowDiv';		
+
+	var newFileListDivNode = document.getElementById('newAttachedFileList');		
+	var oldFileListDivNode = document.getElementById('oldAttachedFileList');
+	
+	var uploadFileCnt;
+	
+	if (oldFileListDivNode == undefined) {
+		uploadFileCnt = newFileListDivNode.childNodes.length;
+	} else {
+		uploadFileCnt = oldFileListDivNode.childNodes.length + newFileListDivNode.childNodes.length;
+	}
 		
-		var inputFormDiv = document.createElement("div");
-		inputFormDiv.setAttribute("class", "form-group");
+	if (uploadFileCnt >= _ATTACHED_FILE_MAX_COUNT) {
+		alert("업로드 할 수 있는 파일 갯수는 최대["+_ATTACHED_FILE_MAX_COUNT+"] 까지 입니다.");
+		return;
+	}
+	
+	var newAttachedFileRowSeq = parseInt(f.newAttachedFileRowSeq.value, 10);
+
+	var attachedFileRowDivNode = makeNewAttachedFileRowDiv(prefixOfNewChildDiv+newAttachedFileRowSeq);
+	
+	newFileListDivNode.appendChild(attachedFileRowDivNode);
+	
+	newAttachedFileRowSeq++;
+	f.newAttachedFileRowSeq.value = newAttachedFileRowSeq;
+}
+
+function makeNewAttachedFileRowDiv(attachedFileRowDivID) {
+	var attachedFileRowDivNode = document.createElement("div");
+	attachedFileRowDivNode.setAttribute("class", "row");
+	attachedFileRowDivNode.setAttribute("id", attachedFileRowDivID);		
+	
+	var attachedFileNode  = document.createElement("INPUT");
+	attachedFileNode .setAttribute("type", "file");
+	attachedFileNode .setAttribute("class", "form-control");
+	attachedFileNode .setAttribute("title", "첨부파일('"+attachedFileRowDivID+"')");
+	attachedFileNode .setAttribute("name", "newAttachedFile");
+	
+	var attachedFileColDivNode = document.createElement("div");
+	attachedFileColDivNode.setAttribute("class", "col-sm-10");
+	
+	attachedFileColDivNode.appendChild(attachedFileNode);
+	
+	var deleteButtonNode = document.createElement("INPUT");
+	deleteButtonNode.setAttribute("type", "button");
+	deleteButtonNode.setAttribute("value", "삭제");
+	deleteButtonNode.setAttribute("title", "첨부파일('"+attachedFileRowDivID+"') 삭제");
+	deleteButtonNode.setAttribute("onclick", "removeNewAttachFile('"+attachedFileRowDivID+"')");
+	
+	var buttonColDivNode = document.createElement("div");
+	buttonColDivNode.setAttribute("class", "col-*-*");
+	
+	buttonColDivNode.appendChild(deleteButtonNode);
+	
+	attachedFileRowDivNode.appendChild(attachedFileColDivNode);
+	attachedFileRowDivNode.appendChild(buttonColDivNode);
+	
+	return attachedFileRowDivNode;
+}
+	
+function removeNewAttachFile(selectedDivID) {
+	var newFileListDivNode = document.getElementById('newAttachedFileList');		
+	var selectedDivNode = document.getElementById(selectedDivID);
+	newFileListDivNode.removeChild(selectedDivNode);
+}
+
+function restoreOldAttachedFileList(boardNo) {
+	var oldAttachedFileListJosnObj = JSON.parse(document.getElementById('oldAttachedFileListJosnStringOfBoard'+boardNo+'InViewScreen').innerText);
+	var oldAttachedFileListDiv = document.getElementById('oldAttachedFileList');		
+	
+	// remove all child nodes of oldFileListInModifyPartForBoard node
+	while(oldAttachedFileListDiv.hasChildNodes()) {
+		oldAttachedFileListDiv.removeChild(oldAttachedFileListDiv.firstChild);
+	}
+	
+	for (var i=0; i < oldAttachedFileListJosnObj.length; i++) {
+		var oldAttachedFileRowDivID = "oldAttachedFileRow"+oldAttachedFileListJosnObj[i].attachedFileSeq;
+		
+		var oldAttachedFileRowDiv = document.createElement("div");
+		oldAttachedFileRowDiv.setAttribute("class", "row");
+		oldAttachedFileRowDiv.setAttribute("id", oldAttachedFileRowDivID);			
+		
+		var oldAttachedFileColDiv = document.createElement("div");
+		oldAttachedFileColDiv.setAttribute("class", "col-sm-12");
+		
+
+		var oldAttachedFileHiddenInputNode = document.createElement("INPUT");
+		oldAttachedFileHiddenInputNode.setAttribute("type", "hidden");	
+		oldAttachedFileHiddenInputNode.setAttribute("name", "oldAttachedFileSeq");
+		oldAttachedFileHiddenInputNode.setAttribute("value", oldAttachedFileListJosnObj[i].attachedFileSeq);			
+		
+		var fileNameTextNode = document.createTextNode(oldAttachedFileListJosnObj[i].attachedFileName+" ");			
 				
 		
+		var deleteButtonNode = document.createElement("INPUT");
+		deleteButtonNode.setAttribute("type", "button");
+		deleteButtonNode.setAttribute("id", "oldAttachedFileButton"+oldAttachedFileListJosnObj[i].attachedFileSeq);
+		deleteButtonNode.setAttribute("value", "삭제");
+		deleteButtonNode.setAttribute("title", "delete file(attachedFileSeq:"+oldAttachedFileListJosnObj[i].attachedFileSeq+", fileName:"+ oldAttachedFileListJosnObj[i].attachedFileName + ")");
+		deleteButtonNode.setAttribute("onclick", "deleteOldAttachedFile('"+oldAttachedFileRowDivID+"')");			
+		
+		oldAttachedFileColDiv.appendChild(oldAttachedFileHiddenInputNode);
+		oldAttachedFileColDiv.appendChild(fileNameTextNode);
+		oldAttachedFileColDiv.appendChild(deleteButtonNode);
+		
+		oldAttachedFileRowDiv.appendChild(oldAttachedFileColDiv);
+		
+		oldAttachedFileListDiv.appendChild(oldAttachedFileRowDiv)
+	}		
+}
+
+function deleteOldAttachedFile(oldAttachedFileRowDivID) {
+	var oldAttachedFileListDiv = document.getElementById('oldAttachedFileList');	
+	var deleteTagetDiv = document.getElementById(oldAttachedFileRowDivID);
+	oldAttachedFileListDiv.removeChild(deleteTagetDiv);
+}
+
+function showReplyEditScreen(boardID, boardNo, isSubject, isPassword) {	
+	var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
+	
+	
+	// remove all child nodes of targetDiv node
+	while(targetDiv.hasChildNodes()) {
+		targetDiv.removeChild(targetDiv.firstChild);
+	}
+	
+	if (null != currentEditScreenDiv) {
+		hideEditScreen();
+	}
+	
+	currentEditScreenDiv = targetDiv;
+	targetDiv.style.display = "block";		
+	
+	var titleTextNode = document.createTextNode("댓글 입력 화면");
+	var titleH4Node = document.createElement("h4");
+	
+	titleH4Node.appendChild(titleTextNode);
+	
+	targetDiv.appendChild(titleH4Node);
+	
+
+	var inputFormNode = document.createElement("form");
+	inputFormNode.setAttribute("name", "replyInputFrm");
+	inputFormNode.setAttribute("method", "get");
+	inputFormNode.setAttribute("onSubmit", "return false;");
+	
+	var inputFormDiv = document.createElement("div");
+	inputFormDiv.setAttribute("class", "form-group");
+			
+	var newAttachedFileRowSeqHiddenNode = document.createElement("input");
+	newAttachedFileRowSeqHiddenNode.setAttribute("type", "hidden");
+	newAttachedFileRowSeqHiddenNode.setAttribute("name", "newAttachedFileRowSeq");
+	newAttachedFileRowSeqHiddenNode.setAttribute("value", "0");
+	
+	inputFormDiv.appendChild(newAttachedFileRowSeqHiddenNode);
+	
+	if (isSubject) {
+		var subjetLabelTextNode = document.createTextNode("제목");
+		
+		var subjectLabelNode = document.createElement("label");
+		subjectLabelNode.setAttribute("for", "subjectInEditor");
+		subjectLabelNode.appendChild(subjetLabelTextNode);
+		
+		var subjectInputNode = document.createElement("input");
+		subjectInputNode.setAttribute("type", "text");
+		subjectInputNode.setAttribute("id", "subjectInEditor");
+		subjectInputNode.setAttribute("name", "subject");
+		subjectInputNode.setAttribute("class", "form-control");
+		subjectInputNode.setAttribute("placeholder", "Enter subject");			
+		
+		inputFormDiv.appendChild(subjectLabelNode);
+		inputFormDiv.appendChild(subjectInputNode);
+	}
+	
+	var contentsLabelTextNode = document.createTextNode("내용");
+	
+	var contentsLabelNode = document.createElement("label");
+	contentsLabelNode.setAttribute("for", "contentsInEditor");
+	contentsLabelNode.appendChild(contentsLabelTextNode);
+	
+	var contentsInputNode = document.createElement("textarea");		
+	contentsInputNode.setAttribute("name", "contents");
+	contentsInputNode.setAttribute("id", "contentsInEditor");
+	contentsInputNode.setAttribute("class", "form-control");
+	contentsInputNode.setAttribute("placeholder", "Enter contents");		
+	contentsInputNode.setAttribute("rows", 20);
+	
+	inputFormDiv.appendChild(contentsLabelNode);
+	inputFormDiv.appendChild(contentsInputNode);
+	
+	if (isPassword) {
 		var passwordLabelTextNode = document.createTextNode("비밀번호");
 		
 		var passwordLabelNode = document.createElement("label");
@@ -397,673 +692,379 @@
 		passwordInputNode.setAttribute("class", "form-control");
 		passwordInputNode.setAttribute("placeholder", "Enter password");	
 		
+		
+		var passwordConfirmLabelTextNode = document.createTextNode("비밀번호 확인");
+		var passwordConfirmLabelNode = document.createElement("label");
+		passwordConfirmLabelNode.setAttribute("for", "passwordConfirmInEditor");
+		passwordConfirmLabelNode.appendChild(passwordConfirmLabelTextNode);
+		
+		var passwordConfirmInputNode = document.createElement("input");
+		passwordConfirmInputNode.setAttribute("type", "password");
+		passwordConfirmInputNode.setAttribute("id", "passwordConfirmInEditor");
+		passwordConfirmInputNode.setAttribute("name", "pwdConfirm");
+		passwordConfirmInputNode.setAttribute("class", "form-control");
+		passwordConfirmInputNode.setAttribute("placeholder", "Enter password confirm");			
+		
 		inputFormDiv.appendChild(passwordLabelNode);
 		inputFormDiv.appendChild(passwordInputNode);
 		
-		inputFormNode.appendChild(inputFormDiv);
-		
-		targetDiv.appendChild(inputFormNode);
-		
-		var functionDiv = document.createElement("div");
-		functionDiv.setAttribute("class", "btn-group");
-		
-		var deleteProcessButtonNode = document.createElement("input");
-		deleteProcessButtonNode.setAttribute("type", "button");
-		deleteProcessButtonNode.setAttribute("class", "btn btn-default");		
-		deleteProcessButtonNode.setAttribute("onClick", "goDelete("+boardNo+");");
-		deleteProcessButtonNode.setAttribute("value", "삭제 처리");
-		
-		var hideButtonNode = document.createElement("input");
-		hideButtonNode.setAttribute("type", "button");
-		hideButtonNode.setAttribute("class", "btn btn-default");		
-		hideButtonNode.setAttribute("onClick", "hideEditScreen();");
-		hideButtonNode.setAttribute("value", "닫기");			
-		
-		functionDiv.appendChild(deleteProcessButtonNode);
-		functionDiv.appendChild(hideButtonNode);
-				
-		targetDiv.appendChild(functionDiv);
+		inputFormDiv.appendChild(passwordConfirmLabelNode);
+		inputFormDiv.appendChild(passwordConfirmInputNode);
 	}
 	
-	function callBackForBoardDeleteProcess(boardNo) {
-		var resultMessageDiv = document.getElementById("resultMessage");
+	inputFormNode.appendChild(inputFormDiv);
+	
+	targetDiv.appendChild(inputFormNode);
+	
+	var functionDiv = document.createElement("div");
+	functionDiv.setAttribute("class", "btn-group");
+	
+	var saveButtonNode = document.createElement("input");
+	saveButtonNode.setAttribute("type", "button");
+	saveButtonNode.setAttribute("class", "btn btn-default");		
+	saveButtonNode.setAttribute("onClick", "goReply();");
+	saveButtonNode.setAttribute("value", "저장");
+	
+	var addNewAttachedFIleButtonNode = document.createElement("input");
+	addNewAttachedFIleButtonNode.setAttribute("type", "button");
+	addNewAttachedFIleButtonNode.setAttribute("class", "btn btn-default");		
+	addNewAttachedFIleButtonNode.setAttribute("onClick", "addNewAttachedFile(document.replyInputFrm);");
+	addNewAttachedFIleButtonNode.setAttribute("value", "신규 첨부 파일 추가");		
+	
+	var hideButtonNode = document.createElement("input");
+	hideButtonNode.setAttribute("type", "button");
+	hideButtonNode.setAttribute("class", "btn btn-default");		
+	hideButtonNode.setAttribute("onClick", "hideEditScreen();");
+	hideButtonNode.setAttribute("value", "닫기");
 		
-		resultMessageDiv.setAttribute("class", "alert alert-success");
-		resultMessageDiv.innerHTML = "<strong>Success!</strong> 게시글[" + boardNo+ "] 삭제가 완료되었습니다";
+	
+	functionDiv.appendChild(saveButtonNode);
+	functionDiv.appendChild(addNewAttachedFIleButtonNode);
+	functionDiv.appendChild(hideButtonNode);
+			
+	targetDiv.appendChild(functionDiv);
+	
+	
+	var processFormNode = document.createElement("form");
+	processFormNode.setAttribute("name", "replyProcessFrm");
+	processFormNode.setAttribute("target", "hiddenFrame");
+	processFormNode.setAttribute("method", "post");
+	processFormNode.setAttribute("action", "/servlet/BoardReplyProcess");
+	processFormNode.setAttribute("enctype", "multipart/form-data");
+	
+	
+	var boardIDHiddenNode = document.createElement("input");
+	boardIDHiddenNode.setAttribute("type", "hidden");
+	boardIDHiddenNode.setAttribute("name", "boardID");
+	boardIDHiddenNode.setAttribute("value", boardID);
+	
+	
+	var parentBoardNoHiddenNode = document.createElement("input");
+	parentBoardNoHiddenNode.setAttribute("type", "hidden");
+	parentBoardNoHiddenNode.setAttribute("name", "parentBoardNo");
+	parentBoardNoHiddenNode.setAttribute("value", boardNo);
+	
+	var contentsHiddenNode = document.createElement("input");
+	contentsHiddenNode.setAttribute("type", "hidden");
+	contentsHiddenNode.setAttribute("name", "contents");
+	
+	var sessionkeyHiddenNode = document.createElement("input");
+	sessionkeyHiddenNode.setAttribute("type", "hidden");
+	sessionkeyHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>");
+	
+	
+	var ivHiddenNode = document.createElement("input");
+	ivHiddenNode.setAttribute("type", "hidden");
+	ivHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>");
+	
+	var newAttachedFileListDiv = document.createElement("div");
+	newAttachedFileListDiv.setAttribute("id", "newAttachedFileList");		
+	
+	processFormNode.appendChild(boardIDHiddenNode);
+	processFormNode.appendChild(parentBoardNoHiddenNode);
+	if (isSubject) {
+		var subjectHiddenNode = document.createElement("input");
+		subjectHiddenNode.setAttribute("type", "hidden");
+		subjectHiddenNode.setAttribute("name", "subject");
 		
-		alert(resultMessageDiv.innerText);
+		processFormNode.appendChild(subjectHiddenNode);
+	}
+	processFormNode.appendChild(contentsHiddenNode);		
+	processFormNode.appendChild(sessionkeyHiddenNode);		
+	processFormNode.appendChild(ivHiddenNode);
+	processFormNode.appendChild(newAttachedFileListDiv);
+	
+	if (isPassword) {
+		var passwordHiddenNode = document.createElement("input");
+		passwordHiddenNode.setAttribute("type", "hidden");
+		passwordHiddenNode.setAttribute("name", "pwd");
 		
-		if (opener != undefined) {
-			opener.document.location.reload();
-			self.close();
-		} else {
-			document.location.reload();
-		}
+		processFormNode.appendChild(passwordHiddenNode);
+	}		
+	
+	targetDiv.appendChild(processFormNode);
+}
+
+function showMoidfyEditScreen(boardID, boardNo, nextAttachedFileSeq, isSubject, isPassword) {
+	var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
+	var oldAttachedFileListJosnObj = JSON.parse(document.getElementById('oldAttachedFileListJosnStringOfBoard'+boardNo+'InViewScreen').innerText);
+	
+	/** remove all child nodes of targetDiv node */
+	while(targetDiv.hasChildNodes()) {
+		targetDiv.removeChild(targetDiv.firstChild);
 	}
 	
-	function goVote(boardNo) {	
-		var iv = buildIV();
-		
-		var g = document.voteFrm;
-		
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value = getSessionkeyBase64FromSessionStorage();		
-		g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value = CryptoJS.enc.Base64.stringify(iv);
-		
-		g.boardNo.value = boardNo;
-				
-		g.submit();
+	if (null != currentEditScreenDiv) {
+		hideEditScreen();
 	}
 	
-	function callBackForBoardVoteProcess(boardNo) {
-		var resultMessageDiv = document.getElementById("resultMessage");
+	currentEditScreenDiv = targetDiv;
+	targetDiv.style.display = "block";		
+	
+	var titleTextNode = document.createTextNode("게시글 수정 화면");
+	var titleH4Node = document.createElement("h4");
+	
+	titleH4Node.appendChild(titleTextNode);
+	
+	targetDiv.appendChild(titleH4Node);
+	
+
+	var inputFormNode = document.createElement("form");
+	inputFormNode.setAttribute("name", "modifyInputFrm");
+	inputFormNode.setAttribute("method", "get");
+	inputFormNode.setAttribute("onSubmit", "return false;");
+	
+	var inputFormDiv = document.createElement("div");
+	inputFormDiv.setAttribute("class", "form-group");
+	
+	var newAttachedFileRowSeqHiddenNode = document.createElement("input");
+	newAttachedFileRowSeqHiddenNode.setAttribute("type", "hidden");
+	newAttachedFileRowSeqHiddenNode.setAttribute("name", "newAttachedFileRowSeq");
+	newAttachedFileRowSeqHiddenNode.setAttribute("value", "0");
+	
+	inputFormDiv.appendChild(newAttachedFileRowSeqHiddenNode);
+	
+	if (isSubject) {			
+		var subjetLabelTextNode = document.createTextNode("제목");
 		
-		resultMessageDiv.setAttribute("class", "alert alert-success");
-		resultMessageDiv.innerHTML = "<strong>Success!</strong> 게시글[" + boardNo+ "] 추천이 완료되었습니다";
+		var subjectLabelNode = document.createElement("label");
+		subjectLabelNode.setAttribute("for", "subjectInEditor");
+		subjectLabelNode.appendChild(subjetLabelTextNode);
 		
-		var voteDiv = document.getElementById("voteOfBoard"+boardNo);
+		var subjectInputNode = document.createElement("input");
+		subjectInputNode.setAttribute("type", "text");
+		subjectInputNode.setAttribute("id", "subjectInEditor");
+		subjectInputNode.setAttribute("name", "subject");
+		subjectInputNode.setAttribute("class", "form-control");
+		subjectInputNode.setAttribute("placeholder", "Enter subject");			
 		
-		var numberOfVote = parseInt(voteDiv.innerText, 10);
-		
-		numberOfVote++;
-		
-		voteDiv.innerText = "" + numberOfVote;
+		inputFormDiv.appendChild(subjectLabelNode);
+		inputFormDiv.appendChild(subjectInputNode);
 	}
 	
-	function goBoardChangeHistory(boardNo) {
-		var g = document.boardChangeHistoryFrm;
-		g.boardNo.value = boardNo;		
-		g.submit();
+	var contentsLabelTextNode = document.createTextNode("내용");
+	
+	var contentsLabelNode = document.createElement("label");
+	contentsLabelNode.setAttribute("for", "contentsInEditor");
+	contentsLabelNode.appendChild(contentsLabelTextNode);
+	
+	var contentsInputNode = document.createElement("textarea");		
+	contentsInputNode.setAttribute("name", "contents");
+	contentsInputNode.setAttribute("id", "contentsInEditor");
+	contentsInputNode.setAttribute("class", "form-control");
+	contentsInputNode.setAttribute("placeholder", "Enter contents");		
+	contentsInputNode.setAttribute("rows", "20");
+	
+	inputFormDiv.appendChild(contentsLabelNode);
+	inputFormDiv.appendChild(contentsInputNode);
+	
+	if (isPassword) {
+		var subjetLabelTextNode = document.createTextNode("비밀번호");
+		
+		var passwordLabelNode = document.createElement("label");
+		passwordLabelNode.setAttribute("for", "passwordInEditor");
+		passwordLabelNode.appendChild(subjetLabelTextNode);
+		
+		var passwordInputNode = document.createElement("input");
+		passwordInputNode.setAttribute("type", "password");
+		passwordInputNode.setAttribute("id", "passwordInEditor");
+		passwordInputNode.setAttribute("name", "pwd");
+		passwordInputNode.setAttribute("class", "form-control");
+		passwordInputNode.setAttribute("placeholder", "Enter password");			
+		
+		inputFormDiv.appendChild(passwordLabelNode);
+		inputFormDiv.appendChild(passwordInputNode);
 	}
 	
-	function goList() {	
-		var g = document.goListFrm;		
-		g.submit();
-	}
+	inputFormNode.appendChild(inputFormDiv);
 	
-	function downloadFile(boardNo, attachedFileSeq) {
-		var g = document.goDownloadFrm;
-		g.boardNo.value = boardNo;
-		g.attachedFileSeq.value = attachedFileSeq;
-		g.submit();
-	}
+	targetDiv.appendChild(inputFormNode);
 	
-	function addNewAttachedFile(f) {		
-		var prefixOfNewChildDiv = 'newAttachedFileRowDiv';		
-
-		var newFileListDivNode = document.getElementById('newAttachedFileList');		
-		var oldFileListDivNode = document.getElementById('oldAttachedFileList');
-		
-		var uploadFileCnt;
-		
-		if (oldFileListDivNode == undefined) {
-			uploadFileCnt = newFileListDivNode.childNodes.length;
-		} else {
-			uploadFileCnt = oldFileListDivNode.childNodes.length + newFileListDivNode.childNodes.length;
-		}
+	var functionDiv = document.createElement("div");
+	functionDiv.setAttribute("class", "btn-group");
+	
+	var saveButtonNode = document.createElement("input");
+	saveButtonNode.setAttribute("type", "button");
+	saveButtonNode.setAttribute("class", "btn btn-default");		
+	saveButtonNode.setAttribute("onClick", "goModify();");
+	saveButtonNode.setAttribute("value", "저장");
+	
+	
+	var restoreOldAttachedFileListButtonNode = document.createElement("input");
+	restoreOldAttachedFileListButtonNode.setAttribute("type", "button");
+	restoreOldAttachedFileListButtonNode.setAttribute("class", "btn btn-default");		
+	restoreOldAttachedFileListButtonNode.setAttribute("onClick", "restoreOldAttachedFileList(" + boardNo + ");");
+	restoreOldAttachedFileListButtonNode.setAttribute("value", "기존 첨부 파일 목록 복구");	
+	
+	var addNewAttachedFIleButtonNode = document.createElement("input");
+	addNewAttachedFIleButtonNode.setAttribute("type", "button");
+	addNewAttachedFIleButtonNode.setAttribute("class", "btn btn-default");		
+	addNewAttachedFIleButtonNode.setAttribute("onClick", "addNewAttachedFile(document.modifyInputFrm);");
+	addNewAttachedFIleButtonNode.setAttribute("value", "신규 첨부 파일 추가");		
+	
+	var hideButtonNode = document.createElement("input");
+	hideButtonNode.setAttribute("type", "button");
+	hideButtonNode.setAttribute("class", "btn btn-default");		
+	hideButtonNode.setAttribute("onClick", "hideEditScreen();");
+	hideButtonNode.setAttribute("value", "닫기");
+	
+	functionDiv.appendChild(saveButtonNode);
+	functionDiv.appendChild(restoreOldAttachedFileListButtonNode);
+	functionDiv.appendChild(addNewAttachedFIleButtonNode);
+	functionDiv.appendChild(hideButtonNode);
 			
-		if (uploadFileCnt >= _ATTACHED_FILE_MAX_COUNT) {
-			alert("업로드 할 수 있는 파일 갯수는 최대["+_ATTACHED_FILE_MAX_COUNT+"] 까지 입니다.");
-			return;
-		}
+	targetDiv.appendChild(functionDiv);		
+	
+	var processFormNode = document.createElement("form");
+	processFormNode.setAttribute("name", "modifyProcessFrm");
+	processFormNode.setAttribute("target", "hiddenFrame");
+	processFormNode.setAttribute("method", "post");
+	processFormNode.setAttribute("action", "/servlet/BoardModifyProcess");
+	processFormNode.setAttribute("enctype", "multipart/form-data");
+	
+	var processFormDiv = document.createElement("div");
+	processFormDiv.setAttribute("class", "form-group");
+	
+	var boardIDHiddenNode = document.createElement("input");
+	boardIDHiddenNode.setAttribute("type", "hidden");
+	boardIDHiddenNode.setAttribute("name", "boardID");
+	boardIDHiddenNode.setAttribute("value", boardID);	
+	
+	var boardNoHiddenNode = document.createElement("input");
+	boardNoHiddenNode.setAttribute("type", "hidden");
+	boardNoHiddenNode.setAttribute("name", "boardNo");
+	boardNoHiddenNode.setAttribute("value", boardNo);
+	
+	var nextAttachedFileSeqHiddenNode = document.createElement("input");
+	nextAttachedFileSeqHiddenNode.setAttribute("type", "hidden");
+	nextAttachedFileSeqHiddenNode.setAttribute("name", "nextAttachedFileSeq");
+	nextAttachedFileSeqHiddenNode.setAttribute("value", nextAttachedFileSeq);
+			
+	var contentsHiddenNode = document.createElement("input");
+	contentsHiddenNode.setAttribute("type", "hidden");
+	contentsHiddenNode.setAttribute("name", "contents");
+	
+	var sessionkeyHiddenNode = document.createElement("input");
+	sessionkeyHiddenNode.setAttribute("type", "hidden");
+	sessionkeyHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>");		
+	
+	var ivHiddenNode = document.createElement("input");
+	ivHiddenNode.setAttribute("type", "hidden");
+	ivHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>");		
+	
+	
+	var oldAttachedFileListDiv = document.createElement("div");
+	oldAttachedFileListDiv.setAttribute("id", "oldAttachedFileList");
+	
+	var newAttachedFileListDiv = document.createElement("div");
+	newAttachedFileListDiv.setAttribute("id", "newAttachedFileList");		
+	
+	processFormDiv.appendChild(boardIDHiddenNode);
+	processFormDiv.appendChild(boardNoHiddenNode);
+	processFormDiv.appendChild(nextAttachedFileSeqHiddenNode);
+	if (isSubject) {
+		var subjectHiddenNode = document.createElement("input");
+		subjectHiddenNode.setAttribute("type", "hidden");
+		subjectHiddenNode.setAttribute("name", "subject");
 		
-		var newAttachedFileRowSeq = parseInt(f.newAttachedFileRowSeq.value, 10);
-
-		var attachedFileRowDivNode = makeNewAttachedFileRowDiv(prefixOfNewChildDiv+newAttachedFileRowSeq);
-		
-		newFileListDivNode.appendChild(attachedFileRowDivNode);
-		
-		newAttachedFileRowSeq++;
-		f.newAttachedFileRowSeq.value = newAttachedFileRowSeq;
+		processFormDiv.appendChild(subjectHiddenNode);
 	}
-
-	function makeNewAttachedFileRowDiv(attachedFileRowDivID) {
-		var attachedFileRowDivNode = document.createElement("div");
-		attachedFileRowDivNode.setAttribute("class", "row");
-		attachedFileRowDivNode.setAttribute("id", attachedFileRowDivID);		
+	processFormDiv.appendChild(contentsHiddenNode);		
+	processFormDiv.appendChild(sessionkeyHiddenNode);		
+	processFormDiv.appendChild(ivHiddenNode);		
+	processFormDiv.appendChild(oldAttachedFileListDiv);
+	processFormDiv.appendChild(newAttachedFileListDiv);		
+	
+	if (isPassword) {
+		var passwordHiddenNode = document.createElement("input");
+		passwordHiddenNode.setAttribute("type", "hidden");
+		passwordHiddenNode.setAttribute("name", "pwd");
 		
-		var attachedFileNode  = document.createElement("INPUT");
-		attachedFileNode .setAttribute("type", "file");
-		attachedFileNode .setAttribute("class", "form-control");
-		attachedFileNode .setAttribute("title", "첨부파일('"+attachedFileRowDivID+"')");
-		attachedFileNode .setAttribute("name", "newAttachedFile");
-		
-		var attachedFileColDivNode = document.createElement("div");
-		attachedFileColDivNode.setAttribute("class", "col-sm-10");
-		
-		attachedFileColDivNode.appendChild(attachedFileNode);
-		
-		var deleteButtonNode = document.createElement("INPUT");
-		deleteButtonNode.setAttribute("type", "button");
-		deleteButtonNode.setAttribute("value", "삭제");
-		deleteButtonNode.setAttribute("title", "첨부파일('"+attachedFileRowDivID+"') 삭제");
-		deleteButtonNode.setAttribute("onclick", "removeNewAttachFile('"+attachedFileRowDivID+"')");
-		
-		var buttonColDivNode = document.createElement("div");
-		buttonColDivNode.setAttribute("class", "col-*-*");
-		
-		buttonColDivNode.appendChild(deleteButtonNode);
-		
-		attachedFileRowDivNode.appendChild(attachedFileColDivNode);
-		attachedFileRowDivNode.appendChild(buttonColDivNode);
-		
-		return attachedFileRowDivNode;
+		processFormDiv.appendChild(passwordHiddenNode);
+	}		
+	
+	
+	processFormNode.appendChild(processFormDiv);		
+	
+	targetDiv.appendChild(processFormNode);
+			
+	var f = document.modifyInputFrm;
+	
+	if (isSubject) {
+		var subjectDiv = document.getElementById("subjectOfBoard"+boardNo+"InViewScreen");
+		f.subject.value = subjectDiv.innerText;
 	}
-		
-	function removeNewAttachFile(selectedDivID) {
-		var newFileListDivNode = document.getElementById('newAttachedFileList');		
-		var selectedDivNode = document.getElementById(selectedDivID);
-		newFileListDivNode.removeChild(selectedDivNode);
-	}
+	var contentsDiv = document.getElementById("contentsOfBoard"+boardNo+"InViewScreen");
+	f.contents.value = contentsDiv.innerText;
+	
+	restoreOldAttachedFileList(boardNo);
+}
 
-	function restoreOldAttachedFileList(boardNo) {
-		var oldAttachedFileListJosnObj = JSON.parse(document.getElementById('oldAttachedFileListJosnStringOfBoard'+boardNo+'InViewScreen').innerText);
-		var oldAttachedFileListDiv = document.getElementById('oldAttachedFileList');		
-		
-		/** remove all child nodes of oldFileListInModifyPartForBoard node */
-		while(oldAttachedFileListDiv.hasChildNodes()) {
-			oldAttachedFileListDiv.removeChild(oldAttachedFileListDiv.firstChild);
-		}
-		
-		for (var i=0; i < oldAttachedFileListJosnObj.length; i++) {
-			var oldAttachedFileRowDivID = "oldAttachedFileRow"+oldAttachedFileListJosnObj[i].attachedFileSeq;
-			
-			var oldAttachedFileRowDiv = document.createElement("div");
-			oldAttachedFileRowDiv.setAttribute("class", "row");
-			oldAttachedFileRowDiv.setAttribute("id", oldAttachedFileRowDivID);			
-			
-			var oldAttachedFileColDiv = document.createElement("div");
-			oldAttachedFileColDiv.setAttribute("class", "col-sm-12");
-			
-
-			var oldAttachedFileHiddenInputNode = document.createElement("INPUT");
-			oldAttachedFileHiddenInputNode.setAttribute("type", "hidden");	
-			oldAttachedFileHiddenInputNode.setAttribute("name", "oldAttachedFileSeq");
-			oldAttachedFileHiddenInputNode.setAttribute("value", oldAttachedFileListJosnObj[i].attachedFileSeq);			
-			
-			var fileNameTextNode = document.createTextNode(oldAttachedFileListJosnObj[i].attachedFileName+" ");			
-					
-			
-			var deleteButtonNode = document.createElement("INPUT");
-			deleteButtonNode.setAttribute("type", "button");
-			deleteButtonNode.setAttribute("id", "oldAttachedFileButton"+oldAttachedFileListJosnObj[i].attachedFileSeq);
-			deleteButtonNode.setAttribute("value", "삭제");
-			deleteButtonNode.setAttribute("title", "delete file(attachedFileSeq:"+oldAttachedFileListJosnObj[i].attachedFileSeq+", fileName:"+ oldAttachedFileListJosnObj[i].attachedFileName + ")");
-			deleteButtonNode.setAttribute("onclick", "deleteOldAttachedFile('"+oldAttachedFileRowDivID+"')");			
-			
-			oldAttachedFileColDiv.appendChild(oldAttachedFileHiddenInputNode);
-			oldAttachedFileColDiv.appendChild(fileNameTextNode);
-			oldAttachedFileColDiv.appendChild(deleteButtonNode);
-			
-			oldAttachedFileRowDiv.appendChild(oldAttachedFileColDiv);
-			
-			oldAttachedFileListDiv.appendChild(oldAttachedFileRowDiv)
-		}		
-	}
-
-	function deleteOldAttachedFile(oldAttachedFileRowDivID) {
-		var oldAttachedFileListDiv = document.getElementById('oldAttachedFileList');	
-		var deleteTagetDiv = document.getElementById(oldAttachedFileRowDivID);
-		oldAttachedFileListDiv.removeChild(deleteTagetDiv);
-	}
-
-	function showReplyEditScreen(boardID, boardNo, isSubject, isPassword) {	
-		var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
-		
+function hideEditScreen() {
+	if (null != currentEditScreenDiv) {
+		currentEditScreenDiv.style.display = "none";
 		
 		/** remove all child nodes of targetDiv node */
-		while(targetDiv.hasChildNodes()) {
-			targetDiv.removeChild(targetDiv.firstChild);
+		while(currentEditScreenDiv.hasChildNodes()) {
+			currentEditScreenDiv.removeChild(currentEditScreenDiv.firstChild);
 		}
 		
-		if (null != currentEditScreenDiv) {
-			hideEditScreen();
-		}
-		
-		currentEditScreenDiv = targetDiv;
-		targetDiv.style.display = "block";		
-		
-		var titleTextNode = document.createTextNode("댓글 입력 화면");
-		var titleH4Node = document.createElement("h4");
-		
-		titleH4Node.appendChild(titleTextNode);
-		
-		targetDiv.appendChild(titleH4Node);
-		
+		currentEditScreenDiv = null;
+	}
+}
+	
+function clickHiddenFrameButton(thisObj) {		
+	var hiddenFrameObj = document.getElementById("hiddenFrame");
+	
+	if (hiddenFrameObj.style.display == 'none') {
+		thisObj.innerText = "Hide Hidden Frame";
+		hiddenFrameObj.style.display = "block";			
+	} else {
+		thisObj.innerText = "Show Hidden Frame";
+		hiddenFrameObj.style.display = "none";
+	}
+}
 
-		var inputFormNode = document.createElement("form");
-		inputFormNode.setAttribute("name", "replyInputFrm");
-		inputFormNode.setAttribute("method", "get");
-		inputFormNode.setAttribute("onSubmit", "return false;");
-		
-		var inputFormDiv = document.createElement("div");
-		inputFormDiv.setAttribute("class", "form-group");
-				
-		var newAttachedFileRowSeqHiddenNode = document.createElement("input");
-		newAttachedFileRowSeqHiddenNode.setAttribute("type", "hidden");
-		newAttachedFileRowSeqHiddenNode.setAttribute("name", "newAttachedFileRowSeq");
-		newAttachedFileRowSeqHiddenNode.setAttribute("value", "0");
-		
-		inputFormDiv.appendChild(newAttachedFileRowSeqHiddenNode);
-		
-		if (isSubject) {
-			var subjetLabelTextNode = document.createTextNode("제목");
-			
-			var subjectLabelNode = document.createElement("label");
-			subjectLabelNode.setAttribute("for", "subjectInEditor");
-			subjectLabelNode.appendChild(subjetLabelTextNode);
-			
-			var subjectInputNode = document.createElement("input");
-			subjectInputNode.setAttribute("type", "text");
-			subjectInputNode.setAttribute("id", "subjectInEditor");
-			subjectInputNode.setAttribute("name", "subject");
-			subjectInputNode.setAttribute("class", "form-control");
-			subjectInputNode.setAttribute("placeholder", "Enter subject");			
-			
-			inputFormDiv.appendChild(subjectLabelNode);
-			inputFormDiv.appendChild(subjectInputNode);
-		}
-		
-		var contentsLabelTextNode = document.createTextNode("내용");
-		
-		var contentsLabelNode = document.createElement("label");
-		contentsLabelNode.setAttribute("for", "contentsInEditor");
-		contentsLabelNode.appendChild(contentsLabelTextNode);
-		
-		var contentsInputNode = document.createElement("textarea");		
-		contentsInputNode.setAttribute("name", "contents");
-		contentsInputNode.setAttribute("id", "contentsInEditor");
-		contentsInputNode.setAttribute("class", "form-control");
-		contentsInputNode.setAttribute("placeholder", "Enter contents");		
-		contentsInputNode.setAttribute("rows", "20);
-		
-		inputFormDiv.appendChild(contentsLabelNode);
-		inputFormDiv.appendChild(contentsInputNode);
-		
-		if (isPassword) {
-			var passwordLabelTextNode = document.createTextNode("비밀번호");
-			
-			var passwordLabelNode = document.createElement("label");
-			passwordLabelNode.setAttribute("for", "passwordInEditor");
-			passwordLabelNode.appendChild(passwordLabelTextNode);
-			
-			var passwordInputNode = document.createElement("input");
-			passwordInputNode.setAttribute("type", "password");
-			passwordInputNode.setAttribute("id", "passwordInEditor");
-			passwordInputNode.setAttribute("name", "pwd");
-			passwordInputNode.setAttribute("class", "form-control");
-			passwordInputNode.setAttribute("placeholder", "Enter password");	
-			
-			
-			var passwordConfirmLabelTextNode = document.createTextNode("비밀번호 확인");
-			var passwordConfirmLabelNode = document.createElement("label");
-			passwordConfirmLabelNode.setAttribute("for", "passwordConfirmInEditor");
-			passwordConfirmLabelNode.appendChild(passwordConfirmLabelTextNode);
-			
-			var passwordConfirmInputNode = document.createElement("input");
-			passwordConfirmInputNode.setAttribute("type", "password");
-			passwordConfirmInputNode.setAttribute("id", "passwordConfirmInEditor");
-			passwordConfirmInputNode.setAttribute("name", "pwdConfirm");
-			passwordConfirmInputNode.setAttribute("class", "form-control");
-			passwordConfirmInputNode.setAttribute("placeholder", "Enter password confirm");			
-			
-			inputFormDiv.appendChild(passwordLabelNode);
-			inputFormDiv.appendChild(passwordInputNode);
-			
-			inputFormDiv.appendChild(passwordConfirmLabelNode);
-			inputFormDiv.appendChild(passwordConfirmInputNode);
-		}
-		
-		inputFormNode.appendChild(inputFormDiv);
-		
-		targetDiv.appendChild(inputFormNode);
-		
-		var functionDiv = document.createElement("div");
-		functionDiv.setAttribute("class", "btn-group");
-		
-		var saveButtonNode = document.createElement("input");
-		saveButtonNode.setAttribute("type", "button");
-		saveButtonNode.setAttribute("class", "btn btn-default");		
-		saveButtonNode.setAttribute("onClick", "goReply();");
-		saveButtonNode.setAttribute("value", "저장");
-		
-		var addNewAttachedFIleButtonNode = document.createElement("input");
-		addNewAttachedFIleButtonNode.setAttribute("type", "button");
-		addNewAttachedFIleButtonNode.setAttribute("class", "btn btn-default");		
-		addNewAttachedFIleButtonNode.setAttribute("onClick", "addNewAttachedFile(document.replyInputFrm);");
-		addNewAttachedFIleButtonNode.setAttribute("value", "신규 첨부 파일 추가");		
-		
-		var hideButtonNode = document.createElement("input");
-		hideButtonNode.setAttribute("type", "button");
-		hideButtonNode.setAttribute("class", "btn btn-default");		
-		hideButtonNode.setAttribute("onClick", "hideEditScreen();");
-		hideButtonNode.setAttribute("value", "닫기");
-			
-		
-		functionDiv.appendChild(saveButtonNode);
-		functionDiv.appendChild(addNewAttachedFIleButtonNode);
-		functionDiv.appendChild(hideButtonNode);
-				
-		targetDiv.appendChild(functionDiv);
-		
-		
-		var processFormNode = document.createElement("form");
-		processFormNode.setAttribute("name", "replyProcessFrm");
-		processFormNode.setAttribute("target", "hiddenFrame");
-		processFormNode.setAttribute("method", "post");
-		processFormNode.setAttribute("action", "/servlet/BoardReplyProcess");
-		processFormNode.setAttribute("enctype", "multipart/form-data");
-		
-		
-		var boardIDHiddenNode = document.createElement("input");
-		boardIDHiddenNode.setAttribute("type", "hidden");
-		boardIDHiddenNode.setAttribute("name", "boardID");
-		boardIDHiddenNode.setAttribute("value", boardID);
-		
-		
-		var parentBoardNoHiddenNode = document.createElement("input");
-		parentBoardNoHiddenNode.setAttribute("type", "hidden");
-		parentBoardNoHiddenNode.setAttribute("name", "parentBoardNo");
-		parentBoardNoHiddenNode.setAttribute("value", boardNo);
-		
-		var contentsHiddenNode = document.createElement("input");
-		contentsHiddenNode.setAttribute("type", "hidden");
-		contentsHiddenNode.setAttribute("name", "contents");
-		
-		var sessionkeyHiddenNode = document.createElement("input");
-		sessionkeyHiddenNode.setAttribute("type", "hidden");
-		sessionkeyHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>");
-		
-		
-		var ivHiddenNode = document.createElement("input");
-		ivHiddenNode.setAttribute("type", "hidden");
-		ivHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>");
-		
-		var newAttachedFileListDiv = document.createElement("div");
-		newAttachedFileListDiv.setAttribute("id", "newAttachedFileList");		
-		
-		processFormNode.appendChild(boardIDHiddenNode);
-		processFormNode.appendChild(parentBoardNoHiddenNode);
-		if (isSubject) {
-			var subjectHiddenNode = document.createElement("input");
-			subjectHiddenNode.setAttribute("type", "hidden");
-			subjectHiddenNode.setAttribute("name", "subject");
-			
-			processFormNode.appendChild(subjectHiddenNode);
-		}
-		processFormNode.appendChild(contentsHiddenNode);		
-		processFormNode.appendChild(sessionkeyHiddenNode);		
-		processFormNode.appendChild(ivHiddenNode);
-		processFormNode.appendChild(newAttachedFileListDiv);
-		
-		if (isPassword) {
-			var passwordHiddenNode = document.createElement("input");
-			passwordHiddenNode.setAttribute("type", "hidden");
-			passwordHiddenNode.setAttribute("name", "pwd");
-			
-			processFormNode.appendChild(passwordHiddenNode);
-		}		
-		
-		targetDiv.appendChild(processFormNode);
-	}
 
-	function showMoidfyEditScreen(boardID, boardNo, nextAttachedFileSeq, isSubject, isPassword) {
-		var targetDiv = document.getElementById("editorScreenForBoard"+boardNo);
-		var oldAttachedFileListJosnObj = JSON.parse(document.getElementById('oldAttachedFileListJosnStringOfBoard'+boardNo+'InViewScreen').innerText);
-		
-		/** remove all child nodes of targetDiv node */
-		while(targetDiv.hasChildNodes()) {
-			targetDiv.removeChild(targetDiv.firstChild);
-		}
-		
-		if (null != currentEditScreenDiv) {
-			hideEditScreen();
-		}
-		
-		currentEditScreenDiv = targetDiv;
-		targetDiv.style.display = "block";		
-		
-		var titleTextNode = document.createTextNode("게시글 수정 화면");
-		var titleH4Node = document.createElement("h4");
-		
-		titleH4Node.appendChild(titleTextNode);
-		
-		targetDiv.appendChild(titleH4Node);
-		
+function goMemberInformation(targetUserID) {		
+	if (opener != undefined) {			
+		opener.document.location.href = "/servlet/MemberInformation?targetUserID="+targetUserID;
+		self.close();
+	} else {
+		document.location.href = "/servlet/MemberInformation?targetUserID="+targetUserID;
+	}
+}
 
-		var inputFormNode = document.createElement("form");
-		inputFormNode.setAttribute("name", "modifyInputFrm");
-		inputFormNode.setAttribute("method", "get");
-		inputFormNode.setAttribute("onSubmit", "return false;");
-		
-		var inputFormDiv = document.createElement("div");
-		inputFormDiv.setAttribute("class", "form-group");
-		
-		var newAttachedFileRowSeqHiddenNode = document.createElement("input");
-		newAttachedFileRowSeqHiddenNode.setAttribute("type", "hidden");
-		newAttachedFileRowSeqHiddenNode.setAttribute("name", "newAttachedFileRowSeq");
-		newAttachedFileRowSeqHiddenNode.setAttribute("value", "0");
-		
-		inputFormDiv.appendChild(newAttachedFileRowSeqHiddenNode);
-		
-		if (isSubject) {			
-			var subjetLabelTextNode = document.createTextNode("제목");
-			
-			var subjectLabelNode = document.createElement("label");
-			subjectLabelNode.setAttribute("for", "subjectInEditor");
-			subjectLabelNode.appendChild(subjetLabelTextNode);
-			
-			var subjectInputNode = document.createElement("input");
-			subjectInputNode.setAttribute("type", "text");
-			subjectInputNode.setAttribute("id", "subjectInEditor");
-			subjectInputNode.setAttribute("name", "subject");
-			subjectInputNode.setAttribute("class", "form-control");
-			subjectInputNode.setAttribute("placeholder", "Enter subject");			
-			
-			inputFormDiv.appendChild(subjectLabelNode);
-			inputFormDiv.appendChild(subjectInputNode);
-		}
-		
-		var contentsLabelTextNode = document.createTextNode("내용");
-		
-		var contentsLabelNode = document.createElement("label");
-		contentsLabelNode.setAttribute("for", "contentsInEditor");
-		contentsLabelNode.appendChild(contentsLabelTextNode);
-		
-		var contentsInputNode = document.createElement("textarea");		
-		contentsInputNode.setAttribute("name", "contents");
-		contentsInputNode.setAttribute("id", "contentsInEditor");
-		contentsInputNode.setAttribute("class", "form-control");
-		contentsInputNode.setAttribute("placeholder", "Enter contents");		
-		contentsInputNode.setAttribute("rows", "20");
-		
-		inputFormDiv.appendChild(contentsLabelNode);
-		inputFormDiv.appendChild(contentsInputNode);
-		
-		if (isPassword) {
-			var subjetLabelTextNode = document.createTextNode("비밀번호");
-			
-			var passwordLabelNode = document.createElement("label");
-			passwordLabelNode.setAttribute("for", "passwordInEditor");
-			passwordLabelNode.appendChild(subjetLabelTextNode);
-			
-			var passwordInputNode = document.createElement("input");
-			passwordInputNode.setAttribute("type", "password");
-			passwordInputNode.setAttribute("id", "passwordInEditor");
-			passwordInputNode.setAttribute("name", "pwd");
-			passwordInputNode.setAttribute("class", "form-control");
-			passwordInputNode.setAttribute("placeholder", "Enter password");			
-			
-			inputFormDiv.appendChild(passwordLabelNode);
-			inputFormDiv.appendChild(passwordInputNode);
-		}
-		
-		inputFormNode.appendChild(inputFormDiv);
-		
-		targetDiv.appendChild(inputFormNode);
-		
-		var functionDiv = document.createElement("div");
-		functionDiv.setAttribute("class", "btn-group");
-		
-		var saveButtonNode = document.createElement("input");
-		saveButtonNode.setAttribute("type", "button");
-		saveButtonNode.setAttribute("class", "btn btn-default");		
-		saveButtonNode.setAttribute("onClick", "goModify();");
-		saveButtonNode.setAttribute("value", "저장");
-		
-		
-		var restoreOldAttachedFileListButtonNode = document.createElement("input");
-		restoreOldAttachedFileListButtonNode.setAttribute("type", "button");
-		restoreOldAttachedFileListButtonNode.setAttribute("class", "btn btn-default");		
-		restoreOldAttachedFileListButtonNode.setAttribute("onClick", "restoreOldAttachedFileList(" + boardNo + ");");
-		restoreOldAttachedFileListButtonNode.setAttribute("value", "기존 첨부 파일 목록 복구");	
-		
-		var addNewAttachedFIleButtonNode = document.createElement("input");
-		addNewAttachedFIleButtonNode.setAttribute("type", "button");
-		addNewAttachedFIleButtonNode.setAttribute("class", "btn btn-default");		
-		addNewAttachedFIleButtonNode.setAttribute("onClick", "addNewAttachedFile(document.modifyInputFrm);");
-		addNewAttachedFIleButtonNode.setAttribute("value", "신규 첨부 파일 추가");		
-		
-		var hideButtonNode = document.createElement("input");
-		hideButtonNode.setAttribute("type", "button");
-		hideButtonNode.setAttribute("class", "btn btn-default");		
-		hideButtonNode.setAttribute("onClick", "hideEditScreen();");
-		hideButtonNode.setAttribute("value", "닫기");
-		
-		functionDiv.appendChild(saveButtonNode);
-		functionDiv.appendChild(restoreOldAttachedFileListButtonNode);
-		functionDiv.appendChild(addNewAttachedFIleButtonNode);
-		functionDiv.appendChild(hideButtonNode);
-				
-		targetDiv.appendChild(functionDiv);		
-		
-		var processFormNode = document.createElement("form");
-		processFormNode.setAttribute("name", "modifyProcessFrm");
-		processFormNode.setAttribute("target", "hiddenFrame");
-		processFormNode.setAttribute("method", "post");
-		processFormNode.setAttribute("action", "/servlet/BoardModifyProcess");
-		processFormNode.setAttribute("enctype", "multipart/form-data");
-		
-		var processFormDiv = document.createElement("div");
-		processFormDiv.setAttribute("class", "form-group");
-		
-		var boardIDHiddenNode = document.createElement("input");
-		boardIDHiddenNode.setAttribute("type", "hidden");
-		boardIDHiddenNode.setAttribute("name", "boardID");
-		boardIDHiddenNode.setAttribute("value", boardID);	
-		
-		var boardNoHiddenNode = document.createElement("input");
-		boardNoHiddenNode.setAttribute("type", "hidden");
-		boardNoHiddenNode.setAttribute("name", "boardNo");
-		boardNoHiddenNode.setAttribute("value", boardNo);
-		
-		var nextAttachedFileSeqHiddenNode = document.createElement("input");
-		nextAttachedFileSeqHiddenNode.setAttribute("type", "hidden");
-		nextAttachedFileSeqHiddenNode.setAttribute("name", "nextAttachedFileSeq");
-		nextAttachedFileSeqHiddenNode.setAttribute("value", nextAttachedFileSeq);
-				
-		var contentsHiddenNode = document.createElement("input");
-		contentsHiddenNode.setAttribute("type", "hidden");
-		contentsHiddenNode.setAttribute("name", "contents");
-		
-		var sessionkeyHiddenNode = document.createElement("input");
-		sessionkeyHiddenNode.setAttribute("type", "hidden");
-		sessionkeyHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>");		
-		
-		var ivHiddenNode = document.createElement("input");
-		ivHiddenNode.setAttribute("type", "hidden");
-		ivHiddenNode.setAttribute("name", "<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>");		
-		
-		
-		var oldAttachedFileListDiv = document.createElement("div");
-		oldAttachedFileListDiv.setAttribute("id", "oldAttachedFileList");
-		
-		var newAttachedFileListDiv = document.createElement("div");
-		newAttachedFileListDiv.setAttribute("id", "newAttachedFileList");		
-		
-		processFormDiv.appendChild(boardIDHiddenNode);
-		processFormDiv.appendChild(boardNoHiddenNode);
-		processFormDiv.appendChild(nextAttachedFileSeqHiddenNode);
-		if (isSubject) {
-			var subjectHiddenNode = document.createElement("input");
-			subjectHiddenNode.setAttribute("type", "hidden");
-			subjectHiddenNode.setAttribute("name", "subject");
-			
-			processFormDiv.appendChild(subjectHiddenNode);
-		}
-		processFormDiv.appendChild(contentsHiddenNode);		
-		processFormDiv.appendChild(sessionkeyHiddenNode);		
-		processFormDiv.appendChild(ivHiddenNode);		
-		processFormDiv.appendChild(oldAttachedFileListDiv);
-		processFormDiv.appendChild(newAttachedFileListDiv);		
-		
-		if (isPassword) {
-			var passwordHiddenNode = document.createElement("input");
-			passwordHiddenNode.setAttribute("type", "hidden");
-			passwordHiddenNode.setAttribute("name", "pwd");
-			
-			processFormDiv.appendChild(passwordHiddenNode);
-		}		
-		
-		
-		processFormNode.appendChild(processFormDiv);		
-		
-		targetDiv.appendChild(processFormNode);
-				
-		var f = document.modifyInputFrm;
-		
-		if (isSubject) {
-			var subjectDiv = document.getElementById("subjectOfBoard"+boardNo+"InViewScreen");
-			f.subject.value = subjectDiv.innerText;
-		}
-		var contentsDiv = document.getElementById("contentsOfBoard"+boardNo+"InViewScreen");
-		f.contents.value = contentsDiv.innerText;
-		
-		restoreOldAttachedFileList(boardNo);
+function goPersonalActivityHistory(targetUserID) {
+	if (opener != undefined) {			
+		opener.document.location.href = "/servlet/PersonalActivityHistory?targetUserID="+targetUserID;
+		self.close();
+	} else {
+		document.location.href = "/servlet/PersonalActivityHistory?targetUserID="+targetUserID;
 	}
-	
-	function hideEditScreen() {
-		if (null != currentEditScreenDiv) {
-			currentEditScreenDiv.style.display = "none";
-			
-			/** remove all child nodes of targetDiv node */
-			while(currentEditScreenDiv.hasChildNodes()) {
-				currentEditScreenDiv.removeChild(currentEditScreenDiv.firstChild);
-			}
-			
-			currentEditScreenDiv = null;
-		}
-	}
-		
-	function clickHiddenFrameButton(thisObj) {		
-		var hiddenFrameObj = document.getElementById("hiddenFrame");
-		
-		if (hiddenFrameObj.style.display == 'none') {
-			thisObj.innerText = "Hide Hidden Frame";
-			hiddenFrameObj.style.display = "block";			
-		} else {
-			thisObj.innerText = "Show Hidden Frame";
-			hiddenFrameObj.style.display = "none";
-		}
-	}
-	
-	
-	function goMemberInformation(targetUserID) {		
-		if (opener != undefined) {			
-			opener.document.location.href = "/servlet/MemberInformation?targetUserID="+targetUserID;
-			self.close();
-		} else {
-			document.location.href = "/servlet/MemberInformation?targetUserID="+targetUserID;
-		}
-	}
-	
-	function goPersonalActivityHistory(targetUserID) {
-		if (opener != undefined) {			
-			opener.document.location.href = "/servlet/PersonalActivityHistory?targetUserID="+targetUserID;
-			self.close();
-		} else {
-			document.location.href = "/servlet/PersonalActivityHistory?targetUserID="+targetUserID;
-		}
-	}<%
+}
+
+<%
 	
 	if (MemberRoleType.ADMIN.equals(accessedUserformation.getMemberRoleType())) {
 %>
@@ -1118,7 +1119,9 @@
 		} else {
 			document.location.href="/servlet/BoardList?boardID="+g.targetBoardID.value;
 		}
-	}<%
+	}
+
+<%
 	}
 %>
 	
@@ -1135,12 +1138,12 @@
 			var offsetTop = getOffsetTop(interestedBoadNoDiv);
 			var offsetLeft = getOffsetLeft(interestedBoadNoDiv);
 			<!-- WARNING! setTimeout 함수에 window.scrollTo 을 넣어야 크롬에서 잘 동작함 -->
-			setTimeout( () => { window.scrollTo(offsetLeft, offsetTop); }, 100);
+			setTimeout( function() { window.scrollTo(offsetLeft, offsetTop); }, 100);
 		}	
 	}
 
 	window.onload=init;
-//-->
+
 </script>
 </head>
 <body>
@@ -1277,7 +1280,7 @@
 	if (BoardListType.ONLY_GROUP_ROOT.equals(boardListType)) {
 		out.write(CommonStaticFinalVars.NEWLINE);
 		out.write("					");
-		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goList()\">목록으로</button>");
+		out.write("<button type=\"button\" class=\"btn btn-primary btn-sm\" onClick=\"goList();\">목록으로</button>");
 	}
 			
 	if (accessedUserformation.isAdmin()) {

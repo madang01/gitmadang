@@ -20,7 +20,7 @@ import kr.pe.codda.common.type.ReadWriteMode;
 public abstract class CommonStaticUtil {
 	public static final Base64.Encoder Base64Encoder = Base64.getEncoder();
 	public static final Base64.Decoder Base64Decoder = Base64.getDecoder();
-	
+
 	/**
 	 * 주어진 문자열 앞뒤로 공백 문자 여부를 반환한다. 주의점) 주어진 문자열이 빈 문자열일 경우 true 를 던진다.
 	 * 
@@ -30,8 +30,7 @@ public abstract class CommonStaticUtil {
 	 * @throws IllegalArgumentException
 	 *             null 주어진 문자열이 null 인 경우 던진다.
 	 */
-	public static boolean hasLeadingOrTailingWhiteSpace(String value)
-			throws IllegalArgumentException {
+	public static boolean hasLeadingOrTailingWhiteSpace(String value) throws IllegalArgumentException {
 		if (null == value) {
 			throw new IllegalArgumentException("the paramater value is null");
 		}
@@ -42,16 +41,14 @@ public abstract class CommonStaticUtil {
 		return returnValue;
 	}
 
-	public static String getFilePathStringFromResourcePathAndRelativePathOfFile(
-			String resourcesPathString, String relativePath) {
+	public static String getFilePathStringFromResourcePathAndRelativePathOfFile(String resourcesPathString,
+			String relativePath) {
 		if (null == resourcesPathString) {
-			throw new IllegalArgumentException(
-					"the paramter resourcesPathString is null");
+			throw new IllegalArgumentException("the paramter resourcesPathString is null");
 		}
 
 		if (null == relativePath) {
-			throw new IllegalArgumentException(
-					"the paramter relativePath is null");
+			throw new IllegalArgumentException("the paramter relativePath is null");
 		}
 
 		String realResourceFilePathString = null;
@@ -69,8 +66,8 @@ public abstract class CommonStaticUtil {
 			subRealPathString = relativePath.replaceAll("/", "\\\\");
 		}
 
-		realResourceFilePathString = new StringBuilder(resourcesPathString)
-				.append(headSeparator).append(subRealPathString).toString();
+		realResourceFilePathString = new StringBuilder(resourcesPathString).append(headSeparator)
+				.append(subRealPathString).toString();
 
 		return realResourceFilePathString;
 	}
@@ -87,31 +84,25 @@ public abstract class CommonStaticUtil {
 	 *            원하는 문자열 가로 칼럼수
 	 * @return 지정한 칼럼수 단위로 지정한 방식에 맞는 구분 문자열을 추가한 문자열
 	 */
-	public static String splitString(String sourceString,
-			LineSeparatorType lineSeparatorType, int wantedColumnSize) {
+	public static String splitString(String sourceString, LineSeparatorType lineSeparatorType, int wantedColumnSize) {
 		if (null == sourceString) {
-			throw new IllegalArgumentException(
-					"the paramter sourceString is null");
+			throw new IllegalArgumentException("the paramter sourceString is null");
 		}
 
 		if (sourceString.equals("")) {
-			throw new IllegalArgumentException(
-					"the paramter sourceString is a empty string");
+			throw new IllegalArgumentException("the paramter sourceString is a empty string");
 		}
 
 		if (hasLeadingOrTailingWhiteSpace(sourceString)) {
-			throw new IllegalArgumentException(
-					"the paramter sourceString has leading or tailing white space");
+			throw new IllegalArgumentException("the paramter sourceString has leading or tailing white space");
 		}
 
 		if (null == lineSeparatorType) {
-			throw new IllegalArgumentException(
-					"the paramter lineSeparatorGubun is null");
+			throw new IllegalArgumentException("the paramter lineSeparatorGubun is null");
 		}
 
 		if (wantedColumnSize <= 0) {
-			throw new IllegalArgumentException(
-					"the paramter wantedColumnSize is less or equals to zero");
+			throw new IllegalArgumentException("the paramter wantedColumnSize is less or equals to zero");
 		}
 
 		String lineSeparator = null;
@@ -125,8 +116,7 @@ public abstract class CommonStaticUtil {
 		StringBuilder resultStringBuilder = new StringBuilder();
 		int i = 0;
 		for (; i + wantedColumnSize < size; i += wantedColumnSize) {
-			resultStringBuilder.append(sourceString.substring(i, i
-					+ wantedColumnSize));
+			resultStringBuilder.append(sourceString.substring(i, i + wantedColumnSize));
 			resultStringBuilder.append(lineSeparator);
 		}
 		resultStringBuilder.append(sourceString.substring(i));
@@ -135,27 +125,22 @@ public abstract class CommonStaticUtil {
 
 	public static String getMultiLineToolTip(String message, int colSize) {
 		if (null == message) {
-			throw new IllegalArgumentException(
-					"the parameter 'message' is null");
+			throw new IllegalArgumentException("the parameter 'message' is null");
 		}
 
 		String tooltip = new StringBuilder("<html>")
-				.append(CommonStaticUtil.splitString(message,
-						LineSeparatorType.BR, colSize)).append("</html>")
+				.append(CommonStaticUtil.splitString(message, LineSeparatorType.BR, colSize)).append("</html>")
 				.toString();
 		return tooltip;
 	}
 
-	public static void copyTransferToFile(File sourceFile, File targetFile)
-			throws IOException {
+	public static void copyTransferToFile(File sourceFile, File targetFile) throws IOException {
 		if (null == sourceFile) {
-			throw new IllegalArgumentException(
-					"the parameter 'sourceFile' is null");
+			throw new IllegalArgumentException("the parameter 'sourceFile' is null");
 		}
 
 		if (null == targetFile) {
-			throw new IllegalArgumentException(
-					"the parameter 'targetFile' is null");
+			throw new IllegalArgumentException("the parameter 'targetFile' is null");
 		}
 
 		FileInputStream fis = null;
@@ -168,107 +153,84 @@ public abstract class CommonStaticUtil {
 			FileChannel souceFileChannel = fis.getChannel();
 			FileChannel targetFileChannel = fos.getChannel();
 
-			souceFileChannel.transferTo(0, souceFileChannel.size(),
-					targetFileChannel);
+			souceFileChannel.transferTo(0, souceFileChannel.size(), targetFileChannel);
 		} finally {
 			try {
 				if (null != fis) {
 					fis.close();
 				}
 			} catch (Exception e) {
-				InternalLogger log = InternalLoggerFactory
-						.getInstance(CommonStaticUtil.class);
-				log.warn("fail to close the file[{}] input stream",
-						targetFile.getAbsolutePath());
+				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] input stream", targetFile.getAbsolutePath());
 			}
 			try {
 				if (null != fos) {
 					fos.close();
 				}
 			} catch (Exception e) {
-				InternalLogger log = InternalLoggerFactory
-						.getInstance(CommonStaticUtil.class);
-				log.warn("fail to close the file[{}] output stream",
-						targetFile.getAbsolutePath());
+				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
 			}
 		}
 	}
 
-	public static File getValidPath(String sourcePathString,
-			ReadWriteMode readWriteMode) throws RuntimeException {
+	public static File getValidPath(String sourcePathString, ReadWriteMode readWriteMode) throws RuntimeException {
 		if (null == sourcePathString) {
-			throw new IllegalArgumentException(
-					"the parameter 'sourcePathString' is null");
+			throw new IllegalArgumentException("the parameter 'sourcePathString' is null");
 		}
 
 		File sourcePath = new File(sourcePathString);
 		if (!sourcePath.exists()) {
-			String errorMessage = String.format("The path[%s] doesn't exist",
-					sourcePathString);
+			String errorMessage = String.format("The path[%s] doesn't exist", sourcePathString);
 			throw new RuntimeException(errorMessage);
 		}
 
 		if (!sourcePath.isDirectory()) {
-			String errorMessage = String.format(
-					"The path[%s] is not a directory", sourcePathString);
+			String errorMessage = String.format("The path[%s] is not a directory", sourcePathString);
 			throw new RuntimeException(errorMessage);
 		}
 
-		if (readWriteMode.equals(ReadWriteMode.ONLY_READ)
-				|| readWriteMode.equals(ReadWriteMode.READ_WRITE)) {
+		if (readWriteMode.equals(ReadWriteMode.ONLY_READ) || readWriteMode.equals(ReadWriteMode.READ_WRITE)) {
 			if (!sourcePath.canRead()) {
-				String errorMessage = String.format(
-						"The path[%s] has a permission to read",
-						sourcePathString);
+				String errorMessage = String.format("The path[%s] has a permission to read", sourcePathString);
 				throw new RuntimeException(errorMessage);
 			}
 		}
 
-		if (readWriteMode.equals(ReadWriteMode.ONLY_WRITE)
-				|| readWriteMode.equals(ReadWriteMode.READ_WRITE)) {
+		if (readWriteMode.equals(ReadWriteMode.ONLY_WRITE) || readWriteMode.equals(ReadWriteMode.READ_WRITE)) {
 			if (!sourcePath.canWrite()) {
-				String errorMessage = String.format(
-						"The path[%s] has a permission to write",
-						sourcePathString);
+				String errorMessage = String.format("The path[%s] has a permission to write", sourcePathString);
 				throw new RuntimeException(errorMessage);
 			}
 		}
 		return sourcePath;
 	}
 
-	public static void createNewFile(File targetFile, String contents,
-			Charset targetCharset) throws FileNotFoundException, IOException {
+	public static void createNewFile(File targetFile, String contents, Charset targetCharset)
+			throws FileNotFoundException, IOException {
 		if (null == targetFile) {
-			throw new IllegalArgumentException(
-					"the parameter 'targetFile' is null");
+			throw new IllegalArgumentException("the parameter 'targetFile' is null");
 		}
 		if (null == contents) {
-			throw new IllegalArgumentException(
-					"the parameter 'contents' is null");
+			throw new IllegalArgumentException("the parameter 'contents' is null");
 		}
 		if (null == targetCharset) {
-			throw new IllegalArgumentException(
-					"the parameter 'targetCharset' is null");
+			throw new IllegalArgumentException("the parameter 'targetCharset' is null");
 		}
 
 		boolean isSuccess = targetFile.createNewFile();
 		if (!isSuccess) {
-			String errorMessage = String.format("the file[%s] exist",
-					targetFile.getAbsolutePath());
+			String errorMessage = String.format("the file[%s] exist", targetFile.getAbsolutePath());
 			throw new FileNotFoundException(errorMessage);
 		}
 
 		if (!targetFile.isFile()) {
-			String errorMessage = String.format(
-					"the file[%s] is not a regular file",
-					targetFile.getAbsolutePath());
+			String errorMessage = String.format("the file[%s] is not a regular file", targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
 
 		if (!targetFile.canWrite()) {
-			String errorMessage = String.format(
-					"the file[%s] can not be written",
-					targetFile.getAbsolutePath());
+			String errorMessage = String.format("the file[%s] can not be written", targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
 		FileOutputStream fos = null;
@@ -285,46 +247,35 @@ public abstract class CommonStaticUtil {
 				// log.warn("fail to close the file[{}][{}] output stream",
 				// fileNickname, targetFile.getAbsolutePath());
 				// e.printStackTrace();
-				InternalLogger log = InternalLoggerFactory
-						.getInstance(CommonStaticUtil.class);
-				log.warn("fail to close the file[{}] output stream",
-						targetFile.getAbsolutePath());
+				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
 			}
 		}
 	}
 
-	public static void overwriteFile(File targetFile, String contents,
-			Charset targetCharset) throws IOException {
+	public static void overwriteFile(File targetFile, String contents, Charset targetCharset) throws IOException {
 		if (null == targetFile) {
-			throw new IllegalArgumentException(
-					"the parameter 'targetFile' is null");
+			throw new IllegalArgumentException("the parameter 'targetFile' is null");
 		}
 		if (null == contents) {
-			throw new IllegalArgumentException(
-					"the parameter 'contents' is null");
+			throw new IllegalArgumentException("the parameter 'contents' is null");
 		}
 		if (null == targetCharset) {
-			throw new IllegalArgumentException(
-					"the parameter 'targetCharset' is null");
+			throw new IllegalArgumentException("the parameter 'targetCharset' is null");
 		}
 
 		if (!targetFile.exists()) {
-			String errorMessage = String.format("the file[%s] doesn't exist",
-					targetFile.getAbsolutePath());
+			String errorMessage = String.format("the file[%s] doesn't exist", targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
 
 		if (!targetFile.isFile()) {
-			String errorMessage = String.format(
-					"the file[%s] is not a regular file",
-					targetFile.getAbsolutePath());
+			String errorMessage = String.format("the file[%s] is not a regular file", targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
 
 		if (!targetFile.canWrite()) {
-			String errorMessage = String.format(
-					"the file[%s] can not be written",
-					targetFile.getAbsolutePath());
+			String errorMessage = String.format("the file[%s] can not be written", targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
 		FileOutputStream fos = null;
@@ -341,27 +292,21 @@ public abstract class CommonStaticUtil {
 				// log.warn("fail to close the file[{}][{}] output stream",
 				// fileNickname, targetFile.getAbsolutePath());
 				// e.printStackTrace();
-				InternalLogger log = InternalLoggerFactory
-						.getInstance(CommonStaticUtil.class);
-				log.warn("fail to close the file[{}] output stream",
-						targetFile.getAbsolutePath());
+				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
 			}
 		}
 	}
 
-	public static void saveFile(File targetFile, String contents,
-			Charset targetCharset) throws IOException {
+	public static void saveFile(File targetFile, String contents, Charset targetCharset) throws IOException {
 		if (null == targetFile) {
-			throw new IllegalArgumentException(
-					"the parameter 'targetFile' is null");
+			throw new IllegalArgumentException("the parameter 'targetFile' is null");
 		}
 		if (null == contents) {
-			throw new IllegalArgumentException(
-					"the parameter 'contents' is null");
+			throw new IllegalArgumentException("the parameter 'contents' is null");
 		}
 		if (null == targetCharset) {
-			throw new IllegalArgumentException(
-					"the parameter 'targetCharset' is null");
+			throw new IllegalArgumentException("the parameter 'targetCharset' is null");
 		}
 
 		if (targetFile.exists()) {
@@ -371,17 +316,14 @@ public abstract class CommonStaticUtil {
 		}
 	}
 
-	public static String getPrefixWithTabCharacters(int depth,
-			int numberOfAdditionalTabs) {
+	public static String getPrefixWithTabCharacters(int depth, int numberOfAdditionalTabs) {
 		if (depth < 0) {
-			String errorMessage = String.format(
-					"the parameter depth[%d] is less than zero", depth);
+			String errorMessage = String.format("the parameter depth[%d] is less than zero", depth);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		if (numberOfAdditionalTabs < 0) {
-			String errorMessage = String
-					.format("the parameter numberOfAdditionalTabs[%d] is less than zero",
-							numberOfAdditionalTabs);
+			String errorMessage = String.format("the parameter numberOfAdditionalTabs[%d] is less than zero",
+					numberOfAdditionalTabs);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		StringBuilder stringBuilder = new StringBuilder();
@@ -391,18 +333,15 @@ public abstract class CommonStaticUtil {
 		return stringBuilder.toString();
 	}
 
-	public static void addPrefixWithTabCharacters(
-			StringBuilder contentsStringBuilder, int depth,
+	public static void addPrefixWithTabCharacters(StringBuilder contentsStringBuilder, int depth,
 			int numberOfAdditionalTabs) {
 		if (depth < 0) {
-			String errorMessage = String.format(
-					"the parameter depth[%d] is less than zero", depth);
+			String errorMessage = String.format("the parameter depth[%d] is less than zero", depth);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		if (numberOfAdditionalTabs < 0) {
-			String errorMessage = String
-					.format("the parameter numberOfAdditionalTabs[%d] is less than zero",
-							numberOfAdditionalTabs);
+			String errorMessage = String.format("the parameter numberOfAdditionalTabs[%d] is less than zero",
+					numberOfAdditionalTabs);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
@@ -414,6 +353,7 @@ public abstract class CommonStaticUtil {
 
 	/**
 	 * 낱글자 한글 포함한 한글 여부를 반환한다
+	 * 
 	 * @param c
 	 * @return 낱글자 한글 포함한 한글 여부
 	 */
@@ -431,6 +371,7 @@ public abstract class CommonStaticUtil {
 
 	/**
 	 * 초성 중성 종성이 다 갖추어진'가' 에서 '힣' 까지의 한글 여부를 반환한다
+	 * 
 	 * @param c
 	 * @return 초성 중성 종성이 다 갖추어진'가' 에서 '힣' 까지의 한글 여부
 	 */
@@ -442,17 +383,17 @@ public abstract class CommonStaticUtil {
 		return isHangul;
 	}
 
-	/*
-	 * public static boolean isAlphabet(final char c) { boolean isAlphabet =
-	 * false; if (c >= 'a' && c <= 'z') { isAlphabet = true; } else if (c >= 'A'
-	 * && c <= 'Z') { isAlphabet = true; } return isAlphabet; }
-	 * 
-	 * public static boolean isDigit(final char c) { boolean isDigit = false; if
-	 * (c >= '0' && c <= '9') { isDigit = true; } return isDigit; }
-	 */
+	public static boolean isEnglish(final char c) {
+		boolean isAlphabet = ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+		
+		return isAlphabet;
+	}
+
+	
 
 	/**
 	 * Punctuation: One of !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+	 * 
 	 * @param c
 	 * @return
 	 */
@@ -470,10 +411,10 @@ public abstract class CommonStaticUtil {
 		}
 		return isPunct;
 	}
-	
+
 	/**
 	 * SPACE(0x20) or TAB('\t') 문자 여부를 반환
-	 *  
+	 * 
 	 * @param c
 	 * @return SPACE(0x20) or TAB('\t') 문자 여부
 	 */
@@ -483,18 +424,19 @@ public abstract class CommonStaticUtil {
 		if ((' ' == c) || ('\t' == c)) {
 			isWhiteSpace = true;
 		}
-		
+
 		return isWhiteSpace;
 	}
 
 	/**
-	 * 개행 문자('\r' or '\n') 여부를 반환 
+	 * 개행 문자('\r' or '\n') 여부를 반환
+	 * 
 	 * @param c
 	 * @return 개행 문자('\r' or '\n') 여부
 	 */
 	public static boolean isLineSeparator(char c) {
 		boolean isLineSeparator = false;
-		//  || ('\u0085' == c) || ('\u2028' == c) || ('\u2029' == c)
+		// || ('\u0085' == c) || ('\u2028' == c) || ('\u2029' == c)
 		if (('\r' == c) || ('\n' == c)) {
 			isLineSeparator = true;
 		}
@@ -502,55 +444,49 @@ public abstract class CommonStaticUtil {
 		return isLineSeparator;
 	}
 
-	public static boolean isAlphabetAndDigit(String sourceString) {
+	public static boolean isEnglishAndDigit(String sourceString) {
 		for (char c : sourceString.toCharArray()) {
-			if (!Character.isDigit(c) && !Character.isAlphabetic(c)) {
+			if (! isEnglish(c) && ! Character.isDigit(c)) {
 				return false;
 			}
 		}
+		
 		return true;
 	}
 
-	public static boolean isAlphabetAndDigitWithRegular(String sourceString) {
+	public static boolean isEnglishAndDigitWithRegular(String sourceString) {
 		String regex = "[a-zA-Z0-9]+";
 
 		boolean isValid = sourceString.matches(regex);
 		return isValid;
 	}
 
-	public static byte[] readFileToByteArray(File sourceFile, long maxSize)
-			throws IOException {
+	public static byte[] readFileToByteArray(File sourceFile, long maxSize) throws IOException {
 		if (null == sourceFile) {
-			throw new IllegalArgumentException(
-					"the parameter sourceFile is null");
+			throw new IllegalArgumentException("the parameter sourceFile is null");
 		}
 
 		if (!sourceFile.exists()) {
-			String errorMessage = new StringBuilder("the parameter sourceFile[")
-					.append(sourceFile.getAbsolutePath())
+			String errorMessage = new StringBuilder("the parameter sourceFile[").append(sourceFile.getAbsolutePath())
 					.append("] doesn't exist").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (!sourceFile.isFile()) {
-			String errorMessage = new StringBuilder("the parameter sourceFile[")
-					.append(sourceFile.getAbsolutePath())
+			String errorMessage = new StringBuilder("the parameter sourceFile[").append(sourceFile.getAbsolutePath())
 					.append("] is not a normal file").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (!sourceFile.canRead()) {
-			String errorMessage = new StringBuilder("the parameter sourceFile[")
-					.append(sourceFile.getAbsolutePath())
+			String errorMessage = new StringBuilder("the parameter sourceFile[").append(sourceFile.getAbsolutePath())
 					.append("] can't be read").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (sourceFile.length() > maxSize) {
-			String errorMessage = new StringBuilder("the parameter sourceFile[")
-					.append(sourceFile.getAbsolutePath()).append("]'s size[")
-					.append(sourceFile.length())
-					.append("] is greater than max[").append(maxSize)
+			String errorMessage = new StringBuilder("the parameter sourceFile[").append(sourceFile.getAbsolutePath())
+					.append("]'s size[").append(sourceFile.length()).append("] is greater than max[").append(maxSize)
 					.append("]").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -575,19 +511,15 @@ public abstract class CommonStaticUtil {
 		return result;
 	}
 
-	public static Object getNewObjectFromClassloader(
-			ClassLoader targetClassLoader, String classFullName)
+	public static Object getNewObjectFromClassloader(ClassLoader targetClassLoader, String classFullName)
 			throws DynamicClassCallException {
 		Class<?> retClass = null;
 
 		try {
 			retClass = targetClassLoader.loadClass(classFullName);
 		} catch (ClassNotFoundException e) {
-			String errorMessage = new StringBuilder()
-					.append("fail to find the class[")
-					.append(classFullName)
-					.append("], errmsg=")
-					.append(e.getMessage()).toString();
+			String errorMessage = new StringBuilder().append("fail to find the class[").append(classFullName)
+					.append("], errmsg=").append(e.getMessage()).toString();
 			throw new DynamicClassCallException(errorMessage);
 		}
 
@@ -595,79 +527,51 @@ public abstract class CommonStaticUtil {
 		try {
 			retObject = retClass.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException e) {
-			String errorMessage = new StringBuilder()
-					.append("the classloader[")
-					.append(targetClassLoader.hashCode())
-					.append("] failed to create a instance of ")
-					.append(classFullName)
-					.append(" class, InstantiationException errmsg=")
-					.append(e.getMessage()).toString();
+			String errorMessage = new StringBuilder().append("the classloader[").append(targetClassLoader.hashCode())
+					.append("] failed to create a instance of ").append(classFullName)
+					.append(" class, InstantiationException errmsg=").append(e.getMessage()).toString();
 
 			throw new DynamicClassCallException(errorMessage);
 		} catch (IllegalAccessException e) {
-			String errorMessage = new StringBuilder()
-					.append("the classloader[")
-					.append(targetClassLoader.hashCode())
-					.append("] failed to create a instance of ")
-					.append(classFullName)
-					.append(" class, IllegalAccessException errmsg=")
-					.append(e.getMessage()).toString();
-			
+			String errorMessage = new StringBuilder().append("the classloader[").append(targetClassLoader.hashCode())
+					.append("] failed to create a instance of ").append(classFullName)
+					.append(" class, IllegalAccessException errmsg=").append(e.getMessage()).toString();
+
 			throw new DynamicClassCallException(errorMessage);
 		} catch (IllegalArgumentException e) {
-			String errorMessage = new StringBuilder()
-					.append("the classloader[")
-					.append(targetClassLoader.hashCode())
-					.append("] failed to create a instance of ")
-					.append(classFullName)
-					.append(" class, IllegalArgumentException errmsg=")
-					.append(e.getMessage()).toString();
-			
-			
+			String errorMessage = new StringBuilder().append("the classloader[").append(targetClassLoader.hashCode())
+					.append("] failed to create a instance of ").append(classFullName)
+					.append(" class, IllegalArgumentException errmsg=").append(e.getMessage()).toString();
+
 			throw new DynamicClassCallException(errorMessage);
 		} catch (InvocationTargetException e) {
 			Throwable targetException = e.getTargetException();
-			String errorMessage = new StringBuilder()
-					.append("the classloader[")
-					.append(targetClassLoader.hashCode())
-					.append("] failed to create a instance of ")
-					.append(classFullName)
-					.append(" class, InvocationTargetException errmsg=")
-					.append(targetException.getMessage()).toString();
-			
+			String errorMessage = new StringBuilder().append("the classloader[").append(targetClassLoader.hashCode())
+					.append("] failed to create a instance of ").append(classFullName)
+					.append(" class, InvocationTargetException errmsg=").append(targetException.getMessage())
+					.toString();
+
 			InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
 			log.warn(errorMessage, targetException);
 
 			throw new DynamicClassCallException(errorMessage);
 		} catch (NoSuchMethodException e) {
-			String errorMessage = new StringBuilder()
-					.append("the classloader[")
-					.append(targetClassLoader.hashCode())
-					.append("] failed to create a instance of ")
-					.append(classFullName)
-					.append(" class, NoSuchMethodException errmsg=")
-					.append(e.getMessage()).toString();
-			
+			String errorMessage = new StringBuilder().append("the classloader[").append(targetClassLoader.hashCode())
+					.append("] failed to create a instance of ").append(classFullName)
+					.append(" class, NoSuchMethodException errmsg=").append(e.getMessage()).toString();
+
 			throw new DynamicClassCallException(errorMessage);
 		} catch (SecurityException e) {
-			String errorMessage = new StringBuilder()
-					.append("the classloader[")
-					.append(targetClassLoader.hashCode())
-					.append("] failed to create a instance of ")
-					.append(classFullName)
-					.append(" class, SecurityException errmsg=")
-					.append(e.getMessage()).toString();
+			String errorMessage = new StringBuilder().append("the classloader[").append(targetClassLoader.hashCode())
+					.append("] failed to create a instance of ").append(classFullName)
+					.append(" class, SecurityException errmsg=").append(e.getMessage()).toString();
 
 			throw new DynamicClassCallException(errorMessage);
 		} catch (Exception e) {
-			String errorMessage = new StringBuilder()
-					.append("the classloader[")
-					.append(targetClassLoader.hashCode())
-					.append("] failed to create a instance of ")
-					.append(classFullName)
-					.append(" class, unknwon error errmsg=")
-					.append(e.getMessage()).toString();
-			
+			String errorMessage = new StringBuilder().append("the classloader[").append(targetClassLoader.hashCode())
+					.append("] failed to create a instance of ").append(classFullName)
+					.append(" class, unknwon error errmsg=").append(e.getMessage()).toString();
+
 			InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
 			log.warn(errorMessage, e);
 

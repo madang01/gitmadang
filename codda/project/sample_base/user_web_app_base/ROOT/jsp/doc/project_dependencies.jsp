@@ -146,6 +146,7 @@ request.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MENU_GROUP_URL
 6.1.8 대칭키 라이브러리 cryptoJS(The 3-Clause BSD License, http://code.google.com/p/crypto-js/)
 6.1.9 Boostrap 3.3.7(MIT 라이센스, https://getbootstrap.com/docs/3.3/getting-started/#license-faqs)
 6.1.10 JQuery 1.8.0(MIT 라이센스, https://jquery.org/license/)
+6.1.11 TUI Date Picker(MIT 라이센스, https://github.com/nhn/tui.date-picker)
 ##### 자바 스크립트 라이브러리 종료
 
 6.2 테스트

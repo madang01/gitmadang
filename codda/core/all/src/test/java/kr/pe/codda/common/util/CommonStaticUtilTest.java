@@ -9,12 +9,12 @@ public class CommonStaticUtilTest {
 		
 		int retryCount=1000000;
 		
-		String sourceString = "hello23";
+		String sourceString = "helloAZzA23";
 		
-		System.out.printf("%s", CommonStaticUtil.isAlphabetAndDigit(sourceString));
+		System.out.printf("%s", CommonStaticUtil.isEnglishAndDigit(sourceString));
 		
 		for (int i=0; i < retryCount; i++) {
-			CommonStaticUtil.isAlphabetAndDigit(sourceString);
+			CommonStaticUtil.isEnglishAndDigit(sourceString);
 		}
 	}
 
@@ -24,12 +24,12 @@ public class CommonStaticUtilTest {
 		
 		int retryCount=1000000;
 		
-		String sourceString = "hello23";
+		String sourceString = "helloAZzA23";
 		
-		System.out.printf("%s", CommonStaticUtil.isAlphabetAndDigitWithRegular(sourceString));
+		System.out.printf("%s", CommonStaticUtil.isEnglishAndDigitWithRegular(sourceString));
 		
 		for (int i=0; i < retryCount; i++) {
-			CommonStaticUtil.isAlphabetAndDigitWithRegular(sourceString);
+			CommonStaticUtil.isEnglishAndDigitWithRegular(sourceString);
 		}
 	}
 }
